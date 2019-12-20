@@ -20,232 +20,1761 @@ registryItems:
   instances:
     - {shardingsphere-3.x-scenario: 1}
   operationNames:
-    - shardingsphere-3.x-scenario: [H2/JDBI/Statement/execute, H2/JDBI/Statement/executeUpdate,
-                                    H2/JDBI/Connection/close, /shardingsphere-3.x-scenario/case/healthCheck, /shardingsphere-3.x-scenario/case/execute]
+    - shardingsphere-3.x-scenario: [H2/JDBI/PreparedStatement/executeUpdate, H2/JDBI/Statement/executeUpdate,
+                                    /shardingsphere-3.x-scenario/case/healthCheck, H2/JDBI/PreparedStatement/executeQuery,
+                                    /shardingsphere-3.x-scenario/case/execute]
+  heartbeat: []
 segmentItems:
   - applicationCode: shardingsphere-3.x-scenario
     segmentSize: not null
     segments:
-      - segmentId:  not null
+      - segmentId: not null
         spans:
-          - operationName: H2/JDBI/PreparedStatement/executeQuery
-            operationId: '0'
-            parentSpanId: '0'
-            spanId: '1'
-            spanLayer: Database
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
             tags:
-              - key: db.type
-                value: sql
-              - key: db.instance
-                value: demo_ds_1
-              - key: db.statement
-                value: SELECT * FROM t_order_0
-            startTime:  not null
-            endTime:  not null
-            componentId: '32'
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order (order_id BIGINT
+          NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50), PRIMARY
+          KEY (order_id))'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
             componentName: ''
             isError: false
             spanType: Exit
             peer: localhost:-1
-            peerId: '0'
-          - operationName: "/ShardingSphere/executeSQL/"
-            operationId: '0'
-            parentSpanId: "-1"
-            spanId: '0'
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_1 (order_id
+          BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50),
+          PRIMARY KEY (order_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
             refs:
-              - parentEndpointId: 0
-                parentEndpoint: "/case/execute"
-                networkAddressId: 0
-                entryEndpointId: 0
-                refType: CrossThread
-                parentSpanId: 2
-                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
-                parentServiceInstanceId: 1
-                networkAddress: ''
-                entryEndpoint: "/case/execute"
-                entryServiceInstanceId: 1
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
-            componentName: ''
-            isError: false
-            spanType: Local
-            peer: ''
-            peerId: '0'
-      - segmentId:  not null
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
         spans:
-          - operationName: H2/JDBI/PreparedStatement/executeQuery
-            operationId: '0'
-            parentSpanId: '0'
-            spanId: '1'
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
             spanLayer: Database
-            tags:
-              - key: db.type
-                value: sql
-              - key: db.instance
-                value: demo_ds_0
-              - key: db.statement
-                value: SELECT * FROM t_order_1
-            startTime:  not null
-            endTime:  not null
-            componentId: '32'
+            startTime: not null
+            endTime: not null
+            componentId: 32
             componentName: ''
             isError: false
             spanType: Exit
             peer: localhost:-1
-            peerId: '0'
-          - operationName: "/ShardingSphere/executeSQL/"
-            operationId: '0'
-            parentSpanId: "-1"
-            spanId: '0'
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_1 (order_id
+          BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50),
+          PRIMARY KEY (order_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
             refs:
-              - parentEndpointId: 0
-                parentEndpoint: "/case/execute"
-                networkAddressId: 0
-                entryEndpointId: 0
-                refType: CrossThread
-                parentSpanId: 2
-                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
-                parentServiceInstanceId: 1
-                networkAddress: ''
-                entryEndpoint: "/case/execute"
-                entryServiceInstanceId: 1
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
-            componentName: ''
-            isError: false
-            spanType: Local
-            peer: ''
-            peerId: '0'
-      - segmentId:  not null
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
         spans:
-          - operationName: H2/JDBI/PreparedStatement/executeQuery
-            operationId: '0'
-            parentSpanId: '0'
-            spanId: '1'
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
             spanLayer: Database
-            tags:
-              - key: db.type
-                value: sql
-              - key: db.instance
-                value: demo_ds_1
-              - key: db.statement
-                value: SELECT * FROM t_order_1
-            startTime:  not null
-            endTime:  not null
-            componentId: '32'
+            startTime: not null
+            endTime: not null
+            componentId: 32
             componentName: ''
             isError: false
             spanType: Exit
             peer: localhost:-1
-            peerId: '0'
-          - operationName: "/ShardingSphere/executeSQL/"
-            operationId: '0'
-            parentSpanId: "-1"
-            spanId: '0'
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_0 (order_id
+          BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50),
+          PRIMARY KEY (order_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
             refs:
-              - parentEndpointId: 0
-                parentEndpoint: "/case/execute"
-                networkAddressId: 0
-                entryEndpointId: 0
-                refType: CrossThread
-                parentSpanId: 2
-                parentTraceSegmentId: "${shardingsphere-3.x-scenario[3]}"
-                parentServiceInstanceId: 1
-                networkAddress: ''
-                entryEndpoint: "/case/execute"
-                entryServiceInstanceId: 1
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
-            componentName: ''
-            isError: false
-            spanType: Local
-            peer: ''
-            peerId: '0'
-      - segmentId:  not null
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
         spans:
-          - operationName: "/ShardingSphere/parseSQL/"
-            operationId: '0'
-            parentSpanId: '0'
-            spanId: '1'
-            spanLayer: Unknown
-            tags:
-              - key: db.statement
-                value: SELECT * FROM t_order
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
-            componentName: ''
-            isError: false
-            spanType: Local
-            peer: ''
-            peerId: '0'
-          - operationName: H2/JDBI/PreparedStatement/executeQuery
-            operationId: '0'
-            parentSpanId: '3'
-            spanId: '4'
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
             spanLayer: Database
-            tags:
-              - key: db.type
-                value: sql
-              - key: db.instance
-                value: demo_ds_0
-              - key: db.statement
-                value: SELECT * FROM t_order_0
-            startTime:  not null
-            endTime:  not null
-            componentId: '32'
+            startTime: not null
+            endTime: not null
+            componentId: 32
             componentName: ''
             isError: false
             spanType: Exit
             peer: localhost:-1
-            peerId: '0'
-          - operationName: "/ShardingSphere/executeSQL/"
-            operationId: '0'
-            parentSpanId: '2'
-            spanId: '3'
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_0 (order_id
+          BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50),
+          PRIMARY KEY (order_id))'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Unknown
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
+            startTime: not null
+            endTime: not null
+            componentId: 60
             componentName: ''
             isError: false
             spanType: Local
             peer: ''
-            peerId: '0'
-          - operationName: "/ShardingSphere/JDBCRootInvoke/"
-            operationId: '0'
-            parentSpanId: '0'
-            spanId: '2'
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_item (order_item_id
+          BIGINT NOT NULL AUTO_INCREMENT, order_id BIGINT NOT NULL, user_id INT NOT
+          NULL, status VARCHAR(50), PRIMARY KEY (order_item_id))'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_item_0 (order_item_id
+          BIGINT NOT NULL AUTO_INCREMENT, order_id BIGINT NOT NULL, user_id INT NOT
+          NULL, status VARCHAR(50), PRIMARY KEY (order_item_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Unknown
-            startTime:  not null
-            endTime:  not null
-            componentId: '60'
+            startTime: not null
+            endTime: not null
+            componentId: 60
             componentName: ''
             isError: false
             spanType: Local
             peer: ''
-            peerId: '0'
-          - operationName: "/case/execute"
-            operationId: '0'
-            parentSpanId: "-1"
-            spanId: '0'
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_item_1 (order_item_id
+          BIGINT NOT NULL AUTO_INCREMENT, order_id BIGINT NOT NULL, user_id INT NOT
+          NULL, status VARCHAR(50), PRIMARY KEY (order_item_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_item_1 (order_item_id
+          BIGINT NOT NULL AUTO_INCREMENT, order_id BIGINT NOT NULL, user_id INT NOT
+          NULL, status VARCHAR(50), PRIMARY KEY (order_item_id))'}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'CREATE TABLE IF NOT EXISTS t_order_item_0 (order_item_id
+          BIGINT NOT NULL AUTO_INCREMENT, order_id BIGINT NOT NULL, user_id INT NOT
+          NULL, status VARCHAR(50), PRIMARY KEY (order_item_id))'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: TRUNCATE TABLE t_order}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_0}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_0}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_item_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_item_0}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: TRUNCATE TABLE t_order_item}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_item_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/Statement/executeUpdate
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: TRUNCATE TABLE t_order_item_0}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /ShardingSphere/JDBCRootInvoke/, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: nq 0,
+                 parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /ShardingSphere/JDBCRootInvoke/,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order_item (order_id, user_id, status)
+          VALUES (?, ?, ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: 'INSERT INTO t_order_item_0 (order_id, user_id,
+          status) VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: 'INSERT INTO t_order (user_id, status) VALUES (?,
+          ?)'}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeUpdate
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: 'INSERT INTO t_order_0 (user_id, status, order_id)
+          VALUES (?, ?, ?)'}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+      - segmentId: not null
+        spans:
+          - operationName: /shardingsphere-3.x-scenario/case/healthCheck
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
             spanLayer: Http
-            tags:
-              - key: url
-                value: http://127.0.0.1:8080/shardingsphere-case/case/execute
-              - key: http.method
-                value: GET
-            startTime:  not null
-            endTime:  not null
-            componentId: '14'
+            startTime: not null
+            endTime: not null
+            componentId: 1
             componentName: ''
             isError: false
             spanType: Entry
             peer: ''
-            peerId: '0'
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/shardingsphere-3.x-scenario/case/healthCheck'}
+              - {key: http.method, value: HEAD}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeQuery
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: SELECT * FROM t_order_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
+                 parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
+                 networkAddress: '', entryEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeQuery
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: SELECT * FROM t_order_1}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
+                 parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
+                 networkAddress: '', entryEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: H2/JDBI/PreparedStatement/executeQuery
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_1}
+              - {key: db.statement, value: SELECT * FROM t_order_0}
+          - operationName: /ShardingSphere/executeSQL/
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
+                 parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
+                 networkAddress: '', entryEndpoint: /shardingsphere-3.x-scenario/case/execute,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /ShardingSphere/parseSQL/
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Unknown
+            startTime: not null
+            endTime: not null
+            componentId: 60
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: SELECT * FROM t_order}
+          - operationName: H2/JDBI/PreparedStatement/executeQuery
+            operationId: 0
+            parentSpanId: 3
+            spanId: 4
+            spanLayer: Database
+            startTime: not null
+            endTime: not null
+            componentId: 32
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:-1
+            peerId: 0
+            tags:
+              - {key: db.type, value: sql}
+              - {key: db.instance, value: demo_ds_0}
+              - {key: db.statement, value: SELECT * FROM t_order_0}
+          - {operationName: /ShardingSphere/executeSQL/, operationId: 0, parentSpanId: 2,
+             spanId: 3, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - {operationName: /ShardingSphere/JDBCRootInvoke/, operationId: 0, parentSpanId: 0,
+             spanId: 2, spanLayer: Unknown, startTime: not null, endTime: not null,
+             componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
+             peerId: 0}
+          - operationName: /shardingsphere-3.x-scenario/case/execute
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: not null
+            endTime: not null
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/shardingsphere-3.x-scenario/case/execute'}
+              - {key: http.method, value: GET}
