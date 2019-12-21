@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 public class FileWriter implements IWriter {
     private static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
+    private static volatile boolean isQueueFull = false;
     private FileOutputStream fileOutputStream;
     private ArrayBlockingQueue logBuffer;
     private volatile int fileSize;
@@ -72,6 +73,10 @@ public class FileWriter implements IWriter {
                         for (String log : outputLogs) {
                             writeToFile(log + Constants.LINE_SEPARATOR);
                         }
+                    	if(isQueueFull) { // system error print when the queue is full
+                    		System.err.println("file log queue is full.");
+                    		isQueueFull = false;
+                    	}
                         try {
                             fileOutputStream.flush();
                         } catch (IOException e) {
@@ -212,15 +217,13 @@ public class FileWriter implements IWriter {
     }
 
     /**
-     * Write log to the queue. W/ performance trade off, set 2ms timeout for the log OP.
+     * Write log to the queue. W/ performance trade off.
      *
      * @param message to log
      */
     @Override public void write(String message) {
-        try {
-            logBuffer.offer(message, 2, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if(!logBuffer.offer(message)) {
+        	isQueueFull = true;
         }
     }
 }
