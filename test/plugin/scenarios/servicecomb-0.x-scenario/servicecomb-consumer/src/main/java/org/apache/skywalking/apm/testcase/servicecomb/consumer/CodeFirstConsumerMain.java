@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CodeFirstConsumerMain {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         init();
     }
 
@@ -37,7 +37,7 @@ public class CodeFirstConsumerMain {
                 return;
             } catch (Throwable e) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                     // ignore
                 }

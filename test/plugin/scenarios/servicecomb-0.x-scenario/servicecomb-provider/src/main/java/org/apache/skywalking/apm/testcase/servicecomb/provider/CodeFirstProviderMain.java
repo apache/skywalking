@@ -23,7 +23,7 @@ import io.servicecomb.foundation.common.utils.Log4jUtils;
 
 public class CodeFirstProviderMain {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         init();
     }
 
@@ -35,7 +35,7 @@ public class CodeFirstProviderMain {
                 return;
             } catch (Throwable e) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException ex) {
                     // ignore
                 }
