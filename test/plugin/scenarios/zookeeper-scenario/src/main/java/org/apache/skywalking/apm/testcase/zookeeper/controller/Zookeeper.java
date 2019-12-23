@@ -35,12 +35,12 @@ public class Zookeeper {
 
     private Logger logger = LoggerFactory.getLogger(Zookeeper.class);
 
-    @Value(value = "${zookeeper.host:172.30.13.76:2181}")
+    @Value(value = "${zookeeper.host}")
     private String address;
 
     @Bean
     public ZooKeeper zooKeeper() throws IOException {
-        ZooKeeper zooKeeper = new ZooKeeper(address, 200000, event -> logger.info("process"));
+        ZooKeeper zooKeeper = new ZooKeeper(address, 8000, event -> logger.info("process"));
         return zooKeeper;
     }
 }
