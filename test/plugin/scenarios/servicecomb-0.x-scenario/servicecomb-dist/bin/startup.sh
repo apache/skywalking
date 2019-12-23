@@ -1,8 +1,10 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version
+# to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
 #
@@ -14,10 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# lists your version here
+home="$(cd "$(dirname $0)"; pwd)"
 
-0.1.0
-0.2.0
-0.3.0
-0.4.0
-0.5.0
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=servicecomb-provider" ${home}/../libs/servicecomb-provider.jar &
+sleep 1
+
+java -jar ${agent_opts} "-Dskywalking.agent.service_name=servicecomb-consumer" ${home}/../libs/servicecomb-consumer.jar &

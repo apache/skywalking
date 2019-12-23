@@ -15,9 +15,13 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/servicecomb-0.x-scenario/case/servicecomb-0.x-scenario
-healthCheck: http://localhost:8080/servicecomb-0.x-scenario/case/healthCheck
+entryService: http://localhost:9090/servicecomb/case
+healthCheck: http://localhost:9090/servicecomb/healthCheck
 startScript: ./bin/startup.sh
 framework: servicecomb-0.x-scenario
-environment:
+depends_on:
+  - service-center
 dependencies:
+  service-center:
+    image: servicecomb/service-center:0.4.0
+    hostname: service-center

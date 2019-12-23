@@ -23,7 +23,13 @@
     <groupId>org.apache.skywalking.apm.testcase</groupId>
     <artifactId>servicecomb-0.x-scenario</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <modules>
+        <module>servicecomb-common-schema</module>
+        <module>servicecomb-provider</module>
+        <module>servicecomb-consumer</module>
+        <module>servicecomb-dist</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,8 +38,6 @@
         <compiler.version>1.8</compiler.version>
 
         <test.framework.version>0.5.0</test.framework.version>
-
-        <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
     </properties>
 
     <name>skywalking-servicecomb-0.x-scenario</name>
@@ -41,67 +45,23 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-version}</version>
+                <groupId>io.servicecomb</groupId>
+                <artifactId>java-chassis-dependencies</artifactId>
+                <version>${test.framework.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking.apm.testcase</groupId>
+                <artifactId>servicecomb-common-schema</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.servicecomb</groupId>
-            <artifactId>provider-pojo</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.servicecomb</groupId>
-            <artifactId>provider-springmvc</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.servicecomb</groupId>
-            <artifactId>transport-highway</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.servicecomb</groupId>
-            <artifactId>transport-rest-vertx</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
-    </dependencies>
-
     <build>
         <finalName>servicecomb-0.x-scenario</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -109,25 +69,6 @@
                     <target>${compiler.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
-                            <outputDirectory>./target/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -446,7 +446,7 @@ jobs:
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
 
-  Oracle_Kafka_JdkHttp_JdkThreading:
+  Oracle_Kafka_JdkHttp_JdkThreading_Servicecomb:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -479,6 +479,8 @@ jobs:
         run: bash test/plugin/run.sh jdk-http-scenario
       - name: Run jdk threading (1)
         run: bash test/plugin/run.sh jdk-threading-scenario
+      - name Run servicecomb(5)
+        run: bash test/plugin/run.sh servicecomb-0.x-scenario
 
   MySQL:
     runs-on: ubuntu-18.04
