@@ -166,5 +166,5 @@ and consider to add this feature.
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
-* [Plugin Test](https://github.com/SkyAPMTest/agent-integration-test-report)
+* [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
 * [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
