@@ -20,10 +20,23 @@ package org.apache.skywalking.apm.testcase.servicecomb.provider;
 
 import io.servicecomb.foundation.common.utils.BeanUtils;
 import io.servicecomb.foundation.common.utils.Log4jUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
 
 public class CodeFirstProviderMain {
 
+    private static Logger LOGGER = Logger.getLogger(CodeFirstProviderMain.class);
+
+
     public static void main(String[] args) {
+        waitServiceCenter();
         init();
     }
 
@@ -40,6 +53,39 @@ public class CodeFirstProviderMain {
                     // ignore
                 }
             }
+        }
+    }
+
+    private static void waitServiceCenter() {
+        int index = 0;
+        while (true) {
+            try {
+                visit("http://service-center:30100");
+                return;
+            } catch (Throwable e) {
+                try {
+                    Thread.sleep(1000);
+                    if (++index % 10 == 0) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    private static void visit(String url) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpGet httpget = new HttpGet(url);
+            ResponseHandler<String> responseHandler = response -> {
+                HttpEntity entity = response.getEntity();
+                return entity != null ? EntityUtils.toString(entity) : null;
+            };
+            httpClient.execute(httpget, responseHandler);
+        } finally {
+            httpClient.close();
         }
     }
 }

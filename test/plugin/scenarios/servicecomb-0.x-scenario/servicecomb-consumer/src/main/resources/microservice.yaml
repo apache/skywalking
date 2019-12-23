@@ -28,4 +28,4 @@ cse:
     codefirst:
       version-rule: 0.0.1
   rest:
-    address: 127.0.0.1:9090
+    address: localhost:9090
