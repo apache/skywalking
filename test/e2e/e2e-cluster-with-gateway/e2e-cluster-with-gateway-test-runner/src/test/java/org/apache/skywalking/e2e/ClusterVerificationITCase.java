@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.e2e;
 
-import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
-import org.apache.skywalking.e2e.metrics.Metrics;
-import org.apache.skywalking.e2e.metrics.MetricsQuery;
-import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -58,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -137,6 +134,8 @@ public class ClusterVerificationITCase {
 
                 final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
                 topoMatcher.verify(topoData);
+                verifyServiceRelationMetrics(topoData.getCalls(), minutesAgo);
+
                 valid = true;
                 for (Node node : topoData.getNodes()) {
                     if (gateWayName.equals(node.getName())) {
@@ -176,6 +175,8 @@ public class ClusterVerificationITCase {
                         new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.serviceInstanceTopo.yml").getInputStream();
                 final ServiceInstanceTopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
                 topoMatcher.verify(topoData);
+                verifyServiceInstanceRelationMetrics(topoData.getCalls(), minutesAgo);
+
                 valid = true;
             }catch (Throwable t){
                 LOGGER.warn(t.getMessage(), t);
@@ -278,31 +279,8 @@ public class ClusterVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-
-                boolean valid = false;
-                while (!valid) {
-                    LOGGER.warn("instanceMetrics is null, will retry to query");
-                    Metrics instanceMetrics = queryClient.metrics(
-                            new MetricsQuery()
-                                .stepByMinute()
-                                .metricsName(metricsName)
-                                .start(minutesAgo)
-                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                                .id(instance.getKey())
-                        );
-                    AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                    MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                    greaterThanZero.setValue("gt 0");
-                    instanceRespTimeMatcher.setValue(greaterThanZero);
-                    try {
-                        instanceRespTimeMatcher.verify(instanceMetrics);
-                        valid = true;
-                    } catch (Throwable ignored) {
-                        generateTraffic();
-                        Thread.sleep(retryInterval);
-                    }
-                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
-                }
+                LOGGER.warn("instanceMetrics is null, will retry to query");
+                verifyMetrics(queryClient, metricsName, instance.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
         }
     }
@@ -314,30 +292,7 @@ public class ClusterVerificationITCase {
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
-
-                boolean valid = false;
-                while (!valid) {
-                    Metrics endpointMetrics = queryClient.metrics(
-                        new MetricsQuery()
-                            .stepByMinute()
-                            .metricsName(metricName)
-                            .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC))
-                            .id(endpoint.getKey())
-                    );
-                    AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                    MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                    greaterThanZero.setValue("gt 0");
-                    instanceRespTimeMatcher.setValue(greaterThanZero);
-                    try {
-                        instanceRespTimeMatcher.verify(endpointMetrics);
-                        valid = true;
-                    } catch (Throwable ignored) {
-                        generateTraffic();
-                        Thread.sleep(retryInterval);
-                    }
-                    LOGGER.info("{}: {}", metricName, endpointMetrics);
-                }
+                verifyMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
         }
     }
@@ -345,30 +300,7 @@ public class ClusterVerificationITCase {
     private void verifyServiceMetrics(Service service, final LocalDateTime minutesAgo) throws Exception {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-
-            boolean valid = false;
-            while (!valid) {
-                Metrics serviceMetrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricName)
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC))
-                        .id(service.getKey())
-                );
-                AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                greaterThanZero.setValue("gt 0");
-                instanceRespTimeMatcher.setValue(greaterThanZero);
-                try {
-                    instanceRespTimeMatcher.verify(serviceMetrics);
-                    valid = true;
-                } catch (Throwable ignored) {
-                    generateTraffic();
-                    Thread.sleep(retryInterval);
-                }
-                LOGGER.info("{}: {}", metricName, serviceMetrics);
-            }
+            verifyMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
         }
     }
 
@@ -391,6 +323,35 @@ public class ClusterVerificationITCase {
 
         final TracesMatcher tracesMatcher = yaml.loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verifyLoosely(traces);
+    }
+
+    private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
+    }
+
+    private void verifyServiceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
+        verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
+    }
+
+    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
+        for (Call call : calls) {
+            for (String detectPoint : call.getDetectPoints()) {
+                switch (detectPoint) {
+                    case "CLIENT": {
+                        for (String metricName : relationClientMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+                        }
+                        break;
+                    }
+                    case "SERVER": {
+                        for (String metricName : relationServerMetrics) {
+                            verifyMetrics(queryClient, metricName, call.getId(), minutesAgo, retryInterval, this::generateTraffic);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private void generateTraffic() {
