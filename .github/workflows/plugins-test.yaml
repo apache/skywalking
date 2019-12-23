@@ -479,7 +479,7 @@ jobs:
         run: bash test/plugin/run.sh jdk-http-scenario
       - name: Run jdk threading (1)
         run: bash test/plugin/run.sh jdk-threading-scenario
-      - name Run servicecomb(5)
+      - name: Run servicecomb(5)
         run: bash test/plugin/run.sh servicecomb-0.x-scenario
 
   MySQL:
