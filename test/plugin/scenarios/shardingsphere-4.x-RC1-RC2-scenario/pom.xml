@@ -30,7 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <test.framework.version>[4.0.0-RC1, 4.0.0-RC2]</test.framework.version>
+        <test.framework.version>4.0.0-RC1</test.framework.version>
 
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
