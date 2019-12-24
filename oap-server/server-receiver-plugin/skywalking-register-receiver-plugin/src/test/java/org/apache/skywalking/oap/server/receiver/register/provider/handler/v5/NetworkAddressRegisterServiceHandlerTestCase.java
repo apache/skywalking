@@ -30,7 +30,7 @@ public class NetworkAddressRegisterServiceHandlerTestCase {
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressRegisterServiceHandlerTestCase.class);
 
     public static void main(String[] args) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         NetworkAddressRegisterServiceGrpc.NetworkAddressRegisterServiceBlockingStub stub = NetworkAddressRegisterServiceGrpc.newBlockingStub(channel);
 

@@ -34,7 +34,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jetty.version>9.4.2.v20170220</jetty.version>
-        <grpc.version>1.14.0</grpc.version>
+        <grpc.version>1.26.0</grpc.version>
         <guava.version>20.0</guava.version>
         <bytebuddy.version>1.10.1</bytebuddy.version>
         <wiremock.version>2.6.0</wiremock.version>
@@ -68,26 +68,7 @@
             <artifactId>byte-buddy</artifactId>
             <version>${bytebuddy.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-tcnative-boringssl-static</artifactId>
-            <version>${netty-tcnative-boringssl-static.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>

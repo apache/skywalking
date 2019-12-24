@@ -30,7 +30,7 @@ public class InstanceDiscoveryServiceHandlerTestCase {
     private static final Logger logger = LoggerFactory.getLogger(InstanceDiscoveryServiceHandlerTestCase.class);
 
     public static void main(String[] args) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceBlockingStub stub = InstanceDiscoveryServiceGrpc.newBlockingStub(channel);
 

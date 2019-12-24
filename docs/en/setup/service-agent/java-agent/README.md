@@ -1,5 +1,5 @@
 # Setup java agent
-1. Agent is available for JDK 1.6 - 12.
+1. Agent is available for JDK 8 - 12 in 7.x releases. JDK 1.6 - JDK 12 are supported in all 6.x releases [NOTICE¹](#notice)
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -168,3 +168,7 @@ and consider to add this feature.
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
 * [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
+
+# Notice
+¹ Due to gRPC didn't support JDK 1.6 since 2018, SkyWalking abandoned the JDK 6/7 supports in all 7.x releases. 
+But, with gRPC back forward compatibility(at least for now), all SkyWalking 6.x agents could work with 7.x, including the agent and backend.

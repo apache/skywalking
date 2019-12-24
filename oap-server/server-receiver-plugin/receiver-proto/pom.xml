@@ -33,7 +33,7 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.5.0</version>
+                <version>${protobuf-maven-plugin.version}</version>
                 <configuration>
                     <!--
                       The version of protoc must match protobuf-java. If you don't depend on

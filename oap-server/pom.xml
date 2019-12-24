@@ -56,12 +56,10 @@
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
-        <grpc.version>1.15.1</grpc.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.2.v20170220</jetty.version>
         <lombok.version>1.18.0</lombok.version>
         <h2.version>1.4.196</h2.version>
-        <shardingjdbc.version>2.0.3</shardingjdbc.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
@@ -311,11 +309,6 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.shardingjdbc</groupId>
-                <artifactId>sharding-jdbc-core</artifactId>
-                <version>${shardingjdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>

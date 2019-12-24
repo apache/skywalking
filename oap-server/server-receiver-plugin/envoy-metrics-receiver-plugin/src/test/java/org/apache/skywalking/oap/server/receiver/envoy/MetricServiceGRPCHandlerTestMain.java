@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 public class MetricServiceGRPCHandlerTestMain {
 
     public static void main(String[] args) throws InterruptedException {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         MetricsServiceGrpc.MetricsServiceStub stub = MetricsServiceGrpc.newStub(channel);
 
