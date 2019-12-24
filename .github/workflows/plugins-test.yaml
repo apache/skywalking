@@ -371,7 +371,7 @@ jobs:
       - name: Run postgresql 9.4.1207+ (62)
         run: bash test/plugin/run.sh postgresql-above9.4.1207-scenario
 
-  PostgreSQL92:
+  PostgreSQL92_ServiceComb:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -395,6 +395,8 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run postgresql 9.2.x-9.4.x (36)
         run: bash test/plugin/run.sh postgresql-scenario
+      - name: Run servicecomb (5)
+        run: bash test/plugin/run.sh servicecomb-0.x-scenario
 
   Jetty:
     runs-on: ubuntu-18.04
@@ -448,7 +450,7 @@ jobs:
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
 
-  Oracle_Kafka_JdkHttp_JdkThreading_Servicecomb:
+  Oracle_Kafka_JdkHttp_JdkThreading:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -481,8 +483,6 @@ jobs:
         run: bash test/plugin/run.sh jdk-http-scenario
       - name: Run jdk threading (1)
         run: bash test/plugin/run.sh jdk-threading-scenario
-      - name: Run servicecomb (5)
-        run: bash test/plugin/run.sh servicecomb-0.x-scenario
 
   MySQL:
     runs-on: ubuntu-18.04
