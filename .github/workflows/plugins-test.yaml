@@ -321,7 +321,7 @@ jobs:
       - name: Run shardingsphere-3.x-scenario 3.0.0 (1)
         run: bash test/plugin/run.sh shardingsphere-3.x-scenario
       - name: Run shardingsphere-4.x-RC1-RC2-scenario 4.0.0-RC1-4.0.0-RC2 (2)
-      run: bash test/plugin/run.sh shardingsphere-4.x-RC1-RC2-scenario
+        run: bash test/plugin/run.sh shardingsphere-4.x-RC1-RC2-scenario
 
   Spring43:
     runs-on: ubuntu-18.04
