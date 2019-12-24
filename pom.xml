@@ -110,6 +110,7 @@
             </activation>
             <modules>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
         </profile>
         <profile>
@@ -123,6 +124,7 @@
                 <module>oap-server</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
             <build>
                 <plugins>
