@@ -27,7 +27,7 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/bin</directory>
+            <directory>${project.basedir}/../dist-material/bin</directory>
             <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
@@ -36,7 +36,7 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>src/main/assembly</directory>
+            <directory>${project.basedir}/../dist-material</directory>
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>log4j2.xml</include>
@@ -87,7 +87,7 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/release-docs</directory>
+            <directory>${project.basedir}/../dist-material/release-docs</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
