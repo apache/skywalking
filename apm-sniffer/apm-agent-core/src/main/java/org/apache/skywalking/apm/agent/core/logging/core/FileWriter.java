@@ -212,15 +212,11 @@ public class FileWriter implements IWriter {
     }
 
     /**
-     * Write log to the queue. W/ performance trade off, set 2ms timeout for the log OP.
+     * Write log to the queue. W/ performance trade off.
      *
      * @param message to log
      */
     @Override public void write(String message) {
-        try {
-            logBuffer.offer(message, 2, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        logBuffer.offer(message);
     }
 }
