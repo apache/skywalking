@@ -40,7 +40,7 @@ public class SnifferConfigInitializer {
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
-
+    private static Properties properties;
     /**
      * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
@@ -57,7 +57,7 @@ public class SnifferConfigInitializer {
 
         try {
             configFileStream = loadConfig();
-            Properties properties = new Properties();
+            properties = new Properties();
             properties.load(configFileStream);
             for (String key : properties.stringPropertyNames()) {
                 String value = (String)properties.get(key);
