@@ -421,7 +421,7 @@ jobs:
       - name: Run jetty 9.x (63)
         run: bash test/plugin/run.sh jetty-scenario
 
-  ElasticSearch6_7:
+  ElasticSearch6_7_LETTUCE:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -447,6 +447,8 @@ jobs:
         run: bash test/plugin/run.sh elasticsearch-7.x-scenario
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
+      - name: Run lettuce-scenario 5.x (10)
+        run: bash test/plugin/run.sh lettuce-scenario
 
   Oracle_Kafka_JdkHttp_JdkThreading:
     runs-on: ubuntu-18.04
