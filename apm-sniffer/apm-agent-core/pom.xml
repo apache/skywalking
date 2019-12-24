@@ -49,6 +49,8 @@
         <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
         <shade.io.opencensus.source>io.opencensus</shade.io.opencensus.source>
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
+        <shade.io.perfmark.source>io.perfmark</shade.io.perfmark.source>
+        <shade.io.perfmark.target>${shade.package}.${shade.io.perfmark.source}</shade.io.perfmark.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
 
@@ -149,6 +151,10 @@
                                     <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
                                     <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
                                     <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
+                                    <exclude>com.google.android:annotations:jar:</exclude>
+                                    <exclude>com.google.api.grpc:proto-google-common-protos:jar:</exclude>
+                                    <exclude>org.checkerframework:checker-compat-qual:jar:</exclude>
+                                    <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar:</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
@@ -167,6 +173,10 @@
                                 <relocation>
                                     <pattern>${shade.io.opencensus.source}</pattern>
                                     <shadedPattern>${shade.io.opencensus.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.perfmark.source}</pattern>
+                                    <shadedPattern>${shade.io.perfmark.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
