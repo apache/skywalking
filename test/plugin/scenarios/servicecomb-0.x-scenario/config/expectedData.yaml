@@ -16,8 +16,8 @@
 
 registryItems:
   applications:
-    - {servicecomb-provider: 2}
-    - {servicecomb-consumer: 3}
+    - {servicecomb-provider: nq 0}
+    - {servicecomb-consumer: nq 0}
   instances:
     - {servicecomb-provider: 1}
     - {servicecomb-consumer: 1}

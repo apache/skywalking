@@ -45,7 +45,6 @@ public class CodeFirstPojoHelloImpl {
 
     @RequestMapping(path = "/healthCheck", method = {RequestMethod.HEAD})
     public String healthCheck() {
-        String result = HELLO.sayHi("healthCheck");
         return "Success";
     }
 }
