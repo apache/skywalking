@@ -447,7 +447,7 @@ jobs:
         run: bash test/plugin/run.sh elasticsearch-7.x-scenario
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
-      - name: Run lettuce-scenario 5.x (10)
+      - name: Run lettuce-scenario 5.x (17)
         run: bash test/plugin/run.sh lettuce-scenario
 
   Oracle_Kafka_JdkHttp_JdkThreading:
