@@ -17,7 +17,9 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -25,7 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apache-skywalking-apm</artifactId>
+    <artifactId>apache-skywalking-apm-es7</artifactId>
     <packaging>pom</packaging>
 
     <profiles>
@@ -50,7 +52,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.apache.skywalking</groupId>
-                    <artifactId>server-starter</artifactId>
+                    <artifactId>server-starter-es7</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -76,15 +78,15 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>dist</id>
+                        <id>dist-es7</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>apache-skywalking-apm-bin</finalName>
+                            <finalName>apache-skywalking-apm-bin-es7</finalName>
                             <descriptors>
-                                <descriptor>${project.basedir}/src/main/assembly/binary.xml</descriptor>
+                                <descriptor>${project.basedir}/src/main/assembly/binary-es7.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
@@ -100,15 +102,15 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>dist</id>
+                        <id>dist-es7</id>
                         <phase>package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy file="${project.build.directory}/apache-skywalking-apm-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.tar.gz" overwrite="true" />
-                                <copy file="${project.build.directory}/apache-skywalking-apm-bin.zip" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.zip" overwrite="true" />
+                                <copy file="${project.build.directory}/apache-skywalking-apm-bin-es7.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin-es7.tar.gz" overwrite="true" />
+                                <copy file="${project.build.directory}/apache-skywalking-apm-bin-es7.zip" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin-es7.zip" overwrite="true" />
                             </tasks>
                         </configuration>
                     </execution>
