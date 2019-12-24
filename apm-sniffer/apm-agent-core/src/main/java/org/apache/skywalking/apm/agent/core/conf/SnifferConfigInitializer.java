@@ -40,7 +40,7 @@ public class SnifferConfigInitializer {
     private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
     private static String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
-    public static Properties properties;
+    private static Properties properties;
     /**
      * If the specified agent config path is set, the agent will try to locate the specified agent config. If the
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
@@ -191,5 +191,12 @@ public class SnifferConfigInitializer {
             }
         }
         throw new ConfigNotFoundException("Failed to load agent.config.");
+    }
+
+    /**
+     * return the properties read from DEFAULT_CONFIG_FILE_NAME
+     */
+    public static Properties getProperties(){
+        return properties;
     }
 }
