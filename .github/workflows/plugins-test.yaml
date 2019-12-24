@@ -421,7 +421,7 @@ jobs:
       - name: Run jetty 9.x (63)
         run: bash test/plugin/run.sh jetty-scenario
 
-  ElasticSearch6_7_LETTUCE:
+  ElasticSearch6_7:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
