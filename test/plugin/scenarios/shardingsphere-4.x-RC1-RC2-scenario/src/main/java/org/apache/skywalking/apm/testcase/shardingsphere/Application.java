@@ -43,9 +43,9 @@ public class Application extends SpringBootServletInitializer {
             DataSourceUtil.createDataSource("demo_ds_0");
             DataSourceUtil.createDataSource("demo_ds_1");
             DataSource dataSource = new ShardingDatabasesAndTablesConfigurationPrecise().createDataSource();
-            SpringApplication.run(Application.class, args);
             CommonService commonService = new RawPojoService(new JDBCOrderRepositoryImpl(dataSource), new JDBCOrderItemRepositoryImpl(dataSource));
             commonService.initEnvironment();
+            SpringApplication.run(Application.class, args);
         } catch (Exception e) {
             // Never do this
         }
