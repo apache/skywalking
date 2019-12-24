@@ -16,14 +16,14 @@
 
 registryItems:
   applications:
-    - {servicecomb-0.x-scenario: 2}
+    - {servicecomb-1.x-scenario: 2}
   instances:
-    - {servicecomb-0.x-scenario: 1}
+    - {servicecomb-1.x-scenario: 1}
   operationNames:
-    - servicecomb-0.x-scenario: [codefirst.codeFirstSpringmvcHelloClient.say, codefirst.codeFirstHello.sayHi]
+    - servicecomb-1.x-scenario: [codefirst.codeFirstSpringmvcHelloClient.say, codefirst.codeFirstHello.sayHi]
   heartbeat: []
 segmentItems:
-  - applicationCode: servicecomb-0.x-scenario
+  - applicationCode: servicecomb-1.x-scenario
     segmentSize: gt 2
     segments:
       - segmentId: not null

@@ -395,8 +395,10 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run postgresql 9.2.x-9.4.x (36)
         run: bash test/plugin/run.sh postgresql-scenario
-      - name: Run servicecomb (5)
+      - name: Run servicecomb 0.x (5)
         run: bash test/plugin/run.sh servicecomb-0.x-scenario
+      - name: Run servicecomb 1.x (5)
+        run: bash test/plugin/run.sh servicecomb-1.x-scenario
 
   Jetty:
     runs-on: ubuntu-18.04

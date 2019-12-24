@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,8 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/servicecomb/case
-healthCheck: http://localhost:8080/servicecomb/healthCheck
-startScript: ./bin/startup.sh
-framework: servicecomb-0.x-scenario
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/servicecomb-1.x-scenario.jar &
