@@ -108,7 +108,6 @@
                         <configuration>
                             <tasks>
                                 <copy file="${project.build.directory}/apache-skywalking-apm-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.tar.gz" overwrite="true" />
-                                <copy file="${project.build.directory}/apache-skywalking-apm-bin.zip" tofile="${project.basedir}/../dist/apache-skywalking-apm-bin.zip" overwrite="true" />
                             </tasks>
                         </configuration>
                     </execution>
