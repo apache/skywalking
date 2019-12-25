@@ -24,8 +24,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-armeria-0.8.x-plugin</artifactId>
-    <name>armeria-0.8.x-plugin</name>
+    <artifactId>apm-armeria-0.84.x-plugin</artifactId>
+    <name>armeria-0.84.x-plugin</name>
     <packaging>jar</packaging>
     <description>SkyWalking Agent Plugin for Armeria 0.63.0 ~ 0.84.0</description>
 

@@ -81,6 +81,7 @@
         <module>pulsar-plugin</module>
         <module>netty-socketio-plugin</module>
         <module>armeria-0.84.x-plugin</module>
+        <module>armeria-0.85.x-plugin</module>
         <module>httpclient-3.x-plugin</module>
         <module>lettuce-5.x-plugin</module>
     </modules>
