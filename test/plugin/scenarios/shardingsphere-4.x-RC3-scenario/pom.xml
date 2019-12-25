@@ -22,10 +22,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>shardingsphere-4.x-RC1-RC2-scenario</artifactId>
+    <artifactId>shardingsphere-4.x-RC3-scenario</artifactId>
     <version>5.0.0</version>
 
-    <name>skywalking-shardingsphere-4.x-RC1-RC2-scenario</name>
+    <name>skywalking-shardingsphere-4.x-RC3-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -95,7 +95,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>shardingsphere-4.x-RC1-RC2-scenario</finalName>
+        <finalName>shardingsphere-4.x-RC3-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

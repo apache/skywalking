@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/shardingsphere-4.x-RC1-RC2-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/shardingsphere-4.x-RC3-scenario.jar &

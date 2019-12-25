@@ -16,14 +16,14 @@
 
 registryItems:
   applications:
-    - {shardingsphere-4.x-RC1-RC2-scenario: nq 0}
+    - {shardingsphere-4.x-RC3-scenario: nq 0}
   instances:
-    - {shardingsphere-4.x-RC1-RC2-scenario: 1}
+    - {shardingsphere-4.x-RC3-scenario: 1}
   operationNames:
-    - shardingsphere-4.x-RC1-RC2-scenario: [/shardingsphere-4.x-RC1-RC2-scenario/case/execute]
+    - shardingsphere-4.x-RC3-scenario: [/shardingsphere-4.x-RC3-scenario/case/execute]
   heartbeat: []
 segmentItems:
-  - applicationCode: shardingsphere-4.x-RC1-RC2-scenario
+  - applicationCode: shardingsphere-4.x-RC3-scenario
     segmentSize: not null
     segments:
       - segmentId: not null
@@ -59,10 +59,10 @@ segmentItems:
             peer: ''
             peerId: 0
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
                  parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
-                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
@@ -97,10 +97,10 @@ segmentItems:
             peer: ''
             peerId: 0
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
                  parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
-                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
@@ -135,10 +135,10 @@ segmentItems:
             peer: ''
             peerId: 0
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+              - {parentEndpointId: 0, parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 2,
                  parentTraceSegmentId: nq 0, parentServiceInstanceId: 1,
-                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute,
+                 networkAddress: '', entryEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute,
                  entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
@@ -182,7 +182,7 @@ segmentItems:
              spanId: 2, spanLayer: Unknown, startTime: not null, endTime: not null,
              componentId: 60, componentName: '', isError: false, spanType: Local, peer: '',
              peerId: 0}
-          - operationName: /shardingsphere-4.x-RC1-RC2-scenario/case/execute
+          - operationName: /shardingsphere-4.x-RC3-scenario/case/execute
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -196,5 +196,5 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'http://localhost:8080/shardingsphere-4.x-RC1-RC2-scenario/case/execute'}
+              - {key: url, value: 'http://localhost:8080/shardingsphere-4.x-RC3-scenario/case/execute'}
               - {key: http.method, value: GET}

@@ -33,7 +33,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/shardingsphere-4.x-RC1-RC2-scenario.jar</source>
+            <source>${project.build.directory}/shardingsphere-4.x-RC3-scenario.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>

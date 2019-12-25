@@ -15,7 +15,7 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/shardingsphere-4.x-RC1-RC2-scenario/case/execute
-healthCheck: http://localhost:8080/shardingsphere-4.x-RC1-RC2-scenario/case/healthCheck
+entryService: http://localhost:8080/shardingsphere-4.x-RC3-scenario/case/execute
+healthCheck: http://localhost:8080/shardingsphere-4.x-RC3-scenario/case/healthCheck
 startScript: ./bin/startup.sh
 framework: ShardingSphere
