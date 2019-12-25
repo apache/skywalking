@@ -39,7 +39,6 @@
     </modules>
 
     <properties>
-        <compiler.version>1.6</compiler.version>
         <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
     </properties>
 </project>

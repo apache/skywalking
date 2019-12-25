@@ -40,7 +40,7 @@ public class GRPCNoServerTest {
             NettyChannelBuilder.forAddress("127.0.0.1", 8080)
                 .nameResolverFactory(new DnsNameResolverProvider())
                 .maxInboundMessageSize(1024 * 1024 * 50)
-                .usePlaintext(true);
+                .usePlaintext();
         ManagedChannel channel = channelBuilder.build();
         TraceSegmentServiceGrpc.TraceSegmentServiceStub serviceStub = TraceSegmentServiceGrpc.newStub(channel);
         final Status[] status = {null};
