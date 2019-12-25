@@ -47,8 +47,7 @@ public class ZookeeperController {
 
     @RequestMapping("/healthCheck")
     @ResponseBody
-    public String healthCheck() throws KeeperException, InterruptedException {
-        zooKeeper.delete("/path", -1);
+    public String healthCheck() {
         return "healthCheck";
     }
 
