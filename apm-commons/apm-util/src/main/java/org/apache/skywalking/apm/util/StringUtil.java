@@ -23,6 +23,10 @@ public final class StringUtil {
         return str == null || str.length() == 0;
     }
 
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
+    }
+
     public static String join(final char delimiter, final String... strings) {
         if (strings.length == 0) {
             return null;
