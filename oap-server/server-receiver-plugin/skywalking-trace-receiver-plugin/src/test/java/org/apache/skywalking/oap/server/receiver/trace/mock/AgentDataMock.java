@@ -35,7 +35,7 @@ public class AgentDataMock {
     private static boolean IS_COMPLETED = false;
 
     public static void main(String[] args) throws InterruptedException {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         RegisterMock registerMock = new RegisterMock(channel);
 
@@ -85,7 +85,7 @@ public class AgentDataMock {
     }
 
     private static StreamObserver<UpstreamSegment> createStreamObserver() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
         TraceSegmentServiceGrpc.TraceSegmentServiceStub stub = TraceSegmentServiceGrpc.newStub(channel);
         return stub.collect(new StreamObserver<Downstream>() {
             @Override public void onNext(Downstream downstream) {
