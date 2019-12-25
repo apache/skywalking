@@ -21,7 +21,7 @@ registryItems:
     - {zookeeper-scenario: 1}
   operationNames:
     - zookeeper-scenario: [Zookeeper/WatchedEvent/NodeDeleted, /zookeeper-scenario/case/zookeeper-case,
-                           Zookeeper/WatchedEvent/None, /zookeeper-scenario/case/healthCheck]
+                           /zookeeper-scenario/case/healthCheck]
   heartbeat: []
 segmentItems:
   - applicationCode: zookeeper-scenario
