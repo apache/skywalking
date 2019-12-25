@@ -19,14 +19,14 @@ registryItems:
   instances:
     - {play-scenario: 1}
   operationNames:
-    - play-scenario: ["/projects/{projectId}"]
+    - play-scenario: ["/play-scenario/case/play-scenario/projects/{projectId}"]
 segmentItems:
   - applicationCode: play-scenario
-    segmentSize: 1
+    segmentSize: gt 1
     segments:
       - segmentId: not null
         spans:
-          - operationName: "/projects/{projectId}"
+          - operationName: "/play-scenario/case/play-scenario/projects/{projectId}"
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -40,5 +40,5 @@ segmentItems:
             peer: ''
             peerId: 0
             tags:
-              - {key: url, value: 'localhost:{SERVER_OUTPUT_PORT}/projects/1'}
+              - {key: url, value: 'localhost:9000/play-scenario/case/play-scenario/projects/1'}
               - {key: http.method, value: GET}

@@ -15,9 +15,7 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:9000/projects/1
-healthCheck: http://localhost:9000/health-check
+entryService: http://localhost:9000/play-scenario/case/play-scenario/projects/1
+healthCheck: http://localhost:9000/play-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: play-scenario
-environment:
-dependencies:
+framework: PlayFramework

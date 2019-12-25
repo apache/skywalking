@@ -20,5 +20,5 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /health-check                                  controllers.HealthCheckController.get
-GET     /projects/:projectId                           controllers.ProjectsController.get(projectId: Int)
+GET     /play-scenario/case/healthCheck                                  controllers.HealthCheckController.get
+GET     /play-scenario/case/play-scenario/projects/:projectId            controllers.ProjectsController.get(projectId: Int)
