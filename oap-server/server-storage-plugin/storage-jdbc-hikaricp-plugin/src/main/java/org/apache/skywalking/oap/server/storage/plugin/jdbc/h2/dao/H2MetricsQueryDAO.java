@@ -91,7 +91,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     KVInt kv = new KVInt();
                     kv.setId(resultSet.getString("id"));
                     kv.setValue(resultSet.getLong("value"));
-                    intValues.getValues().add(kv);
+                    intValues.addKVInt(kv);
                 }
             }
         } catch (SQLException e) {
@@ -119,7 +119,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     KVInt kv = new KVInt();
                     kv.setId(resultSet.getString("id"));
                     kv.setValue(resultSet.getLong(valueCName));
-                    intValues.getValues().add(kv);
+                    intValues.addKVInt(kv);
                 }
             }
         } catch (SQLException e) {

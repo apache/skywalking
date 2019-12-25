@@ -20,13 +20,13 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.LinkedList;
 import java.util.List;
-import lombok.Getter;
 
 /**
  * @author peng-yongsheng
  */
 public class IntValues {
-    @Getter private List<KVInt> values = new LinkedList<>();
+
+    private List<KVInt> values = new LinkedList<>();
 
     public void addKVInt(KVInt e) {
         values.add(e);
