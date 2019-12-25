@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,16 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/lettuce-scenario/case/lettuce-case
-healthCheck: http://localhost:8080/lettuce-scenario/case/healthCheck
-startScript: ./bin/startup.sh
-framework: lettuce
-environment:
-  - REDIS_SERVERS=redis-server:6379
-depends_on:
-  - redis-server
-dependencies:
-  redis-server:
-    image: redis:3.2.9-alpine
-    hostname: redis-server
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -Dzookeeper.host=${ZK_ADDRESS} -jar ${agent_opts} ${home}/../libs/zookeeper-scenario.jar &

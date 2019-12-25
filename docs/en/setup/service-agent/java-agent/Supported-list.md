@@ -51,7 +51,7 @@
   * Redis
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
     * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
-    * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x (Optional²)
+    * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x
   * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14, 3.4.0-3.5.0, 3.7.x-3.11.1
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
@@ -67,7 +67,7 @@
 * Service Discovery
   * [Netflix Eureka](https://github.com/Netflix/eureka)
 * Distributed Coordination
-  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.0+ (Optional² & Except 3.4.4)
+  * [Zookeeper](https://github.com/apache/zookeeper) 3.4.x (Optional² & Except 3.4.4)
 * Spring Ecosystem
   * Spring Bean annotations(@Bean, @Service, @Component, @Repository) 3.x and 4.x (Optional²)
   * Spring Core Async SuccessCallback/FailureCallback/ListenableFutureCallback 4.x

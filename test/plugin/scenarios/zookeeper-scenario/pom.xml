@@ -22,32 +22,36 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>lettuce-scenario</artifactId>
+    <artifactId>zookeeper-scenario</artifactId>
     <version>5.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>5.1.3.RELEASE</test.framework.version>
+        <test.framework.version>3.4.13</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
         <log4j.version>2.6.2</log4j.version>
         <spring.version>4.3.8.RELEASE</spring.version>
         <spring-boot-version>1.5.2.RELEASE</spring-boot-version>
-        <okhttp.version>3.4.2</okhttp.version>
     </properties>
 
-    <name>skywalking-lettuce-scenario</name>
+    <name>skywalking-zookeeper-scenario</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
             <version>${test.framework.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Spring Boot-->
         <dependency>
@@ -88,7 +92,7 @@
     </dependencies>
 
     <build>
-        <finalName>lettuce-scenario</finalName>
+        <finalName>zookeeper-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -130,4 +134,15 @@
             </plugin>
         </plugins>
     </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <url>http://repo.spring.io/snapshot</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <url>http://repo.spring.io/milestone</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
