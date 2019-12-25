@@ -82,7 +82,7 @@
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
-        <netty.version>4.1.27.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
         <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
@@ -249,6 +249,12 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-core</artifactId>
                 <version>${grpc.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.android</groupId>
+                        <artifactId>annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
