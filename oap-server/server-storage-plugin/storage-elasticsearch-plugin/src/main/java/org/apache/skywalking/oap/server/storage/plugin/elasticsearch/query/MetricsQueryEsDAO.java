@@ -81,7 +81,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             KVInt kvInt = new KVInt();
             kvInt.setId(idBucket.getKeyAsString());
             kvInt.setValue(value);
-            intValues.getValues().add(kvInt);
+            intValues.addKVInt(kvInt);
         }
         return intValues;
     }
@@ -115,7 +115,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 Map<String, Object> source = idMap.get(id);
                 kvInt.setValue(((Number)source.getOrDefault(valueCName, 0)).longValue());
             }
-            intValues.getValues().add(kvInt);
+            intValues.addKVInt(kvInt);
         }
 
         return intValues;
