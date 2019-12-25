@@ -296,7 +296,7 @@ jobs:
       - name: Run mongodb 3.4.0-3.11.1 (17)
         run: bash test/plugin/run.sh mongodb-3.x-scenario
 
-  Redisson_ShardingSphere:
+  Redisson_ShardingSphere_Zookeeper:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -324,6 +324,8 @@ jobs:
         run: bash test/plugin/run.sh shardingsphere-3.x-scenario
       - name: Run shardingsphere-4.x-RC1-RC2-scenario 4.0.0-RC1-4.0.0-RC2 (2)
         run: bash test/plugin/run.sh shardingsphere-4.x-RC1-RC2-scenario
+      - name: Run zookeeper 3.4.x (14)
+        run: bash test/plugin/run.sh zookeeper-scenario
 
   Spring43:
     runs-on: ubuntu-18.04
