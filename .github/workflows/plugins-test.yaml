@@ -322,7 +322,7 @@ jobs:
         run: bash test/plugin/run.sh redisson-scenario
       - name: Run shardingsphere-3.x-scenario 3.0.0 (1)
         run: bash test/plugin/run.sh shardingsphere-3.x-scenario
-      - name: Run zookeeper 3.4.x+ (6)
+      - name: Run zookeeper 3.4.x (14)
         run: bash test/plugin/run.sh zookeeper-scenario
 
   Spring43:
