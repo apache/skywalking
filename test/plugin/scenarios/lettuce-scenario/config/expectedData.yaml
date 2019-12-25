@@ -24,7 +24,7 @@ registryItems:
   heartbeat: []
 segmentItems:
   - applicationCode: lettuce-scenario
-    segmentSize: 2
+    segmentSize: nq 0
     segments:
       - segmentId: not null
         spans:
