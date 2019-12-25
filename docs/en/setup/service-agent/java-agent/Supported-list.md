@@ -19,7 +19,7 @@
   * [Feign](https://github.com/OpenFeign/feign) 9.x
   * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
   * [Okhttp](https://github.com/square/okhttp) 3.x
-  * [Apache httpcomponent HttpClient](http://hc.apache.org/) 4.2, 4.3
+  * [Apache httpcomponent HttpClient](http://hc.apache.org/) 2.0 -> 3.1, 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
@@ -35,10 +35,10 @@
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
-  * [Apache Dubbo](https://github.com/apache/incubator-dubbo) 2.7.0
+  * [Apache Dubbo](https://github.com/apache/dubbo) 2.7.0
   * [Motan](https://github.com/weibocom/motan) 0.2.x -> 1.1.0
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
-  * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.0.x
+  * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.x
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.97.0
 * MQ
