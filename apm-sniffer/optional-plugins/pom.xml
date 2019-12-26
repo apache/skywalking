@@ -44,10 +44,10 @@
         <module>optional-spring-plugins</module>
         <module>trace-ignore-plugin</module>
         <module>gson-2.8.x-plugin</module>
-        <module>lettuce-5.x-plugin</module>
         <module>zookeeper-3.4.x-plugin</module>
         <module>customize-enhance-plugin</module>
         <module>armeria-0.85.x-plugin</module>
+        <module>play-2.x-plugin</module>
     </modules>
 
     <dependencies>

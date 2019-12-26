@@ -19,8 +19,6 @@ entryService: http://localhost:8080/lettuce-scenario/case/lettuce-case
 healthCheck: http://localhost:8080/lettuce-scenario/case/healthCheck
 startScript: ./bin/startup.sh
 framework: lettuce
-runningMode: with_optional
-withPlugins: apm-lettuce-5.x-plugin-*.jar
 environment:
   - REDIS_SERVERS=redis-server:6379
 depends_on:
