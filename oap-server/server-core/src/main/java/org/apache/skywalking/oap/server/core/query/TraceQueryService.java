@@ -382,6 +382,8 @@ public class TraceQueryService implements Service {
             for (Span subSpan : spans) {
                 if (segmentParentSpanId.equals(subSpan.getSegmentSpanId())) {
                     hasParent = true;
+                    // if find parent, quick exit
+                    break;
                 }
             }
 
