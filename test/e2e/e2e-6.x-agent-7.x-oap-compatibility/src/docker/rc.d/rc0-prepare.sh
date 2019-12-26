@@ -20,7 +20,7 @@ AGENT_VERSION=6.5.0
 ls /sw && echo 'Remove SkyWalking agent directory' && rm -rf /sw/agent && ls /sw
 
 echo 'Download SkyWalking 6.x...' \
-  && curl -o /tmp/sw.tar.gz https://dist.apache.org/repos/dist/release/skywalking/${AGENT_VERSION}/apache-skywalking-apm-${AGENT_VERSION}.tar.gz \
+  && curl -o /tmp/sw.tar.gz https://archive.apache.org/dist/skywalking/${AGENT_VERSION}/apache-skywalking-apm-${AGENT_VERSION}.tar.gz \
   && tar -C / -zxvf /tmp/sw.tar.gz \
   && ls /apache-skywalking-apm-bin \
   && mv /apache-skywalking-apm-bin/agent /sw/agent \
