@@ -21,6 +21,7 @@ on:
   push:
     branches: 
       - master
+      - 6.x
     tags:
       - 'v*'
     
