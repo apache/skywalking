@@ -16,28 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.shardingsphere.api.sharding.standard.PreciseShardingAlgorithm;
+import org.apache.shardingsphere.api.sharding.standard.PreciseShardingValue;
 
-/**
- * @author peng-yongsheng
- */
-public class IntValues {
+import java.util.Collection;
 
-    private List<KVInt> values = new LinkedList<>();
-
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
-
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
+public class PreciseModuloShardingTableAlgorithm implements PreciseShardingAlgorithm<Long> {
+    
+    @Override
+    public String doSharding(final Collection<String> tableNames, final PreciseShardingValue<Long> shardingValue) {
+        for (String each : tableNames) {
+            if (each.endsWith(shardingValue.getValue() % 2 + "")) {
+                return each;
             }
         }
-        return defaultValue;
+        throw new UnsupportedOperationException();
     }
 }

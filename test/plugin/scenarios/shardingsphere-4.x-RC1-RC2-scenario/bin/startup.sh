@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,10 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/provider/b/testcase
-healthCheck: http://localhost:8080/provider/b/healthCheck
-startScript: ./bin/startup.sh
-framework: spring-cloud-gateway
-runningMode: with_optional
-withPlugins: apm-spring-cloud-gateway-2.x-plugin-*.jar
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/shardingsphere-4.x-RC1-RC2-scenario.jar &
