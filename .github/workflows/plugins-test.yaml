@@ -517,7 +517,7 @@ jobs:
       - name: Run mysql 5.1.2-8.0.15 (53)
         run: bash test/plugin/run.sh mysql-scenario
 
-  LETTUCE:
+  LETTUCE_PlayFramework:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -541,3 +541,5 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run lettuce-scenario 5.x (17)
         run: bash test/plugin/run.sh lettuce-scenario
+      - name: Run Play! Framework
+        run: bash test/plugin/run.sh play-scenario
