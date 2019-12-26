@@ -32,6 +32,7 @@
         <compiler.version>1.8</compiler.version>
         <scala.version>2.12.9</scala.version>
         <test.framework.version>2.8.0</test.framework.version>
+        <play2.version>${test.framework.version}</play2.version>
     </properties>
 
     <name>Play! Framework Scenario</name>
