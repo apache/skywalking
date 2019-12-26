@@ -53,6 +53,8 @@ public class StreamAnnotationListener implements AnnotationListener {
                 MetricsStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else if (stream.processor().equals(TopNStreamProcessor.class)) {
                 TopNStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(ConfigStreamProcessor.class)) {
+                ConfigStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else {
                 throw new UnexpectedException("Unknown stream processor.");
             }

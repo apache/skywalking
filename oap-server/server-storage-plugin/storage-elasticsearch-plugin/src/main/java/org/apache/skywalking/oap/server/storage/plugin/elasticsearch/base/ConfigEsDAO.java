@@ -19,35 +19,30 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IConfigDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+
+import java.io.IOException;
 
 /**
- * @author peng-yongsheng
+ * @author MrPro
  */
-public class StorageEsDAO extends EsDAO implements StorageDAO {
+public class ConfigEsDAO extends EsDAO implements IConfigDAO {
 
-    public StorageEsDAO(ElasticSearchClient client) {
+    private final StorageBuilder<Config> storageBuilder;
+
+    public ConfigEsDAO(ElasticSearchClient client, StorageBuilder<Config> storageBuilder) {
         super(client);
-    }
-
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new MetricsEsDAO(getClient(), storageBuilder);
-    }
-
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new RegisterEsDAO(getClient(), storageBuilder);
-    }
-
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new RecordEsDAO(getClient(), storageBuilder);
+        this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public IConfigDAO newConfigDao(StorageBuilder<Config> storageBuilder) {
-        return new ConfigEsDAO(getClient(), storageBuilder);
+    public void insert(Model model, Config config) throws IOException {
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(config));
+        String modelName = model.getName();
+        getClient().forceInsert(modelName, config.id(), builder);
     }
 }

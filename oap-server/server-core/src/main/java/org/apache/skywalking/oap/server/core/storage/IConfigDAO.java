@@ -19,21 +19,15 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+
+import java.io.IOException;
 
 /**
- * @author peng-yongsheng
+ * @author MrPro
  */
-public interface StorageDAO extends Service {
+public interface IConfigDAO extends DAO {
 
-    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
+    void insert(Model model, Config config) throws IOException;
 
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
-
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
-
-    IConfigDAO newConfigDao(StorageBuilder<Config> storageBuilder);
 }
