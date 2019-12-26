@@ -517,7 +517,7 @@ jobs:
       - name: Run mysql 5.1.2-8.0.15 (53)
         run: bash test/plugin/run.sh mysql-scenario
 
-  LETTUCE:
+  LETTUCE_PlayFramework:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -541,27 +541,5 @@ jobs:
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run lettuce-scenario 5.x (17)
         run: bash test/plugin/run.sh lettuce-scenario
-  PlayFramework:
-    runs-on: ubuntu-18.04
-    timeout-minutes: 90
-    strategy:
-      fail-fast: true
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
-      - name: Build the Docker image
-        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run Play! Framework
         run: bash test/plugin/run.sh play-scenario
