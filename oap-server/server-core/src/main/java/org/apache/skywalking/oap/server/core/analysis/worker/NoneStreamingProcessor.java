@@ -24,8 +24,8 @@ import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.storage.IConfigDAO;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
@@ -37,46 +37,46 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * config is designed for user operation configuration in UI interface. It uses storage (synchronization) similar to Inventory and supports TTL deletion mode similar to the record.
+ * none streaming is designed for user operation configuration in UI interface. It uses storage (synchronization) similar to Inventory and supports TTL deletion mode similar to the record.
  *
  * @author MrPro
  */
-public class ConfigStreamProcessor implements StreamProcessor<Config> {
+public class NoneStreamingProcessor implements StreamProcessor<NoneStream> {
 
-    private static final ConfigStreamProcessor PROCESSOR = new ConfigStreamProcessor();
+    private static final NoneStreamingProcessor PROCESSOR = new NoneStreamingProcessor();
 
-    private Map<Class<? extends Config>, ConfigPersistentWorker> workers = new HashMap<>();
+    private Map<Class<? extends NoneStream>, NoneStreamPersistentWorker> workers = new HashMap<>();
 
-    public static ConfigStreamProcessor getInstance() {
+    public static NoneStreamingProcessor getInstance() {
         return PROCESSOR;
     }
 
     @Override
-    public void in(Config config) {
-        final ConfigPersistentWorker worker = workers.get(config.getClass());
+    public void in(NoneStream noneStream) {
+        final NoneStreamPersistentWorker worker = workers.get(noneStream.getClass());
         if (worker != null) {
-            worker.in(config);
+            worker.in(noneStream);
         }
     }
 
     @Override
-    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Config> streamClass) {
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends NoneStream> streamClass) {
         if (DisableRegister.INSTANCE.include(stream.name())) {
             return;
         }
 
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
-        IConfigDAO configDAO;
+        INoneStreamDAO noneStream;
         try {
-            configDAO = storageDAO.newConfigDao(stream.builder().newInstance());
+            noneStream = storageDAO.newNoneStreamDao(stream.builder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " config record DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " none stream record DAO failure.", e);
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(streamClass, stream.scopeId(), new Storage(stream.name(), false, true, Downsampling.None), true);
+        Model model = modelSetter.putIfAbsent(streamClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second), true);
 
-        final ConfigPersistentWorker persistentWorker = new ConfigPersistentWorker(moduleDefineHolder, model, configDAO);
+        final NoneStreamPersistentWorker persistentWorker = new NoneStreamPersistentWorker(moduleDefineHolder, model, noneStream);
         workers.put(streamClass, persistentWorker);
     }
 }

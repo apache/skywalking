@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.storage.IConfigDAO;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -29,25 +29,27 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
+ * None persistent use {@link INoneStreamDAO#insert(Model, NoneStream)} on get new data
+ *
  * @author MrPro
  */
-public class ConfigPersistentWorker extends AbstractWorker<Config> {
+public class NoneStreamPersistentWorker extends AbstractWorker<NoneStream> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigPersistentWorker.class);
+    private static final Logger logger = LoggerFactory.getLogger(NoneStreamPersistentWorker.class);
 
     private final Model model;
-    private final IConfigDAO configDAO;
+    private final INoneStreamDAO configDAO;
 
-    public ConfigPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IConfigDAO configDAO) {
+    public NoneStreamPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, INoneStreamDAO configDAO) {
         super(moduleDefineHolder);
         this.model = model;
         this.configDAO = configDAO;
     }
 
     @Override
-    public void in(Config config) {
+    public void in(NoneStream noneStream) {
         try {
-            configDAO.insert(model, config);
+            configDAO.insert(model, noneStream);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

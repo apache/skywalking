@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.storage.IConfigDAO;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -28,21 +28,23 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import java.io.IOException;
 
 /**
+ * Synchronize storage Elasticsearch implements
+ *
  * @author MrPro
  */
-public class ConfigEsDAO extends EsDAO implements IConfigDAO {
+public class NoneStreamEsDAO extends EsDAO implements INoneStreamDAO {
 
-    private final StorageBuilder<Config> storageBuilder;
+    private final StorageBuilder<NoneStream> storageBuilder;
 
-    public ConfigEsDAO(ElasticSearchClient client, StorageBuilder<Config> storageBuilder) {
+    public NoneStreamEsDAO(ElasticSearchClient client, StorageBuilder<NoneStream> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public void insert(Model model, Config config) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.data2Map(config));
+    public void insert(Model model, NoneStream noneStream) throws IOException {
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(noneStream));
         String modelName = model.getName();
-        getClient().forceInsert(modelName, config.id(), builder);
+        getClient().forceInsert(modelName, noneStream.id(), builder);
     }
 }

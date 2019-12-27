@@ -16,18 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.analysis.config;
 
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
-
-import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
+ * None stream data base on record, support time bucket field to TTL.
+ *
  * @author MrPro
  */
-public interface IConfigDAO extends DAO {
-
-    void insert(Model model, Config config) throws IOException;
-
+public abstract class NoneStream extends Record {
 }
+

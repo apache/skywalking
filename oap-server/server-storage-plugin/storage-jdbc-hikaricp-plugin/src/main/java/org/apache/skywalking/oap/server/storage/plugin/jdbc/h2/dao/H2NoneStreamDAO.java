@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
-import org.apache.skywalking.oap.server.core.storage.IConfigDAO;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -30,22 +30,24 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
+ * Synchronize storage H2 implements
+ *
  * @author MrPro
  */
-public class H2ConfigDAO extends H2SQLExecutor implements IConfigDAO {
+public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 
     private JDBCHikariCPClient h2Client;
-    private StorageBuilder<Config> storageBuilder;
+    private StorageBuilder<NoneStream> storageBuilder;
 
-    public H2ConfigDAO(JDBCHikariCPClient h2Client, StorageBuilder<Config> storageBuilder) {
+    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageBuilder<NoneStream> storageBuilder) {
         this.h2Client = h2Client;
         this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public void insert(Model model, Config config) throws IOException {
+    public void insert(Model model, NoneStream noneStream) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
-            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), config, storageBuilder);
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder);
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {
             throw new IOException(e.getMessage(), e);

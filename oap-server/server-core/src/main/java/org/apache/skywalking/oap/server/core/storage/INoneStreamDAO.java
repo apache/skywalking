@@ -16,13 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.config;
+package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+
+import java.io.IOException;
 
 /**
+ * Use synchronize storage to insert none stream data
+ *
  * @author MrPro
  */
-public abstract class Config extends Record {
-}
+public interface INoneStreamDAO extends DAO {
 
+    void insert(Model model, NoneStream noneStream) throws IOException;
+
+}

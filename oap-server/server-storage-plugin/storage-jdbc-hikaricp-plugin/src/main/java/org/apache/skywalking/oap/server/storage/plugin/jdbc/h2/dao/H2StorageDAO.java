@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.config.Config;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
@@ -49,7 +49,7 @@ public class H2StorageDAO implements StorageDAO {
     }
 
     @Override
-    public IConfigDAO newConfigDao(StorageBuilder<Config> storageBuilder) {
-        return new H2ConfigDAO(h2Client, storageBuilder);
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
+        return new H2NoneStreamDAO(h2Client, storageBuilder);
     }
 }
