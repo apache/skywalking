@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.cluster.*;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.oal.rt.*;
+import org.apache.skywalking.oap.server.core.profile.ThreadMonitorTaskService;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.*;
 import org.apache.skywalking.oap.server.core.remote.*;
@@ -165,6 +166,9 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
+
+        // add profile service implementations
+        this.registerServiceImplementation(ThreadMonitorTaskService.class, new ThreadMonitorTaskService(getManager()));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
