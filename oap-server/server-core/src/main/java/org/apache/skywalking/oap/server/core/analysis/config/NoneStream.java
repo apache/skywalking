@@ -16,24 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.analysis.config;
 
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * None stream data base on record, support time bucket field to TTL.
+ *
+ * @author MrPro
  */
-public interface StorageDAO extends Service {
-
-    IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);
-
-    IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder);
-
-    IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder);
-
-    INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder);
+public abstract class NoneStream extends Record {
 }
+

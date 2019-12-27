@@ -19,37 +19,38 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
- * @author wusheng, peng-yongsheng
+ * Synchronize storage H2 implements
+ *
+ * @author MrPro
  */
-public class H2StorageDAO implements StorageDAO {
+public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 
     private JDBCHikariCPClient h2Client;
+    private StorageBuilder<NoneStream> storageBuilder;
 
-    public H2StorageDAO(JDBCHikariCPClient h2Client) {
+    public H2NoneStreamDAO(JDBCHikariCPClient h2Client, StorageBuilder<NoneStream> storageBuilder) {
         this.h2Client = h2Client;
-    }
-
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new H2MetricsDAO(h2Client, storageBuilder);
-    }
-
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new H2RegisterDAO(h2Client, storageBuilder);
-    }
-
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new H2RecordDAO(h2Client, storageBuilder);
+        this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new H2NoneStreamDAO(h2Client, storageBuilder);
+    public void insert(Model model, NoneStream noneStream) throws IOException {
+        try (Connection connection = h2Client.getConnection()) {
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), noneStream, storageBuilder);
+            insertExecutor.invoke(connection);
+        } catch (IOException | SQLException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 }
