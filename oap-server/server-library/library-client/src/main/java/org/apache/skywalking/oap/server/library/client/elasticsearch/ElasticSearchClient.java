@@ -38,7 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -55,6 +54,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -123,11 +123,11 @@ public class ElasticSearchClient implements Client {
 
     protected RestHighLevelClient createClient(final List<HttpHost> pairsList) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException {
         RestClientBuilder builder;
-        if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
+        if (StringUtil.isNotEmpty(user) && StringUtil.isNotEmpty(password)) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
 
-            if (StringUtils.isBlank(trustStorePath)) {
+            if (StringUtil.isEmpty(trustStorePath)) {
                 builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
                     .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
             } else {
@@ -399,7 +399,7 @@ public class ElasticSearchClient implements Client {
     }
 
     public String formatIndexName(String indexName) {
-        if (StringUtils.isNotEmpty(namespace)) {
+        if (StringUtil.isNotEmpty(namespace)) {
             return namespace + "_" + indexName;
         }
         return indexName;

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
@@ -43,5 +44,10 @@ public class StorageEsDAO extends EsDAO implements StorageDAO {
 
     @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
         return new RecordEsDAO(getClient(), storageBuilder);
+    }
+
+    @Override
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
+        return new NoneStreamEsDAO(getClient(), storageBuilder);
     }
 }

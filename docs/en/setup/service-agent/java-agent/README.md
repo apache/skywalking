@@ -1,5 +1,5 @@
 # Setup java agent
-1. Agent is available for JDK 1.6 - 12.
+1. Agent is available for JDK 8 - 12 in 7.x releases. JDK 1.6 - JDK 12 are supported in all 6.x releases [NOTICE¹](#notice)
 1. Find `agent` folder in SkyWalking release package
 1. Set `agent.service_name` in `config/agent.config`. Could be any String in English.
 1. Set `collector.backend_service` in `config/agent.config`. Default point to `127.0.0.1:11800`, only works for local backend.
@@ -128,13 +128,10 @@ Now, we have the following known optional plugins.
 * [Plugin of tracing Oracle and Resin](agent-optional-plugins/Oracle-Resin-plugins.md)
 * [Filter traces through specified endpoint name patterns](agent-optional-plugins/trace-ignore-plugin.md)
 * Plugin of Gson serialization lib in optional plugin folder.
-* Plugin of Lettuce 5.x(JRE 8+) in optional plugin folder. Agent is compatible in JDK 1.6+, this plugin could be used in JRE 8+, by matching the lib requirement.
 * Plugin of Zookeeper 3.4.x in optional plugin folder. The reason of being optional plugin is, many business irrelevant traces are generated, which cause extra payload to agents and backends. At the same time, those traces may be just heartbeat(s).
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway. spring-cloud-gateway-2.x-plugin and spring-webflux-5.x-plugin are both required.
-* Plugin of [Play Framework](https://www.playframework.com/) 2.6+ (JDK 1.8 required & Scala 2.12/2.13) in optional plugin folder. Please only active this plugin when you install agent in [Play Framework](https://www.playframework.com/). 
 * Plugin of Spring Transaction in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
-* Plugin of Spring Webflux 5.x in the optional plugin folder. Because the plugin requires JDK 1.8+.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.
@@ -168,3 +165,7 @@ and consider to add this feature.
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
 * [Java Agent Performance Test](https://skyapmtest.github.io/Agent-Benchmarks/)
+
+# Notice
+¹ Due to gRPC didn't support JDK 1.6 since 2018, SkyWalking abandoned the JDK 6/7 supports in all 7.x releases. 
+But, with gRPC back forward compatibility(at least for now), all SkyWalking 6.x agents could work with 7.x, including the agent and backend.
