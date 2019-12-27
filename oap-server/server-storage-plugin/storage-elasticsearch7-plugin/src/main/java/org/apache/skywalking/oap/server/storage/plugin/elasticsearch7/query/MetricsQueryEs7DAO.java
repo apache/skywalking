@@ -91,7 +91,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
             KVInt kvInt = new KVInt();
             kvInt.setId(idBucket.getKeyAsString());
             kvInt.setValue(value);
-            intValues.getValues().add(kvInt);
+            intValues.addKVInt(kvInt);
         }
         return intValues;
     }

@@ -60,27 +60,29 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     }
 
     public void start() {
-        submitTask(MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-            .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build())));
+        ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+            .setDaemon(true).setNameFormat("Kubernetes-ApiServer-%s").build());
+        submitTask(MoreExecutors.listeningDecorator(executorService), executorService);
     }
 
     @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         this.port = remoteInstance.getAddress().getPort();
     }
 
-    private void submitTask(final ListeningExecutorService service) {
+    private void submitTask(final ListeningExecutorService service, final ExecutorService executorService) {
         watch.initOrReset();
+
         ListenableFuture<?> watchFuture = service.submit(newWatch());
         Futures.addCallback(watchFuture, new FutureCallback<Object>() {
             @Override public void onSuccess(@Nullable Object ignored) {
-                submitTask(service);
+                submitTask(service, executorService);
             }
 
             @Override public void onFailure(@Nullable Throwable throwable) {
                 logger.debug("Generate remote nodes error", throwable);
-                submitTask(service);
+                submitTask(service, executorService);
             }
-        });
+        }, executorService);
     }
 
     private Callable<Object> newWatch() {
