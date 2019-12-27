@@ -48,7 +48,7 @@ public class JDBCHikariCPClient implements Client {
     }
 
     /**
-     * Default getConnection is not set in auto-commit.
+     * Default getConnection is set in auto-commit.
      *
      * @return
      * @throws JDBCClientException
