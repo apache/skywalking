@@ -76,14 +76,20 @@
 
     <build>
         <finalName>grpc-scenario</finalName>
-        <extensions>
-            <extension>
+        <plugins>
+            <plugin>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
-                <version>1.5.0.Final</version>
-            </extension>
-        </extensions>
-        <plugins>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

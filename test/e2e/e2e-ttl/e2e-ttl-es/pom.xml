@@ -64,6 +64,19 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
@@ -175,13 +188,6 @@
                 </executions>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
     </build>
 
 </project>
