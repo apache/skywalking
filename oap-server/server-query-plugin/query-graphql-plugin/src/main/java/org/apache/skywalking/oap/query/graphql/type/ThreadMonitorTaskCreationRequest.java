@@ -15,28 +15,27 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.query.graphql.type;
 
-package org.apache.skywalking.oap.server.core.profile.entity;
-
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 /**
- * create thread monitor task result
+ * Thread monitor task create need data
  *
  * @author MrPro
  */
 @Setter
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ThreadMonitorTaskCreateResult {
+public class ThreadMonitorTaskCreationRequest {
 
-    // is create success
-    private boolean success;
-    // get create error reason when not success
-    private String errorReason;
-    // get data id when create success
-    private String id;
+    private int serviceId;
+    private String endpointName;
+    private Long startTime;
+    private int duration;
+    private Step durationUnit;
+    private int minDurationThreshold;
+    private int dumpPeriod;
 
 }
