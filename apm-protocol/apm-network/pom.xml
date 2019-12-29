@@ -58,6 +58,19 @@
 
         <plugins>
             <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-maven-plugin.version}</version>
@@ -75,6 +88,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>grpc-build</id>
                         <goals>
                             <goal>compile</goal>
                             <goal>compile-custom</goal>
