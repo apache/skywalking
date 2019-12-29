@@ -43,28 +43,6 @@ public class H2ThreadMonitorTaskQueryDAO implements IThreadMonitorTaskQueryDAO {
     }
 
     @Override
-    public List<ThreadMonitorTask> getTaskListSearchOnStartTime(int serviceId, long taskStartTime, long taskEndTime) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        sql.append("select * from ").append(ThreadMonitorTaskNoneStream.INDEX_NAME).append(" where ");
-        sql.append(ThreadMonitorTaskNoneStream.SERVICE_ID).append("=? and ")
-                .append(ThreadMonitorTaskNoneStream.MONITOR_START_TIME).append(">=? and ")
-                .append(ThreadMonitorTaskNoneStream.MONITOR_START_TIME).append("<= ?");
-
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), serviceId, taskStartTime, taskEndTime)) {
-                final LinkedList<ThreadMonitorTask> tasks = new LinkedList<>();
-                while (resultSet.next()) {
-                    tasks.add(parseTask(resultSet));
-                }
-                return tasks;
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-
-    }
-
-    @Override
     public List<ThreadMonitorTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);

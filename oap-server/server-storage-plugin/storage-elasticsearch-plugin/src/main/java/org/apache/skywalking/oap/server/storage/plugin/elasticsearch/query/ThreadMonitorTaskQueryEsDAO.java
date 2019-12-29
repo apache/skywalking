@@ -44,26 +44,6 @@ public class ThreadMonitorTaskQueryEsDAO extends EsDAO implements IThreadMonitor
     }
 
     @Override
-    public List<ThreadMonitorTask> getTaskListSearchOnStartTime(int serviceId, long taskStartTime, long taskEndTime) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
-        final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ThreadMonitorTaskNoneStream.SERVICE_ID, serviceId));
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ThreadMonitorTaskNoneStream.MONITOR_START_TIME).gte(taskStartTime).lte(taskEndTime));
-
-        final SearchResponse response = getClient().search(ThreadMonitorTaskNoneStream.INDEX_NAME, sourceBuilder);
-
-        final LinkedList<ThreadMonitorTask> tasks = new LinkedList<>();
-        for (SearchHit searchHit : response.getHits().getHits()) {
-            tasks.add(parseTask(searchHit));
-        }
-
-        return tasks;
-    }
-
-    @Override
     public List<ThreadMonitorTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 

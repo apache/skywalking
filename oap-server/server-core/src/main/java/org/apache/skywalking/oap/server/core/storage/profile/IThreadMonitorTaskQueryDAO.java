@@ -31,15 +31,6 @@ import java.util.List;
 public interface IThreadMonitorTaskQueryDAO extends DAO {
 
     /**
-     * get all thread monitor task start time in time range
-     * @param serviceId monitor service id
-     * @param taskStartTime task start time bigger than or equals
-     * @param taskEndTime task start time smaller than or equals
-     * @return
-     */
-    List<ThreadMonitorTask> getTaskListSearchOnStartTime(final int serviceId, final long taskStartTime, final long taskEndTime) throws IOException;
-
-    /**
      * search task list in appoint time bucket
      * @param serviceId monitor service id, maybe null
      * @param endpointName endpoint name, maybe empty

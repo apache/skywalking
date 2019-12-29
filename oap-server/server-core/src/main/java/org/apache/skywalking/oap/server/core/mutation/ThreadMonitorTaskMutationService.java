@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.core.mutation;
 
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.profile.ThreadMonitorTaskNoneStream;
@@ -120,16 +121,12 @@ public class ThreadMonitorTaskMutationService implements Service {
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks
-        long searchStartTime = monitorStartTime - TimeUnit.SECONDS.toMillis(maxMonitorDurationInSec);
-        long searchEndTime = monitorEndTime;
-        final List<ThreadMonitorTask> alreadyHaveTaskList = getThreadMonitorTaskDAO().getTaskListSearchOnStartTime(serviceId, searchStartTime, searchEndTime);
+        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
+        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
+        final List<ThreadMonitorTask> alreadyHaveTaskList = getThreadMonitorTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
-            // check has any task end time bigger than the start time of this task
-            for (ThreadMonitorTask alreadyHaveTask : alreadyHaveTaskList) {
-                if (alreadyHaveTask.getStartTime() + TimeUnit.SECONDS.toMillis(alreadyHaveTask.getDuration()) > monitorStartTime) {
-                    return "current service already has monitor task execute at this time";
-                }
-            }
+            // if any task time bucket in this range, means already have task, because time bucket is base on task end time
+            return "current service already has monitor task execute at this time";
         }
 
         return null;
