@@ -80,8 +80,6 @@ jobs:
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es
       - name: TTL ES7 Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.3 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es
-      - name: Profile Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner
 
   Compatibilities:
     runs-on: ubuntu-latest
@@ -98,3 +96,17 @@ jobs:
           ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
       - name: 6.x Agents & 7.x Backend
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-6.x-agent-7.x-oap-compatibility
+
+  Profile:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+    - name: Set environment
+      run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+    - name: Compile & Install Test Codes
+      run: |
+        ./mvnw checkstyle:check apache-rat:check
+        ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
+        ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
+    - name: Profile Tests(JDK8)
+      run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner
