@@ -16,20 +16,25 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile.threadmonitor.creation;
+package org.apache.skywalking.oap.server.core.profile.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
- * wrap thread monitor task create result, for threadMonitorTaskCreation.gql
+ * create profile task result
  *
  * @author MrPro
  */
 @Setter
 @Getter
-public class ThreadMonitorTaskCreationResultWrapper {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProfileTaskCreationResult {
 
-    private ThreadMonitorTaskCreationResult creationResult;
+    // if null or empty means the task create success, otherwise get create error reason
+    private String errorReason;
+    // get data id when create success
+    private String id;
 
 }

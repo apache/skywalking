@@ -15,24 +15,22 @@
 # limitations under the License.
 
 {
-  "query":"query queryProfileTaskList($serviceId: ID!, $endpointName: String!, $duration: Duration!) {
-    tasks: getThreadMonitorTaskList(serviceId: $serviceId, endpointName: $endpointName, duration: $duration) {
+  "query":"mutation createProfileTask($creationRequest: ProfileTaskCreationRequest!) {
+    creationResult: createProfileTask(creationRequest: $creationRequest) {
+      errorReason: errorReason
       id: id
-      serviceId: serviceId
-      endpointName: endpointName
-      startTime: startTime
-      duration: duration
-      minDurationThreshold: minDurationThreshold
-      dumpPeriod: dumpPeriod
     }
   }",
   "variables": {
-    "serviceId": "{serviceId}",
-    "endpointName": "{endpointName}",
-    "duration": {
-      "start": "{start}",
-      "end": "{end}",
-      "step": "{step}"
-    }
+    "creationRequest": {
+		"serviceId": "{serviceId}",
+		"endpointName": "{endpointName}",
+		"duration": {duration},
+		"startTime": {startTime},
+		"durationUnit": "{durationUnit}",
+		"minDurationThreshold": {minDurationThreshold},
+		"dumpPeriod": {dumpPeriod}
+	}
   }
 }
+

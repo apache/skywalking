@@ -16,36 +16,36 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile.threadmonitor.query;
+package org.apache.skywalking.e2e.profile.query;
 
-import org.apache.skywalking.e2e.AbstractQuery;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 /**
- * profile query data
- *
  * @author MrPro
  */
-public class ThreadMonitorTaskQuery extends AbstractQuery<ThreadMonitorTaskQuery> {
+@Setter
+@Getter
+public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {
 
-    private int serviceId;
+    private String id;
+    private String serviceId;
     private String endpointName;
+    private String startTime;
+    private String duration;
+    private String minDurationThreshold;
+    private String dumpPeriod;
 
-    public int serviceId() {
-        return serviceId;
-    }
-
-    public String endpointName() {
-        return endpointName;
-    }
-
-    public ThreadMonitorTaskQuery serviceId(int serviceId) {
-        this.serviceId = serviceId;
-        return this;
-    }
-
-    public ThreadMonitorTaskQuery endpointName(String endpointName) {
-        this.endpointName = endpointName;
-        return this;
+    @Override
+    public void verify(ProfileTask task) {
+        doVerify(id, task.getId());
+        doVerify(serviceId, task.getServiceId());
+        doVerify(endpointName, task.getEndpointName());
+        doVerify(startTime, task.getStartTime());
+        doVerify(duration, task.getDuration());
+        doVerify(minDurationThreshold, task.getMinDurationThreshold());
+        doVerify(dumpPeriod, task.getDumpPeriod());
     }
 
 }

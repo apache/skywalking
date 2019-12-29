@@ -15,28 +15,21 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.e2e.profile.threadmonitor.query;
+
+package org.apache.skywalking.e2e.profile.creation;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
- * thread monitor task bean for e2e GraphQL test result
+ * wrap profile task create result, for profileTaskCreation.gql
  *
  * @author MrPro
  */
 @Setter
 @Getter
-@ToString
-public class ThreadMonitorTask {
+public class ProfileTaskCreationResultWrapper {
 
-    private String id;
-    private String serviceId;
-    private String endpointName;
-    private String startTime;
-    private String duration;
-    private String minDurationThreshold;
-    private String dumpPeriod;
+    private ProfileTaskCreationResult creationResult;
 
 }

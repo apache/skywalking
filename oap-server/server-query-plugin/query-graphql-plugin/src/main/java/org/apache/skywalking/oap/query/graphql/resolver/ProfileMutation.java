@@ -18,10 +18,10 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
-import org.apache.skywalking.oap.query.graphql.type.ThreadMonitorTaskCreationRequest;
+import org.apache.skywalking.oap.query.graphql.type.ProfileTaskCreationRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.mutation.ThreadMonitorTaskMutationService;
-import org.apache.skywalking.oap.server.core.mutation.entity.ThreadMonitorTaskCreationResult;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
+import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -35,21 +35,21 @@ import java.io.IOException;
 public class ProfileMutation implements GraphQLMutationResolver {
 
     private final ModuleManager moduleManager;
-    private ThreadMonitorTaskMutationService threadMonitorTaskService;
+    private ProfileTaskMutationService profileTaskService;
 
     public ProfileMutation(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private ThreadMonitorTaskMutationService getThreadMonitorTaskService() {
-        if (threadMonitorTaskService == null) {
-            this.threadMonitorTaskService = moduleManager.find(CoreModule.NAME).provider().getService(ThreadMonitorTaskMutationService.class);
+    private ProfileTaskMutationService getProfileTaskService() {
+        if (profileTaskService == null) {
+            this.profileTaskService = moduleManager.find(CoreModule.NAME).provider().getService(ProfileTaskMutationService.class);
         }
-        return threadMonitorTaskService;
+        return profileTaskService;
     }
 
-    public ThreadMonitorTaskCreationResult createThreadMonitorTask(ThreadMonitorTaskCreationRequest creationRequest) throws IOException {
-        return getThreadMonitorTaskService().createTask(
+    public ProfileTaskCreationResult createProfileTask(ProfileTaskCreationRequest creationRequest) throws IOException {
+        return getProfileTaskService().createTask(
                 creationRequest.getServiceId(),
                 creationRequest.getEndpointName(),
                 creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(),

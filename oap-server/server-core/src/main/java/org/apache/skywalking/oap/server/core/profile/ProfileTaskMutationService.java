@@ -15,17 +15,16 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.mutation;
+package org.apache.skywalking.oap.server.core.profile;
 
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
-import org.apache.skywalking.oap.server.core.profile.ThreadMonitorTaskNoneStream;
-import org.apache.skywalking.oap.server.core.mutation.entity.ThreadMonitorTaskCreationResult;
-import org.apache.skywalking.oap.server.core.query.entity.ThreadMonitorTask;
+import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.profile.IThreadMonitorTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -37,24 +36,24 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author MrPro
  */
-public class ThreadMonitorTaskMutationService implements Service {
+public class ProfileTaskMutationService implements Service {
 
     private final ModuleManager moduleManager;
-    private IThreadMonitorTaskQueryDAO threadMonitorTaskQueryDAO;
+    private IProfileTaskQueryDAO profileTaskQueryDAO;
 
-    public ThreadMonitorTaskMutationService(ModuleManager moduleManager) {
+    public ProfileTaskMutationService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private IThreadMonitorTaskQueryDAO getThreadMonitorTaskDAO() {
-        if (threadMonitorTaskQueryDAO == null) {
-            this.threadMonitorTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IThreadMonitorTaskQueryDAO.class);
+    private IProfileTaskQueryDAO getProfileTaskDAO() {
+        if (profileTaskQueryDAO == null) {
+            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
         }
-        return threadMonitorTaskQueryDAO;
+        return profileTaskQueryDAO;
     }
 
     /**
-     * create new thread monitor task
+     * create new profile task
      * @param serviceId monitor service id
      * @param endpointName monitor endpoint name
      * @param monitorStartTime create fix start time task when it's bigger 0
@@ -63,8 +62,8 @@ public class ThreadMonitorTaskMutationService implements Service {
      * @param dumpPeriod dump period
      * @return task create result
      */
-    public ThreadMonitorTaskCreationResult createTask(final int serviceId, final String endpointName, final long monitorStartTime, final int monitorDuration,
-                                                      final int minDurationThreshold, final int dumpPeriod) throws IOException {
+    public ProfileTaskCreationResult createTask(final int serviceId, final String endpointName, final long monitorStartTime, final int monitorDuration,
+                                                final int minDurationThreshold, final int dumpPeriod) throws IOException {
 
         // calculate task execute range
         long taskStartTime = monitorStartTime > 0 ? monitorStartTime : System.currentTimeMillis();
@@ -73,12 +72,12 @@ public class ThreadMonitorTaskMutationService implements Service {
         // check data
         final String errorMessage = checkDataSuccess(serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod);
         if (errorMessage != null) {
-            return ThreadMonitorTaskCreationResult.builder().errorReason(errorMessage).build();
+            return ProfileTaskCreationResult.builder().errorReason(errorMessage).build();
         }
 
         // create task
         final long createTime = System.currentTimeMillis();
-        final ThreadMonitorTaskNoneStream task = new ThreadMonitorTaskNoneStream();
+        final ProfileTaskNoneStream task = new ProfileTaskNoneStream();
         task.setServiceId(serviceId);
         task.setEndpointName(endpointName.trim());
         task.setStartTime(taskStartTime);
@@ -89,7 +88,7 @@ public class ThreadMonitorTaskMutationService implements Service {
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(taskEndTime));
         NoneStreamingProcessor.getInstance().in(task);
 
-        return ThreadMonitorTaskCreationResult.builder().id(task.id()).build();
+        return ProfileTaskCreationResult.builder().id(task.id()).build();
     }
 
     private String checkDataSuccess(final Integer serviceId, final String endpointName, final long monitorStartTime, final long monitorEndTime, final int monitorDuration,
@@ -123,7 +122,7 @@ public class ThreadMonitorTaskMutationService implements Service {
         // Each service can monitor up to 1 endpoints during the execution of tasks
         long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
         long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
-        final List<ThreadMonitorTask> alreadyHaveTaskList = getThreadMonitorTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket);
+        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             // if any task time bucket in this range, means already have task, because time bucket is base on task end time
             return "current service already has monitor task execute at this time";

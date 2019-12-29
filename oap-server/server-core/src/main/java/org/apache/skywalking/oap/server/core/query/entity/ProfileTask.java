@@ -16,21 +16,27 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile.threadmonitor.creation;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import lombok.*;
 
 /**
  * @author MrPro
  */
-public class ThreadMonitorTaskCreationResultMatcher extends AbstractMatcher<ThreadMonitorTaskCreationResult> {
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ProfileTask {
 
-    @Override
-    public void verify(ThreadMonitorTaskCreationResult threadMonitorTaskCreationResult) {
-        doVerify("not null", threadMonitorTaskCreationResult.getId());
-        assertThat(threadMonitorTaskCreationResult.getErrorReason()).isNullOrEmpty();
-    }
+    private String id;
+    private int serviceId;
+    private String serviceName;
+    private String endpointName;
+    private long startTime;
+    private int duration;
+    private int minDurationThreshold;
+    private int dumpPeriod;
 
 }

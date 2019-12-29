@@ -15,37 +15,22 @@
  * limitations under the License.
  *
  */
-
-package org.apache.skywalking.e2e.profile.threadmonitor.query;
+package org.apache.skywalking.e2e.profile.query;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import lombok.ToString;
+
+import java.util.List;
 
 /**
  * @author MrPro
  */
 @Setter
 @Getter
-public class ThreadMonitorTaskMatcher extends AbstractMatcher<ThreadMonitorTask> {
+@ToString
+public class ProfileTasks {
 
-    private String id;
-    private String serviceId;
-    private String endpointName;
-    private String startTime;
-    private String duration;
-    private String minDurationThreshold;
-    private String dumpPeriod;
-
-    @Override
-    public void verify(ThreadMonitorTask task) {
-        doVerify(id, task.getId());
-        doVerify(serviceId, task.getServiceId());
-        doVerify(endpointName, task.getEndpointName());
-        doVerify(startTime, task.getStartTime());
-        doVerify(duration, task.getDuration());
-        doVerify(minDurationThreshold, task.getMinDurationThreshold());
-        doVerify(dumpPeriod, task.getDumpPeriod());
-    }
+    private List<ProfileTask> tasks;
 
 }

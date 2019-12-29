@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ThreadMonitorTaskNoneStream;
-import org.apache.skywalking.oap.server.core.query.entity.ThreadMonitorTask;
-import org.apache.skywalking.oap.server.core.storage.profile.IThreadMonitorTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -37,32 +37,32 @@ import java.util.List;
 /**
  * @author MrPro
  */
-public class ThreadMonitorTaskQueryEsDAO extends EsDAO implements IThreadMonitorTaskQueryDAO {
+public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO {
 
-    public ThreadMonitorTaskQueryEsDAO(ElasticSearchClient client) {
+    public ProfileTaskQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public List<ThreadMonitorTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
         if (serviceId != null) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ThreadMonitorTaskNoneStream.SERVICE_ID, serviceId));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.SERVICE_ID, serviceId));
         }
 
         if (!StringUtil.isBlank(endpointName)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ThreadMonitorTaskNoneStream.ENDPOINT_NAME, endpointName));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.ENDPOINT_NAME, endpointName));
         }
 
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ThreadMonitorTaskNoneStream.TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
 
-        final SearchResponse response = getClient().search(ThreadMonitorTaskNoneStream.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient().search(ProfileTaskNoneStream.INDEX_NAME, sourceBuilder);
 
-        final LinkedList<ThreadMonitorTask> tasks = new LinkedList<>();
+        final LinkedList<ProfileTask> tasks = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             tasks.add(parseTask(searchHit));
         }
@@ -70,14 +70,14 @@ public class ThreadMonitorTaskQueryEsDAO extends EsDAO implements IThreadMonitor
         return tasks;
     }
 
-    private ThreadMonitorTask parseTask(SearchHit data) {
-        return ThreadMonitorTask.builder()
+    private ProfileTask parseTask(SearchHit data) {
+        return ProfileTask.builder()
                 .id(data.getId())
-                .serviceId(((Number) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.SERVICE_ID)).intValue())
-                .endpointName((String) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.ENDPOINT_NAME))
-                .startTime(((Number) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.MONITOR_START_TIME)).longValue())
-                .duration(((Number) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.MONITOR_DURATION)).intValue())
-                .minDurationThreshold(((Number) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.MIN_DURATION_THRESHOLD)).intValue())
-                .dumpPeriod(((Number) data.getSourceAsMap().get(ThreadMonitorTaskNoneStream.DUMP_PERIOD)).intValue()).build();
+                .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.SERVICE_ID)).intValue())
+                .endpointName((String) data.getSourceAsMap().get(ProfileTaskNoneStream.ENDPOINT_NAME))
+                .startTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.START_TIME)).longValue())
+                .duration(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DURATION)).intValue())
+                .minDurationThreshold(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD)).intValue())
+                .dumpPeriod(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DUMP_PERIOD)).intValue()).build();
     }
 }

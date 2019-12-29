@@ -21,11 +21,11 @@ package org.apache.skywalking.e2e.profile;
 import com.google.common.io.Resources;
 import org.apache.skywalking.e2e.GQLResponse;
 import org.apache.skywalking.e2e.SimpleQueryClient;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationRequest;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationResult;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationResultWrapper;
-import org.apache.skywalking.e2e.profile.threadmonitor.query.ThreadMonitorTaskQuery;
-import org.apache.skywalking.e2e.profile.threadmonitor.query.ThreadMonitorTasks;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResultWrapper;
+import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
+import org.apache.skywalking.e2e.profile.query.ProfileTasks;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -48,8 +48,8 @@ public class ProfileClient extends SimpleQueryClient {
         super(host, port);
     }
 
-    public ThreadMonitorTaskCreationResult createThreadMonitorTask(final ThreadMonitorTaskCreationRequest creationRequest) throws Exception {
-        final URL queryFileUrl = Resources.getResource("threadMonitorTaskCreation.gql");
+    public ProfileTaskCreationResult createProfileTask(final ProfileTaskCreationRequest creationRequest) throws Exception {
+        final URL queryFileUrl = Resources.getResource("profileTaskCreation.gql");
         final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
                 .stream()
                 .filter(it -> !it.startsWith("#"))
@@ -61,9 +61,9 @@ public class ProfileClient extends SimpleQueryClient {
                 .replace("{durationUnit}", creationRequest.getDurationUnit())
                 .replace("{minDurationThreshold}", String.valueOf(creationRequest.getMinDurationThreshold()))
                 .replace("{dumpPeriod}", String.valueOf(creationRequest.getDumpPeriod()));
-        final ResponseEntity<GQLResponse<ThreadMonitorTaskCreationResultWrapper>> responseEntity = restTemplate.exchange(
+        final ResponseEntity<GQLResponse<ProfileTaskCreationResultWrapper>> responseEntity = restTemplate.exchange(
                 new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
-                new ParameterizedTypeReference<GQLResponse<ThreadMonitorTaskCreationResultWrapper>>() {
+                new ParameterizedTypeReference<GQLResponse<ProfileTaskCreationResultWrapper>>() {
                 }
         );
 
@@ -74,8 +74,8 @@ public class ProfileClient extends SimpleQueryClient {
         return responseEntity.getBody().getData().getCreationResult();
     }
 
-    public ThreadMonitorTasks getThreadMonitorTaskList(final ThreadMonitorTaskQuery query) throws IOException {
-        final URL queryFileUrl = Resources.getResource("getThreadMonitorTaskList.gql");
+    public ProfileTasks getProfileTaskList(final ProfileTaskQuery query) throws IOException {
+        final URL queryFileUrl = Resources.getResource("getProfileTaskList.gql");
         final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
                 .stream()
                 .filter(it -> !it.startsWith("#"))
@@ -85,9 +85,9 @@ public class ProfileClient extends SimpleQueryClient {
                 .replace("{step}", query.step())
                 .replace("{serviceId}", String.valueOf(query.serviceId()))
                 .replace("{endpointName}", query.endpointName());
-        final ResponseEntity<GQLResponse<ThreadMonitorTasks>> responseEntity = restTemplate.exchange(
+        final ResponseEntity<GQLResponse<ProfileTasks>> responseEntity = restTemplate.exchange(
                 new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
-                new ParameterizedTypeReference<GQLResponse<ThreadMonitorTasks>>() {
+                new ParameterizedTypeReference<GQLResponse<ProfileTasks>>() {
                 }
         );
 

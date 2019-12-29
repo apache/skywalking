@@ -22,8 +22,8 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
-import org.apache.skywalking.oap.server.core.query.ThreadMonitorTaskQueryService;
-import org.apache.skywalking.oap.server.core.query.entity.ThreadMonitorTask;
+import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -37,24 +37,24 @@ import java.util.List;
 public class ProfileQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
-    private ThreadMonitorTaskQueryService threadMonitorTaskQueryService;
+    private ProfileTaskQueryService profileTaskQueryService;
 
     public ProfileQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private ThreadMonitorTaskQueryService getThreadMonitorTaskQueryService() {
-        if (threadMonitorTaskQueryService == null) {
-            this.threadMonitorTaskQueryService = moduleManager.find(CoreModule.NAME).provider().getService(ThreadMonitorTaskQueryService.class);
+    private ProfileTaskQueryService getProfileTaskQueryService() {
+        if (profileTaskQueryService == null) {
+            this.profileTaskQueryService = moduleManager.find(CoreModule.NAME).provider().getService(ProfileTaskQueryService.class);
         }
-        return threadMonitorTaskQueryService;
+        return profileTaskQueryService;
     }
 
-    public List<ThreadMonitorTask> getThreadMonitorTaskList(final Integer serviceId, final String endpointName, final Duration duration) throws IOException {
+    public List<ProfileTask> getProfileTaskList(final Integer serviceId, final String endpointName, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
-        return getThreadMonitorTaskQueryService().getTaskList(serviceId, endpointName, startTimeBucket, endTimeBucket);
+        return getProfileTaskQueryService().getTaskList(serviceId, endpointName, startTimeBucket, endTimeBucket);
     }
 
 

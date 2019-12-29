@@ -19,12 +19,12 @@
 package com.apache.skywalking.e2e;
 
 import org.apache.skywalking.e2e.profile.ProfileClient;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationRequest;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationResult;
-import org.apache.skywalking.e2e.profile.threadmonitor.creation.ThreadMonitorTaskCreationResultMatcher;
-import org.apache.skywalking.e2e.profile.threadmonitor.query.ThreadMonitorTaskQuery;
-import org.apache.skywalking.e2e.profile.threadmonitor.query.ThreadMonitorTasks;
-import org.apache.skywalking.e2e.profile.threadmonitor.query.ThreadMonitorTasksMatcher;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
+import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResultMatcher;
+import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
+import org.apache.skywalking.e2e.profile.query.ProfileTasks;
+import org.apache.skywalking.e2e.profile.query.ProfilesTasksMatcher;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -115,20 +115,20 @@ public class ProfileVerificationITCase {
         // verify basic info
         verifyServices(minutesAgo);
 
-        // create thread monitor task
-        verifyCreateThreadMonitorTask(minutesAgo);
+        // create profile task
+        verifyCreateProfileTask(minutesAgo);
 
     }
 
     /**
-     * verify create thread monitor task
+     * verify create profile task
      * @param minutesAgo
      * @throws Exception
      */
-    private void verifyCreateThreadMonitorTask(LocalDateTime minutesAgo) throws Exception {
+    private void verifyCreateProfileTask(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final ThreadMonitorTaskCreationRequest creationRequest = ThreadMonitorTaskCreationRequest.builder()
+        final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
                 .serviceId(2)
                 .endpointName("/e2e/users")
                 .duration(5)
@@ -138,27 +138,27 @@ public class ProfileVerificationITCase {
                 .dumpPeriod(10).build();
 
         // verify create task
-        final ThreadMonitorTaskCreationResult creationResult = profileClient.createThreadMonitorTask(creationRequest);
-        LOGGER.info("create thread monitor task result: {}", creationResult);
+        final ProfileTaskCreationResult creationResult = profileClient.createProfileTask(creationRequest);
+        LOGGER.info("create profile task result: {}", creationResult);
 
-        ThreadMonitorTaskCreationResultMatcher creationResultMatcher = new ThreadMonitorTaskCreationResultMatcher();
+        ProfileTaskCreationResultMatcher creationResultMatcher = new ProfileTaskCreationResultMatcher();
         creationResultMatcher.verify(creationResult);
 
         // verify get task list
-        final ThreadMonitorTasks tasks = profileClient.getThreadMonitorTaskList(
-                new ThreadMonitorTaskQuery()
+        final ProfileTasks tasks = profileClient.getProfileTaskList(
+                new ProfileTaskQuery()
                         .stepByMinute()
                         .start(minutesAgo)
                         .end(LocalDateTime.now(ZoneOffset.of("+8")).plusMinutes(15))
                         .serviceId(creationRequest.getServiceId())
                         .endpointName("")
         );
-        LOGGER.info("get thread monitor task list: {}", tasks);
+        LOGGER.info("get profile task list: {}", tasks);
 
         InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.threadMonitorTasks.yml").getInputStream();
+                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.yml").getInputStream();
 
-        final ThreadMonitorTasksMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ThreadMonitorTasksMatcher.class);
+        final ProfilesTasksMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfilesTasksMatcher.class);
         servicesMatcher.verify(tasks);
     }
 

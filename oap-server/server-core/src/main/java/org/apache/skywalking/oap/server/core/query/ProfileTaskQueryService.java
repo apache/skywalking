@@ -19,10 +19,10 @@ package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.query.entity.ThreadMonitorTask;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.profile.IThreadMonitorTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -33,24 +33,24 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 /**
- * handle thread monitor task queries
+ * handle profile task queries
  *
  * @author MrPro
  */
-public class ThreadMonitorTaskQueryService implements Service {
+public class ProfileTaskQueryService implements Service {
     private final ModuleManager moduleManager;
-    private IThreadMonitorTaskQueryDAO threadMonitorTaskQueryDAO;
+    private IProfileTaskQueryDAO profileTaskQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
 
-    public ThreadMonitorTaskQueryService(ModuleManager moduleManager) {
+    public ProfileTaskQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private IThreadMonitorTaskQueryDAO getThreadMonitorTaskDAO() {
-        if (threadMonitorTaskQueryDAO == null) {
-            this.threadMonitorTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IThreadMonitorTaskQueryDAO.class);
+    private IProfileTaskQueryDAO getProfileTaskDAO() {
+        if (profileTaskQueryDAO == null) {
+            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
         }
-        return threadMonitorTaskQueryDAO;
+        return profileTaskQueryDAO;
     }
 
     private ServiceInventoryCache getServiceInventoryCache() {
@@ -61,20 +61,20 @@ public class ThreadMonitorTaskQueryService implements Service {
     }
 
     /**
-     * search thread monitor task list
+     * search profile task list
      * @param serviceId monitor service
      * @param endpointName endpoint name to monitored
      * @param searchStartTimeBucket start time bucket
      * @param searchEndTimeBucket end time bucket
      * @return
      */
-    public List<ThreadMonitorTask> getTaskList(Integer serviceId, String endpointName, long searchStartTimeBucket, long searchEndTimeBucket) throws IOException {
-        final List<ThreadMonitorTask> tasks = getThreadMonitorTaskDAO().getTaskList(serviceId, endpointName, searchStartTimeBucket, searchEndTimeBucket);
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long searchStartTimeBucket, long searchEndTimeBucket) throws IOException {
+        final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, searchStartTimeBucket, searchEndTimeBucket);
 
         // add service name
         if (CollectionUtils.isNotEmpty(tasks)) {
             final ServiceInventoryCache serviceInventoryCache = getServiceInventoryCache();
-            for (ThreadMonitorTask task : tasks) {
+            for (ProfileTask task : tasks) {
                 final ServiceInventory serviceInventory = serviceInventoryCache.get(task.getServiceId());
                 if (serviceInventory != null) {
                     task.setServiceName(serviceInventory.getName());

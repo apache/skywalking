@@ -16,25 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.mutation.entity;
+package org.apache.skywalking.e2e.profile.creation;
 
-import lombok.*;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * create thread monitor task result
- *
  * @author MrPro
  */
-@Setter
-@Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ThreadMonitorTaskCreationResult {
+public class ProfileTaskCreationResultMatcher extends AbstractMatcher<ProfileTaskCreationResult> {
 
-    // if null or empty means the task create success, otherwise get create error reason
-    private String errorReason;
-    // get data id when create success
-    private String id;
+    @Override
+    public void verify(ProfileTaskCreationResult profileTaskCreationResult) {
+        doVerify("not null", profileTaskCreationResult.getId());
+        assertThat(profileTaskCreationResult.getErrorReason()).isNullOrEmpty();
+    }
 
 }

@@ -16,11 +16,12 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile.threadmonitor.query;
+package org.apache.skywalking.e2e.profile.query;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.assertj.core.api.Assertions;
 
 import java.util.List;
 
@@ -31,13 +32,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Setter
 @Getter
-public class ThreadMonitorTasksMatcher extends AbstractMatcher<ThreadMonitorTasks> {
+public class ProfilesTasksMatcher extends AbstractMatcher<ProfileTasks> {
 
-    private List<ThreadMonitorTaskMatcher> tasks;
+    private List<ProfileTaskMatcher> tasks;
 
     @Override
-    public void verify(ThreadMonitorTasks matcher) {
-        assertThat(matcher.getTasks()).hasSameSizeAs(this.tasks);
+    public void verify(ProfileTasks matcher) {
+        Assertions.assertThat(matcher.getTasks()).hasSameSizeAs(this.tasks);
 
         int size = this.getTasks().size();
 

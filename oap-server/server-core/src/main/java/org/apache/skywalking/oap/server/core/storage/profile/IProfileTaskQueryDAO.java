@@ -15,22 +15,29 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.storage.profile;
 
-package org.apache.skywalking.e2e.profile.threadmonitor.creation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-import lombok.*;
+import java.io.IOException;
+import java.util.List;
 
 /**
- * e2e profile, create thread monitor task result entity
+ * process all profile task query
  *
  * @author MrPro
  */
-@Setter
-@Getter
-@ToString
-public class ThreadMonitorTaskCreationResult {
+public interface IProfileTaskQueryDAO extends DAO {
 
-    private String errorReason;
-    private String id;
+    /**
+     * search task list in appoint time bucket
+     * @param serviceId monitor service id, maybe null
+     * @param endpointName endpoint name, maybe empty
+     * @param startTimeBucket time bucket bigger than or equals
+     * @param endTimeBucket time bucket small than or equals
+     * @return
+     */
+    List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final long startTimeBucket, final long endTimeBucket) throws IOException;
 
 }

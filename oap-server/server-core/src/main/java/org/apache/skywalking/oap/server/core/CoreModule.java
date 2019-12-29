@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.mutation.ThreadMonitorTaskMutationService;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
@@ -80,8 +80,8 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addProfileService(List<Class> classes) {
-        classes.add(ThreadMonitorTaskMutationService.class);
-        classes.add(ThreadMonitorTaskQueryService.class);
+        classes.add(ProfileTaskMutationService.class);
+        classes.add(ProfileTaskQueryService.class);
     }
 
     private void addQueryService(List<Class> classes) {

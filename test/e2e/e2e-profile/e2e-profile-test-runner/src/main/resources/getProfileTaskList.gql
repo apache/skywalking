@@ -15,22 +15,24 @@
 # limitations under the License.
 
 {
-  "query":"mutation createThreadMonitorTask($creationRequest: ThreadMonitorTaskCreationRequest!) {
-    creationResult: createThreadMonitorTask(creationRequest: $creationRequest) {
-      errorReason: errorReason
+  "query":"query queryProfileTaskList($serviceId: ID!, $endpointName: String!, $duration: Duration!) {
+    tasks: getProfileTaskList(serviceId: $serviceId, endpointName: $endpointName, duration: $duration) {
       id: id
+      serviceId: serviceId
+      endpointName: endpointName
+      startTime: startTime
+      duration: duration
+      minDurationThreshold: minDurationThreshold
+      dumpPeriod: dumpPeriod
     }
   }",
   "variables": {
-    "creationRequest": {
-		"serviceId": "{serviceId}",
-		"endpointName": "{endpointName}",
-		"duration": {duration},
-		"startTime": {startTime},
-		"durationUnit": "{durationUnit}",
-		"minDurationThreshold": {minDurationThreshold},
-		"dumpPeriod": {dumpPeriod}
-	}
+    "serviceId": "{serviceId}",
+    "endpointName": "{endpointName}",
+    "duration": {
+      "start": "{start}",
+      "end": "{end}",
+      "step": "{step}"
+    }
   }
 }
-

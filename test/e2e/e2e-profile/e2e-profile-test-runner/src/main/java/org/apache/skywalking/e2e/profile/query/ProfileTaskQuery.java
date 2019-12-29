@@ -16,28 +16,36 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile.threadmonitor.creation;
+package org.apache.skywalking.e2e.profile.query;
 
-import lombok.*;
+import org.apache.skywalking.e2e.AbstractQuery;
 
 /**
- * e2e profile, create thread monitor task entity
+ * profile query data
  *
  * @author MrPro
  */
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ThreadMonitorTaskCreationRequest {
+public class ProfileTaskQuery extends AbstractQuery<ProfileTaskQuery> {
 
     private int serviceId;
     private String endpointName;
-    private long startTime;
-    private int duration;
-    private String durationUnit;
-    private int minDurationThreshold;
-    private int dumpPeriod;
+
+    public int serviceId() {
+        return serviceId;
+    }
+
+    public String endpointName() {
+        return endpointName;
+    }
+
+    public ProfileTaskQuery serviceId(int serviceId) {
+        this.serviceId = serviceId;
+        return this;
+    }
+
+    public ProfileTaskQuery endpointName(String endpointName) {
+        this.endpointName = endpointName;
+        return this;
+    }
 
 }

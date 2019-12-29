@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ThreadMonitorTaskNoneStream;
-import org.apache.skywalking.oap.server.core.query.entity.ThreadMonitorTask;
-import org.apache.skywalking.oap.server.core.storage.profile.IThreadMonitorTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 import java.io.IOException;
@@ -35,35 +35,35 @@ import java.util.List;
 /**
  * @author MrPro
  */
-public class H2ThreadMonitorTaskQueryDAO implements IThreadMonitorTaskQueryDAO {
+public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private JDBCHikariCPClient h2Client;
 
-    public H2ThreadMonitorTaskQueryDAO(JDBCHikariCPClient h2Client) {
+    public H2ProfileTaskQueryDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
     }
 
     @Override
-    public List<ThreadMonitorTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ThreadMonitorTaskNoneStream.INDEX_NAME).append(" where ");
-        sql.append(" (").append(ThreadMonitorTaskNoneStream.TIME_BUCKET).append(">=? and ").append(ThreadMonitorTaskNoneStream.TIME_BUCKET).append("<=?)");
+        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where ");
+        sql.append(" (").append(ProfileTaskNoneStream.TIME_BUCKET).append(">=? and ").append(ProfileTaskNoneStream.TIME_BUCKET).append("<=?)");
         condition.add(startTimeBucket);
         condition.add(endTimeBucket);
 
         if (serviceId != null) {
-            sql.append(" and ").append(ThreadMonitorTaskNoneStream.SERVICE_ID).append("=? ");
+            sql.append(" and ").append(ProfileTaskNoneStream.SERVICE_ID).append("=? ");
             condition.add(serviceId);
         }
 
         if (!StringUtil.isBlank(endpointName)) {
-            sql.append(" and ").append(ThreadMonitorTaskNoneStream.ENDPOINT_NAME).append("=?");
+            sql.append(" and ").append(ProfileTaskNoneStream.ENDPOINT_NAME).append("=?");
             condition.add(endpointName);
         }
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final LinkedList<ThreadMonitorTask> tasks = new LinkedList<>();
+                final LinkedList<ProfileTask> tasks = new LinkedList<>();
                 while (resultSet.next()) {
                     tasks.add(parseTask(resultSet));
                 }
@@ -75,18 +75,18 @@ public class H2ThreadMonitorTaskQueryDAO implements IThreadMonitorTaskQueryDAO {
     }
 
     /**
-     * parse thread monitor task data
+     * parse profile task data
      * @param data
      * @return
      */
-    private ThreadMonitorTask parseTask(ResultSet data) throws SQLException {
-        return ThreadMonitorTask.builder()
+    private ProfileTask parseTask(ResultSet data) throws SQLException {
+        return ProfileTask.builder()
                 .id(data.getString("id"))
-                .serviceId(data.getInt(ThreadMonitorTaskNoneStream.SERVICE_ID))
-                .endpointName(data.getString(ThreadMonitorTaskNoneStream.ENDPOINT_NAME))
-                .startTime(data.getLong(ThreadMonitorTaskNoneStream.MONITOR_START_TIME))
-                .duration(data.getInt(ThreadMonitorTaskNoneStream.MONITOR_DURATION))
-                .minDurationThreshold(data.getInt(ThreadMonitorTaskNoneStream.MIN_DURATION_THRESHOLD))
-                .dumpPeriod(data.getInt(ThreadMonitorTaskNoneStream.DUMP_PERIOD)).build();
+                .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
+                .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
+                .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
+                .duration(data.getInt(ProfileTaskNoneStream.DURATION))
+                .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
+                .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD)).build();
     }
 }

@@ -16,11 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.e2e.profile.creation;
 
 import lombok.*;
 
 /**
+ * e2e profile, create profile task entity
+ *
  * @author MrPro
  */
 @Setter
@@ -28,14 +30,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ThreadMonitorTask {
+public class ProfileTaskCreationRequest {
 
-    private String id;
     private int serviceId;
-    private String serviceName;
     private String endpointName;
     private long startTime;
     private int duration;
+    private String durationUnit;
     private int minDurationThreshold;
     private int dumpPeriod;
 

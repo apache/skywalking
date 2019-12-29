@@ -22,13 +22,13 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 /**
- * Thread monitor task create need data
+ * Profile task create need data
  *
  * @author MrPro
  */
 @Setter
 @Getter
-public class ThreadMonitorTaskCreationRequest {
+public class ProfileTaskCreationRequest {
 
     private int serviceId;
     private String endpointName;
