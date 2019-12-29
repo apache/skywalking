@@ -60,8 +60,8 @@ public class ThreadMonitorTaskNoneStream extends NoneStream {
 
     @Column(columnName = SERVICE_ID) private int serviceId;
     @Column(columnName = ENDPOINT_NAME) private String endpointName;
-    @Column(columnName = MONITOR_START_TIME) private long monitorStartTime;
-    @Column(columnName = MONITOR_DURATION) private int monitorDuration;
+    @Column(columnName = MONITOR_START_TIME) private long startTime;
+    @Column(columnName = MONITOR_DURATION) private int duration;
     @Column(columnName = MIN_DURATION_THRESHOLD) private int minDurationThreshold;
     @Column(columnName = DUMP_PERIOD) private int dumpPeriod;
     @Column(columnName = CREATE_TIME) private long createTime;
@@ -73,8 +73,8 @@ public class ThreadMonitorTaskNoneStream extends NoneStream {
             final ThreadMonitorTaskNoneStream record = new ThreadMonitorTaskNoneStream();
             record.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
             record.setEndpointName((String)dbMap.get(ENDPOINT_NAME));
-            record.setMonitorStartTime(((Number)dbMap.get(MONITOR_START_TIME)).longValue());
-            record.setMonitorDuration(((Number)dbMap.get(MONITOR_DURATION)).intValue());
+            record.setStartTime(((Number)dbMap.get(MONITOR_START_TIME)).longValue());
+            record.setDuration(((Number)dbMap.get(MONITOR_DURATION)).intValue());
             record.setMinDurationThreshold(((Number)dbMap.get(MIN_DURATION_THRESHOLD)).intValue());
             record.setDumpPeriod(((Number)dbMap.get(DUMP_PERIOD)).intValue());
             record.setCreateTime(((Number)dbMap.get(CREATE_TIME)).longValue());
@@ -87,8 +87,8 @@ public class ThreadMonitorTaskNoneStream extends NoneStream {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());
-            map.put(MONITOR_START_TIME, storageData.getMonitorStartTime());
-            map.put(MONITOR_DURATION, storageData.getMonitorDuration());
+            map.put(MONITOR_START_TIME, storageData.getStartTime());
+            map.put(MONITOR_DURATION, storageData.getDuration());
             map.put(MIN_DURATION_THRESHOLD, storageData.getMinDurationThreshold());
             map.put(DUMP_PERIOD, storageData.getDumpPeriod());
             map.put(CREATE_TIME, storageData.getCreateTime());

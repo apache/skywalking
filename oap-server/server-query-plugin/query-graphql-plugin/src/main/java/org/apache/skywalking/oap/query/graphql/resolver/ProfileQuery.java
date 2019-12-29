@@ -51,8 +51,8 @@ public class ProfileQuery implements GraphQLQueryResolver {
     }
 
     public List<ThreadMonitorTask> getThreadMonitorTaskList(final Integer serviceId, final String endpointName, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
 
         return getThreadMonitorTaskQueryService().getTaskList(serviceId, endpointName, startTimeBucket, endTimeBucket);
     }

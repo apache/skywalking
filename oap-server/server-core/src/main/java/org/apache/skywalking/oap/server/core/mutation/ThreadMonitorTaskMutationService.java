@@ -80,8 +80,8 @@ public class ThreadMonitorTaskMutationService implements Service {
         final ThreadMonitorTaskNoneStream task = new ThreadMonitorTaskNoneStream();
         task.setServiceId(serviceId);
         task.setEndpointName(endpointName.trim());
-        task.setMonitorStartTime(taskStartTime);
-        task.setMonitorDuration(monitorDuration);
+        task.setStartTime(taskStartTime);
+        task.setDuration(monitorDuration);
         task.setMinDurationThreshold(minDurationThreshold);
         task.setDumpPeriod(dumpPeriod);
         task.setCreateTime(createTime);
