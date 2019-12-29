@@ -59,7 +59,7 @@ docker.all: $(DOCKER_TARGETS)
 
 ifeq ($(ES_VERSION),7)
 docker.oap: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
-docker.oap: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap-es7
+docker.oap: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap-es7/log4j2.xml
 		$(DOCKER_RULE)

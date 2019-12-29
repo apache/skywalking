@@ -38,7 +38,7 @@ jobs:
       - name: Build docker image
         run: export ES_VERSION=${{ matrix.es }} && make docker
       - name: Bootstrap cluster
-        run: cd ${DOCKER_DIR} && docker-compose -f docker-compose-${{ matrix.es }}.yml up -d
+        run: cd ${DOCKER_DIR} && docker-compose -f docker-compose-es${{ matrix.es }}.yml up -d
       - name: Check port avaliable
         run: |
           source ./test/scripts/env.sh
@@ -54,9 +54,9 @@ jobs:
         run: |
           mkdir -p ${LOG_DIR}
           cd ${DOCKER_DIR}
-          docker-compose logs oap > ${LOG_DIR}/oap.txt
-          docker-compose logs ui > ${LOG_DIR}/ui.txt
-          docker-compose logs elasticsearch > ${LOG_DIR}/es.txt
+          docker-compose -f docker-compose-es${{ matrix.es }}.yml logs oap > ${LOG_DIR}/oap.txt
+          docker-compose -f docker-compose-es${{ matrix.es }}.yml logs ui > ${LOG_DIR}/ui.txt
+          docker-compose -f docker-compose-es${{ matrix.es }}.yml logs elasticsearch > ${LOG_DIR}/es.txt
         continue-on-error: true
       - uses: actions/upload-artifact@v1.0.0
         continue-on-error: true

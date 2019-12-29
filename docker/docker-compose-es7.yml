@@ -29,7 +29,7 @@ services:
         soft: -1
         hard: -1
   oap:
-    image: skywalking/oap-es7
+    image: skywalking/oap
     container_name: oap
     depends_on:
       - elasticsearch
