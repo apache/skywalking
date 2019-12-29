@@ -24,6 +24,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        es: [6, 7]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/cache@v1
@@ -33,9 +36,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build docker image
-        run: make docker
+        run: export es_version=${{ matrix.es }} && make docker
       - name: Bootstrap cluster
-        run: cd ${DOCKER_DIR} && docker-compose up -d
+        run: cd ${DOCKER_DIR} && docker-compose -f docker-compose-${{ matrix.es }} up -d
       - name: Check port avaliable
         run: |
           source ./test/scripts/env.sh

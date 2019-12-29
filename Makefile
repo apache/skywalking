@@ -39,14 +39,13 @@ build.backend:
 build.ui:
 	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pui,dist
 
-build.docker:
-	cd $(SW_ROOT) && ./mvnw clean package -Dmaven.test.skip=$(SKIP_TEST) -Pbackend,ui,dist
-
 DOCKER_BUILD_TOP:=${SW_OUT}/docker_build
 
 HUB?=skywalking
 
 TAG?=latest
+
+ES_VERSION?=6
 
 .SECONDEXPANSION: #allow $@ to be used in dependency list
 
@@ -58,17 +57,19 @@ DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
 
+ifeq ($(ES_VERSION),7)
+docker.oap: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
+docker.oap: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap-es7
+docker.oap: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
+docker.oap: $(SW_ROOT)/docker/oap-es7/log4j2.xml
+		$(DOCKER_RULE)
+else
 docker.oap: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.oap: $(SW_ROOT)/docker/oap/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap/docker-entrypoint.sh
 docker.oap: $(SW_ROOT)/docker/oap/log4j2.xml
 		$(DOCKER_RULE)
-
-docker.oap-es7: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
-docker.oap-es7: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap-es7
-docker.oap-es7: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
-docker.oap-es7: $(SW_ROOT)/docker/oap-es7/log4j2.xml
-		$(DOCKER_RULE)
+endif
 
 docker.ui: $(SW_OUT)/apache-skywalking-apm-bin.tar.gz
 docker.ui: $(SW_ROOT)/docker/ui/Dockerfile.ui
