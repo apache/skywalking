@@ -65,6 +65,7 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implements GRPCHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterServiceHandler.class);
+    private static final String INSTANCE_CUSTOMIZED_NAME_PREFIX = "NAME:";
 
     private final ServiceInventoryCache serviceInventoryCache;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
@@ -109,6 +110,12 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         request.getInstancesList().forEach(instance -> {
             ServiceInventory serviceInventory = serviceInventoryCache.get(instance.getServiceId());
 
+            String instanceUUID = instance.getInstanceUUID();
+            String instanceName = null;
+            if (instanceUUID.startsWith(INSTANCE_CUSTOMIZED_NAME_PREFIX)) {
+                instanceName = instanceUUID.substring(INSTANCE_CUSTOMIZED_NAME_PREFIX.length());
+            }
+
             JsonObject instanceProperties = new JsonObject();
             List<String> ipv4s = new ArrayList<>();
 
@@ -136,19 +143,24 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             }
             instanceProperties.addProperty(IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4s));
 
-            String instanceName = serviceInventory.getName();
-            if (instanceProperties.has(PROCESS_NO)) {
-                instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
-            }
-            if (instanceProperties.has(HOST_NAME)) {
-                instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
+            if (instanceName == null) {
+                /**
+                 * After 7.0.0, only active this naming rule when instance name has not been set in UUID parameter.
+                 */
+                instanceName = serviceInventory.getName();
+                if (instanceProperties.has(PROCESS_NO)) {
+                    instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
+                }
+                if (instanceProperties.has(HOST_NAME)) {
+                    instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
+                }
             }
 
-            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instance.getInstanceUUID(), instance.getTime(), instanceProperties);
+            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instanceUUID, instance.getTime(), instanceProperties);
 
             if (serviceInstanceId != Const.NONE) {
-                logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instance.getInstanceUUID());
-                builder.addServiceInstances(KeyIntValuePair.newBuilder().setKey(instance.getInstanceUUID()).setValue(serviceInstanceId));
+                logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instanceUUID);
+                builder.addServiceInstances(KeyIntValuePair.newBuilder().setKey(instanceUUID).setValue(serviceInstanceId));
             }
         });
 
