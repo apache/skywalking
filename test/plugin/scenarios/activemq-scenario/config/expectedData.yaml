@@ -77,5 +77,3 @@ segmentItems:
         tags:
         - {key: mq.broker, value: not null}
         - {key: mq.queue, value: test}
-        refs:
-        - {parentEndpointId: 0, parentEndpoint: /activemq-scenario/case/activemq, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: '${activemq-scenario[0]}', parentServiceInstanceId: nq 0, networkAddress: not null, entryEndpoint: /activemq-scenario/case/activemq, entryServiceInstanceId: nq 0}
