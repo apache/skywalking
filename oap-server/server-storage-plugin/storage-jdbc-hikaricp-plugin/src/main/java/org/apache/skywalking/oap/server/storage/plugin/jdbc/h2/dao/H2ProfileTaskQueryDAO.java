@@ -56,7 +56,7 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             condition.add(serviceId);
         }
 
-        if (!StringUtil.isBlank(endpointName)) {
+        if (StringUtil.isNotEmpty(endpointName)) {
             sql.append(" and ").append(ProfileTaskNoneStream.ENDPOINT_NAME).append("=?");
             condition.add(endpointName);
         }

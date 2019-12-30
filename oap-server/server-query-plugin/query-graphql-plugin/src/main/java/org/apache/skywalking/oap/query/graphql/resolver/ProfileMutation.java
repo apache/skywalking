@@ -51,7 +51,7 @@ public class ProfileMutation implements GraphQLMutationResolver {
     public ProfileTaskCreationResult createProfileTask(ProfileTaskCreationRequest creationRequest) throws IOException {
         return getProfileTaskService().createTask(
                 creationRequest.getServiceId(),
-                creationRequest.getEndpointName(),
+                creationRequest.getEndpointName() == null ? null : creationRequest.getEndpointName().trim(),
                 creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(),
                 Math.toIntExact(DurationUtils.INSTANCE.toSecond(creationRequest.getDurationUnit(), creationRequest.getDuration())),
                 creationRequest.getMinDurationThreshold(),

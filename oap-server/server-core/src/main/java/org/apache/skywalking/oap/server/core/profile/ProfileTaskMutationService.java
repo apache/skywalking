@@ -97,7 +97,7 @@ public class ProfileTaskMutationService implements Service {
         if (serviceId == null) {
             return "service cannot be null";
         }
-        if (StringUtil.isBlank(endpointName)) {
+        if (StringUtil.isEmpty(endpointName)) {
             return "endpoint name cannot be empty";
         }
         if (monitorEndTime - monitorStartTime < TimeUnit.MINUTES.toMillis(1)) {

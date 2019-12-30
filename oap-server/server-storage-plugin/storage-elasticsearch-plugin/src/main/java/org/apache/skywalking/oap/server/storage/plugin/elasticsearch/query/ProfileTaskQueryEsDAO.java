@@ -54,7 +54,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.SERVICE_ID, serviceId));
         }
 
-        if (!StringUtil.isBlank(endpointName)) {
+        if (StringUtil.isNotEmpty(endpointName)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.ENDPOINT_NAME, endpointName));
         }
 
