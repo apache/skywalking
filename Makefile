@@ -57,7 +57,7 @@ DOCKER_TARGETS:=docker.oap docker.ui
 
 docker.all: $(DOCKER_TARGETS)
 
-ifeq ($(ES_VERSION),7)
+ifeq ($(ES_VERSION),es7)
 docker.oap: $(SW_OUT)/apache-skywalking-apm-bin-es7.tar.gz
 docker.oap: $(SW_ROOT)/docker/oap-es7/Dockerfile.oap
 docker.oap: $(SW_ROOT)/docker/oap-es7/docker-entrypoint.sh
