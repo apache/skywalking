@@ -65,6 +65,6 @@ public class TraceAnnotationActivation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override protected ClassMatch enhanceClass() {
-        return MethodAnnotationMatch.byMethodAnnotationMatch(new String[] {TRACE_ANNOTATION});
+        return MethodAnnotationMatch.byMethodAnnotationMatch(TRACE_ANNOTATION);
     }
 }
