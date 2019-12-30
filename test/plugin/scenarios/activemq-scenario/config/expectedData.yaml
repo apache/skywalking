@@ -25,24 +25,8 @@ segmentItems:
 - applicationCode: activemq-scenario
   segmentSize: ge 2
   segments:
-  - segmentId: /activemq-scenario/case/activemq
+  - segmentId: not null
     spans:
-      - operationName: ActiveMQ/Queue/test/Producer
-        operationId: 0
-        parentSpanId: 0
-        spanId: 1
-        spanLayer: MQ
-        startTime: nq 0
-        endTime: nq 0
-        componentId: 45
-        componentName: ''
-        isError: false
-        spanType: Exit
-        peer: not null
-        peerId: 0
-        tags:
-        - {key: mq.broker, value: not null}
-        - {key: mq.queue, value: test}
       - operationName: /activemq-scenario/case/activemq
         operationId: 0
         parentSpanId: -1
