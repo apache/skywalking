@@ -64,12 +64,10 @@ public class ProfileTaskQueryService implements Service {
      * search profile task list
      * @param serviceId monitor service
      * @param endpointName endpoint name to monitored
-     * @param searchStartTimeBucket start time bucket
-     * @param searchEndTimeBucket end time bucket
      * @return
      */
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long searchStartTimeBucket, long searchEndTimeBucket) throws IOException {
-        final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, searchStartTimeBucket, searchEndTimeBucket);
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName) throws IOException {
+        final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, null, null, null);
 
         // add service name
         if (CollectionUtils.isNotEmpty(tasks)) {

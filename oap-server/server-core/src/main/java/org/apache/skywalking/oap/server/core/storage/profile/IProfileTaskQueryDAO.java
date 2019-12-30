@@ -34,10 +34,11 @@ public interface IProfileTaskQueryDAO extends DAO {
      * search task list in appoint time bucket
      * @param serviceId monitor service id, maybe null
      * @param endpointName endpoint name, maybe empty
-     * @param startTimeBucket time bucket bigger than or equals
-     * @param endTimeBucket time bucket small than or equals
+     * @param startTimeBucket time bucket bigger than or equals, nullable
+     * @param endTimeBucket time bucket small than or equals, nullable
+     * @param limit limit count, if null means query all
      * @return
      */
-    List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final long startTimeBucket, final long endTimeBucket) throws IOException;
+    List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final Long startTimeBucket, final Long endTimeBucket, final Integer limit) throws IOException;
 
 }

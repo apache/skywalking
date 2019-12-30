@@ -133,7 +133,6 @@ public class ProfileVerificationITCase {
                 .endpointName("/e2e/users")
                 .duration(5)
                 .startTime(-1)
-                .durationUnit("MINUTE")
                 .minDurationThreshold(10)
                 .dumpPeriod(10).build();
 
@@ -147,9 +146,6 @@ public class ProfileVerificationITCase {
         // verify get task list
         final ProfileTasks tasks = profileClient.getProfileTaskList(
                 new ProfileTaskQuery()
-                        .stepByMinute()
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.of("+8")).plusMinutes(15))
                         .serviceId(creationRequest.getServiceId())
                         .endpointName("")
         );

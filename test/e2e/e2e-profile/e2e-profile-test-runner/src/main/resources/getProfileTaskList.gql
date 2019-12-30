@@ -15,8 +15,8 @@
 # limitations under the License.
 
 {
-  "query":"query queryProfileTaskList($serviceId: ID!, $endpointName: String!, $duration: Duration!) {
-    tasks: getProfileTaskList(serviceId: $serviceId, endpointName: $endpointName, duration: $duration) {
+  "query":"query queryProfileTaskList($serviceId: ID!, $endpointName: String!) {
+    tasks: getProfileTaskList(serviceId: $serviceId, endpointName: $endpointName) {
       id: id
       serviceId: serviceId
       endpointName: endpointName
@@ -28,11 +28,6 @@
   }",
   "variables": {
     "serviceId": "{serviceId}",
-    "endpointName": "{endpointName}",
-    "duration": {
-      "start": "{start}",
-      "end": "{end}",
-      "step": "{step}"
-    }
+    "endpointName": "{endpointName}"
   }
 }

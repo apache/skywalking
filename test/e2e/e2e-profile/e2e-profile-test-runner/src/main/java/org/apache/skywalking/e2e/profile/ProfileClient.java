@@ -58,7 +58,6 @@ public class ProfileClient extends SimpleQueryClient {
                 .replace("{endpointName}", creationRequest.getEndpointName())
                 .replace("{duration}", String.valueOf(creationRequest.getDuration()))
                 .replace("{startTime}", String.valueOf(creationRequest.getStartTime()))
-                .replace("{durationUnit}", creationRequest.getDurationUnit())
                 .replace("{minDurationThreshold}", String.valueOf(creationRequest.getMinDurationThreshold()))
                 .replace("{dumpPeriod}", String.valueOf(creationRequest.getDumpPeriod()));
         final ResponseEntity<GQLResponse<ProfileTaskCreationResultWrapper>> responseEntity = restTemplate.exchange(
@@ -80,9 +79,6 @@ public class ProfileClient extends SimpleQueryClient {
                 .stream()
                 .filter(it -> !it.startsWith("#"))
                 .collect(Collectors.joining())
-                .replace("{start}", query.start())
-                .replace("{end}", query.end())
-                .replace("{step}", query.step())
                 .replace("{serviceId}", String.valueOf(query.serviceId()))
                 .replace("{endpointName}", query.endpointName());
         final ResponseEntity<GQLResponse<ProfileTasks>> responseEntity = restTemplate.exchange(

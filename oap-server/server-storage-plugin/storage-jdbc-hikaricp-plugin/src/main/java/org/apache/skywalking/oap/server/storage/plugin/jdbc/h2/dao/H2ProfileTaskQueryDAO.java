@@ -43,13 +43,20 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where ");
-        sql.append(" (").append(ProfileTaskNoneStream.TIME_BUCKET).append(">=? and ").append(ProfileTaskNoneStream.TIME_BUCKET).append("<=?)");
-        condition.add(startTimeBucket);
-        condition.add(endTimeBucket);
+        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where 1=1 ");
+
+        if (startTimeBucket != null) {
+            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" >= ? ");
+            condition.add(startTimeBucket);
+        }
+
+        if (endTimeBucket != null) {
+            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" <= ? ");
+            condition.add(endTimeBucket);
+        }
 
         if (serviceId != null) {
             sql.append(" and ").append(ProfileTaskNoneStream.SERVICE_ID).append("=? ");
@@ -59,6 +66,12 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         if (StringUtil.isNotEmpty(endpointName)) {
             sql.append(" and ").append(ProfileTaskNoneStream.ENDPOINT_NAME).append("=?");
             condition.add(endpointName);
+        }
+
+        sql.append(" ORDER BY ").append(ProfileTaskNoneStream.START_TIME).append(" DESC ");
+
+        if (limit != null) {
+            sql.append(" LIMIT ").append(limit);
         }
 
         try (Connection connection = h2Client.getConnection()) {

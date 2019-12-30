@@ -36,7 +36,6 @@ public class ProfileTaskCreationRequest {
     private String endpointName;
     private long startTime;
     private int duration;
-    private String durationUnit;
     private int minDurationThreshold;
     private int dumpPeriod;
 

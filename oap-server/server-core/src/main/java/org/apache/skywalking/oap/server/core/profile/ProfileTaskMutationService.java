@@ -57,7 +57,7 @@ public class ProfileTaskMutationService implements Service {
      * @param serviceId monitor service id
      * @param endpointName monitor endpoint name
      * @param monitorStartTime create fix start time task when it's bigger 0
-     * @param monitorDuration monitor task duration(second)
+     * @param monitorDuration monitor task duration(minute)
      * @param minDurationThreshold min duration threshold
      * @param dumpPeriod dump period
      * @return task create result
@@ -67,7 +67,7 @@ public class ProfileTaskMutationService implements Service {
 
         // calculate task execute range
         long taskStartTime = monitorStartTime > 0 ? monitorStartTime : System.currentTimeMillis();
-        long taskEndTime = taskStartTime + TimeUnit.SECONDS.toMillis(monitorDuration);
+        long taskEndTime = taskStartTime + TimeUnit.MINUTES.toMillis(monitorDuration);
 
         // check data
         final String errorMessage = checkDataSuccess(serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod);
@@ -122,7 +122,7 @@ public class ProfileTaskMutationService implements Service {
         // Each service can monitor up to 1 endpoints during the execution of tasks
         long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
         long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
-        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket);
+        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             // if any task time bucket in this range, means already have task, because time bucket is base on task end time
             return "current service already has monitor task execute at this time";

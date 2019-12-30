@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -50,11 +48,8 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return profileTaskQueryService;
     }
 
-    public List<ProfileTask> getProfileTaskList(final Integer serviceId, final String endpointName, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
-
-        return getProfileTaskQueryService().getTaskList(serviceId, endpointName, startTimeBucket, endTimeBucket);
+    public List<ProfileTask> getProfileTaskList(final Integer serviceId, final String endpointName) throws IOException {
+        return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
     }
 
 

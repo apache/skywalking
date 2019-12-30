@@ -122,7 +122,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearch7Client));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEs7DAO(elasticSearch7Client));
 
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQueryEs7DAO(elasticSearch7Client));
+        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQueryEs7DAO(elasticSearch7Client, config.getProfileTaskQueryMaxSize()));
     }
 
     @Override

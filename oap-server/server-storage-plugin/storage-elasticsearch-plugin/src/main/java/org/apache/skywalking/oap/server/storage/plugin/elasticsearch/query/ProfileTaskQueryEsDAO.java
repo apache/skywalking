@@ -29,6 +29,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -39,12 +40,15 @@ import java.util.List;
  */
 public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO {
 
-    public ProfileTaskQueryEsDAO(ElasticSearchClient client) {
+    private final int queryMaxSize;
+
+    public ProfileTaskQueryEsDAO(ElasticSearchClient client, int queryMaxSize) {
         super(client);
+        this.queryMaxSize = queryMaxSize;
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, long startTimeBucket, long endTimeBucket) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -58,7 +62,21 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.ENDPOINT_NAME, endpointName));
         }
 
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).gte(startTimeBucket).lte(endTimeBucket));
+        if (startTimeBucket != null) {
+            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).gte(startTimeBucket));
+        }
+
+        if (endTimeBucket != null) {
+            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).lte(endTimeBucket));
+        }
+
+        if (limit != null) {
+            sourceBuilder.size(limit);
+        } else {
+            sourceBuilder.size(queryMaxSize);
+        }
+
+        sourceBuilder.sort(ProfileTaskNoneStream.START_TIME, SortOrder.DESC);
 
         final SearchResponse response = getClient().search(ProfileTaskNoneStream.INDEX_NAME, sourceBuilder);
 

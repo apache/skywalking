@@ -27,7 +27,6 @@
 		"endpointName": "{endpointName}",
 		"duration": {duration},
 		"startTime": {startTime},
-		"durationUnit": "{durationUnit}",
 		"minDurationThreshold": {minDurationThreshold},
 		"dumpPeriod": {dumpPeriod}
 	}

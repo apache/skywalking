@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.query.graphql.type.ProfileTaskCreationRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -53,7 +52,7 @@ public class ProfileMutation implements GraphQLMutationResolver {
                 creationRequest.getServiceId(),
                 creationRequest.getEndpointName() == null ? null : creationRequest.getEndpointName().trim(),
                 creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(),
-                Math.toIntExact(DurationUtils.INSTANCE.toSecond(creationRequest.getDurationUnit(), creationRequest.getDuration())),
+                creationRequest.getDuration(),
                 creationRequest.getMinDurationThreshold(),
                 creationRequest.getDumpPeriod()
         );
