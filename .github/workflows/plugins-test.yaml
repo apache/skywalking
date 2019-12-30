@@ -19,13 +19,7 @@ name: PluginsTest
 on:
   pull_request:
     paths:
-      - '**/pom.xml'
-      - 'apm-commons/**'
-      - 'apm-protocol/**'
-      - 'apm-sniffer/**'
-      - 'test/plugin/**'
-      - 'apm-application-toolkit/**'
-      - '.github/workflows/plugins-test.yaml'
+      - '**'
 
 jobs:
   Spring_Dubbo:
