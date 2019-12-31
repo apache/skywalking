@@ -51,10 +51,7 @@ public interface ILog {
 
     void debug(String format, Object... arguments);
 
-    default void debug(Throwable t, String format, Object... arguments) {
-        // Just ignore the throwable by default, to make the compiler happy
-        debug(format, arguments);
-    }
+    void debug(Throwable t, String format, Object... arguments);
 
     void error(String format);
 }
