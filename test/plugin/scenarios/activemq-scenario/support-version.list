@@ -2,7 +2,7 @@
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
+# to you under the Apache License, Version
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
 #
@@ -14,8 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation
-toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationActivation
+5.10.0
+5.10.1
+5.10.2
+5.11.0
+5.11.1
+5.12.0
+5.12.1
+5.12.2
+5.13.0
+5.13.1
+5.13.2
+5.13.3
+5.13.4
+5.14.0
+5.14.1
+5.14.2
+5.14.3
+5.14.4
+5.14.5
+5.15.2
+5.15.3
+5.15.4

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.customize.util;
+package org.apache.skywalking.apm.agent.core.util;
 
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -39,7 +39,10 @@ public class CustomizeExpression {
     private static final ILog logger = LogManager.getLogger(CustomizeExpression.class);
 
     public static Map<String, Object> evaluationContext(Object[] allArguments) {
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
+        if (allArguments == null) {
+            return context;
+        }
         for (int i = 0; i < allArguments.length; i++) {
             context.put("arg[" + i + "]", allArguments[i]);
         }
@@ -86,21 +89,22 @@ public class CustomizeExpression {
     }
 
     private static Object matcherList(String expression, Object o) {
-        int index = Integer.valueOf(expression.replace("[", "").replace("]", ""));
+        int index = Integer.parseInt(expression.replace("[", "").replace("]", ""));
         List l = (List) o;
         return l != null && l.size() > index ? l.get(index) : null;
     }
 
     private static Object matcherArray(String expression, Object o) {
-        int index = Integer.valueOf(expression.replace("[", "").replace("]", ""));
+        int index = Integer.parseInt(expression.replace("[", "").replace("]", ""));
         return o != null && Array.getLength(o) > index ? Array.get(o, index) : null;
     }
 
     private static Object matcherDefault(String expression, Object o) {
         try {
             if (expression.contains("()")) {
-                Method m = o.getClass().getMethod(expression.replace("()", ""), null);
-                return m.invoke(o, null);
+                Method m = o.getClass().getMethod(expression.replace("()", ""));
+                m.setAccessible(true);
+                return m.invoke(o);
             } else {
                 Field f = o.getClass().getDeclaredField(expression);
                 f.setAccessible(true);

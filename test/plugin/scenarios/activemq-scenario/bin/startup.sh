@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,8 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceAnnotationActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.TraceContextActivation
-toolkit-trace=org.apache.skywalking.apm.toolkit.activation.trace.CallableOrRunnableActivation
-toolkit-tag=org.apache.skywalking.apm.toolkit.activation.trace.TagAnnotationActivation
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/activemq-scenario.jar &

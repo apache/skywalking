@@ -460,7 +460,7 @@ jobs:
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
 
-  Oracle_Kafka_JdkHttp_JdkThreading:
+  Oracle_Activemq_Kafka_JdkHttp_JdkThreading:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -487,6 +487,8 @@ jobs:
           ./mvnw install:install-file  -Dfile=ojdbc14-10.2.0.4.0.jar  -DgroupId=com.oracle  -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
           ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
           bash test/plugin/run.sh oracle-scenario
+      - name: Run activemq 5.10.0-5.15.4 (22)
+        run: bash test/plugin/run.sh activemq-scenario
       - name: Run kafka 0.11.0.0-2.3.0 (16)
         run: bash test/plugin/run.sh kafka-scenario
       - name: Run jdk http (1)
