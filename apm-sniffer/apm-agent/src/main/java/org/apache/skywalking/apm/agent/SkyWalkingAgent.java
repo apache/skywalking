@@ -65,16 +65,12 @@ public class SkyWalkingAgent {
      * @param instrumentation
      * @throws PluginException
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException, IOException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
+            SnifferConfigInitializer.initializeAgentConfig(agentArgs);
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
-
-        } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
-            return;
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
