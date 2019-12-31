@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -37,7 +37,7 @@ public class ExecuteInstrumentation extends ClassInstanceMethodsEnhancePluginDef
     
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback";
     
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ExecuteInterceptor";
+    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.ExecuteInterceptor";
     
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {

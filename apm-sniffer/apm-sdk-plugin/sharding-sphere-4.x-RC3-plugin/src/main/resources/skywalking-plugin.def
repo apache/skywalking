@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4.define.ProxyRootInvokeInstrumentation
-sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4.define.JDBCRootInvokeInstrumentation
-sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4.define.ParseInstrumentation
-sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4.define.ExecuteInstrumentation
+sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define.ProxyRootInvokeInstrumentation
+sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define.JDBCRootInvokeInstrumentation
+sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define.ParseInstrumentation
+sharding-sphere-4.x-rc3=org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define.ExecuteInstrumentation

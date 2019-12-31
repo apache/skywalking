@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -37,7 +37,7 @@ public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhanceP
     
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask";
     
-    private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ProxyRootInvokeInterceptor";
+    private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.ProxyRootInvokeInterceptor";
     
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {

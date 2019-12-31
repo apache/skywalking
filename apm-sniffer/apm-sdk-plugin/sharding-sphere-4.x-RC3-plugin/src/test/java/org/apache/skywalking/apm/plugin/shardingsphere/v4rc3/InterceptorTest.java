@@ -17,7 +17,7 @@
  */
 
 
-package org.apache.skywalking.apm.plugin.shardingsphere;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -27,10 +27,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.plugin.shardingsphere.v4.ExecuteInterceptor;
-import org.apache.skywalking.apm.plugin.shardingsphere.v4.JDBCRootInvokeInterceptor;
-import org.apache.skywalking.apm.plugin.shardingsphere.v4.ParseInterceptor;
-import org.apache.skywalking.apm.plugin.shardingsphere.v4.ProxyRootInvokeInterceptor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

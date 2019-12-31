@@ -16,11 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4;
+package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3;
 
+import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -29,16 +28,16 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * {@link ParseInterceptor} enhances {@link org.apache.shardingsphere.core.route.router.sharding.ShardingRouter}, creating a local span that records the parse of sql.
+ * {@link JDBCRootInvokeInterceptor} enhances {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor}, creating a local span that records the overall execution of sql.
  *
  * @author zhangyonglun
  */
-public class ParseInterceptor implements InstanceMethodsAroundInterceptor {
+public class JDBCRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
     
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) {
-        AbstractSpan span = ContextManager.createLocalSpan("/ShardingSphere/parseSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
-        Tags.DB_STATEMENT.set(span, (String) allArguments[0]);
+        ContextManager.createLocalSpan("/ShardingSphere/JDBCRootInvoke/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
     
     @Override
