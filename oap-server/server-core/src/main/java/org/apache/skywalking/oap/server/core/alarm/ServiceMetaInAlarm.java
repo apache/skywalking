@@ -31,6 +31,10 @@ public class ServiceMetaInAlarm extends MetaInAlarm {
     private String[] tags;
     private String[] properties;
 
+    @Override public String getScope() {
+        return DefaultScopeDefine.SERVICE_CATALOG_NAME;
+    }
+
     @Override public int getScopeId() {
         return DefaultScopeDefine.SERVICE;
     }

@@ -23,6 +23,7 @@ PRGDIR=`dirname "$PRG"`
 state_house=$1
 testcase_name=${scenario_name}-${scenario_version}
 
+status=1
 <#noparse>touch ${state_house}/${testcase_name}.RUNNING</#noparse>
 
 ${running_script}

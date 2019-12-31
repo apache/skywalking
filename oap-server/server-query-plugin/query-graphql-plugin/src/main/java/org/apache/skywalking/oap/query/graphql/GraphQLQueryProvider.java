@@ -70,6 +70,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
             .resolvers(new TopNRecordsQuery(getManager()))
             .file("query-protocol/log.graphqls")
             .resolvers(new LogQuery(getManager()))
+            .file("query-protocol/profile.graphqls")
+            .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
             .build()
             .makeExecutableSchema();
         this.graphQL = GraphQL.newGraphQL(schema).build();

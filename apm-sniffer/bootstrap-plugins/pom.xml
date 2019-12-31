@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,6 +42,7 @@
 
     <modules>
         <module>jdk-http-plugin</module>
+        <module>jdk-threading-plugin</module>
     </modules>
 
     <dependencies>

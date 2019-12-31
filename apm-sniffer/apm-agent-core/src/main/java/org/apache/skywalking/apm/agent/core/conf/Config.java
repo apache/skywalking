@@ -19,12 +19,13 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -167,7 +168,8 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "system.out" to output logs.
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. 
+         * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
          *
          * Ref to {@link WriterFactory#getLogWriter()}
          */
@@ -220,6 +222,14 @@ public class Config {
              * include parameters.
              */
             public static boolean TRACE_PARAM = false;
+
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code FILTER_LENGTH_LIMIT} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int FILTER_LENGTH_LIMIT = 256;
         }
 
         public static class Elasticsearch {
@@ -273,6 +283,22 @@ public class Config {
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
         }
 
+        public static class POSTGRESQL {
+            /**
+             * If set to true, the parameters of the sql (typically {@link java.sql.PreparedStatement}) would be
+             * collected.
+             */
+            public static boolean TRACE_SQL_PARAMETERS = false;
+
+            /**
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
+             *
+             * Set a negative number to save the complete parameter string to the tag.
+             */
+            public static int SQL_PARAMETERS_MAX_LENGTH = 512;
+        }
+
         public static class SolrJ {
             /**
              * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
@@ -291,11 +317,14 @@ public class Config {
          */
         public static class OPGroup {
             /**
-             * Rules for RestTemplate plugin
+             * Since 6.6.0, exit span is not requesting endpoint register,
+             * this group rule is not required.
+             *
+             * Keep this commented, just as a reminder that, it will be reused in a RPC server side plugin.
              */
-            public static class RestTemplate implements OPGroupDefinition {
-                public static Map<String, String> RULE = new HashMap<String, String>();
-            }
+//            public static class RestTemplate implements OPGroupDefinition {
+//                public static Map<String, String> RULE = new HashMap<String, String>();
+//            }
         }
 
         public static class Light4J {
@@ -304,6 +333,25 @@ public class Config {
              * generating a local span for each.
              */
             public static boolean TRACE_HANDLER_CHAIN = false;
+        }
+
+        public static class SpringTransaction {
+
+            /**
+             * If true, the transaction definition name will be simplified
+             */
+            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
+        }
+
+        public static class JdkThreading {
+
+            /**
+             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable}
+             * and their subclasses, including anonymous inner classes)
+             * whose name matches any one of the {@code THREADING_CLASS_PREFIXES} (splitted by ,)
+             * will be instrumented
+             */
+            public static String THREADING_CLASS_PREFIXES = "";
         }
     }
 }

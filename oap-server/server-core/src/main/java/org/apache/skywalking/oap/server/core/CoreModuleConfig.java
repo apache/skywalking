@@ -38,6 +38,7 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter private int maxConcurrentCallsPerConnection;
     @Setter private int maxMessageSize;
     @Setter private boolean enableDatabaseSession;
+    @Setter private int topNReportPeriod;
     private final List<String> downsampling;
     /**
      * The period of doing data persistence.
@@ -57,6 +58,14 @@ public class CoreModuleConfig extends ModuleConfig {
      * Timeout for cluster internal communication, in seconds.
      */
     @Setter private int remoteTimeout = 20;
+
+    /**
+     * Following are cache settings for inventory(s)
+     */
+    private long maxSizeOfServiceInventory = 10_000L;
+    private long maxSizeOfServiceInstanceInventory = 1_000_000L;
+    private long maxSizeOfEndpointInventory = 1_000_000L;
+    private long maxSizeOfNetworkInventory = 1_000_000L;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

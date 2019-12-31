@@ -39,4 +39,13 @@
         <servlet-name>healthCheck</servlet-name>
         <url-pattern>/case/healthCheck</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>asyncVisit</servlet-name>
+        <servlet-class>org.apache.skywalking.apm.testcase.spring.async.AsyncServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>asyncVisit</servlet-name>
+        <url-pattern>/case/asyncVisit</url-pattern>
+    </servlet-mapping>
 </web-app>

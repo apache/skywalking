@@ -30,7 +30,7 @@ public class ServiceNameDiscoveryHandlerTestCase {
     private static final Logger logger = LoggerFactory.getLogger(ServiceNameDiscoveryHandlerTestCase.class);
 
     public static void main(String[] args) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
         ServiceNameDiscoveryServiceGrpc.ServiceNameDiscoveryServiceBlockingStub stub = ServiceNameDiscoveryServiceGrpc.newBlockingStub(channel);
 
         ServiceNameCollection.Builder serviceNameCollection = ServiceNameCollection.newBuilder();

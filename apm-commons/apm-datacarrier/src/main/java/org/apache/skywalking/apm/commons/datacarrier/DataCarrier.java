@@ -69,13 +69,8 @@ public class DataCarrier<T> {
         return this;
     }
 
-    public BlockingDataCarrier<T> toBlockingDataCarrier() {
-        this.channels.setStrategy(BufferStrategy.BLOCKING);
-        return new BlockingDataCarrier<T>(this.channels);
-    }
-
     /**
-     * produce data to buffer, using the givven {@link BufferStrategy}.
+     * produce data to buffer, using the given {@link BufferStrategy}.
      *
      * @param data
      * @return false means produce data failure. The data will not be consumed.

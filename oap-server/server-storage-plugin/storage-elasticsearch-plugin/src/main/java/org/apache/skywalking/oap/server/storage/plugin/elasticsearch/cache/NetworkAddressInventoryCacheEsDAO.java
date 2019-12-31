@@ -32,16 +32,18 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetworkAddressInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
 
-    private final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
+    protected final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
+    protected final int resultWindowMaxSize;
 
-    public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client) {
+    public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);
+        this.resultWindowMaxSize = resultWindowMaxSize;
     }
 
     @Override public int getAddressId(String networkAddress) {
@@ -84,7 +86,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
-            searchSourceBuilder.size(500);
+            searchSourceBuilder.size(resultWindowMaxSize);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
 

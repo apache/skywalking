@@ -20,18 +20,15 @@ home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
 force_build="off"
-build_id="latest"
 cleanup="off"
 
 mvnw=${home}/../../mvnw
 agent_home=${home}"/../../skywalking-agent"
 scenarios_home="${home}/scenarios"
 
-
 print_help() {
-    echo  "Usage: run.sh [OPTION] SCENARIO [SCENARIO]"
+    echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
-    echo -e "\t--build_id, \t\t\t specify Plugin_Test's image tag. Defalt: latest"
     echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
     echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
@@ -44,19 +41,9 @@ parse_commandline() {
         case "$_key" in
             -f|--force_build)
                 force_build="on"
-                shift
                 ;;
             --cleanup)
                 cleanup="on"
-                shift
-                ;;
-            --build_id)
-                test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
-                build_id="$2"
-                shift
-                ;;
-            --build_id=*)
-                build_id="${_key##--build_id=}"
                 ;;
             --parallel_run_size)
                 test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
@@ -90,10 +77,15 @@ exitWithMessage() {
 exitAndClean() {
     elapsed=$(( `date +%s` - $start_stamp ))
     num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
+    [[ $1 -eq 1 ]] && printSystemInfo
     printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
         ${scenario_name} "${num_of_testcases}" "${parallel_run_size}" \
         $(( ${elapsed}/3600 )) $(( ${elapsed}%3600/60 )) $(( ${elapsed}%60 ))
     exit $1
+}
+
+printSystemInfo(){
+  bash ${home}/script/systeminfo.sh
 }
 
 waitForAvailable() {
@@ -108,9 +100,40 @@ waitForAvailable() {
 }
 
 do_cleanup() {
-    docker images -q "skywalking/agent-test-*:${build_id}" | xargs -r docker rmi -f
+    images=$(docker images -q "skywalking/agent-test-*:${BUILD_NO:=local}")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+    images=$(docker images -qf "dangling=true")
+    [[ -n "${images}" ]] && docker rmi -f ${images}
+
+    docker network prune -f
+    docker volume prune -f
+
     [[ -d ${home}/dist ]] && rm -rf ${home}/dist
     [[ -d ${home}/workspace ]] && rm -rf ${home}/workspace
+}
+
+agent_home_selector() {
+    running_mode=$1
+    with_plugins=$2
+
+    plugin_dir="optional-plugins"
+    target_agent_dir="agent_with_optional"
+    if [[ "${running_mode}" != "with_optional" ]]; then
+        plugin_dir="bootstrap-plugins"
+        target_agent_dir="agent_with_bootstrap"
+    fi
+
+    target_agent_home=${workspace}/${target_agent_dir}
+    mkdir -p ${target_agent_home}
+    cp -fr ${agent_home}/* ${target_agent_home}
+
+    with_plugins=`echo $with_plugins |sed -e "s/;/ /g"`
+    for plugin in ${with_plugins};
+    do
+        mv ${target_agent_home}/${plugin_dir}/${plugin} ${target_agent_home}/plugins/
+        [[ $? -ne 0 ]] && exitAndClean 1
+    done
+    _agent_home=${target_agent_home}
 }
 
 start_stamp=`date +%s`
@@ -118,14 +141,16 @@ parse_commandline "$@"
 
 if [[ "$cleanup" == "on" ]]; then
     do_cleanup
-    exit 0
+    [[ -z "${scenario_name}" ]] && exit 0
 fi
+
+test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argument"
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
-    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package 
+    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -Dbuild_id=${build_id} docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"
@@ -141,29 +166,20 @@ fi
 echo "start submit job"
 scenario_home=${scenarios_home}/${scenario_name} && cd ${scenario_home}
 
+
 supported_version_file=${scenario_home}/support-version.list
 if [[ ! -f $supported_version_file ]]; then
     exitWithMessage "cannot found 'support-version.list' in directory ${scenario_name}"
 fi
 
 _agent_home=${agent_home}
-mode=`grep "runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}'`
-if [[ "$mode" == "with_optional" ]]; then
-    agent_with_optional_home=${home}/workspace/agent_with_optional
-    if [[ ! -d ${agent_with_optional_home} ]]; then
-        mkdir -p ${agent_with_optional_home}
-        cp -r ${agent_home}/* ${agent_with_optional_home}
-        mv ${agent_with_optional_home}/optional-plugins/* ${agent_with_optional_home}/plugins/
-    fi
-    _agent_home=${agent_with_optional_home}
-elif [[ "$mode" == "with_bootstrap" ]]; then
-    agent_with_bootstrap_home=${home}/workspace/agent_with_bootstrap
-    if [[ ! -d ${agent_with_bootstrap_home} ]]; then
-        mkdir -p ${agent_with_bootstrap_home}
-        cp -r ${agent_home}/* ${agent_with_bootstrap_home}
-        mv ${agent_with_bootstrap_home}/bootstrap-plugins/* ${agent_with_bootstrap_home}/plugins/
-    fi
-    _agent_home=${agent_with_bootstrap_home}
+running_mode=$(grep "^runningMode" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+with_plugins=$(grep "^withPlugins" ${scenario_home}/configuration.yml |sed -e "s/ //g" |awk -F: '{print $2}')
+
+if [[ -n "${running_mode}" ]]; then
+    [[ -z "${with_plugins}" ]] && exitWithMessage \
+       "'withPlugins' is required configuration when 'runningMode' was set as 'optional_plugins' or 'bootstrap_plugins'"
+    agent_home_selector ${running_mode} ${with_plugins}
 fi
 
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
@@ -193,7 +209,7 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${_agent_home} \
-        -Ddocker.image.version=${build_id} \
+        -Ddocker.image.version=${BUILD_NO:=local} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"

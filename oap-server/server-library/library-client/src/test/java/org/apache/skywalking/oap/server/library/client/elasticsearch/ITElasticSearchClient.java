@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
@@ -81,17 +81,14 @@ public class ITElasticSearchClient {
 
     @Test
     public void indexOperate() throws IOException {
-        JsonObject settings = new JsonObject();
-        settings.addProperty("number_of_shards", 2);
-        settings.addProperty("number_of_replicas", 2);
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("number_of_shards", 2);
+        settings.put("number_of_replicas", 2);
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("_doc", new JsonObject());
-
-        JsonObject doc = mapping.getAsJsonObject("_doc");
+        Map<String, Object> doc = new HashMap<>();
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
@@ -148,18 +145,18 @@ public class ITElasticSearchClient {
 
     @Test
     public void templateOperate() throws IOException {
-        JsonObject settings = new JsonObject();
-        settings.addProperty("number_of_shards", 1);
-        settings.addProperty("number_of_replicas", 0);
-        settings.addProperty("index.refresh_interval", "3s");
-        settings.addProperty("analysis.analyzer.oap_analyzer.type", "stop");
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("number_of_shards", 1);
+        settings.put("number_of_replicas", 0);
+        settings.put("index.refresh_interval", "3s");
+        settings.put("analysis.analyzer.oap_analyzer.type", "stop");
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("type", new JsonObject());
-        JsonObject doc = mapping.getAsJsonObject("type");
+        Map<String, Object> mapping = new HashMap<>();
+        Map<String, Object> doc = new HashMap<>();
+        mapping.put("type", doc);
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
@@ -209,18 +206,18 @@ public class ITElasticSearchClient {
         String indexName = "test_time_series_operate";
         String timeSeriesIndexName = indexName + "-2019";
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("type", new JsonObject());
-        JsonObject doc = mapping.getAsJsonObject("type");
+        Map<String, Object> mapping = new HashMap<>();
+        Map<String, Object> doc = new HashMap<>();
+        mapping.put("type", doc);
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
         properties.add("name", column);
 
-        client.createTemplate(indexName, new JsonObject(), mapping);
+        client.createTemplate(indexName, new HashMap<>(), mapping);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
             .field("name", "pengys")
@@ -250,7 +247,7 @@ public class ITElasticSearchClient {
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
-        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
+        if (StringUtil.isNotEmpty(namespace) && index != null && index.size() > 0) {
             logger.info("UndoFormatIndexName before " + index.toString());
             String namespacePrefix = namespace + "_";
             index.entrySet().forEach(entry -> {

@@ -60,11 +60,20 @@ In this case, calls of each service.
 - `p99`, `p95`, `p90`, `p75`, `p50`. Read [p99 in WIKI](https://en.wikipedia.org/wiki/Percentile)
 > All_p99 = from(All.latency).p99(10);
 
-In this case, p99 value of all incoming requests.
+In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
 - `thermodynamic`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map))
 > All_heatmap = from(All.latency).thermodynamic(100, 20);
 
-In this case, thermodynamic heatmap of all incoming requests.
+In this case, thermodynamic heatmap of all incoming requests. 
+The parameter (1) is the precision of latency calculation, such as in above case, 113ms and 193ms are considered same in the 101-200ms group.
+The parameter (2) is the group amount. In above case, 21(param value + 1) groups are 0-100ms, 101-200ms, ... 1901-2000ms, 2000+ms 
+
+- `apdex`. Read [Apdex in WIKI](https://en.wikipedia.org/wiki/Apdex)
+> service_apdex = from(Service.latency).apdex(name, status);
+
+In this case, apdex score of each service.
+The parameter (1) is the service name, which effects the Apdex threshold value loaded from service-apdex-threshold.yml in the config folder.
+The parameter (2) is the status of this request. The status(success/failure) effects the Apdex calculation.
 
 ## Metrics name
 The metrics name for storage implementor, alarm and query modules. The type inference supported by core.

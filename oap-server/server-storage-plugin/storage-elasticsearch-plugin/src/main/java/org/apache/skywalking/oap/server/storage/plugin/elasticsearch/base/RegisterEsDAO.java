@@ -32,7 +32,7 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
     private final StorageBuilder<RegisterSource> storageBuilder;
 
-    RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
+    public RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }

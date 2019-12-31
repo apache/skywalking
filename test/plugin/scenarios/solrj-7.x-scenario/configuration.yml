@@ -20,6 +20,8 @@ startScript: ./bin/startup.sh
 framework: solrj
 environment:
   - SOLR_SERVER=solr-server:8983
+depends_on:
+  - solr-server
 dependencies:
   solr-server:
     image: solr:${CASE_SERVER_IMAGE_VERSION}

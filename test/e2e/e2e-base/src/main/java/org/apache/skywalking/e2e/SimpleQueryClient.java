@@ -29,9 +29,7 @@ import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoints;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.TopoData;
-import org.apache.skywalking.e2e.topo.TopoQuery;
-import org.apache.skywalking.e2e.topo.TopoResponse;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesData;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -53,9 +51,9 @@ import java.util.stream.Collectors;
  * @author kezhenxu94
  */
 public class SimpleQueryClient {
-    private final RestTemplate restTemplate = new RestTemplate();
+    protected final RestTemplate restTemplate = new RestTemplate();
 
-    private final String endpointUrl;
+    protected final String endpointUrl;
 
     public SimpleQueryClient(String host, String port) {
         this("http://" + host + ":" + port + "/graphql");
@@ -170,6 +168,30 @@ public class SimpleQueryClient {
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<TopoResponse>>() {
             }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+    }
+
+    public ServiceInstanceTopoData serviceInstanceTopo(final ServiceInstanceTopoQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("instanceTopo.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{step}", query.step())
+                .replace("{start}", query.start())
+                .replace("{end}", query.end())
+                .replace("{clientServiceId}", query.clientServiceId())
+                .replace("{serverServiceId}", query.serverServiceId());
+        final ResponseEntity<GQLResponse<ServiceInstanceTopoResponse>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<ServiceInstanceTopoResponse>>() {
+                }
         );
 
         if (responseEntity.getStatusCode() != HttpStatus.OK) {

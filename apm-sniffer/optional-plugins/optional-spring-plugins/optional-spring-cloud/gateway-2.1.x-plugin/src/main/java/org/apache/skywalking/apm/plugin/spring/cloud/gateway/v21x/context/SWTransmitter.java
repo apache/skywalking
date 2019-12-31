@@ -27,23 +27,13 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 public class SWTransmitter {
 
-    private AbstractSpan spanWebflux;
     private AbstractSpan spanGateway;
     private ContextSnapshot snapshot;
     private String operationName;
 
-    public SWTransmitter(AbstractSpan spanWebflux, ContextSnapshot snapshot, String operationName) {
-        this.spanWebflux = spanWebflux;
+    public SWTransmitter(ContextSnapshot snapshot, String operationName) {
         this.snapshot = snapshot;
         this.operationName = operationName;
-    }
-
-    public AbstractSpan getSpanWebflux() {
-        return spanWebflux;
-    }
-
-    public void setSpanWebflux(AbstractSpan spanWebflux) {
-        this.spanWebflux = spanWebflux;
     }
 
     public AbstractSpan getSpanGateway() {

@@ -64,6 +64,19 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <configuration>
@@ -87,8 +100,6 @@
                                 </wait>
                                 <env>
                                     <discovery.type>single-node</discovery.type>
-                                    <thread_pool.index.queue_size>500</thread_pool.index.queue_size>
-                                    <thread_pool.write.queue_size>500</thread_pool.write.queue_size>
                                 </env>
                             </run>
                         </image>
@@ -98,6 +109,7 @@
                             <run>
                                 <env>
                                     <MODE>standalone</MODE>
+                                    <ES_VERSION>${elasticsearch.version}</ES_VERSION>
                                     <SW_STORAGE_ES_CLUSTER_NODES>
                                         ${e2e.container.name.prefix}-elasticsearch:9200
                                     </SW_STORAGE_ES_CLUSTER_NODES>
@@ -117,6 +129,7 @@
                                         <volume>${sw.home}:/sw</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                         <volume>${project.basedir}/src/docker/es_storage.awk:/es_storage.awk</volume>
+                                        <volume>${project.basedir}/src/docker/ttl_official_analysis.oal:/ttl_official_analysis.oal</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
@@ -175,13 +188,6 @@
                 </executions>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
     </build>
 
 </project>

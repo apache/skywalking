@@ -66,10 +66,10 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     public ClusterBrief getGlobalBrief(final long startTimestamp, final long endTimestamp) throws IOException {
         ClusterBrief clusterBrief = new ClusterBrief();
         clusterBrief.setNumOfService(getMetadataQueryDAO().numOfService(startTimestamp, endTimestamp));
-        clusterBrief.setNumOfEndpoint(getMetadataQueryDAO().numOfEndpoint(startTimestamp, endTimestamp));
-        clusterBrief.setNumOfDatabase(getMetadataQueryDAO().numOfConjectural(startTimestamp, endTimestamp, NodeType.Database.value()));
-        clusterBrief.setNumOfCache(getMetadataQueryDAO().numOfConjectural(startTimestamp, endTimestamp, NodeType.Cache.value()));
-        clusterBrief.setNumOfMQ(getMetadataQueryDAO().numOfConjectural(startTimestamp, endTimestamp, NodeType.MQ.value()));
+        clusterBrief.setNumOfEndpoint(getMetadataQueryDAO().numOfEndpoint());
+        clusterBrief.setNumOfDatabase(getMetadataQueryDAO().numOfConjectural(NodeType.Database.value()));
+        clusterBrief.setNumOfCache(getMetadataQueryDAO().numOfConjectural(NodeType.Cache.value()));
+        clusterBrief.setNumOfMQ(getMetadataQueryDAO().numOfConjectural(NodeType.MQ.value()));
         return clusterBrief;
     }
 

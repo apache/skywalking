@@ -33,16 +33,18 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEsDAO.class);
 
-    private final ServiceInventory.Builder builder = new ServiceInventory.Builder();
+    protected final ServiceInventory.Builder builder = new ServiceInventory.Builder();
+    protected final int resultWindowMaxSize;
 
-    public ServiceInventoryCacheEsDAO(ElasticSearchClient client) {
+    public ServiceInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);
+        this.resultWindowMaxSize = resultWindowMaxSize;
     }
 
     @Override public int getServiceId(String serviceName) {
@@ -99,7 +101,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
             boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
 
             searchSourceBuilder.query(boolQuery);
-            searchSourceBuilder.size(500);
+            searchSourceBuilder.size(resultWindowMaxSize);
 
             SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);
 

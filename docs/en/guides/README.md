@@ -90,6 +90,13 @@ We've given a simple example that verifies SkyWalking should work as expected in
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
 They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
+- Troubleshooting
+
+**NOTE:** Please verify the newly-added E2E test case locally first, however, if you find it passed locally but failed in the PR check status, make sure all the updated/newly-added files (especially those in submodules)
+are committed and included in that PR, or reset the git HEAD to the remote and verify locally again.
+
+There should be related logs when tests are failed, but if the OAP backend failed to start at all, there may be just logs saying "timeout", please verify locally again, and recheck the NOTE above.
+
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
 read the following guides.

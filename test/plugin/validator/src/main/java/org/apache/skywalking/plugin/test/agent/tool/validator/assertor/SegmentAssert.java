@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ActualSegmentRefIsEmptyException;
+import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.SegmentRefAssertFailedException;
+import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.SegmentRefNotFoundException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.exception.AssertFailedException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.KeyValueNotEqualsException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.LogEventKeyNotEqualsException;
@@ -104,6 +106,8 @@ public class SegmentAssert {
         ExpressParser.parse(excepted.peer()).assertValue("peer", actualSpan.peer());
         ExpressParser.parse(excepted.spanLayer()).assertValue("span layer", actualSpan.spanLayer());
         ExpressParser.parse(excepted.peerId()).assertValue("peer id", actualSpan.peerId());
+        ExpressParser.parse(excepted.error()).assertValue("is error", actualSpan.error());
+        ExpressParser.parse(excepted.spanType()).assertValue("span type", actualSpan.spanType());
         tagsEquals(excepted.tags(), actualSpan.tags());
         logsEquals(excepted.logs(), actualSpan.logs());
         refEquals(excepted.refs(), actualSpan.refs());
@@ -122,6 +126,10 @@ public class SegmentAssert {
 
         if (excepted.size() != actual.size()) {
             throw new RefSizeNotEqualsException(excepted.size(), actual.size());
+        }
+
+        for (SegmentRef ref : excepted) {
+            findSegmentRef(actual, ref);
         }
     }
 
@@ -187,4 +195,28 @@ public class SegmentAssert {
         }
     }
 
+    private static SegmentRef findSegmentRef(List<SegmentRef> actual, SegmentRef expected) {
+        List<SegmentRefAssertFailedCause> causes = new ArrayList<>();
+        for (SegmentRef segmentRef : actual) {
+            try {
+                if (simpleSegmentRefEquals(expected, segmentRef)) {
+                    return segmentRef;
+                }
+            } catch (SegmentRefAssertFailedException e) {
+                causes.add(new SegmentRefAssertFailedCause(e, segmentRef));
+            }
+        }
+        throw new SegmentRefNotFoundException(expected, causes);
+    }
+
+    private static boolean simpleSegmentRefEquals(SegmentRef expected, SegmentRef actual) {
+        try {
+            ExpressParser.parse(expected.entryEndpointName()).assertValue("entry service name", actual.entryEndpointName());
+            ExpressParser.parse(expected.parentEndpointName()).assertValue("parent service name", actual.parentEndpointName());
+            ExpressParser.parse(expected.refType()).assertValue("ref type", actual.refType());
+            return true;
+        } catch (ValueAssertFailedException e) {
+            throw new SegmentRefAssertFailedException(e, expected, actual);
+        }
+    }
 }

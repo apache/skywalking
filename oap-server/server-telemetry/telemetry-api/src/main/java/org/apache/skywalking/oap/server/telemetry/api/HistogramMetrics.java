@@ -55,7 +55,7 @@ public abstract class HistogramMetrics {
         }
 
         @Override
-        public void close() throws IOException {
+        public void close() {
             finish();
         }
     }
