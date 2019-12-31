@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * if there is no active span, this annotation takes no effect.
  *
  * @author kezhenxu94
+ * @see Tags
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

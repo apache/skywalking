@@ -25,7 +25,15 @@ import java.lang.annotation.Target;
 
 /**
  * A wrapper annotation for {@link Tag} that allows to
- * apply multiple tags to a single method span
+ * apply multiple tags to a single method span,
+ *
+ * <pre>
+ * &#64;Tag(key = "tag1", value = "arg[0]")
+ * &#64;Tag(key = "tag2", value = "arg[1]")
+ * public void test(String param1, String param2) {
+ *     // ...
+ * }
+ * </pre>
  *
  * @author kezhenxu94
  * @see Tag

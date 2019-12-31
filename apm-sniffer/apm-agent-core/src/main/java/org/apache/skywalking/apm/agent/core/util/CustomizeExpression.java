@@ -39,7 +39,10 @@ public class CustomizeExpression {
     private static final ILog logger = LogManager.getLogger(CustomizeExpression.class);
 
     public static Map<String, Object> evaluationContext(Object[] allArguments) {
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
+        if (allArguments == null) {
+            return context;
+        }
         for (int i = 0; i < allArguments.length; i++) {
             context.put("arg[" + i + "]", allArguments[i]);
         }

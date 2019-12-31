@@ -51,10 +51,8 @@ public class TestService {
     }
 
     @Trace
-    @Tags({
-        @Tag(key = "p1", value = "arg[0]"),
-        @Tag(key = "p2", value = "arg[1]"),
-    })
+    @Tag(key = "p1", value = "arg[0]")
+    @Tag(key = "p2", value = "arg[1]")
     public void testTagAnnotation(String param1, String param2) {
         // whatever
     }
