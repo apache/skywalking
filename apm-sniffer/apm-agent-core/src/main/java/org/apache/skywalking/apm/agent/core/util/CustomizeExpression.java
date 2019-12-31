@@ -103,6 +103,7 @@ public class CustomizeExpression {
         try {
             if (expression.contains("()")) {
                 Method m = o.getClass().getMethod(expression.replace("()", ""));
+                m.setAccessible(true);
                 return m.invoke(o);
             } else {
                 Field f = o.getClass().getDeclaredField(expression);
