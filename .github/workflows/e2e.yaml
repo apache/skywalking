@@ -115,4 +115,4 @@ jobs:
       - name: Profile Tests MySQL(JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-mysql-test-runner
       - name: Profile Tests ES6(JDK8)
-          run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-es6-test-runner
+        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-es6-test-runner
