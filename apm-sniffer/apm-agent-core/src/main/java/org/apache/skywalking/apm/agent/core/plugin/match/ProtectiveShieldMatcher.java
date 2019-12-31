@@ -46,7 +46,7 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
         try {
             return this.matcher.matches(target);
         } catch (Throwable t) {
-            logger.warn(t, "Byte-buddy occurs exception when match type.");
+            logger.debug("Byte-buddy occurs exception when match type: {}", t.getMessage());
             return false;
         }
     }
