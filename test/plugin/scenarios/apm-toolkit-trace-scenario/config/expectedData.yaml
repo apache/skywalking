@@ -44,7 +44,7 @@ segmentItems:
             peerId: 0
             tags:
               - {key: key, value: value}
-          - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo()
+          - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo(java.lang.String)
             operationId: 0
             parentSpanId: 0
             spanId: 2
@@ -61,6 +61,8 @@ segmentItems:
               - logEvent:
                   - {key: event, value: info}
                   - {key: message, value: TestInfoMsg}
+            tags:
+              - {key: testTag, value: testInfoParam}
           - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testDebug()
             operationId: 0
             parentSpanId: 0
@@ -127,6 +129,22 @@ segmentItems:
                   - {key: error.kind, value: java.lang.RuntimeException}
                   - {key: message, value: Test-Exception}
                   - {key: stack, value: not null}
+          - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotation(java.lang.String,java.lang.String)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 7
+            spanLayer: Unknown
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 0
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: p1, value: testTagAnnotationParam1}
+              - {key: p2, value: testTagAnnotationParam2}
           - operationName: /case/tool-kit
             operationId: 0
             parentSpanId: -1
