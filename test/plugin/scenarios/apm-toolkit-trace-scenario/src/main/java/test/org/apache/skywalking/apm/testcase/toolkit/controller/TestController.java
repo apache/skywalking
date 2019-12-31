@@ -18,6 +18,8 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
+import java.io.IOException;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -27,9 +29,6 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import java.io.IOException;
 
 /**
  * @author caoyixiong
@@ -46,11 +45,12 @@ public class TestController {
     @RequestMapping("/tool-kit")
     public String toolKitCase() {
         testService.testTag();
-        testService.testInfo();
+        testService.testInfo("testInfoParam");
         testService.testDebug();
         testService.testError();
         testService.testErrorMsg();
         testService.testErrorThrowable();
+        testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
         testService.asyncCallable(() -> {
             visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable");
             return true;
@@ -62,7 +62,7 @@ public class TestController {
                 // ignore
             }
         });
-        testService.asyncSupplier(()->{
+        testService.asyncSupplier(() -> {
             try {
                 visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier");
             } catch (IOException e) {
@@ -90,7 +90,7 @@ public class TestController {
 
     @RequestMapping("/asyncVisit/supplier")
     public String asyncVisitSupplier() {
-    	return SUCCESS;
+        return SUCCESS;
     }
 
 

@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.conf.MethodConfiguration;
 import org.apache.skywalking.apm.plugin.customize.constants.Constants;
-import org.apache.skywalking.apm.plugin.customize.util.CustomizeExpression;
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

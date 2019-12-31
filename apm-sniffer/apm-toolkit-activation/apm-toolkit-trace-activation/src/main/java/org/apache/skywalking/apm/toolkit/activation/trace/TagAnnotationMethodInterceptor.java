@@ -22,50 +22,45 @@ package org.apache.skywalking.apm.toolkit.activation.trace;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
-import org.apache.skywalking.apm.toolkit.trace.Tag;
-import org.apache.skywalking.apm.toolkit.trace.Tags;
-import org.apache.skywalking.apm.toolkit.trace.Trace;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.util.MethodUtil;
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+import org.apache.skywalking.apm.toolkit.trace.Tags;
 
 /**
- * {@link TraceAnnotationMethodInterceptor} create a local span and set the operation name which fetch from
- * <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace.operationName</code>. if the fetch value is blank string, and
- * the operation name will be the method name.
- *
- * @author zhangxin
+ * @author kezhenxu94
  */
-public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        Trace trace = method.getAnnotation(Trace.class);
-        String operationName = trace.operationName();
-        if (operationName.length() == 0 || Config.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
-            operationName = MethodUtil.generateOperationName(method);
+    public void beforeMethod(
+        final EnhancedInstance objInst,
+        final Method method,
+        final Object[] allArguments,
+        final Class<?>[] argumentsTypes,
+        final MethodInterceptResult result) {
+
+        if (!ContextManager.isActive()) {
+            return;
         }
 
-        final AbstractSpan localSpan = ContextManager.createLocalSpan(operationName);
-
+        final AbstractSpan activeSpan = ContextManager.activeSpan();
         final Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
 
         final Tags tags = method.getAnnotation(Tags.class);
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
-                tagSpan(localSpan, tag, context);
+                tagSpan(activeSpan, tag, context);
             }
         }
 
         final Tag tag = method.getAnnotation(Tag.class);
         if (tag != null) {
-            tagSpan(localSpan, tag, context);
+            tagSpan(activeSpan, tag, context);
         }
     }
 
@@ -74,14 +69,24 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        ContextManager.stopSpan();
+    public Object afterMethod(
+        final EnhancedInstance objInst,
+        final Method method,
+        final Object[] allArguments,
+        final Class<?>[] argumentsTypes,
+        final Object ret) {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+    @Override
+    public void handleMethodException(
+        final EnhancedInstance objInst,
+        final Method method,
+        final Object[] allArguments,
+        final Class<?>[] argumentsTypes,
+        final Throwable t) {
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }

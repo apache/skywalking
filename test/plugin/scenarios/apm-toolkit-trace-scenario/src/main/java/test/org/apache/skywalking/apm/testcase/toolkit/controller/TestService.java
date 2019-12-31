@@ -22,6 +22,8 @@ import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.CallableWrapper;
 import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
 import org.apache.skywalking.apm.toolkit.trace.SupplierWrapper;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+import org.apache.skywalking.apm.toolkit.trace.Tags;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +51,13 @@ public class TestService {
     }
 
     @Trace
+    @Tag(key = "p1", value = "arg[0]")
+    @Tag(key = "p2", value = "arg[1]")
+    public void testTagAnnotation(String param1, String param2) {
+        // whatever
+    }
+
+    @Trace
     public void testError() {
         ActiveSpan.error();
     }
@@ -69,7 +78,8 @@ public class TestService {
     }
 
     @Trace
-    public void testInfo() {
+    @Tag(key = "testTag", value = "arg[0]")
+    public void testInfo(final String testInfoParam) {
         ActiveSpan.info("TestInfoMsg");
     }
 
