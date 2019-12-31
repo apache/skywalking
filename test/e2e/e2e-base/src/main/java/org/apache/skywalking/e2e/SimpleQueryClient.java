@@ -51,9 +51,9 @@ import java.util.stream.Collectors;
  * @author kezhenxu94
  */
 public class SimpleQueryClient {
-    private final RestTemplate restTemplate = new RestTemplate();
+    protected final RestTemplate restTemplate = new RestTemplate();
 
-    private final String endpointUrl;
+    protected final String endpointUrl;
 
     public SimpleQueryClient(String host, String port) {
         this("http://" + host + ":" + port + "/graphql");

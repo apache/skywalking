@@ -40,6 +40,7 @@
         <module>e2e-agent-reboot</module>
         <module>e2e-ttl</module>
         <module>e2e-6.x-agent-7.x-oap-compatibility</module>
+        <module>e2e-profile</module>
     </modules>
 
     <properties>
