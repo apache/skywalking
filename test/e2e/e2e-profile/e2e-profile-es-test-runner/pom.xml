@@ -52,8 +52,7 @@
     <properties>
         <provider.name>e2e-profile-service</provider.name>
         <e2e.container.version>1.1</e2e.container.version>
-        <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-es6-profile</e2e.container.name.prefix>
-        <elasticsearch.version>6.3.2</elasticsearch.version>
+        <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-es-profile</e2e.container.name.prefix>
     </properties>
 
     <build>

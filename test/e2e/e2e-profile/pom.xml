@@ -35,7 +35,7 @@
         <module>e2e-profile-test-runner</module>
         <module>e2e-profile-h2-test-runner</module>
         <module>e2e-profile-mysql-test-runner</module>
-        <module>e2e-profile-es6-test-runner</module>
+        <module>e2e-profile-es-test-runner</module>
     </modules>
 
     <dependencies>
