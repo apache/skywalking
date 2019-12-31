@@ -33,6 +33,9 @@
     <modules>
         <module>e2e-profile-service</module>
         <module>e2e-profile-test-runner</module>
+        <module>e2e-profile-h2-test-runner</module>
+        <module>e2e-profile-mysql-test-runner</module>
+        <module>e2e-profile-es6-test-runner</module>
     </modules>
 
     <dependencies>

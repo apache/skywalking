@@ -16,7 +16,7 @@
  *
  */
 
-package com.apache.skywalking.e2e;
+package org.apache.skywalking.e2e;
 
 import org.apache.skywalking.e2e.profile.ProfileClient;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
@@ -74,7 +74,7 @@ public class ProfileVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-//        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
+        //        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
         final String instrumentedServicePort = System.getProperty("service.port", "32782");

@@ -110,5 +110,9 @@ jobs:
           ./mvnw checkstyle:check apache-rat:check
           ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
           ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
-      - name: Profile Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner
+      - name: Profile Tests H2(JDK8)
+        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-h2-test-runner
+      - name: Profile Tests MySQL(JDK8)
+        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-mysql-test-runner
+      - name: Profile Tests ES6(JDK8)
+          run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-es6-test-runner
