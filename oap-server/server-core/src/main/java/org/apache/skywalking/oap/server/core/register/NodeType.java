@@ -102,7 +102,7 @@ public enum NodeType {
     }
 
     public static NodeType fromRegisterServiceType(ServiceType serviceType) {
-        switch (serviceType){
+        switch (serviceType) {
             case normal:
                 return Normal;
             case database:
