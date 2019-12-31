@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
@@ -29,6 +25,10 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,34 +41,34 @@ public class SnifferConfigInitializerTest {
      */
     @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
-        .set("AGENT_SERVICE_NAME", "testAppFromSystemEnv").set("AGENT_COLLECTOR_SERVER", "localhost:11111");
+            .set("AGENT_SERVICE_NAME", "testAppFromSystemEnv").set("AGENT_COLLECTOR_SERVER", "localhost:11111");
 
     @Test
-    public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testLoadConfigFromJavaAgentDir() {
         System.setProperty("skywalking.agent.service_name", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         System.setProperty("skywalking.logging.level", "info");
-        SnifferConfigInitializer.initialize(null);
+        SnifferConfigInitializer.initializeAgentConfig(null);
         assertThat(Config.Agent.SERVICE_NAME, is("testApp"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test
-    public void testLoadConfigFromAgentOptions() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testLoadConfigFromAgentOptions() {
         String agentOptions = "agent.service_name=testApp,collector.backend_service=127.0.0.1:8090,logging.level=info";
-        SnifferConfigInitializer.initialize(agentOptions);
+        SnifferConfigInitializer.initializeAgentConfig(agentOptions);
         assertThat(Config.Agent.SERVICE_NAME, is("testApp"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.INFO));
     }
 
     @Test
-    public void testConfigOverriding() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testConfigOverriding() {
         System.setProperty("skywalking.agent.service_name", "testAppFromSystem");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         String agentOptions = "agent.service_name=testAppFromAgentOptions,logging.level=debug";
-        SnifferConfigInitializer.initialize(agentOptions);
+        SnifferConfigInitializer.initializeAgentConfig(agentOptions);
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromAgentOptions"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.DEBUG));
@@ -81,8 +81,8 @@ public class SnifferConfigInitializerTest {
         properties.put("collector.backend_service", "${AGENT_COLLECTOR_SERVER:127.0.0.1:8090}");
         properties.put("logging.level", "INFO");
         PropertyPlaceholderHelper placeholderHelper = PropertyPlaceholderHelper.INSTANCE;
-        properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String)properties.get("agent.service_name"), properties));
-        properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String)properties.get("collector.backend_service"), properties));
+        properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String) properties.get("agent.service_name"), properties));
+        properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String) properties.get("collector.backend_service"), properties));
         ConfigInitializer.initialize(properties, Config.class);
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromSystemEnv"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("localhost:11111"));
@@ -90,26 +90,26 @@ public class SnifferConfigInitializerTest {
     }
 
     @Test
-    public void testAgentOptionsSeparator() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testAgentOptionsSeparator() {
         System.setProperty("skywalking.agent.service_name", "testApp");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         String agentOptions = "agent.ignore_suffix='.jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg'";
-        SnifferConfigInitializer.initialize(agentOptions);
+        SnifferConfigInitializer.initializeAgentConfig(agentOptions);
         assertThat(Config.Agent.IGNORE_SUFFIX, is(".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg"));
     }
 
     @Test
-    public void testAgentOptionsParser() throws AgentPackageNotFoundException, ConfigNotFoundException {
+    public void testAgentOptionsParser() {
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         String agentOptions = "agent.service_name=test=abc";
         try {
-            SnifferConfigInitializer.initialize(agentOptions);
+            SnifferConfigInitializer.initializeAgentConfig(agentOptions);
             fail("test=abc without quotes is not a valid value");
         } catch (ExceptionInInitializerError e) {
             // ignore
         }
         agentOptions = "agent.service_name='test=abc'";
-        SnifferConfigInitializer.initialize(agentOptions);
+        SnifferConfigInitializer.initializeAgentConfig(agentOptions);
         assertThat(Config.Agent.SERVICE_NAME, is("test=abc"));
     }
 
