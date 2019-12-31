@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.text.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
@@ -187,36 +186,6 @@ public enum DurationUtils {
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
 
         return durations;
-    }
-
-    /**
-     * convert duration to second unit
-     * @param step
-     * @param duration
-     * @return
-     */
-    public long toSecond(Step step, long duration) {
-        long second = 0;
-
-        switch (step) {
-            case MONTH:
-                // can't known how many days
-                throw new UnexpectedException("duration to second not support month to second");
-            case DAY:
-                second = TimeUnit.DAYS.toSeconds(duration);
-                break;
-            case HOUR:
-                second = TimeUnit.HOURS.toSeconds(duration);
-                break;
-            case MINUTE:
-                second = TimeUnit.MINUTES.toSeconds(duration);
-                break;
-            case SECOND:
-                second = duration;
-                break;
-        }
-
-        return second;
     }
 
     private DateTime parseToDateTime(Downsampling downsampling, long time) throws ParseException {
