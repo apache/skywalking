@@ -24,6 +24,13 @@ public class PropertiesUtil {
 
     private static final ILog logger = LogManager.getLogger(PropertiesUtil.class);
 
+    public static Class initConfigClass(Class clazz,Properties properties, String agentOptions, String envKeyPrefix) throws IllegalAccessException {
+        ConfigInitializer.initialize(properties, clazz);
+        PropertiesUtil.overrideConfigBySystemProp(envKeyPrefix, clazz);
+        PropertiesUtil.overrideConfigByAgentOptions(agentOptions, clazz);
+        return clazz;
+    }
+
     public static Properties Properties(InputStreamReader configFileStream) throws IOException {
         Properties properties = new Properties();
         properties.load(configFileStream);

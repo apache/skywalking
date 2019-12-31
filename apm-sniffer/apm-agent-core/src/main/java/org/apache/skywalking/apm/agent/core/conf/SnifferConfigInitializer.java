@@ -59,9 +59,7 @@ public class SnifferConfigInitializer {
             configFileStream = PropertiesUtil.loadConfigFile(configFile);
 
             Properties properties = PropertiesUtil.Properties(configFileStream);
-            ConfigInitializer.initialize(properties, Config.class);
-            PropertiesUtil.overrideConfigBySystemProp(ENV_KEY_PREFIX, Config.class);
-            PropertiesUtil.overrideConfigByAgentOptions(agentOptions, Config.class);
+            PropertiesUtil.initConfigClass(Config.class,properties,ENV_KEY_PREFIX,agentOptions);
 
             if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
                 throw new ExceptionInInitializerError("`agent.service_name` is missing.");
