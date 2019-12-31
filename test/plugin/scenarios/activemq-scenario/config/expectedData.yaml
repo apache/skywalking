@@ -1,0 +1,81 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+registryItems:
+  applications:
+    - {activemq-scenario: nq 0}
+  instances:
+    - {activemq-scenario: nq 0}
+  operationNames:
+    - activemq-scenario: [ActiveMQ/Queue/test/Consumer, /activemq-scenario/case/activemq]
+  heartbeat: []
+segmentItems:
+- applicationCode: activemq-scenario
+  segmentSize: ge 2
+  segments:
+  - segmentId: not null
+    spans:
+      - operationName: ActiveMQ/Queue/test/Producer
+        operationId: 0
+        parentSpanId: 0
+        spanId: 1
+        spanLayer: MQ
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 45
+        componentName: ''
+        isError: false
+        spanType: Exit
+        peer: not null
+        peerId: 0
+        tags:
+        - {key: mq.broker, value: not null}
+        - {key: mq.queue, value: test}
+      - operationName: /activemq-scenario/case/activemq
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: Http
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 1
+        componentName: ''
+        isError: false
+        spanType: Entry
+        peer: ''
+        peerId: 0
+        tags:
+        - {key: url, value: 'http://localhost:8080/activemq-scenario/case/activemq'}
+        - {key: http.method, value: GET}
+  - segmentId: not null
+    spans:
+      - operationName: ActiveMQ/Queue/test/Consumer
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: MQ
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 46
+        componentName: ''
+        isError: false
+        spanType: Entry
+        peer: ''
+        peerId: 0
+        tags:
+        - {key: mq.broker, value: not null}
+        - {key: mq.queue, value: test}
+        refs:
+        - {parentEndpointId: 0, parentEndpoint: /activemq-scenario/case/activemq, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: '${activemq-scenario[0]}', parentServiceInstanceId: nq 0, networkAddress: not null, entryEndpoint: /activemq-scenario/case/activemq, entryServiceInstanceId: nq 0}
