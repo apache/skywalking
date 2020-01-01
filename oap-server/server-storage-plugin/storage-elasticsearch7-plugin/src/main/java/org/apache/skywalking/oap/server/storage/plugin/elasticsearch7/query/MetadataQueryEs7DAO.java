@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
@@ -29,8 +30,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-
-import java.io.IOException;
 
 /**
  * @author peng-yongsheng
@@ -55,7 +54,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
-        return (int) response.getHits().getTotalHits().value;
+        return (int)response.getHits().getTotalHits().value;
     }
 
     @Override
@@ -70,7 +69,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
-        return (int) response.getHits().getTotalHits().value;
+        return (int)response.getHits().getTotalHits().value;
     }
 
     @Override
@@ -82,7 +81,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
-        return (int) response.getHits().getTotalHits().value;
+        return (int)response.getHits().getTotalHits().value;
     }
 
 }

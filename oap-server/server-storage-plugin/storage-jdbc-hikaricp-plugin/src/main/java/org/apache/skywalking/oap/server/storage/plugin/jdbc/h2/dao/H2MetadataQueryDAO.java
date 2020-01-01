@@ -135,9 +135,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
-        condition.add( NodeType.Normal.value());
+        condition.add(NodeType.Normal.value());
         sql.append(" limit ").append(metadataQueryMaxSize);
-
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
@@ -157,7 +156,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
-        condition.add( NodeType.Browser.value());
+        condition.add(NodeType.Browser.value());
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -212,7 +211,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
-        condition.add( NodeType.Normal.value());
+        condition.add(NodeType.Normal.value());
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\"");
         }
