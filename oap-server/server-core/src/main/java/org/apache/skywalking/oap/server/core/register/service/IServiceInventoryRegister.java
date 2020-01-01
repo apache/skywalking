@@ -29,6 +29,8 @@ public interface IServiceInventoryRegister extends Service {
 
     int getOrCreate(String serviceName, JsonObject properties);
 
+    int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties);
+
     int getOrCreate(int addressId, String serviceName, JsonObject properties);
 
     void update(int serviceId, NodeType nodeType, JsonObject properties);

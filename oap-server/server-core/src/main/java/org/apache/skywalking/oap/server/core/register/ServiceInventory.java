@@ -58,7 +58,10 @@ public class ServiceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
-    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
+    /**
+     * Node type of the service, default {@link NodeType#Normal}
+     */
+    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType = 0;
     @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop = Const.EMPTY_JSON_OBJECT_STRING;
     @Getter private JsonObject properties;
