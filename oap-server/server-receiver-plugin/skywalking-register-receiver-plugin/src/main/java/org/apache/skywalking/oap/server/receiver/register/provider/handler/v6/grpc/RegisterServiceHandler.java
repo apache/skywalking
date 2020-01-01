@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
 import org.apache.skywalking.apm.network.register.v2.EndpointMappingElement;
 import org.apache.skywalking.apm.network.register.v2.Endpoints;
@@ -41,6 +42,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
@@ -90,7 +92,14 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
             if (logger.isDebugEnabled()) {
                 logger.debug("Register service, service code: {}", serviceName);
             }
-            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
+
+            ServiceType serviceType = service.getType();
+            if (serviceType == null) {
+                // All service register from agents before 7.0.0, should be be null.
+                serviceType = ServiceType.normal;
+            }
+
+            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, NodeType.fromRegisterServiceType(serviceType), null);
 
             if (serviceId != Const.NONE) {
                 KeyIntValuePair value = KeyIntValuePair.newBuilder().setKey(serviceName).setValue(serviceId).build();

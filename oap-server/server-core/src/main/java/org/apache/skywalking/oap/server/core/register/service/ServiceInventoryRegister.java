@@ -55,7 +55,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceInventoryCache;
     }
 
-    @Override public int getOrCreate(String serviceName, JsonObject properties) {
+    @Override public int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties) {
         int serviceId = getServiceInventoryCache().getServiceId(serviceName);
 
         if (serviceId == Const.NONE) {
@@ -67,6 +67,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setServiceNodeType(nodeType);
             serviceInventory.setMappingServiceId(Const.NONE);
             serviceInventory.setLastUpdateTime(now);
             serviceInventory.setProperties(properties);
@@ -74,6 +75,10 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             InventoryStreamProcessor.getInstance().in(serviceInventory);
         }
         return serviceId;
+    }
+
+    @Override public int getOrCreate(String serviceName, JsonObject properties) {
+        return getOrCreate(serviceName, NodeType.Normal, properties);
     }
 
     @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
