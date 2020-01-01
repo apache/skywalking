@@ -79,6 +79,11 @@ public enum NoopLogger implements ILog {
     }
 
     @Override
+    public void debug(final Throwable t, final String format, final Object... arguments) {
+
+    }
+
+    @Override
     public void error(String format) {
 
     }

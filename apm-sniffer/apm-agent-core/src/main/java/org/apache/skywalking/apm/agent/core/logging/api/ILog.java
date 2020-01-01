@@ -51,5 +51,7 @@ public interface ILog {
 
     void debug(String format, Object... arguments);
 
+    void debug(Throwable t, String format, Object... arguments);
+
     void error(String format);
 }

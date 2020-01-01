@@ -184,6 +184,12 @@ public class PatternLogger implements ILog {
         }
     }
 
+    @Override
+    public void debug(final Throwable t, final String format, final Object... arguments) {
+        if (isDebugEnable()) {
+            logger(LogLevel.DEBUG, replaceParam(format, arguments), t);
+        }
+    }
 
     String format(LogLevel level, String message, Throwable t) {
         LogEvent logEvent = new LogEvent(level, message, t, targetClass);
