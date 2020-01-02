@@ -76,7 +76,7 @@ healthCheck http://localhost:12800/status
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl -s --max-time 3 "${SCENARIO_ENTRY_SERVICE}"
+curl -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}
 sleep 5
 
 echo "To receive actual data"
