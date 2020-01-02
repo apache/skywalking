@@ -210,6 +210,8 @@ configuration:
 #    hostAndPorts: ${consul.address}
 #    # Sync period in seconds. Defaults to 60 seconds.
 #    period: 1
+#    # Consul aclToken
+#    #aclToken: ${consul.aclToken}
 
 #exporter:
 #  grpc:
