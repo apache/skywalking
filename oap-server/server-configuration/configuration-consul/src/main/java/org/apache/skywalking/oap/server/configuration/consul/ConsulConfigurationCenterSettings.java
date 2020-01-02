@@ -33,4 +33,8 @@ public class ConsulConfigurationCenterSettings extends ModuleConfig {
     @Getter
     @Setter
     private String hostAndPorts;
+
+    @Getter
+    @Setter
+    private String aclToken;
 }
