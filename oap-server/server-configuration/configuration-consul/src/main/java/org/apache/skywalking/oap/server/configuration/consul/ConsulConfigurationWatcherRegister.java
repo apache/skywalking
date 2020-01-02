@@ -69,6 +69,10 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
         } else {
             builder.withMultipleHostAndPort(hostAndPorts, 5000);
         }
+        
+        if (settings.getAclToken() != null && !settings.getAclToken().isEmpty()) {
+            builder.withAclToken(settings.getAclToken());
+        }
 
         consul = builder.build().keyValueClient();
     }
