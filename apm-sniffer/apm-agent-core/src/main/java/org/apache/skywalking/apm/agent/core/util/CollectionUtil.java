@@ -33,7 +33,7 @@ public final class CollectionUtil {
     public static String toString(final Map<String, String[]> map) {
         return map
             .entrySet()
-            .parallelStream()
+            .stream()
             .map(entry -> entry.getKey() + "=" + Arrays.toString(entry.getValue()))
             .collect(Collectors.joining("\n"));
     }
