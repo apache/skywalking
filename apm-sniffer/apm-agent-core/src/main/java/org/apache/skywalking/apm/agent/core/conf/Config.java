@@ -353,5 +353,19 @@ public class Config {
              */
             public static String THREADING_CLASS_PREFIXES = "";
         }
+
+        public static class Http {
+            /**
+             * This config item controls that whether the plugins related to HTTP should
+             * collect the parameters of the request.
+             */
+            public static boolean COLLECT_HTTP_PARAMS = false;
+            /**
+             * When {@link #COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and
+             * send to the OAP backend, use negative values to keep and send the complete parameters,
+             * NB. this config item is added for the sake of performance
+             */
+            public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
+        }
     }
 }

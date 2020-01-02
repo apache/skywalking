@@ -19,8 +19,9 @@
 package org.apache.skywalking.apm.plugin.tomcat78x;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.connector.Request;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -66,7 +67,7 @@ public class TomcatInvokeInterceptorTest {
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
     @Mock
-    private HttpServletRequest request;
+    private Request request;
     @Mock
     private HttpServletResponse response;
     @Mock
