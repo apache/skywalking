@@ -56,6 +56,10 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
+            @Override public int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties) {
+                return getOrCreate(serviceName, properties);
+            }
+
             @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
                 String key = "Address:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
