@@ -18,24 +18,21 @@
 
 package org.apache.skywalking.oap.server.configuration.consul;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Splitter;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.KeyValueClient;
 import com.orbitz.consul.cache.KVCache;
 import com.orbitz.consul.model.kv.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author kezhenxu94
@@ -69,8 +66,8 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
         } else {
             builder.withMultipleHostAndPort(hostAndPorts, 5000);
         }
-        
-        if (settings.getAclToken() != null && !settings.getAclToken().isEmpty()) {
+
+        if (StringUtils.isNotEmpty(settings.getAclToken())) {
             builder.withAclToken(settings.getAclToken());
         }
 

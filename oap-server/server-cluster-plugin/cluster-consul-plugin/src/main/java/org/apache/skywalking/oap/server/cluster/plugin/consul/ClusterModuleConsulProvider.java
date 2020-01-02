@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.consul;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.ConsulException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -76,7 +77,7 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
 //                    we should set this value or it will be blocked forever
                     .withConnectTimeoutMillis(3000);
 
-            if (config.getAclToken() != null && !config.getAclToken().isEmpty()) {
+            if (StringUtils.isNotEmpty(config.getAclToken())) {
                 consulBuilder.withAclToken(config.getAclToken());
             }
 
