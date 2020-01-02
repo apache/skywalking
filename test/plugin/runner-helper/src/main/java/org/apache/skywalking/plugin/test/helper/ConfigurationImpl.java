@@ -25,6 +25,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Collections;
+import java.util.List;
 
 public class ConfigurationImpl implements IConfiguration {
     private CaseConfiguration configuration;
@@ -95,6 +97,12 @@ public class ConfigurationImpl implements IConfiguration {
     @Override
     public String startScript() {
         return this.configuration.getStartScript();
+    }
+
+    @Override
+    public String catalinaOpts() {
+        List<String> environment = this.configuration.getEnvironment() != null ? this.configuration.getEnvironment() : Collections.emptyList();
+        return environment.stream().filter(it -> it.startsWith("CATALINA_OPTS=")).findFirst().orElse("").replaceAll("^CATALINA_OPTS=", "");
     }
 
     @Override public String dockerImageName() {

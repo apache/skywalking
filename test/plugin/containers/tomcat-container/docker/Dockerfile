@@ -18,6 +18,8 @@ FROM tomcat:8.5.42-jdk8-openjdk
 MAINTAINER zhangxin@apache.org
 WORKDIR /usr/local/skywalking/tools
 
+ENV CATALINA_OPTS ""
+
 COPY run.sh /
 COPY catalina.sh /usr/local/tomcat/bin/
 

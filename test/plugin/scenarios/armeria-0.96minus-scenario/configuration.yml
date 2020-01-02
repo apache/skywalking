@@ -15,7 +15,7 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/greet/skywalking
+entryService: "http://localhost:8080/greet/skywalking?q1=v1&chinese=%e4%b8%ad%e6%96%87"
 healthCheck: http://localhost:8080/healthCheck
 startScript: ./bin/startup.sh
 framework: Armeria

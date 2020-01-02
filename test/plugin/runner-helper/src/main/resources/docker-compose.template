@@ -43,7 +43,7 @@ services:
         </#if>
             - SCENARIO_NAME=${scenario_name}
             - SCENARIO_VERSION=${scenario_version}
-            - SCENARIO_ENTRY_SERVICE=${entry_service}
+            - SCENARIO_ENTRY_SERVICE="${entry_service}"
             - SCENARIO_HEALTH_CHECK_URL=${health_check}
         volumes:
             - ${agent_home}:/usr/local/skywalking/scenario/agent
