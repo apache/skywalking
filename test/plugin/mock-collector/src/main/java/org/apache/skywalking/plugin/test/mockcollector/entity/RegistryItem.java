@@ -17,14 +17,11 @@
 package org.apache.skywalking.plugin.test.mockcollector.entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.skywalking.apm.network.language.agent.SpanType;
 
 public class RegistryItem {
     /**

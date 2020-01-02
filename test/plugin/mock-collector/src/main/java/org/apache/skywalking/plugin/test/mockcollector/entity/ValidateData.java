@@ -34,7 +34,7 @@ public class ValidateData {
         return segmentItem;
     }
 
-    public static void clearData(){
+    public static void clearData() {
         System.out.println("Clear Data");
         INSTANCE.segmentItem = new SegmentItems();
         INSTANCE.registryItem.getOperationNames().clear();
