@@ -36,5 +36,5 @@ public class ConsulConfigurationCenterSettings extends ModuleConfig {
 
     @Getter
     @Setter
-    private String aclTokne;
+    private String aclToken;
 }
