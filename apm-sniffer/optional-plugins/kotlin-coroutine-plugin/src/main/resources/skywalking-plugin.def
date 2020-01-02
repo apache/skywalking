@@ -1,0 +1,1 @@
+kotlin-coroutine=org.apache.skywalking.apm.plugin.kotlin.coroutine.define.DispatcherInstrumentation
