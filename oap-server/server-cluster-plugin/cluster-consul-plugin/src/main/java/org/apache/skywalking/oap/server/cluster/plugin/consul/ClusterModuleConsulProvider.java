@@ -76,6 +76,10 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
 //                    we should set this value or it will be blocked forever
                     .withConnectTimeoutMillis(3000);
 
+            if (config.getAclToken() != null && !config.getAclToken().isEmpty()) {
+                consulBuilder.withAclToken(config.getAclToken());
+            }
+
             if (hostAndPorts.size() > 1) {
                 client = consulBuilder.withMultipleHostAndPort(hostAndPorts, 5000).build();
             } else {
