@@ -97,7 +97,7 @@ public class ServiceInstanceRelationClientSideMetrics extends Metrics {
     @Override
     public Metrics toDay() {
         ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
-        metrics.setTimeBucket(toTimeBucketInHour());
+        metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setSourceServiceId(getSourceServiceId());
         metrics.setSourceServiceInstanceId(getSourceServiceInstanceId());
         metrics.setDestServiceId(getDestServiceId());
@@ -110,7 +110,7 @@ public class ServiceInstanceRelationClientSideMetrics extends Metrics {
     @Override
     public Metrics toMonth() {
         ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
-        metrics.setTimeBucket(toTimeBucketInHour());
+        metrics.setTimeBucket(toTimeBucketInMonth());
         metrics.setSourceServiceId(getSourceServiceId());
         metrics.setSourceServiceInstanceId(getSourceServiceInstanceId());
         metrics.setDestServiceId(getDestServiceId());

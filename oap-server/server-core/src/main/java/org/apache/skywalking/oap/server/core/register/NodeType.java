@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
@@ -32,7 +33,7 @@ public enum NodeType {
     /**
      * <code>Unknown = 0;</code>
      */
-    Unknown(0),
+    Normal(0),
     /**
      * <code>Database = 1;</code>
      */
@@ -53,6 +54,10 @@ public enum NodeType {
      * <code>Cache = 5;</code>
      */
     Cache(5),
+    /**
+     * <code>Browser = 6;</code>
+     */
+    Browser(6),
     UNRECOGNIZED(-1);
 
     private final int value;
@@ -68,7 +73,7 @@ public enum NodeType {
     public static NodeType get(int value) {
         switch (value) {
             case 0:
-                return Unknown;
+                return Normal;
             case 1:
                 return Database;
             case 2:
@@ -94,5 +99,22 @@ public enum NodeType {
      */
     public static NodeType fromSpanLayerValue(int spanLayerValue) {
         return get(spanLayerValue);
+    }
+
+    public static NodeType fromRegisterServiceType(ServiceType serviceType) {
+        switch (serviceType) {
+            case normal:
+                return Normal;
+            case database:
+                return Database;
+            case cache:
+                return Cache;
+            case mq:
+                return MQ;
+            case browser:
+                return Browser;
+            default:
+                return Normal;
+        }
     }
 }

@@ -36,7 +36,9 @@ grep -vf self-modules.txt all-dependencies.txt > third-party-dependencies.txt
 # i.e. "sort the two file using the same command (and default arguments)"
 diff -w -B -U0 <(cat tools/dependencies/known-oap-backend-dependencies.txt | sort) <(cat third-party-dependencies.txt | sort)
 
-[[ $? -ne 0 ]] && exit $?
+status=$?
+
+[[ ${status} -ne 0 ]] && exit ${status}
 
 # Check ES7 distribution package
 

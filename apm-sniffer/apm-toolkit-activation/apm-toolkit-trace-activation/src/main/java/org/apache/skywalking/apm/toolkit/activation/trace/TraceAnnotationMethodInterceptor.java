@@ -20,7 +20,14 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+import org.apache.skywalking.apm.toolkit.trace.Tags;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -45,7 +52,25 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
             operationName = MethodUtil.generateOperationName(method);
         }
 
-        ContextManager.createLocalSpan(operationName);
+        final AbstractSpan localSpan = ContextManager.createLocalSpan(operationName);
+
+        final Map<String, Object> context = CustomizeExpression.evaluationContext(allArguments);
+
+        final Tags tags = method.getAnnotation(Tags.class);
+        if (tags != null && tags.value().length > 0) {
+            for (final Tag tag : tags.value()) {
+                tagSpan(localSpan, tag, context);
+            }
+        }
+
+        final Tag tag = method.getAnnotation(Tag.class);
+        if (tag != null) {
+            tagSpan(localSpan, tag, context);
+        }
+    }
+
+    private void tagSpan(final AbstractSpan span, final Tag tag, final Map<String, Object> context) {
+        new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
     }
 
     @Override

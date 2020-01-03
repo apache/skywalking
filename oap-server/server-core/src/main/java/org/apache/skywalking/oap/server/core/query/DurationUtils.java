@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.text.*;
 import java.util.*;
+
 import org.apache.skywalking.oap.server.core.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.query.entity.Step;

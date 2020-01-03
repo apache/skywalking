@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>6.6.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -110,6 +110,7 @@
             </activation>
             <modules>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
         </profile>
         <profile>
@@ -123,6 +124,7 @@
                 <module>oap-server</module>
                 <module>apm-webapp</module>
                 <module>apm-dist</module>
+                <module>apm-dist-es7</module>
             </modules>
             <build>
                 <plugins>
@@ -184,6 +186,14 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-all.version>1.10.19</mockito-all.version>
+
+        <!-- core lib dependency -->
+        <grpc.version>1.26.0</grpc.version>
+        <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <com.google.protobuf.protoc.version>3.3.0</com.google.protobuf.protoc.version>
+        <protoc-gen-grpc-java.plugin.version>1.8.0</protoc-gen-grpc-java.plugin.version>
+        <netty-tcnative-boringssl-static.version>2.0.25.Final</netty-tcnative-boringssl-static.version>
 
         <!-- Plugin versions -->
         <docker.plugin.version>0.4.13</docker.plugin.version>
@@ -330,6 +340,19 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${maven-enforcer-plugin.version}</version>
                 <executions>
@@ -367,6 +390,8 @@
                         <exclude>**/.project</exclude>
                         <exclude>**/.settings/**</exclude>
                         <exclude>**/dependency-reduced-pom.xml</exclude>
+                        <exclude>**/.vscode/**</exclude>
+                        <exclude>**/.factorypath</exclude>
 
                         <!-- UI IDE configs -->
                         <exclude>**/skywalking-ui/.editorconfig</exclude>

@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
@@ -247,7 +247,7 @@ public class ITElasticSearchClient {
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
-        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
+        if (StringUtil.isNotEmpty(namespace) && index != null && index.size() > 0) {
             logger.info("UndoFormatIndexName before " + index.toString());
             String namespacePrefix = namespace + "_";
             index.entrySet().forEach(entry -> {
