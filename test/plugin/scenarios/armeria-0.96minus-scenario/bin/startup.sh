@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/armeria-0.96minus-scenario.jar &
+java -jar -Dskywalking.plugin.tomcat.collect_http_params=true ${agent_opts} ${home}/../libs/armeria-0.96minus-scenario.jar &
