@@ -252,12 +252,26 @@ public class Config {
             public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
         }
 
+        public static class Tomcat {
+            /**
+             * This config item controls that whether the Tomcat plugin should
+             * collect the parameters of the request.
+             */
+            public static boolean COLLECT_HTTP_PARAMS = false;
+        }
+
         public static class SpringMVC {
             /**
              * If true, the fully qualified method name will be used as the endpoint name instead of the request URL,
              * default is false.
              */
             public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
+
+            /**
+             * This config item controls that whether the SpringMVC plugin should
+             * collect the parameters of the request.
+             */
+            public static boolean COLLECT_HTTP_PARAMS = false;
         }
 
         public static class Toolkit {
@@ -356,13 +370,9 @@ public class Config {
 
         public static class Http {
             /**
-             * This config item controls that whether the plugins related to HTTP should
-             * collect the parameters of the request.
-             */
-            public static boolean COLLECT_HTTP_PARAMS = false;
-            /**
-             * When {@link #COLLECT_HTTP_PARAMS} is enabled, how many characters to keep and
-             * send to the OAP backend, use negative values to keep and send the complete parameters,
+             * When either {@link Tomcat#COLLECT_HTTP_PARAMS} or {@link SpringMVC#COLLECT_HTTP_PARAMS}
+             * is enabled, how many characters to keep and send to the OAP backend,
+             * use negative values to keep and send the complete parameters,
              * NB. this config item is added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
