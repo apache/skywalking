@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.profile;
 
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 
 import java.util.concurrent.Executors;
@@ -30,9 +31,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @author MrPro
  */
+@DefaultImplementor
 public class ProfileTaskExecutionService implements BootService {
 
-    private static volatile ScheduledExecutorService PROFILE_TASK_READY_SCHEDULE = Executors.newScheduledThreadPool(15, new DefaultNamedThreadFactory("PROFILE-TASK-READY-SCHEDULE"));
+    private final static ScheduledExecutorService PROFILE_TASK_READY_SCHEDULE = Executors.newScheduledThreadPool(15, new DefaultNamedThreadFactory("PROFILE-TASK-READY-SCHEDULE"));
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;

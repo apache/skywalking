@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.profile;
 
 import io.grpc.Channel;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.commands.CommandService;
@@ -46,6 +47,7 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
  *
  * @author MrPro
  */
+@DefaultImplementor
 public class ProfileTaskQueryService implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ProfileTaskQueryService.class);
 
