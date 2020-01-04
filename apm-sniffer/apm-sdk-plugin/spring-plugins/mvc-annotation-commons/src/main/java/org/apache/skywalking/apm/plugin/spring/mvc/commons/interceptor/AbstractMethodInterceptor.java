@@ -107,7 +107,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                 SpanLayer.asHttp(span);
 
-                if (Config.Plugin.Http.COLLECT_HTTP_PARAMS) {
+                if (Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
                     final Map<String, String[]> parameterMap = request.getParameterMap();
                     if (parameterMap != null && !parameterMap.isEmpty()) {
                         String tagValue = CollectionUtil.toString(parameterMap);

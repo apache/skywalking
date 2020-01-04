@@ -21,4 +21,4 @@ runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
 framework: spring
 environment:
-  - CATALINA_OPTS="-Dskywalking.plugin.http.collect_http_params=true"
+  - CATALINA_OPTS="-Dskywalking.plugin.springmvc.collect_http_params=true"
