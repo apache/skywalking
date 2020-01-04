@@ -50,7 +50,7 @@ public class ProfileTaskExecutionService implements BootService {
         }
 
         long timeFromStartMills = task.getStartTime() - System.currentTimeMillis();
-        if (timeFromStartMills <= 0) {
+        if (timeFromStartMills < 0) {
             // task already can start
             processProfileTask(task);
         } else {
