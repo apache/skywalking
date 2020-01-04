@@ -1,10 +1,8 @@
 # Skywalking with Kotlin coroutine
-This PR provided an auto instrument support plugin for Kotlin coroutine based on context snapshot.
+This Plugin provides an auto instrument support plugin for Kotlin coroutine based on context snapshot.
 
 ## Description
-We have known there are some limits with skywalking and coroutine, because of the trace context based on `ThreadLocal`.
-
-But skywalking provided context snapshot for cross-thread tracing, I create this plugin for resolving context losing in Kotlin coroutine.
+SkyWalking provide tracing context propagation inside thread. In order to support Kotlin Coroutine, we provide this additional plugin.
 
 ## Implementation principle
 As we know, Kotlin coroutine switches the execution thread by `CoroutineDispatcher`.
@@ -25,6 +23,6 @@ You can find, the one call (client -> server1 -> server2) has been split two tra
 ![Without kotlin plugin2](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/without-coroutine-plugin-server2.jpg)
 
 ### Run with the plugin
-With no business code changed, just install the plugin. We can find the tracing paths be connected together. We can get all info of one client call.
+Without changing codes manually, just install the plugin. We can find the spans be connected together. We can get all info of one client call.
 
 ![With kotlin plugin](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/run-with-coroutine-plugin.jpg)

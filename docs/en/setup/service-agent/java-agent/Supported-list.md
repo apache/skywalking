@@ -87,7 +87,7 @@
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin
-  * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.3.x (Optional²)
+  * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
