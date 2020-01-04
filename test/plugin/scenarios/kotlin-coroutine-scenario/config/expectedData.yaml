@@ -76,7 +76,7 @@ segmentItems:
             refs:
               - {parentEndpointId: 0, parentEndpoint: /kotlin-coroutine-scenario/case/h2,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 0,
-                 parentTraceSegmentId: "${feign-scenario[0]}", parentServiceInstanceId: 1,
+                 parentTraceSegmentId: "${kotlin-coroutine-scenario[1]}", parentServiceInstanceId: 1,
                  networkAddress: '', entryEndpoint: /kotlin-coroutine-scenario/case/h2, entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
