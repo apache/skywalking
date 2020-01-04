@@ -60,8 +60,9 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
         }
 
         sourceBuilder.sort(ProfileTaskLogRecord.OPERATION_TIME, SortOrder.DESC);
+        sourceBuilder.size(queryMaxSize);
 
-        final SearchResponse response = getClient().search(ProfileTaskNoneStream.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient().search(ProfileTaskLogRecord.INDEX_NAME, sourceBuilder);
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
