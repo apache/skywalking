@@ -35,16 +35,10 @@ class TracingRunnable implements Runnable {
 
     private ContextSnapshot snapshot;
     private Runnable delegate;
-    private String tracingId;
-
-    private TracingRunnable(ContextSnapshot snapshot, Runnable delegate, String tracingId) {
-        this.snapshot = snapshot;
-        this.delegate = delegate;
-        this.tracingId = tracingId;
-    }
 
     private TracingRunnable(ContextSnapshot snapshot, Runnable delegate) {
-        this(snapshot, delegate, ContextManager.getGlobalTraceId());
+        this.snapshot = snapshot;
+        this.delegate = delegate;
     }
 
     /**
@@ -67,8 +61,8 @@ class TracingRunnable implements Runnable {
 
     @Override
     public void run() {
-        if (ContextManager.getGlobalTraceId().equals(tracingId)) {
-            // Trace id same with before dispatching, skip restore snapshot.
+        if (ContextManager.isActive() && snapshot.isFromCurrent()) {
+            // Thread not switched, skip restore snapshot.
             delegate.run();
             return;
         }

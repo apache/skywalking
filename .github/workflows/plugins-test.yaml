@@ -182,7 +182,7 @@ jobs:
       - name: Run spring 3.0.x (8)
         run: bash test/plugin/run.sh spring-3.0.x-scenario
 
-  SpringAsync_gRPC:
+  SpringAsync_gRPC_KotlinCoroutine:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -208,6 +208,8 @@ jobs:
         run: bash test/plugin/run.sh spring-async-scenario
       - name: Run grpc 1.6.0-1.25.0 (22)
         run: bash test/plugin/run.sh grpc-scenario
+      - name: Run kotlin coroutine
+        run: bash test/plugin/run.sh kotlin-coroutine-scenario
 
   Ehcache_Undertow_Jedis:
     runs-on: ubuntu-18.04
