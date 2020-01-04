@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.*;
 
+import java.util.List;
+
 /**
  * @author MrPro
  */
@@ -38,5 +40,7 @@ public class ProfileTask {
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+
+    private List<ProfileTaskLog> logs;
 
 }

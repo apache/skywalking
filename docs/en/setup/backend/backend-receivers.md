@@ -42,6 +42,8 @@ receiver_zipkin:
     host: 0.0.0.0
     port: 9411
     contextPath: /
+receiver-profile:
+  default:
 ```
 
 ## gRPC/HTTP server for receiver

@@ -90,6 +90,7 @@ property key | Description | Default |
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+`collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|

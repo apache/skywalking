@@ -137,6 +137,10 @@ public class Config {
          * How long grpc client will timeout in sending data to upstream.
          */
         public static int GRPC_UPSTREAM_TIMEOUT = 30;
+        /**
+         * Get profile task list interval
+         */
+        public static int GET_PROFILE_TASK_INTERVAL = 20;
     }
 
     public static class Jvm {
