@@ -15,9 +15,9 @@
 # limitations under the License.
 registryItems:
   applications:
-    - {kotlin-coroutine: nq 0}
+    - {kotlin-coroutine-scenario: nq 0}
   instances:
-    - {kotlin-coroutine: 1}
+    - {kotlin-coroutine-scenario: 1}
   operationNames:
     - kotlin-coroutine: [/kotlin-coroutine-scenario/case/h2]
   heartbeat: []

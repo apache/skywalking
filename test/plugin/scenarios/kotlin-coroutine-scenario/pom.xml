@@ -100,14 +100,13 @@
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot-version}</version>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
                         <goals>
-                            <goal>detect</goal>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
