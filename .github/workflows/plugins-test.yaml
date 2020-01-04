@@ -208,7 +208,7 @@ jobs:
         run: bash test/plugin/run.sh spring-async-scenario
       - name: Run grpc 1.6.0-1.25.0 (22)
         run: bash test/plugin/run.sh grpc-scenario
-      - name: Run kotlin coroutine
+      - name: Run kotlin coroutine 1.0.1-1.3.3 (4)
         run: bash test/plugin/run.sh kotlin-coroutine-scenario
 
   Ehcache_Undertow_Jedis:
