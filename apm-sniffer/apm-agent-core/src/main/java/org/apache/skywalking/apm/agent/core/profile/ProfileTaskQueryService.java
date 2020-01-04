@@ -85,8 +85,10 @@ public class ProfileTaskQueryService implements BootService, Runnable, GRPCChann
 
     @Override
     public void boot() throws Throwable {
-        getTaskListFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileGetTaskService"))
-                .scheduleWithFixedDelay(this, 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
+        if (Config.Agent.ACTIVE_PROFILE) {
+            getTaskListFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileGetTaskService"))
+                    .scheduleWithFixedDelay(this, 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
+        }
     }
 
     @Override
@@ -95,7 +97,9 @@ public class ProfileTaskQueryService implements BootService, Runnable, GRPCChann
 
     @Override
     public void shutdown() throws Throwable {
-        getTaskListFuture.cancel(true);
+        if (getTaskListFuture != null) {
+            getTaskListFuture.cancel(true);
+        }
     }
 
     @Override
