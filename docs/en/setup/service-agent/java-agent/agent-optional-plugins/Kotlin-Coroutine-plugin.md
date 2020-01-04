@@ -20,11 +20,11 @@ We run a Kotlin coroutine based gRPC server without this coroutine plugin.
 You can find, the one call (client -> server1 -> server2) has been split two tracing paths.
 
 01. Server1 without exit span and server2 tracing path.
-![Without kotlin plugin1](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/Without coroutine plugin server1.jpg)
+![Without kotlin plugin1](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/without-coroutine-plugin-server1.jpg)
 02. Server2 tracing path.
-![Without kotlin plugin2](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/Without coroutine plugin server2.jpg)
+![Without kotlin plugin2](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/without-coroutine-plugin-server2.jpg)
 
 ### Run with the plugin
 With no business code changed, just install the plugin. We can find the tracing paths be connected together. We can get all info of one client call.
 
-![With kotlin plugin](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/Run with coroutine plugin.jpg)
+![With kotlin plugin](http://skywalking.apache.org/screenshots/7.0.0/kotlin/coroutine/run-with-coroutine-plugin.jpg)
