@@ -1,8 +1,10 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version
+# to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
 #
@@ -14,16 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-7.0.0
-7.1.0
-7.1.1
-7.2.0
-7.2.1
-7.3.0
-7.3.1
-7.3.2
-7.4.0
-7.4.1
-7.4.2
-7.5.0
-7.5.1
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/kotlin-coroutine-scenario.jar &
