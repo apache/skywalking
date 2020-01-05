@@ -58,24 +58,26 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
 
     @Override
     public void start(Listener<RESPONSE> responseListener, Metadata headers) {
-        final ContextCarrier contextCarrier = new ContextCarrier();
         final AbstractSpan blockingSpan = (AbstractSpan) ContextManager.getRuntimeContext().get(BLOCKING_CALL_EXIT_SPAN);
+        final ContextCarrier contextCarrier = new ContextCarrier();
 
         // Avoid create ExitSpan repeatedly, ExitSpan of blocking calls will create by BlockingCallInterceptor.
         if (blockingSpan == null) {
-            final AbstractSpan span = ContextManager.createExitSpan(serviceName, contextCarrier, remotePeer);
+            final AbstractSpan span = ContextManager.createExitSpan(serviceName, remotePeer);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
         }
-        snapshot = ContextManager.capture();
 
+        ContextManager.inject(contextCarrier);
+        CarrierItem contextItem = contextCarrier.items();
+        while (contextItem.hasNext()) {
+            contextItem = contextItem.next();
+            Metadata.Key<String> headerKey = Metadata.Key.of(contextItem.getHeadKey(), Metadata.ASCII_STRING_MARSHALLER);
+            headers.put(headerKey, contextItem.getHeadValue());
+        }
+
+        snapshot = ContextManager.capture();
         try {
-            CarrierItem contextItem = contextCarrier.items();
-            while (contextItem.hasNext()) {
-                contextItem = contextItem.next();
-                Metadata.Key<String> headerKey = Metadata.Key.of(contextItem.getHeadKey(), Metadata.ASCII_STRING_MARSHALLER);
-                headers.put(headerKey, contextItem.getHeadValue());
-            }
             delegate().start(new TracingClientCallListener(responseListener, snapshot), headers);
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
@@ -48,18 +49,24 @@ class SimpleTracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.Si
 
     @Override
     public void start(Listener<RESPONSE> responseListener, Metadata headers) {
+        final AbstractSpan blockingSpan = (AbstractSpan) ContextManager.getRuntimeContext().get(BLOCKING_CALL_EXIT_SPAN);
         final ContextCarrier contextCarrier = new ContextCarrier();
-        final AbstractSpan span = ContextManager.createExitSpan(serviceName, contextCarrier, remotePeer);
-        span.setComponent(ComponentsDefine.GRPC);
-        span.setLayer(SpanLayer.RPC_FRAMEWORK);
+
+        if (blockingSpan == null) {
+            final AbstractSpan span = ContextManager.createExitSpan(serviceName, remotePeer);
+            span.setComponent(ComponentsDefine.GRPC);
+            span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        }
+
+        ContextManager.inject(contextCarrier);
+        CarrierItem contextItem = contextCarrier.items();
+        while (contextItem.hasNext()) {
+            contextItem = contextItem.next();
+            Metadata.Key<String> headerKey = Metadata.Key.of(contextItem.getHeadKey(), Metadata.ASCII_STRING_MARSHALLER);
+            headers.put(headerKey, contextItem.getHeadValue());
+        }
 
         try {
-            CarrierItem contextItem = contextCarrier.items();
-            while (contextItem.hasNext()) {
-                contextItem = contextItem.next();
-                Metadata.Key<String> headerKey = Metadata.Key.of(contextItem.getHeadKey(), Metadata.ASCII_STRING_MARSHALLER);
-                headers.put(headerKey, contextItem.getHeadValue());
-            }
             delegate().start(responseListener, headers);
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
