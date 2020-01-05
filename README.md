@@ -44,7 +44,9 @@ including
 
 
 # Document
-- [6.x Documents](docs/README.md).
+- [7.x Documents](docs/README.md).
+- [6.x Documents](https://github.com/apache/skywalking/blob/6.x/docs/README.md).
+
 
 
 # Downloads
