@@ -51,7 +51,7 @@ or
 ### Build docker images
 We can build docker images of `backend` and `ui` with `Makefile` located in root folder.
 
-Refer to [Build docker image](https://github.com/apache/skywalking/tree/master/docker) for more details.
+Refer to [Build docker image](../../../docker) for more details.
 
 ## Setup your IntelliJ IDEA
 **NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
