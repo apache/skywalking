@@ -44,6 +44,7 @@ jobs:
           es7) export ES_TAG=7.5.0 ;; 
           esac
 
+          export TAG=${{ matrix.es }}
           cd ${DOCKER_DIR} && docker-compose up -d
       - name: Check port avaliable
         run: |
