@@ -136,7 +136,8 @@ public class ProfileVerificationITCase {
                 .duration(5)
                 .startTime(-1)
                 .minDurationThreshold(10)
-                .dumpPeriod(10).build();
+                .dumpPeriod(10)
+                .maxSamplingCount(5).build();
 
         // verify create task
         final ProfileTaskCreationResult creationResult = profileClient.createProfileTask(creationRequest);

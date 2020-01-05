@@ -39,6 +39,7 @@ public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {
     private String duration;
     private String minDurationThreshold;
     private String dumpPeriod;
+    private String maxSamplingCount;
 
     private List<ProfileTaskLogMatcher> logs;
 

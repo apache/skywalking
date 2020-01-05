@@ -59,7 +59,8 @@ public class ProfileClient extends SimpleQueryClient {
                 .replace("{duration}", String.valueOf(creationRequest.getDuration()))
                 .replace("{startTime}", String.valueOf(creationRequest.getStartTime()))
                 .replace("{minDurationThreshold}", String.valueOf(creationRequest.getMinDurationThreshold()))
-                .replace("{dumpPeriod}", String.valueOf(creationRequest.getDumpPeriod()));
+                .replace("{dumpPeriod}", String.valueOf(creationRequest.getDumpPeriod()))
+                .replace("{maxSamplingCount}", String.valueOf(creationRequest.getMaxSamplingCount()));
         final ResponseEntity<GQLResponse<ProfileTaskCreationResultWrapper>> responseEntity = restTemplate.exchange(
                 new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
                 new ParameterizedTypeReference<GQLResponse<ProfileTaskCreationResultWrapper>>() {

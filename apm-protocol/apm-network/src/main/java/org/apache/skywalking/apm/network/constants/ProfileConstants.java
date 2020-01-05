@@ -15,29 +15,33 @@
  * limitations under the License.
  *
  */
-
-package org.apache.skywalking.e2e.profile.creation;
-
-import lombok.*;
+package org.apache.skywalking.apm.network.constants;
 
 /**
- * e2e profile, create profile task entity
+ * profile task limit constants
  *
  * @author MrPro
  */
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ProfileTaskCreationRequest {
+public class ProfileConstants {
 
-    private int serviceId;
-    private String endpointName;
-    private long startTime;
-    private int duration;
-    private int minDurationThreshold;
-    private int dumpPeriod;
-    private int maxSamplingCount;
+    /**
+     * Monitor duration must greater than 1 minutes
+     */
+    public static final int TASK_DURATION_MIN_MINUTE = 1;
+
+    /**
+     * The duration of the monitoring task cannot be greater than 15 minutes
+     */
+    public static final int TASK_DURATION_MAX_MINUTE = 15;
+
+    /**
+     * Dump period must be greater than or equals 10 milliseconds
+     */
+    public static final int TASK_DUMP_PERIOD_MIN_MILLIS = 10;
+
+    /**
+     * Max sampling count must less than 10
+     */
+    public static final int TASK_MAX_SAMPLING_COUNT = 10;
 
 }

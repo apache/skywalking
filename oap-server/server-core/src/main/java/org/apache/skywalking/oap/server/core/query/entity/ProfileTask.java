@@ -40,6 +40,7 @@ public class ProfileTask {
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
 
     private List<ProfileTaskLog> logs;
 
