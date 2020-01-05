@@ -16,33 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
-
-import lombok.*;
-
-import java.util.List;
+package org.apache.skywalking.apm.agent.core.profile;
 
 /**
+ * profile task execution context, it will create on process this profile task
+ *
  * @author MrPro
  */
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ProfileTask {
+public class ProfileTaskExecutionContext {
 
-    private String id;
-    private int serviceId;
-    private String serviceName;
-    private String endpointName;
-    private long startTime;
-    private long createTime;
-    private int duration;
-    private int minDurationThreshold;
-    private int dumpPeriod;
-    private int maxSamplingCount;
+    // task data
+    private final ProfileTask task;
 
-    private List<ProfileTaskLog> logs;
+    // task real start time
+    private final long startTime;
+
+    public ProfileTaskExecutionContext(ProfileTask task, long startTime) {
+        this.task = task;
+        this.startTime = startTime;
+    }
+
+    public ProfileTask getTask() {
+        return task;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
 
 }

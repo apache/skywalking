@@ -103,16 +103,18 @@ public class ProfileTaskMutationService implements Service {
         if (StringUtil.isEmpty(endpointName)) {
             return "endpoint name cannot be empty";
         }
-        if (monitorEndTime - monitorStartTime < TimeUnit.MINUTES.toMillis(ProfileConstants.TASK_DURATION_MIN_MINUTE)) {
+        if (monitorDuration < ProfileConstants.TASK_DURATION_MIN_MINUTE) {
             return "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes";
         }
         if (minDurationThreshold < 0) {
             return "min duration threshold must greater than or equals zero";
         }
+        if (maxSamplingCount <= 0) {
+            return "max sampling count must greater than zero";
+        }
 
         // check limit
-        final long maxMonitorDurationInSec = TimeUnit.MINUTES.toSeconds(ProfileConstants.TASK_DURATION_MAX_MINUTE);
-        if (monitorDuration > maxMonitorDurationInSec) {
+        if (monitorDuration > ProfileConstants.TASK_DURATION_MAX_MINUTE) {
             return "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes";
         }
 

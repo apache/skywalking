@@ -87,7 +87,7 @@ public class ProfileTaskQueryService implements BootService, Runnable, GRPCChann
 
     @Override
     public void boot() throws Throwable {
-        if (Config.Agent.ACTIVE_PROFILE) {
+        if (Config.Profile.ACTIVE) {
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileGetTaskService"))
                     .scheduleWithFixedDelay(this, 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
         }

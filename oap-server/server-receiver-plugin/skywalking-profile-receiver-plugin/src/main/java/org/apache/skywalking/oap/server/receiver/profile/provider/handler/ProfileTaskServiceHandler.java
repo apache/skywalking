@@ -65,8 +65,8 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
         final long lastCommandTime = request.getLastCommandTime();
 
         for (ProfileTask profileTask : profileTaskList) {
-            // if command start time less than last command time, means sniffer already have task
-            if (profileTask.getStartTime() <= lastCommandTime) {
+            // if command create time less than last command time, means sniffer already have task
+            if (profileTask.getCreateTime() <= lastCommandTime) {
                 continue;
             }
 

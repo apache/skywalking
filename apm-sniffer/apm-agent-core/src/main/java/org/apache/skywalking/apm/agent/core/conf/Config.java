@@ -118,11 +118,6 @@ public class Config {
          * Limit the length of the operationName to prevent errors when inserting elasticsearch
          **/
         public static int OPERATION_NAME_THRESHOLD = 500;
-
-        /**
-         * If true, skywalking agent will enable profile when user create a new profile task
-         */
-        public static boolean ACTIVE_PROFILE = false;
     }
 
     public static class Collector {
@@ -146,6 +141,13 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
+    }
+
+    public static class Profile {
+        /**
+         * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.
+         */
+        public static boolean ACTIVE = true;
     }
 
     public static class Jvm {

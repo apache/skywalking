@@ -43,7 +43,9 @@ public class ProfileTaskCommandExecutor implements CommandExecutor {
         profileTask.setDuration(profileTaskCommand.getDuration());
         profileTask.setMinDurationThreshold(profileTaskCommand.getMinDurationThreshold());
         profileTask.setThreadDumpPeriod(profileTaskCommand.getDumpPeriod());
+        profileTask.setMaxSamplingCount(profileTaskCommand.getMaxSamplingCount());
         profileTask.setStartTime(profileTaskCommand.getStartTime());
+        profileTask.setCreateTime(profileTaskCommand.getCreateTime());
 
         // send to executor
         ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class).addProfileTask(profileTask);

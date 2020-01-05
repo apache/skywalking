@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
+import java.util.Objects;
+
 /**
  * Profile task bean, receive from OAP server
  *
@@ -37,8 +39,14 @@ public class ProfileTask {
     // thread dump period (ms)
     private int threadDumpPeriod;
 
+    // max number of traces monitor on the sniffer
+    private int maxSamplingCount;
+
     // task start time
     private long startTime;
+
+    // task create time
+    private long createTime;
 
     public String getEndpointName() {
         return endpointName;
@@ -78,5 +86,40 @@ public class ProfileTask {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public int getMaxSamplingCount() {
+        return maxSamplingCount;
+    }
+
+    public void setMaxSamplingCount(int maxSamplingCount) {
+        this.maxSamplingCount = maxSamplingCount;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileTask that = (ProfileTask) o;
+        return duration == that.duration &&
+                minDurationThreshold == that.minDurationThreshold &&
+                threadDumpPeriod == that.threadDumpPeriod &&
+                maxSamplingCount == that.maxSamplingCount &&
+                startTime == that.startTime &&
+                createTime == that.createTime &&
+                endpointName.equals(that.endpointName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(endpointName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
     }
 }

@@ -21,10 +21,16 @@ package org.apache.skywalking.apm.agent.core.profile;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.network.constants.ProfileConstants;
+import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Profile task executor, use {@link #addProfileTask(ProfileTask)} to add a new profile task.
@@ -34,10 +40,19 @@ import java.util.concurrent.TimeUnit;
 @DefaultImplementor
 public class ProfileTaskExecutionService implements BootService {
 
+    private static final ILog logger = LogManager.getLogger(ProfileTaskExecutionService.class);
+
     private final static ScheduledExecutorService PROFILE_TASK_READY_SCHEDULE = Executors.newScheduledThreadPool(15, new DefaultNamedThreadFactory("PROFILE-TASK-READY-SCHEDULE"));
+    private final static ScheduledExecutorService PROFILE_TASK_FINISH_SCHEDULE = Executors.newScheduledThreadPool(2, new DefaultNamedThreadFactory("PROFILE-TASK-FINISH-SHCEDULE"));
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
+
+    // current processing profile task context
+    private final AtomicReference<ProfileTaskExecutionContext> taskExecutionContext = new AtomicReference<>();
+
+    // profile task list, include running and waiting running tasks
+    private final List<ProfileTask> profileTaskList = Collections.synchronizedList(new LinkedList<>());
 
     /**
      * get profile task from OAP
@@ -45,10 +60,21 @@ public class ProfileTaskExecutionService implements BootService {
      */
     public void addProfileTask(ProfileTask task) {
         // update last command create time
-        if (task.getStartTime() > lastCommandCreateTime) {
-            lastCommandCreateTime = task.getStartTime();
+        if (task.getCreateTime() > lastCommandCreateTime) {
+            lastCommandCreateTime = task.getCreateTime();
         }
 
+        // check profile task limit
+        final String dataError = checkProfileTaskSuccess(task);
+        if (dataError != null) {
+            logger.warn("check command error, cannot process this profile task. reason: {}", dataError);
+            return;
+        }
+
+        // add task to list
+        profileTaskList.add(task);
+
+        // check task start now or make a schedule
         long timeFromStartMills = task.getStartTime() - System.currentTimeMillis();
         if (timeFromStartMills < 0) {
             // task already can start
@@ -64,8 +90,39 @@ public class ProfileTaskExecutionService implements BootService {
         }
     }
 
-    private void processProfileTask(ProfileTask task) {
+    /**
+     * real process a new profile task
+     * @param task
+     */
+    private synchronized void processProfileTask(ProfileTask task) {
+        // make sure prev profile task already stopped
+        stopCurrentProfileTask();
+
+        // make stop task schedule and task context
         // TODO process task on next step
+        taskExecutionContext.set(new ProfileTaskExecutionContext(task, System.currentTimeMillis()));
+
+        PROFILE_TASK_FINISH_SCHEDULE.schedule(new Runnable() {
+            @Override
+            public void run() {
+                stopCurrentProfileTask();
+            }
+        }, task.getDuration(), TimeUnit.MINUTES);
+    }
+
+    /**
+     * stop profile task, remove context data
+     */
+    private synchronized void stopCurrentProfileTask() {
+        final ProfileTaskExecutionContext executionContext = taskExecutionContext.getAndSet(null);
+        if (executionContext == null) {
+            return;
+        }
+
+        // remove task
+        profileTaskList.remove(executionContext.getTask());
+
+        // TODO notify OAP current profile task execute finish
     }
 
     @Override
@@ -86,9 +143,65 @@ public class ProfileTaskExecutionService implements BootService {
     @Override
     public void shutdown() throws Throwable {
         PROFILE_TASK_READY_SCHEDULE.shutdown();
+        PROFILE_TASK_FINISH_SCHEDULE.shutdown();
     }
 
     public long getLastCommandCreateTime() {
         return lastCommandCreateTime;
     }
+
+    /**
+     * check profile task data success, make the re-check, prevent receiving wrong data from database or OAP
+     * @param task
+     * @return
+     */
+    private String checkProfileTaskSuccess(ProfileTask task) {
+        // endpoint name
+        if (StringUtil.isEmpty(task.getEndpointName())) {
+            return "endpoint name cannot be empty";
+        }
+
+        // duration
+        if (task.getDuration() < ProfileConstants.TASK_DURATION_MIN_MINUTE) {
+            return "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes";
+        }
+        if (task.getDuration() > ProfileConstants.TASK_DURATION_MAX_MINUTE) {
+            return "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes";
+        }
+
+        // min duration threshold
+        if (task.getMinDurationThreshold() < 0) {
+            return "min duration threshold must greater than or equals zero";
+        }
+
+        // dump period
+        if (task.getThreadDumpPeriod() < ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS) {
+            return "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds";
+        }
+
+        // max sampling count
+        if (task.getMaxSamplingCount() <= 0) {
+            return "max sampling count must greater than zero";
+        }
+        if (task.getMaxSamplingCount() >= ProfileConstants.TASK_MAX_SAMPLING_COUNT) {
+            return "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT;
+        }
+
+        // check task queue, check only one task in a certain time
+        long taskProcessFinishTime = calcProfileTaskFinishTime(task);
+        for (ProfileTask profileTask : profileTaskList) {
+
+            // if the end time of the task to be added is during the execution of any data, means is a error data
+            if (taskProcessFinishTime >= profileTask.getStartTime() && taskProcessFinishTime <= calcProfileTaskFinishTime(profileTask)) {
+                return "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getEndpointName();
+            }
+        }
+
+        return null;
+    }
+
+    private long calcProfileTaskFinishTime(ProfileTask task) {
+        return task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration());
+    }
+
 }

@@ -98,6 +98,7 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
                 .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
                 .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
                 .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
+                .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
                 .duration(data.getInt(ProfileTaskNoneStream.DURATION))
                 .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
                 .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))

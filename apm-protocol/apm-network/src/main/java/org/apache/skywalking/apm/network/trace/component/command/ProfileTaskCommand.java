@@ -27,7 +27,7 @@ import java.util.List;
  * @author MrPro
  */
 public class ProfileTaskCommand extends BaseCommand implements Serializable, Deserializable<ProfileTaskCommand> {
-    public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", 0, 0, 0, 0);
+    public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", 0, 0, 0, 0, 0, 0);
     public static final String NAME = "ProfileTaskQuery";
 
     // profile task data
@@ -35,15 +35,19 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
     private long startTime;
+    private long createTime;
 
-    public ProfileTaskCommand(String serialNumber, String endpointName, int duration, int minDurationThreshold, int dumpPeriod, long startTime) {
+    public ProfileTaskCommand(String serialNumber, String endpointName, int duration, int minDurationThreshold, int dumpPeriod, int maxSamplingCount, long startTime, long createTime) {
         super(NAME, serialNumber);
         this.endpointName = endpointName;
         this.duration = duration;
         this.minDurationThreshold = minDurationThreshold;
         this.dumpPeriod = dumpPeriod;
+        this.maxSamplingCount = maxSamplingCount;
         this.startTime = startTime;
+        this.createTime = createTime;
     }
 
     @Override
@@ -54,7 +58,9 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
         int duration = 0;
         int minDurationThreshold = 0;
         int dumpPeriod = 0;
+        int maxSamplingCount = 0;
         long startTime = 0;
+        long createTime = 0;
 
         for (final KeyStringValuePair pair : argsList) {
             if ("SerialNumber".equals(pair.getKey())) {
@@ -67,12 +73,16 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
                 minDurationThreshold = Integer.parseInt(pair.getValue());
             } else if ("DumpPeriod".equals(pair.getKey())) {
                 dumpPeriod = Integer.parseInt(pair.getValue());
+            } else if ("MaxSamplingCount".equals(pair.getKey())) {
+                maxSamplingCount = Integer.parseInt(pair.getValue());
             } else if ("StartTime".equals(pair.getKey())) {
                 startTime = Long.parseLong(pair.getValue());
+            } else if ("CreateTime".equals(pair.getKey())) {
+                createTime = Long.parseLong(pair.getValue());
             }
         }
 
-        return new ProfileTaskCommand(serialNumber, endpointName, duration, minDurationThreshold, dumpPeriod, startTime);
+        return new ProfileTaskCommand(serialNumber, endpointName, duration, minDurationThreshold, dumpPeriod, maxSamplingCount, startTime, createTime);
     }
 
     @Override
@@ -82,7 +92,9 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
                 .addArgs(KeyStringValuePair.newBuilder().setKey("Duration").setValue(String.valueOf(duration)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("MinDurationThreshold").setValue(String.valueOf(minDurationThreshold)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("DumpPeriod").setValue(String.valueOf(dumpPeriod)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("StartTime").setValue(String.valueOf(startTime)));
+                .addArgs(KeyStringValuePair.newBuilder().setKey("MaxSamplingCount").setValue(String.valueOf(maxSamplingCount)))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("StartTime").setValue(String.valueOf(startTime)))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("CreateTime").setValue(String.valueOf(createTime)));
         return builder;
     }
 
@@ -102,7 +114,15 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
         return dumpPeriod;
     }
 
+    public int getMaxSamplingCount() {
+        return maxSamplingCount;
+    }
+
     public long getStartTime() {
         return startTime;
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 }
