@@ -51,18 +51,7 @@ or
 ### Build docker images
 We can build docker images of `backend` and `ui` with `Makefile` located in root folder.
 
-- Build all docker images
-> make docker.all
-
-- Build oap server docker image
-> make docker.oap
-
-- Build ui docker image
-> make docker.ui
-
-`HUB` and `TAG` variables ares used to setup `REPOSITORY` and `TAG` of a docker image. To get
-a oap image with name `bar/oap:foo`, run the following command
-> HUB=bar TAG=foo make docker.oap
+Refer to [Build docker image](../../../docker) for more details.
 
 ## Setup your IntelliJ IDEA
 **NOTICE**: If you clone the codes from GitHub, please make sure that you had finished step 1 to 7 in section **[Build from GitHub](#build-from-github)**, if you download the source codes from the official website of SkyWalking, please make sure that you had followed the steps in section **[Build from Apache source code release](#build-from-apache-source-code-release)**.
