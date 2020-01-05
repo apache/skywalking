@@ -41,6 +41,7 @@ import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 import org.apache.skywalking.apm.network.register.v2.Service;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstance;
@@ -141,7 +142,7 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
                     if (registerBlockingStub != null) {
                         ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).doServiceRegister(
-                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)).build());
+                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME).setType(ServiceType.normal)).build());
                         if (serviceRegisterMapping != null) {
                             for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
                                 if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {

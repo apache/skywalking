@@ -109,6 +109,8 @@ configuration:
     hostAndPorts: 127.0.0.1:8500
     # Sync period in seconds. Defaults to 60 seconds.
     period: 60
+    # aclToken of connection consul (optional)
+    aclToken: ${consul.aclToken}
 ```
 
 

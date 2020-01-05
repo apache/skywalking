@@ -36,6 +36,8 @@ public interface IMetadataQueryDAO extends DAO {
 
     List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
 
+    List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException;
+
     List<Database> getAllDatabases() throws IOException;
 
     List<Service> searchServices(final long startTimestamp, final long endTimestamp,

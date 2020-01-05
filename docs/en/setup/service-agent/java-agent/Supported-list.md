@@ -44,7 +44,7 @@
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
-  * [ActiveMQ](https://github.com/apache/activemq) 5.x
+  * [ActiveMQ](https://github.com/apache/activemq) 5.10.0 -> 5.15.4
   * [RabbitMQ](https://www.rabbitmq.com/) 5.x
   * [Pulsar](http://pulsar.apache.org) 2.2.x -> 2.4.x
 * NoSQL
@@ -59,7 +59,7 @@
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
     * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.7/index.html) 6.7.1-6.8.4
-    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.0
+    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.1
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
@@ -86,6 +86,8 @@
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
+* Kotlin
+  * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 

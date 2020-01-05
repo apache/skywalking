@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -31,11 +32,13 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.CONTROLLER_METHOD_STACK_DEPTH;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.FORWARD_REQUEST_FLAG;
@@ -103,6 +106,17 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 Tags.HTTP.METHOD.set(span, request.getMethod());
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                 SpanLayer.asHttp(span);
+
+                if (Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
+                    final Map<String, String[]> parameterMap = request.getParameterMap();
+                    if (parameterMap != null && !parameterMap.isEmpty()) {
+                        String tagValue = CollectionUtil.toString(parameterMap);
+                        tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0
+                            ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD)
+                            : tagValue;
+                        Tags.HTTP.PARAMS.set(span, tagValue);
+                    }
+                }
 
                 stackDepth = new StackDepth();
                 ContextManager.getRuntimeContext().put(CONTROLLER_METHOD_STACK_DEPTH, stackDepth);

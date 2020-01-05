@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCac
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -60,14 +61,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.Servi
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.ServiceInventoryCacheEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockDAOImpl;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock.RegisterLockInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.*;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
 
 /**
@@ -123,6 +117,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEsDAO(elasticSearchClient));
+
+        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config.getProfileTaskQueryMaxSize()));
     }
 
     @Override
