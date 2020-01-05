@@ -1,9 +1,12 @@
 # SkyWalking Cross Process Propagation Headers Protocol
 * Version 2.0
 
+SkyWalking is more likely an APM system, rather than common distributed tracing system. 
+The Headers is much more complex than them in order to improving analysis performance of collector. 
+You can find many similar mechanism in other commercial APM system. (Some are even much more complex than our's)
+
 ## Abstract
-SkyWalking Cross Process Propagation Headers Protocol v2 is also named as sw6 protocol. This protocol keeps the same purposes 
-of [v1(a.k.a. sw3)](Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md), which is keep context propagation works.
+SkyWalking Cross Process Propagation Headers Protocol v2 is also named as sw6 protocol, which is for context propagation.
 
 ## Differences from v1 
 The major differences of v2 and v1, comes from SkyWalking's evolution, including
