@@ -45,7 +45,7 @@ HUB?=skywalking
 
 TAG?=latest
 
-ES_VERSION?=6
+ES_VERSION?=es6
 
 .SECONDEXPANSION: #allow $@ to be used in dependency list
 
