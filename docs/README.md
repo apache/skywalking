@@ -91,14 +91,3 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
 * [FAQs](en/FAQ/README.md). A manifest of already known setup problems, secondary developments experiments. When you are facing a problem, check here first.
 
 
-___
-### Users from 5.x
-
-SkyWalking 5.x is still supported by the community. For the users planning to upgrade from 5.x to 7.x, you should know some definitions of concepts changed.
-
-The most important two changed concepts are:
-
-1. Application (in 5.x) is changed to **Service** (in 7.x), also Application Instance is changed to **Service Instance**.
-2. Service (in 5.x) is changed to **Endpoint** (in 7.x).
-
-
