@@ -393,6 +393,9 @@
                         <exclude>**/.vscode/**</exclude>
                         <exclude>**/.factorypath</exclude>
 
+                        <!-- Docker compose envrioment variables file -->
+                        <excludes>**/.env/**</excludes>
+
                         <!-- UI IDE configs -->
                         <exclude>**/skywalking-ui/.editorconfig</exclude>
                         <!-- UI ignore -->
