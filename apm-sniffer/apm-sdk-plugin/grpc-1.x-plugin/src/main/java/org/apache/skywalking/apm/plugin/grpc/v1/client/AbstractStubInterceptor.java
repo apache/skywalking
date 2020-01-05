@@ -16,40 +16,42 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
 import io.grpc.Channel;
 import io.grpc.ClientInterceptors;
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
+import java.lang.reflect.Method;
+
 /**
  * {@link AbstractStubInterceptor} add the interceptor for every ClientCall.
  *
- * @author zhang xin
+ * @author zhang xin, kanro
  */
 public class AbstractStubInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Channel channel = (Channel)allArguments[0];
-        objInst.setSkyWalkingDynamicField(ClientInterceptors.intercept(channel, new GRPCClientInterceptor()));
+        Channel channel = (Channel) allArguments[0];
+        objInst.setSkyWalkingDynamicField(ClientInterceptors.intercept(channel, new ClientInterceptor()));
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         return objInst.getSkyWalkingDynamicField();
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 }

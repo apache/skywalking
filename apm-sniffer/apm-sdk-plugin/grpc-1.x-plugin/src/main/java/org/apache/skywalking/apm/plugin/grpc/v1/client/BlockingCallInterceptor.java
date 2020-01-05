@@ -16,11 +16,10 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
 import io.grpc.Channel;
 import io.grpc.MethodDescriptor;
-import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -28,32 +27,37 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
- * @author zhang xin
+ * @author zhang xin, kanro
  */
-public class AsyncUnaryRequestCallCallInterceptor implements StaticMethodsAroundInterceptor {
-    @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        MethodInterceptResult result) {
-        CallClientInterceptor originClientCall = (CallClientInterceptor)allArguments[0];
-        Channel channel = originClientCall.getChannel();
-        MethodDescriptor methodDescriptor = originClientCall.getMethodDescriptor();
+public class BlockingCallInterceptor implements StaticMethodsAroundInterceptor {
 
+    @Override
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                             MethodInterceptResult result) {
+        Channel channel = (Channel) allArguments[0];
+        MethodDescriptor<?, ?> methodDescriptor = (MethodDescriptor<?, ?>) allArguments[1];
         final AbstractSpan span = ContextManager.createExitSpan(formatOperationName(methodDescriptor), channel.authority());
         span.setComponent(ComponentsDefine.GRPC);
-        SpanLayer.asRPCFramework(span);
+        span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        ContextManager.getRuntimeContext().put(BLOCKING_CALL_EXIT_SPAN, span);
     }
 
-    @Override public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        Object ret) {
+    @Override
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+                              Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-        Throwable t) {
+                                      Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }
