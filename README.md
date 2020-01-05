@@ -44,7 +44,7 @@ including
 
 
 # Document
-- [6.x Documents](docs/README.md).
+- [7.x Documents](docs/README.md).
 
 
 # Downloads
