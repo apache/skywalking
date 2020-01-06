@@ -295,7 +295,7 @@ jobs:
         run: ./mvnw clean package -DskipTests -Pagent >/dev/null
       - name: Build the Docker image
         run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
-      - name: Run mongodb 3.4.0-3.11.1 (17)
+      - name: Run mongodb 3.4.0-3.11.1 (22)
         run: bash test/plugin/run.sh mongodb-3.x-scenario
 
   Redisson_ShardingSphere_Zookeeper:
