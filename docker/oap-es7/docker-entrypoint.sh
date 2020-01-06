@@ -96,7 +96,7 @@ EOT
 else
     cat <<EOT >> ${var_application_file}
 storage:
-  elasticsearch:
+  elasticsearch7:
 EOT
 fi
 cat <<EOT >> ${var_application_file}
@@ -119,7 +119,6 @@ cat <<EOT >> ${var_application_file}
     resultWindowMaxSize: \${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: \${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: \${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
-    profileTaskQueryMaxSize: \${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
 EOT
 }
 
@@ -139,13 +138,13 @@ generateStorageMySQL() {
 storage:
   mysql:
     properties:
-        jdbcUrl: \${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
-        dataSource.user: \${SW_DATA_SOURCE_USER:root}
-        dataSource.password: \${SW_DATA_SOURCE_PASSWORD:root@1234}
-        dataSource.cachePrepStmts: \${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
-        dataSource.prepStmtCacheSize: \${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
-        dataSource.prepStmtCacheSqlLimit: \${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
-        dataSource.useServerPrepStmts: \${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+        jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+        dataSource.user: ${SW_DATA_SOURCE_USER:root}
+        dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+        dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+        dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+        dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+        dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: \${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 EOT
 }
@@ -354,8 +353,6 @@ receiver-jvm:
 receiver-clr:
   default:
 receiver-so11y:
-  default:
-receiver-profile:
   default:
 service-mesh:
   default:
