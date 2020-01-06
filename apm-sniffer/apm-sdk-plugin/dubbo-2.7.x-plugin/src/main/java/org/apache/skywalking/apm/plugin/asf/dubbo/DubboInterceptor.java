@@ -26,6 +26,7 @@ import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -55,6 +56,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invoker invoker = (Invoker)allArguments[0];
         Invocation invocation = (Invocation)allArguments[1];
+        if (invocation.getAttachments().containsKey(SW3CarrierItem.HEADER_NAME)){
+            invocation.getAttachments().remove(SW3CarrierItem.HEADER_NAME);
+        }
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
