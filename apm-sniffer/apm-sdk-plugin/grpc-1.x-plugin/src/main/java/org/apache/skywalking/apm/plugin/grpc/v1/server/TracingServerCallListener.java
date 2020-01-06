@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
 
 /**
- * @author wang zhen, kanro
+ * @author wang zheng, kanro
  */
 public class TracingServerCallListener<REQUEST> extends ForwardingServerCallListener.SimpleForwardingServerCallListener<REQUEST> {
 

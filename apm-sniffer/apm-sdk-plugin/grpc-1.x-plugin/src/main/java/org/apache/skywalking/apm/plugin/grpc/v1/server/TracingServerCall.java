@@ -33,7 +33,7 @@ import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
 
 /**
- * @author wang zhen, kanro
+ * @author wang zheng, kanro
  */
 public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.SimpleForwardingServerCall<REQUEST, RESPONSE> {
 
@@ -76,6 +76,8 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
             ContextManager.continued(contextSnapshot);
 
             switch (status.getCode()) {
+                case OK:
+                    break;
                 // UNKNOWN/INTERNAL status code will case error in this span.
                 // Those status code means some unexpected error occurred in server.
                 // Similar to 5XX in HTTP status.

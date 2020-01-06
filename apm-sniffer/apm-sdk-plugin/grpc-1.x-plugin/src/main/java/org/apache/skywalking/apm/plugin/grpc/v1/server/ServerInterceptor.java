@@ -31,7 +31,7 @@ import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- * @author zhang xin, wang zhen, kanro
+ * @author zhang xin, wang zheng, kanro
  */
 public class ServerInterceptor implements io.grpc.ServerInterceptor {
     @Override
