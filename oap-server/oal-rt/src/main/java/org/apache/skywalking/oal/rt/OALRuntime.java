@@ -316,9 +316,6 @@ public class OALRuntime implements OALEngine {
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        ClassFile metricsClassClassFile = metricsBuilderClass.getClassFile();
-        ConstPool constPool = metricsClassClassFile.getConstPool();
-
         /**
          * Create empty construct
          */
