@@ -39,8 +39,15 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "com.mongodb.Mongo";
+    private static final String WITNESS_CLASS = "com.mongodb.client.model.changestream.ChangeStreamDocument";
     private static final String METHOD_NAME = "createOperationExecutor";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBClientDelegateInterceptor";
+
+    @Override
+    protected String[] witnessClasses() {
+        // this class only exist in version: 3.6.x or higher
+        return new String[]{WITNESS_CLASS};
+    }
 
     @Override
     protected ClassMatch enhanceClass() {
