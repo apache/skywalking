@@ -18,22 +18,32 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author wusheng
+ * @author panjuan
  */
 public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
+    @Getter(AccessLevel.PROTECTED)
     private JDBCHikariCPClient h2Client;
 
     public H2AggregationQueryDAO(JDBCHikariCPClient h2Client) {
@@ -75,24 +85,22 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
+                                      long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
-
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
         sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
-            .append(indexName).append(" where ");
+                .append(indexName).append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
-
         List<TopNEntity> topNEntities = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
-
+            
                 try {
                     while (resultSet.next()) {
                         TopNEntity topNEntity = new TopNEntity();
@@ -108,10 +116,6 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             throw new IOException(e);
         }
         return topNEntities;
-    }
-
-    public JDBCHikariCPClient getClient() {
-        return h2Client;
     }
 
     protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,

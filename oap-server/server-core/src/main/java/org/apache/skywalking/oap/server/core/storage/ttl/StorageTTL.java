@@ -23,5 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.Downsampling;
  * @author peng-yongsheng
  */
 public interface StorageTTL {
-    TTLCalculator calculator(Downsampling downsampling);
+    TTLCalculator metricsCalculator(Downsampling downsampling);
+
+    TTLCalculator recordCalculator();
 }

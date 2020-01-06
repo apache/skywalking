@@ -18,19 +18,28 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
+import org.apache.skywalking.oap.server.core.query.entity.Alarms;
+import org.apache.skywalking.oap.server.core.query.entity.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.elasticsearch.common.Strings;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * @author wusheng
+ * @author panjuan
  */
 public class H2AlarmQueryDAO implements IAlarmQueryDAO {
+    
     private JDBCHikariCPClient client;
 
     public H2AlarmQueryDAO(JDBCHikariCPClient client) {
@@ -40,7 +49,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
         long endTB) throws IOException {
-
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
@@ -55,23 +63,23 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
-
+    
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
-
+    
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
-
+        
             try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }
             }
-
+        
             this.buildLimit(sql, from, limit);
-
+        
             try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     AlarmMessage message = new AlarmMessage();
@@ -80,14 +88,14 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
                     message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
                     message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
-
+                
                     alarms.getMsgs().add(message);
                 }
             }
         } catch (SQLException e) {
             throw new IOException(e);
         }
-
+    
         return alarms;
     }
 

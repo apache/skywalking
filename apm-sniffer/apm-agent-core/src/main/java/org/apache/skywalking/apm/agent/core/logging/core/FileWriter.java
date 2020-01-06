@@ -19,21 +19,22 @@
 
 package org.apache.skywalking.apm.agent.core.logging.core;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.Constants;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.Constants;
-import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import java.util.regex.Pattern;
 
 /**
  * The <code>FileWriter</code> support async file output, by using a queue as buffer.
@@ -46,6 +47,7 @@ public class FileWriter implements IWriter {
     private FileOutputStream fileOutputStream;
     private ArrayBlockingQueue logBuffer;
     private volatile int fileSize;
+    private Pattern filenamePattern = Pattern.compile(Config.Logging.FILE_NAME + "\\.\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}");
 
     public static FileWriter get() {
         if (INSTANCE == null) {
@@ -65,14 +67,18 @@ public class FileWriter implements IWriter {
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("LogFileWriter"))
             .scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
                 @Override public void run() {
-                    logBuffer.drainTo(outputLogs);
-                    for (String log : outputLogs) {
-                        writeToFile(log + Constants.LINE_SEPARATOR);
-                    }
                     try {
-                        fileOutputStream.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        logBuffer.drainTo(outputLogs);
+                        for (String log : outputLogs) {
+                            writeToFile(log + Constants.LINE_SEPARATOR);
+                        }
+                        try {
+                            fileOutputStream.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } finally {
+                        outputLogs.clear();
                     }
                 }
             }, new RunnableWithExceptionProtection.CallbackWhenException() {
@@ -130,6 +136,47 @@ public class FileWriter implements IWriter {
                     return null;
                 }
             });
+
+            if (Config.Logging.MAX_HISTORY_FILES > 0) {
+                deleteExpiredFiles();
+            }
+        }
+    }
+
+    /**
+     * load history log file name array
+     * @return history log file name array
+     */
+    private String[] getHistoryFilePath() {
+        File path = new File(Config.Logging.DIR);
+        String[] pathArr = path.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return filenamePattern.matcher(name).matches();
+            }
+        });
+
+        return pathArr;
+    }
+
+    /**
+     * delete expired log files
+     */
+    private void deleteExpiredFiles() {
+        String[] historyFileArr = getHistoryFilePath();
+        if (historyFileArr != null && historyFileArr.length > Config.Logging.MAX_HISTORY_FILES) {
+
+            Arrays.sort(historyFileArr, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return o2.compareTo(o1);
+                }
+            });
+
+            for (int i = Config.Logging.MAX_HISTORY_FILES; i < historyFileArr.length; i++) {
+                File expiredFile = new File(Config.Logging.DIR, historyFileArr[i]);
+                expiredFile.delete();
+            }
         }
     }
 
@@ -165,16 +212,11 @@ public class FileWriter implements IWriter {
     }
 
     /**
-     * Write log to the queue.
-     * W/ performance trade off, set 2ms timeout for the log OP.
+     * Write log to the queue. W/ performance trade off.
      *
      * @param message to log
      */
     @Override public void write(String message) {
-        try {
-            logBuffer.offer(message, 2, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        logBuffer.offer(message);
     }
 }

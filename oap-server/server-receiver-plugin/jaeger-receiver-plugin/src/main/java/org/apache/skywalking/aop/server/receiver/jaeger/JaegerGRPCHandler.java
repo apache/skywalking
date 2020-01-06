@@ -99,7 +99,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
 
                 long duration = span.getDuration().getNanos() / 1_000_000;
                 jaegerSpan.setStartTime(Instant.ofEpochSecond(span.getStartTime().getSeconds(), span.getStartTime().getNanos()).toEpochMilli());
-                long timeBucket = TimeBucket.getSecondTimeBucket(jaegerSpan.getStartTime());
+                long timeBucket = TimeBucket.getRecordTimeBucket(jaegerSpan.getStartTime());
                 jaegerSpan.setTimeBucket(timeBucket);
                 jaegerSpan.setEndTime(jaegerSpan.getStartTime() + duration);
                 jaegerSpan.setLatency((int)duration);

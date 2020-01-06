@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.network.language.agent.*;
 public class JVMMetricsServiceHandlerMainTest {
 
     public static void main(String[] args) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         JVMMetricsServiceGrpc.JVMMetricsServiceBlockingStub stub = JVMMetricsServiceGrpc.newBlockingStub(channel);
 

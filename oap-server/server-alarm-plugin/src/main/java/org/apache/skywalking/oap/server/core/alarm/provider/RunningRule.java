@@ -18,15 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
@@ -35,6 +31,13 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -56,6 +59,7 @@ public class RunningRule {
     private volatile MetricsValueType valueType;
     private int targetScopeId;
     private List<String> includeNames;
+    private List<String> excludeNames;
     private AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -74,6 +78,7 @@ public class RunningRule {
         this.silencePeriod = alarmRule.getSilencePeriod();
 
         this.includeNames = alarmRule.getIncludeNames();
+        this.excludeNames = alarmRule.getExcludeNames();
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
@@ -91,6 +96,12 @@ public class RunningRule {
 
         if (CollectionUtils.isNotEmpty(includeNames)) {
             if (!includeNames.contains(meta.getName())) {
+                return;
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(excludeNames)) {
+            if (excludeNames.contains(meta.getName())) {
                 return;
             }
         }
@@ -145,9 +156,11 @@ public class RunningRule {
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
                 alarmMessage.setScopeId(meta.getScopeId());
+                alarmMessage.setScope(meta.getScope());
                 alarmMessage.setName(meta.getName());
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
+                alarmMessage.setRuleName(this.ruleName);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
@@ -156,6 +169,8 @@ public class RunningRule {
 
         return alarmMessageList;
     }
+
+
 
     /**
      * A metrics window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent

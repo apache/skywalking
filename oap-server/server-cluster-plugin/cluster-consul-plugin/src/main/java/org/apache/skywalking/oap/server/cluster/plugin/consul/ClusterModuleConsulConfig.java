@@ -28,5 +28,6 @@ class ClusterModuleConsulConfig extends ModuleConfig {
     @Setter @Getter private String serviceName;
     @Setter @Getter private String hostPort;
     @Setter @Getter private String internalComHost;
+    @Getter @Setter private String aclToken;
     @Setter @Getter private int internalComPort = -1;
 }

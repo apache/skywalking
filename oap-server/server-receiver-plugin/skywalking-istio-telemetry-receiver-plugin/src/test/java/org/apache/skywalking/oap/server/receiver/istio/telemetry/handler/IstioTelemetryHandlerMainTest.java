@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class IstioTelemetryHandlerMainTest {
 
     public static void main(String[] args) throws InterruptedException {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext(true).build();
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
         HandleMetricServiceGrpc.HandleMetricServiceBlockingStub stub = HandleMetricServiceGrpc.newBlockingStub(channel);
 

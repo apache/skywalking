@@ -24,6 +24,5 @@ package org.apache.skywalking.apm.commons.datacarrier.buffer;
  */
 public enum BufferStrategy {
     BLOCKING,
-    OVERRIDE,
     IF_POSSIBLE
 }

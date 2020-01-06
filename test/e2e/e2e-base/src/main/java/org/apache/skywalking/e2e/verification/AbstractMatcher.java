@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class AbstractMatcher<T> {
     private static final Pattern NE_MATCHER = Pattern.compile("ne\\s+(?<val>.+)");
+    private static final Pattern EQ_MATCHER = Pattern.compile("eq\\s+(?<val>.+)");
     private static final Pattern GT_MATCHER = Pattern.compile("gt\\s+(?<val>.+)");
     private static final Pattern GE_MATCHER = Pattern.compile("ge\\s+(?<val>.+)");
     private static final Pattern NN_MATCHER = Pattern.compile("^not null$");
@@ -62,6 +63,15 @@ public abstract class AbstractMatcher<T> {
 
             assertThat(val).isNotBlank();
             assertThat(Double.parseDouble(actual)).isGreaterThanOrEqualTo(Double.parseDouble(val));
+            return;
+        }
+
+        matcher = EQ_MATCHER.matcher(expected);
+        if (matcher.find()) {
+            String val = matcher.group("val");
+
+            assertThat(val).isNotBlank();
+            assertThat(Double.parseDouble(actual)).isEqualTo(Double.parseDouble(val));
             return;
         }
 

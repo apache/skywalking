@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.configuration.nacos;
 
 import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -53,7 +54,8 @@ public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
         final String serverAddr = this.settings.getServerAddr();
 
         final Properties properties = new Properties();
-        properties.put("serverAddr", serverAddr + ":" + port);
+        properties.put(PropertyKeyConst.SERVER_ADDR, serverAddr + ":" + port);
+        properties.put(PropertyKeyConst.NAMESPACE, settings.getNamespace());
         this.configService = NacosFactory.createConfigService(properties);
     }
 

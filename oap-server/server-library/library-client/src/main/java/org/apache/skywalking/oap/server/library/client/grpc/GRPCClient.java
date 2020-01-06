@@ -42,7 +42,7 @@ public class GRPCClient implements Client {
     }
 
     @Override public void connect() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
     }
 
     @Override public void shutdown() {

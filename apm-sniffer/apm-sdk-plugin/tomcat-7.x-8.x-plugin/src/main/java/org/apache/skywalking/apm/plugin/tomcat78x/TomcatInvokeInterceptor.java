@@ -19,9 +19,15 @@
 
 package org.apache.skywalking.apm.plugin.tomcat78x;
 
-import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.catalina.connector.Request;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,8 +38,11 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.tomcat.util.http.Parameters;
 
 /**
  * {@link TomcatInvokeInterceptor} fetch the serialized context data by using {@link
@@ -63,7 +72,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
      */
     @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        HttpServletRequest request = (HttpServletRequest)allArguments[0];
+        Request request = (Request) allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
 
         CarrierItem next = contextCarrier.items();
@@ -78,6 +87,23 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         span.setComponent(ComponentsDefine.TOMCAT);
         SpanLayer.asHttp(span);
 
+        if (Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
+            final Map<String, String[]> parameterMap = new HashMap<>();
+            final org.apache.coyote.Request coyoteRequest = request.getCoyoteRequest();
+            final Parameters parameters = coyoteRequest.getParameters();
+            for (final Enumeration<String> names = parameters.getParameterNames(); names.hasMoreElements(); ) {
+                final String name = names.nextElement();
+                parameterMap.put(name, parameters.getParameterValues(name));
+            }
+
+            if (!parameterMap.isEmpty()) {
+                String tagValue = CollectionUtil.toString(parameterMap);
+                tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0
+                    ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD)
+                    : tagValue;
+                Tags.HTTP.PARAMS.set(span, tagValue);
+            }
+        }
     }
 
     @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,

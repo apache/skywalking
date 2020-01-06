@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
+import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -53,7 +55,13 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ").append(timeBucketColumnName).append("<= ?");
 
         try (Connection connection = client.getConnection()) {
-            long timeBefore = storageTTL.calculator(model.getDownsampling()).timeBefore(new DateTime(), configService.getDataTTLConfig());
+            TTLCalculator ttlCalculator;
+            if (model.isRecord()) {
+                ttlCalculator = storageTTL.recordCalculator();
+            } else {
+                ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
+            }
+            long timeBefore = ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig());
             client.execute(connection, dataDeleteSQL.toString(), timeBefore);
         } catch (JDBCClientException | SQLException e) {
             throw new IOException(e.getMessage(), e);

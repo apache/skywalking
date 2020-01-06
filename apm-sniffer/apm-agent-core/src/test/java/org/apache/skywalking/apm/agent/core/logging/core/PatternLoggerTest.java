@@ -23,13 +23,11 @@ import com.google.common.collect.Lists;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.hamcrest.core.StringContains;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.PrintStream;
 import java.util.List;
 
 import static org.mockito.Matchers.anyString;
@@ -42,28 +40,20 @@ public class PatternLoggerTest {
 
     public static final String PATTERN = "%timestamp+0800 %level [%agent_name,,,] [%thread] %class:-1 %msg %throwable";
 
-    private static PrintStream OUT_REF;
-    private static PrintStream ERR_REF;
-
     @BeforeClass
     public static void initAndHoldOut() {
-        OUT_REF = System.out;
-        ERR_REF = System.err;
         Config.Agent.SERVICE_NAME = "testAppFromConfig";
     }
 
 
     @Test
     public void testLog() {
-        PrintStream output = Mockito.mock(PrintStream.class);
-        System.setOut(output);
-        PrintStream err = Mockito.mock(PrintStream.class);
-        System.setErr(err);
+        final IWriter output = Mockito.mock(IWriter.class);
         PatternLogger logger = new PatternLogger(PatternLoggerTest.class, PATTERN) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
                 String r = format(level, message, e);
-                SystemOutWriter.INSTANCE.write(r);
+                output.write(r);
             }
         };
 
@@ -84,19 +74,16 @@ public class PatternLoggerTest {
         logger.error(new NullPointerException(), "hello {}", "world");
 
         Mockito.verify(output, times(9))
-                .println(anyString());
+                .write(anyString());
     }
 
     @Test
     public void testLogWithSpecialChar() {
-        PrintStream output = Mockito.mock(PrintStream.class);
-        System.setOut(output);
-        PrintStream err = Mockito.mock(PrintStream.class);
-        System.setErr(err);
+        final IWriter output = Mockito.mock(IWriter.class);
         PatternLogger logger = new PatternLogger(PatternLoggerTest.class, PATTERN) {
             @Override
             protected void logger(LogLevel level, String message, Throwable e) {
-                SystemOutWriter.INSTANCE.write(format(level, message, e));
+                output.write(format(level, message, e));
             }
         };
 
@@ -117,7 +104,7 @@ public class PatternLoggerTest {
         logger.error(new NullPointerException(), "hello {}", "&&&**%%");
 
         Mockito.verify(output, times(9))
-                .println(anyString());
+                .write(anyString());
     }
 
     @Test
@@ -155,11 +142,5 @@ public class PatternLoggerTest {
         Assert.assertEquals(strings.get(1).split(Constants.LINE_SEPARATOR).length, 1);
     }
 
-
-    @AfterClass
-    public static void reset() {
-        System.setOut(OUT_REF);
-        System.setErr(ERR_REF);
-    }
 
 }

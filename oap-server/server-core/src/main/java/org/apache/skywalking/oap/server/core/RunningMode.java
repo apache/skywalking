@@ -43,7 +43,7 @@ public class RunningMode {
      * @return true if in this status
      */
     public static boolean isInitMode() {
-        return MODE.equals("init");
+        return "init".equals(MODE);
     }
 
     /**
@@ -51,6 +51,6 @@ public class RunningMode {
      * @return true if in this status.
      */
     public static boolean isNoInitMode() {
-        return MODE.equals("no-init");
+        return "no-init".equals(MODE);
     }
 }

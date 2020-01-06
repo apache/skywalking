@@ -238,6 +238,10 @@ public class TelemetryDataDispatcher {
     }
 
     private static void toEndpoint(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
+        if (decorator.getEndpointId() == Const.NONE) {
+            logger.warn("Received service mesh data {} with an id == 0", decorator);
+            return;
+        }
         ServiceMeshMetric metrics = decorator.getMetric();
         Endpoint endpoint = new Endpoint();
         endpoint.setTimeBucket(minuteTimeBucket);

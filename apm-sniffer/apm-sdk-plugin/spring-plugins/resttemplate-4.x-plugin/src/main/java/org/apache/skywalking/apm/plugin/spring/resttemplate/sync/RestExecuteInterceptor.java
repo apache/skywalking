@@ -21,18 +21,17 @@ package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 import java.lang.reflect.Method;
 import java.net.URI;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -41,7 +40,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL.getScheme()) ? 443 : 80);
-        AbstractSpan span = ContextManager.createExitSpan(requestURL.getPath(), contextCarrier, remotePeer);
+        String formatURIPath = requestURL.getPath();
+        AbstractSpan span = ContextManager.createExitSpan(formatURIPath, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE);
         Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL.getPath());

@@ -63,16 +63,17 @@ public class InterceptorInstanceLoader {
         Object inst = INSTANCE_CACHE.get(instanceKey);
         if (inst == null) {
             INSTANCE_LOAD_LOCK.lock();
+            ClassLoader pluginLoader;
             try {
-                ClassLoader pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);
+                pluginLoader = EXTEND_PLUGIN_CLASSLOADERS.get(targetClassLoader);
                 if (pluginLoader == null) {
                     pluginLoader = new AgentClassLoader(targetClassLoader);
                     EXTEND_PLUGIN_CLASSLOADERS.put(targetClassLoader, pluginLoader);
                 }
-                inst = Class.forName(className, true, pluginLoader).newInstance();
             } finally {
                 INSTANCE_LOAD_LOCK.unlock();
             }
+            inst = Class.forName(className, true, pluginLoader).newInstance();
             if (inst != null) {
                 INSTANCE_CACHE.put(instanceKey, inst);
             }

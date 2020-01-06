@@ -44,8 +44,8 @@ public class MaxLongMetricsTest {
         impl.combine(5);
 
         MaxLongMetricsImpl impl2 = new MaxLongMetricsImpl();
-        impl.combine(2);
-        impl.combine(6);
+        impl2.combine(2);
+        impl2.combine(6);
 
         impl.combine(impl2);
         Assert.assertEquals(10, impl.getValue());

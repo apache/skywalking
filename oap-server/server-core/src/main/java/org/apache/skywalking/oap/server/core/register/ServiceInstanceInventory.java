@@ -18,19 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import com.google.gson.*;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.elasticsearch.common.Strings;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 
@@ -46,8 +52,10 @@ public class ServiceInstanceInventory extends RegisterSource {
     public static final String NAME = "name";
     public static final String INSTANCE_UUID = "instance_uuid";
     public static final String SERVICE_ID = "service_id";
-    private static final String IS_ADDRESS = "is_address";
+    public static final String IS_ADDRESS = "is_address";
     private static final String ADDRESS_ID = "address_id";
+    public static final String NODE_TYPE = "node_type";
+    public static final String MAPPING_SERVICE_INSTANCE_ID = "mapping_service_instance_id";
     public static final String PROPERTIES = "properties";
     private static final Gson GSON = new Gson();
 
@@ -56,8 +64,12 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
     @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
     @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
+    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PACKAGE) @Column(columnName = NODE_TYPE) private int nodeType;
+    @Setter @Getter @Column(columnName = MAPPING_SERVICE_INSTANCE_ID) private int mappingServiceInstanceId;
     @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop;
     @Getter private JsonObject properties;
+
+    @Setter @Getter private boolean resetServiceInstanceMapping = false;
 
     public static String buildId(int serviceId, String uuid) {
         return serviceId + Const.ID_SPLIT + uuid + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
@@ -65,6 +77,14 @@ public class ServiceInstanceInventory extends RegisterSource {
 
     public static String buildId(int serviceId, int addressId) {
         return serviceId + Const.ID_SPLIT + BooleanUtils.TRUE + Const.ID_SPLIT + addressId;
+    }
+
+    public NodeType getServiceInstanceNodeType() {
+        return NodeType.get(nodeType);
+    }
+
+    public void setServiceInstanceNodeType(NodeType nodeType) {
+        this.nodeType = nodeType.value();
     }
 
     @Override public String id() {
@@ -123,12 +143,35 @@ public class ServiceInstanceInventory extends RegisterSource {
         return true;
     }
 
+    public ServiceInstanceInventory getClone() {
+        ServiceInstanceInventory inventory = new ServiceInstanceInventory();
+        inventory.setInstanceUUID(instanceUUID);
+        inventory.setName(name);
+        inventory.setServiceId(serviceId);
+        inventory.setIsAddress(isAddress);
+        inventory.setAddressId(addressId);
+        inventory.setNodeType(nodeType);
+        inventory.setMappingServiceInstanceId(mappingServiceInstanceId);
+        inventory.setProp(prop);
+        inventory.setResetServiceInstanceMapping(resetServiceInstanceMapping);
+
+        inventory.setSequence(getSequence());
+        inventory.setRegisterTime(getRegisterTime());
+        inventory.setHeartbeatTime(getHeartbeatTime());
+        inventory.setLastUpdateTime(getLastUpdateTime());
+
+        return inventory;
+    }
+
     @Override public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(serviceId);
         remoteBuilder.addDataIntegers(isAddress);
         remoteBuilder.addDataIntegers(addressId);
+        remoteBuilder.addDataIntegers(nodeType);
+        remoteBuilder.addDataIntegers(mappingServiceInstanceId);
+        remoteBuilder.addDataIntegers(resetServiceInstanceMapping ? 1 : 0);
 
         remoteBuilder.addDataLongs(getRegisterTime());
         remoteBuilder.addDataLongs(getHeartbeatTime());
@@ -137,6 +180,7 @@ public class ServiceInstanceInventory extends RegisterSource {
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(instanceUUID) ? Const.EMPTY_STRING : instanceUUID);
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(prop) ? Const.EMPTY_STRING : prop);
+
         return remoteBuilder;
     }
 
@@ -145,6 +189,9 @@ public class ServiceInstanceInventory extends RegisterSource {
         setServiceId(remoteData.getDataIntegers(1));
         setIsAddress(remoteData.getDataIntegers(2));
         setAddressId(remoteData.getDataIntegers(3));
+        setNodeType(remoteData.getDataIntegers(4));
+        setMappingServiceInstanceId(remoteData.getDataIntegers(5));
+        setResetServiceInstanceMapping(remoteData.getDataIntegers(6) == 1);
 
         setRegisterTime(remoteData.getDataLongs(0));
         setHeartbeatTime(remoteData.getDataLongs(1));
@@ -159,6 +206,25 @@ public class ServiceInstanceInventory extends RegisterSource {
         return 0;
     }
 
+    @Override public boolean combine(RegisterSource registerSource) {
+        boolean isChanged = super.combine(registerSource);
+        ServiceInstanceInventory instanceInventory = (ServiceInstanceInventory) registerSource;
+
+        if (instanceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
+            this.nodeType = instanceInventory.getNodeType();
+            this.resetServiceInstanceMapping = instanceInventory.isResetServiceInstanceMapping();
+            setProp(instanceInventory.getProp());
+            if (instanceInventory.isResetServiceInstanceMapping()) {
+                this.mappingServiceInstanceId = Const.NONE;
+            } else if (Const.NONE != instanceInventory.getMappingServiceInstanceId()) {
+                this.mappingServiceInstanceId = instanceInventory.mappingServiceInstanceId;
+            }
+            isChanged = true;
+        }
+
+        return isChanged;
+    }
+
     public static class Builder implements StorageBuilder<ServiceInstanceInventory> {
 
         @Override public ServiceInstanceInventory map2Data(Map<String, Object> dbMap) {
@@ -171,6 +237,9 @@ public class ServiceInstanceInventory extends RegisterSource {
             inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
             inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
             inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
+
+            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
+            inventory.setMappingServiceInstanceId(((Number)dbMap.get(MAPPING_SERVICE_INSTANCE_ID)).intValue());
 
             inventory.setName((String)dbMap.get(NAME));
             inventory.setInstanceUUID((String)dbMap.get(INSTANCE_UUID));
@@ -188,6 +257,9 @@ public class ServiceInstanceInventory extends RegisterSource {
             map.put(REGISTER_TIME, storageData.getRegisterTime());
             map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
             map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
+
+            map.put(NODE_TYPE, storageData.getNodeType());
+            map.put(MAPPING_SERVICE_INSTANCE_ID, storageData.getMappingServiceInstanceId());
 
             map.put(NAME, storageData.getName());
             map.put(INSTANCE_UUID, storageData.getInstanceUUID());

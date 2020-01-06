@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import com.google.common.collect.Lists;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.*;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
@@ -181,8 +182,44 @@ public class RunningRuleTest {
         Assert.assertNotEquals(0, runningRule.check().size()); //alarm
     }
 
+    @Test
+    public void testExclude() {
+        AlarmRule alarmRule = new AlarmRule();
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setMetricsName("endpoint_percent");
+        alarmRule.setOp("<");
+        alarmRule.setThreshold("75");
+        alarmRule.setCount(3);
+        alarmRule.setPeriod(15);
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
+        alarmRule.setExcludeNames(Lists.newArrayList("Service_123"));
+
+        RunningRule runningRule = new RunningRule(alarmRule);
+
+        long timeInPeriod1 = 201808301434L;
+        long timeInPeriod2 = 201808301436L;
+        long timeInPeriod3 = 201808301438L;
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+
+        // check at 201808301440
+        Assert.assertEquals(0, runningRule.check().size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
+        // check at 201808301441
+        Assert.assertEquals(0, runningRule.check().size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
+        // check at 201808301442
+        Assert.assertEquals(0, runningRule.check().size());
+    }
+
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
+            @Override public String getScope() {
+                return "SERVICE";
+            }
+
             @Override public int getScopeId() {
                 return DefaultScopeDefine.SERVICE;
             }

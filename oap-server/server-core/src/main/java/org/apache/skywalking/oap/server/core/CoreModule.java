@@ -28,14 +28,8 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
-import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
-import org.apache.skywalking.oap.server.core.query.LogQueryService;
-import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricQueryService;
-import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
-import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
-import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
+import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
@@ -78,10 +72,16 @@ public class CoreModule extends ModuleDefine {
         addRegisterService(classes);
         addCacheService(classes);
         addQueryService(classes);
+        addProfileService(classes);
 
         classes.add(CommandService.class);
 
         return classes.toArray(new Class[] {});
+    }
+
+    private void addProfileService(List<Class> classes) {
+        classes.add(ProfileTaskMutationService.class);
+        classes.add(ProfileTaskQueryService.class);
     }
 
     private void addQueryService(List<Class> classes) {

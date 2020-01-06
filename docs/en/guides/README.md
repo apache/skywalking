@@ -15,13 +15,17 @@ follow the next step to subscribe.
 - Issue report and discussion also could take place in `dev@skywalking.apache.org`. 
 Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list. 
 
-
 ## Contact Us
 All the following channels are open to the community, you could choose the way you like.
 * Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * [Gitter](https://gitter.im/openskywalking/Lobby)
 * QQ Group: 392443393
+
+## Become official Apache SkyWalking Committer
+The PMC will assess the contributions of every contributor, including, but not limited to, 
+code contributions, and follow the Apache guides to promote, vote and invite new committer and PMC member.
+Read [Become official Apache SkyWalking Committer](asf/committer.md) to get details.
 
 ## For code developer
 For developers, first step, read [Compiling Guide](How-to-build.md). It teaches developer how to build the project in local and set up the environment.
@@ -85,6 +89,13 @@ We've given a simple example that verifies SkyWalking should work as expected in
 
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
 They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
+
+- Troubleshooting
+
+**NOTE:** Please verify the newly-added E2E test case locally first, however, if you find it passed locally but failed in the PR check status, make sure all the updated/newly-added files (especially those in submodules)
+are committed and included in that PR, or reset the git HEAD to the remote and verify locally again.
+
+There should be related logs when tests are failed, but if the OAP backend failed to start at all, there may be just logs saying "timeout", please verify locally again, and recheck the NOTE above.
 
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,

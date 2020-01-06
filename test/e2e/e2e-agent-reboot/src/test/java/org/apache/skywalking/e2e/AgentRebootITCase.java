@@ -235,8 +235,8 @@ public class AgentRebootITCase {
     private void verifyInstancesMetrics(Instances instances) throws Exception {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
-                LOGGER.info("verifying service instance response time: {}", instance);
-                final Metrics instanceRespTime = queryClient.metrics(
+                LOGGER.info("verifying service instance {}, metrics {}", instance, metricsName);
+                final Metrics instanceMetrics = queryClient.metrics(
                     new MetricsQuery()
                         .stepByMinute()
                         .metricsName(metricsName)
@@ -246,8 +246,8 @@ public class AgentRebootITCase {
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
-                instanceRespTimeMatcher.verify(instanceRespTime);
-                LOGGER.info("{}: {}", metricsName, instanceRespTime);
+                instanceRespTimeMatcher.verify(instanceMetrics);
+                LOGGER.info("{}: {}", metricsName, instanceMetrics);
             }
         }
     }
@@ -257,12 +257,12 @@ public class AgentRebootITCase {
             if (!endpoint.getLabel().equals("/e2e/users")) {
                 continue;
             }
-            for (String metricName : ALL_ENDPOINT_METRICS) {
-                LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
+            for (String metricsName : ALL_ENDPOINT_METRICS) {
+                LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricsName);
                 final Metrics metrics = queryClient.metrics(
                     new MetricsQuery()
                         .stepByMinute()
-                        .metricsName(metricName)
+                        .metricsName(metricsName)
                         .id(endpoint.getKey())
                 );
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
@@ -270,26 +270,26 @@ public class AgentRebootITCase {
                 greaterThanZero.setValue("gt 0");
                 instanceRespTimeMatcher.setValue(greaterThanZero);
                 instanceRespTimeMatcher.verify(metrics);
-                LOGGER.info("metrics: {}", metrics);
+                LOGGER.info("{}: {}", metricsName, metrics);
             }
         }
     }
 
     private void verifyServiceMetrics(Service service) throws Exception {
-        for (String metricName : ALL_SERVICE_METRICS) {
-            LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-            final Metrics instanceRespTime = queryClient.metrics(
+        for (String metricsName : ALL_SERVICE_METRICS) {
+            LOGGER.info("verifying service {}, metrics: {}", service, metricsName);
+            final Metrics serviceMetrics = queryClient.metrics(
                 new MetricsQuery()
                     .stepByMinute()
-                    .metricsName(metricName)
+                    .metricsName(metricsName)
                     .id(service.getKey())
             );
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
             instanceRespTimeMatcher.setValue(greaterThanZero);
-            instanceRespTimeMatcher.verify(instanceRespTime);
-            LOGGER.info("instanceRespTime: {}", instanceRespTime);
+            instanceRespTimeMatcher.verify(serviceMetrics);
+            LOGGER.info("{}}: {}", metricsName, serviceMetrics);
         }
     }
 

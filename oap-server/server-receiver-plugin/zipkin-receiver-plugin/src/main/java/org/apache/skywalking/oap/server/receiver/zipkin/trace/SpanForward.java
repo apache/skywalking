@@ -93,7 +93,7 @@ public class SpanForward {
             long startTime = span.timestampAsLong() / 1000;
             zipkinSpan.setStartTime(startTime);
             if (startTime != 0) {
-                long timeBucket = TimeBucket.getSecondTimeBucket(zipkinSpan.getStartTime());
+                long timeBucket = TimeBucket.getRecordTimeBucket(zipkinSpan.getStartTime());
                 zipkinSpan.setTimeBucket(timeBucket);
             }
 

@@ -27,6 +27,7 @@ public class Instance {
     private String key;
     private String label;
     private List<Attribute> attributes;
+    private String instanceUUID;
 
     public String getKey() {
         return key;
@@ -54,12 +55,22 @@ public class Instance {
         this.attributes = attributes;
     }
 
+    public String getInstanceUUID() {
+        return instanceUUID;
+    }
+
+    public Instance setInstanceUUID(String instanceUUID) {
+        this.instanceUUID = instanceUUID;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Instance{" +
             "key='" + key + '\'' +
             ", label='" + label + '\'' +
             ", attributes=" + attributes +
+            ", instanceUUID=" + instanceUUID +
             '}';
     }
 }

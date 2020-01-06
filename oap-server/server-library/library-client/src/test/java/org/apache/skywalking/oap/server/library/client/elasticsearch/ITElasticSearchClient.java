@@ -18,24 +18,34 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
-import com.google.gson.*;
-import java.io.*;
-import java.util.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.*;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
@@ -57,10 +67,10 @@ public class ITElasticSearchClient {
     }
 
     @Before
-    public void before() throws IOException {
+    public void before() throws Exception {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
-        client = new ElasticSearchClient(esAddress, esProtocol, namespace, "test", "test");
+        client = new ElasticSearchClient(esAddress, esProtocol, "", "", namespace, "test", "test");
         client.connect();
     }
 
@@ -71,17 +81,14 @@ public class ITElasticSearchClient {
 
     @Test
     public void indexOperate() throws IOException {
-        JsonObject settings = new JsonObject();
-        settings.addProperty("number_of_shards", 2);
-        settings.addProperty("number_of_replicas", 2);
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("number_of_shards", 2);
+        settings.put("number_of_replicas", 2);
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("_doc", new JsonObject());
-
-        JsonObject doc = mapping.getAsJsonObject("_doc");
+        Map<String, Object> doc = new HashMap<>();
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
@@ -138,18 +145,18 @@ public class ITElasticSearchClient {
 
     @Test
     public void templateOperate() throws IOException {
-        JsonObject settings = new JsonObject();
-        settings.addProperty("number_of_shards", 1);
-        settings.addProperty("number_of_replicas", 0);
-        settings.addProperty("index.refresh_interval", "3s");
-        settings.addProperty("analysis.analyzer.oap_analyzer.type", "stop");
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("number_of_shards", 1);
+        settings.put("number_of_replicas", 0);
+        settings.put("index.refresh_interval", "3s");
+        settings.put("analysis.analyzer.oap_analyzer.type", "stop");
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("type", new JsonObject());
-        JsonObject doc = mapping.getAsJsonObject("type");
+        Map<String, Object> mapping = new HashMap<>();
+        Map<String, Object> doc = new HashMap<>();
+        mapping.put("type", doc);
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
@@ -199,18 +206,18 @@ public class ITElasticSearchClient {
         String indexName = "test_time_series_operate";
         String timeSeriesIndexName = indexName + "-2019";
 
-        JsonObject mapping = new JsonObject();
-        mapping.add("type", new JsonObject());
-        JsonObject doc = mapping.getAsJsonObject("type");
+        Map<String, Object> mapping = new HashMap<>();
+        Map<String, Object> doc = new HashMap<>();
+        mapping.put("type", doc);
 
         JsonObject properties = new JsonObject();
-        doc.add("properties", properties);
+        doc.put("properties", properties);
 
         JsonObject column = new JsonObject();
         column.addProperty("type", "text");
         properties.add("name", column);
 
-        client.createTemplate(indexName, new JsonObject(), mapping);
+        client.createTemplate(indexName, new HashMap<>(), mapping);
 
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
             .field("name", "pengys")
@@ -240,7 +247,7 @@ public class ITElasticSearchClient {
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
-        if (StringUtils.isNotEmpty(namespace) && index != null && index.size() > 0) {
+        if (StringUtil.isNotEmpty(namespace) && index != null && index.size() > 0) {
             logger.info("UndoFormatIndexName before " + index.toString());
             String namespacePrefix = namespace + "_";
             index.entrySet().forEach(entry -> {

@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
@@ -59,12 +58,14 @@ public class GRPCRemoteClient implements RemoteClient {
     private boolean isConnect;
     private CounterMetrics remoteOutCounter;
     private CounterMetrics remoteOutErrorCounter;
+    private int remoteTimeout;
 
     public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address, int channelSize,
-        int bufferSize) {
+        int bufferSize, int remoteTimeout) {
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
+        this.remoteTimeout = remoteTimeout;
 
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.",
@@ -111,7 +112,6 @@ public class GRPCRemoteClient implements RemoteClient {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(this.carrier)) {
                     this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
-                    this.carrier.setBufferStrategy(BufferStrategy.BLOCKING);
                 }
             }
         }
@@ -183,7 +183,7 @@ public class GRPCRemoteClient implements RemoteClient {
             }
         }
 
-        return getStub().withDeadlineAfter(10, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
+        return getStub().withDeadlineAfter(remoteTimeout, TimeUnit.SECONDS).call(new StreamObserver<Empty>() {
             @Override public void onNext(Empty empty) {
             }
 

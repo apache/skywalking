@@ -2,6 +2,193 @@ Changes by Version
 ==================
 Release Notes.
 
+6.6.0
+------------------
+
+#### Project
+- [**IMPORTANT**] Local span and exit span are not treated as endpoint detected at client and local. Only entry span is the endpoint. Reduce the load of register and memory cost.
+* Support MiniKube, Istio and SkyWalking on K8s deployment in CI.
+* Support Windows and MacOS build in GitHub Action CI.
+* Support ElasticSearch 7 in official dist.
+* Hundreds plugin cases have been added in GitHub Action CI process.
+
+#### Java Agent
+* Remove the local/exit span operation name register mechanism.
+* Add plugin for JDK Threading classes.
+* Add plugin for Armeria.
+* Support set operation name in async span.
+* Enhance webflux plugin, related to Spring Gateway plugin. Webflux plugin is in optional, due to JDK8 required.
+* Fix a possible deadlock.
+* Fix NPE when OAL scripts are different in different OAP nodes, mostly in upgrading stage.
+* Fix bug about wrong peer in ES plugin.
+* Fix NPE in Spring plugin.
+* Fix wrong class name in Dubbo 2.7 conflict patch.
+* Fix spring annotation inheritance problem.
+
+#### OAP-Backend
+* Remove the local/exit span operation name register mechanism.
+* Remove client side endpoint register in service mesh.
+* Service instance dependency and related metrics.
+* Support `min` func in OAL
+* Support `apdex` func in OAL
+* Support custom ES config setting at the index level.
+* Envoy ALS proto upgraded.
+* Update JODA lib as bugs in UTC +13/+14.
+* Support topN sample period configurable.
+* Ignore no statement DB operations in slow SQL collection.
+* Fix bug in docker-entrypoint.sh when using MySQL as storage
+
+#### UI
+* Service topology enhancement. Dive into service, instance and endpoint metrics on topo map.
+* Service instance dependency view and related metrics.
+* Support using URL parameter in trace query page.
+* Support apdex score in service page.
+* Add service dependency metrics into metrics comparison.
+* Fix alarm search not working.
+
+#### Document
+* Update user list and user wall.
+* Add document link for CLI.
+* Add deployment guide of agent in Jetty case.
+* Modify Consul cluster doc.
+* Add document about injecting traceId into the logback with logstack in JSON format.
+* ElementUI license and dependency added.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/37?closed=1)
+
+6.5.0
+------------------
+
+#### Project
+- TTL E2E test (#3437)
+- Test coverage is back in pull request check status (#3503)
+- Plugin tests begin to be migrated into main repo, and is in process. (#3528, #3756, #3751, etc.)
+- Switch to SkyWalking CI (exclusive) nodes (#3546)
+- MySQL storage e2e test. (#3648)
+- E2E tests are verified in multiple jdk versions, jdk 8, 9, 11, 12 (#3657)
+- Jenkins build jobs run only when necessary (#3662)
+
+#### OAP-Backend
+- Support dynamically configure alarm settings (#3557)
+- Language of instance could be null (#3485)
+- Make query max window size configurable. (#3765)
+- Remove two max size 500 limit. (#3748)
+- Parameterize the cache size. (#3741)
+- ServiceInstanceRelation set error id (#3683)
+- Makes the scope of alarm message more semantic. (#3680)
+- Add register persistent worker latency metrics (#3677)
+- Fix more reasonable error (#3619)
+- Add GraphQL getServiceInstance instanceUuid field. (#3595)
+- Support namespace in Nacos cluster/configuration (#3578)
+- Instead of datasource-settings.properties, use application.yml for MySQLStorageProvider (#3564)
+- Provide consul dynamic configuration center implementation (#3560)
+- Upgrade guava version to support higher jdk version (#3541)
+- Sync latest als from envoy api (#3507)
+- Set telemetry instanced id for Etcd and Nacos plugin (#3492)
+- Support timeout configuration in agent and backend. (#3491)
+- Make sure the cluster register happens before streaming process. (#3471)
+- Agent supports custom properties. (#3367)
+- Miscellaneous bug fixes (#3567)
+
+#### UI 
+- Feature: node detail display in topo circle-chart view.
+- BugFix: the jvm-maxheap & jvm-maxnonheap is -1, free is no value
+- Fix bug: time select operation not in effect 
+- Fix bug: language initialization failed 
+- Fix bug: not show instance language
+- Feature: support the trace list display export png
+- Feature: Metrics comparison view
+- BugFix: Fix dashboard top throughput copy
+
+#### Java Agent
+- Spring async scenario optimize (#3723)
+- Support log4j2 AsyncLogger (#3715)
+- Add config to collect PostgreSQL sql query params (#3695)
+- Support namespace in Nacos cluster/configuration (#3578)
+- Provide plugin for ehcache 2.x (#3575)
+- Supporting RequestRateLimiterGatewayFilterFactory (#3538)
+- Kafka-plugin compatible with KafkaTemplate (#3505)
+- Add pulsar apm plugin (#3476)
+- Spring-cloud-gateway traceId does not transmit #3411 (#3446)
+- Gateway compatible with downstream loss (#3445)
+- Provide cassandra java driver 3.x plugin (#3410)
+- Fix SpringMVC4 NoSuchMethodError (#3408)
+- BugFix: endpoint grouping rules may be not unique (#3510)
+- Add feature to control the maximum agent log files (#3475)
+- Agent support custom properties. (#3367)
+- Add Light4j plugin (#3323)
+
+#### Document
+- Remove travis badge (#3763)
+- Replace user wall to typical users in readme page (#3719)
+- Update istio docs according latest istio release (#3646)
+- Use chart deploy sw docs (#3573)
+- Reorganize the doc, and provide catalog (#3563)
+- Committer vote and set up document. (#3496)
+- Update als setup doc as istio 1.3 released (#3470)
+- Fill faq reply in official document. (#3450)
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/36?closed=1)
+
+
+6.4.0
+------------------
+
+#### Project
+* Highly recommend to upgrade due to Pxx metrics calculation bug.
+* Make agent working in JDK9+ Module system.
+
+#### Java Agent
+* Make agent working in JDK9+ Module system.
+* Support Kafka 2.x client libs.
+* Log error in OKHTTP OnFailure callback.
+* Support injecting traceid into logstack appender in logback.
+* Add OperationName(including endpoint name) length max threshold.
+* Support using Regex to group operation name. 
+* Support Undertow routing handler.
+* RestTemplate plugin support operation name grouping.
+* Fix ClassCastException in Webflux plugin.
+* Ordering zookeeper server list, to make it better in topology.
+* Fix a Dubbo plugin incompatible issue.
+* Fix MySQL 5 plugin issue.
+* Make log writer cached.
+* Optimize Spring Cloud Gateway plugin
+* Fix and improve gRPC reconnect mechanism.
+* Remove Disruptor dependency from agent.
+
+#### Backend
+* Fix Pxx(p50,p75,p90,p95,p99) metrics func bug.(Critical)
+* Support Gateway in backend analysis, even when it doesn't have suitable language agent.
+* Support using HTTPs SSL accessing ElasticSearch storage.
+* Support Zookeeper ACL.
+* Make alarm records listed in order.
+* Fix Pxx data persistence failure in some cases.
+* Fix some bugs in MySQL storage.
+* Setup slow SQL length threshold.
+* Fix TTL settings is not working as expected.
+* Remove scope-meta file.
+
+#### UI
+* Enhance alarm page layout.
+* Support trace tree chart resize.
+* Support trace auto completion when partial traces abandoned somehow.
+* Fix dashboard endpoint slow chart.
+* Add radial chart in topology page.
+* Add trace table mode.
+* Fix topology page bug.
+* Fix calender js bug.
+* Fix "The "topo-services" component did not update the data in time after modifying the time range on the topology page.
+
+#### Document
+* Restore the broken Istio setup doc.
+* Add etcd config center document.
+* Correct span_limit_per_segment default value in document.
+* Enhance plugin develop doc.
+* Fix error description in build document.
+
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/35?closed=1)
+
+
 6.3.0
 ------------------
 

@@ -30,7 +30,7 @@ public class LogbackPatternConverter extends ClassicConverter {
      * As default, return "TID: N/A" to the output message,
      * if sky-walking agent in active mode, return the real traceId in the recent Context, if existed.
      *
-     * @param iLoggingEvent
+     * @param iLoggingEvent the event
      * @return the traceId: N/A, empty String, or the real traceId.
      */
     @Override

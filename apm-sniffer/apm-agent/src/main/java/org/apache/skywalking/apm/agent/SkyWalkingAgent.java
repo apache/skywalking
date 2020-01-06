@@ -90,10 +90,10 @@ public class SkyWalkingAgent {
             .ignore(
                 nameStartsWith("net.bytebuddy.")
                     .or(nameStartsWith("org.slf4j."))
-                    .or(nameStartsWith("org.apache.logging."))
                     .or(nameStartsWith("org.groovy."))
                     .or(nameContains("javassist"))
                     .or(nameContains(".asm."))
+                    .or(nameContains(".reflectasm."))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
                     .or(ElementMatchers.<TypeDescription>isSynthetic()));

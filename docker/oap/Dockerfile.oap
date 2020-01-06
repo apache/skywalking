@@ -34,6 +34,8 @@ WORKDIR skywalking
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .
+RUN mkdir ext-config; \
+    mkdir ext-libs;
 
 EXPOSE 12800 11800 1234
 

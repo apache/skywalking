@@ -1,3 +1,4 @@
+# logback plugin
 * Dependency the toolkit, such as using maven or gradle
 ```xml
     <dependency>
@@ -55,3 +56,55 @@
 ```
 
 * When you use `-javaagent` to active the sky-walking tracer, logback will output **traceId**, if it existed. If the tracer is inactive, the output will be `TID: N/A`.
+
+# logstash logback plugin
+
+* Dependency the toolkit, such as using maven or gradle
+
+```xml
+<dependency>
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>apm-toolkit-logback-1.x</artifactId>
+    <version>${skywalking.version}</version>
+</dependency>
+```
+
+* set `LogstashEncoder` of logback.xml
+
+```xml
+<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+    <provider class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.logstash.TraceIdJsonProvider">
+    </provider>
+</encoder>
+```
+
+* set `LoggingEventCompositeJsonEncoder` of logstash in logback-spring.xml for custom json format
+
+1.add converter for %tid as child of <configuration> node
+```xml
+<!--add converter for %tid -->
+    <conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
+```
+2.add json encoder for custom json format
+
+```xml
+<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "level": "%level",
+                        "tid": "%tid",
+                        "thread": "%thread",
+                        "class": "%logger{1.}:%L",
+                        "message": "%message",
+                        "stackTrace": "%exception{10}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+</encoder>
+```

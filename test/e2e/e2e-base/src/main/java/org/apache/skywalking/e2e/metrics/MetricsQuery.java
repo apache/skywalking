@@ -29,12 +29,14 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_P90 = "service_p90";
     public static String SERVICE_P75 = "service_p75";
     public static String SERVICE_P50 = "service_p50";
+    public static String SERVICE_APDEX = "service_apdex";
     public static String[] ALL_SERVICE_METRICS = {
         SERVICE_P99,
         SERVICE_P95,
         SERVICE_P90,
         SERVICE_P75,
-        SERVICE_P50
+        SERVICE_P50,
+        SERVICE_APDEX
     };
 
     public static String ENDPOINT_P99 = "endpoint_p99";
@@ -57,6 +59,38 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_RESP_TIME,
         SERVICE_INSTANCE_CPM,
         SERVICE_INSTANCE_SLA
+    };
+
+    public static String SERVICE_RELATION_CLIENT_CPM = "service_relation_client_cpm";
+    public static String SERVICE_RELATION_SERVER_CPM = "service_relation_server_cpm";
+    public static String SERVICE_RELATION_CLIENT_CALL_SLA = "service_relation_client_call_sla";
+    public static String SERVICE_RELATION_SERVER_CALL_SLA = "service_relation_server_call_sla";
+    public static String SERVICE_RELATION_CLIENT_RESP_TIME = "service_relation_client_resp_time";
+    public static String SERVICE_RELATION_SERVER_RESP_TIME = "service_relation_server_resp_time";
+    public static String SERVICE_RELATION_CLIENT_P99 = "service_relation_client_p99";
+    public static String SERVICE_RELATION_SERVER_P99 = "service_relation_server_p99";
+    public static String[] ALL_SERVICE_RELATION_CLIENT_METRICS = {
+        SERVICE_RELATION_CLIENT_CPM
+    };
+
+    public static String[] ALL_SERVICE_RELATION_SERVER_METRICS = {
+        SERVICE_RELATION_SERVER_CPM
+    };
+
+    public static String SERVICE_INSTANCE_RELATION_CLIENT_CPM = "service_instance_relation_client_cpm";
+    public static String SERVICE_INSTANCE_RELATION_SERVER_CPM = "service_instance_relation_server_cpm";
+    public static String SERVICE_INSTANCE_RELATION_CLIENT_CALL_SLA = "service_instance_relation_client_call_sla";
+    public static String SERVICE_INSTANCE_RELATION_SERVER_CALL_SLA = "service_instance_relation_server_call_sla";
+    public static String SERVICE_INSTANCE_RELATION_CLIENT_RESP_TIME = "service_instance_relation_client_resp_time";
+    public static String SERVICE_INSTANCE_RELATION_SERVER_RESP_TIME = "service_instance_relation_server_resp_time";
+    public static String SERVICE_INSTANCE_RELATION_CLIENT_P99 = "service_instance_relation_client_p99";
+    public static String SERVICE_INSTANCE_RELATION_SERVER_P99 = "service_instance_relation_server_p99";
+    public static String[] ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS = {
+        SERVICE_INSTANCE_RELATION_CLIENT_CPM
+    };
+
+    public static String[] ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS = {
+        SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
     private String id;

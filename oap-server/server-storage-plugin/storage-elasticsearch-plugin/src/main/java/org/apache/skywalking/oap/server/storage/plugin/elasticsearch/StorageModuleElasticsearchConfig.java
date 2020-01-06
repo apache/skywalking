@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 @Getter
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
@@ -38,14 +39,19 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter private int syncBulkActions = 3;
     @Setter private String user;
     @Setter private String password;
+    @Getter @Setter String trustStorePath;
+    @Getter @Setter String trustStorePass;
+    @Setter private int resultWindowMaxSize = 10000;
     @Setter private int metadataQueryMaxSize = 5000;
     @Setter private int segmentQueryMaxSize = 200;
+    @Setter private int profileTaskQueryMaxSize = 200;
     @Setter private int recordDataTTL = 7;
     @Setter private int minuteMetricsDataTTL = 2;
     @Setter private int hourMetricsDataTTL = 2;
     @Setter private int dayMetricsDataTTL = 2;
     private int otherMetricsDataTTL = 0;
     @Setter private int monthMetricsDataTTL = 18;
+    @Setter private String advanced;
 
     public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {
