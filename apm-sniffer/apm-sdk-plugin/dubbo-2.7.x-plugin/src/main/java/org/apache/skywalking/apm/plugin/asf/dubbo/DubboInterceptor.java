@@ -56,9 +56,6 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
         Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         Invoker invoker = (Invoker)allArguments[0];
         Invocation invocation = (Invocation)allArguments[1];
-        if (invocation.getAttachments().containsKey(SW3CarrierItem.HEADER_NAME)) {
-            invocation.getAttachments().remove(SW3CarrierItem.HEADER_NAME);
-        }
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
@@ -76,6 +73,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             while (next.hasNext()) {
                 next = next.next();
                 rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
+                if (invocation.getAttachments().containsKey(next.getHeadKey())) {
+                    invocation.getAttachments().remove(next.getHeadKey());
+                }
             }
         } else {
             ContextCarrier contextCarrier = new ContextCarrier();
