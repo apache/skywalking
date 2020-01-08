@@ -74,24 +74,18 @@ public class ProfileTaskExecutionService implements BootService {
         // add task to list
         profileTaskList.add(task);
 
-        // check task start now or make a schedule
-        long timeFromStartMills = task.getStartTime() - System.currentTimeMillis();
-        if (timeFromStartMills < 0) {
-            // task already can start
-            processProfileTask(task);
-        } else {
-            // need to be a schedule to start task
-            PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    processProfileTask(task);
-                }
-            }, timeFromStartMills, TimeUnit.MILLISECONDS);
-        }
+        // schedule to start task
+        long timeToProcessMills = task.getStartTime() - System.currentTimeMillis();
+        PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
+            @Override
+            public void run() {
+                processProfileTask(task);
+            }
+        }, timeToProcessMills, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * real process a new profile task
+     * active the selected profile task to execution task, and start a removal task for it.
      * @param task
      */
     private synchronized void processProfileTask(ProfileTask task) {
