@@ -2,7 +2,7 @@
 ## Supported version
 7.0.0+
 
-## How need token authentication after we have TLS?
+## Why need token authentication after we have TLS?
 TLS is about transport security, which makes sure the network can be trusted. 
 The token authentication is about monitoring application data **can be trusted**.
 

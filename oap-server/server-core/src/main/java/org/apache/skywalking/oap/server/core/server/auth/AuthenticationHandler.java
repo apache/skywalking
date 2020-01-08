@@ -36,6 +36,9 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 public enum AuthenticationHandler {
     INSTANCE;
 
+    private ServerCall.Listener listener = new ServerCall.Listener() {
+    };
+
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME = Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
     private String expectedToken = "";
@@ -52,8 +55,7 @@ public enum AuthenticationHandler {
                         return next.startCall(serverCall, metadata);
                     } else {
                         serverCall.close(Status.PERMISSION_DENIED, new Metadata());
-                        return new ServerCall.Listener() {
-                        };
+                        return listener;
                     }
                 }
             }));
