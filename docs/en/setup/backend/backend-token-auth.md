@@ -26,7 +26,7 @@ receiver-sharing-server:
 ```
 
 ## Authentication fails
-The Skywalking OAP verifies every request from agent, allowed only the token match.
+The Skywalking OAP verifies every request from agent, only allows requests whose token matches the one configured in `application.yml`.
 
 If the token is not right, you will see the following log in agent
 ```
@@ -41,4 +41,3 @@ send it through a non-TLS network.
 
 ### Do you support other authentication mechanisms? Such as ak/sk?
 For now, no. But we appreciate someone contributes this feature. 
-
