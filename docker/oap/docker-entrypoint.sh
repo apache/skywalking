@@ -339,6 +339,7 @@ receiver-sharing-server:
    maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}
    gRPCThreadPoolSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:0}
    gRPCThreadPoolQueueSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:0}
+   authentication: \${SW_AUTHENTICATION:""}
 receiver-register:
   default:
 receiver-trace:

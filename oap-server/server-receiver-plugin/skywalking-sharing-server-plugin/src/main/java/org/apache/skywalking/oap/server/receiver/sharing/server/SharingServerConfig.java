@@ -36,4 +36,5 @@ public class SharingServerConfig extends ModuleConfig {
     private int maxMessageSize;
     private int gRPCThreadPoolSize;
     private int gRPCThreadPoolQueueSize;
+    private String authentication;
 }
