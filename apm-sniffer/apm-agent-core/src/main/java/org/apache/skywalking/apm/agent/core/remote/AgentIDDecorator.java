@@ -51,14 +51,15 @@ public class AgentIDDecorator implements ChannelDecorator {
             Enumeration<URL> resources = AgentIDDecorator.class.getClassLoader().getResources(JarFile.MANIFEST_NAME);
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
-                InputStream is = url.openStream();
-                if (is != null) {
-                    Manifest manifest = new Manifest(is);
-                    Attributes mainAttribs = manifest.getMainAttributes();
-                    String projectName = mainAttribs.getValue("Implementation-Vendor-Id");
-                    if (projectName != null) {
-                        if ("org.apache.skywalking".equals(projectName)) {
-                            version = mainAttribs.getValue("Implementation-Version");
+                try (InputStream is = url.openStream()) {
+                    if (is != null) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes mainAttribs = manifest.getMainAttributes();
+                        String projectName = mainAttribs.getValue("Implementation-Vendor-Id");
+                        if (projectName != null) {
+                            if ("org.apache.skywalking".equals(projectName)) {
+                                version = mainAttribs.getValue("Implementation-Version");
+                            }
                         }
                     }
                 }
