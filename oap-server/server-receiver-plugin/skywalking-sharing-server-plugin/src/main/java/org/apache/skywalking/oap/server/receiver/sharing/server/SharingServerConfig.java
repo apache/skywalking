@@ -22,7 +22,7 @@ import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng,yantaowu
+ * @author peng-yongsheng,yantaowu,jian.tan
  */
 @Getter
 @Setter

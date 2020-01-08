@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.server.auth.AuthenticationHandler;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
 
