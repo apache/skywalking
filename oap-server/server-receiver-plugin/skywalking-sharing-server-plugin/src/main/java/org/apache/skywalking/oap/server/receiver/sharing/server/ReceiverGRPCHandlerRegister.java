@@ -18,22 +18,39 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
+import io.grpc.ServerServiceDefinition;
+import java.util.Objects;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
 
     @Setter private GRPCHandlerRegister grpcHandlerRegister;
+    private ServerInterceptor interceptor;
 
     @Override public void addHandler(BindableService handler) {
-        grpcHandlerRegister.addHandler(handler);
+        if (Objects.isNull(interceptor)) {
+            grpcHandlerRegister.addHandler(handler);
+        } else {
+            grpcHandlerRegister.addHandler(handlerInterceptorBind(handler, interceptor));
+        }
     }
 
     @Override public void addHandler(ServerServiceDefinition definition) {
         grpcHandlerRegister.addHandler(definition);
+    }
+
+    @Override public void addFilter(ServerInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public ServerServiceDefinition handlerInterceptorBind(BindableService handler, ServerInterceptor interceptor) {
+        return ServerInterceptors.intercept(handler, interceptor);
     }
 }
