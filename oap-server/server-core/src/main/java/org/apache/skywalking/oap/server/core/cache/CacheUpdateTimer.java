@@ -61,7 +61,7 @@ public enum CacheUpdateTimer {
         updateServiceInventory(moduleDefineHolder);
         updateServiceInstanceInventory(moduleDefineHolder);
         updateNetAddressInventory(moduleDefineHolder);
-        updateProfileTaskNoneStream(moduleDefineHolder);
+        updateProfileTask(moduleDefineHolder);
     }
 
     private void updateServiceInventory(ModuleDefineHolder moduleDefineHolder) {
@@ -126,7 +126,7 @@ public enum CacheUpdateTimer {
      * update all profile task list for each service
      * @param moduleDefineHolder
      */
-    private void updateProfileTaskNoneStream(ModuleDefineHolder moduleDefineHolder) {
+    private void updateProfileTask(ModuleDefineHolder moduleDefineHolder) {
         IProfileTaskQueryDAO profileTaskQueryDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
         ProfileTaskCache profileTaskCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ProfileTaskCache.class);
         try {

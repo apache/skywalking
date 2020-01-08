@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
+import java.util.Objects;
+
 /**
  * profile task execution context, it will create on process this profile task
  *
@@ -44,4 +46,16 @@ public class ProfileTaskExecutionContext {
         return startTime;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileTaskExecutionContext that = (ProfileTaskExecutionContext) o;
+        return Objects.equals(task, that.task);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(task);
+    }
 }

@@ -42,8 +42,8 @@ public class ProfileTaskExecutionService implements BootService {
 
     private static final ILog logger = LogManager.getLogger(ProfileTaskExecutionService.class);
 
-    private final static ScheduledExecutorService PROFILE_TASK_READY_SCHEDULE = Executors.newScheduledThreadPool(15, new DefaultNamedThreadFactory("PROFILE-TASK-READY-SCHEDULE"));
-    private final static ScheduledExecutorService PROFILE_TASK_FINISH_SCHEDULE = Executors.newScheduledThreadPool(2, new DefaultNamedThreadFactory("PROFILE-TASK-FINISH-SHCEDULE"));
+    // add a schedule while waiting for the task to start or finish
+    private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
@@ -81,7 +81,7 @@ public class ProfileTaskExecutionService implements BootService {
             processProfileTask(task);
         } else {
             // need to be a schedule to start task
-            PROFILE_TASK_READY_SCHEDULE.schedule(new Runnable() {
+            PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
                 @Override
                 public void run() {
                     processProfileTask(task);
@@ -96,16 +96,17 @@ public class ProfileTaskExecutionService implements BootService {
      */
     private synchronized void processProfileTask(ProfileTask task) {
         // make sure prev profile task already stopped
-        stopCurrentProfileTask();
+        stopCurrentProfileTask(taskExecutionContext.get());
 
         // make stop task schedule and task context
         // TODO process task on next step
-        taskExecutionContext.set(new ProfileTaskExecutionContext(task, System.currentTimeMillis()));
+        final ProfileTaskExecutionContext currentStartedTaskContext = new ProfileTaskExecutionContext(task, System.currentTimeMillis());
+        taskExecutionContext.set(currentStartedTaskContext);
 
-        PROFILE_TASK_FINISH_SCHEDULE.schedule(new Runnable() {
+        PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
             @Override
             public void run() {
-                stopCurrentProfileTask();
+                stopCurrentProfileTask(currentStartedTaskContext);
             }
         }, task.getDuration(), TimeUnit.MINUTES);
     }
@@ -113,14 +114,14 @@ public class ProfileTaskExecutionService implements BootService {
     /**
      * stop profile task, remove context data
      */
-    private synchronized void stopCurrentProfileTask() {
-        final ProfileTaskExecutionContext executionContext = taskExecutionContext.getAndSet(null);
-        if (executionContext == null) {
+    private synchronized void stopCurrentProfileTask(ProfileTaskExecutionContext needToStop) {
+        // stop same context only
+        if (needToStop == null || !taskExecutionContext.compareAndSet(needToStop, null)) {
             return;
         }
 
         // remove task
-        profileTaskList.remove(executionContext.getTask());
+        profileTaskList.remove(needToStop.getTask());
 
         // TODO notify OAP current profile task execute finish
     }
@@ -142,8 +143,7 @@ public class ProfileTaskExecutionService implements BootService {
 
     @Override
     public void shutdown() throws Throwable {
-        PROFILE_TASK_READY_SCHEDULE.shutdown();
-        PROFILE_TASK_FINISH_SCHEDULE.shutdown();
+        PROFILE_TASK_SCHEDULE.shutdown();
     }
 
     public long getLastCommandCreateTime() {

@@ -70,7 +70,7 @@ public class CoreModuleConfig extends ModuleConfig {
     /**
      * Following are cache setting for none stream(s)
      */
-    private long maxSizeOfProfileTaskNoneStream = 10_000L;
+    private long maxSizeOfProfileTask = 10_000L;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
