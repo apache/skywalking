@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
  *
  * @author wusheng, jian.tan
  */
-public enum AuthenticationHandler {
+public enum AuthenticationFilter {
     INSTANCE;
 
     private ServerCall.Listener listener = new ServerCall.Listener() {

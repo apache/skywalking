@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.server;
 
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
-import org.apache.skywalking.oap.server.core.server.auth.AuthenticationHandler;
+import org.apache.skywalking.oap.server.core.server.auth.AuthenticationFilter;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 
 /**
@@ -35,7 +35,7 @@ public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
     }
 
     @Override public void addHandler(BindableService handler) {
-        AuthenticationHandler.INSTANCE.build(server, handler);
+        AuthenticationFilter.INSTANCE.build(server, handler);
     }
 
     @Override public void addHandler(ServerServiceDefinition definition) {

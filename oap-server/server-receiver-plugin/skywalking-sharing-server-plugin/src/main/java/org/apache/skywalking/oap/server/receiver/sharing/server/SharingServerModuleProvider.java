@@ -23,7 +23,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.core.server.auth.AuthenticationHandler;
+import org.apache.skywalking.oap.server.core.server.auth.AuthenticationFilter;
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -58,7 +58,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
     }
 
     @Override public void prepare() {
-        AuthenticationHandler.INSTANCE.setExpectedToken(config.getAuthentication());
+        AuthenticationFilter.INSTANCE.setExpectedToken(config.getAuthentication());
         if (config.getRestPort() != 0) {
             jettyServer = new JettyServer(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost(), config.getRestPort(), config.getRestContextPath());
             jettyServer.initialize();
