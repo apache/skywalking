@@ -47,13 +47,13 @@ public class AuthenticationInterceptor implements ServerInterceptor {
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME = Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata metadata,
-        ServerCallHandler<ReqT, RespT> handler) {
+    public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> serverCall, Metadata metadata,
+        ServerCallHandler<REQUEST, RESPONSE> serverCallHandler) {
         String token = metadata.get(AUTH_HEAD_HEADER_NAME);
         if (expectedToken.equals(token)) {
-            return handler.startCall(call, metadata);
+            return serverCallHandler.startCall(serverCall, metadata);
         } else {
-            call.close(Status.PERMISSION_DENIED, new Metadata());
+            serverCall.close(Status.PERMISSION_DENIED, new Metadata());
             return listener;
         }
     }
