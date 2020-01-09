@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.storage.cache.*;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.*;
 import org.apache.skywalking.oap.server.library.module.*;
@@ -41,6 +42,6 @@ public class StorageModule extends ModuleDefine {
             IServiceInventoryCacheDAO.class, IServiceInstanceInventoryCacheDAO.class,
             IEndpointInventoryCacheDAO.class, INetworkAddressInventoryCacheDAO.class,
             ITopologyQueryDAO.class, IMetricsQueryDAO.class, ITraceQueryDAO.class, IMetadataQueryDAO.class, IAggregationQueryDAO.class, IAlarmQueryDAO.class,
-            ITopNRecordsQueryDAO.class, ILogQueryDAO.class, IProfileTaskQueryDAO.class};
+            ITopNRecordsQueryDAO.class, ILogQueryDAO.class, IProfileTaskQueryDAO.class, IProfileTaskLogQueryDAO.class};
     }
 }

@@ -90,6 +90,7 @@ property key | Description | Default |
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+`collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
@@ -102,6 +103,7 @@ property key | Description | Default |
 `buffer.buffer_size`|The buffer size.|`300`|
 `dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
+`profile.active`|If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.|`true`|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|

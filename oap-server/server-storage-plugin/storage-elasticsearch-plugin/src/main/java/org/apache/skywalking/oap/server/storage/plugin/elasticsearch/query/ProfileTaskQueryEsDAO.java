@@ -94,8 +94,10 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
                 .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.SERVICE_ID)).intValue())
                 .endpointName((String) data.getSourceAsMap().get(ProfileTaskNoneStream.ENDPOINT_NAME))
                 .startTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.START_TIME)).longValue())
+                .createTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.CREATE_TIME)).longValue())
                 .duration(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DURATION)).intValue())
                 .minDurationThreshold(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD)).intValue())
-                .dumpPeriod(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DUMP_PERIOD)).intValue()).build();
+                .dumpPeriod(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DUMP_PERIOD)).intValue())
+                .maxSamplingCount(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.MAX_SAMPLING_COUNT)).intValue()).build();
     }
 }

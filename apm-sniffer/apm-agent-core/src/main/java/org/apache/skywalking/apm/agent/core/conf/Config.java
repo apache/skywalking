@@ -137,6 +137,17 @@ public class Config {
          * How long grpc client will timeout in sending data to upstream.
          */
         public static int GRPC_UPSTREAM_TIMEOUT = 30;
+        /**
+         * Get profile task list interval
+         */
+        public static int GET_PROFILE_TASK_INTERVAL = 20;
+    }
+
+    public static class Profile {
+        /**
+         * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.
+         */
+        public static boolean ACTIVE = true;
     }
 
     public static class Jvm {
