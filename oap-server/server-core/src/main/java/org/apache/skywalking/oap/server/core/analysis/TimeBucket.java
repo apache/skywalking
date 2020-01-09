@@ -17,13 +17,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import java.util.Calendar;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * @author peng-yongsheng
  */
 public class TimeBucket {
+
+    public static final int SECOND_BUCKET = 60;
+    public static final int HOUR_BUCKET = 60 * 60;
+    public static final int DAY_BUCKET = 60 * 60 * 24;
+    public static final int MONTH_BUCKET = 60 * 60 * 24 * 30;
 
     /**
      * Record time bucket format in Second Unit.
@@ -40,27 +44,17 @@ public class TimeBucket {
     }
 
     public static long getTimeBucket(long time, Downsampling downsampling) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-
-        long year = calendar.get(Calendar.YEAR);
-        long month = calendar.get(Calendar.MONTH) + 1;
-        long day = calendar.get(Calendar.DAY_OF_MONTH);
-        long hour = calendar.get(Calendar.HOUR_OF_DAY);
-        long minute = calendar.get(Calendar.MINUTE);
-        long second = calendar.get(Calendar.SECOND);
-
         switch (downsampling) {
             case Second:
-                return year * 10000000000L + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second;
+                return time;
             case Minute:
-                return year * 100000000 + month * 1000000 + day * 10000 + hour * 100 + minute;
+                return time / SECOND_BUCKET;
             case Hour:
-                return year * 1000000 + month * 10000 + day * 100 + hour;
+                return time / HOUR_BUCKET;
             case Day:
-                return year * 10000 + month * 100 + day;
+                return time / DAY_BUCKET;
             case Month:
-                return year * 100 + month;
+                return time / MONTH_BUCKET;
             default:
                 throw new UnexpectedException("Unknown downsampling value.");
         }
