@@ -52,6 +52,7 @@ public class ProfileTaskNoneStream extends NoneStream {
     public static final String MIN_DURATION_THRESHOLD = "min_duration_threshold";
     public static final String DUMP_PERIOD = "dump_period";
     public static final String CREATE_TIME = "create_time";
+    public static final String MAX_SAMPLING_COUNT = "max_sampling_count";
 
     @Override
     public String id() {
@@ -65,6 +66,7 @@ public class ProfileTaskNoneStream extends NoneStream {
     @Column(columnName = MIN_DURATION_THRESHOLD) private int minDurationThreshold;
     @Column(columnName = DUMP_PERIOD) private int dumpPeriod;
     @Column(columnName = CREATE_TIME) private long createTime;
+    @Column(columnName = MAX_SAMPLING_COUNT) private int maxSamplingCount;
 
     public static class Builder implements StorageBuilder<ProfileTaskNoneStream> {
 
@@ -79,6 +81,7 @@ public class ProfileTaskNoneStream extends NoneStream {
             record.setDumpPeriod(((Number)dbMap.get(DUMP_PERIOD)).intValue());
             record.setCreateTime(((Number)dbMap.get(CREATE_TIME)).longValue());
             record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            record.setMaxSamplingCount(((Number)dbMap.get(MAX_SAMPLING_COUNT)).intValue());
             return record;
         }
 
@@ -93,6 +96,7 @@ public class ProfileTaskNoneStream extends NoneStream {
             map.put(DUMP_PERIOD, storageData.getDumpPeriod());
             map.put(CREATE_TIME, storageData.getCreateTime());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
+            map.put(MAX_SAMPLING_COUNT, storageData.getMaxSamplingCount());
             return map;
         }
     }

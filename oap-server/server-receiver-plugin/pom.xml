@@ -40,6 +40,7 @@
         <module>jaeger-receiver-plugin</module>
         <module>receiver-proto</module>
         <module>skywalking-so11y-receiver-plugin</module>
+        <module>skywalking-profile-receiver-plugin</module>
     </modules>
 
     <dependencies>

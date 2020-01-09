@@ -170,6 +170,7 @@ public class CoreModuleProvider extends ModuleProvider {
         // add profile service implementations
         this.registerServiceImplementation(ProfileTaskMutationService.class, new ProfileTaskMutationService(getManager()));
         this.registerServiceImplementation(ProfileTaskQueryService.class, new ProfileTaskQueryService(getManager()));
+        this.registerServiceImplementation(ProfileTaskCache.class, new ProfileTaskCache(getManager(), moduleConfig));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 

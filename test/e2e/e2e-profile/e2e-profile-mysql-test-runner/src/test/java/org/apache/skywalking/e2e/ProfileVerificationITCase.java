@@ -55,6 +55,7 @@ import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +67,7 @@ public class ProfileVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileVerificationITCase.class);
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final int retryInterval = 30;
+    private final int retryInterval = 10;
 
     private ProfileClient profileClient;
     private String instrumentedServiceUrl;
@@ -74,10 +75,11 @@ public class ProfileVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-//        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
+        //        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
         final String instrumentedServicePort = System.getProperty("service.port", "32782");
+        //        final String instrumentedServicePort = System.getProperty("service.port", "9090");
         profileClient = new ProfileClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
@@ -134,7 +136,8 @@ public class ProfileVerificationITCase {
                 .duration(5)
                 .startTime(-1)
                 .minDurationThreshold(10)
-                .dumpPeriod(10).build();
+                .dumpPeriod(10)
+                .maxSamplingCount(5).build();
 
         // verify create task
         final ProfileTaskCreationResult creationResult = profileClient.createProfileTask(creationRequest);
@@ -143,19 +146,30 @@ public class ProfileVerificationITCase {
         ProfileTaskCreationResultMatcher creationResultMatcher = new ProfileTaskCreationResultMatcher();
         creationResultMatcher.verify(creationResult);
 
-        // verify get task list
-        final ProfileTasks tasks = profileClient.getProfileTaskList(
-                new ProfileTaskQuery()
-                        .serviceId(creationRequest.getServiceId())
-                        .endpointName("")
-        );
-        LOGGER.info("get profile task list: {}", tasks);
+        // verify get task list and logs
+        for (int i = 0; i < 10; i++) {
+            try {
+                final ProfileTasks tasks = profileClient.getProfileTaskList(
+                        new ProfileTaskQuery()
+                                .serviceId(creationRequest.getServiceId())
+                                .endpointName("")
+                );
+                LOGGER.info("get profile task list: {}", tasks);
 
-        InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.yml").getInputStream();
+                InputStream expectedInputStream =
+                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.yml").getInputStream();
 
-        final ProfilesTasksMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfilesTasksMatcher.class);
-        servicesMatcher.verify(tasks);
+                final ProfilesTasksMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfilesTasksMatcher.class);
+                servicesMatcher.verify(tasks);
+                break;
+            } catch (Throwable e) {
+                if (i == 10 - 1) {
+                    throw new IllegalStateException("match profile task list fail!", e);
+                }
+                TimeUnit.SECONDS.sleep(retryInterval);
+            }
+        }
+
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {

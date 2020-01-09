@@ -67,6 +67,11 @@ public class CoreModuleConfig extends ModuleConfig {
     private long maxSizeOfEndpointInventory = 1_000_000L;
     private long maxSizeOfNetworkInventory = 1_000_000L;
 
+    /**
+     * Following are cache setting for none stream(s)
+     */
+    private long maxSizeOfProfileTask = 10_000L;
+
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
