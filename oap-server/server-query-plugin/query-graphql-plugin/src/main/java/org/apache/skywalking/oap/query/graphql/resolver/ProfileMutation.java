@@ -54,7 +54,8 @@ public class ProfileMutation implements GraphQLMutationResolver {
                 creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(),
                 creationRequest.getDuration(),
                 creationRequest.getMinDurationThreshold(),
-                creationRequest.getDumpPeriod()
+                creationRequest.getDumpPeriod(),
+                creationRequest.getMaxSamplingCount()
         );
     }
 }

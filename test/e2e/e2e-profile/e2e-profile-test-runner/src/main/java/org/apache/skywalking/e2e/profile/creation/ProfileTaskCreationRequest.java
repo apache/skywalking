@@ -38,5 +38,6 @@ public class ProfileTaskCreationRequest {
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
 
 }

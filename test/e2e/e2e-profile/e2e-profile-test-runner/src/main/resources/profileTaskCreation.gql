@@ -28,7 +28,8 @@
 		"duration": {duration},
 		"startTime": {startTime},
 		"minDurationThreshold": {minDurationThreshold},
-		"dumpPeriod": {dumpPeriod}
+		"dumpPeriod": {dumpPeriod},
+		"maxSamplingCount": {maxSamplingCount}
 	}
   }
 }
