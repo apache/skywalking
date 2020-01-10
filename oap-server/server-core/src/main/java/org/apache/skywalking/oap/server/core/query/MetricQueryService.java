@@ -96,7 +96,7 @@ public class MetricQueryService implements Service {
         return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }
 
-    public IntValues[] getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
+    public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
         final Downsampling downsampling,
         final long startTB,
         final long endTB) throws IOException, ParseException {
@@ -108,7 +108,13 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        return getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
+
+        ArrayList<IntValues> response = new ArrayList<IntValues>(numOfLinear);
+        for (IntValues value : multipleLinearIntValues) {
+            response.add(value);
+        }
+        return response;
     }
 
     public Thermodynamic getThermodynamic(final String indName, final String id, final Downsampling downsampling,
