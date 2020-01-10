@@ -60,6 +60,13 @@ public class MetricQuery implements GraphQLQueryResolver {
         return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
+    public IntValues[] getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear, final Duration duration) throws IOException, ParseException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+    }
+
     public Thermodynamic getThermodynamic(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());

@@ -47,10 +47,6 @@ public class PercentileMetricsTest {
         metricsMocker.calculate();
 
         Assert.assertArrayEquals(new int[] {70, 90, 90, 90, 110}, metricsMocker.getValues());
-
-        for (int value : metricsMocker.getValues()) {
-            System.out.println(value);
-        }
     }
 
     public class PercentileMetricsMocker extends PercentileMetrics {
