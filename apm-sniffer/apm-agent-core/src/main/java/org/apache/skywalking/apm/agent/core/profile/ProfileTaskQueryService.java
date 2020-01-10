@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.agent.core.profile;
 
 import io.grpc.Channel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -73,7 +75,17 @@ public class ProfileTaskQueryService implements BootService, Runnable, GRPCChann
                     Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).getProfileTaskCommands(builder.build());
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 } catch (Throwable t) {
-                    logger.error(t, "query profile task from Collector fail.", t);
+                    if (!(t instanceof StatusRuntimeException)) {
+                        logger.error(t, "query profile task from Collector fail.", t);
+                        return;
+                    }
+                    final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) t;
+                    if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+                        logger.warn("Backend doesn't support profiling, profiling will be disabled");
+                        if (getTaskListFuture != null) {
+                            getTaskListFuture.cancel(true);
+                        }
+                    }
                 }
             }
         }
