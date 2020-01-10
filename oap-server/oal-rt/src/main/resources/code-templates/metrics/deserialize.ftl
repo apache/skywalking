@@ -16,12 +16,12 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
     </#list>
 
     <#list serializeFields.intKeyLongValueHashMapFields as field>
-        setDetailGroup(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap(30));
+        ${field.setter}(new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap(30));
 
         java.util.Iterator iterator = remoteData.getDataIntLongPairListList().iterator();
         while (iterator.hasNext()) {
             org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair element = (org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair)(iterator.next());
-            super.getDetailGroup().put(new Integer(element.getKey()), new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue(element.getKey(), element.getValue()));
+            super.${field.getter}().put(new Integer(element.getKey()), new org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue(element.getKey(), element.getValue()));
         }
     </#list>
 }

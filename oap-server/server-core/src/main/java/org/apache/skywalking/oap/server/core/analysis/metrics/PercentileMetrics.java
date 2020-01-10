@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  */
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends GroupMetrics implements MultiIntValuesHolder {
-    protected static final String DETAIL_GROUP = "detail_group";
+    protected static final String DATASET = "dataset";
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
@@ -44,13 +44,13 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
 
     @Getter @Setter @Column(columnName = VALUE, isValue = true) private IntKeyLongValueHashMap percentileValues;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueHashMap detailGroup;
+    @Getter @Setter @Column(columnName = DATASET) private IntKeyLongValueHashMap dataset;
 
     private boolean isCalculated;
 
     public PercentileMetrics() {
         percentileValues = new IntKeyLongValueHashMap(5);
-        detailGroup = new IntKeyLongValueHashMap(30);
+        dataset = new IntKeyLongValueHashMap(30);
     }
 
     @Entrance
@@ -59,10 +59,10 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
         this.precision = precision;
 
         int index = value / precision;
-        IntKeyLongValue element = detailGroup.get(index);
+        IntKeyLongValue element = dataset.get(index);
         if (element == null) {
             element = new IntKeyLongValue(index, 1);
-            detailGroup.put(element.getKey(), element);
+            dataset.put(element.getKey(), element);
         } else {
             element.addValue(1);
         }
@@ -73,29 +73,37 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
         this.isCalculated = false;
 
         PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-        combine(pxxMetrics.getDetailGroup(), this.detailGroup);
+        combine(pxxMetrics.getDetailGroup(), this.dataset);
     }
 
     @Override
     public final void calculate() {
 
         if (!isCalculated) {
-            int total = detailGroup.values().stream().mapToInt(element -> (int)element.getValue()).sum();
-            for (int i = 0; i < RANKS.length; i++) {
-                int percentileRank = RANKS[i];
-                int roof = Math.round(total * percentileRank * 1.0f / 100);
+            int total = dataset.values().stream().mapToInt(element -> (int)element.getValue()).sum();
 
-                int count = 0;
-                IntKeyLongValue[] sortedData = detailGroup.values().stream().sorted(new Comparator<IntKeyLongValue>() {
-                    @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
-                        return o1.getKey() - o2.getKey();
-                    }
-                }).toArray(IntKeyLongValue[]::new);
-                for (IntKeyLongValue element : sortedData) {
-                    count += element.getValue();
+            int index = 0;
+            int[] roofs = new int[RANKS.length];
+            for (int i = 0; i < RANKS.length; i++) {
+                roofs[i] = Math.round(total * RANKS[i] * 1.0f / 100);
+            }
+
+            int count = 0;
+            IntKeyLongValue[] sortedData = dataset.values().stream().sorted(new Comparator<IntKeyLongValue>() {
+                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
+                    return o1.getKey() - o2.getKey();
+                }
+            }).toArray(IntKeyLongValue[]::new);
+            for (IntKeyLongValue element : sortedData) {
+                count += element.getValue();
+                for (int i = index; i < roofs.length; i++) {
+                    int roof = roofs[i];
+
                     if (count >= roof) {
-                        percentileValues.put(i, new IntKeyLongValue(i, element.getKey() * precision));
-                        return;
+                        percentileValues.put(index, new IntKeyLongValue(index, element.getKey() * precision));
+                        index++;
+                    } else {
+                        break;
                     }
                 }
             }
