@@ -60,6 +60,7 @@ or providing commercial products including Apache SkyWalking.
 1. GrowingIO 北京易数科技有限公司 https://www.growingio.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
+1. helijia.com 河狸家 http://www.helijia.com/
 1. Huawei
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
