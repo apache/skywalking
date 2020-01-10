@@ -17,11 +17,7 @@
  */
 
 // All scope metrics
-all_p99 = from(All.latency).p99(10);
-all_p95 = from(All.latency).p95(10);
-all_p90 = from(All.latency).p90(10);
-all_p75 = from(All.latency).p75(10);
-all_p50 = from(All.latency).p50(10);
+all_percentile = from(All.latency).percentile(10);
 all_heatmap = from(All.latency).thermodynamic(100, 20);
 
 // Service scope metrics
