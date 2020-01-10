@@ -109,4 +109,12 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
             }
         }
     }
+
+    public int[] getValues() {
+        int[] values = new int[percentileValues.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = (int)percentileValues.get(i).getValue();
+        }
+        return values;
+    }
 }
