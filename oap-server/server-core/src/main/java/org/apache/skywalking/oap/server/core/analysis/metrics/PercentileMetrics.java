@@ -72,8 +72,8 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     public void combine(Metrics metrics) {
         this.isCalculated = false;
 
-        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-        combine(pxxMetrics.getDetailGroup(), this.dataset);
+        PercentileMetrics percentileMetrics = (PercentileMetrics)metrics;
+        combine(percentileMetrics.getDataset(), this.dataset);
     }
 
     @Override
