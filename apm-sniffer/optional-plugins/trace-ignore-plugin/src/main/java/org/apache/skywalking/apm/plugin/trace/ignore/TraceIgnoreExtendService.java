@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfigInitializer;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * @author liujc [liujunc1993@163.com], kanro
@@ -51,7 +52,9 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
     public void boot() {
         try {
             IgnoreConfigInitializer.initialize();
-            patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
+            if(StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
+                patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
+            }
         } catch (ConfigNotFoundException | AgentPackageNotFoundException e) {
             LOGGER.error("trace ignore config init error", e);
         }

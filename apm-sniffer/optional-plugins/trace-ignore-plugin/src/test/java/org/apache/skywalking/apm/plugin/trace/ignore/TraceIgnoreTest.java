@@ -51,6 +51,7 @@ public class TraceIgnoreTest {
     public void testTraceIgnore() {
         ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
         IgnoreConfig.Trace.IGNORE_PATH = "/eureka/**";
+        service.boot();
         AbstractTracerContext ignoredTracerContext = service.createTraceContext("/eureka/apps", false);
         Assert.assertEquals(IgnoredTracerContext.class, ignoredTracerContext.getClass());
 
