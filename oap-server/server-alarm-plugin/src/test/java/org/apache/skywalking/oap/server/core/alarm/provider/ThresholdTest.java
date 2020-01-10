@@ -31,7 +31,7 @@ public class ThresholdTest {
     public void setType() {
         Threshold threshold = new Threshold("my-rule", "75");
         threshold.setType(MetricsValueType.DOUBLE);
-        assertEquals(0, Double.compare(75, threshold.getDoubleThreadhold()));
+        assertEquals(0, Double.compare(75, threshold.getDoubleThreshold()));
 
         threshold.setType(MetricsValueType.INT);
         assertEquals(75, threshold.getIntThreshold());

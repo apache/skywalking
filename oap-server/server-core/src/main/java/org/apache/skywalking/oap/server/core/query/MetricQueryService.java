@@ -60,7 +60,7 @@ public class MetricQueryService implements Service {
         return metricQueryDAO;
     }
 
-    public IntValues getValues(final String indName, final List<String> ids, final Downsampling downsampling,
+    public IntValues getValues(final String metricsName, final List<String> ids, final Downsampling downsampling,
         final long startTB,
         final long endTB) throws IOException {
         if (CollectionUtils.isEmpty(ids)) {
@@ -69,7 +69,7 @@ public class MetricQueryService implements Service {
              * we return an empty list, and a debug level log,
              * rather than an exception, which always being considered as a serious error from new users.
              */
-            logger.debug("query metrics[{}] w/o IDs", indName);
+            logger.debug("query metrics[{}] w/o IDs", metricsName);
             return new IntValues();
         }
 
@@ -79,7 +79,7 @@ public class MetricQueryService implements Service {
         where.getKeyValues().add(intKeyValues);
         ids.forEach(intKeyValues.getValues()::add);
 
-        return getMetricQueryDAO().getValues(indName, downsampling, startTB, endTB, where, ValueColumnIds.INSTANCE.getValueCName(indName), ValueColumnIds.INSTANCE.getValueFunction(indName));
+        return getMetricQueryDAO().getValues(metricsName, downsampling, startTB, endTB, where, ValueColumnIds.INSTANCE.getValueCName(metricsName), ValueColumnIds.INSTANCE.getValueFunction(metricsName));
     }
 
     public IntValues getLinearIntValues(final String indName, final String id, final Downsampling downsampling,

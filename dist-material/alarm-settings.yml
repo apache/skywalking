@@ -39,9 +39,9 @@ rules:
     message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
   service_p90_sla_rule:
     # Metrics value need to be long, double or int
-    metrics-name: service_p90
+    metrics-name: service_percentile
     op: ">"
-    threshold: 1000
+    threshold: 1000,1000,1000,1000,1000
     period: 10
     count: 3
     silence-period: 5

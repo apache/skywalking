@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
@@ -116,6 +117,9 @@ public class RunningRule {
             } else if (metrics instanceof DoubleValueHolder) {
                 valueType = MetricsValueType.DOUBLE;
                 threshold.setType(MetricsValueType.DOUBLE);
+            } else if (metrics instanceof MultiIntValuesHolder) {
+                valueType = MetricsValueType.MULTI_INTS;
+                threshold.setType(MetricsValueType.MULTI_INTS);
             } else {
                 return;
             }
@@ -170,10 +174,8 @@ public class RunningRule {
         return alarmMessageList;
     }
 
-
-
     /**
-     * A metrics window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent
+     * A metrics window, based on {@link AlarmRule#getPeriod()}. This window slides with time, just keeps the recent
      * N(period) buckets.
      *
      * @author wusheng
@@ -325,7 +327,7 @@ public class RunningRule {
                         break;
                     case DOUBLE:
                         double dvalue = ((DoubleValueHolder)metrics).getValue();
-                        double dexpected = RunningRule.this.threshold.getDoubleThreadhold();
+                        double dexpected = RunningRule.this.threshold.getDoubleThreshold();
                         switch (op) {
                             case EQUAL:
                                 // NOTICE: double equal is not reliable in Java,
@@ -343,6 +345,31 @@ public class RunningRule {
                                 break;
                         }
                         break;
+                    case MULTI_INTS:
+                        int[] ivalueArray = ((MultiIntValuesHolder)metrics).getValues();
+                        int[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
+                        MULTI_VALUE_CHECK: for (int i = 0; i < ivalueArray.length; i++) {
+                            ivalue = ivalueArray[i];
+                            iexpected = 0;
+                            if (iaexpected.length > i) {
+                                iexpected = iaexpected[i];
+                            }
+                            switch (op) {
+                                case LESS:
+                                    if (ivalue < iexpected)
+                                        matchCount++;
+                                    break MULTI_VALUE_CHECK;
+                                case GREATER:
+                                    if (ivalue > iexpected)
+                                        matchCount++;
+                                    break MULTI_VALUE_CHECK;
+                                case EQUAL:
+                                    if (ivalue == iexpected)
+                                        matchCount++;
+                                    break MULTI_VALUE_CHECK;
+                            }
+                            break;
+                        }
                 }
             }
 

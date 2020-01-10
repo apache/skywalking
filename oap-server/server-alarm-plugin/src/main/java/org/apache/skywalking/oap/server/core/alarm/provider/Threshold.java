@@ -30,8 +30,9 @@ public class Threshold {
     private String alarmRuleName;
     private final String threshold;
     private int intThreshold;
-    private double doubleThreadhold;
+    private double doubleThreshold;
     private long longThreshold;
+    private int[] intValuesThreshold;
 
     public Threshold(String alarmRuleName, String threshold) {
         this.alarmRuleName = alarmRuleName;
@@ -42,12 +43,16 @@ public class Threshold {
         return intThreshold;
     }
 
-    public double getDoubleThreadhold() {
-        return doubleThreadhold;
+    public double getDoubleThreshold() {
+        return doubleThreshold;
     }
 
     public long getLongThreshold() {
         return longThreshold;
+    }
+
+    public int[] getIntValuesThreshold() {
+        return intValuesThreshold;
     }
 
     public void setType(MetricsValueType type) {
@@ -60,8 +65,14 @@ public class Threshold {
                     longThreshold = Long.parseLong(threshold);
                     break;
                 case DOUBLE:
-                    doubleThreadhold = Double.parseDouble(threshold);
+                    doubleThreshold = Double.parseDouble(threshold);
                     break;
+                case MULTI_INTS:
+                    String[] strings = threshold.split(",");
+                    intValuesThreshold = new int[strings.length];
+                    for (int i = 0; i < strings.length; i++) {
+                        intValuesThreshold[i] = Integer.parseInt(strings[i]);
+                    }
             }
         } catch (NumberFormatException e) {
             logger.warn("Alarm rule {} threshold doesn't match the metrics type, expected type: {}", alarmRuleName, type);

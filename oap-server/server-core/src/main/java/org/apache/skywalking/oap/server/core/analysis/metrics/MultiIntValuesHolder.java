@@ -16,8 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-public enum MetricsValueType {
-    LONG, INT, DOUBLE, MULTI_INTS
+/**
+ * IntValueHolder always holds a set of int(s).
+ *
+ * @author wusheng
+ */
+public interface MultiIntValuesHolder {
+    int[] getValues();
 }
