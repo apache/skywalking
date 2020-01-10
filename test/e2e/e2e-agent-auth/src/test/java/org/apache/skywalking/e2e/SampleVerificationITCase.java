@@ -73,7 +73,7 @@ import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATIO
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author kezhenxu94
+ * @author kezhenxu94, jian.tan
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SampleVerificationITCase {

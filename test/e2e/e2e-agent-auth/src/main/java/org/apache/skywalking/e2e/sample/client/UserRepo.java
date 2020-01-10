@@ -21,7 +21,7 @@ package org.apache.skywalking.e2e.sample.client;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * @author kezhenxu94
+ * @author kezhenxu94, jian.tan
  */
 public interface UserRepo extends JpaRepository<User, Long> {
 }

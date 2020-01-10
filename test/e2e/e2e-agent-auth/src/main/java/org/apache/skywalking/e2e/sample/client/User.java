@@ -24,7 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
- * @author kezhenxu94
+ * @author kezhenxu94, jian.tan
  */
 @Entity
 public class User {
