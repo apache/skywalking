@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
- * IntValueHolder always holds a set of int(s).
+ * MultiIntValuesHolder always holds a set of int(s).
  *
  * @author wusheng
  */

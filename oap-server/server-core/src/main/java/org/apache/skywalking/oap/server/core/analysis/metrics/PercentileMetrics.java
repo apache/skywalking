@@ -49,7 +49,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     private boolean isCalculated;
 
     public PercentileMetrics() {
-        percentileValues = new IntKeyLongValueHashMap(5);
+        percentileValues = new IntKeyLongValueHashMap(RANKS.length);
         dataset = new IntKeyLongValueHashMap(30);
     }
 

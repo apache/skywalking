@@ -57,7 +57,10 @@ In this case, all input are requests of each endpoint, condition is `endpoint.st
 > Service_Calls_Sum = from(Service.*).sum();
 
 In this case, calls of each service. 
-- `p99`, `p95`, `p90`, `p75`, `p50`. Read [p99 in WIKI](https://en.wikipedia.org/wiki/Percentile)
+- `p99`, `p95`, `p90`, `p75`, `p50`. Read [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile)
+> all_percentile = from(All.latency).percentile(10);
+
+Before 7.0.0, use `p99`, `p95`, `p90`, `p75`, `p50` func(s) to calculate metrics separately. Still supported in 7.x, but not be recommended, and not be included in official OAL script. 
 > All_p99 = from(All.latency).p99(10);
 
 In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
