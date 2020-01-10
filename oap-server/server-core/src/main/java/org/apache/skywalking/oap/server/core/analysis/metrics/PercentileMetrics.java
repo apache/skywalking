@@ -42,13 +42,14 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
 
     private static final int[] RANKS = {50, 75, 90, 95, 99};
 
-    @Getter @Setter @Column(columnName = VALUE) private int[] values = {0, 0, 0, 0, 0};
+    @Getter @Setter @Column(columnName = VALUE, isValue = true) private IntKeyLongValueHashMap percentileValues;
     @Getter @Setter @Column(columnName = PRECISION) private int precision;
     @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueHashMap detailGroup;
 
     private boolean isCalculated;
 
     public PercentileMetrics() {
+        percentileValues = new IntKeyLongValueHashMap(5);
         detailGroup = new IntKeyLongValueHashMap(30);
     }
 
@@ -93,7 +94,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
                 for (IntKeyLongValue element : sortedData) {
                     count += element.getValue();
                     if (count >= roof) {
-                        values[i] = element.getKey() * precision;
+                        percentileValues.put(i, new IntKeyLongValue(i, element.getKey() * precision));
                         return;
                     }
                 }
