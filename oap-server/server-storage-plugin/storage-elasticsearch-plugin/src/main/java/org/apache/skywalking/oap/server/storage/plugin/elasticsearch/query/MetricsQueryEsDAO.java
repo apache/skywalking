@@ -141,14 +141,17 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
-        IntValues[] intValues = new IntValues[numOfLinear];
+        IntValues[] intValuesArray = new IntValues[numOfLinear];
+        for (int i = 0; i < intValuesArray.length; i++) {
+            intValuesArray[i] = new IntValues();
+        }
 
         for (String id : ids) {
-            for (IntValues value : intValues) {
+            for (int i = 0; i < intValuesArray.length; i++) {
                 KVInt kvInt = new KVInt();
                 kvInt.setId(id);
                 kvInt.setValue(0);
-
+                intValuesArray[i].addKVInt(kvInt);
             }
 
             if (idMap.containsKey(id)) {
@@ -156,14 +159,14 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
                 multipleValues.toObject((String)source.getOrDefault(valueCName, ""));
 
-                for (int i = 0; i < intValues.length; i++) {
-                    intValues[i].getLast().setValue(multipleValues.get(i).getValue());
+                for (int i = 0; i < intValuesArray.length; i++) {
+                    intValuesArray[i].getLast().setValue(multipleValues.get(i).getValue());
                 }
             }
 
         }
 
-        return intValues;
+        return intValuesArray;
     }
 
     @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,

@@ -158,6 +158,9 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         }
 
         IntValues[] intValuesArray = new IntValues[numOfLinear];
+        for (int i = 0; i < intValuesArray.length; i++) {
+            intValuesArray[i] = new IntValues();
+        }
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select id, " + valueCName + " from " + tableName + " where id in (" + idValues.toString() + ")")) {
