@@ -19,11 +19,12 @@
     metrics: getMultipleLinearIntValues(metric: {
       name: \"{metricsName}\"
       id: $id
-    }, duration: $duration) {
+    }, duration: $duration
+    , numOfLinear: $numOfLinear) {
       values {
         value
       }
-    }, numOfLinear: $numOfLinear
+    }
   }",
   "variables": {
     "duration": {
