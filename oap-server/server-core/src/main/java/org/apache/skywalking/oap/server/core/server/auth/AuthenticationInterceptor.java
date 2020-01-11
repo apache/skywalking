@@ -25,7 +25,7 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 
 /**
- * Active the authentication(agent <---> oap) token checker if expected token exists in application.yml
+ * Active the authentication between agent and oap receiver. token checker if expected token exists in application.yml
  *
  * @author jian.tan
  */
@@ -46,8 +46,19 @@ public class AuthenticationInterceptor implements ServerInterceptor {
 
     private static final Metadata.Key<String> AUTH_HEAD_HEADER_NAME = Metadata.Key.of("Authentication", Metadata.ASCII_STRING_MARSHALLER);
 
+    /**
+     * intercept point of call.
+     *
+     * @param serverCall        call of server.
+     * @param metadata          of call.
+     * @param serverCallHandler handler of call.
+     * @param <REQUEST>         of call.
+     * @param <RESPONSE>        of call.
+     * @return lister of call.
+     */
     @Override
-    public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> serverCall, Metadata metadata,
+    public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> serverCall,
+        Metadata metadata,
         ServerCallHandler<REQUEST, RESPONSE> serverCallHandler) {
         String token = metadata.get(AUTH_HEAD_HEADER_NAME);
         if (expectedToken.equals(token)) {
