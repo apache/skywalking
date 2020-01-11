@@ -49,6 +49,51 @@ public class PercentileMetricsTest {
         Assert.assertArrayEquals(new int[] {70, 90, 90, 90, 110}, metricsMocker.getValues());
     }
 
+    @Test
+    public void percentileTest2() {
+        PercentileMetricsTest.PercentileMetricsMocker metricsMocker = new PercentileMetricsTest.PercentileMetricsMocker();
+
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(90, precision);
+
+        metricsMocker.calculate();
+
+        Assert.assertArrayEquals(new int[] {90, 90, 90, 90, 90}, metricsMocker.getValues());
+    }
+
+    @Test
+    public void percentileTest3() {
+        PercentileMetricsTest.PercentileMetricsMocker metricsMocker = new PercentileMetricsTest.PercentileMetricsMocker();
+
+        metricsMocker.combine(90, precision);
+        metricsMocker.combine(110, precision);
+
+        metricsMocker.calculate();
+
+        Assert.assertArrayEquals(new int[] {90, 110, 110, 110, 110}, metricsMocker.getValues());
+    }
+
+    @Test
+    public void percentileTest4() {
+        PercentileMetricsTest.PercentileMetricsMocker metricsMocker = new PercentileMetricsTest.PercentileMetricsMocker();
+
+        metricsMocker.combine(0, precision);
+        metricsMocker.combine(0, precision);
+
+        metricsMocker.calculate();
+
+        Assert.assertArrayEquals(new int[] {0, 0, 0, 0, 0}, metricsMocker.getValues());
+    }
+
     public class PercentileMetricsMocker extends PercentileMetrics {
 
         @Override public String id() {
