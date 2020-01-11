@@ -225,4 +225,29 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getMetrics();
     }
 
+    public List<Metrics> multipleLinearMetrics(final MetricsQuery query, String numOfLinear) throws Exception {
+        final URL queryFileUrl = Resources.getResource("metrics-multiLines.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{metricsName}", query.metricsName())
+            .replace("{id}", query.id())
+            .replace("{numOfLinear}", numOfLinear);
+        final ResponseEntity<GQLResponse<List<Metrics>>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<List<Metrics>>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData();
+    }
+
 }

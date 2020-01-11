@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -301,6 +302,9 @@ public class ClusterVerificationITCase {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
 
             verifyMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
+        }
+        for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
         }
     }
 

@@ -34,6 +34,10 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_RESP_TIME,
         SERVICE_APDEX
     };
+    public static String SERVICE_PERCENTILE = "service_percentile";
+    public static String[] ALL_SERVICE_MULTIPLE_LINEAR_METRICS = {
+        SERVICE_PERCENTILE
+    };
 
     public static String ENDPOINT_CPM = "endpoint_cpm";
     public static String ENDPOINT_AVG = "endpoint_avg";
