@@ -18,25 +18,17 @@
 
 package org.apache.skywalking.oap.server.library.server.grpc;
 
-import io.grpc.BindableService;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyServerBuilder;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import java.io.File;
-import java.io.IOException;
+import io.grpc.*;
+import io.grpc.netty.*;
+import io.netty.handler.ssl.*;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+
 import org.apache.skywalking.oap.server.library.server.Server;
-import org.apache.skywalking.oap.server.library.server.ServerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.library.server.*;
+import org.slf4j.*;
 
 /**
  * @author peng-yongsheng, wusheng, yantaowu
@@ -80,12 +72,13 @@ public class GRPCServer implements Server {
         this.threadPoolQueueSize = threadPoolQueueSize;
     }
 
+
     /**
      * Require for `server.crt` and `server.pem` for open ssl at server side.
      *
      * @param host
      * @param port
-     * @param certChainFile  `server.crt` file
+     * @param certChainFile `server.crt` file
      * @param privateKeyFile `server.pem` file
      */
     public GRPCServer(String host, int port, File certChainFile, File privateKeyFile) {
@@ -112,7 +105,7 @@ public class GRPCServer implements Server {
         InetSocketAddress address = new InetSocketAddress(host, port);
         ArrayBlockingQueue blockingQueue = new ArrayBlockingQueue(threadPoolQueueSize);
         ExecutorService executor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize, 60,
-            TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
+                TimeUnit.SECONDS, blockingQueue, new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler());
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
         nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection).maxMessageSize(maxMessageSize).executor(executor);
         logger.info("Server started, host {} listening on {}", host, port);

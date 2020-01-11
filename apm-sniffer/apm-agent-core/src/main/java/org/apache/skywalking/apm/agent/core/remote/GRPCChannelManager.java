@@ -68,17 +68,21 @@ public class GRPCChannelManager implements BootService, Runnable {
         grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
         connectCheckFuture = Executors
             .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this,
-                t -> logger.error("unexpected exception.", t)), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
+            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                @Override
+                public void handle(Throwable t) {
+                    logger.error("unexpected exception.", t);
+                }
+            }), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
     }
 
     @Override
-    public void onComplete() {
+    public void onComplete() throws Throwable {
 
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown() throws Throwable {
         if (connectCheckFuture != null) {
             connectCheckFuture.cancel(true);
         }
@@ -107,11 +111,11 @@ public class GRPCChannelManager implements BootService, Runnable {
                         }
 
                         managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                                .addManagedChannelBuilder(new StandardChannelBuilder())
-                                .addManagedChannelBuilder(new TLSChannelBuilder())
-                                .addChannelDecorator(new AgentIDDecorator())
-                                .addChannelDecorator(new AuthenticationDecorator())
-                                .build();
+                            .addManagedChannelBuilder(new StandardChannelBuilder())
+                            .addManagedChannelBuilder(new TLSChannelBuilder())
+                            .addChannelDecorator(new AgentIDDecorator())
+                            .addChannelDecorator(new AuthenticationDecorator())
+                            .build();
                         notify(GRPCChannelStatus.CONNECTED);
                         reconnectCount = 0;
                         reconnect = false;
@@ -168,11 +172,11 @@ public class GRPCChannelManager implements BootService, Runnable {
         if (throwable instanceof StatusRuntimeException) {
             StatusRuntimeException statusRuntimeException = (StatusRuntimeException) throwable;
             return statusEquals(statusRuntimeException.getStatus(),
-                    Status.UNAVAILABLE,
-                    Status.PERMISSION_DENIED,
-                    Status.UNAUTHENTICATED,
-                    Status.RESOURCE_EXHAUSTED,
-                    Status.UNKNOWN
+                Status.UNAVAILABLE,
+                Status.PERMISSION_DENIED,
+                Status.UNAUTHENTICATED,
+                Status.RESOURCE_EXHAUSTED,
+                Status.UNKNOWN
             );
         }
         return false;

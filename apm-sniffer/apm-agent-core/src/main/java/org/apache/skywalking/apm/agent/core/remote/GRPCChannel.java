@@ -91,8 +91,8 @@ public class GRPCChannel {
         private Builder(String host, int port) {
             this.host = host;
             this.port = port;
-            this.channelBuilders = new LinkedList<>();
-            this.decorators = new LinkedList<>();
+            this.channelBuilders = new LinkedList<ChannelBuilder>();
+            this.decorators = new LinkedList<ChannelDecorator>();
         }
 
         public Builder addChannelDecorator(ChannelDecorator interceptor) {
