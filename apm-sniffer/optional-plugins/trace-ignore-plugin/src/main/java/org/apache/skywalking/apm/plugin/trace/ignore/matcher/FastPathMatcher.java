@@ -32,28 +32,28 @@ public class FastPathMatcher implements TracePathMatcher {
             char pc = pat.charAt(p);
             char sc = safeCharAt(str, s);
 
-            // Got * in pattern, entry the wildcard mode.
+            // Got * in pattern, enter the wildcard mode.
             //            ↓        ↓
             // pattern: a/*      a/*
             //            ↓        ↓
             // string:  a/bcd    a/
             if (pc == '*') {
                 p++;
-                // Got * in pattern again, entry the multi-wildcard mode.
+                // Got * in pattern again, enter the multi-wildcard mode.
                 //             ↓        ↓
                 // pattern: a/**     a/**
                 //            ↓        ↓
                 // string:  a/bcd    a/
                 if (safeCharAt(pat, p) == '*') {
                     p++;
-                    // Entry the multi-wildcard mode.
+                    // Enter the multi-wildcard mode.
                     //              ↓        ↓
                     // pattern: a/**     a/**
                     //            ↓        ↓
                     // string:  a/bcd    a/
                     return multiWildcardMatch(pat, p, str, s);
                 } else {
-                    // Entry the wildcard mode.
+                    // Enter the wildcard mode.
                     //             ↓
                     // pattern: a/*
                     //            ↓
@@ -108,7 +108,7 @@ public class FastPathMatcher implements TracePathMatcher {
                 return false;
             }
 
-            // Try to entry normal mode, if not matched, increasing s and try again.
+            // Try to enter normal mode, if not matched, increasing pointer of string and try again.
             if (!normalMatch(pat, p, str, s)) {
                 // End of string, not matched.
                 if (s >= str.length()) {
@@ -131,7 +131,7 @@ public class FastPathMatcher implements TracePathMatcher {
         }
 
         while (true) {
-            // Try to entry normal mode, if not matched, increasing s and try again.
+            // Try to enter normal mode, if not matched, increasing pointer of string and try again.
             if (!normalMatch(pat, p, str, s)) {
                 // End of string, not matched.
                 if (s >= str.length()) {
