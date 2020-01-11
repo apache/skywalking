@@ -87,7 +87,8 @@ public class RunningRule {
      * Receive metrics result from persistence, after it is saved into storage. In alarm, only minute dimensionality
      * metrics are expected to process.
      *
-     * @param metrics
+     * @param meta of input metrics
+     * @param metrics includes the values.
      */
     public void in(MetaInAlarm meta, Metrics metrics) {
         if (!meta.getMetricsName().equals(metricsName)) {
@@ -175,7 +176,7 @@ public class RunningRule {
     }
 
     /**
-     * A metrics window, based on {@link AlarmRule#getPeriod()}. This window slides with time, just keeps the recent
+     * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent
      * N(period) buckets.
      *
      * @author wusheng
