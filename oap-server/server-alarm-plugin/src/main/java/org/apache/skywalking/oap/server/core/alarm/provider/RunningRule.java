@@ -360,17 +360,20 @@ public class RunningRule {
                             }
                             switch (op) {
                                 case LESS:
-                                    if (ivalue < iNullableExpected)
+                                    if (ivalue < iNullableExpected) {
                                         matchCount++;
-                                    break MULTI_VALUE_CHECK;
+                                        break MULTI_VALUE_CHECK;
+                                    }
                                 case GREATER:
-                                    if (ivalue > iNullableExpected)
+                                    if (ivalue > iNullableExpected) {
                                         matchCount++;
-                                    break MULTI_VALUE_CHECK;
+                                        break MULTI_VALUE_CHECK;
+                                    }
                                 case EQUAL:
-                                    if (ivalue == iNullableExpected)
+                                    if (ivalue == iNullableExpected) {
                                         matchCount++;
-                                    break MULTI_VALUE_CHECK;
+                                        break MULTI_VALUE_CHECK;
+                                    }
                             }
                         }
                         break;
