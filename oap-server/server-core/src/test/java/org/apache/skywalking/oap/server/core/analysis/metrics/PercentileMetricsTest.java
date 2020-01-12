@@ -132,7 +132,7 @@ public class PercentileMetricsTest {
             Iterator var2 = getPercentileValues().values().iterator();
             org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList.Builder var3 = DataIntLongPairList.newBuilder();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 var3.addValue(((IntKeyLongValue)var2.next()).serialize());
             }
 
@@ -140,7 +140,7 @@ public class PercentileMetricsTest {
             var2 = getDataset().values().iterator();
             var3 = DataIntLongPairList.newBuilder();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 var3.addValue(((IntKeyLongValue)var2.next()).serialize());
             }
 
@@ -153,14 +153,14 @@ public class PercentileMetricsTest {
             this.setPrecision(var1.getDataIntegers(0));
             Iterator var2 = var1.getDataLists(0).getValueList().iterator();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 IntKeyLongValuePair var3 = (IntKeyLongValuePair)var2.next();
                 getPercentileValues().put(new Integer(var3.getKey()), new IntKeyLongValue(var3.getKey(), var3.getValue()));
             }
 
             var2 = var1.getDataLists(1).getValueList().iterator();
 
-            while(var2.hasNext()) {
+            while (var2.hasNext()) {
                 IntKeyLongValuePair var4 = (IntKeyLongValuePair)var2.next();
                 getDataset().put(new Integer(var4.getKey()), new IntKeyLongValue(var4.getKey(), var4.getValue()));
             }
