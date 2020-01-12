@@ -16,19 +16,41 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.server;
+package org.apache.skywalking.e2e.sample.client;
 
-import io.grpc.*;
-import org.apache.skywalking.oap.server.library.module.Service;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
- * @author peng-yongsheng, jian.tan
+ * @author kezhenxu94, jian.tan
  */
-public interface GRPCHandlerRegister extends Service {
+@Entity
+public class User {
+    public User() {
+    }
 
-    void addHandler(BindableService handler);
+    @Id
+    @GeneratedValue
+    private Long id;
 
-    void addHandler(ServerServiceDefinition definition);
+    @Column
+    private String name;
 
-    void addFilter(ServerInterceptor interceptor);
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
 }

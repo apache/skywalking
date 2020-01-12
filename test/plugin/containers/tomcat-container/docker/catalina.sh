@@ -113,6 +113,7 @@ if [ -f "${AGENT_FILE_PATH}/skywalking-agent.jar" ]; then
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
+    -Dskywalking.agent.authentication=test-token
     -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
     -Xms256m -Xmx256m -XX:PermSize=64M -XX:MaxPermSize=64"
 fi
