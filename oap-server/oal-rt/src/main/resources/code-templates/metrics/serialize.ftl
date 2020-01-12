@@ -20,11 +20,10 @@ public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builde
     <#list serializeFields.intKeyLongValueHashMapFields as field>
         iterator = super.${field.getter}().values().iterator();
         pairListBuilder = org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList.newBuilder();
-        remoteBuilder.addDataLists(pairListBuilder);
-
         while (iterator.hasNext()) {
             pairListBuilder.addValue(((org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)(iterator.next())).serialize());
         }
+        remoteBuilder.addDataLists(pairListBuilder);
     </#list>
 
     return remoteBuilder;
