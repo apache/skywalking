@@ -43,7 +43,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_APDEX;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_RESP_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -243,7 +243,7 @@ public class StorageTTLITCase {
                 return queryClient.metrics(
                     new MetricsQuery()
                         .id(serviceId)
-                        .metricsName(SERVICE_APDEX)
+                        .metricsName(SERVICE_RESP_TIME)
                         .step(step)
                         .start(queryStart)
                         .end(queryEnd)
