@@ -18,14 +18,21 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
-import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.*;
+import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
+import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
+import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
-import org.apache.skywalking.apm.util.*;
-import org.junit.*;
+import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
+
+import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,6 +58,7 @@ public class TraceIgnoreTest {
     public void testTraceIgnore() {
         ContextManagerExtendService service = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
         IgnoreConfig.Trace.IGNORE_PATH = "/eureka/**";
+        service.boot();
         AbstractTracerContext ignoredTracerContext = service.createTraceContext("/eureka/apps", false);
         Assert.assertEquals(IgnoredTracerContext.class, ignoredTracerContext.getClass());
 

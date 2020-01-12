@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.AntPathMatcher;
+import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,50 +27,86 @@ public class TracePathMatcherTest {
 
     @Test
     public void testAntPathMatcher() {
-        TracePathMatcher pathMatcher = new AntPathMatcher();
+        TracePathMatcher pathMatcher = new FastPathMatcher();
         String patten = "/eureka/*";
-        String path = "/eureka/app";
-
+        String path = "/eureka/apps";
         boolean match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
+        path = "/eureka/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
+        path = "/eureka/apps/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
 
+        patten = "/eureka/*/";
+        path = "/eureka/apps/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
+        path = "/eureka/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
         path = "/eureka/apps/list";
         match = pathMatcher.match(patten, path);
         Assert.assertFalse(match);
 
         patten = "/eureka/**";
+        path = "/eureka/";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
-
-        patten = "/eureka/apps/lis?";
+        path = "/eureka/apps/test";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
-
-        path = "eureka/apps/lists";
+        path = "/eureka/apps/test/";
         match = pathMatcher.match(patten, path);
         Assert.assertFalse(match);
+
+        patten = "eureka/apps/?";
+        path = "eureka/apps/list";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
+        path = "eureka/apps/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
+        path = "eureka/apps/a";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
 
         patten = "eureka/**/lists";
+        path = "eureka/apps/lists";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
-
-        path = "eureka/apps/a/b/c/lists";
+        path = "eureka/apps/test/lists";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
-
-        path = "eureka/apps/a/b/c/";
+        path = "eureka/apps/test/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
+        path = "eureka/apps/test";
         match = pathMatcher.match(patten, path);
         Assert.assertFalse(match);
 
-        patten = "eureka/**/b/**";
+        patten = "eureka/**/test/**";
+        path = "eureka/apps/test/list";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
+        path = "eureka/apps/foo/test/list/bar";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
+        path = "eureka/apps/foo/test/list/bar/";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
+        path = "eureka/apps/test/list";
+        match = pathMatcher.match(patten, path);
+        Assert.assertTrue(match);
+        path = "eureka/test/list";
+        match = pathMatcher.match(patten, path);
+        Assert.assertFalse(match);
 
         patten = "/eureka/**/b/**/*.txt";
         path = "/eureka/a/aa/aaa/b/bb/bbb/xxxxxx.txt";
         match = pathMatcher.match(patten, path);
         Assert.assertTrue(match);
-
         path = "/eureka/a/aa/aaa/b/bb/bbb/xxxxxx";
         match = pathMatcher.match(patten, path);
         Assert.assertFalse(match);
