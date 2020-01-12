@@ -294,6 +294,10 @@ public class ClusterVerificationITCase {
 
                 verifyMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
+
+            for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
+                verifyPercentileMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
+            }
         }
     }
 
