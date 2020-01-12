@@ -15,12 +15,11 @@
 # limitations under the License.
 
 {
-  "query":"query ($id: ID!, $duration: Duration!) {
+  "query":"query ($id: ID!, $duration: Duration!, $numOfLinear: Int!) {
     metrics: getMultipleLinearIntValues(metric: {
       name: \"{metricsName}\"
       id: $id
-    }, duration: $duration
-    , numOfLinear: $numOfLinear) {
+    }, duration: $duration, numOfLinear: $numOfLinear) {
       values {
         value
       }

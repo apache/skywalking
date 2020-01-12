@@ -21,11 +21,13 @@ package org.apache.skywalking.e2e.metrics;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * @author kezhenxu94
  */
 @Data
 @ToString
-public class MetricsData {
-    private Metrics metrics;
+public class MultiMetricsData {
+    private List<Metrics> metrics;
 }
