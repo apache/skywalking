@@ -27,10 +27,11 @@ import java.util.List;
  * @author MrPro
  */
 public class ProfileTaskCommand extends BaseCommand implements Serializable, Deserializable<ProfileTaskCommand> {
-    public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", 0, 0, 0, 0, 0, 0);
+    public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", "", 0, 0, 0, 0, 0, 0);
     public static final String NAME = "ProfileTaskQuery";
 
     // profile task data
+    private String taskId;
     private String endpointName;
     private int duration;
     private int minDurationThreshold;
@@ -39,8 +40,9 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
     private long startTime;
     private long createTime;
 
-    public ProfileTaskCommand(String serialNumber, String endpointName, int duration, int minDurationThreshold, int dumpPeriod, int maxSamplingCount, long startTime, long createTime) {
+    public ProfileTaskCommand(String serialNumber, String taskId, String endpointName, int duration, int minDurationThreshold, int dumpPeriod, int maxSamplingCount, long startTime, long createTime) {
         super(NAME, serialNumber);
+        this.taskId = taskId;
         this.endpointName = endpointName;
         this.duration = duration;
         this.minDurationThreshold = minDurationThreshold;
@@ -54,6 +56,7 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
     public ProfileTaskCommand deserialize(Command command) {
         final List<KeyStringValuePair> argsList = command.getArgsList();
         String serialNumber = null;
+        String taskId = null;
         String endpointName = null;
         int duration = 0;
         int minDurationThreshold = 0;
@@ -67,6 +70,8 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
                 serialNumber = pair.getValue();
             } else if ("EndpointName".equals(pair.getKey())) {
                 endpointName = pair.getValue();
+            } else if ("TaskId".equals(pair.getKey())) {
+                taskId = pair.getValue();
             } else if ("Duration".equals(pair.getKey())) {
                 duration = Integer.parseInt(pair.getValue());
             } else if ("MinDurationThreshold".equals(pair.getKey())) {
@@ -82,13 +87,14 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
             }
         }
 
-        return new ProfileTaskCommand(serialNumber, endpointName, duration, minDurationThreshold, dumpPeriod, maxSamplingCount, startTime, createTime);
+        return new ProfileTaskCommand(serialNumber, taskId, endpointName, duration, minDurationThreshold, dumpPeriod, maxSamplingCount, startTime, createTime);
     }
 
     @Override
     public Command.Builder serialize() {
         final Command.Builder builder = commandBuilder();
-        builder.addArgs(KeyStringValuePair.newBuilder().setKey("EndpointName").setValue(endpointName))
+        builder.addArgs(KeyStringValuePair.newBuilder().setKey("TaskId").setValue(taskId))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("EndpointName").setValue(endpointName))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("Duration").setValue(String.valueOf(duration)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("MinDurationThreshold").setValue(String.valueOf(minDurationThreshold)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("DumpPeriod").setValue(String.valueOf(dumpPeriod)))
@@ -124,5 +130,9 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
 
     public long getCreateTime() {
         return createTime;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 }

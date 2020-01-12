@@ -101,6 +101,11 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     }
 
+    @Override
+    public void checkAndAddProfiling(String operationName) {
+        // dont need profiling
+    }
+
     public static class ListenerManager {
         private static List<IgnoreTracerContextListener> LISTENERS = new LinkedList<IgnoreTracerContextListener>();
 

@@ -88,6 +88,25 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         return tasks;
     }
 
+    @Override
+    public ProfileTask getById(String id) throws IOException {
+        if (StringUtil.isEmpty(id)) {
+            return null;
+        }
+
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        sourceBuilder.query(QueryBuilders.idsQuery().addIds(id));
+        sourceBuilder.size(1);
+
+        final SearchResponse response = getClient().search(ProfileTaskNoneStream.INDEX_NAME, sourceBuilder);
+
+        if (response.getHits().getHits().length > 0) {
+            return parseTask(response.getHits().getHits()[0]);
+        }
+
+        return null;
+    }
+
     private ProfileTask parseTask(SearchHit data) {
         return ProfileTask.builder()
                 .id(data.getId())

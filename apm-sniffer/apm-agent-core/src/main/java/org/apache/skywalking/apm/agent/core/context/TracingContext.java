@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -462,6 +463,17 @@ public class TracingContext implements AbstractTracerContext {
         finish();
     }
 
+    @Override
+    public void checkAndAddProfiling(String operationName) {
+        if (segment.getProfiling()) {
+            return;
+        }
+
+        // update profiling status
+        final ProfileTaskExecutionService profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        segment.setProfiling(profileTaskExecutionService.addProfiling(segment, operationName));
+    }
+
     /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
      * TracingContext.ListenerManager}
@@ -587,4 +599,5 @@ public class TracingContext implements AbstractTracerContext {
             return false;
         }
     }
+
 }

@@ -115,4 +115,10 @@ public interface AbstractTracerContext {
      * @param span to be stopped.
      */
     void asyncStop(AsyncSpan span);
+
+    /**
+     * Check current creating operation can add profiling, if true, it will start profiling
+     * @param operationName
+     */
+    void checkAndAddProfiling(String operationName);
 }

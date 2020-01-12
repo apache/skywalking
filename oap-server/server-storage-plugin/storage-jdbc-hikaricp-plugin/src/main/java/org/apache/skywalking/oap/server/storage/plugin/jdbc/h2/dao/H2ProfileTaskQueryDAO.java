@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 import java.io.IOException;
@@ -85,6 +86,29 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         } catch (SQLException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public ProfileTask getById(String id) throws IOException {
+        if (StringUtil.isEmpty(id)) {
+            return null;
+        }
+
+        final StringBuilder sql = new StringBuilder();
+        final ArrayList<Object> condition = new ArrayList<>(1);
+        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where id=? LIMIT 1");
+        condition.add(id);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+                if (resultSet.next()) {
+                    return parseTask(resultSet);
+                }
+            }
+        } catch (SQLException | JDBCClientException e) {
+            throw new IOException(e);
+        }
+        return null;
     }
 
     /**

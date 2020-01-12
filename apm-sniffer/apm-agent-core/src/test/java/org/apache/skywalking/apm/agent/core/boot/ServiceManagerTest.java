@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.jvm.JVMService;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
-import org.apache.skywalking.apm.agent.core.profile.ProfileTaskQueryService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
@@ -64,7 +64,7 @@ public class ServiceManagerTest {
         assertGRPCChannelManager(ServiceManager.INSTANCE.findService(GRPCChannelManager.class));
         assertSamplingService(ServiceManager.INSTANCE.findService(SamplingService.class));
         assertJVMService(ServiceManager.INSTANCE.findService(JVMService.class));
-        assertProfileTaskQueryService(ServiceManager.INSTANCE.findService(ProfileTaskQueryService.class));
+        assertProfileTaskQueryService(ServiceManager.INSTANCE.findService(ProfileTaskChannelService.class));
         assertProfileTaskExecuteService(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class));
 
         assertTracingContextListener();
@@ -78,7 +78,7 @@ public class ServiceManagerTest {
 
     private void assertTracingContextListener() throws Exception {
         List<TracingContextListener> listeners = getFieldValue(TracingContext.ListenerManager.class, "LISTENERS");
-        assertThat(listeners.size(), is(1));
+        assertThat(listeners.size(), is(2));
 
         assertThat(listeners.contains(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class)), is(true));
     }
@@ -87,7 +87,7 @@ public class ServiceManagerTest {
         assertNotNull(service);
     }
 
-    private void assertProfileTaskQueryService(ProfileTaskQueryService service) {
+    private void assertProfileTaskQueryService(ProfileTaskChannelService service) {
         assertNotNull(service);
     }
 

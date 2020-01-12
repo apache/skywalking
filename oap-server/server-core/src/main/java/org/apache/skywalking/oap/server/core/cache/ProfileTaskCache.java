@@ -23,14 +23,18 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,9 +46,11 @@ public class ProfileTaskCache implements Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileTaskCache.class);
 
-    private final Cache<Integer, List<ProfileTask>> profileTaskCache;
+    private final Cache<Integer, List<ProfileTask>> profileTaskDownstreamCache;
+    private final Cache<String, ProfileTask> profileTaskIdCache;
 
     private final ModuleManager moduleManager;
+    private IProfileTaskQueryDAO profileTaskQueryDAO;
 
     public ProfileTaskCache(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
@@ -52,9 +58,18 @@ public class ProfileTaskCache implements Service {
         long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
         int initialCapacitySize = (int)(initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
-        profileTaskCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfProfileTask())
+        profileTaskDownstreamCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfProfileTask())
                 // remove old profile task data
                 .expireAfterWrite(Duration.ofMinutes(1)).build();
+
+        profileTaskIdCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfProfileTask()).build();
+    }
+
+    private IProfileTaskQueryDAO getProfileTaskQueryDAO() {
+        if (Objects.isNull(profileTaskQueryDAO)) {
+            profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
+        }
+        return profileTaskQueryDAO;
     }
 
     /**
@@ -64,8 +79,30 @@ public class ProfileTaskCache implements Service {
      */
     public List<ProfileTask> getProfileTaskList(int serviceId) {
         // read profile task list from cache only, use cache update timer mechanism
-        List<ProfileTask> profileTaskList = profileTaskCache.getIfPresent(serviceId);
+        List<ProfileTask> profileTaskList = profileTaskDownstreamCache.getIfPresent(serviceId);
         return profileTaskList;
+    }
+
+    /**
+     * query profile task by id
+     * @param id
+     * @return
+     */
+    public ProfileTask getProfileTaskById(String id) {
+        ProfileTask profile = profileTaskIdCache.getIfPresent(id);
+
+        if (profile == null) {
+            try {
+                profile = getProfileTaskQueryDAO().getById(id);
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            if (profile != null) {
+                profileTaskIdCache.put(id, profile);
+            }
+        }
+
+        return profile;
     }
 
     /**
@@ -78,7 +115,7 @@ public class ProfileTaskCache implements Service {
             taskList = Collections.emptyList();
         }
 
-        profileTaskCache.put(serviceId, taskList);
+        profileTaskDownstreamCache.put(serviceId, taskList);
     }
 
     /**

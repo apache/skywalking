@@ -27,6 +27,9 @@ import java.util.Objects;
  */
 public class ProfileTask {
 
+    // task id
+    private String taskId;
+
     // monitor endpoint name
     private String endpointName;
 
@@ -104,6 +107,14 @@ public class ProfileTask {
         this.createTime = createTime;
     }
 
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,11 +126,12 @@ public class ProfileTask {
                 maxSamplingCount == that.maxSamplingCount &&
                 startTime == that.startTime &&
                 createTime == that.createTime &&
+                taskId.equals(that.taskId) &&
                 endpointName.equals(that.endpointName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(endpointName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
+        return Objects.hash(taskId, endpointName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
     }
 }
