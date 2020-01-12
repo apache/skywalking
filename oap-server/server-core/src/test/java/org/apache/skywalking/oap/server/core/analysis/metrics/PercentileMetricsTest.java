@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.Iterator;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
@@ -82,12 +79,6 @@ public class PercentileMetricsTest {
 
         metricsMocker.calculate();
 
-        RemoteData.Builder serialize = metricsMocker.serialize();
-        metricsMocker = new PercentileMetricsTest.PercentileMetricsMocker();
-        metricsMocker.deserialize(serialize.build());
-
-        metricsMocker.calculate();
-
         Assert.assertArrayEquals(new int[] {90, 110, 110, 110, 110}, metricsMocker.getValues());
     }
 
@@ -125,46 +116,12 @@ public class PercentileMetricsTest {
             return 0;
         }
 
-        public RemoteData.Builder serialize() {
-            RemoteData.Builder var1 = RemoteData.newBuilder();
-            var1.addDataLongs(this.getTimeBucket());
-            var1.addDataIntegers(this.getPrecision());
-            Iterator var2 = getPercentileValues().values().iterator();
-            org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList.Builder var3 = DataIntLongPairList.newBuilder();
+        @Override public void deserialize(RemoteData remoteData) {
 
-            while (var2.hasNext()) {
-                var3.addValue(((IntKeyLongValue)var2.next()).serialize());
-            }
-
-            var1.addDataLists(var3);
-            var2 = getDataset().values().iterator();
-            var3 = DataIntLongPairList.newBuilder();
-
-            while (var2.hasNext()) {
-                var3.addValue(((IntKeyLongValue)var2.next()).serialize());
-            }
-
-            var1.addDataLists(var3);
-            return var1;
         }
 
-        public void deserialize(RemoteData var1) {
-            this.setTimeBucket(var1.getDataLongs(0));
-            this.setPrecision(var1.getDataIntegers(0));
-            Iterator var2 = var1.getDataLists(0).getValueList().iterator();
-
-            while (var2.hasNext()) {
-                IntKeyLongValuePair var3 = (IntKeyLongValuePair)var2.next();
-                getPercentileValues().put(new Integer(var3.getKey()), new IntKeyLongValue(var3.getKey(), var3.getValue()));
-            }
-
-            var2 = var1.getDataLists(1).getValueList().iterator();
-
-            while (var2.hasNext()) {
-                IntKeyLongValuePair var4 = (IntKeyLongValuePair)var2.next();
-                getDataset().put(new Integer(var4.getKey()), new IntKeyLongValue(var4.getKey(), var4.getValue()));
-            }
-
+        @Override public RemoteData.Builder serialize() {
+            return null;
         }
     }
 }
