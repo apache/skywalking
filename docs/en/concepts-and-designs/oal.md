@@ -57,11 +57,8 @@ In this case, all input are requests of each endpoint, condition is `endpoint.st
 > Service_Calls_Sum = from(Service.*).sum();
 
 In this case, calls of each service. 
-- `p99`, `p95`, `p90`, `p75`, `p50`. Read [p99 in WIKI](https://en.wikipedia.org/wiki/Percentile)
-> All_p99 = from(All.latency).p99(10);
 
-In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
-- `thermodynamic`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map))
+- `thermodynamic`. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map)
 > All_heatmap = from(All.latency).thermodynamic(100, 20);
 
 In this case, thermodynamic heatmap of all incoming requests. 
@@ -74,6 +71,16 @@ The parameter (2) is the group amount. In above case, 21(param value + 1) groups
 In this case, apdex score of each service.
 The parameter (1) is the service name, which effects the Apdex threshold value loaded from service-apdex-threshold.yml in the config folder.
 The parameter (2) is the status of this request. The status(success/failure) effects the Apdex calculation.
+
+- `p99`, `p95`, `p90`, `p75`, `p50`. Read [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile)
+> all_percentile = from(All.latency).percentile(10);
+
+**percentile** is the first multiple value metrics, introduced since 7.0.0. As having multiple values, it could be query through `getMultipleLinearIntValues` GraphQL query.
+In this case, `p99`, `p95`, `p90`, `p75`, `p50` of all incoming request. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
+Before 7.0.0, use `p99`, `p95`, `p90`, `p75`, `p50` func(s) to calculate metrics separately. Still supported in 7.x, but don't be recommended, and don't be included in official OAL script. 
+> All_p99 = from(All.latency).p99(10);
+
+In this case, p99 value of all incoming requests. The parameter is the precision of p99 latency calculation, such as in above case, 120ms and 124 are considered same.
 
 ## Metrics name
 The metrics name for storage implementor, alarm and query modules. The type inference supported by core.
@@ -101,9 +108,8 @@ serv_Endpoint_p99 = from(Endpoint.latency).filter(name like ("serv%")).summary(0
 // Caculate the avg response time of each Endpoint
 Endpoint_avg = from(Endpoint.latency).avg()
 
-// Caculate the histogram of each Endpoint by 50 ms steps.
-// Always thermodynamic diagram in UI matches this metrics. 
-Endpoint_histogram = from(Endpoint.latency).histogram(50)
+// Caculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
+Endpoint_percentile = from(Endpoint.latency).percentile(10)
 
 // Caculate the percent of response status is true, for each service.
 Endpoint_success = from(Endpoint.*).filter(status = "true").percent()

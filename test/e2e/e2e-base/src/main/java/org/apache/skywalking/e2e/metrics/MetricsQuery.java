@@ -24,32 +24,32 @@ import org.apache.skywalking.e2e.AbstractQuery;
  * @author kezhenxu94
  */
 public class MetricsQuery extends AbstractQuery<MetricsQuery> {
-    public static String SERVICE_P99 = "service_p99";
-    public static String SERVICE_P95 = "service_p95";
-    public static String SERVICE_P90 = "service_p90";
-    public static String SERVICE_P75 = "service_p75";
-    public static String SERVICE_P50 = "service_p50";
+    public static String SERVICE_SLA = "service_sla";
+    public static String SERVICE_CPM = "service_cpm";
+    public static String SERVICE_RESP_TIME = "service_resp_time";
     public static String SERVICE_APDEX = "service_apdex";
     public static String[] ALL_SERVICE_METRICS = {
-        SERVICE_P99,
-        SERVICE_P95,
-        SERVICE_P90,
-        SERVICE_P75,
-        SERVICE_P50,
+        SERVICE_SLA,
+        SERVICE_CPM,
+        SERVICE_RESP_TIME,
         SERVICE_APDEX
     };
+    public static String SERVICE_PERCENTILE = "service_percentile";
+    public static String[] ALL_SERVICE_MULTIPLE_LINEAR_METRICS = {
+        SERVICE_PERCENTILE
+    };
 
-    public static String ENDPOINT_P99 = "endpoint_p99";
-    public static String ENDPOINT_P95 = "endpoint_p95";
-    public static String ENDPOINT_P90 = "endpoint_p90";
-    public static String ENDPOINT_P75 = "endpoint_p75";
-    public static String ENDPOINT_P50 = "endpoint_p50";
+    public static String ENDPOINT_CPM = "endpoint_cpm";
+    public static String ENDPOINT_AVG = "endpoint_avg";
+    public static String ENDPOINT_SLA = "endpoint_sla";
     public static String[] ALL_ENDPOINT_METRICS = {
-        ENDPOINT_P99,
-        ENDPOINT_P95,
-        ENDPOINT_P90,
-        ENDPOINT_P75,
-        ENDPOINT_P50
+        ENDPOINT_CPM,
+        ENDPOINT_AVG,
+        ENDPOINT_SLA,
+    };
+    public static String ENDPOINT_PERCENTILE = "endpoint_percentile";
+    public static String[] ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS = {
+        ENDPOINT_PERCENTILE
     };
 
     public static String SERVICE_INSTANCE_RESP_TIME = "service_instance_resp_time";

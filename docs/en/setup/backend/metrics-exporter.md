@@ -27,6 +27,7 @@ message ExportMetricValue {
     int64 timeBucket = 5;
     int64 longValue = 6;
     double doubleValue = 7;
+    repeated int64 longValues = 8;
 }
 
 message SubscriptionsResp {
@@ -36,6 +37,7 @@ message SubscriptionsResp {
 enum ValueType {
     LONG = 0;
     DOUBLE = 1;
+    MULTI_LONG = 2;
 }
 
 message SubscriptionReq {
