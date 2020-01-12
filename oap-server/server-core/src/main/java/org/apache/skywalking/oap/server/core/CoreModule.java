@@ -20,10 +20,8 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+
+import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
@@ -82,6 +80,7 @@ public class CoreModule extends ModuleDefine {
     private void addProfileService(List<Class> classes) {
         classes.add(ProfileTaskMutationService.class);
         classes.add(ProfileTaskQueryService.class);
+        classes.add(ProfileTaskCache.class);
     }
 
     private void addQueryService(List<Class> classes) {

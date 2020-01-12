@@ -27,6 +27,8 @@ import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.jvm.JVMService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskQueryService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
@@ -55,13 +57,15 @@ public class ServiceManagerTest {
     public void testServiceDependencies() throws Exception {
         HashMap<Class, BootService> registryService = getFieldValue(ServiceManager.INSTANCE, "bootedServices");
 
-        assertThat(registryService.size(), is(10));
+        assertThat(registryService.size(), is(12));
 
         assertTraceSegmentServiceClient(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class));
         assertContextManager(ServiceManager.INSTANCE.findService(ContextManager.class));
         assertGRPCChannelManager(ServiceManager.INSTANCE.findService(GRPCChannelManager.class));
         assertSamplingService(ServiceManager.INSTANCE.findService(SamplingService.class));
         assertJVMService(ServiceManager.INSTANCE.findService(JVMService.class));
+        assertProfileTaskQueryService(ServiceManager.INSTANCE.findService(ProfileTaskQueryService.class));
+        assertProfileTaskExecuteService(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class));
 
         assertTracingContextListener();
         assertIgnoreTracingContextListener();
@@ -83,11 +87,19 @@ public class ServiceManagerTest {
         assertNotNull(service);
     }
 
+    private void assertProfileTaskQueryService(ProfileTaskQueryService service) {
+        assertNotNull(service);
+    }
+
+    private void assertProfileTaskExecuteService(ProfileTaskExecutionService service) {
+        assertNotNull(service);
+    }
+
     private void assertGRPCChannelManager(GRPCChannelManager service) throws Exception {
         assertNotNull(service);
 
         List<GRPCChannelListener> listeners = getFieldValue(service, "listeners");
-        assertEquals(listeners.size(), 3);
+        assertEquals(listeners.size(), 4);
     }
 
     private void assertSamplingService(SamplingService service) {

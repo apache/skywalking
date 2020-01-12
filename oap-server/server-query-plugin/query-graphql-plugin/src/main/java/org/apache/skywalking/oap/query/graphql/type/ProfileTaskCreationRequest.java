@@ -37,5 +37,6 @@ public class ProfileTaskCreationRequest {
     private Step durationUnit;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
 
 }

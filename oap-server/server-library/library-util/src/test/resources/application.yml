@@ -66,6 +66,8 @@ receiver-trace:
     bufferFileCleanWhenRestart: ${RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
 receiver-jvm:
   default:
+receiver-profile:
+  default:
 service-mesh:
   default:
     bufferPath: ${SERVICE_MESH_BUFFER_PATH:../mesh-buffer/}  # Path to trace buffer files, suggest to use absolute path

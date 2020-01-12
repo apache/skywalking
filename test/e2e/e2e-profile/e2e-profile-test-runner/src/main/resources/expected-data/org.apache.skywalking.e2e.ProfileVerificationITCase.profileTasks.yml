@@ -22,3 +22,9 @@ tasks:
     duration: gt 0
     minDurationThreshold: gt 0
     dumpPeriod: gt 0
+    maxSamplingCount: gt 0
+    logs:
+      - id: not null
+        instanceId: gt 0
+        operationType: NOTIFIED
+        operationTime: gt 0
