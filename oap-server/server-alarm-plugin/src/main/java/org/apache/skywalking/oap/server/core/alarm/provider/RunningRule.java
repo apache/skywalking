@@ -372,8 +372,8 @@ public class RunningRule {
                                         matchCount++;
                                     break MULTI_VALUE_CHECK;
                             }
-                            break;
                         }
+                        break;
                 }
             }
 
