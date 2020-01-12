@@ -16,8 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.e2e.metrics;
 
-public enum MetricsValueType {
-    LONG, INT, DOUBLE, MULTI_INTS
+import lombok.Data;
+import lombok.ToString;
+
+import java.util.List;
+
+/**
+ * @author kezhenxu94
+ */
+@Data
+@ToString
+public class MultiMetricsData {
+    private List<Metrics> metrics;
 }

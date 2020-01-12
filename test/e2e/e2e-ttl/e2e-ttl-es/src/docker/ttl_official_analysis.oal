@@ -20,4 +20,4 @@
 // In TTL ES7 testing, using full oal config makes the test very unstable, so only service_p99 is reserved for testing.
 
 // Service scope metrics
-service_p99 = from(Service.latency).p99(10);
+service_resp_time = from(Service.latency).longAvg();
