@@ -26,12 +26,14 @@ import org.slf4j.LoggerFactory;
  */
 public class Threshold {
     private static final Logger logger = LoggerFactory.getLogger(Threshold.class);
+    private static final String NONE_THRESHOLD = "-";
 
     private String alarmRuleName;
     private final String threshold;
     private int intThreshold;
-    private double doubleThreadhold;
+    private double doubleThreshold;
     private long longThreshold;
+    private Integer[] intValuesThreshold;
 
     public Threshold(String alarmRuleName, String threshold) {
         this.alarmRuleName = alarmRuleName;
@@ -42,12 +44,16 @@ public class Threshold {
         return intThreshold;
     }
 
-    public double getDoubleThreadhold() {
-        return doubleThreadhold;
+    public double getDoubleThreshold() {
+        return doubleThreshold;
     }
 
     public long getLongThreshold() {
         return longThreshold;
+    }
+
+    public Integer[] getIntValuesThreshold() {
+        return intValuesThreshold;
     }
 
     public void setType(MetricsValueType type) {
@@ -60,8 +66,19 @@ public class Threshold {
                     longThreshold = Long.parseLong(threshold);
                     break;
                 case DOUBLE:
-                    doubleThreadhold = Double.parseDouble(threshold);
+                    doubleThreshold = Double.parseDouble(threshold);
                     break;
+                case MULTI_INTS:
+                    String[] strings = threshold.split(",");
+                    intValuesThreshold = new Integer[strings.length];
+                    for (int i = 0; i < strings.length; i++) {
+                        String thresholdItem = strings[i].trim();
+                        if (NONE_THRESHOLD.equals(thresholdItem)) {
+                            intValuesThreshold[i] = null;
+                        } else {
+                            intValuesThreshold[i] = Integer.parseInt(thresholdItem);
+                        }
+                    }
             }
         } catch (NumberFormatException e) {
             logger.warn("Alarm rule {} threshold doesn't match the metrics type, expected type: {}", alarmRuleName, type);

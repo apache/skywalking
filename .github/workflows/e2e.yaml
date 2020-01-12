@@ -64,7 +64,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Set environment
-        run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
+        run: export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: Compile & Install Test Codes
         run: |
           ./mvnw checkstyle:check apache-rat:check

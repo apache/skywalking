@@ -28,14 +28,12 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfig;
 import org.apache.skywalking.apm.plugin.trace.ignore.conf.IgnoreConfigInitializer;
-import org.apache.skywalking.apm.plugin.trace.ignore.matcher.AntPathMatcher;
+import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
- *
- * @author liujc [liujunc1993@163.com]
- *
+ * @author liujc [liujunc1993@163.com], kanro
  */
 @OverrideImplementor(ContextManagerExtendService.class)
 public class TraceIgnoreExtendService extends ContextManagerExtendService {
@@ -46,30 +44,27 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     private static final String PATTERN_SEPARATOR = ",";
 
-    private TracePathMatcher pathMatcher = new AntPathMatcher();
+    private TracePathMatcher pathMatcher = new FastPathMatcher();
+
+    private String[] patterns = new String[]{};
 
     @Override
     public void boot() {
         try {
             IgnoreConfigInitializer.initialize();
-        } catch (ConfigNotFoundException e) {
-            LOGGER.error("trace ignore config init error", e);
-        } catch (AgentPackageNotFoundException e) {
+            if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
+                patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
+            }
+        } catch (ConfigNotFoundException | AgentPackageNotFoundException e) {
             LOGGER.error("trace ignore config init error", e);
         }
     }
 
     @Override
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {
-        String pattens = IgnoreConfig.Trace.IGNORE_PATH;
-        if (!StringUtil.isEmpty(pattens) && !forceSampling) {
-            String path = operationName;
-            if (!StringUtil.isEmpty(path) && path.length() > 1 && path.endsWith(DEFAULT_PATH_SEPARATOR)) {
-                path = path.substring(0, path.length() - 1);
-            }
-
-            for (String pattern : pattens.split(PATTERN_SEPARATOR)) {
-                if (pathMatcher.match(pattern, path)) {
+        if (patterns.length > 0 && !forceSampling) {
+            for (String pattern : patterns) {
+                if (pathMatcher.match(pattern, operationName)) {
                     LOGGER.debug("operationName : " + operationName + " Ignore tracking");
                     return new IgnoredTracerContext();
                 }

@@ -1,7 +1,7 @@
 # TTL
 In SkyWalking, there are two types of observability data, besides metadata.
 1. Record, including trace and alarm. Maybe log in the future.
-1. Metric, including such as p99/p95/p90/p75/p50, heatmap, success rate, cpm(rpm) etc.
+1. Metric, including such as percentile, heatmap, success rate, cpm(rpm) etc.
 Metric is separated in minute/hour/day/month dimensions in storage, different indexes or tables.
 
 You have following settings for different types.
