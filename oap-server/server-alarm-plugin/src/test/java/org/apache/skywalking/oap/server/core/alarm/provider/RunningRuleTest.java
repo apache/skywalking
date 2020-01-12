@@ -294,7 +294,7 @@ public class RunningRuleTest {
         return mockMetrics;
     }
 
-    private Metrics getMultipleValueMetrics(long timeBucket, int... values){
+    private Metrics getMultipleValueMetrics(long timeBucket, int... values) {
         MockMultipleValueMetrics mockMultipleValueMetrics = new MockMultipleValueMetrics();
         mockMultipleValueMetrics.setValues(values);
         mockMultipleValueMetrics.setTimeBucket(timeBucket);
