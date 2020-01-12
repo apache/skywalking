@@ -17,7 +17,6 @@ endpoint name.
 For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
 Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
 Such as in **percentile**, `value1` is threshold of P50, and `-, -, value3, value4, value5` means, there is no threshold for P50 and P75 in percentile alarm rule.
-Could be an array, such as `value1, value2, value3` if the metrics are multiple values metrics. Element of the array could be NULL, then 
 - **OP**. Operator, support `>`, `<`, `=`. Welcome to contribute all OPs.
 - **Period**. How long should the alarm rule should be checked. This is a time window, which goes with the
 backend deployment env time.
@@ -50,6 +49,7 @@ rules:
       - service_b
     exclude-names:
       - service_c
+    # Single value metrics threshold.
     threshold: 85
     op: <
     period: 10
@@ -58,6 +58,7 @@ rules:
     # Metrics value need to be long, double or int
     metrics-name: service_percentile
     op: ">"
+    # Multiple value metrics threshold. Thresholds for P50, P75, P90, P95, P99.
     threshold: 1000,1000,1000,1000,1000
     period: 10
     count: 3

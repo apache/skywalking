@@ -17,14 +17,14 @@
  */
 
 // All scope metrics
-all_percentile = from(All.latency).percentile(10);
+all_percentile = from(All.latency).percentile(10);  // Multiple values including p50, p75, p90, p95, p99
 all_heatmap = from(All.latency).thermodynamic(100, 20);
 
 // Service scope metrics
 service_resp_time = from(Service.latency).longAvg();
 service_sla = from(Service.*).percent(status == true);
 service_cpm = from(Service.*).cpm();
-service_percentile = from(Service.latency).percentile(10);
+service_percentile = from(Service.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 service_apdex = from(Service.latency).apdex(name, status);
 
 // Service relation scope metrics for topology
@@ -34,8 +34,8 @@ service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint ==
 service_relation_server_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).percent(status == true);
 service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();
 service_relation_server_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_relation_client_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).percentile(10);
-service_relation_server_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).percentile(10);
+service_relation_client_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).percentile(10); // Multiple values including p50, p75, p90, p95, p99
+service_relation_server_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 
 
 // Service Instance relation scope metrics for topology
@@ -45,8 +45,8 @@ service_instance_relation_client_call_sla = from(ServiceInstanceRelation.*).filt
 service_instance_relation_server_call_sla = from(ServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).percent(status == true);
 service_instance_relation_client_resp_time = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();
 service_instance_relation_server_resp_time = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_instance_relation_client_percentile = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).percentile(10);
-service_instance_relation_server_percentile = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.SERVER).percentile(10);
+service_instance_relation_client_percentile = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).percentile(10); // Multiple values including p50, p75, p90, p95, p99
+service_instance_relation_server_percentile = from(ServiceInstanceRelation.latency).filter(detectPoint == DetectPoint.SERVER).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 
 // Service Instance Scope metrics
 service_instance_sla = from(ServiceInstance.*).percent(status == true);
@@ -57,7 +57,7 @@ service_instance_cpm = from(ServiceInstance.*).cpm();
 endpoint_cpm = from(Endpoint.*).cpm();
 endpoint_avg = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
-endpoint_percentile = from(Endpoint.latency).percentile(10);
+endpoint_percentile = from(Endpoint.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 
 // Endpoint relation scope metrics
 endpoint_relation_cpm = from(EndpointRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
