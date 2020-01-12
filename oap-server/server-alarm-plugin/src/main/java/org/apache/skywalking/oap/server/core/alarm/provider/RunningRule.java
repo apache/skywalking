@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
@@ -32,13 +38,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -176,8 +175,8 @@ public class RunningRule {
     }
 
     /**
-     * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent
-     * N(period) buckets.
+     * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent N(period)
+     * buckets.
      *
      * @author wusheng
      */
@@ -348,24 +347,28 @@ public class RunningRule {
                         break;
                     case MULTI_INTS:
                         int[] ivalueArray = ((MultiIntValuesHolder)metrics).getValues();
-                        int[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
-                        MULTI_VALUE_CHECK: for (int i = 0; i < ivalueArray.length; i++) {
+                        Integer[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
+                        MULTI_VALUE_CHECK:
+                        for (int i = 0; i < ivalueArray.length; i++) {
                             ivalue = ivalueArray[i];
-                            iexpected = 0;
+                            Integer iNullableExpected = 0;
                             if (iaexpected.length > i) {
-                                iexpected = iaexpected[i];
+                                iNullableExpected = iaexpected[i];
+                                if (iNullableExpected == null) {
+                                    continue;
+                                }
                             }
                             switch (op) {
                                 case LESS:
-                                    if (ivalue < iexpected)
+                                    if (ivalue < iNullableExpected)
                                         matchCount++;
                                     break MULTI_VALUE_CHECK;
                                 case GREATER:
-                                    if (ivalue > iexpected)
+                                    if (ivalue > iNullableExpected)
                                         matchCount++;
                                     break MULTI_VALUE_CHECK;
                                 case EQUAL:
-                                    if (ivalue == iexpected)
+                                    if (ivalue == iNullableExpected)
                                         matchCount++;
                                     break MULTI_VALUE_CHECK;
                             }

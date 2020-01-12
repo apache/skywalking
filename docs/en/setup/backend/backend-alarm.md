@@ -13,7 +13,11 @@ Alarm rule is constituted by following keys
 endpoint name.
 - **Exclude names**. The following entity names are excluded in this rule. Such as Service name,
   endpoint name.
-- **Threshold**. The target value. Could be an array, such as `value1, value2, value3` if the metrics are multiple values metric.
+- **Threshold**. The target value. 
+For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
+Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
+Such as in **percentile**, `value1` is threshold of P50, and `-, -, value3, value4, value5` means, there is no threshold for P50 and P75 in percentile alarm rule.
+Could be an array, such as `value1, value2, value3` if the metrics are multiple values metrics. Element of the array could be NULL, then 
 - **OP**. Operator, support `>`, `<`, `=`. Welcome to contribute all OPs.
 - **Period**. How long should the alarm rule should be checked. This is a time window, which goes with the
 backend deployment env time.

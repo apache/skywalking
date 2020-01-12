@@ -26,13 +26,14 @@ import org.slf4j.LoggerFactory;
  */
 public class Threshold {
     private static final Logger logger = LoggerFactory.getLogger(Threshold.class);
+    private static final String NONE_THRESHOLD = "-";
 
     private String alarmRuleName;
     private final String threshold;
     private int intThreshold;
     private double doubleThreshold;
     private long longThreshold;
-    private int[] intValuesThreshold;
+    private Integer[] intValuesThreshold;
 
     public Threshold(String alarmRuleName, String threshold) {
         this.alarmRuleName = alarmRuleName;
@@ -51,7 +52,7 @@ public class Threshold {
         return longThreshold;
     }
 
-    public int[] getIntValuesThreshold() {
+    public Integer[] getIntValuesThreshold() {
         return intValuesThreshold;
     }
 
@@ -69,9 +70,14 @@ public class Threshold {
                     break;
                 case MULTI_INTS:
                     String[] strings = threshold.split(",");
-                    intValuesThreshold = new int[strings.length];
+                    intValuesThreshold = new Integer[strings.length];
                     for (int i = 0; i < strings.length; i++) {
-                        intValuesThreshold[i] = Integer.parseInt(strings[i]);
+                        String thresholdItem = strings[i];
+                        if (NONE_THRESHOLD.equals(thresholdItem)) {
+                            intValuesThreshold[i] = null;
+                        } else {
+                            intValuesThreshold[i] = Integer.parseInt(thresholdItem);
+                        }
                     }
             }
         } catch (NumberFormatException e) {
