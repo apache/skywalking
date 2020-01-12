@@ -72,7 +72,7 @@ public class Threshold {
                     String[] strings = threshold.split(",");
                     intValuesThreshold = new Integer[strings.length];
                     for (int i = 0; i < strings.length; i++) {
-                        String thresholdItem = strings[i];
+                        String thresholdItem = strings[i].trim();
                         if (NONE_THRESHOLD.equals(thresholdItem)) {
                             intValuesThreshold[i] = null;
                         } else {

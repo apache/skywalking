@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -38,6 +39,14 @@ public class ThresholdTest {
 
         threshold.setType(MetricsValueType.LONG);
         assertEquals(75L, threshold.getLongThreshold());
+    }
+
+    @Test
+    public void setTypeMultipleValues() {
+        Threshold threshold = new Threshold("my-rule", "75,80, 90, -");
+        threshold.setType(MetricsValueType.MULTI_INTS);
+        assertArrayEquals(new Object[] {75, 80, 90, null}, threshold.getIntValuesThreshold());
+
     }
 
     @Test

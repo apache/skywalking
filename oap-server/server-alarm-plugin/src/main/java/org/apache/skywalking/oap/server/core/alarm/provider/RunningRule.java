@@ -130,8 +130,8 @@ public class RunningRule {
             Window window = windows.get(meta);
             if (window == null) {
                 window = new Window(period);
-                LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
-                window.moveTo(timebucket);
+                LocalDateTime timeBucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
+                window.moveTo(timeBucket);
                 windows.put(meta, window);
             }
 
@@ -364,16 +364,19 @@ public class RunningRule {
                                         matchCount++;
                                         break MULTI_VALUE_CHECK;
                                     }
+                                    break;
                                 case GREATER:
                                     if (ivalue > iNullableExpected) {
                                         matchCount++;
                                         break MULTI_VALUE_CHECK;
                                     }
+                                    break;
                                 case EQUAL:
                                     if (ivalue == iNullableExpected) {
                                         matchCount++;
                                         break MULTI_VALUE_CHECK;
                                     }
+                                    break;
                             }
                         }
                         break;
