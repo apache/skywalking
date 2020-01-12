@@ -123,6 +123,9 @@ property key | Description | Default |
 `plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. | `false` |
 `plugin.springmvc.collect_http_params`| This config item controls that whether the SpringMVC plugin should collect the parameters of the request, when your Spring application is based on Tomcat, consider only setting either `plugin.tomcat.collect_http_params` or `plugin.springmvc.collect_http_params`. | `false` |
 `plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
+`plugin.grpc.default_client_tracing_enable`| If this config is false, only client spans of peer which configured in `plugin.grpc.included_client_tracing_peers` will be collected. In this mode `plugin.grpc.excluded_client_tracing_peers` will override `plugin.grpc.included_client_tracing_peers`. | `false` |
+`plugin.grpc.included_client_tracing_peers`| Included client tracing peers. gRPC plugin will collect client spans of configured config. | `emptyList` |
+`plugin.grpc.excluded_client_tracing_peers`| Excluded client tracing peers. gRPC plugin will not collect client spans of configured config. | `emptyList` |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
