@@ -16,19 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.server;
+package org.apache.skywalking.e2e.sample.client;
 
-import io.grpc.*;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * @author peng-yongsheng, jian.tan
+ * @author kezhenxu94, jian.tan
  */
-public interface GRPCHandlerRegister extends Service {
-
-    void addHandler(BindableService handler);
-
-    void addHandler(ServerServiceDefinition definition);
-
-    void addFilter(ServerInterceptor interceptor);
+public interface UserRepo extends JpaRepository<User, Long> {
 }
