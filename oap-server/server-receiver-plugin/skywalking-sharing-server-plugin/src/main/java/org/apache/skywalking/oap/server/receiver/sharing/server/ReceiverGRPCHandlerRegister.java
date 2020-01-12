@@ -22,7 +22,8 @@ import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
-import java.util.Objects;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 
@@ -32,13 +33,15 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
 
     @Setter private GRPCHandlerRegister grpcHandlerRegister;
-    private ServerInterceptor interceptor;
+    private List<ServerInterceptor> interceptors = new LinkedList<>();
 
     @Override public void addHandler(BindableService handler) {
-        if (Objects.isNull(interceptor)) {
+        if (interceptors.isEmpty()) {
             grpcHandlerRegister.addHandler(handler);
         } else {
-            grpcHandlerRegister.addHandler(handlerInterceptorBind(handler, interceptor));
+            interceptors.forEach(interceptor -> {
+                grpcHandlerRegister.addHandler(handlerInterceptorBind(handler, interceptor));
+            });
         }
     }
 
@@ -46,11 +49,17 @@ public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
         grpcHandlerRegister.addHandler(definition);
     }
 
+    /**
+     * If you want to bind @{io.grpc.ServerInterceptor} on a handler,
+     * you must call this method before register a handler.
+     *
+     * @param interceptor of @{io.grpc.ServerInterceptor}
+     */
     @Override public void addFilter(ServerInterceptor interceptor) {
-        this.interceptor = interceptor;
+        this.interceptors.add(interceptor);
     }
 
-    public ServerServiceDefinition handlerInterceptorBind(BindableService handler, ServerInterceptor interceptor) {
+    private ServerServiceDefinition handlerInterceptorBind(BindableService handler, ServerInterceptor interceptor) {
         return ServerInterceptors.intercept(handler, interceptor);
     }
 }

@@ -89,12 +89,9 @@ public class SharingServerModuleProvider extends ModuleProvider {
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }
-
             grpcServer.initialize();
 
-            GRPCHandlerRegister grpcHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
-
-            this.registerServiceImplementation(GRPCHandlerRegister.class, grpcHandlerRegister);
+            this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         } else {
             this.receiverGRPCHandlerRegister = new ReceiverGRPCHandlerRegister();
             if (StringUtil.isNotEmpty(config.getAuthentication())) {
