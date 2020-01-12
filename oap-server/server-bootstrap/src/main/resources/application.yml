@@ -137,6 +137,7 @@ storage:
 #    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
+    authentication: ${SW_AUTHENTICATION:""}
 receiver-register:
   default:
 receiver-trace:

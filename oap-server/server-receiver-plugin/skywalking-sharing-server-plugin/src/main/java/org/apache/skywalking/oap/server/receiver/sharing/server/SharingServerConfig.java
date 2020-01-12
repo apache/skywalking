@@ -22,7 +22,7 @@ import lombok.*;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * @author peng-yongsheng,yantaowu
+ * @author peng-yongsheng,yantaowu,jian.tan
  */
 @Getter
 @Setter
@@ -36,4 +36,5 @@ public class SharingServerConfig extends ModuleConfig {
     private int maxMessageSize;
     private int gRPCThreadPoolSize;
     private int gRPCThreadPoolQueueSize;
+    private String authentication;
 }
