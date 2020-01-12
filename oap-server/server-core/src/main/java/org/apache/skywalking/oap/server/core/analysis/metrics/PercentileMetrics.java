@@ -89,11 +89,10 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
             }
 
             int count = 0;
-            IntKeyLongValue[] sortedData = dataset.values().stream().sorted(new Comparator<IntKeyLongValue>() {
-                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
-                    return o1.getKey() - o2.getKey();
-                }
-            }).toArray(IntKeyLongValue[]::new);
+            IntKeyLongValue[] sortedData = dataset.values()
+                                                  .stream()
+                                                  .sorted(Comparator.comparingInt(IntKeyLongValue::getKey))
+                                                  .toArray(IntKeyLongValue[]::new);
             for (IntKeyLongValue element : sortedData) {
                 count += element.getValue();
                 for (int i = index; i < roofs.length; i++) {
