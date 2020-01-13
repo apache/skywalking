@@ -52,9 +52,9 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     // add a schedule while waiting for the task to start or finish
     private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
 
-    // profiling segment thread array, Config.Profile.PARALLELS_THREAD_COUNT
-    private final static ProfilingThread[] PROFILING_THREADS = new ProfilingThread[Config.Profile.PARALLELS_THREAD_COUNT];
-    private final static AtomicRangeInteger PROFILING_THREAD_SELECTOR = new AtomicRangeInteger(0, Config.Profile.PARALLELS_THREAD_COUNT);
+    // profiling segment array, Config.Profile.MAX_PARALLEL
+    private final static ProfilingThread[] PROFILING_THREADS = new ProfilingThread[Config.Profile.MAX_PARALLEL];
+    private final static AtomicRangeInteger PROFILING_THREAD_SELECTOR = new AtomicRangeInteger(0, Config.Profile.MAX_PARALLEL);
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
@@ -165,7 +165,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     @Override
     public void boot() throws Throwable {
         // init PROFILING_THREADS and start
-        for (int i = 0; i < Config.Profile.PARALLELS_THREAD_COUNT; i++) {
+        for (int i = 0; i < Config.Profile.MAX_PARALLEL; i++) {
             final ProfilingThread profilingThread = new ProfilingThread();
             profilingThread.setDaemon(true);
             profilingThread.setName("PROFILE-MONITOR-" + i);

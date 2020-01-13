@@ -464,14 +464,14 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     @Override
-    public void checkAndAddProfiling(String operationName) {
+    public void prepareProfiling(String firstSpanOPName) {
         if (segment.getProfiling()) {
             return;
         }
 
         // update profiling status
         final ProfileTaskExecutionService profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
-        segment.setProfiling(profileTaskExecutionService.addProfiling(segment, operationName));
+        segment.setProfiling(profileTaskExecutionService.addProfiling(segment, firstSpanOPName));
     }
 
     /**

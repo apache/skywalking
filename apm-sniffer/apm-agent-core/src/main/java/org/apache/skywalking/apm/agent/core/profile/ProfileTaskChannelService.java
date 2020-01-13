@@ -127,7 +127,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                     .scheduleWithFixedDelay(this, 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
 
             // snapshot sender
-            snapshotCarrier = new DataCarrier<>(Config.Profile.SNAPSHOT_SEND_CHANNEL_SIZE, Config.Profile.SNAPSHOT_SEND_BUFFER_SIZE);
+            snapshotCarrier = new DataCarrier<>(Config.Profile.SNAPSHOT_TRANSPORT_CHANNEL_SIZE, Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
             snapshotCarrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
             snapshotCarrier.consume(this, 1);
         }

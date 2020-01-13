@@ -102,7 +102,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public void checkAndAddProfiling(String operationName) {
+    public void prepareProfiling(String firstSpanOPName) {
         // dont need profiling
     }
 

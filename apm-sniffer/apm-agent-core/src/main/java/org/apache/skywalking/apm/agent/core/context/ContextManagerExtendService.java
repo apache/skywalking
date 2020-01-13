@@ -54,7 +54,7 @@ public class ContextManagerExtendService implements BootService {
                 context = new TracingContext();
 
                 // check can profile
-                context.checkAndAddProfiling(operationName);
+                context.prepareProfiling(operationName);
             } else {
                 context = new IgnoredTracerContext();
             }

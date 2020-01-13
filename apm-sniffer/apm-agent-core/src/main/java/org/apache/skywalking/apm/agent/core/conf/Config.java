@@ -150,29 +150,29 @@ public class Config {
         public static boolean ACTIVE = true;
 
         /**
-         * Parallel monitor segment thread count
+         * Parallel monitor segment count
          */
-        public static int PARALLELS_THREAD_COUNT = 5;
+        public static int MAX_PARALLEL = 5;
 
         /**
          * Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.
          */
-        public static int MAX_MONITOR_TIME = 10;
+        public static int MAX_DURATION = 10;
 
         /**
          * Max dump thread stack depth
          */
-        public static int MAX_DUMP_STACK_DEPTH = 500;
+        public static int DUMP_MAX_STACK_DEPTH = 500;
 
         /**
-         * Snapshot send to backend channel size
+         * Snapshot transport to backend channel size
          */
-        public static int SNAPSHOT_SEND_CHANNEL_SIZE = 2;
+        public static int SNAPSHOT_TRANSPORT_CHANNEL_SIZE = 2;
 
         /**
-         * Snapshot send to backend buffer size
+         * Snapshot transport to backend buffer size
          */
-        public static int SNAPSHOT_SEND_BUFFER_SIZE = 50;
+        public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 50;
     }
 
     public static class Jvm {

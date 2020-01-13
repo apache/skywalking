@@ -117,8 +117,8 @@ public interface AbstractTracerContext {
     void asyncStop(AsyncSpan span);
 
     /**
-     * Check current creating operation can add profiling, if true, it will start profiling
-     * @param operationName
+     * Check whether the new segment suitable for profiling.
+     * @param firstSpanOPName
      */
-    void checkAndAddProfiling(String operationName);
+    void prepareProfiling(String firstSpanOPName);
 }

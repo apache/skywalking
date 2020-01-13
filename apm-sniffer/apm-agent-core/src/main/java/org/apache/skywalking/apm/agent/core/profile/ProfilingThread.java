@@ -40,7 +40,7 @@ public class ProfilingThread extends Thread {
     private static final ILog logger = LogManager.getLogger(ProfilingThread.class);
 
     // per segment max profiling time (millisecond)
-    private static final long MAX_PROFILING_TIME_MILLS = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_MONITOR_TIME);
+    private static final long MAX_PROFILING_TIME_MILLS = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
 
     // current profiling task is running
     private volatile boolean running = true;
@@ -190,7 +190,7 @@ public class ProfilingThread extends Thread {
             return false;
         }
 
-        int dumpElementCount = Math.min(stackTrace.length, Config.Profile.MAX_DUMP_STACK_DEPTH);
+        int dumpElementCount = Math.min(stackTrace.length, Config.Profile.DUMP_MAX_STACK_DEPTH);
 
         // use inverted order, because thread dump is start with bottom
         final ArrayList<String> stackList = new ArrayList<>(dumpElementCount);
@@ -213,7 +213,7 @@ public class ProfilingThread extends Thread {
     /**
      * check profiling is should continue
      * @param context
-     * @param checkProfilingTime if true, check profiling is out limit {@link Config.Profile#MAX_MONITOR_TIME}
+     * @param checkProfilingTime if true, check profiling is out limit {@link Config.Profile#MAX_DURATION}
      * @return
      */
     private boolean checkProfilingCanContinue(ProfilingSegmentContext context, boolean checkProfilingTime) {
