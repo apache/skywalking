@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
+
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * profile task execution context, it will create on process this profile task
@@ -33,6 +36,15 @@ public class ProfileTaskExecutionContext {
     // task real start time
     private final long startTime;
 
+    // record current profiling count, use this to check has available profile slot
+    private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
+
+    // profiling segment slot
+    private final ProfilingSegmentContext[] profilingSegmentSlot = new ProfilingSegmentContext[Config.Profile.MAX_PARALLEL];
+
+    // current profile is still running
+    private volatile boolean running = true;
+
     public ProfileTaskExecutionContext(ProfileTask task, long startTime) {
         this.task = task;
         this.startTime = startTime;
@@ -46,6 +58,14 @@ public class ProfileTaskExecutionContext {
         return startTime;
     }
 
+    public AtomicInteger getCurrentProfilingCount() {
+        return currentProfilingCount;
+    }
+
+    public ProfilingSegmentContext[] getProfilingSegmentSlot() {
+        return profilingSegmentSlot;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,5 +77,13 @@ public class ProfileTaskExecutionContext {
     @Override
     public int hashCode() {
         return Objects.hash(task);
+    }
+
+    public boolean getRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

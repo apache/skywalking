@@ -23,13 +23,11 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -52,9 +50,8 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     // add a schedule while waiting for the task to start or finish
     private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
 
-    // profiling segment array, Config.Profile.MAX_PARALLEL
-    private final static ProfilingThread[] PROFILING_THREADS = new ProfilingThread[Config.Profile.MAX_PARALLEL];
-    private final static AtomicRangeInteger PROFILING_THREAD_SELECTOR = new AtomicRangeInteger(0, Config.Profile.MAX_PARALLEL);
+    // profile thread, it will execute when have task
+    private volatile ProfileThread profileThread;
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
@@ -111,15 +108,9 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
             return false;
         }
 
-        // check has slot to add
-        final ProfilingThread profilingThread = PROFILING_THREADS[PROFILING_THREAD_SELECTOR.getAndIncrement()];
-        final ProfilingSegmentContext profilingSegmentContext = profilingThread.checkAndAddSegmentContext(segment, executionContext);
-        if (profilingSegmentContext == null) {
-            // current profile thread is running
-            return false;
-        }
-
-        return true;
+        // add to profile monitor
+        // if return not null means add to profiling success
+        return profileThread.checkAndAddSegmentContext(segment, executionContext) != null;
     }
 
     /**
@@ -134,6 +125,9 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
         final ProfileTaskExecutionContext currentStartedTaskContext = new ProfileTaskExecutionContext(task, System.currentTimeMillis());
         taskExecutionContext.set(currentStartedTaskContext);
 
+        // notify profile thread has new task
+        profileThread.processNewProfileTask(currentStartedTaskContext);
+
         PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
             @Override
             public void run() {
@@ -145,11 +139,14 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     /**
      * stop profile task, remove context data
      */
-    private synchronized void stopCurrentProfileTask(ProfileTaskExecutionContext needToStop) {
+    synchronized void stopCurrentProfileTask(ProfileTaskExecutionContext needToStop) {
         // stop same context only
         if (needToStop == null || !taskExecutionContext.compareAndSet(needToStop, null)) {
             return;
         }
+
+        // current execution stop running
+        needToStop.setRunning(false);
 
         // remove task
         profileTaskList.remove(needToStop.getTask());
@@ -164,14 +161,11 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
     @Override
     public void boot() throws Throwable {
-        // init PROFILING_THREADS and start
-        for (int i = 0; i < Config.Profile.MAX_PARALLEL; i++) {
-            final ProfilingThread profilingThread = new ProfilingThread();
-            profilingThread.setDaemon(true);
-            profilingThread.setName("PROFILE-MONITOR-" + i);
-            PROFILING_THREADS[i] = profilingThread;
-            profilingThread.start();
-        }
+        // init PROFILE_THREAD and start
+        profileThread = new ProfileThread();
+        profileThread.setDaemon(true);
+        profileThread.setName("PROFILE-MONITOR-THREAD");
+        profileThread.start();
     }
 
     @Override
@@ -187,11 +181,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
         PROFILE_TASK_SCHEDULE.shutdown();
 
-        for (ProfilingThread profilingThread : PROFILING_THREADS) {
-            if (profilingThread != null) {
-                profilingThread.shutdown();
-            }
-        }
+        profileThread.shutdown();
     }
 
     public long getLastCommandCreateTime() {
@@ -260,11 +250,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
         }
 
         // stop profiling segment
-        for (ProfilingThread profilingThread : PROFILING_THREADS) {
-            if (profilingThread.stopSegmentProfile(traceSegment)) {
-                break;
-            }
-        }
+        profileThread.stopSegmentProfile(traceSegment);
     }
 
     public ProfileTaskExecutionContext getCurrentTaskExecutionContext() {

@@ -165,14 +165,9 @@ public class Config {
         public static int DUMP_MAX_STACK_DEPTH = 500;
 
         /**
-         * Snapshot transport to backend channel size
-         */
-        public static int SNAPSHOT_TRANSPORT_CHANNEL_SIZE = 2;
-
-        /**
          * Snapshot transport to backend buffer size
          */
-        public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 50;
+        public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
     }
 
     public static class Jvm {

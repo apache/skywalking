@@ -33,17 +33,16 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.*;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.agent.Downstream;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import java.util.List;
+import java.util.LinkedList;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -52,13 +51,13 @@ import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UP
 /**
  * Sniffer and backend, about the communication service of profile task protocol.
  * 1. Sniffer will check has new profile task list every {@link Config.Collector#GET_PROFILE_TASK_INTERVAL} second.
- * 2. When there is a new profile task snapshot, the data is transferred to the back end. use {@link org.apache.skywalking.apm.commons.datacarrier.DataCarrier} with
+ * 2. When there is a new profile task snapshot, the data is transferred to the back end. use {@link LinkedBlockingQueue}
  * 3. When profiling task finish, it will send task finish status to backend
  *
  * @author MrPro
  */
 @DefaultImplementor
-public class ProfileTaskChannelService implements BootService, Runnable, GRPCChannelListener, IConsumer<ProfileTaskSegmentSnapshot> {
+public class ProfileTaskChannelService implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ProfileTaskChannelService.class);
 
     // channel status
@@ -68,14 +67,12 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     private volatile ProfileTaskGrpc.ProfileTaskBlockingStub profileTaskBlockingStub;
     private volatile ProfileTaskGrpc.ProfileTaskStub profileTaskStub;
 
+    // segment snapshot sender
+    private final LinkedBlockingQueue<ProfileTaskSegmentSnapshot> snapshotQueue = new LinkedBlockingQueue<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+    private volatile ScheduledFuture<?> sendSnapshotFuture;
+
     // query task list schedule
     private volatile ScheduledFuture<?> getTaskListFuture;
-
-    // send snapshot to backend
-    private volatile DataCarrier<ProfileTaskSegmentSnapshot> snapshotCarrier;
-    private long snapshotUplinkedCounter;
-    private long snapshotAbandonedCounter;
-    private long snapshotLastLogTime;
 
     @Override
     public void run() {
@@ -105,6 +102,11 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                         if (getTaskListFuture != null) {
                             getTaskListFuture.cancel(true);
                         }
+
+                        // stop snapshot sender
+                        if (sendSnapshotFuture != null) {
+                            sendSnapshotFuture.cancel(true);
+                        }
                     }
                 }
             }
@@ -120,16 +122,21 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     @Override
     public void boot() throws Throwable {
         if (Config.Profile.ACTIVE) {
-            snapshotLastLogTime = System.currentTimeMillis();
-
             // query task list
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileGetTaskService"))
-                    .scheduleWithFixedDelay(this, 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
+                    .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
+                        @Override
+                        public void handle(Throwable t) {
+                            logger.error("Query profile task list failure.", t);
+                        }
+                    }), 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
 
-            // snapshot sender
-            snapshotCarrier = new DataCarrier<>(Config.Profile.SNAPSHOT_TRANSPORT_CHANNEL_SIZE, Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
-            snapshotCarrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
-            snapshotCarrier.consume(this, 1);
+            sendSnapshotFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileSendSnapshotService"))
+                    .scheduleWithFixedDelay(new RunnableWithExceptionProtection(new SnapshotSender(), new RunnableWithExceptionProtection.CallbackWhenException() {
+                        @Override public void handle(Throwable t) {
+                            logger.error("Profile segment snapshot upload failure.", t);
+                        }
+                    }), 0, 500, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -143,8 +150,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
             getTaskListFuture.cancel(true);
         }
 
-        if (snapshotCarrier != null) {
-            snapshotCarrier.shutdownConsumers();
+        if (sendSnapshotFuture != null) {
+            sendSnapshotFuture.cancel(true);
         }
     }
 
@@ -162,15 +169,11 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     }
 
     /**
-     * add a new profiling snapshot, send to {@link #snapshotCarrier}
+     * add a new profiling snapshot, send to {@link #snapshotQueue}
      * @param snapshot
      */
     public void addProfilingSnapshot(ProfileTaskSegmentSnapshot snapshot) {
-        if (!snapshotCarrier.produce(snapshot)) {
-            if (logger.isDebugEnable()) {
-                logger.debug("One profile segment snapshot has been abandoned, cause by buffer is full.");
-            }
-        }
+        snapshotQueue.add(snapshot);
     }
 
     /**
@@ -192,75 +195,51 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
         }
     }
 
-    @Override
-    public void init() {
-    }
-
-    @Override
-    public void consume(List<ProfileTaskSegmentSnapshot> data) {
-        if (GRPCChannelStatus.CONNECTED.equals(status)) {
-            final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-            final StreamObserver<org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Downstream>() {
-                @Override
-                public void onNext(Downstream downstream) {
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    status.finished();
-                    if (logger.isErrorEnable()) {
-                        logger.error(throwable, "Send profile segment snapshot to collector fail with a grpc internal exception.");
-                    }
-                    ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
-                }
-
-                @Override
-                public void onCompleted() {
-                    status.finished();
-                }
-            });
-
-            for (ProfileTaskSegmentSnapshot snapshot : data) {
-                final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transformSnapshot = snapshot.transform();
-                snapshotStreamObserver.onNext(transformSnapshot);
-            }
-
-            snapshotStreamObserver.onCompleted();
-
-            status.wait4Finish();
-            snapshotUplinkedCounter += data.size();
-        } else {
-            snapshotAbandonedCounter += data.size();
-        }
-
-        printSnapshotUpLinkStatus();
-    }
-
-    @Override
-    public void onError(List<ProfileTaskSegmentSnapshot> data, Throwable t) {
-        logger.error(t, "Try to send {} profile segment snapshot to collector, with unexpected exception.", data.size());
-    }
-
-    @Override
-    public void onExit() {
-
-    }
-
     /**
-     * print snapshot up link counter, same as {@link TraceSegmentServiceClient}
+     * send segment snapshot
      */
-    private void printSnapshotUpLinkStatus() {
-        long currentTimeMillis = System.currentTimeMillis();
-        if (currentTimeMillis - snapshotLastLogTime > 30 * 1000) {
-            snapshotLastLogTime = currentTimeMillis;
-            if (snapshotUplinkedCounter > 0) {
-                logger.debug("{} profile segment snapshot have been sent to collector.", snapshotUplinkedCounter);
-                snapshotUplinkedCounter = 0;
-            }
-            if (snapshotAbandonedCounter > 0) {
-                logger.debug("{} profile segment snapshot have been abandoned, cause by no available channel.", snapshotAbandonedCounter);
-                snapshotAbandonedCounter = 0;
+    private class SnapshotSender implements Runnable {
+
+        @Override
+        public void run() {
+            if (status == GRPCChannelStatus.CONNECTED) {
+                try {
+                    LinkedList<ProfileTaskSegmentSnapshot> buffer = new LinkedList<ProfileTaskSegmentSnapshot>();
+                    snapshotQueue.drainTo(buffer);
+                    if (buffer.size() > 0) {
+                        final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
+                        StreamObserver<org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Downstream>() {
+                            @Override
+                            public void onNext(Downstream downstream) {
+                            }
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                                status.finished();
+                                if (logger.isErrorEnable()) {
+                                    logger.error(throwable, "Send profile segment snapshot to collector fail with a grpc internal exception.");
+                                }
+                                ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                status.finished();
+                            }
+                        });
+                        for (ProfileTaskSegmentSnapshot snapshot : buffer) {
+                            final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transformSnapshot = snapshot.transform();
+                            snapshotStreamObserver.onNext(transformSnapshot);
+                        }
+
+                        snapshotStreamObserver.onCompleted();
+                        status.wait4Finish();
+                    }
+                } catch (Throwable t) {
+                    logger.error(t, "Send profile segment snapshot to backend fail.");
+                }
             }
         }
+
     }
 }

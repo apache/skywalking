@@ -104,11 +104,10 @@ property key | Description | Default |
 `dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
 `profile.active`|If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.|`true`|
-`profile.parallels_thread_count`|Parallel monitor segment thread count|`5`|
-`profile.max_monitor_time`|Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.|`10`|
-`profile.max_dump_stack_depth`|Max dump thread stack depth|`500`|
-`profile.snapshot_send_channel_size`|Snapshot send to backend channel size|`2`|
-`profile.snapshot_send_buffer_size`|Snapshot send to backend buffer size|`50`|
+`profile.max_parallel`|Parallel monitor segment count|`5`|
+`profile.duration`|Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.|`10`|
+`profile.dump_max_stack_depth`|Max dump thread stack depth|`500`|
+`profile.snapshot_transport_buffer_size`|Snapshot transport to backend buffer size|`50`|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|

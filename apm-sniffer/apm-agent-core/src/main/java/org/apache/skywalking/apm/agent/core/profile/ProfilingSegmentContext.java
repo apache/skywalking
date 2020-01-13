@@ -37,10 +37,16 @@ public class ProfilingSegmentContext {
     // profiling start time
     private long profilingStartTime;
 
+    // after min duration threshold check, it will start dump
+    private boolean startDump = false;
+    // thread dump sequence
+    private int dumpSequence = 0;
+
     public ProfilingSegmentContext(TraceSegment segment, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
         this.segment = segment;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
+        this.profilingStartTime = System.currentTimeMillis();
     }
 
     public TraceSegment getSegment() {
@@ -67,7 +73,19 @@ public class ProfilingSegmentContext {
         return profilingStartTime;
     }
 
-    public void setProfilingStartTime(long profilingStartTime) {
-        this.profilingStartTime = profilingStartTime;
+    public boolean getStartDump() {
+        return startDump;
+    }
+
+    public void setStartDump(boolean startDump) {
+        this.startDump = startDump;
+    }
+
+    /**
+     * get current sequence then increment it
+     * @return
+     */
+    public int getCurrentAndIncrementSequence() {
+        return dumpSequence++;
     }
 }
