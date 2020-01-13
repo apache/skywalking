@@ -164,9 +164,6 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
     @Override
     public void boot() throws Throwable {
-        // add trace segment finish notification
-        TracingContext.ListenerManager.add(this);
-
         // init PROFILING_THREADS and start
         for (int i = 0; i < Config.Profile.PARALLELS_THREAD_COUNT; i++) {
             final ProfilingThread profilingThread = new ProfilingThread();
@@ -179,11 +176,15 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
     @Override
     public void onComplete() throws Throwable {
-
+        // add trace segment finish notification
+        TracingContext.ListenerManager.add(this);
     }
 
     @Override
     public void shutdown() throws Throwable {
+        // remove trace listener
+        TracingContext.ListenerManager.remove(this);
+
         PROFILE_TASK_SCHEDULE.shutdown();
 
         for (ProfilingThread profilingThread : PROFILING_THREADS) {
