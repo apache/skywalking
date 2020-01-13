@@ -19,14 +19,13 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.LinkedList;
-import java.util.List;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, wusheng
  */
 public class IntValues {
 
-    private List<KVInt> values = new LinkedList<>();
+    private LinkedList<KVInt> values = new LinkedList<>();
 
     public void addKVInt(KVInt e) {
         values.add(e);
@@ -39,5 +38,9 @@ public class IntValues {
             }
         }
         return defaultValue;
+    }
+
+    public KVInt getLast() {
+        return values.getLast();
     }
 }

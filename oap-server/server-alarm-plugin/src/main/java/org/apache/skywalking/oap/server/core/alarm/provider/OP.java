@@ -18,19 +18,62 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import static java.util.Objects.requireNonNull;
+
 public enum OP {
-    GREATER, LESS, EQUAL;
+    GREATER {
+        @Override
+        public boolean test(final Number expected, final Number actual) {
+            return requireNonNull(actual, "actual").doubleValue() > requireNonNull(expected, "expected").doubleValue();
+        }
+    },
+
+    GREATER_EQ {
+        @Override
+        public boolean test(final Number expected, final Number actual) {
+            return requireNonNull(actual, "actual").doubleValue() >= requireNonNull(expected, "expected").doubleValue();
+        }
+    },
+
+    LESS {
+        @Override
+        public boolean test(final Number expected, final Number actual) {
+            return requireNonNull(actual, "actual").doubleValue() < requireNonNull(expected, "expected").doubleValue();
+        }
+    },
+
+    LESS_EQ {
+        @Override
+        public boolean test(final Number expected, final Number actual) {
+            return requireNonNull(actual, "actual").doubleValue() <= requireNonNull(expected, "expected").doubleValue();
+        }
+    },
+
+    // NOTICE: double equal is not reliable in Java,
+    // match result is not predictable
+    EQUAL {
+        @Override
+        public boolean test(final Number expected, final Number actual) {
+            return requireNonNull(actual, "actual").doubleValue() == requireNonNull(expected, "expected").doubleValue();
+        }
+    };
 
     public static OP get(String op) {
         switch (op) {
             case ">":
                 return GREATER;
+            case ">=":
+                return GREATER_EQ;
             case "<":
                 return LESS;
+            case "<=":
+                return LESS_EQ;
             case "==":
                 return EQUAL;
             default:
                 throw new IllegalArgumentException("unknown op, " + op);
         }
     }
+
+    public abstract boolean test(final Number expected, final Number actual);
 }

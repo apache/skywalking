@@ -22,6 +22,7 @@ import com.google.common.io.Resources;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
+import org.apache.skywalking.e2e.metrics.MultiMetricsData;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesData;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -215,6 +216,31 @@ public class SimpleQueryClient {
         final ResponseEntity<GQLResponse<MetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<MetricsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getMetrics();
+    }
+
+    public List<Metrics> multipleLinearMetrics(final MetricsQuery query, String numOfLinear) throws Exception {
+        final URL queryFileUrl = Resources.getResource("metrics-multiLines.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{metricsName}", query.metricsName())
+            .replace("{id}", query.id())
+            .replace("{numOfLinear}", numOfLinear);
+        final ResponseEntity<GQLResponse<MultiMetricsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<MultiMetricsData>>() {
             }
         );
 

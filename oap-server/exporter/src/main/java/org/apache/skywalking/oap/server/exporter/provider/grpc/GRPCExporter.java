@@ -117,6 +117,12 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
                 double value = ((DoubleValueHolder)metrics).getValue();
                 builder.setDoubleValue(value);
                 builder.setType(ValueType.DOUBLE);
+            } else if (metrics instanceof MultiIntValuesHolder) {
+                int[] values = ((MultiIntValuesHolder)metrics).getValues();
+                for (int value : values) {
+                    builder.addLongValues(value);
+                }
+                builder.setType(ValueType.MULTI_LONG);
             } else {
                 return;
             }
