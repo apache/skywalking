@@ -16,19 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.server;
+package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import io.grpc.*;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 /**
- * @author peng-yongsheng, jian.tan
+ * @author kezhenxu94
  */
-public interface GRPCHandlerRegister extends Service {
+public class OPTest {
+    @Test
+    public void test() {
+        assertTrue(OP.EQUAL.test(123, 123));
+        assertTrue(OP.EQUAL.test(123L, 123L));
+        assertTrue(OP.EQUAL.test(123.0D, 123.0D));
 
-    void addHandler(BindableService handler);
+        assertTrue(OP.GREATER.test(122, 123));
+        assertTrue(OP.GREATER.test(122L, 123L));
+        assertTrue(OP.GREATER.test(122.0D, 123.0D));
 
-    void addHandler(ServerServiceDefinition definition);
+        assertTrue(OP.GREATER_EQ.test(122, 123));
+        assertTrue(OP.GREATER_EQ.test(122L, 123L));
+        assertTrue(OP.GREATER_EQ.test(122.0D, 123.0D));
 
-    void addFilter(ServerInterceptor interceptor);
+        assertTrue(OP.LESS.test(124, 123));
+        assertTrue(OP.LESS.test(124L, 123L));
+        assertTrue(OP.LESS.test(124.0D, 123.0D));
+    }
 }

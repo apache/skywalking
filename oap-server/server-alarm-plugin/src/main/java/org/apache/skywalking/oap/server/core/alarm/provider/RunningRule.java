@@ -292,63 +292,27 @@ public class RunningRule {
                     case LONG:
                         long lvalue = ((LongValueHolder)metrics).getValue();
                         long lexpected = RunningRule.this.threshold.getLongThreshold();
-                        switch (op) {
-                            case GREATER:
-                                if (lvalue > lexpected)
-                                    matchCount++;
-                                break;
-                            case LESS:
-                                if (lvalue < lexpected)
-                                    matchCount++;
-                                break;
-                            case EQUAL:
-                                if (lvalue == lexpected)
-                                    matchCount++;
-                                break;
+                        if (op.test(lexpected, lvalue)) {
+                            matchCount++;
                         }
                         break;
                     case INT:
                         int ivalue = ((IntValueHolder)metrics).getValue();
                         int iexpected = RunningRule.this.threshold.getIntThreshold();
-                        switch (op) {
-                            case LESS:
-                                if (ivalue < iexpected)
-                                    matchCount++;
-                                break;
-                            case GREATER:
-                                if (ivalue > iexpected)
-                                    matchCount++;
-                                break;
-                            case EQUAL:
-                                if (ivalue == iexpected)
-                                    matchCount++;
-                                break;
+                        if (op.test(iexpected, ivalue)) {
+                            matchCount++;
                         }
                         break;
                     case DOUBLE:
                         double dvalue = ((DoubleValueHolder)metrics).getValue();
                         double dexpected = RunningRule.this.threshold.getDoubleThreshold();
-                        switch (op) {
-                            case EQUAL:
-                                // NOTICE: double equal is not reliable in Java,
-                                // match result is not predictable
-                                if (dvalue == dexpected)
-                                    matchCount++;
-                                break;
-                            case GREATER:
-                                if (dvalue > dexpected)
-                                    matchCount++;
-                                break;
-                            case LESS:
-                                if (dvalue < dexpected)
-                                    matchCount++;
-                                break;
+                        if (op.test(dexpected, dvalue)) {
+                            matchCount++;
                         }
                         break;
                     case MULTI_INTS:
                         int[] ivalueArray = ((MultiIntValuesHolder)metrics).getValues();
                         Integer[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
-                        MULTI_VALUE_CHECK:
                         for (int i = 0; i < ivalueArray.length; i++) {
                             ivalue = ivalueArray[i];
                             Integer iNullableExpected = 0;
@@ -358,25 +322,9 @@ public class RunningRule {
                                     continue;
                                 }
                             }
-                            switch (op) {
-                                case LESS:
-                                    if (ivalue < iNullableExpected) {
-                                        matchCount++;
-                                        break MULTI_VALUE_CHECK;
-                                    }
-                                    break;
-                                case GREATER:
-                                    if (ivalue > iNullableExpected) {
-                                        matchCount++;
-                                        break MULTI_VALUE_CHECK;
-                                    }
-                                    break;
-                                case EQUAL:
-                                    if (ivalue == iNullableExpected) {
-                                        matchCount++;
-                                        break MULTI_VALUE_CHECK;
-                                    }
-                                    break;
+                            if (op.test(iNullableExpected, ivalue)) {
+                                matchCount++;
+                                break;
                             }
                         }
                         break;
