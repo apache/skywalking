@@ -424,13 +424,13 @@ popper.js	1.14.7:	https://github.com/FezVrasta/popper.js	MIT
 vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	MIT
 vue-js-modal	1.3.31:	https://github.com/euvl/vue-js-modal	MIT
 lodash	4.17.15:	https://github.com/lodash/lodash	MIT
-elementui 2.12:  https://github.com/ElemeFE/element
 
 ========================================
 Apache 2.0 licenses
 ========================================
 echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
 Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
+
 ========================================
 BSD licenses
 ========================================
