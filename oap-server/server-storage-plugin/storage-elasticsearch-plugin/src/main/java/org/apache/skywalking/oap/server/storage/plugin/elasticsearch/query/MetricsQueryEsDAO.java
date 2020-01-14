@@ -58,7 +58,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     @Override
     public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
         String valueCName,
-        Function function) throws IOException {
+        Function function, long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -69,7 +69,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
 
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
@@ -113,10 +113,10 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+        String valueCName, long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         IntValues intValues = new IntValues();
@@ -135,10 +135,10 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
-        List<String> ids, int numOfLinear, String valueCName) throws IOException {
+        List<String> ids, int numOfLinear, String valueCName, long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         IntValues[] intValuesArray = new IntValues[numOfLinear];
@@ -170,13 +170,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+        String valueCName, long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         Thermodynamic thermodynamic = new Thermodynamic();
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         int numOfSteps = 0;

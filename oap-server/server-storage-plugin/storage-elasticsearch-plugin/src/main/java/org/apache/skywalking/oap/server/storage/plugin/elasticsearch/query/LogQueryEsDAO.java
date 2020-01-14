@@ -47,7 +47,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
     @Override
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
         String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
-        long endSecondTB) throws IOException {
+        long endSecondTB, long startTimestamp,long endTimeStamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -82,7 +82,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimeStamp);
 
         Logs logs = new Logs();
         logs.setTotal((int)response.getHits().totalHits);

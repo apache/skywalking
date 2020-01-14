@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.text.ParseException;
+
 import org.apache.skywalking.oap.query.graphql.type.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
@@ -46,15 +48,17 @@ public class LogQuery implements GraphQLQueryResolver {
         return logQueryService;
     }
 
-    public Logs queryLogs(LogQueryCondition condition) throws IOException {
+    public Logs queryLogs(LogQueryCondition condition) throws IOException, ParseException {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
             startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
             endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
         }
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
 
         return getQueryService().queryLogs(condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition.getEndpointId(),
-            condition.getTraceId(), condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB);
+            condition.getTraceId(), condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB, startTimestamp, endTimestamp);
     }
 }

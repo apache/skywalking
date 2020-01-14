@@ -41,7 +41,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) throws IOException {
+        int topN, Order order, long startTimestamp,long endTimeStamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
@@ -49,7 +49,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(topN).sort(TopN.LATENCY, order.equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimeStamp);
 
         List<TopNRecord> results = new ArrayList<>();
 

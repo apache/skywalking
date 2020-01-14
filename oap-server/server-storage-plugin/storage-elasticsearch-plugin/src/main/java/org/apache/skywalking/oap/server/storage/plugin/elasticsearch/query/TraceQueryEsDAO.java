@@ -48,7 +48,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
         long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-        int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+        int limit, int from, TraceState traceState, QueryOrder queryOrder, long startTimestamp, long endTimestamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -104,7 +104,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimestamp);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int)response.getHits().totalHits);
@@ -129,8 +129,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
-
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, traceId);
+        if (response == null)
+            return Collections.emptyList();
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord();

@@ -55,7 +55,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     @Override
     public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
         String valueCName,
-        Function function) throws IOException {
+        Function function, long startTimestamp,long endTimestamp) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         List<KeyValues> whereKeyValues = where.getKeyValues();
@@ -114,7 +114,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+        String valueCName, long startTimestamp,long endTimestamp) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -146,7 +146,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
         List<String> ids,
         int numOfLinear,
-        String valueCName) throws IOException {
+        String valueCName, long startTimestamp,long endTimestamp) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -220,7 +220,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+        String valueCName, long startTimestamp, long endTimestamp) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();

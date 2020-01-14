@@ -47,31 +47,39 @@ public class MetricQuery implements GraphQLQueryResolver {
         return metricQueryService;
     }
 
-    public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException {
+    public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 
     public IntValues getLinearIntValues(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics, final Duration duration) throws IOException, ParseException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
-        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, startTimestamp, endTimestamp);
     }
 }

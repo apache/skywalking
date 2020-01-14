@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -45,7 +46,7 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
         return topNRecordsQueryService;
     }
 
-    public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException {
+    public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException, ParseException {
         long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getStart());
         long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getEnd());
 
@@ -53,7 +54,9 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
         Order order = condition.getOrder();
         int topN = condition.getTopN();
         int serviceId = condition.getServiceId();
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(condition.getDuration().getStep(), condition.getDuration().getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(condition.getDuration().getStep(), condition.getDuration().getEnd());
 
-        return getTopNRecordsQueryService().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
+        return getTopNRecordsQueryService().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order, startTimestamp, endTimestamp);
     }
 }

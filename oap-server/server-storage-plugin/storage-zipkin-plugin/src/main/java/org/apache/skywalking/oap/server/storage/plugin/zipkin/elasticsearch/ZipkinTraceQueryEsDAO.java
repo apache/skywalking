@@ -58,7 +58,7 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
         String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
-        TraceState traceState, QueryOrder queryOrder) throws IOException {
+        TraceState traceState, QueryOrder queryOrder, long startTimestamp,long endTimestamp) throws IOException {
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 

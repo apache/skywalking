@@ -62,7 +62,7 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
                                        int limit,
                                        int from,
                                        TraceState traceState,
-                                       QueryOrder queryOrder) throws IOException {
+                                       QueryOrder queryOrder, long startTimestamp,long endTimeStamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -118,7 +118,7 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimeStamp);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);

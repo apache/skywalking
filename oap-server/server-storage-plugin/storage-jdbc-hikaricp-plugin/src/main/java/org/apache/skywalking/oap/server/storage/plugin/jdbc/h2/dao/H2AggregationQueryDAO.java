@@ -52,18 +52,18 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
+        long startTB, long endTB, Order order, long startTimestamp, long endTimestamp) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+        Downsampling downsampling, long startTB, long endTB, Order order, long startTimestamp, long endTimestamp) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override
     public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName,
-        int topN, Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+        int topN, Downsampling downsampling, long startTB, long endTB, Order order, long startTimestamp, long endTimestamp) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=?");
             conditions.add(serviceId);
@@ -72,12 +72,12 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     @Override
     public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
+        long startTB, long endTB, Order order, long startTimestamp, long endTimestamp) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName,
-        int topN, Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+        int topN, Downsampling downsampling, long startTB, long endTB, Order order, long startTimestamp, long endTimestamp) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(EndpointInventory.SERVICE_ID).append("=?");
             conditions.add(serviceId);

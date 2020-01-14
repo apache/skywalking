@@ -30,17 +30,17 @@ import org.apache.skywalking.oap.server.core.storage.*;
 public interface IAggregationQueryDAO extends DAO {
 
     List<TopNEntity> getServiceTopN(final String indName, String valueCName, final int topN, final Downsampling downsampling,
-        final long startTB, final long endTB, final Order order) throws IOException;
+        final long startTB, final long endTB, final Order order, long startTimestamp,long endTimestamp) throws IOException;
 
     List<TopNEntity> getAllServiceInstanceTopN(final String indName, String valueCName, final int topN, final Downsampling downsampling,
-        final long startTB, final long endTB, final Order order) throws IOException;
+        final long startTB, final long endTB, final Order order, long startTimestamp,long endTimestamp) throws IOException;
 
     List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, String valueCName,
-        final int topN, final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException;
+        final int topN, final Downsampling downsampling, final long startTB, final long endTB, final Order order, long startTimestamp,long endTimestamp) throws IOException;
 
     List<TopNEntity> getAllEndpointTopN(final String indName, String valueCName, final int topN, final Downsampling downsampling,
-        final long startTB, final long endTB, final Order order) throws IOException;
+        final long startTB, final long endTB, final Order order, long startTimestamp,long endTimestamp) throws IOException;
 
     List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, String valueCName, final int topN,
-        final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException;
+        final Downsampling downsampling, final long startTB, final long endTB, final Order order, long startTimestamp,long endTimestamp) throws IOException;
 }
