@@ -46,25 +46,25 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
-        long endTB, Order order,long startTimeStamp,long endTimestamp) throws IOException {
+        long endTB, Order order,long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimeStamp, endTimestamp);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order,long startTimeStamp,long endTimestamp) throws IOException {
+        long startTB, long endTB, Order order,long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimeStamp, endTimestamp);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order,long startTimeStamp,long endTimestamp) throws IOException {
+        Downsampling downsampling, long startTB, long endTB, Order order,long startTimestamp,long endTimestamp) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -75,7 +75,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimeStamp, endTimestamp);
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override

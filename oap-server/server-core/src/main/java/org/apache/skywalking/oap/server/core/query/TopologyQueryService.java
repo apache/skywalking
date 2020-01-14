@@ -89,10 +89,10 @@ public class TopologyQueryService implements Service {
         return endpointInventoryCache;
     }
 
-    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB, final long endTB, long startTimestamp,long endTimeStamp) throws IOException {
+    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB, final long endTB, long startTimestamp,long endTimestamp) throws IOException {
         logger.debug("Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(downsampling, startTB, endTB, startTimestamp, endTimeStamp);
-        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(downsampling, startTB, endTB, startTimestamp, endTimeStamp);
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(downsampling, startTB, endTB, startTimestamp, endTimestamp);
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(downsampling, startTB, endTB, startTimestamp, endTimestamp);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
         return builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
@@ -127,18 +127,18 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
-    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId, final Downsampling downsampling, final long startTB, final long endTB, long startTimestamp,long endTimeStamp) throws IOException {
+    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId, final Downsampling downsampling, final long startTB, final long endTB, long startTimestamp,long endTimestamp) throws IOException {
         logger.debug("ClientServiceId: {}, ServerServiceId: {}, Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", clientServiceId, serverServiceId, downsampling, startTB, endTB);
 
-        List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceInstanceRelations(clientServiceId, serverServiceId, downsampling, startTB, endTB, startTimestamp, endTimeStamp);
-        List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceInstanceRelations(clientServiceId, serverServiceId, downsampling, startTB, endTB, startTimestamp, endTimeStamp);
+        List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceInstanceRelations(clientServiceId, serverServiceId, downsampling, startTB, endTB, startTimestamp, endTimestamp);
+        List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceInstanceRelations(clientServiceId, serverServiceId, downsampling, startTB, endTB, startTimestamp, endTimestamp);
 
         ServiceInstanceTopologyBuilder builder = new ServiceInstanceTopologyBuilder(moduleManager);
         return builder.build(serviceInstanceRelationClientCalls, serviceInstanceRelationServerCalls);
     }
 
-    public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB, final int endpointId, long startTimestamp,long endTimeStamp) throws IOException {
-        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(downsampling, startTB, endTB, endpointId, startTimestamp, endTimeStamp);
+    public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB, final int endpointId, long startTimestamp,long endTimestamp) throws IOException {
+        List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(downsampling, startTB, endTB, endpointId, startTimestamp, endTimestamp);
 
         Topology topology = new Topology();
         serverSideCalls.forEach(callDetail -> {

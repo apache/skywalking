@@ -99,7 +99,7 @@ public class MetricQueryService implements Service {
     public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
         final Downsampling downsampling,
         final long startTB,
-        final long endTB, long startTimestamp,long endTimeStamp) throws IOException, ParseException {
+        final long endTB, long startTimestamp,long endTimestamp) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
@@ -108,7 +108,7 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName), startTimestamp, endTimeStamp);
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName), startTimestamp, endTimestamp);
 
         ArrayList<IntValues> response = new ArrayList<IntValues>(numOfLinear);
         for (IntValues value : multipleLinearIntValues) {
@@ -119,7 +119,7 @@ public class MetricQueryService implements Service {
 
     public Thermodynamic getThermodynamic(final String indName, final String id, final Downsampling downsampling,
         final long startTB,
-        final long endTB, long startTimestamp,long endTimeStamp) throws IOException, ParseException {
+        final long endTB, long startTimestamp,long endTimestamp) throws IOException, ParseException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         durationPoints.forEach(durationPoint -> {
@@ -130,6 +130,6 @@ public class MetricQueryService implements Service {
             }
         });
 
-        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName), startTimestamp, endTimeStamp);
+        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName), startTimestamp, endTimestamp);
     }
 }

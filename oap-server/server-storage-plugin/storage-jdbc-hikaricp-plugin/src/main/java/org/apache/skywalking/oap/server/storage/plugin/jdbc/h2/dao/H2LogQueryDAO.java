@@ -61,7 +61,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
         String traceId, LogState state,
         String stateCode, Pagination paging, int from, int limit, long startSecondTB,
-        long endSecondTB, long startTimestamp,long endTimeStamp) throws IOException {
+        long endSecondTB, long startTimestamp,long endTimestamp) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 

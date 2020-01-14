@@ -55,7 +55,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         long endTB,
         Where where,
         String valueCName,
-        Function function, long startTimestamp,long endTimeStamp) throws IOException {
+        Function function, long startTimestamp,long endTimestamp) throws IOException {
 
         String indexName = ModelName.build(downsampling, indName);
 
@@ -67,7 +67,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimeStamp);
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
 
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);

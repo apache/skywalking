@@ -31,7 +31,7 @@ public interface ITraceQueryDAO extends Service {
 
     TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration,
         long maxDuration, String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-        int limit, int from, TraceState traceState, QueryOrder queryOrder, long startTimestamp,long endTimeStamp) throws IOException;
+        int limit, int from, TraceState traceState, QueryOrder queryOrder, long startTimestamp,long endTimestamp) throws IOException;
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
 

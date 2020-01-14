@@ -72,11 +72,11 @@ public class LogQueryService implements Service {
 
     public Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
         String traceId, LogState state, String stateCode, Pagination paging, final long startTB,
-        final long endTB, long startTimestamp,long endTimeStamp) throws IOException {
+        final long endTB, long startTimestamp,long endTimestamp) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         Logs logs = getLogQueryDAO().queryLogs(metricName, serviceId, serviceInstanceId, endpointId,
-            traceId, state, stateCode, paging, page.getFrom(), page.getLimit(), startTB, endTB, startTimestamp, endTimeStamp);
+            traceId, state, stateCode, paging, page.getFrom(), page.getLimit(), startTB, endTB, startTimestamp, endTimestamp);
         logs.getLogs().forEach(log -> {
             if (log.getServiceId() != Const.NONE) {
                 log.setServiceName(getServiceInventoryCache().get(log.getServiceId()).getName());

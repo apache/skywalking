@@ -64,7 +64,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
                           int from,
                           int limit,
                           long startSecondTB,
-                          long endSecondTB, long startTimestamp,long endTimeStamp) throws IOException {
+                          long endSecondTB, long startTimestamp,long endTimestamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -99,7 +99,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimeStamp);
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimestamp);
 
         Logs logs = new Logs();
         logs.setTotal((int) response.getHits().getTotalHits().value);
