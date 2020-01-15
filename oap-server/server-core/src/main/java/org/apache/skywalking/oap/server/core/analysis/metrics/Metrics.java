@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.joda.time.format.*;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  * @author peng-yongsheng
@@ -32,8 +35,13 @@ public abstract class Metrics extends StreamData implements StorageData {
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
 
-    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
-    @Getter @Setter private long survivalTime = 0L;
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    private long timeBucket;
+    @Getter
+    @Setter
+    private long survivalTime = 0L;
 
     public abstract String id();
 
@@ -48,7 +56,7 @@ public abstract class Metrics extends StreamData implements StorageData {
     public abstract Metrics toMonth();
 
     public long toTimeBucketInHour() {
-        if (isMinuteBucket()) {
+        if (TimeBucket.isMinuteBucket(this.timeBucket)) {
             return timeBucket / 100;
         } else {
             throw new IllegalStateException("Current time bucket is not in minute dimensionality");
@@ -56,9 +64,9 @@ public abstract class Metrics extends StreamData implements StorageData {
     }
 
     public long toTimeBucketInDay() {
-        if (isMinuteBucket()) {
+        if (TimeBucket.isMinuteBucket(this.timeBucket)) {
             return timeBucket / 10000;
-        } else if (isHourBucket()) {
+        } else if (TimeBucket.isHourBucket(this.timeBucket)) {
             return timeBucket / 100;
         } else {
             throw new IllegalStateException("Current time bucket is not in minute dimensionality");
@@ -66,11 +74,11 @@ public abstract class Metrics extends StreamData implements StorageData {
     }
 
     public long toTimeBucketInMonth() {
-        if (isMinuteBucket()) {
+        if (TimeBucket.isMinuteBucket(this.timeBucket)) {
             return timeBucket / 1000000;
-        } else if (isHourBucket()) {
+        } else if (TimeBucket.isHourBucket(this.timeBucket)) {
             return timeBucket / 10000;
-        } else if (isDayBucket()) {
+        } else if (TimeBucket.isDayBucket(this.timeBucket)) {
             return timeBucket / 100;
         } else {
             throw new IllegalStateException("Current time bucket is not in minute dimensionality");
@@ -83,11 +91,11 @@ public abstract class Metrics extends StreamData implements StorageData {
      * @return minutes.
      */
     protected long getDurationInMinute() {
-        if (isMinuteBucket()) {
+        if (TimeBucket.isMinuteBucket(this.timeBucket)) {
             return 1;
-        } else if (isHourBucket()) {
+        } else if (TimeBucket.isHourBucket(this.timeBucket)) {
             return 60;
-        } else if (isDayBucket()) {
+        } else if (TimeBucket.isDayBucket(this.timeBucket)) {
             return 24 * 60;
         } else {
             /*
@@ -98,20 +106,5 @@ public abstract class Metrics extends StreamData implements StorageData {
             int dayOfMonth = formatter.parseLocalDate(timeBucket + "").getDayOfMonth();
             return dayOfMonth * 24 * 60;
         }
-    }
-
-    /**
-     * timeBucket in minute 201809120511 min 100000000000 max 999999999999
-     */
-    private boolean isMinuteBucket() {
-        return timeBucket < 999999999999L && timeBucket > 100000000000L;
-    }
-
-    private boolean isHourBucket() {
-        return timeBucket < 9999999999L && timeBucket > 1000000000L;
-    }
-
-    private boolean isDayBucket() {
-        return timeBucket < 99999999L && timeBucket > 10000000L;
     }
 }
