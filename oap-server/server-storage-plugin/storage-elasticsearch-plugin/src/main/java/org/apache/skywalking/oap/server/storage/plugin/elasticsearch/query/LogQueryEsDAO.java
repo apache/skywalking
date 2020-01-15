@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -81,9 +83,17 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
 
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
-
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
-
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startSecondTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endSecondTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return new Logs();
+        }
         Logs logs = new Logs();
         logs.setTotal((int)response.getHits().totalHits);
 

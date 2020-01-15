@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
@@ -51,7 +53,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
@@ -60,7 +70,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
@@ -74,8 +92,14 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
-
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override
@@ -85,7 +109,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     @Override
@@ -101,11 +133,18 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order, startTimestamp, endTimestamp);
     }
 
     protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
-        int topN, Order order) throws IOException {
+        int topN, Order order, long startTimestamp, long endTimestamp) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {
             asc = true;
@@ -115,7 +154,10 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         sourceBuilder.aggregation(aggregationBuilder);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return Collections.emptyList();
+        }
 
         List<TopNEntity> topNEntities = new ArrayList<>();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);

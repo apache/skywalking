@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -62,8 +64,17 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder);
-
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return new Alarms();
+        }
         Alarms alarms = new Alarms();
         alarms.setTotal((int)response.getHits().totalHits);
 

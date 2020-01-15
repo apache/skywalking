@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.ContentType;
 import org.apache.skywalking.oap.server.core.query.entity.Log;
 import org.apache.skywalking.oap.server.core.query.entity.LogState;
@@ -39,6 +40,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
@@ -99,7 +101,14 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startSecondTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endSecondTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimestamp);
 
         Logs logs = new Logs();
         logs.setTotal((int) response.getHits().getTotalHits().value);

@@ -93,7 +93,7 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getLinearIntValues(indName, downsampling,startTB, endTB, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }
 
     public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
@@ -108,7 +108,7 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling,startTB, endTB, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
 
         ArrayList<IntValues> response = new ArrayList<IntValues>(numOfLinear);
         for (IntValues value : multipleLinearIntValues) {
@@ -130,6 +130,6 @@ public class MetricQueryService implements Service {
             }
         });
 
-        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getThermodynamic(indName, downsampling,startTB, endTB, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
     }
 }

@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.S
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
@@ -42,7 +43,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,7 +68,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
         String indexName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTimestamp, endTimestamp);
     }
 
     @Override
@@ -78,8 +89,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setQueryCondition(sourceBuilder, startTB, endTB, serviceIds);
 
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
         String indexName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT, startTimestamp, endTimestamp);
     }
 
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, List<Integer> serviceIds) {
@@ -104,8 +122,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
-
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTimestamp, endTimestamp);
     }
 
     @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
@@ -113,8 +137,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
         sourceBuilder.size(0);
-
-        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT, startTimestamp, endTimestamp);
     }
 
     @Override
@@ -124,7 +154,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
         setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
 
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTimestamp, endTimestamp);
     }
 
     @Override
@@ -133,8 +170,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
         setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
-
-        return load(sourceBuilder, indexName, DetectPoint.CLIENT);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.CLIENT, startTimestamp, endTimestamp);
     }
 
     private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, int clientServiceId, int serverServiceId) {
@@ -175,16 +218,25 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
 
         sourceBuilder.query(boolQuery);
-
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        return load(sourceBuilder, indexName, DetectPoint.SERVER, startTimestamp, endTimestamp);
     }
 
     private List<Call.CallDetail> load(SearchSourceBuilder sourceBuilder, String indexName,
-        DetectPoint detectPoint) throws IOException {
+        DetectPoint detectPoint,long startTimestamp,long endTimestamp) throws IOException {
         sourceBuilder.aggregation(AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
 
+        if (response.getClusters() == null) {
+            return  Collections.emptyList();
+        }
         List<Call.CallDetail> calls = new ArrayList<>();
         Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.entity.Alarms;
 import org.apache.skywalking.oap.server.core.query.entity.Scope;
@@ -35,6 +36,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Objects;
 
 /**
@@ -71,7 +73,14 @@ public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(AlarmRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimestamp);
 
         Alarms alarms = new Alarms();
         alarms.setTotal((int) response.getHits().getTotalHits().value);

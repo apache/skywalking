@@ -19,15 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
+
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
@@ -68,9 +68,17 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         functionAggregation(function, entityIdAggregation, valueCName);
 
         sourceBuilder.aggregation(entityIdAggregation);
-
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
-
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return new IntValues();
+        }
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
@@ -112,11 +120,20 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, long startTB, long endTB, List<String> ids,
         String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
-
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return new IntValues();
+        }
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         IntValues intValues = new IntValues();
@@ -135,10 +152,19 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
-        List<String> ids, int numOfLinear, String valueCName) throws IOException {
+                                                            long startTB, long endTB, List<String> ids, int numOfLinear, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
-
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return  new IntValues[]{};
+        }
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         IntValues[] intValuesArray = new IntValues[numOfLinear];
@@ -169,14 +195,23 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return intValuesArray;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, long startTB, long endTB,  List<String> ids,
         String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         Thermodynamic thermodynamic = new Thermodynamic();
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
-
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]), startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return  thermodynamic;
+        }
         Map<String, Map<String, Object>> idMap = toMap(response);
 
         int numOfSteps = 0;

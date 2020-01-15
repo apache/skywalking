@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
@@ -38,6 +39,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -118,7 +120,14 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startSecondTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endSecondTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimestamp);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);

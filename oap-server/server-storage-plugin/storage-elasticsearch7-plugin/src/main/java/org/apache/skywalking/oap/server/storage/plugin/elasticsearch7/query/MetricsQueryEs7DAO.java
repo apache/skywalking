@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -36,6 +37,7 @@ import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 /**
  * @author peng-yongsheng
@@ -67,7 +69,14 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(indexName, sourceBuilder, startTimestamp, endTimestamp);
 
         IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);

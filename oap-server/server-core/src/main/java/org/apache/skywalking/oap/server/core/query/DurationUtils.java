@@ -216,4 +216,59 @@ public enum DurationUtils {
 
         return dateTime;
     }
+
+    public long convertBucketTotIimestamp(boolean isStart, long bucket) throws ParseException {
+        String bucketStr = String.valueOf(bucket);
+        if (bucketStr.length() < 14) {
+            if (isStart) {
+                if (bucketStr.length() == 6) {
+                    return new SimpleDateFormat("yyyyMM").parse(bucketStr).getTime();
+                } else if (bucketStr.length() == 8) {
+                    return new SimpleDateFormat("yyyyMMdd").parse(bucketStr).getTime();
+                } else if (bucketStr.length() == 10) {
+                    return new SimpleDateFormat("yyyyMMddHH").parse(bucketStr).getTime();
+                } else if (bucketStr.length() == 12) {
+                    return new SimpleDateFormat("yyyyMMddHHmm").parse(bucketStr).getTime();
+                }
+            } else {
+                if (bucketStr.length() == 6) {
+                    return new DateTime(new SimpleDateFormat("yyyyMM").parse(bucketStr)).plusMonths(1).getMillis();
+                } else if (bucketStr.length() == 8) {
+                    return new DateTime(new SimpleDateFormat("yyyyMMdd").parse(bucketStr)).plusDays(1).getMillis();
+                } else if (bucketStr.length() == 10) {
+                    return new DateTime(new SimpleDateFormat("yyyyMMddHH").parse(bucketStr)).plusHours(1).getMillis();
+                } else if (bucketStr.length() == 12) {
+                    return new DateTime(new SimpleDateFormat("yyyyMMddHHmm").parse(bucketStr)).plusMinutes(1).getMillis();
+                }
+            }
+        } else {
+            if (isStart) {
+                if (bucketStr.endsWith("00000000")) {
+                    return startTimeToTimestamp(Step.MONTH, bucketStr.substring(0, 6));
+                } else if (bucketStr.endsWith("000000")) {
+                    return startTimeToTimestamp(Step.DAY, bucketStr.substring(0, 8));
+                } else if (bucketStr.endsWith("0000")) {
+                    return startTimeToTimestamp(Step.HOUR, bucketStr.substring(0, 10));
+                } else if (bucketStr.endsWith("00")) {
+                    return startTimeToTimestamp(Step.MINUTE, bucketStr.substring(0, 12));
+                } else {
+                    return startTimeToTimestamp(Step.SECOND, bucketStr.substring(0, 14));
+                }
+
+            } else {
+                if (bucketStr.endsWith("99999999")) {
+                    return endTimeToTimestamp(Step.MONTH, bucketStr.substring(0, 6));
+                } else if (bucketStr.endsWith("999999")) {
+                    return endTimeToTimestamp(Step.DAY, bucketStr.substring(0, 8));
+                } else if (bucketStr.endsWith("9999")) {
+                    return endTimeToTimestamp(Step.HOUR, bucketStr.substring(0, 10));
+                } else if (bucketStr.endsWith("99")) {
+                    return endTimeToTimestamp(Step.MINUTE, bucketStr.substring(0, 12));
+                } else {
+                    return endTimeToTimestamp(Step.SECOND, bucketStr.substring(0, 14));
+                }
+            }
+        }
+        return bucket;
+    }
 }

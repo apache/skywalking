@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -49,8 +51,18 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(topN).sort(TopN.LATENCY, order.equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
 
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startSecondTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endSecondTB);
+        } catch (ParseException e) {
+        }
+        SearchResponse response = getClient().search(metricName, sourceBuilder, startTimestamp, endTimestamp);
+        if (response.getClusters() == null) {
+            return  Collections.emptyList();
+        }
         List<TopNRecord> results = new ArrayList<>();
 
         for (SearchHit searchHit : response.getHits().getHits()) {

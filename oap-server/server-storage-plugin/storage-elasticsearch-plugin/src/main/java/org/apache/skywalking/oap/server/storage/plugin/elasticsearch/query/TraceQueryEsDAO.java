@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.entity.*;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -104,9 +106,20 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        long startTimestamp = 0;
+        long endTimestamp = 0;
+        try {
+            startTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(true, startSecondTB);
+            endTimestamp = DurationUtils.INSTANCE.convertBucketTotIimestamp(false, endSecondTB);
+        } catch (ParseException e) {
+        }
+
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, startTimestamp, endTimestamp);
 
         TraceBrief traceBrief = new TraceBrief();
+        if (response.getClusters() == null) {
+            return  traceBrief;
+        }
         traceBrief.setTotal((int)response.getHits().totalHits);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -129,8 +142,10 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
-
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder, traceId);
+        if (response.getClusters() == null) {
+            return  Collections.emptyList();
+        }
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord();
