@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentStack;
+import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import org.apache.skywalking.apm.network.language.profile.ThreadStack;
 
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class TracingThreadSnapshot {
      * transform to gRPC data
      * @return
      */
-    public org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transform() {
-        final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot.Builder builder = org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot.newBuilder();
+    public ThreadSnapshot transform() {
+        final ThreadSnapshot.Builder builder = ThreadSnapshot.newBuilder();
         // task id
         builder.setTaskId(threadProfiler.getExecutionContext().getTask().getTaskId());
         // dumped segment id
@@ -57,7 +58,7 @@ public class TracingThreadSnapshot {
         // snapshot dump sequence
         builder.setSequence(sequence);
         // snapshot stack
-        final ProfileTaskSegmentStack.Builder stackBuilder = ProfileTaskSegmentStack.newBuilder();
+        final ThreadStack.Builder stackBuilder = ThreadStack.newBuilder();
         for (String codeSign : stackList) {
             stackBuilder.addCodeSignatures(codeSign);
         }

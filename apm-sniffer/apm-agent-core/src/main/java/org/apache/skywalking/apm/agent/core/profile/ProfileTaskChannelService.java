@@ -38,6 +38,7 @@ import org.apache.skywalking.apm.network.language.agent.Downstream;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
+import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import java.util.ArrayList;
@@ -208,7 +209,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                     snapshotQueue.drainTo(buffer);
                     if (buffer.size() > 0) {
                         final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-                        StreamObserver<org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Downstream>() {
+                        StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Downstream>() {
                             @Override
                             public void onNext(Downstream downstream) {
                             }
@@ -228,7 +229,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                             }
                         });
                         for (TracingThreadSnapshot snapshot : buffer) {
-                            final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transformSnapshot = snapshot.transform();
+                            final ThreadSnapshot transformSnapshot = snapshot.transform();
                             snapshotStreamObserver.onNext(transformSnapshot);
                         }
 

@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot;
+import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -91,10 +91,10 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     }
 
     @Override
-    public StreamObserver<ProfileTaskSegmentSnapshot> collectSnapshot(StreamObserver<Downstream> responseObserver) {
-        return new StreamObserver<ProfileTaskSegmentSnapshot>() {
+    public StreamObserver<ThreadSnapshot> collectSnapshot(StreamObserver<Downstream> responseObserver) {
+        return new StreamObserver<ThreadSnapshot>() {
             @Override
-            public void onNext(ProfileTaskSegmentSnapshot snapshot) {
+            public void onNext(ThreadSnapshot snapshot) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("receive profile segment snapshot");
                 }
