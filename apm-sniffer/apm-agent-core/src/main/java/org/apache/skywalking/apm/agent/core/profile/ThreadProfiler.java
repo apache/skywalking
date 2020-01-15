@@ -22,6 +22,8 @@ import com.google.common.base.Objects;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 
+import java.util.List;
+
 /**
  * @author MrPro
  */
@@ -60,19 +62,25 @@ public class ThreadProfiler {
         this.profilingStatus = ProfilingStatus.STOPPED;
     }
 
-    public TracingContext getTracingContext() {
+    public TracingThreadSnapshot buildSnapshot(long dumpTime, List<String> stack) {
+        String taskId = executionContext.getTask().getTaskId();
+        return new TracingThreadSnapshot(taskId, traceSegmentId, dumpSequence++, dumpTime, stack);
+    }
+
+    public boolean matches(TracingContext context) {
+        // match trace id
+        return Objects.equal(context.getReadableGlobalTraceId(), tracingContext.getReadableGlobalTraceId());
+    }
+
+    public TracingContext tracingContext() {
         return tracingContext;
     }
 
-    public Thread getProfilingThread() {
+    public Thread targetThread() {
         return profilingThread;
     }
 
-    public ProfileTaskExecutionContext getExecutionContext() {
-        return executionContext;
-    }
-
-    public long getProfilingStartTime() {
+    public long profilingStartTime() {
         return profilingStartTime;
     }
 
@@ -82,18 +90,5 @@ public class ThreadProfiler {
 
     public ID getTraceSegmentId() {
         return traceSegmentId;
-    }
-
-    /**
-     * get current sequence then increment it
-     * @return
-     */
-    public int nextSeq() {
-        return dumpSequence++;
-    }
-
-    public boolean matches(TracingContext context) {
-        // match trace id
-        return Objects.equal(context.getReadableGlobalTraceId(), tracingContext.getReadableGlobalTraceId());
     }
 }

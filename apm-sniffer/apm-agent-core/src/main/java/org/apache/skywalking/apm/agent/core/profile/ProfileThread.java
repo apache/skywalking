@@ -91,7 +91,7 @@ public class ProfileThread implements Runnable {
 
                     case READY:
                         // check tracing context running time
-                        if (System.currentTimeMillis() - slot.getTracingContext().createTime() > minDurationThreshold) {
+                        if (System.currentTimeMillis() - slot.tracingContext().createTime() > minDurationThreshold) {
                             slot.startProfiling();
                         }
                         break;
@@ -100,7 +100,7 @@ public class ProfileThread implements Runnable {
                         // dump stack
                         if (!dumpSegment(slot)) {
                             // tell execution context current tracing thread dump failed, stop it
-                            executionContext.stopTracingProfile(slot.getTracingContext());
+                            executionContext.stopTracingProfile(slot.tracingContext());
                         }
                         break;
 
@@ -139,7 +139,7 @@ public class ProfileThread implements Runnable {
         // dump thread
         StackTraceElement[] stackTrace;
         try {
-            stackTrace = threadProfiler.getProfilingThread().getStackTrace();
+            stackTrace = threadProfiler.targetThread().getStackTrace();
 
             // stack depth is zero, means thread is already run finished
             if (stackTrace.length == 0) {
@@ -159,7 +159,7 @@ public class ProfileThread implements Runnable {
         }
 
         // build snapshot and send
-        TracingThreadSnapshot snapshot = new TracingThreadSnapshot(threadProfiler, threadProfiler.nextSeq(), currentTime, stackList);
+        TracingThreadSnapshot snapshot = threadProfiler.buildSnapshot(currentTime, stackList);
         profileTaskChannelService.addProfilingSnapshot(snapshot);
         return true;
     }
@@ -176,7 +176,7 @@ public class ProfileThread implements Runnable {
      */
     private boolean isSegmentProfilingContinuable(ThreadProfiler profiler) {
         // check is out of limit monitor time
-        return System.currentTimeMillis() - profiler.getProfilingStartTime() < maxProfilingTimeMills;
+        return System.currentTimeMillis() - profiler.profilingStartTime() < maxProfilingTimeMills;
     }
 
 }

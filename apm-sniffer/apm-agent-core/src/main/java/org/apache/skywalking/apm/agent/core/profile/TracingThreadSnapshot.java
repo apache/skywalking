@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
+import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
 import org.apache.skywalking.apm.network.language.profile.ThreadStack;
 
@@ -29,15 +30,17 @@ import java.util.List;
 public class TracingThreadSnapshot {
 
     // thread profiler
-    private final ThreadProfiler threadProfiler;
+    private final String taskId;
+    private final ID traceSegmentId;
 
     // dump info
     private final int sequence;
     private final long time;
     private final List<String> stackList;
 
-    public TracingThreadSnapshot(ThreadProfiler threadProfiler, int sequence, long time, List<String> stackList) {
-        this.threadProfiler = threadProfiler;
+    public TracingThreadSnapshot(String taskId, ID traceSegmentId, int sequence, long time, List<String> stackList) {
+        this.taskId = taskId;
+        this.traceSegmentId = traceSegmentId;
         this.sequence = sequence;
         this.time = time;
         this.stackList = stackList;
@@ -50,9 +53,9 @@ public class TracingThreadSnapshot {
     public ThreadSnapshot transform() {
         final ThreadSnapshot.Builder builder = ThreadSnapshot.newBuilder();
         // task id
-        builder.setTaskId(threadProfiler.getExecutionContext().getTask().getTaskId());
+        builder.setTaskId(taskId);
         // dumped segment id
-        builder.setTraceSegmentId(threadProfiler.getTraceSegmentId().transform());
+        builder.setTraceSegmentId(traceSegmentId.transform());
         // dump time
         builder.setTime(time);
         // snapshot dump sequence
