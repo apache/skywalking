@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,7 +39,7 @@ public class ProfileThread extends Thread {
     private static final ILog logger = LogManager.getLogger(ProfileThread.class);
 
     // per segment max profiling time (millisecond)
-    private static final long MAX_PROFILING_TIME_MILLS = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
+    private final long maxProfilingTimeMills;
 
     // current thread running status
     private volatile boolean running = true;
@@ -51,7 +50,8 @@ public class ProfileThread extends Thread {
     private final ProfileTaskExecutionService profileTaskExecutionService;
     private final ProfileTaskChannelService profileTaskChannelService;
 
-    public ProfileThread() {
+    public ProfileThread(long maxProfilingTimeMills) {
+        this.maxProfilingTimeMills = maxProfilingTimeMills;
         profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         profileTaskChannelService = ServiceManager.INSTANCE.findService(ProfileTaskChannelService.class);
     }
@@ -94,7 +94,7 @@ public class ProfileThread extends Thread {
      * @param segment
      * @return
      */
-    public ProfilingSegmentContext checkAndAddSegmentContext(TraceSegment segment, ProfileTaskExecutionContext taskExecutionContext) {
+    public ThreadProfiler attemptProfiling(TraceSegment segment, ProfileTaskExecutionContext taskExecutionContext) {
         // check has available slot
         AtomicInteger currentProfilingCount = taskExecutionContext.getCurrentProfilingCount();
         final int usingSlotCount = currentProfilingCount.get();
@@ -107,11 +107,11 @@ public class ProfileThread extends Thread {
             return null;
         }
 
-        ProfilingSegmentContext[] profilingSegmentSlot = taskExecutionContext.getProfilingSegmentSlot();
-        final ProfilingSegmentContext segmentContext = new ProfilingSegmentContext(segment, Thread.currentThread(), taskExecutionContext);
-        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
-            if (profilingSegmentSlot[slot] == null) {
-                profilingSegmentSlot[slot] = segmentContext;
+        ThreadProfiler[] profilerSlot = taskExecutionContext.getThreadProfilerSlot();
+        final ThreadProfiler segmentContext = new ThreadProfiler(segment, Thread.currentThread(), taskExecutionContext);
+        for (int slot = 0; slot < profilerSlot.length; slot++) {
+            if (profilerSlot[slot] == null) {
+                profilerSlot[slot] = segmentContext;
                 break;
             }
         }
@@ -131,11 +131,11 @@ public class ProfileThread extends Thread {
 
         // find current segment and clear it
         boolean find = false;
-        ProfilingSegmentContext[] profilingSegmentSlot = currentExecutionContext.getProfilingSegmentSlot();
-        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
-            ProfilingSegmentContext currentSlotSegment = profilingSegmentSlot[slot];
-            if (currentSlotSegment != null && Objects.equal(profilingSegmentSlot[slot].getSegment().getTraceSegmentId(), segment.getTraceSegmentId())) {
-                profilingSegmentSlot[slot] = null;
+        ThreadProfiler[] profilerSlot = currentExecutionContext.getThreadProfilerSlot();
+        for (int slot = 0; slot < profilerSlot.length; slot++) {
+            ThreadProfiler currentSlotSegment = profilerSlot[slot];
+            if (currentSlotSegment != null && Objects.equal(profilerSlot[slot].getSegment().getTraceSegmentId(), segment.getTraceSegmentId())) {
+                profilerSlot[slot] = null;
 
                 // setting stop running
                 currentSlotSegment.setSegmentIsRunning(false);
@@ -172,7 +172,7 @@ public class ProfileThread extends Thread {
             currentLoopStartTime = System.currentTimeMillis();
 
             // each all slot
-            for (ProfilingSegmentContext slot : executionContext.getProfilingSegmentSlot()) {
+            for (ThreadProfiler slot : executionContext.getThreadProfilerSlot()) {
                 if (slot == null) {
                     continue;
                 }
@@ -206,27 +206,27 @@ public class ProfileThread extends Thread {
 
     /**
      * dump segemnt thread stack
-     * @param segmentContext
+     * @param threadProfiler
      * @return
      */
-    private boolean dumpSegment(ProfilingSegmentContext segmentContext) {
+    private boolean dumpSegment(ThreadProfiler threadProfiler) {
         // dump stack
-        if (!checkSegmentProfilingCanContinue(segmentContext)) {
+        if (!isSegmentProfilingContinuable(threadProfiler)) {
             return false;
         }
 
-        return dumpThread(segmentContext);
+        return dumpThread(threadProfiler);
     }
 
     /**
      * dump thread stack, and push data to backend
-     * @param segmentContext
+     * @param threadProfiler
      * @return still can dump
      */
-    private boolean dumpThread(ProfilingSegmentContext segmentContext) {
+    private boolean dumpThread(ThreadProfiler threadProfiler) {
         long currentTime = System.currentTimeMillis();
         // dump thread
-        final StackTraceElement[] stackTrace = segmentContext.getProfilingThread().getStackTrace();
+        final StackTraceElement[] stackTrace = threadProfiler.getProfilingThread().getStackTrace();
 
         // stack depth is zero, means thread is already run finished
         if (stackTrace.length == 0) {
@@ -242,7 +242,7 @@ public class ProfileThread extends Thread {
         }
 
         // build snapshot and send
-        ProfileTaskSegmentSnapshot snapshot = new ProfileTaskSegmentSnapshot(segmentContext, segmentContext.getCurrentAndIncrementSequence(), currentTime, stackList);
+        TracingThreadSnapshot snapshot = new TracingThreadSnapshot(threadProfiler, threadProfiler.nextSeq(), currentTime, stackList);
         profileTaskChannelService.addProfilingSnapshot(snapshot);
         return true;
     }
@@ -257,19 +257,14 @@ public class ProfileThread extends Thread {
      * @param context
      * @return
      */
-    private boolean checkSegmentProfilingCanContinue(ProfilingSegmentContext context) {
+    private boolean isSegmentProfilingContinuable(ThreadProfiler context) {
         // check segment still executing
         if (!context.getSegmentIsRunning()) {
             return false;
         }
 
         // check is out of limit monitor time
-        if (System.currentTimeMillis() - context.getProfilingStartTime() > MAX_PROFILING_TIME_MILLS) {
-            return false;
-        }
-
-        // check segment executing thread is still running
-        if (!context.getProfilingThread().isAlive()) {
+        if (System.currentTimeMillis() - context.getProfilingStartTime() > maxProfilingTimeMills) {
             return false;
         }
 

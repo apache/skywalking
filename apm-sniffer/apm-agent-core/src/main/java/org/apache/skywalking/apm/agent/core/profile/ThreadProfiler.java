@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 /**
  * @author MrPro
  */
-public class ProfilingSegmentContext {
+public class ThreadProfiler {
 
     // current segment id
     private final TraceSegment segment;
@@ -42,7 +42,7 @@ public class ProfilingSegmentContext {
     // thread dump sequence
     private int dumpSequence = 0;
 
-    public ProfilingSegmentContext(TraceSegment segment, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
+    public ThreadProfiler(TraceSegment segment, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
         this.segment = segment;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
@@ -85,7 +85,7 @@ public class ProfilingSegmentContext {
      * get current sequence then increment it
      * @return
      */
-    public int getCurrentAndIncrementSequence() {
+    public int nextSeq() {
         return dumpSequence++;
     }
 }

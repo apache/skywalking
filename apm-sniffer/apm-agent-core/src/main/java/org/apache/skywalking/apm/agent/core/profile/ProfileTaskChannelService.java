@@ -40,7 +40,7 @@ import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishRepor
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -68,7 +68,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     private volatile ProfileTaskGrpc.ProfileTaskStub profileTaskStub;
 
     // segment snapshot sender
-    private final LinkedBlockingQueue<ProfileTaskSegmentSnapshot> snapshotQueue = new LinkedBlockingQueue<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+    private final LinkedBlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
     private volatile ScheduledFuture<?> sendSnapshotFuture;
 
     // query task list schedule
@@ -172,7 +172,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
      * add a new profiling snapshot, send to {@link #snapshotQueue}
      * @param snapshot
      */
-    public void addProfilingSnapshot(ProfileTaskSegmentSnapshot snapshot) {
+    public void addProfilingSnapshot(TracingThreadSnapshot snapshot) {
         snapshotQueue.add(snapshot);
     }
 
@@ -204,7 +204,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
         public void run() {
             if (status == GRPCChannelStatus.CONNECTED) {
                 try {
-                    LinkedList<ProfileTaskSegmentSnapshot> buffer = new LinkedList<ProfileTaskSegmentSnapshot>();
+                    ArrayList<TracingThreadSnapshot> buffer = new ArrayList<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
                     snapshotQueue.drainTo(buffer);
                     if (buffer.size() > 0) {
                         final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
@@ -227,7 +227,7 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                                 status.finished();
                             }
                         });
-                        for (ProfileTaskSegmentSnapshot snapshot : buffer) {
+                        for (TracingThreadSnapshot snapshot : buffer) {
                             final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transformSnapshot = snapshot.transform();
                             snapshotStreamObserver.onNext(transformSnapshot);
                         }

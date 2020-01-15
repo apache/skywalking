@@ -25,18 +25,18 @@ import java.util.List;
 /**
  * @author MrPro
  */
-public class ProfileTaskSegmentSnapshot {
+public class TracingThreadSnapshot {
 
-    // profiling segment context
-    private final ProfilingSegmentContext segmentContext;
+    // thread profiler
+    private final ThreadProfiler threadProfiler;
 
     // dump info
     private final int sequence;
     private final long time;
     private final List<String> stackList;
 
-    public ProfileTaskSegmentSnapshot(ProfilingSegmentContext segmentContext, int sequence, long time, List<String> stackList) {
-        this.segmentContext = segmentContext;
+    public TracingThreadSnapshot(ThreadProfiler threadProfiler, int sequence, long time, List<String> stackList) {
+        this.threadProfiler = threadProfiler;
         this.sequence = sequence;
         this.time = time;
         this.stackList = stackList;
@@ -49,9 +49,9 @@ public class ProfileTaskSegmentSnapshot {
     public org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot transform() {
         final org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot.Builder builder = org.apache.skywalking.apm.network.language.profile.ProfileTaskSegmentSnapshot.newBuilder();
         // task id
-        builder.setTaskId(segmentContext.getExecutionContext().getTask().getTaskId());
+        builder.setTaskId(threadProfiler.getExecutionContext().getTask().getTaskId());
         // dumped segment id
-        builder.setTraceSegmentId(segmentContext.getSegment().getTraceSegmentId().transform());
+        builder.setTraceSegmentId(threadProfiler.getSegment().getTraceSegmentId().transform());
         // dump time
         builder.setTime(time);
         // snapshot dump sequence

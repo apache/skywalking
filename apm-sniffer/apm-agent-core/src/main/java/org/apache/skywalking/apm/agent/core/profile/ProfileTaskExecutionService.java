@@ -23,6 +23,7 @@ import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -110,7 +111,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
         // add to profile monitor
         // if return not null means add to profiling success
-        return profileThread.checkAndAddSegmentContext(segment, executionContext) != null;
+        return profileThread.attemptProfiling(segment, executionContext) != null;
     }
 
     /**
@@ -162,9 +163,9 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     @Override
     public void boot() throws Throwable {
         // init PROFILE_THREAD and start
-        profileThread = new ProfileThread();
+        profileThread = new ProfileThread(TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION));
         profileThread.setDaemon(true);
-        profileThread.setName("PROFILE-MONITOR-THREAD");
+        profileThread.setName("PROFILING-THREAD");
         profileThread.start();
     }
 

@@ -40,7 +40,7 @@ public class ProfileTaskExecutionContext {
     private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
 
     // profiling segment slot
-    private final ProfilingSegmentContext[] profilingSegmentSlot = new ProfilingSegmentContext[Config.Profile.MAX_PARALLEL];
+    private final ThreadProfiler[] profilingSegmentSlot = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
 
     // current profile is still running
     private volatile boolean running = true;
@@ -62,7 +62,7 @@ public class ProfileTaskExecutionContext {
         return currentProfilingCount;
     }
 
-    public ProfilingSegmentContext[] getProfilingSegmentSlot() {
+    public ThreadProfiler[] getThreadProfilerSlot() {
         return profilingSegmentSlot;
     }
 
