@@ -72,13 +72,7 @@ public class ServiceManagerTest {
 
     private void assertTracingThreadContextListener() throws Exception {
         List<TracingThreadListener> listeners = getFieldValue(TracingContext.TracingThreadListenerManager.class, "LISTENERS");
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < listeners.size(); i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(listeners.get(i).getClass().getName() + ":" + listeners.get(i));
-        }
-        throw new AssertionError("assert tracing thread context listener:[" + sb + "]");
-//        assertThat(listeners.size(), is(1));
+        assertThat(listeners.size(), is(1));
     }
 
     private void assertIgnoreTracingContextListener() throws Exception {
