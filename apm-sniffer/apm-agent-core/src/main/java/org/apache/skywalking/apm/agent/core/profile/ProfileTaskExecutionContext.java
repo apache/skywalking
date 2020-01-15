@@ -25,7 +25,6 @@ import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -56,7 +55,7 @@ public class ProfileTaskExecutionContext {
      * @param executorService
      */
     public void startProfiling(ExecutorService executorService) {
-        profilingFuture = executorService.submit(new ProfileThread(this, TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION)));
+        profilingFuture = executorService.submit(new ProfileThread(this));
     }
 
     /**

@@ -19,10 +19,12 @@
 package org.apache.skywalking.apm.agent.core.profile;
 
 import com.google.common.base.Objects;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author MrPro
@@ -38,8 +40,9 @@ public class ThreadProfiler {
     // profiling execution context
     private final ProfileTaskExecutionContext executionContext;
 
-    // profiling start time
+    // profiling time
     private long profilingStartTime;
+    private long profilingMaxTimeMills;
 
     // after min duration threshold check, it will start dump
     private ProfilingStatus profilingStatus = ProfilingStatus.READY;
@@ -51,44 +54,96 @@ public class ThreadProfiler {
         this.traceSegmentId = traceSegmentId;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
+        this.profilingMaxTimeMills = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
     }
 
-    public void startProfiling() {
-        this.profilingStartTime = System.currentTimeMillis();
-        this.profilingStatus = ProfilingStatus.PROFILING;
+    /**
+     * If tracing start time greater than {@link ProfileTask#getMinDurationThreshold()}, then start to profiling trace
+     */
+    public void startProfilingIfNeed() {
+        if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask().getMinDurationThreshold()) {
+            this.profilingStartTime = System.currentTimeMillis();
+            this.profilingStatus = ProfilingStatus.PROFILING;
+        }
     }
 
+    /**
+     * Stop profiling status
+     */
     public void stopProfiling() {
         this.profilingStatus = ProfilingStatus.STOPPED;
     }
 
-    public TracingThreadSnapshot buildSnapshot(long dumpTime, List<String> stack) {
+    /**
+     * dump tracing thread and build thread snapshot
+     * @return
+     */
+    public TracingThreadSnapshot buildSnapshot() {
+        if (!isProfilingProfilingContinuable()) {
+            return null;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        // dump thread
+        StackTraceElement[] stackTrace;
+        try {
+            stackTrace = profilingThread.getStackTrace();
+
+            // stack depth is zero, means thread is already run finished
+            if (stackTrace.length == 0) {
+                return null;
+            }
+        } catch (Exception e) {
+            // dump error ignore and make this profiler stop
+            return null;
+        }
+
+        int dumpElementCount = Math.min(stackTrace.length, Config.Profile.DUMP_MAX_STACK_DEPTH);
+
+        // use inverted order, because thread dump is start with bottom
+        final ArrayList<String> stackList = new ArrayList<>(dumpElementCount);
+        for (int i = dumpElementCount - 1; i >= 0; i--) {
+            stackList.add(buildStackElementCodeSignature(stackTrace[i]));
+        }
+
         String taskId = executionContext.getTask().getTaskId();
-        return new TracingThreadSnapshot(taskId, traceSegmentId, dumpSequence++, dumpTime, stack);
+        return new TracingThreadSnapshot(taskId, traceSegmentId, dumpSequence++, currentTime, stackList);
     }
 
+    /**
+     * build thread stack element code signature
+     * @param element
+     * @return
+     */
+    private String buildStackElementCodeSignature(StackTraceElement element) {
+        // className.methodName:lineNumber
+        return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
+    }
+
+    /**
+     * matches profiling tracing context
+     * @param context
+     * @return
+     */
     public boolean matches(TracingContext context) {
         // match trace id
         return Objects.equal(context.getReadableGlobalTraceId(), tracingContext.getReadableGlobalTraceId());
+    }
+
+    /**
+     * check profiling is should continue
+     * @return
+     */
+    private boolean isProfilingProfilingContinuable() {
+        return System.currentTimeMillis() - profilingStartTime < profilingMaxTimeMills;
     }
 
     public TracingContext tracingContext() {
         return tracingContext;
     }
 
-    public Thread targetThread() {
-        return profilingThread;
-    }
-
-    public long profilingStartTime() {
-        return profilingStartTime;
-    }
-
     public ProfilingStatus profilingStatus() {
         return profilingStatus;
     }
 
-    public ID getTraceSegmentId() {
-        return traceSegmentId;
-    }
 }
