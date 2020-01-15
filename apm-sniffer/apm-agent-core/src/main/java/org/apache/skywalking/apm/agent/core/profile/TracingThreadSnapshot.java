@@ -52,7 +52,7 @@ public class TracingThreadSnapshot {
         // task id
         builder.setTaskId(threadProfiler.getExecutionContext().getTask().getTaskId());
         // dumped segment id
-        builder.setTraceSegmentId(threadProfiler.getSegment().getTraceSegmentId().transform());
+        builder.setTraceSegmentId(threadProfiler.getTraceSegmentId().transform());
         // dump time
         builder.setTime(time);
         // snapshot dump sequence

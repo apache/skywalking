@@ -19,8 +19,13 @@
 package org.apache.skywalking.apm.agent.core.profile;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.ids.ID;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,36 +38,100 @@ public class ProfileTaskExecutionContext {
     // task data
     private final ProfileTask task;
 
-    // task real start time
-    private final long startTime;
-
     // record current profiling count, use this to check has available profile slot
     private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
 
     // profiling segment slot
     private final ThreadProfiler[] profilingSegmentSlot = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
 
-    // current profile is still running
-    private volatile boolean running = true;
+    // current profiling execution future
+    private volatile Future profilingFuture;
 
-    public ProfileTaskExecutionContext(ProfileTask task, long startTime) {
+    public ProfileTaskExecutionContext(ProfileTask task) {
         this.task = task;
-        this.startTime = startTime;
+    }
+
+    /**
+     * start profiling this task
+     * @param executorService
+     */
+    public void startProfiling(ExecutorService executorService) {
+        profilingFuture = executorService.submit(new ProfileThread(this, TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION)));
+    }
+
+    /**
+     * stop profiling
+     */
+    public void stopProfiling() {
+        if (profilingFuture != null) {
+            profilingFuture.cancel(true);
+        }
+    }
+
+    /**
+     * check have available slot to profile and add it
+     * @param tracingContext
+     * @param firstSpanOPName
+     * @return
+     */
+    public boolean attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+        // check has available slot
+        final int usingSlotCount = currentProfilingCount.get();
+        if (usingSlotCount >= Config.Profile.MAX_PARALLEL) {
+            return false;
+        }
+
+        // check first operation name matches
+        if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
+            return false;
+        }
+
+        // try to occupy slot
+        if (!currentProfilingCount.compareAndSet(usingSlotCount, usingSlotCount + 1)) {
+            return false;
+        }
+
+        final ThreadProfiler segmentContext = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
+        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
+            if (profilingSegmentSlot[slot] == null) {
+                profilingSegmentSlot[slot] = segmentContext;
+                break;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * find tracing context and clear on slot
+     *
+     * @param tracingContext
+     */
+    public void stopTracingProfile(TracingContext tracingContext) {
+        // find current tracingContext and clear it
+        boolean find = false;
+        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
+            ThreadProfiler currentProfiler = profilingSegmentSlot[slot];
+            if (currentProfiler != null && currentProfiler.matches(tracingContext)) {
+                profilingSegmentSlot[slot] = null;
+
+                // setting stop running
+                currentProfiler.stopProfiling();
+                find = true;
+                break;
+            }
+        }
+
+        // decrease profile count
+        if (find) {
+            currentProfilingCount.addAndGet(-1);
+        }
     }
 
     public ProfileTask getTask() {
         return task;
     }
 
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public AtomicInteger getCurrentProfilingCount() {
-        return currentProfilingCount;
-    }
-
-    public ThreadProfiler[] getThreadProfilerSlot() {
+    public ThreadProfiler[] threadProfilerSlot() {
         return profilingSegmentSlot;
     }
 
@@ -79,11 +148,4 @@ public class ProfileTaskExecutionContext {
         return Objects.hash(task);
     }
 
-    public boolean getRunning() {
-        return running;
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
 }

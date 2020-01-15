@@ -30,8 +30,8 @@ public class ProfileTask {
     // task id
     private String taskId;
 
-    // monitor endpoint name
-    private String endpointName;
+    // monitor first span operation name
+    private String fistSpanOPName;
 
     // task duration (minute)
     private int duration;
@@ -51,12 +51,12 @@ public class ProfileTask {
     // task create time
     private long createTime;
 
-    public String getEndpointName() {
-        return endpointName;
+    public String getFistSpanOPName() {
+        return fistSpanOPName;
     }
 
-    public void setEndpointName(String endpointName) {
-        this.endpointName = endpointName;
+    public void setFistSpanOPName(String fistSpanOPName) {
+        this.fistSpanOPName = fistSpanOPName;
     }
 
     public int getDuration() {
@@ -127,11 +127,11 @@ public class ProfileTask {
                 startTime == that.startTime &&
                 createTime == that.createTime &&
                 taskId.equals(that.taskId) &&
-                endpointName.equals(that.endpointName);
+                fistSpanOPName.equals(that.fistSpanOPName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskId, endpointName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
+        return Objects.hash(taskId, fistSpanOPName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
     }
 }

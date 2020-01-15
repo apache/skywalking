@@ -18,22 +18,24 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import com.google.common.base.Objects;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.ids.ID;
 
 /**
  * @author MrPro
  */
 public class ThreadProfiler {
 
-    // current segment id
-    private final TraceSegment segment;
+    // current tracing context
+    private final TracingContext tracingContext;
+    // current tracing segment id
+    private final ID traceSegmentId;
     // need to profiling thread
     private final Thread profilingThread;
     // profiling execution context
     private final ProfileTaskExecutionContext executionContext;
 
-    // current segment running status, each dump will judge it. Will set false when trace notification
-    private volatile boolean segmentIsRunning = true;
     // profiling start time
     private long profilingStartTime;
 
@@ -42,23 +44,28 @@ public class ThreadProfiler {
     // thread dump sequence
     private int dumpSequence = 0;
 
-    public ThreadProfiler(TraceSegment segment, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
-        this.segment = segment;
+    public ThreadProfiler(TracingContext tracingContext, ID traceSegmentId, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
+        this.tracingContext = tracingContext;
+        this.traceSegmentId = traceSegmentId;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
-        this.profilingStartTime = System.currentTimeMillis();
     }
 
-    public TraceSegment getSegment() {
-        return segment;
+    public void startProfiling() {
+        this.profilingStartTime = System.currentTimeMillis();
+        this.profilingStatus = ProfilingStatus.PROFILING;
+    }
+
+    public void stopProfiling() {
+        this.profilingStatus = ProfilingStatus.STOPPED;
+    }
+
+    public TracingContext getTracingContext() {
+        return tracingContext;
     }
 
     public Thread getProfilingThread() {
         return profilingThread;
-    }
-
-    public boolean getSegmentIsRunning() {
-        return segmentIsRunning;
     }
 
     public ProfileTaskExecutionContext getExecutionContext() {
@@ -69,16 +76,12 @@ public class ThreadProfiler {
         return profilingStartTime;
     }
 
-    public void startProfiling() {
-        this.profilingStatus = ProfilingStatus.PROFILING;
-    }
-
-    public void stopProfiling() {
-        this.profilingStatus = ProfilingStatus.STOPPED;
-    }
-
     public ProfilingStatus profilingStatus() {
         return profilingStatus;
+    }
+
+    public ID getTraceSegmentId() {
+        return traceSegmentId;
     }
 
     /**
@@ -87,5 +90,10 @@ public class ThreadProfiler {
      */
     public int nextSeq() {
         return dumpSequence++;
+    }
+
+    public boolean matches(TracingContext context) {
+        // match trace id
+        return Objects.equal(context.getReadableGlobalTraceId(), tracingContext.getReadableGlobalTraceId());
     }
 }

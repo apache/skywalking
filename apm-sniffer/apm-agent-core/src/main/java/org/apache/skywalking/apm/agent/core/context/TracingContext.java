@@ -93,15 +93,27 @@ public class TracingContext implements AbstractTracerContext {
 
     private volatile boolean running;
 
+    private final long createTime;
+
+    /**
+     * profiling status
+     */
+    private final boolean profiling;
+
     /**
      * Initialize all fields with default value.
      */
-    TracingContext() {
+    TracingContext(String firstOPName) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
         samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
+        createTime = System.currentTimeMillis();
         running = true;
+
+        // profiling status
+        final ProfileTaskExecutionService profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        this.profiling = profileTaskExecutionService.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -463,20 +475,9 @@ public class TracingContext implements AbstractTracerContext {
         finish();
     }
 
-    @Override
-    public void prepareProfiling(String firstSpanOPName) {
-        if (segment.getProfiling()) {
-            return;
-        }
-
-        // update profiling status
-        final ProfileTaskExecutionService profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
-        segment.setProfiling(profileTaskExecutionService.addProfiling(segment, firstSpanOPName));
-    }
-
     /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
-     * TracingContext.ListenerManager}
+     * TracingContext.ListenerManager} and {@link TracingContext.TracingThreadListenerManager}
      */
     private void finish() {
         if (isRunningInAsyncMode) {
@@ -509,6 +510,11 @@ public class TracingContext implements AbstractTracerContext {
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
 
                 running = false;
+
+                /**
+                 * Notify current tracing context main thread has already execute finished.
+                 */
+                TracingThreadListenerManager.notifyFinish(this);
             }
         } finally {
             if (isRunningInAsyncMode) {
@@ -556,6 +562,27 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     /**
+     * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
+     */
+    public static class TracingThreadListenerManager {
+        private static List<TracingThreadListener> LISTENERS = new LinkedList<>();
+
+        public static synchronized void add(TracingThreadListener listener) {
+            LISTENERS.add(listener);
+        }
+
+        static void notifyFinish(TracingContext finishedContext) {
+            for (TracingThreadListener listener : LISTENERS) {
+                listener.afterMainThreadFinish(finishedContext);
+            }
+        }
+
+        public static synchronized void remove(TracingThreadListener listener) {
+            LISTENERS.remove(listener);
+        }
+    }
+
+    /**
      * @return the top element of 'ActiveSpanStack', and remove it.
      */
     private AbstractSpan pop() {
@@ -598,6 +625,14 @@ public class TracingContext implements AbstractTracerContext {
         } else {
             return false;
         }
+    }
+
+    public long createTime() {
+        return this.createTime;
+    }
+
+    public boolean isProfiling() {
+        return this.profiling;
     }
 
 }

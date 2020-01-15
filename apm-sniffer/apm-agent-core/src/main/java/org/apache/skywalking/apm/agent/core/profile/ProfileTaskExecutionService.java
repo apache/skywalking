@@ -18,15 +18,13 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
-import com.google.common.base.Objects;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
-import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.TracingThreadListener;
+import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
@@ -44,21 +42,21 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author MrPro
  */
 @DefaultImplementor
-public class ProfileTaskExecutionService implements BootService, TracingContextListener {
+public class ProfileTaskExecutionService implements BootService, TracingThreadListener {
 
     private static final ILog logger = LogManager.getLogger(ProfileTaskExecutionService.class);
 
     // add a schedule while waiting for the task to start or finish
     private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
 
-    // profile thread, it will execute when have task
-    private volatile ProfileThread profileThread;
-
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
 
     // current processing profile task context
     private final AtomicReference<ProfileTaskExecutionContext> taskExecutionContext = new AtomicReference<>();
+
+    // profile executor thread pool, only running one thread
+    private final static ExecutorService PROFILE_EXECUTOR = Executors.newSingleThreadExecutor(new DefaultNamedThreadFactory("PROFILING-TASK"));
 
     // profile task list, include running and waiting running tasks
     private final List<ProfileTask> profileTaskList = Collections.synchronizedList(new LinkedList<>());
@@ -94,24 +92,20 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     }
 
     /**
-     * check and add {@link TraceSegment} profiling
-     * @param segment
-     * @param operationName
+     * check and add {@link TracingContext} profiling
+     * @param tracingContext
+     * @param traceSegmentId
+     * @param firstSpanOPName
      * @return has add to profiling
      */
-    public boolean addProfiling(TraceSegment segment, String operationName) {
-        // get current monitoring task and check endpoint name, is need profiling
+    public boolean addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+        // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
             return false;
         }
-        if (!Objects.equal(executionContext.getTask().getEndpointName(), operationName)) {
-            return false;
-        }
 
-        // add to profile monitor
-        // if return not null means add to profiling success
-        return profileThread.attemptProfiling(segment, executionContext) != null;
+        return executionContext.attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);
     }
 
     /**
@@ -123,11 +117,11 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
         stopCurrentProfileTask(taskExecutionContext.get());
 
         // make stop task schedule and task context
-        final ProfileTaskExecutionContext currentStartedTaskContext = new ProfileTaskExecutionContext(task, System.currentTimeMillis());
+        final ProfileTaskExecutionContext currentStartedTaskContext = new ProfileTaskExecutionContext(task);
         taskExecutionContext.set(currentStartedTaskContext);
 
-        // notify profile thread has new task
-        profileThread.processNewProfileTask(currentStartedTaskContext);
+        // start profiling this task
+        currentStartedTaskContext.startProfiling(PROFILE_EXECUTOR);
 
         PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
             @Override
@@ -147,7 +141,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
         }
 
         // current execution stop running
-        needToStop.setRunning(false);
+        needToStop.stopProfiling();
 
         // remove task
         profileTaskList.remove(needToStop.getTask());
@@ -162,27 +156,22 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
     @Override
     public void boot() throws Throwable {
-        // init PROFILE_THREAD and start
-        profileThread = new ProfileThread(TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION));
-        profileThread.setDaemon(true);
-        profileThread.setName("PROFILING-THREAD");
-        profileThread.start();
     }
 
     @Override
     public void onComplete() throws Throwable {
-        // add trace segment finish notification
-        TracingContext.ListenerManager.add(this);
+        // add trace finish notification
+        TracingContext.TracingThreadListenerManager.add(this);
     }
 
     @Override
     public void shutdown() throws Throwable {
         // remove trace listener
-        TracingContext.ListenerManager.remove(this);
+        TracingContext.TracingThreadListenerManager.remove(this);
 
         PROFILE_TASK_SCHEDULE.shutdown();
 
-        profileThread.shutdown();
+        PROFILE_EXECUTOR.shutdown();
     }
 
     public long getLastCommandCreateTime() {
@@ -196,7 +185,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
      */
     private String checkProfileTaskSuccess(ProfileTask task) {
         // endpoint name
-        if (StringUtil.isEmpty(task.getEndpointName())) {
+        if (StringUtil.isEmpty(task.getFistSpanOPName())) {
             return "endpoint name cannot be empty";
         }
 
@@ -232,7 +221,7 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
 
             // if the end time of the task to be added is during the execution of any data, means is a error data
             if (taskProcessFinishTime >= profileTask.getStartTime() && taskProcessFinishTime <= calcProfileTaskFinishTime(profileTask)) {
-                return "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getEndpointName();
+                return "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getFistSpanOPName();
             }
         }
 
@@ -244,17 +233,13 @@ public class ProfileTaskExecutionService implements BootService, TracingContextL
     }
 
     @Override
-    public void afterFinished(TraceSegment traceSegment) {
-        // if current segment is profiling
-        if (!traceSegment.getProfiling()) {
-            return;
+    public void afterMainThreadFinish(TracingContext tracingContext) {
+        if (tracingContext.isProfiling()) {
+            // stop profiling tracing context
+            ProfileTaskExecutionContext currentExecutionContext = taskExecutionContext.get();
+            if (currentExecutionContext != null) {
+                currentExecutionContext.stopTracingProfile(tracingContext);
+            }
         }
-
-        // stop profiling segment
-        profileThread.stopSegmentProfile(traceSegment);
-    }
-
-    public ProfileTaskExecutionContext getCurrentTaskExecutionContext() {
-        return taskExecutionContext.get();
     }
 }

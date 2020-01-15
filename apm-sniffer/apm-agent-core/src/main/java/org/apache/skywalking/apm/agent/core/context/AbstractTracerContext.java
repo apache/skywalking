@@ -115,10 +115,4 @@ public interface AbstractTracerContext {
      * @param span to be stopped.
      */
     void asyncStop(AsyncSpan span);
-
-    /**
-     * Check whether the new segment suitable for profiling.
-     * @param firstSpanOPName
-     */
-    void prepareProfiling(String firstSpanOPName);
 }
