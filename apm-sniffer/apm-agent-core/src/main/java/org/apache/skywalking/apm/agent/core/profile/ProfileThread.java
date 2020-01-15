@@ -138,7 +138,7 @@ public class ProfileThread extends Thread {
                 profilerSlot[slot] = null;
 
                 // setting stop running
-                currentSlotSegment.setSegmentIsRunning(false);
+                currentSlotSegment.stopProfiling();
                 find = true;
                 break;
             }
@@ -177,21 +177,21 @@ public class ProfileThread extends Thread {
                     continue;
                 }
 
-                // check is already start dump stack
-                if (slot.getStartDump()) {
+                switch (slot.profilingStatus()) {
 
-                    // dump stack
-                    if (!dumpSegment(slot)) {
-                        stopSegmentProfile(slot.getSegment());
-                        continue;
-                    }
+                    case READY:
+                        // check segment running time
+                        if (System.currentTimeMillis() - slot.getSegment().createTime() > minDurationThreshold) {
+                            slot.startProfiling();
+                        }
+                        break;
 
-                } else {
-
-                    // check segment running time
-                    if (System.currentTimeMillis() - slot.getProfilingStartTime() > minDurationThreshold) {
-                        slot.setStartDump(true);
-                    }
+                    case PROFILING:
+                        // dump stack
+                        if (!dumpSegment(slot)) {
+                            stopSegmentProfile(slot.getSegment());
+                        }
+                        break;
 
                 }
             }

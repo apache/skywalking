@@ -38,7 +38,7 @@ public class ThreadProfiler {
     private long profilingStartTime;
 
     // after min duration threshold check, it will start dump
-    private boolean startDump = false;
+    private ProfilingStatus profilingStatus = ProfilingStatus.READY;
     // thread dump sequence
     private int dumpSequence = 0;
 
@@ -61,10 +61,6 @@ public class ThreadProfiler {
         return segmentIsRunning;
     }
 
-    public void setSegmentIsRunning(boolean segmentIsRunning) {
-        this.segmentIsRunning = segmentIsRunning;
-    }
-
     public ProfileTaskExecutionContext getExecutionContext() {
         return executionContext;
     }
@@ -73,12 +69,16 @@ public class ThreadProfiler {
         return profilingStartTime;
     }
 
-    public boolean getStartDump() {
-        return startDump;
+    public void startProfiling() {
+        this.profilingStatus = ProfilingStatus.PROFILING;
     }
 
-    public void setStartDump(boolean startDump) {
-        this.startDump = startDump;
+    public void stopProfiling() {
+        this.profilingStatus = ProfilingStatus.STOPPED;
+    }
+
+    public ProfilingStatus profilingStatus() {
+        return profilingStatus;
     }
 
     /**
