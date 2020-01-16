@@ -30,6 +30,9 @@ public class StandardChannelBuilder implements ChannelBuilder {
 
     @Override public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) throws Exception {
         return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
+            /**
+             * This API may can not be compatible for grpc.version 1.26.0
+             */
             .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
             .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
             .usePlaintext();
