@@ -109,6 +109,23 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     }
 
     /**
+     * Re-check current trace need profiling, encase third part plugin change the operation name.
+     * @param tracingContext
+     * @param traceSegmentId
+     * @param firstSpanOPName
+     * @return
+     */
+    public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+        // get current profiling task, check need profiling
+        final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
+        if (executionContext == null) {
+            return false;
+        }
+
+        return executionContext.profilingRecheck(tracingContext, traceSegmentId, firstSpanOPName);
+    }
+
+    /**
      * active the selected profile task to execution task, and start a removal task for it.
      * @param task
      */

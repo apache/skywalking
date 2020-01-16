@@ -85,19 +85,38 @@ public class ProfileTaskExecutionContext {
             return false;
         }
 
-        // try to occupy slot
-        if (!currentProfilingCount.compareAndSet(usingSlotCount, usingSlotCount + 1)) {
+        return tryToAttemptProfiling(tracingContext, traceSegmentId, firstSpanOPName, usingSlotCount);
+    }
+
+
+    /**
+     * profiling recheck
+     * @param tracingContext
+     * @param traceSegmentId
+     * @param firstSpanOPName
+     * @return
+     */
+    public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+        boolean alreadyProfiling = tracingContext.isProfiling();
+
+        // not profiling and not available slot don't check anymore
+        int usingSlotCount = currentProfilingCount.get();
+        if (!alreadyProfiling && usingSlotCount >= Config.Profile.MAX_PARALLEL) {
             return false;
         }
 
-        final ThreadProfiler segmentContext = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
-        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
-            if (profilingSegmentSlots[slot] == null) {
-                profilingSegmentSlots[slot] = segmentContext;
-                break;
+        // check first operation name matches
+        if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
+            if (alreadyProfiling) {
+                stopTracingProfile(tracingContext);
             }
+            return false;
+        } else if (alreadyProfiling) {
+            return true;
         }
-        return true;
+
+        // not profiling, try to occupy slot
+        return tryToAttemptProfiling(tracingContext, traceSegmentId, firstSpanOPName, usingSlotCount);
     }
 
     /**
@@ -145,4 +164,19 @@ public class ProfileTaskExecutionContext {
         return Objects.hash(task);
     }
 
+    private boolean tryToAttemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName, int currentUsingSlotCount) {
+        // try to occupy slot
+        if (!currentProfilingCount.compareAndSet(currentUsingSlotCount, currentUsingSlotCount + 1)) {
+            return false;
+        }
+
+        final ThreadProfiler segmentContext = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
+        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
+            if (profilingSegmentSlots[slot] == null) {
+                profilingSegmentSlots[slot] = segmentContext;
+                break;
+            }
+        }
+        return true;
+    }
 }

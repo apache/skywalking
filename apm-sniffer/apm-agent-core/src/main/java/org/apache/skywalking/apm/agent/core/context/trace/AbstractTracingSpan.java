@@ -203,6 +203,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
         this.operationId = DictionaryUtil.nullValue();
+
+        // recheck profiling status
+        ContextManager.profilingRecheck(this, operationName);
         return this;
     }
 

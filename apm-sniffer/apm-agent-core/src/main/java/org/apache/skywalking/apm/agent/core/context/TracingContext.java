@@ -103,7 +103,7 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * profiling status
      */
-    private final boolean profiling;
+    private volatile boolean profiling;
 
     /**
      * Initialize all fields with default value.
@@ -483,6 +483,16 @@ public class TracingContext implements AbstractTracerContext {
     @Override public void asyncStop(AsyncSpan span) {
         asyncSpanCounter.addAndGet(-1);
         finish();
+    }
+
+    @Override
+    public void profilingRecheck(AbstractSpan span, String operationName) {
+        // only recheck first span
+        if (span.getSpanId() != 0) {
+            return;
+        }
+
+        profiling = PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
     }
 
     /**
