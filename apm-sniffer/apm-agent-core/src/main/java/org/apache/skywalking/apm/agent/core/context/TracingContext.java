@@ -65,12 +65,12 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * @see {@link ProfileTaskExecutionService}
      */
-    private static ProfileTaskExecutionService profileTaskExecutionService;
+    private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
 
     /**
      * @see {@link SamplingService}
      */
-    private static SamplingService samplingService;
+    private static SamplingService SAMPLING_SERVICE;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -115,15 +115,15 @@ public class TracingContext implements AbstractTracerContext {
         createTime = System.currentTimeMillis();
         running = true;
 
-        if (samplingService == null) {
-            samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        if (SAMPLING_SERVICE == null) {
+            SAMPLING_SERVICE = ServiceManager.INSTANCE.findService(SamplingService.class);
         }
 
         // profiling status
-        if (profileTaskExecutionService == null) {
-            profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        if (PROFILE_TASK_EXECUTION_SERVICE == null) {
+            PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        this.profiling = profileTaskExecutionService.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+        this.profiling = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -511,7 +511,7 @@ public class TracingContext implements AbstractTracerContext {
                  * @see {@link #createSpan(String, long, boolean)}
                  */
                 if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-                    if (!samplingService.trySampling()) {
+                    if (!SAMPLING_SERVICE.trySampling()) {
                         finishedSegment.setIgnore(true);
                     }
                 }
