@@ -63,6 +63,11 @@ public class TracingContext implements AbstractTracerContext {
     private long lastWarningTimestamp = 0;
 
     /**
+     * @see {@link ProfileTaskExecutionService}
+     */
+    private static ProfileTaskExecutionService profileTaskExecutionService;
+
+    /**
      * @see {@link SamplingService}
      */
     private SamplingService samplingService;
@@ -112,7 +117,9 @@ public class TracingContext implements AbstractTracerContext {
         running = true;
 
         // profiling status
-        final ProfileTaskExecutionService profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        if (profileTaskExecutionService == null) {
+            profileTaskExecutionService = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        }
         this.profiling = profileTaskExecutionService.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
@@ -484,7 +491,15 @@ public class TracingContext implements AbstractTracerContext {
             asyncFinishLock.lock();
         }
         try {
-            if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+            boolean tracingFinishInMainThread = activeSpanStack.isEmpty() && running;
+            if (tracingFinishInMainThread) {
+                /**
+                 * Notify after tracing finished in the main thread.
+                 */
+                TracingThreadListenerManager.notifyFinish(this);
+            }
+
+            if (tracingFinishInMainThread && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
                 /*
                  * Recheck the segment if the segment contains only one span.
@@ -510,11 +525,6 @@ public class TracingContext implements AbstractTracerContext {
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);
 
                 running = false;
-
-                /**
-                 * Notify current tracing context main thread has already execute finished.
-                 */
-                TracingThreadListenerManager.notifyFinish(this);
             }
         } finally {
             if (isRunningInAsyncMode) {

@@ -74,9 +74,6 @@ public class TraceSegment {
 
     private final long createTime;
 
-    // segment is profiling
-    private volatile boolean profiling;
-
     /**
      * Create a default/empty trace segment, with current time as start time, and generate a new segment id.
      */
@@ -86,7 +83,6 @@ public class TraceSegment {
         this.relatedGlobalTraces = new DistributedTraceIds();
         this.relatedGlobalTraces.append(new NewDistributedTraceId());
         this.createTime = System.currentTimeMillis();
-        this.profiling = false;
     }
 
     /**
@@ -205,13 +201,5 @@ public class TraceSegment {
 
     public long createTime() {
         return this.createTime;
-    }
-
-    public boolean getProfiling() {
-        return profiling;
-    }
-
-    public void setProfiling(boolean profiling) {
-        this.profiling = profiling;
     }
 }

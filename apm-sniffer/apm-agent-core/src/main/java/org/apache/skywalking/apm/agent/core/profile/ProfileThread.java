@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
- * Profile task process thread, dump segment executing thread stack.
+ * Profile task process thread, dump the executing thread stack.
  *
  * @author MrPro
  */
@@ -74,7 +74,7 @@ public class ProfileThread implements Runnable {
             currentLoopStartTime = System.currentTimeMillis();
 
             // each all slot
-            for (ThreadProfiler slot : executionContext.threadProfilerSlot()) {
+            for (ThreadProfiler slot : executionContext.threadProfilerSlots()) {
                 if (slot == null) {
                     continue;
                 }

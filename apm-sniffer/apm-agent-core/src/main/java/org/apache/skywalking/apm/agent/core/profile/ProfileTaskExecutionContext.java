@@ -41,7 +41,7 @@ public class ProfileTaskExecutionContext {
     private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
 
     // profiling segment slot
-    private final ThreadProfiler[] profilingSegmentSlot = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
+    private volatile ThreadProfiler[] profilingSegmentSlots = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
 
     // current profiling execution future
     private volatile Future profilingFuture;
@@ -91,9 +91,9 @@ public class ProfileTaskExecutionContext {
         }
 
         final ThreadProfiler segmentContext = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
-        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
-            if (profilingSegmentSlot[slot] == null) {
-                profilingSegmentSlot[slot] = segmentContext;
+        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
+            if (profilingSegmentSlots[slot] == null) {
+                profilingSegmentSlots[slot] = segmentContext;
                 break;
             }
         }
@@ -107,31 +107,29 @@ public class ProfileTaskExecutionContext {
      */
     public void stopTracingProfile(TracingContext tracingContext) {
         // find current tracingContext and clear it
-        boolean find = false;
-        for (int slot = 0; slot < profilingSegmentSlot.length; slot++) {
-            ThreadProfiler currentProfiler = profilingSegmentSlot[slot];
+        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
+            ThreadProfiler currentProfiler = profilingSegmentSlots[slot];
             if (currentProfiler != null && currentProfiler.matches(tracingContext)) {
-                profilingSegmentSlot[slot] = null;
+                profilingSegmentSlots[slot] = null;
 
                 // setting stop running
                 currentProfiler.stopProfiling();
-                find = true;
+                currentProfilingCount.addAndGet(-1);
+
+                // see https://www.javamex.com/tutorials/volatile_arrays.shtml, solution 2
+                profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
         }
 
-        // decrease profile count
-        if (find) {
-            currentProfilingCount.addAndGet(-1);
-        }
     }
 
     public ProfileTask getTask() {
         return task;
     }
 
-    public ThreadProfiler[] threadProfilerSlot() {
-        return profilingSegmentSlot;
+    public ThreadProfiler[] threadProfilerSlots() {
+        return profilingSegmentSlots;
     }
 
     @Override
