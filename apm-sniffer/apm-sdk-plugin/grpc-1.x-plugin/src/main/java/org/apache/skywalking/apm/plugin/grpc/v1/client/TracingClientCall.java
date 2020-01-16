@@ -66,6 +66,8 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             final AbstractSpan span = ContextManager.createExitSpan(serviceName, remotePeer);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        } else {
+            ContextManager.getRuntimeContext().remove(BLOCKING_CALL_EXIT_SPAN);
         }
 
         ContextManager.inject(contextCarrier);

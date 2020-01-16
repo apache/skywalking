@@ -25,8 +25,6 @@ import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -389,27 +387,6 @@ public class Config {
              * NB. this config item is added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
-        }
-
-        public static class Grpc {
-            /**
-             * If this config is false, only client spans of peer which configured in {@link Grpc#INCLUDED_CLIENT_TRACING_PEERS}
-             * will be collected. In this mode {@link Grpc#EXCLUDED_CLIENT_TRACING_PEERS} will override {@link Grpc#INCLUDED_CLIENT_TRACING_PEERS}.
-             * <p>
-             * If this config is true, only client spans of peer which configured in {@link Grpc#EXCLUDED_CLIENT_TRACING_PEERS}
-             * will not be collected. In this mode {@link Grpc#INCLUDED_CLIENT_TRACING_PEERS} will override {@link Grpc#EXCLUDED_CLIENT_TRACING_PEERS}.
-             */
-            public static boolean DEFAULT_CLIENT_TRACING_ENABLE = false;
-
-            /**
-             * Included client tracing peers. gRPC plugin will collect client spans of configured config.
-             */
-            public static List<String> INCLUDED_CLIENT_TRACING_PEERS = new LinkedList<>();
-
-            /**
-             * Excluded client tracing peers. gRPC plugin will not collect client spans of configured config.
-             */
-            public static List<String> EXCLUDED_CLIENT_TRACING_PEERS = new LinkedList<>();
         }
     }
 }
