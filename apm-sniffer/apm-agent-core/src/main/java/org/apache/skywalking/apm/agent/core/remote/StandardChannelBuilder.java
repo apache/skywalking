@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
+import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 /**
  * @author zhang xin
@@ -29,6 +30,7 @@ public class StandardChannelBuilder implements ChannelBuilder {
 
     @Override public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) throws Exception {
         return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
+            .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
             .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
             .usePlaintext();
     }
