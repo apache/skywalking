@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-MYSQL_URL="http://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+MYSQL_URL="https://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
 MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
 
 echo "MySQL database is storage provider..."   
