@@ -70,7 +70,7 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * @see {@link SamplingService}
      */
-    private SamplingService samplingService;
+    private static SamplingService samplingService;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -111,10 +111,13 @@ public class TracingContext implements AbstractTracerContext {
     TracingContext(String firstOPName) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
-        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
         createTime = System.currentTimeMillis();
         running = true;
+
+        if (samplingService == null) {
+            samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        }
 
         // profiling status
         if (profileTaskExecutionService == null) {
