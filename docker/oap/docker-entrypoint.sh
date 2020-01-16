@@ -201,6 +201,17 @@ configuration:
 EOT
 }
 
+generateConfigurationGRPC() {
+    cat <<EOT >> ${var_application_file}
+configuration:
+  grpc:
+    host: \${SW_CONFIGURATION_GRPC_HOST:127.0.0.1}
+    port: \${SW_CONFIGURATION_GRPC_PORT:9555}
+    period: \${SW_CONFIGURATION_GRPC_PERIOD:60}
+    clusterName: \${SW_CONFIGURATION_GRPC_CLUSTER_NAME:"default"}
+EOT
+}
+
 generateConfigurationConsul() {
     cat <<EOT >> ${var_application_file}
 configuration:
@@ -328,6 +339,7 @@ receiver-sharing-server:
    maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}
    gRPCThreadPoolSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:0}
    gRPCThreadPoolQueueSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:0}
+   authentication: \${SW_AUTHENTICATION:""}
 receiver-register:
   default:
 receiver-trace:
@@ -343,6 +355,8 @@ receiver-jvm:
 receiver-clr:
   default:
 receiver-so11y:
+  default:
+receiver-profile:
   default:
 service-mesh:
   default:
@@ -372,6 +386,7 @@ EOT
     nacos) generateConfigurationNacos;;
     zookeeper) generateConfigurationZookeeper;;
     consul) generateConfigurationConsul;;
+    grpc) generateConfigurationGRPC;;
     esac
 
     cat <<EOT >> ${var_application_file}

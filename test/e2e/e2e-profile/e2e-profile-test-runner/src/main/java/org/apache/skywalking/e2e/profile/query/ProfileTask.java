@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * Profile task bean for e2e GraphQL test result
  *
@@ -38,5 +40,8 @@ public class ProfileTask {
     private String duration;
     private String minDurationThreshold;
     private String dumpPeriod;
+    private String maxSamplingCount;
+
+    private List<ProfileTaskLog> logs;
 
 }

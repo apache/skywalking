@@ -22,11 +22,13 @@ import io.grpc.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * @author peng-yongsheng, jian.tan
  */
 public interface GRPCHandlerRegister extends Service {
 
     void addHandler(BindableService handler);
 
     void addHandler(ServerServiceDefinition definition);
+
+    void addFilter(ServerInterceptor interceptor);
 }

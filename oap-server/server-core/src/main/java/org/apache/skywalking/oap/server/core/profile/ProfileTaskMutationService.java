@@ -17,6 +17,7 @@
  */
 package org.apache.skywalking.oap.server.core.profile;
 
+import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -60,17 +61,18 @@ public class ProfileTaskMutationService implements Service {
      * @param monitorDuration monitor task duration(minute)
      * @param minDurationThreshold min duration threshold
      * @param dumpPeriod dump period
+     * @param maxSamplingCount max trace count on sniffer
      * @return task create result
      */
     public ProfileTaskCreationResult createTask(final int serviceId, final String endpointName, final long monitorStartTime, final int monitorDuration,
-                                                final int minDurationThreshold, final int dumpPeriod) throws IOException {
+                                                final int minDurationThreshold, final int dumpPeriod, final int maxSamplingCount) throws IOException {
 
         // calculate task execute range
         long taskStartTime = monitorStartTime > 0 ? monitorStartTime : System.currentTimeMillis();
         long taskEndTime = taskStartTime + TimeUnit.MINUTES.toMillis(monitorDuration);
 
         // check data
-        final String errorMessage = checkDataSuccess(serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod);
+        final String errorMessage = checkDataSuccess(serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod, maxSamplingCount);
         if (errorMessage != null) {
             return ProfileTaskCreationResult.builder().errorReason(errorMessage).build();
         }
@@ -85,6 +87,7 @@ public class ProfileTaskMutationService implements Service {
         task.setMinDurationThreshold(minDurationThreshold);
         task.setDumpPeriod(dumpPeriod);
         task.setCreateTime(createTime);
+        task.setMaxSamplingCount(maxSamplingCount);
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(taskEndTime));
         NoneStreamingProcessor.getInstance().in(task);
 
@@ -92,7 +95,7 @@ public class ProfileTaskMutationService implements Service {
     }
 
     private String checkDataSuccess(final Integer serviceId, final String endpointName, final long monitorStartTime, final long monitorEndTime, final int monitorDuration,
-                                    final int minDurationThreshold, final int dumpPeriod) throws IOException {
+                                    final int minDurationThreshold, final int dumpPeriod, final int maxSamplingCount) throws IOException {
         // basic check
         if (serviceId == null) {
             return "service cannot be null";
@@ -100,23 +103,27 @@ public class ProfileTaskMutationService implements Service {
         if (StringUtil.isEmpty(endpointName)) {
             return "endpoint name cannot be empty";
         }
-        if (monitorEndTime - monitorStartTime < TimeUnit.MINUTES.toMillis(1)) {
-            return "monitor duration must greater than 1 minutes";
+        if (monitorDuration < ProfileConstants.TASK_DURATION_MIN_MINUTE) {
+            return "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes";
         }
         if (minDurationThreshold < 0) {
             return "min duration threshold must greater than or equals zero";
         }
-
-        // check limit
-        // The duration of the monitoring task cannot be greater than 15 minutes
-        final long maxMonitorDurationInSec = TimeUnit.MINUTES.toSeconds(15);
-        if (monitorDuration > maxMonitorDurationInSec) {
-            return "The duration of the monitoring task cannot be greater than 15 minutes";
+        if (maxSamplingCount <= 0) {
+            return "max sampling count must greater than zero";
         }
 
-        // dump period must be greater than or equals 10 milliseconds
-        if (dumpPeriod < 10) {
-            return "dump period must be greater than or equals 10 milliseconds";
+        // check limit
+        if (monitorDuration > ProfileConstants.TASK_DURATION_MAX_MINUTE) {
+            return "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes";
+        }
+
+        if (dumpPeriod < ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS) {
+            return "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds";
+        }
+
+        if (maxSamplingCount >= ProfileConstants.TASK_MAX_SAMPLING_COUNT) {
+            return "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT;
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks

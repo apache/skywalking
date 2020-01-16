@@ -103,6 +103,42 @@ public class RunningRuleTest {
     }
 
     @Test
+    public void testMultipleValuesAlarm() {
+        AlarmRule alarmRule = new AlarmRule();
+        alarmRule.setAlarmRuleName("endpoint_multiple_values_rule");
+        alarmRule.setMetricsName("endpoint_percent");
+        alarmRule.setOp(">");
+        alarmRule.setThreshold("50,60,70,-, 100");
+        alarmRule.setCount(3);
+        alarmRule.setPeriod(15);
+        alarmRule.setMessage("response percentile of endpoint {name} is lower than expected values");
+
+        RunningRule runningRule = new RunningRule(alarmRule);
+        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
+
+        long timeInPeriod1 = 201808301434L;
+        long timeInPeriod2 = 201808301436L;
+        long timeInPeriod3 = 201808301438L;
+
+        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
+        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
+        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
+
+        // check at 201808301440
+        List<AlarmMessage> alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
+        // check at 201808301441
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(0, alarmMessages.size());
+        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
+        // check at 201808301442
+        alarmMessages = runningRule.check();
+        Assert.assertEquals(1, alarmMessages.size());
+        Assert.assertEquals("response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0).getAlarmMessage());
+    }
+
+    @Test
     public void testNoAlarm() {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
@@ -258,6 +294,14 @@ public class RunningRuleTest {
         return mockMetrics;
     }
 
+    private Metrics getMultipleValueMetrics(long timeBucket, int... values) {
+        MockMultipleValueMetrics mockMultipleValueMetrics = new MockMultipleValueMetrics();
+        mockMultipleValueMetrics.setValues(values);
+        mockMultipleValueMetrics.setTimeBucket(timeBucket);
+        return mockMultipleValueMetrics;
+
+    }
+
     private class MockMetrics extends Metrics implements IntValueHolder {
         private int value;
 
@@ -303,6 +347,54 @@ public class RunningRuleTest {
 
         @Override public int remoteHashCode() {
             return 0;
+        }
+    }
+
+    private class MockMultipleValueMetrics extends Metrics implements MultiIntValuesHolder {
+        private int[] values;
+
+        public void setValues(int[] values) {
+            this.values = values;
+        }
+
+        @Override public String id() {
+            return null;
+        }
+
+        @Override public void combine(Metrics metrics) {
+
+        }
+
+        @Override public void calculate() {
+
+        }
+
+        @Override public Metrics toHour() {
+            return null;
+        }
+
+        @Override public Metrics toDay() {
+            return null;
+        }
+
+        @Override public Metrics toMonth() {
+            return null;
+        }
+
+        @Override public int[] getValues() {
+            return values;
+        }
+
+        @Override public int remoteHashCode() {
+            return 0;
+        }
+
+        @Override public void deserialize(RemoteData remoteData) {
+
+        }
+
+        @Override public RemoteData.Builder serialize() {
+            return null;
         }
     }
 }

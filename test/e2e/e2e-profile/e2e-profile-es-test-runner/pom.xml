@@ -116,6 +116,7 @@
                                     </INSTRUMENTED_SERVICE_1>
                                     <INSTRUMENTED_SERVICE_1_OPTS>
                                         -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
+                                        -DSW_AGENT_PROFILE_ACTIVE=true
                                         -DSW_AGENT_NAME=${provider.name}
                                         -Dserver.port=9090
                                     </INSTRUMENTED_SERVICE_1_OPTS>
