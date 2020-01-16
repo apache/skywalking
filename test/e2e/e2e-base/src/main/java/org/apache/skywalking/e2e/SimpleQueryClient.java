@@ -22,6 +22,7 @@ import com.google.common.io.Resources;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsData;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
+import org.apache.skywalking.e2e.metrics.MultiMetricsData;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesData;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -29,9 +30,7 @@ import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoints;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.TopoData;
-import org.apache.skywalking.e2e.topo.TopoQuery;
-import org.apache.skywalking.e2e.topo.TopoResponse;
+import org.apache.skywalking.e2e.topo.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesData;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -53,9 +52,9 @@ import java.util.stream.Collectors;
  * @author kezhenxu94
  */
 public class SimpleQueryClient {
-    private final RestTemplate restTemplate = new RestTemplate();
+    protected final RestTemplate restTemplate = new RestTemplate();
 
-    private final String endpointUrl;
+    protected final String endpointUrl;
 
     public SimpleQueryClient(String host, String port) {
         this("http://" + host + ":" + port + "/graphql");
@@ -179,6 +178,30 @@ public class SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
     }
 
+    public ServiceInstanceTopoData serviceInstanceTopo(final ServiceInstanceTopoQuery query) throws Exception {
+        final URL queryFileUrl = Resources.getResource("instanceTopo.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{step}", query.step())
+                .replace("{start}", query.start())
+                .replace("{end}", query.end())
+                .replace("{clientServiceId}", query.clientServiceId())
+                .replace("{serverServiceId}", query.serverServiceId());
+        final ResponseEntity<GQLResponse<ServiceInstanceTopoResponse>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<ServiceInstanceTopoResponse>>() {
+                }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getTopo();
+    }
+
     public Metrics metrics(final MetricsQuery query) throws Exception {
         final URL queryFileUrl = Resources.getResource("metrics.gql");
         final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
@@ -193,6 +216,31 @@ public class SimpleQueryClient {
         final ResponseEntity<GQLResponse<MetricsData>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
             new ParameterizedTypeReference<GQLResponse<MetricsData>>() {
+            }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getMetrics();
+    }
+
+    public List<Metrics> multipleLinearMetrics(final MetricsQuery query, String numOfLinear) throws Exception {
+        final URL queryFileUrl = Resources.getResource("metrics-multiLines.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+            .stream()
+            .filter(it -> !it.startsWith("#"))
+            .collect(Collectors.joining())
+            .replace("{step}", query.step())
+            .replace("{start}", query.start())
+            .replace("{end}", query.end())
+            .replace("{metricsName}", query.metricsName())
+            .replace("{id}", query.id())
+            .replace("{numOfLinear}", numOfLinear);
+        final ResponseEntity<GQLResponse<MultiMetricsData>> responseEntity = restTemplate.exchange(
+            new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+            new ParameterizedTypeReference<GQLResponse<MultiMetricsData>>() {
             }
         );
 

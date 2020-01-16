@@ -13,8 +13,8 @@ You need three steps to open ALS.
 ```yaml
 envoy-metric:
   default:
-    alsHTTPAnalysis:
-      - k8s-mesh
+    alsHTTPAnalysis: "k8s-mesh"
 ```
+Note multiple value，please use `,` symbol split
 
 Notice, only use this when envoy under Istio controlled, also in k8s env.

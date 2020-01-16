@@ -19,9 +19,8 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.define;
 
-import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
-
 import java.util.Arrays;
+import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
@@ -58,7 +57,7 @@ public class StatementEnhanceInfos {
         maxIndex = maxIndex > index ? maxIndex : index;
         index--; // start from 1
         if (parameters == null) {
-            final int initialSize = Math.max(20, maxIndex);
+            final int initialSize = Math.max(16, maxIndex);
             parameters = new Object[initialSize];
             Arrays.fill(parameters, null);
         }

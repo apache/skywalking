@@ -26,8 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
@@ -56,6 +59,7 @@ public class RunningRule {
     private volatile MetricsValueType valueType;
     private int targetScopeId;
     private List<String> includeNames;
+    private List<String> excludeNames;
     private AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -74,6 +78,7 @@ public class RunningRule {
         this.silencePeriod = alarmRule.getSilencePeriod();
 
         this.includeNames = alarmRule.getIncludeNames();
+        this.excludeNames = alarmRule.getExcludeNames();
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
@@ -81,7 +86,8 @@ public class RunningRule {
      * Receive metrics result from persistence, after it is saved into storage. In alarm, only minute dimensionality
      * metrics are expected to process.
      *
-     * @param metrics
+     * @param meta of input metrics
+     * @param metrics includes the values.
      */
     public void in(MetaInAlarm meta, Metrics metrics) {
         if (!meta.getMetricsName().equals(metricsName)) {
@@ -91,6 +97,12 @@ public class RunningRule {
 
         if (CollectionUtils.isNotEmpty(includeNames)) {
             if (!includeNames.contains(meta.getName())) {
+                return;
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(excludeNames)) {
+            if (excludeNames.contains(meta.getName())) {
                 return;
             }
         }
@@ -105,6 +117,9 @@ public class RunningRule {
             } else if (metrics instanceof DoubleValueHolder) {
                 valueType = MetricsValueType.DOUBLE;
                 threshold.setType(MetricsValueType.DOUBLE);
+            } else if (metrics instanceof MultiIntValuesHolder) {
+                valueType = MetricsValueType.MULTI_INTS;
+                threshold.setType(MetricsValueType.MULTI_INTS);
             } else {
                 return;
             }
@@ -115,8 +130,8 @@ public class RunningRule {
             Window window = windows.get(meta);
             if (window == null) {
                 window = new Window(period);
-                LocalDateTime timebucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
-                window.moveTo(timebucket);
+                LocalDateTime timeBucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
+                window.moveTo(timeBucket);
                 windows.put(meta, window);
             }
 
@@ -145,9 +160,11 @@ public class RunningRule {
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
                 alarmMessage.setScopeId(meta.getScopeId());
+                alarmMessage.setScope(meta.getScope());
                 alarmMessage.setName(meta.getName());
                 alarmMessage.setId0(meta.getId0());
                 alarmMessage.setId1(meta.getId1());
+                alarmMessage.setRuleName(this.ruleName);
                 alarmMessage.setAlarmMessage(formatter.format(meta));
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessageList.add(alarmMessage);
@@ -158,8 +175,8 @@ public class RunningRule {
     }
 
     /**
-     * A metrics window, based on {@link AlarmRule#period}. This window slides with time, just keeps the recent
-     * N(period) buckets.
+     * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent N(period)
+     * buckets.
      *
      * @author wusheng
      */
@@ -275,57 +292,40 @@ public class RunningRule {
                     case LONG:
                         long lvalue = ((LongValueHolder)metrics).getValue();
                         long lexpected = RunningRule.this.threshold.getLongThreshold();
-                        switch (op) {
-                            case GREATER:
-                                if (lvalue > lexpected)
-                                    matchCount++;
-                                break;
-                            case LESS:
-                                if (lvalue < lexpected)
-                                    matchCount++;
-                                break;
-                            case EQUAL:
-                                if (lvalue == lexpected)
-                                    matchCount++;
-                                break;
+                        if (op.test(lexpected, lvalue)) {
+                            matchCount++;
                         }
                         break;
                     case INT:
                         int ivalue = ((IntValueHolder)metrics).getValue();
                         int iexpected = RunningRule.this.threshold.getIntThreshold();
-                        switch (op) {
-                            case LESS:
-                                if (ivalue < iexpected)
-                                    matchCount++;
-                                break;
-                            case GREATER:
-                                if (ivalue > iexpected)
-                                    matchCount++;
-                                break;
-                            case EQUAL:
-                                if (ivalue == iexpected)
-                                    matchCount++;
-                                break;
+                        if (op.test(iexpected, ivalue)) {
+                            matchCount++;
                         }
                         break;
                     case DOUBLE:
                         double dvalue = ((DoubleValueHolder)metrics).getValue();
-                        double dexpected = RunningRule.this.threshold.getDoubleThreadhold();
-                        switch (op) {
-                            case EQUAL:
-                                // NOTICE: double equal is not reliable in Java,
-                                // match result is not predictable
-                                if (dvalue == dexpected)
-                                    matchCount++;
+                        double dexpected = RunningRule.this.threshold.getDoubleThreshold();
+                        if (op.test(dexpected, dvalue)) {
+                            matchCount++;
+                        }
+                        break;
+                    case MULTI_INTS:
+                        int[] ivalueArray = ((MultiIntValuesHolder)metrics).getValues();
+                        Integer[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
+                        for (int i = 0; i < ivalueArray.length; i++) {
+                            ivalue = ivalueArray[i];
+                            Integer iNullableExpected = 0;
+                            if (iaexpected.length > i) {
+                                iNullableExpected = iaexpected[i];
+                                if (iNullableExpected == null) {
+                                    continue;
+                                }
+                            }
+                            if (op.test(iNullableExpected, ivalue)) {
+                                matchCount++;
                                 break;
-                            case GREATER:
-                                if (dvalue > dexpected)
-                                    matchCount++;
-                                break;
-                            case LESS:
-                                if (dvalue < dexpected)
-                                    matchCount++;
-                                break;
+                            }
                         }
                         break;
                 }

@@ -18,13 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.register.*;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.*;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.*;
 
@@ -54,7 +59,9 @@ public enum CacheUpdateTimer {
 
     private void update(ModuleDefineHolder moduleDefineHolder) {
         updateServiceInventory(moduleDefineHolder);
+        updateServiceInstanceInventory(moduleDefineHolder);
         updateNetAddressInventory(moduleDefineHolder);
+        updateProfileTask(moduleDefineHolder);
     }
 
     private void updateServiceInventory(ModuleDefineHolder moduleDefineHolder) {
@@ -77,6 +84,26 @@ public enum CacheUpdateTimer {
         });
     }
 
+    private void updateServiceInstanceInventory(ModuleDefineHolder moduleDefineHolder) {
+        IServiceInstanceInventoryCacheDAO instanceInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IServiceInstanceInventoryCacheDAO.class);
+        ServiceInstanceInventoryCache instanceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        List<ServiceInstanceInventory> instanceInventories = instanceInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
+
+        instanceInventories.forEach(instanceInventory -> {
+            ServiceInstanceInventory cache = instanceInventoryCache.get(instanceInventory.getSequence());
+            if (Objects.nonNull(cache)) {
+                if (cache.getMappingServiceInstanceId() != instanceInventory.getMappingServiceInstanceId()) {
+                    cache.setMappingServiceInstanceId(instanceInventory.getMappingServiceInstanceId());
+                    cache.setServiceInstanceNodeType(instanceInventory.getServiceInstanceNodeType());
+                    cache.setProperties(instanceInventory.getProperties());
+                    logger.info("Update the cache of service instance inventory, instance id: {}", instanceInventory.getSequence());
+                }
+            } else {
+                logger.warn("Unable to found the id of {} in service instance inventory cache.", instanceInventory.getSequence());
+            }
+        });
+    }
+
     private void updateNetAddressInventory(ModuleDefineHolder moduleDefineHolder) {
         INetworkAddressInventoryCacheDAO addressInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(INetworkAddressInventoryCacheDAO.class);
         NetworkAddressInventoryCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
@@ -93,5 +120,26 @@ public enum CacheUpdateTimer {
                 logger.warn("Unable to found the id of {} in net address inventory cache.", addressInventory.getSequence());
             }
         });
+    }
+
+    /**
+     * update all profile task list for each service
+     * @param moduleDefineHolder
+     */
+    private void updateProfileTask(ModuleDefineHolder moduleDefineHolder) {
+        IProfileTaskQueryDAO profileTaskQueryDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
+        ProfileTaskCache profileTaskCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ProfileTaskCache.class);
+        try {
+            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(null, null, profileTaskCache.getCacheStartTimeBucket(), profileTaskCache.getCacheEndTimeBucket(), null);
+
+            taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
+                final Integer serviceId = e.getKey();
+                final List<ProfileTask> profileTasks = e.getValue();
+
+                profileTaskCache.saveTaskList(serviceId, profileTasks);
+            });
+        } catch (IOException e) {
+            logger.warn("Unable to update profile task cache", e);
+        }
     }
 }

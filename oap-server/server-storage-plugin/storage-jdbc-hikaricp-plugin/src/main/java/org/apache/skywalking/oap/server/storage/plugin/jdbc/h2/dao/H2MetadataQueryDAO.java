@@ -71,7 +71,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(ServiceInventory.INDEX_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=0");
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=" + BooleanUtils.FALSE);
+        sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=" + NodeType.Normal.value());
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
@@ -86,7 +87,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public int numOfEndpoint(long startTimestamp, long endTimestamp) throws IOException {
+    public int numOfEndpoint() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(EndpointInventory.INDEX_NAME).append(" where ");
@@ -106,8 +107,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public int numOfConjectural(long startTimestamp, long endTimestamp,
-        int nodeTypeValue) throws IOException {
+    public int numOfConjectural(int nodeTypeValue) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select count(*) num from ").append(ServiceInventory.INDEX_NAME).append(" where ");
@@ -132,8 +132,32 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.INDEX_NAME).append(" where ");
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
-        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=? limit ").append(metadataQueryMaxSize);
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
+        sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
+        condition.add(NodeType.Normal.value());
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+                return buildServices(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        List<Object> condition = new ArrayList<>(5);
+        sql.append("select * from ").append(ServiceInventory.INDEX_NAME).append(" where ");
+        setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
+        sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
+        condition.add(BooleanUtils.FALSE);
+        sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
+        condition.add(NodeType.Browser.value());
+        sql.append(" limit ").append(metadataQueryMaxSize);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
@@ -186,6 +210,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         setTimeRangeCondition(sql, condition, startTimestamp, endTimestamp);
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=?");
         condition.add(BooleanUtils.FALSE);
+        sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=?");
+        condition.add(NodeType.Normal.value());
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(ServiceInventory.NAME).append(" like \"%").append(keyword).append("%\"");
         }
@@ -277,6 +303,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                     ServiceInstance serviceInstance = new ServiceInstance();
                     serviceInstance.setId(resultSet.getString(ServiceInstanceInventory.SEQUENCE));
                     serviceInstance.setName(resultSet.getString(ServiceInstanceInventory.NAME));
+                    serviceInstance.setInstanceUUID(resultSet.getString(ServiceInstanceInventory.INSTANCE_UUID));
 
                     String propertiesString = resultSet.getString(ServiceInstanceInventory.PROPERTIES);
                     if (!Strings.isNullOrEmpty(propertiesString)) {

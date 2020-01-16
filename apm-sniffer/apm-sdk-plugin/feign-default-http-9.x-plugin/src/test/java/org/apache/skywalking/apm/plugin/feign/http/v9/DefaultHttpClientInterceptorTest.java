@@ -21,11 +21,6 @@ package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
 import feign.Response;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -40,6 +35,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -49,6 +45,12 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.CoreMatchers.is;
@@ -85,9 +87,9 @@ public class DefaultHttpClientInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-
+        PathVarInterceptor.URL_CONTEXT.set(new FeignResolvedURL("/test/{pathVar}","/test/var"));
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
-        request = Request.create("GET", "http://skywalking.org/", headers, "Test".getBytes(), Charset.forName("UTF-8"));
+        request = Request.create("GET", "http://skywalking.org/test/var", headers, "Test".getBytes(), Charset.forName("UTF-8"));
         Request.Options options = new Request.Options();
         allArguments = new Object[] {request, options};
         argumentTypes = new Class[] {request.getClass(), options.getClass()};
@@ -112,7 +114,8 @@ public class DefaultHttpClientInterceptorTest {
         List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/test/var"));
+        assertThat(finishedSpan.getOperationName(),is("/test/{pathVar}"));
 
         Assert.assertEquals(false, SpanHelper.getErrorOccurred(finishedSpan));
     }
@@ -135,8 +138,9 @@ public class DefaultHttpClientInterceptorTest {
         List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(3));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/test/var"));
         assertThat(tags.get(2).getValue(), is("404"));
+        assertThat(finishedSpan.getOperationName(),is("/test/{pathVar}"));
 
         Assert.assertEquals(true, SpanHelper.getErrorOccurred(finishedSpan));
     }
@@ -166,7 +170,7 @@ public class DefaultHttpClientInterceptorTest {
         List<TagValuePair> tags = SpanHelper.getTags(finishedSpan);
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
-        assertThat(tags.get(1).getValue(), is("http://skywalking.org/"));
+        assertThat(tags.get(1).getValue(), is("http://skywalking.org/test/var"));
 
         Assert.assertEquals(true, SpanHelper.getErrorOccurred(finishedSpan));
 
@@ -178,5 +182,10 @@ public class DefaultHttpClientInterceptorTest {
         assertThat(logDataEntity.getLogs().get(1).getValue(), CoreMatchers.<Object>is(NullPointerException.class.getName()));
         assertThat(logDataEntity.getLogs().get(2).getValue(), is("testException"));
         assertNotNull(logDataEntity.getLogs().get(3).getValue());
+    }
+
+    @After
+    public void clean() {
+        PathVarInterceptor.URL_CONTEXT.remove();
     }
 }

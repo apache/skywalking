@@ -1,0 +1,551 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PluginsTest
+
+on:
+  pull_request:
+    paths:
+      - '**/pom.xml'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - 'apm-application-toolkit/**'
+      - '.github/workflows/plugins-test.yaml'
+
+jobs:
+  Spring_Dubbo:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run spring-tx 4.x+ (10)
+        run: bash test/plugin/run.sh spring-tx-scenario
+      - name: Run dubbo 2.5.x-2.6.x (10)
+        run: bash test/plugin/run.sh dubbo-2.5.x-scenario
+      - name: Run dubbo 2.7.x (4)
+        run: bash test/plugin/run.sh dubbo-2.7.x-scenario
+      - name: Run okhttp 3.0.x-3.14.x (34)
+        run: bash test/plugin/run.sh okhttp-scenario
+
+  Spring31x_ES5_Gateway:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run spring 3.1.x-4.0.x (25)
+        run: bash test/plugin/run.sh spring-3.1.x-scenario
+      - name: Run spring-cloud-gateway 2.1.x (3)
+        run: bash test/plugin/run.sh gateway-scenario
+      - name: Run elasticsearch 5.x (3)
+        run: bash test/plugin/run.sh elasticsearch-5.x-scenario
+
+  Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run apm-toolkit-trace (1)
+        run: bash test/plugin/run.sh apm-toolkit-trace-scenario
+      - name: Run spring-webflux 2.x (7)
+        run: bash test/plugin/run.sh webflux-scenario
+      - name: Run netty-socketio 1.x (4)
+        run: bash test/plugin/run.sh netty-socketio-scenario
+      - name: Run rabbitmq-scenario (12)
+        run: bash test/plugin/run.sh rabbitmq-scenario
+      - name: Run gson-scenario (7)
+        run: bash test/plugin/run.sh gson-scenario
+
+  Feign_Canal_Armeria:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run feign 9.0.0-9.5.1 (8)
+        run: bash test/plugin/run.sh feign-scenario
+      - name: Run customize (1)
+        run: bash test/plugin/run.sh customize-scenario
+      - name: Run canal 1.0.24-1.1.2 (5)
+        run: bash test/plugin/run.sh canal-scenario
+      - name: Run Pulsar 2.2.0-2.4.1 (7)
+        run: bash test/plugin/run.sh pulsar-scenario
+      - name: Run Armeria 0.63.0-0.95.0 (20)
+        run: bash test/plugin/run.sh armeria-0.96minus-scenario
+      - name: Run Armeria 0.96.0-0.97.0 (2)
+        run: bash test/plugin/run.sh armeria-0.96plus-scenario
+
+
+  Cassandra_Hystrix_SofaRPC_Spring30x:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run cassandra 3.7.0-3.7.2 (3)
+        run: bash test/plugin/run.sh cassandra-java-driver-3.x-scenario
+      - name: Run hystrix 1.4.20-1.5.12 (20)
+        run: bash test/plugin/run.sh hystrix-scenario
+      - name: Run sofarpc 5.4.0-5.6.2 (23)
+        run: bash test/plugin/run.sh sofarpc-scenario
+      - name: Run spring 3.0.x (8)
+        run: bash test/plugin/run.sh spring-3.0.x-scenario
+
+  SpringAsync_gRPC_KotlinCoroutine:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run spring async 4.3.x-5.1.x (35)
+        run: bash test/plugin/run.sh spring-async-scenario
+      - name: Run grpc 1.6.0-1.25.0 (22)
+        run: bash test/plugin/run.sh grpc-scenario
+      - name: Run kotlin coroutine 1.0.1-1.3.3 (4)
+        run: bash test/plugin/run.sh kotlin-coroutine-scenario
+
+  Ehcache_Undertow_Jedis:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run ehcache 2.8.x-2.10.x (19)
+        run: bash test/plugin/run.sh ehcache-2.x-scenario
+      - name: Run undertow 1.3.0-2.0.27 (23)
+        run: bash test/plugin/run.sh undertow-scenario
+      - name: Run jedis 2.4.0-2.9.0 (18)
+        run: bash test/plugin/run.sh jedis-scenario
+
+  Spring41x_SolrJ-Http:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run spring 4.1.x-4.2.x (20)
+        run: bash test/plugin/run.sh spring-4.1.x-scenario
+      - name: Run solrj 7.x (12)
+        run: bash test/plugin/run.sh solrj-7.x-scenario
+      - name: Run httpclient 2.0-3.1 (5)
+        run: bash test/plugin/run.sh httpclient-3.x-scenario
+      - name: Run httpclient 4.3.x-4.5.x (14)
+        run: bash test/plugin/run.sh httpclient-4.3.x-scenario
+      - name: Run httpasyncclient 4.0-4.1.3 (7)
+        run: bash test/plugin/run.sh httpasyncclient-scenario
+
+  MongoDB:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run mongodb 3.4.0-3.11.1 (22)
+        run: bash test/plugin/run.sh mongodb-3.x-scenario
+
+  Redisson_ShardingSphere_Zookeeper:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run redisson 3.x (37)
+        run: bash test/plugin/run.sh redisson-scenario
+      - name: Run shardingsphere-3.x-scenario 3.0.0 (1)
+        run: bash test/plugin/run.sh shardingsphere-3.x-scenario
+      - name: Run shardingsphere-4.x-RC1-RC2-scenario 4.0.0-RC1-4.0.0-RC2 (2)
+        run: bash test/plugin/run.sh shardingsphere-4.x-RC1-RC2-scenario
+      - name: Run shardingsphere-4.x-RC3-scenario 4.0.0-RC3 (1)
+        run: bash test/plugin/run.sh shardingsphere-4.x-RC3-scenario
+      - name: Run zookeeper 3.4.x (14)
+        run: bash test/plugin/run.sh zookeeper-scenario
+
+  Spring43:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run spring 4.3.x-5.2.x (54)
+        run: bash test/plugin/run.sh spring-4.3.x-scenario
+
+  PostgreSQL94:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run postgresql 9.4.1207+ (62)
+        run: bash test/plugin/run.sh postgresql-above9.4.1207-scenario
+
+  PostgreSQL92_ServiceComb:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run postgresql 9.2.x-9.4.x (36)
+        run: bash test/plugin/run.sh postgresql-scenario
+      - name: Run servicecomb 0.x (5)
+        run: bash test/plugin/run.sh servicecomb-0.x-scenario
+      - name: Run servicecomb 1.x (5)
+        run: bash test/plugin/run.sh servicecomb-1.x-scenario
+
+  Jetty:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run jetty 9.x (63)
+        run: bash test/plugin/run.sh jetty-scenario
+
+  ElasticSearch6_7:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run elasticsearch-7.x-scenario 7.0.0-7.5.1 (13)
+        run: bash test/plugin/run.sh elasticsearch-7.x-scenario
+      - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
+        run: bash test/plugin/run.sh elasticsearch-6.x-scenario
+
+  Oracle_Activemq_Kafka_JdkHttp_JdkThreading:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Run oracle 10.2.0.4.0 (1)
+        run: |
+          curl -L -o ./skywalking-agent/plugins/apm-oracle-10.x-plugin-1.0.1.jar https://github.com/SkyAPM/java-plugin-extensions/releases/download/1.0.1/apm-oracle-10.x-plugin-1.0.1.jar
+          curl -O https://skyapm.github.io/ci-assist/jars/ojdbc14-10.2.0.4.0.jar
+          ./mvnw install:install-file  -Dfile=ojdbc14-10.2.0.4.0.jar  -DgroupId=com.oracle  -DartifactId=ojdbc14 -Dversion=10.2.0.4.0 -Dpackaging=jar
+          ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+          bash test/plugin/run.sh oracle-scenario
+      - name: Run activemq 5.10.0-5.15.4 (22)
+        run: bash test/plugin/run.sh activemq-scenario
+      - name: Run kafka 0.11.0.0-2.3.0 (16)
+        run: bash test/plugin/run.sh kafka-scenario
+      - name: Run jdk http (1)
+        run: bash test/plugin/run.sh jdk-http-scenario
+      - name: Run jdk threading (1)
+        run: bash test/plugin/run.sh jdk-threading-scenario
+
+  MySQL:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run mysql 5.1.2-8.0.15 (53)
+        run: bash test/plugin/run.sh mysql-scenario
+
+  LETTUCE_PlayFramework:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
+      - name: Build the Docker image
+        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
+      - name: Run lettuce-scenario 5.x (17)
+        run: bash test/plugin/run.sh lettuce-scenario
+      - name: Run Play! Framework
+        run: bash test/plugin/run.sh play-scenario

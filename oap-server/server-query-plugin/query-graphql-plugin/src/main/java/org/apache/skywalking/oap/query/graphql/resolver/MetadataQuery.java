@@ -21,8 +21,11 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.*;
 import org.apache.skywalking.oap.server.core.query.entity.*;
@@ -61,6 +64,13 @@ public class MetadataQuery implements GraphQLQueryResolver {
         return getMetadataQueryService().getAllServices(startTimestamp, endTimestamp);
     }
 
+    public List<Service> getAllBrowserServices(final Duration duration) throws IOException, ParseException {
+        long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
+        long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
+
+        return getMetadataQueryService().getAllBrowserServices(startTimestamp, endTimestamp);
+    }
+
     public List<Service> searchServices(final Duration duration, final String keyword)
         throws IOException, ParseException {
         long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
@@ -92,5 +102,14 @@ public class MetadataQuery implements GraphQLQueryResolver {
 
     public List<Database> getAllDatabases(final Duration duration) throws IOException {
         return getMetadataQueryService().getAllDatabases();
+    }
+
+    public TimeInfo getTimeInfo() {
+        TimeInfo timeInfo = new TimeInfo();
+        SimpleDateFormat timezoneFormat = new SimpleDateFormat("ZZZZZZ");
+        Date date = new Date();
+        timeInfo.setCurrentTimestamp(date.getTime());
+        timeInfo.setTimezone(timezoneFormat.format(date));
+        return timeInfo;
     }
 }

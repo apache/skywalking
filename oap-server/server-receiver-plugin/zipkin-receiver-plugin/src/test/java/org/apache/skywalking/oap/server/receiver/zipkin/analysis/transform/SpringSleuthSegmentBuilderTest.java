@@ -56,6 +56,10 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
+            @Override public int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties) {
+                return getOrCreate(serviceName, properties);
+            }
+
             @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
                 String key = "Address:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
@@ -96,7 +100,7 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
+            @Override public int getOrCreate(int serviceId, String serviceInstanceName, int addressId, long registerTime) {
                 String key = "VitualAppCode:" + serviceId + ",getAddress:" + addressId;
                 if (applicationInstRegister.containsKey(key)) {
                     return applicationInstRegister.get(key);
@@ -107,7 +111,22 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
+            @Override
+            public void update(int serviceInstanceId, NodeType nodeType, JsonObject properties) {
+
+            }
+
             @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+
+            }
+
+            @Override
+            public void updateMapping(int serviceInstanceId, int mappingServiceInstanceId) {
+
+            }
+
+            @Override
+            public void resetMapping(int serviceInstanceId) {
 
             }
         };

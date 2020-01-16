@@ -19,3 +19,5 @@ undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.Request
 undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowRootHandlerInstrumentation
 undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowAddListenerInstrumentation
 undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.UndertowListenerConfigInstrumentation
+undertow-2.x-plugin=org.apache.skywalking.apm.plugin.undertow.v2x.define.HttpServerExchangeInstrumentation
+

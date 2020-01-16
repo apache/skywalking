@@ -66,6 +66,21 @@ public class ConnectUtilTestCase {
     }
 
     @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfOnlyComma() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse(",,");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfHostWithoutPort() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse("localhost");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
+    public void shouldThrowIfPortIsNotNumber() throws ConnectStringParseException {
+        List<Address> list = ConnectUtils.parse("localhost:what");
+    }
+
+    @Test(expected = ConnectStringParseException.class)
     public void invalidPattern1() throws ConnectStringParseException {
         List<Address> list = ConnectUtils.parse("10.0.0.1:");
     }

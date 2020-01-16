@@ -83,7 +83,7 @@ funcParamExpression
     ;
 
 literalExpression
-    : BOOL_LITERAL | NUMBER_LITERAL
+    : BOOL_LITERAL | NUMBER_LITERAL | IDENTIFIER
     ;
 
 expression

@@ -28,6 +28,8 @@ public class CommandDeserializer {
         final String commandName = command.getCommand();
         if (ServiceResetCommand.NAME.equals(commandName)) {
             return ServiceResetCommand.DESERIALIZER.deserialize(command);
+        } else if (ProfileTaskCommand.NAME.equals(commandName)) {
+            return ProfileTaskCommand.DESERIALIZER.deserialize(command);
         }
         throw new UnsupportedCommandException(command);
     }

@@ -38,27 +38,30 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        //Get the SnapshotContext
-        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
-        if (null != contextSnapshot) {
+        CallbackCache cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
+        if (null != cache) {
+            ContextSnapshot snapshot = getSnapshot(cache);
             RecordMetadata metadata = (RecordMetadata) allArguments[0];
             AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
             activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
             Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
-            ContextManager.continued(contextSnapshot);
+            ContextManager.continued(snapshot);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ContextSnapshot contextSnapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
-        if (null != contextSnapshot) {
-            Exception exceptions = (Exception) allArguments[1];
-            if (exceptions != null) {
-                ContextManager.activeSpan().errorOccurred().log(exceptions);
+        CallbackCache cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
+        if (null != cache) {
+            ContextSnapshot snapshot = getSnapshot(cache);
+            if (null != snapshot) {
+                Exception exceptions = (Exception) allArguments[1];
+                if (exceptions != null) {
+                    ContextManager.activeSpan().errorOccurred().log(exceptions);
+                }
+                ContextManager.stopSpan();
             }
-            ContextManager.stopSpan();
         }
         return ret;
     }
@@ -67,5 +70,13 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private ContextSnapshot getSnapshot(CallbackCache cache) {
+        ContextSnapshot snapshot = cache.getSnapshot();
+        if (snapshot == null) {
+            snapshot = ((CallbackCache) ((EnhancedInstance) cache.getCallback()).getSkyWalkingDynamicField()).getSnapshot();
+        }
+        return snapshot;
     }
 }

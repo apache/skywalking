@@ -30,4 +30,11 @@ public class DictionaryUtil {
     public static boolean isNull(int id) {
         return id == nullValue();
     }
+
+    /**
+     * @return -1 represent the object doesn't exist.
+     */
+    public static int inexistence() {
+        return -1;
+    }
 }

@@ -26,11 +26,10 @@ import io.grpc.internal.DnsNameResolverProvider;
  */
 public class StandardChannelBuilder implements ChannelBuilder {
     private final static int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
-    private final static boolean USE_PLAIN_TEXT = true;
 
     @Override public ManagedChannelBuilder build(ManagedChannelBuilder managedChannelBuilder) throws Exception {
         return managedChannelBuilder.nameResolverFactory(new DnsNameResolverProvider())
             .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
-            .usePlaintext(USE_PLAIN_TEXT);
+            .usePlaintext();
     }
 }

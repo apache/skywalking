@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.lang.reflect.Method;
@@ -32,7 +33,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getRequestURL(Method method) {
         String requestURL = "";
-        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+        RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(method, RequestMapping.class);
         if (methodRequestMapping.value().length > 0) {
             requestURL = methodRequestMapping.value()[0];
         } else if (methodRequestMapping.path().length > 0) {
@@ -43,7 +44,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
 
     @Override
     public String getAcceptedMethodTypes(Method method) {
-        RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
+        RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(method, RequestMapping.class);
         StringBuilder methodTypes = new StringBuilder();
         if (methodRequestMapping.method().length > 0) {
             methodTypes.append("{");

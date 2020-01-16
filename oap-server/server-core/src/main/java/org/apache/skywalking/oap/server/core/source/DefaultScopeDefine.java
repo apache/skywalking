@@ -67,6 +67,8 @@ public class DefaultScopeDefine {
     public static final int ZIPKIN_SPAN = 23;
     public static final int JAEGER_SPAN = 24;
     public static final int HTTP_ACCESS_LOG = 25;
+    public static final int PROFILE_TASK = 26;
+    public static final int PROFILE_TASK_LOG = 27;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

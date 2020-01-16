@@ -54,7 +54,7 @@ public class AggregationQueryService implements Service {
         final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class).get(Integer.valueOf(entity.getId()));
+            ServiceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class).get(Integer.parseInt(entity.getId()));
             if (inventory != null) {
                 entity.setName(inventory.getName());
             }
@@ -66,7 +66,7 @@ public class AggregationQueryService implements Service {
         final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllServiceInstanceTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
+            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.parseInt(entity.getId()));
             if (inventory != null) {
                 entity.setName(inventory.getName());
             }
@@ -78,7 +78,7 @@ public class AggregationQueryService implements Service {
         final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceInstanceTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.valueOf(entity.getId()));
+            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class).get(Integer.parseInt(entity.getId()));
             if (inventory != null) {
                 entity.setName(inventory.getName());
             }
@@ -90,7 +90,7 @@ public class AggregationQueryService implements Service {
         final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getAllEndpointTopN(indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
+            EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.parseInt(entity.getId()));
             if (inventory != null) {
                 entity.setName(inventory.getName());
             }
@@ -102,7 +102,7 @@ public class AggregationQueryService implements Service {
         final Downsampling downsampling, final long startTB, final long endTB, final Order order) throws IOException {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getEndpointTopN(serviceId, indName, ValueColumnIds.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.valueOf(entity.getId()));
+            EndpointInventory inventory = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class).get(Integer.parseInt(entity.getId()));
             if (inventory != null) {
                 entity.setName(inventory.getName());
             }

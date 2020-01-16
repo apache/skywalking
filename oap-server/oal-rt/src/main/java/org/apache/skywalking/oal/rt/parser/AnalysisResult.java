@@ -50,7 +50,7 @@ public class AnalysisResult {
 
     private List<ConditionExpression> funcConditionExpressions;
 
-    private List<String> funcArgs;
+    private List<Argument> funcArgs;
     private int argGetIdx = 0;
 
     private List<DataColumn> persistentFields;
@@ -88,14 +88,14 @@ public class AnalysisResult {
         filterExpressionsParserResult.add(conditionExpression);
     }
 
-    public void addFuncArg(String value) {
+    public void addFuncArg(Argument argument) {
         if (funcArgs == null) {
             funcArgs = new LinkedList<>();
         }
-        funcArgs.add(value);
+        funcArgs.add(argument);
     }
 
-    public String getNextFuncArg() {
+    public Argument getNextFuncArg() {
         return funcArgs.get(argGetIdx++);
     }
 

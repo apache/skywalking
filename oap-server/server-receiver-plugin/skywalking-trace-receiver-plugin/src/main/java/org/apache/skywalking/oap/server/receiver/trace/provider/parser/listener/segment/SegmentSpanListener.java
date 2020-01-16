@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.source.Segment;
@@ -51,6 +52,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
     private int entryEndpointId = 0;
     private int firstEndpointId = 0;
+    private String firstEndpointName = "";
 
     private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
@@ -85,6 +87,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
 
         firstEndpointId = spanDecorator.getOperationNameId();
+        firstEndpointName = spanDecorator.getOperationName();
     }
 
     @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
@@ -124,9 +127,19 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        if (entryEndpointId == 0) {
-            segment.setEndpointId(firstEndpointId);
-            segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+        if (entryEndpointId == Const.NONE) {
+            if (firstEndpointId != Const.NONE) {
+                /**
+                 * Since 6.6.0, only entry span is treated as an endpoint. Other span's endpoint id == 0.
+                 */
+                segment.setEndpointId(firstEndpointId);
+                segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
+            } else {
+                /**
+                 * Only fill first operation name for the trace list query, as no endpoint id.
+                 */
+                segment.setEndpointName(firstEndpointName);
+            }
         } else {
             segment.setEndpointId(entryEndpointId);
             segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());

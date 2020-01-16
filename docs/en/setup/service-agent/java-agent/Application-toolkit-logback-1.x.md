@@ -77,3 +77,34 @@
     </provider>
 </encoder>
 ```
+
+* set `LoggingEventCompositeJsonEncoder` of logstash in logback-spring.xml for custom json format
+
+1.add converter for %tid as child of <configuration> node
+```xml
+<!--add converter for %tid -->
+    <conversionRule conversionWord="tid" converterClass="org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter"/>
+```
+2.add json encoder for custom json format
+
+```xml
+<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "level": "%level",
+                        "tid": "%tid",
+                        "thread": "%thread",
+                        "class": "%logger{1.}:%L",
+                        "message": "%message",
+                        "stackTrace": "%exception{10}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+</encoder>
+```

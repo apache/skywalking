@@ -93,15 +93,9 @@
                                 </ports>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ${project.basedir}/../../../dist-for-agent-reboot/apache-skywalking-apm-bin:/sw
-                                        </volume>
-                                        <volume>
-                                            ${project.build.directory}:/home
-                                        </volume>
-                                        <volume>
-                                            ${project.basedir}/src/docker/rc.d:/rc.d:ro
-                                        </volume>
+                                        <volume>${sw.home}:/sw</volume>
+                                        <volume>${project.build.directory}:/home</volume>
+                                        <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
