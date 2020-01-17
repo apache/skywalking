@@ -72,10 +72,8 @@ public class ThreadProfiler {
      *
      * @return current profiler is already start profiling
      */
-    public boolean stopProfiling() {
-        boolean isProfilingStarted = this.profilingStatus == ProfilingStatus.PROFILING;
+    public void stopProfiling() {
         this.profilingStatus = ProfilingStatus.STOPPED;
-        return isProfilingStarted;
     }
 
     /**

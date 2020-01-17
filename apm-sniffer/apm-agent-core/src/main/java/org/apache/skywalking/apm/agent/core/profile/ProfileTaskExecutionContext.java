@@ -135,24 +135,21 @@ public class ProfileTaskExecutionContext {
      *
      * @return current profiler is already start profiling
      */
-    public boolean stopTracingProfile(TracingContext tracingContext) {
+    public void stopTracingProfile(TracingContext tracingContext) {
         // find current tracingContext and clear it
-        boolean isProfilingStarted = false;
         for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
             ThreadProfiler currentProfiler = profilingSegmentSlots[slot];
             if (currentProfiler != null && currentProfiler.matches(tracingContext)) {
                 profilingSegmentSlots[slot] = null;
 
                 // setting stop running
-                isProfilingStarted = currentProfiler.stopProfiling();
+                currentProfiler.stopProfiling();
                 currentProfilingCount.addAndGet(-1);
 
                 profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
         }
-
-        return isProfilingStarted;
     }
 
     public ProfileTask getTask() {
