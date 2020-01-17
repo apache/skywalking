@@ -76,7 +76,7 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
     public abstract String[] requiredModules();
 
     /**
-     * Register a implementation for the service of this moduleDefine provider.
+     * Register an implementation for the service of this moduleDefine provider.
      */
     @Override public final void registerServiceImplementation(Class<? extends Service> serviceType,
         Service service) throws ServiceNotProvidedException {
