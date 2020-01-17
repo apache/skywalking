@@ -34,7 +34,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.*;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.Downstream;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
@@ -209,9 +208,9 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                     snapshotQueue.drainTo(buffer);
                     if (buffer.size() > 0) {
                         final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-                        StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Downstream>() {
+                        StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Commands>() {
                             @Override
-                            public void onNext(Downstream downstream) {
+                            public void onNext(Commands commands) {
                             }
 
                             @Override

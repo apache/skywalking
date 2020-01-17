@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.receiver.profile.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.Downstream;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
@@ -91,7 +90,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     }
 
     @Override
-    public StreamObserver<ThreadSnapshot> collectSnapshot(StreamObserver<Downstream> responseObserver) {
+    public StreamObserver<ThreadSnapshot> collectSnapshot(StreamObserver<Commands> responseObserver) {
         return new StreamObserver<ThreadSnapshot>() {
             @Override
             public void onNext(ThreadSnapshot snapshot) {
@@ -131,14 +130,14 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
 
             @Override
             public void onCompleted() {
-                responseObserver.onNext(Downstream.newBuilder().build());
+                responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
             }
         };
     }
 
     @Override
-    public void reportTaskFinish(ProfileTaskFinishReport request, StreamObserver<Downstream> responseObserver) {
+    public void reportTaskFinish(ProfileTaskFinishReport request, StreamObserver<Commands> responseObserver) {
         // query task from cache, set log time bucket need it
         final ProfileTask profileTask = profileTaskCache.getProfileTaskById(request.getTaskId());
 
@@ -147,7 +146,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             recordProfileTaskLog(profileTask, request.getInstanceId(), ProfileTaskLogOperationType.EXECUTION_FINISHED);
         }
 
-        responseObserver.onNext(Downstream.newBuilder().build());
+        responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();
     }
 
