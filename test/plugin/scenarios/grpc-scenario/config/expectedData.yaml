@@ -263,8 +263,8 @@ segmentItems:
       parentSpanId: 5
       spanId: 8
       spanLayer: RPCFramework
-      startTime: 1579183658049
-      endTime: 1579183658049
+      startTime: nq 0
+      endTime: nq 0
       componentId: 23
       componentName: ''
       isError: false
@@ -276,8 +276,8 @@ segmentItems:
       parentSpanId: 0
       spanId: 5
       spanLayer: RPCFramework
-      startTime: 1579183658029
-      endTime: 1579183658049
+      startTime: nq 0
+      endTime: nq 0
       componentId: 23
       componentName: ''
       isError: true
