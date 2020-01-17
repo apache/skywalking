@@ -499,24 +499,24 @@ segmentItems:
         entryServiceInstanceId: 1
   - segmentId: not null
     spans:
-      - operationName: Greeter.sayHello/client/Request/onMessage
+    - operationName: Greeter.sayHello/client/Request/onMessage
       operationId: 0
       parentSpanId: -1
       spanId: 0
-        spanLayer: RPCFramework
+      spanLayer: RPCFramework
       startTime: nq 0
       endTime: nq 0
-        componentId: 23
-        componentName: ''
-        isError: false
-        spanType: Local
-        peer: ''
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
       peerId: 0
-        refs:
-          - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
-             entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-             parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
-             entryServiceInstanceId: 1}
+      refs:
+        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
+           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
+           entryServiceInstanceId: 1}
   - segmentId: not null
     spans:
       - operationName: Greeter.sayHello/client/Response/onMessage
