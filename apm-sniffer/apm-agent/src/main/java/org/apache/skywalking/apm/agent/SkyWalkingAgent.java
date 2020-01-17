@@ -72,9 +72,6 @@ public class SkyWalkingAgent {
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-        } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
-            return;
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
