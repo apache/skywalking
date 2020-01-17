@@ -42,7 +42,7 @@ public class ContextCarrierV2HeaderTest {
 
     @Test
     public void testSerializeV2Header() {
-        List<DistributedTraceId> distributedTraceIds = new ArrayList<DistributedTraceId>();
+        List<DistributedTraceId> distributedTraceIds = new ArrayList<>();
         distributedTraceIds.add(new PropagatedTraceId("3.4.5"));
 
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -69,7 +69,6 @@ public class ContextCarrierV2HeaderTest {
         next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            //TODO, no BASE64
             Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
         }
 
@@ -78,7 +77,7 @@ public class ContextCarrierV2HeaderTest {
 
     @Test
     public void testV2HeaderAccurate() {
-        List<DistributedTraceId> distributedTraceIds = new ArrayList<DistributedTraceId>();
+        List<DistributedTraceId> distributedTraceIds = new ArrayList<>();
         distributedTraceIds.add(new PropagatedTraceId("3.4.5"));
 
         ContextCarrier contextCarrier = new ContextCarrier();

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
@@ -214,16 +215,9 @@ public class TraceQueryService implements Service {
                 }
                 ref.setParentSpanId(reference.getParentSpanId());
 
-                UniqueId uniqueId = reference.getParentTraceSegmentId();
-                StringBuilder segmentIdBuilder = new StringBuilder();
-                for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                    if (i == 0) {
-                        segmentIdBuilder.append(uniqueId.getIdPartsList().get(i));
-                    } else {
-                        segmentIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-                    }
-                }
-                ref.setParentSegmentId(segmentIdBuilder.toString());
+                final UniqueId uniqueId = reference.getParentTraceSegmentId();
+                final String parentSegmentId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
+                ref.setParentSegmentId(parentSegmentId);
 
                 span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());
 

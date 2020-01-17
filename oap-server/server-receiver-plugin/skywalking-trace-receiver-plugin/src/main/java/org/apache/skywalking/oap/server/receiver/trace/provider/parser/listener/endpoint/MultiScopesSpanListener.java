@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
@@ -283,15 +284,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
         if (traceId == null) {
-            StringBuilder traceIdBuilder = new StringBuilder();
-            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                if (i == 0) {
-                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
-                } else {
-                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-                }
-            }
-            traceId = traceIdBuilder.toString();
+            traceId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
         }
     }
 
