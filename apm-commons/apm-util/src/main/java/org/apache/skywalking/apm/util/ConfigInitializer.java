@@ -114,7 +114,7 @@ public class ConfigInitializer {
 }
 
 class ConfigDesc {
-    private Stack<String> descs = new Stack<>();
+    private LinkedList<String> descs = new LinkedList<>();
 
     void append(String currentDesc) {
         descs.push(currentDesc);
