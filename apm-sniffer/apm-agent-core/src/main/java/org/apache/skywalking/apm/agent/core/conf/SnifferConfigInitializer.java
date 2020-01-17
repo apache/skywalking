@@ -47,9 +47,9 @@ public class SnifferConfigInitializer {
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
      * /config directory of agent package.
      * <p>
-     * Also try to override the config by system.properties. All the keys in this place should start with {@link
-     * #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override `agent.service_name` in
-     * config file.
+     * Also try to override the config by system.properties. All the keys in this place should
+     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override
+     * `agent.service_name` in config file.
      * <p>
      * At the end, `agent.service_name` and `collector.servers` must not be blank.
      */
@@ -165,10 +165,11 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Override the config by system properties. The property key must start with `skywalking`, the result should be as
-     * same as in `agent.config`
+     * Override the config by system properties. The property key must start with `skywalking`, the result should be as same
+     * as in `agent.config`
      * <p>
      * such as: Property key of `agent.service_name` should be `skywalking.agent.service_name`
+     *
      */
     private static void overrideConfigBySystemProp() throws IllegalAccessException {
         Properties properties = new Properties();

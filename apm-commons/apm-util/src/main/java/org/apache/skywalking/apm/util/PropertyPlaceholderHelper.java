@@ -48,12 +48,12 @@ public enum PropertyPlaceholderHelper {
     /**
      * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
      *
-     * @param placeholderPrefix              the prefix that denotes the start of a placeholder
-     * @param placeholderSuffix              the suffix that denotes the end of a placeholder
-     * @param valueSeparator                 the separating character between the placeholder variable and the
-     *                                       associated default value, if any
+     * @param placeholderPrefix the prefix that denotes the start of a placeholder
+     * @param placeholderSuffix the suffix that denotes the end of a placeholder
+     * @param valueSeparator the separating character between the placeholder variable and the associated default value,
+     * if any
      * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should be ignored ({@code
-     *                                       true}) or cause an exception ({@code false})
+     * true}) or cause an exception ({@code false})
      */
     PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
         String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
@@ -107,7 +107,7 @@ public enum PropertyPlaceholderHelper {
      * Replaces all placeholders of format {@code ${name}} with the value returned from the supplied {@link
      * PlaceholderResolver}.
      *
-     * @param value               the value containing the placeholders to be replaced
+     * @param value the value containing the placeholders to be replaced
      * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement
      * @return the supplied value with placeholders replaced inline
      */
