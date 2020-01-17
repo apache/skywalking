@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.apm.util;
 
+import java.util.EmptyStackException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,11 +47,34 @@ public class ConfigInitializerTest {
         Assert.assertEquals("stringValue", TestPropertiesObject.Level1Object.STR_ATTR);
         Assert.assertEquals(1000, TestPropertiesObject.Level1Object.Level2Object.INT_ATTR);
         Assert.assertEquals(1000L, TestPropertiesObject.Level1Object.Level2Object.LONG_ATTR);
-        Assert.assertEquals(true, TestPropertiesObject.Level1Object.Level2Object.BOOLEAN_ATTR);
-        Assert.assertArrayEquals(new String[]{}, TestPropertiesObject.Level1Object.LIST_EMPTY_ATTR.toArray());
+        Assert.assertTrue(TestPropertiesObject.Level1Object.Level2Object.BOOLEAN_ATTR);
+        Assert.assertArrayEquals(new String[] {}, TestPropertiesObject.Level1Object.LIST_EMPTY_ATTR.toArray());
         Assert.assertEquals(TestColorEnum.RED, TestPropertiesObject.Level1Object.Level2Object.ENUM_ATTR);
+    }
+
+    @Test
+    public void testConfigDesc() {
+        ConfigDesc desc = new ConfigDesc();
+        desc.append("first");
+        desc.append("second");
+        desc.append("third");
+        Assert.assertEquals(desc.toString(), "first.second.third");
+
+        desc.removeLastDesc();
+        Assert.assertEquals(desc.toString(), "first.second");
+
+        desc.removeLastDesc();
+        Assert.assertEquals(desc.toString(), "first");
+
         //make sure that when descs is empty,toString() work right;
         Assert.assertEquals(new ConfigDesc().toString(), "");
+
+        try {
+            // Try to remove empty desc
+            new ConfigDesc().removeLastDesc();
+            Assert.fail("Empty config desc shouldn't allow to be removed.");
+        } catch (EmptyStackException ignore) {
+        }
     }
 
     @Test
@@ -76,8 +100,8 @@ public class ConfigInitializerTest {
     public static class TestPropertiesObject {
         public static class Level1Object {
             public static String STR_ATTR = null;
-            public static List LIST_ATTR = null;
-            public static List LIST_EMPTY_ATTR = null;
+            public static List<?> LIST_ATTR = null;
+            public static List<?> LIST_EMPTY_ATTR = null;
 
             public static class Level2Object {
                 public static int INT_ATTR = 0;

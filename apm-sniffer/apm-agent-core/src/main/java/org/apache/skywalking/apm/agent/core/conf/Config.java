@@ -95,7 +95,7 @@ public class Config {
          * e.g.
          *   agent.instance_properties[org]=apache
          */
-        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<String, String>();
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<>();
 
         /**
          * How depth the agent goes, when log cause exceptions.
@@ -179,7 +179,7 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. 
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs.
          * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
          *
          * Ref to {@link WriterFactory#getLogWriter()}
@@ -260,7 +260,7 @@ public class Config {
              * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
              * And using Map CONTEXT for avoiding classloader isolation issue.
              */
-            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+            public static Map<String, Object> CONTEXT = new HashMap<>();
         }
 
         public static class Tomcat {

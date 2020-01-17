@@ -108,20 +108,22 @@ public class SnifferConfigInitializerTest {
         } catch (ExceptionInInitializerError e) {
             // ignore
         }
+
         agentOptions = "agent.service_name='test=abc'";
         SnifferConfigInitializer.initialize(agentOptions);
         assertThat(Config.Agent.SERVICE_NAME, is("test=abc"));
+
+        // The agent.ignore_suffix should be ignore
+        agentOptions = "agent.ignore_suffix=,service_name='testService";
+        // Store the original IGNORE_SUFFIX before initializing
+        String expectIgnoreSuffix = Config.Agent.IGNORE_SUFFIX;
+        SnifferConfigInitializer.initialize(agentOptions);
+        assertThat(Config.Agent.IGNORE_SUFFIX, is(expectIgnoreSuffix));
     }
 
     @After
     public void clear() {
-        Iterator<Map.Entry<Object, Object>> it = System.getProperties().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Object, Object> entry = it.next();
-            if (entry.getKey().toString().startsWith("skywalking.")) {
-                it.remove();
-            }
-        }
+        System.getProperties().entrySet().removeIf(entry -> entry.getKey().toString().startsWith("skywalking."));
 
         Config.Agent.SERVICE_NAME = "";
         Config.Logging.LEVEL = LogLevel.DEBUG;

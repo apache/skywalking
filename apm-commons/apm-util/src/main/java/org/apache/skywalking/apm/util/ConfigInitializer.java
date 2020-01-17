@@ -21,10 +21,12 @@ package org.apache.skywalking.apm.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.logging.Logger;
 
 /**
@@ -39,44 +41,50 @@ public class ConfigInitializer {
         initNextLevel(properties, rootConfigType, new ConfigDesc());
     }
 
+    @SuppressWarnings("unchecked")
     private static void initNextLevel(Properties properties, Class<?> recentConfigType,
         ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
         for (Field field : recentConfigType.getFields()) {
-            if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
-                String configKey = (parentDesc + "." + field.getName()).toLowerCase();
-                /**
-                 * Map config format is, config_key[map_key]=map_value
-                 * Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
+            if (!Modifier.isPublic(field.getModifiers()) || !Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+            String configKey = (parentDesc + "." + field.getName()).toLowerCase();
+            /*
+              Map config format is, config_key[map_key]=map_value
+              Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
+             */
+            if (field.getType().equals(Map.class)) {
+                Map map = (Map)field.get(null);
+                String prefix = configKey + "[";
+                String suffix = "]";
+                properties.forEach((key, value) -> {
+                    String stringKey = key.toString();
+                    if (!stringKey.startsWith(prefix) || !stringKey.endsWith(suffix)) {
+                        return;
+                    }
+                    String itemKey = stringKey.substring(prefix.length(), stringKey.length() - suffix.length());
+                    // TODO Maybe we ought to tackle the value type
+                    map.put(itemKey, value);
+                });
+            } else {
+                /*
+                  Others typical field type
                  */
-                if (field.getType().equals(Map.class)) {
-                    Map map = (Map)field.get(null);
-                    for (Object key : properties.keySet()) {
-                        String stringKey = key.toString();
-                        if (stringKey.startsWith(configKey + "[") && stringKey.endsWith("]")) {
-                            String itemKey = stringKey.substring(configKey.length() + 1, stringKey.length() - 1);
-                            map.put(itemKey, properties.getProperty(stringKey));
-                        }
-                    }
-                } else {
-                    /**
-                     * Others typical field type
-                     */
-                    String value = properties.getProperty(configKey);
-                    if (value != null) {
-                        Class<?> type = field.getType();
-                        if (type.equals(int.class))
-                            field.set(null, Integer.valueOf(value));
-                        else if (type.equals(String.class))
-                            field.set(null, value);
-                        else if (type.equals(long.class))
-                            field.set(null, Long.valueOf(value));
-                        else if (type.equals(boolean.class))
-                            field.set(null, Boolean.valueOf(value));
-                        else if (type.equals(List.class))
-                            field.set(null, convert2List(value));
-                        else if (type.isEnum())
-                            field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
-                    }
+                String value = properties.getProperty(configKey);
+                if (value != null) {
+                    Class<?> type = field.getType();
+                    if (type.equals(int.class))
+                        field.set(null, Integer.valueOf(value));
+                    else if (type.equals(String.class))
+                        field.set(null, value);
+                    else if (type.equals(long.class))
+                        field.set(null, Long.valueOf(value));
+                    else if (type.equals(boolean.class))
+                        field.set(null, Boolean.valueOf(value));
+                    else if (type.equals(List.class))
+                        field.set(null, convert2List(value));
+                    else if (type.isEnum())
+                        field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
                 }
             }
         }
@@ -87,16 +95,17 @@ public class ConfigInitializer {
         }
     }
 
-    private static List convert2List(String value) {
-        List result = new LinkedList();
-        if (StringUtil.isEmpty(value)) {
-            return result;
+    private static List<String> convert2List(String value) {
+        if (StringUtil.isBlank(value)) {
+            return Collections.emptyList();
         }
+
+        List<String> result = new LinkedList<>();
 
         String[] segments = value.split(",");
         for (String segment : segments) {
             String trimmedSegment = segment.trim();
-            if (!StringUtil.isEmpty(trimmedSegment)) {
+            if (StringUtil.isNotBlank(trimmedSegment)) {
                 result.add(trimmedSegment);
             }
         }
@@ -105,30 +114,18 @@ public class ConfigInitializer {
 }
 
 class ConfigDesc {
-    private LinkedList<String> descs = new LinkedList<String>();
+    private Stack<String> descs = new Stack<>();
 
     void append(String currentDesc) {
-        descs.addLast(currentDesc);
+        descs.push(currentDesc);
     }
 
     void removeLastDesc() {
-        descs.removeLast();
+        descs.pop();
     }
 
     @Override
     public String toString() {
-        if (descs.size() == 0) {
-            return "";
-        }
-        StringBuilder ret = new StringBuilder(descs.getFirst());
-        boolean first = true;
-        for (String desc : descs) {
-            if (first) {
-                first = false;
-                continue;
-            }
-            ret.append(".").append(desc);
-        }
-        return ret.toString();
+        return String.join(".", descs);
     }
 }

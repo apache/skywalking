@@ -48,12 +48,12 @@ public enum PropertyPlaceholderHelper {
     /**
      * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
      *
-     * @param placeholderPrefix the prefix that denotes the start of a placeholder
-     * @param placeholderSuffix the suffix that denotes the end of a placeholder
-     * @param valueSeparator the separating character between the placeholder variable and the associated default value,
-     * if any
+     * @param placeholderPrefix              the prefix that denotes the start of a placeholder
+     * @param placeholderSuffix              the suffix that denotes the end of a placeholder
+     * @param valueSeparator                 the separating character between the placeholder variable and the
+     *                                       associated default value, if any
      * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should be ignored ({@code
-     * true}) or cause an exception ({@code false})
+     *                                       true}) or cause an exception ({@code false})
      */
     PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
         String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
@@ -61,7 +61,7 @@ public enum PropertyPlaceholderHelper {
             throw new UnsupportedOperationException("'placeholderPrefix or placeholderSuffix' must not be null");
         }
 
-        final Map<String, String> wellKnownSimplePrefixes = new HashMap<String, String>(4);
+        final Map<String, String> wellKnownSimplePrefixes = new HashMap<>(4);
 
         wellKnownSimplePrefixes.put("}", "{");
         wellKnownSimplePrefixes.put("]", "[");
@@ -83,17 +83,13 @@ public enum PropertyPlaceholderHelper {
      * Replaces all placeholders of format {@code ${name}} with the corresponding property from the supplied {@link
      * Properties}.
      *
-     * @param value the value containing the placeholders to be replaced
+     * @param value      the value containing the placeholders to be replaced
      * @param properties the {@code Properties} to use for replacement
      * @return the supplied value with placeholders replaced inline
      */
     public String replacePlaceholders(String value, final Properties properties) {
-        return replacePlaceholders(value, new PlaceholderResolver() {
-            @Override
-            public String resolvePlaceholder(String placeholderName) {
-                return PropertyPlaceholderHelper.this.getConfigValue(placeholderName, properties);
-            }
-        });
+        return replacePlaceholders(value,
+            placeholderName -> PropertyPlaceholderHelper.this.getConfigValue(placeholderName, properties));
     }
 
     private String getConfigValue(String key, final Properties properties) {
@@ -111,12 +107,12 @@ public enum PropertyPlaceholderHelper {
      * Replaces all placeholders of format {@code ${name}} with the value returned from the supplied {@link
      * PlaceholderResolver}.
      *
-     * @param value the value containing the placeholders to be replaced
+     * @param value               the value containing the placeholders to be replaced
      * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement
      * @return the supplied value with placeholders replaced inline
      */
     public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
-        return parseStringValue(value, placeholderResolver, new HashSet<String>());
+        return parseStringValue(value, placeholderResolver, new HashSet<>());
     }
 
     protected String parseStringValue(String value, PlaceholderResolver placeholderResolver,
