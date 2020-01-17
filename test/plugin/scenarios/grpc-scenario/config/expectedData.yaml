@@ -258,6 +258,13 @@ segmentItems:
       peerId: 0
       tags:
         - {key: status_code, value: UNKNOWN}
+      logs:
+        - logEvent:
+            - { key: event, value: error }
+            - { key: error.kind, value: java.lang.Exception }
+            - { key: message, value: "" }
+            - key: stack
+              value: not null
     - operationName: GreeterBlockingError.sayHello/client/Request/onCancel
       operationId: 0
       parentSpanId: 5
@@ -284,6 +291,13 @@ segmentItems:
       spanType: Exit
       peer: 127.0.0.1:18080
       peerId: 0
+      logs:
+      - logEvent:
+        - { key: event, value: error }
+        - { key: error.kind, value: java.lang.Exception }
+        - { key: message, value: "" }
+        - key: stack
+          value: not null
     - operationName: /grpc-scenario/case/grpc-scenario
       operationId: 0
       parentSpanId: -1
@@ -293,15 +307,21 @@ segmentItems:
       endTime: nq 0
       componentId: 1
       componentName: ""
-      isError: false
+      isError: true
       spanType: Entry
       peer: ""
       peerId: 0
       tags:
-      - key: url
-        value: "http://localhost:8080/grpc-scenario/case/grpc-scenario"
-      - key: http.method
-        value: GET 
+      - {key: url, value: 'http://localhost:8080/grpc-scenario/case/grpc-scenario'}
+      - {key: http.method, value: GET}
+      - {key: status_code, value: '500'}
+      logs:
+      - logEvent:
+        - { key: event, value: error }
+        - { key: error.kind, value: java.lang.Exception }
+        - { key: message, value: "" }
+        - key: stack
+          value: not null
   - segmentId: not null
     spans:
     - operationName: Greeter.sayHello/server/Response/onMessage
