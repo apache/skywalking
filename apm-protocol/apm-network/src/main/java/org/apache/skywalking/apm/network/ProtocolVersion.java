@@ -16,25 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
-
-import com.google.gson.stream.JsonReader;
-import java.io.IOException;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
+package org.apache.skywalking.apm.network;
 
 /**
- * @author peng-yongsheng
+ * The version of the protocol between agent and backend.
+ *
+ * @author kezhenxu94
  */
-public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
+public enum ProtocolVersion {
+    V2(2);
 
-    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
-        UniqueId.Builder builder = UniqueId.newBuilder();
+    private final int number;
 
-        reader.beginArray();
-        while (reader.hasNext()) {
-            builder.addIdParts(reader.nextLong());
-        }
-        reader.endArray();
-        return builder;
+    ProtocolVersion(final int number) {
+        this.number = number;
+    }
+
+    public int number() {
+        return number;
     }
 }
