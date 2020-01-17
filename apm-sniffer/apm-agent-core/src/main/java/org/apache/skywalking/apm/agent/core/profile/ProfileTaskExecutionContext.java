@@ -41,7 +41,7 @@ public class ProfileTaskExecutionContext {
     private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
 
     // profiling segment slot
-    private volatile ThreadProfiler[] profilingSegmentSlots = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
+    private volatile ThreadProfiler[] profilingSegmentSlots;
 
     // current profiling execution future
     private volatile Future profilingFuture;
@@ -51,6 +51,7 @@ public class ProfileTaskExecutionContext {
 
     public ProfileTaskExecutionContext(ProfileTask task) {
         this.task = task;
+        profilingSegmentSlots = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
     }
 
     /**
@@ -88,7 +89,26 @@ public class ProfileTaskExecutionContext {
             return false;
         }
 
-        return tryToAttemptProfiling(tracingContext, traceSegmentId, firstSpanOPName, usingSlotCount);
+        // if out limit started profiling count then stop add profiling
+        if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
+            return false;
+        }
+
+        // try to occupy slot
+        if (!currentProfilingCount.compareAndSet(usingSlotCount, usingSlotCount + 1)) {
+            return false;
+        }
+
+        final ThreadProfiler threadProfiler = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
+        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
+            if (profilingSegmentSlots[slot] == null) {
+                profilingSegmentSlots[slot] = threadProfiler;
+
+                profilingSegmentSlots = profilingSegmentSlots;
+                break;
+            }
+        }
+        return true;
     }
 
 
@@ -100,29 +120,12 @@ public class ProfileTaskExecutionContext {
      * @return
      */
     public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
-        boolean alreadyProfiling = tracingContext.isProfiling();
-
-        // not profiling and not available slot don't check anymore
-        int usingSlotCount = currentProfilingCount.get();
-        if (!alreadyProfiling && usingSlotCount >= Config.Profile.MAX_PARALLEL) {
-            return false;
-        }
-
-        // check first operation name matches
-        if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
-            if (alreadyProfiling) {
-                if (stopTracingProfile(tracingContext)) {
-                    // reduce total started profiling count when status is profiling
-                    totalStartedProfilingCount.addAndGet(-1);
-                }
-            }
-            return false;
-        } else if (alreadyProfiling) {
+        // if started, keep profiling
+        if (tracingContext.isProfiling()) {
             return true;
         }
 
-        // not profiling, try to occupy slot
-        return tryToAttemptProfiling(tracingContext, traceSegmentId, firstSpanOPName, usingSlotCount);
+        return attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);
     }
 
     /**
@@ -160,15 +163,10 @@ public class ProfileTaskExecutionContext {
         return profilingSegmentSlots;
     }
 
-    public boolean isStartProfileable(ThreadProfiler profiler) {
+    public boolean isStartProfileable() {
         // check is out of max sampling count check
-        if (totalStartedProfilingCount.incrementAndGet() > task.getMaxSamplingCount()) {
-            stopTracingProfile(profiler.tracingContext());
-            return false;
-        }
-        return true;
+        return totalStartedProfilingCount.incrementAndGet() > task.getMaxSamplingCount();
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -181,28 +179,5 @@ public class ProfileTaskExecutionContext {
     @Override
     public int hashCode() {
         return Objects.hash(task);
-    }
-
-    private boolean tryToAttemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName, int currentUsingSlotCount) {
-        // if out limit started profiling count then stop add profiling
-        if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
-            return false;
-        }
-
-        // try to occupy slot
-        if (!currentProfilingCount.compareAndSet(currentUsingSlotCount, currentUsingSlotCount + 1)) {
-            return false;
-        }
-
-        final ThreadProfiler segmentContext = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
-        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
-            if (profilingSegmentSlots[slot] == null) {
-                profilingSegmentSlots[slot] = segmentContext;
-
-                profilingSegmentSlots = profilingSegmentSlots;
-                break;
-            }
-        }
-        return true;
     }
 }

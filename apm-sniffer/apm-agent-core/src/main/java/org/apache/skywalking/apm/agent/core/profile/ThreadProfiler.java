@@ -62,11 +62,8 @@ public class ThreadProfiler {
      */
     public void startProfilingIfNeed() {
         if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask().getMinDurationThreshold()) {
-            // check is can start a new profiling
-            if (executionContext.isStartProfileable(this)) {
-                this.profilingStartTime = System.currentTimeMillis();
-                this.profilingStatus = ProfilingStatus.PROFILING;
-            }
+            this.profilingStartTime = System.currentTimeMillis();
+            this.profilingStatus = ProfilingStatus.PROFILING;
         }
     }
 
@@ -102,6 +99,11 @@ public class ThreadProfiler {
             }
         } catch (Exception e) {
             // dump error ignore and make this profiler stop
+            return null;
+        }
+
+        // if is first dump, check is can start profiling
+        if (dumpSequence == 0 && (!executionContext.isStartProfileable())) {
             return null;
         }
 
