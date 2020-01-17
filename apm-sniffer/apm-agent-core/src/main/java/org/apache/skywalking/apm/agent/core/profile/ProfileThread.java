@@ -62,7 +62,6 @@ public class ProfileThread implements Runnable {
 
     /**
      * start profiling
-     * @param executionContext
      */
     private void profiling(ProfileTaskExecutionContext executionContext) throws InterruptedException {
 

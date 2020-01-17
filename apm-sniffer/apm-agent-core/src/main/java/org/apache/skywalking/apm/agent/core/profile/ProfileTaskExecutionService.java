@@ -63,7 +63,6 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * get profile task from OAP
-     * @param task
      */
     public void addProfileTask(ProfileTask task) {
         // update last command create time
@@ -93,9 +92,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * check and add {@link TracingContext} profiling
-     * @param tracingContext
-     * @param traceSegmentId
-     * @param firstSpanOPName
+     *
      * @return has add to profiling
      */
     public boolean addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
@@ -110,10 +107,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * Re-check current trace need profiling, encase third part plugin change the operation name.
-     * @param tracingContext
-     * @param traceSegmentId
-     * @param firstSpanOPName
-     * @return
+     *
+     * @return is recheck to add profile success
      */
     public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
@@ -127,7 +122,6 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * active the selected profile task to execution task, and start a removal task for it.
-     * @param task
      */
     private synchronized void processProfileTask(ProfileTask task) {
         // make sure prev profile task already stopped
@@ -197,8 +191,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * check profile task data success, make the re-check, prevent receiving wrong data from database or OAP
-     * @param task
-     * @return
+     * @return if not null, means profile task have error message
      */
     private String checkProfileTaskSuccess(ProfileTask task) {
         // endpoint name

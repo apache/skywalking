@@ -78,7 +78,7 @@ public class ThreadProfiler {
 
     /**
      * dump tracing thread and build thread snapshot
-     * @return
+     * @return snapshot, if null means dump snapshot error, should stop it
      */
     public TracingThreadSnapshot buildSnapshot() {
         if (!isProfilingProfilingContinuable()) {
@@ -119,8 +119,6 @@ public class ThreadProfiler {
 
     /**
      * build thread stack element code signature
-     * @param element
-     * @return
      */
     private String buildStackElementCodeSignature(StackTraceElement element) {
         // className.methodName:lineNumber
@@ -129,8 +127,6 @@ public class ThreadProfiler {
 
     /**
      * matches profiling tracing context
-     * @param context
-     * @return
      */
     public boolean matches(TracingContext context) {
         // match trace id
@@ -139,7 +135,6 @@ public class ThreadProfiler {
 
     /**
      * check profiling is should continue
-     * @return
      */
     private boolean isProfilingProfilingContinuable() {
         return System.currentTimeMillis() - profilingStartTime < profilingMaxTimeMills;

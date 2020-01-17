@@ -56,7 +56,6 @@ public class ProfileTaskExecutionContext {
 
     /**
      * start profiling this task
-     * @param executorService
      */
     public void startProfiling(ExecutorService executorService) {
         profilingFuture = executorService.submit(new ProfileThread(this));
@@ -73,9 +72,8 @@ public class ProfileTaskExecutionContext {
 
     /**
      * check have available slot to profile and add it
-     * @param tracingContext
-     * @param firstSpanOPName
-     * @return
+     *
+     * @return is add profile success
      */
     public boolean attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // check has available slot
@@ -114,10 +112,8 @@ public class ProfileTaskExecutionContext {
 
     /**
      * profiling recheck
-     * @param tracingContext
-     * @param traceSegmentId
-     * @param firstSpanOPName
-     * @return
+     *
+     * @return is recheck to add profile success
      */
     public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // if started, keep profiling
@@ -130,8 +126,6 @@ public class ProfileTaskExecutionContext {
 
     /**
      * find tracing context and clear on slot
-     *
-     * @param tracingContext
      *
      * @return current profiler is already start profiling
      */
