@@ -135,7 +135,6 @@ public class ProfileTaskExecutionContext {
                 currentProfiler.stopProfiling();
                 currentProfilingCount.addAndGet(-1);
 
-                // see https://www.javamex.com/tutorials/volatile_arrays.shtml, solution 2
                 profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
@@ -175,7 +174,6 @@ public class ProfileTaskExecutionContext {
             if (profilingSegmentSlots[slot] == null) {
                 profilingSegmentSlots[slot] = segmentContext;
 
-                // see https://www.javamex.com/tutorials/volatile_arrays.shtml, solution 2
                 profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
