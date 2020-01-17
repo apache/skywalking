@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import lombok.Data;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -214,40 +215,10 @@ public class SnifferConfigInitializer {
      *
      * @author johnniang
      */
+    @Data
     private static class Option {
         private String name;
+
         private String value;
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            Option option = (Option)o;
-            return Objects.equals(name, option.name) &&
-                Objects.equals(value, option.value);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, value);
-        }
     }
 }
