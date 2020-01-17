@@ -26,9 +26,13 @@ package org.apache.skywalking.apm.network;
 public enum ProtocolVersion {
     V2(2);
 
-    public final int number;
+    private final int number;
 
     ProtocolVersion(final int number) {
         this.number = number;
+    }
+
+    public int number() {
+        return number;
     }
 }

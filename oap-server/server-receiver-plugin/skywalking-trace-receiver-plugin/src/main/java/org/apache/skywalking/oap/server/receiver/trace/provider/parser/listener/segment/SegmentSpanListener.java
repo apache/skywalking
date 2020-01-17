@@ -82,7 +82,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
         segment.setTimeBucket(timeBucket);
         segment.setDataBinary(segmentCoreInfo.getDataBinary());
-        segment.setVersion(segmentCoreInfo.getVersion().number);
+        segment.setVersion(segmentCoreInfo.getVersion().number());
 
         firstEndpointId = spanDecorator.getOperationNameId();
         firstEndpointName = spanDecorator.getOperationName();
