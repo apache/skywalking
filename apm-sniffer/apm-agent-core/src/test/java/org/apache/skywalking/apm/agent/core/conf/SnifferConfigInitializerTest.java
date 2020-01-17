@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;

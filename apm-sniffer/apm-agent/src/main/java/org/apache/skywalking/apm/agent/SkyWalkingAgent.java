@@ -33,7 +33,6 @@ import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
