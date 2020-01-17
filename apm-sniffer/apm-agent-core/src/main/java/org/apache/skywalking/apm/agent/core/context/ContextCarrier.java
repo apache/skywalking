@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.agent.core.context;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
@@ -77,21 +76,8 @@ public class ContextCarrier implements Serializable {
     private DistributedTraceId primaryDistributedTraceId;
 
     public CarrierItem items() {
-        CarrierItemHead head;
-        if (Config.Agent.ACTIVE_V2_HEADER && Config.Agent.ACTIVE_V1_HEADER) {
-            SW3CarrierItem  carrierItem = new SW3CarrierItem(this, null);
-            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, carrierItem);
-            head = new CarrierItemHead(sw6CarrierItem);
-        } else if (Config.Agent.ACTIVE_V2_HEADER) {
-            SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
-            head = new CarrierItemHead(sw6CarrierItem);
-        } else if (Config.Agent.ACTIVE_V1_HEADER) {
-            SW3CarrierItem carrierItem = new SW3CarrierItem(this, null);
-            head = new CarrierItemHead(carrierItem);
-        } else {
-            throw new IllegalArgumentException("At least active v1 or v2 header.");
-        }
-        return head;
+        SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
+        return new CarrierItemHead(sw6CarrierItem);
     }
 
     /**
@@ -101,36 +87,16 @@ public class ContextCarrier implements Serializable {
      */
     String serialize(HeaderVersion version) {
         if (this.isValid(version)) {
-            if (HeaderVersion.v1.equals(version)) {
-                if (Config.Agent.ACTIVE_V1_HEADER) {
-                    return StringUtil.join('|',
-                        this.getTraceSegmentId().encode(),
-                        this.getSpanId() + "",
-                        this.getParentServiceInstanceId() + "",
-                        this.getEntryServiceInstanceId() + "",
-                        this.getPeerHost(),
-                        this.getEntryEndpointName(),
-                        this.getParentEndpointName(),
-                        this.getPrimaryDistributedTraceId().encode());
-                } else {
-                    return "";
-                }
-            } else {
-                if (Config.Agent.ACTIVE_V2_HEADER) {
-                    return StringUtil.join('-',
-                        "1",
-                        Base64.encode(this.getPrimaryDistributedTraceId().encode()),
-                        Base64.encode(this.getTraceSegmentId().encode()),
-                        this.getSpanId() + "",
-                        this.getParentServiceInstanceId() + "",
-                        this.getEntryServiceInstanceId() + "",
-                        Base64.encode(this.getPeerHost()),
-                        Base64.encode(this.getEntryEndpointName()),
-                        Base64.encode(this.getParentEndpointName()));
-                } else {
-                    return "";
-                }
-            }
+            return StringUtil.join('-',
+                "1",
+                Base64.encode(this.getPrimaryDistributedTraceId().encode()),
+                Base64.encode(this.getTraceSegmentId().encode()),
+                this.getSpanId() + "",
+                this.getParentServiceInstanceId() + "",
+                this.getEntryServiceInstanceId() + "",
+                Base64.encode(this.getPeerHost()),
+                Base64.encode(this.getEntryEndpointName()),
+                Base64.encode(this.getParentEndpointName()));
         } else {
             return "";
         }

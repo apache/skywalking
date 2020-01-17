@@ -53,7 +53,7 @@ public class Config {
         public static String AUTHENTICATION = "";
 
         /**
-         * Negative or zero means off, by default. {@link #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
+         * Negative or zero means off, by default. {@code #SAMPLE_N_PER_3_SECS} means sampling N {@link TraceSegment} in
          * 3 seconds tops.
          */
         public static int SAMPLE_N_PER_3_SECS = -1;
@@ -64,29 +64,19 @@ public class Config {
         public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
 
         /**
-         * The max number of spans in a single segment. Through this config item, skywalking keep your application
+         * The max number of spans in a single segment. Through this config item, SkyWalking keep your application
          * memory cost estimated.
          */
         public static int SPAN_LIMIT_PER_SEGMENT = 300;
 
         /**
-         * If true, skywalking agent will save all instrumented classes files in `/debugging` folder. Skywalking team
+         * If true, SkyWalking agent will save all instrumented classes files in `/debugging` folder. SkyWalking team
          * may ask for these files in order to resolve compatible problem.
          */
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
-         * Active V2 header in default
-         */
-        public static boolean ACTIVE_V2_HEADER = true;
-
-        /**
-         * Deactive V1 header in default
-         */
-        public static boolean ACTIVE_V1_HEADER = false;
-
-        /**
-         * The identify of the instance
+         * The identifier of the instance
          */
         public static String INSTANCE_UUID = "";
 
@@ -95,7 +85,7 @@ public class Config {
          * e.g.
          *   agent.instance_properties[org]=apache
          */
-        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<String, String>();
+        public static Map<String, String> INSTANCE_PROPERTIES = new HashMap<>();
 
         /**
          * How depth the agent goes, when log cause exceptions.
@@ -260,7 +250,7 @@ public class Config {
              * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
              * And using Map CONTEXT for avoiding classloader isolation issue.
              */
-            public static Map<String, Object> CONTEXT = new HashMap<String, Object>();
+            public static Map<String, Object> CONTEXT = new HashMap<>();
         }
 
         public static class Tomcat {
@@ -341,7 +331,7 @@ public class Config {
          * Operation name group rules
          */
         public static class OPGroup {
-            /**
+            /*
              * Since 6.6.0, exit span is not requesting endpoint register,
              * this group rule is not required.
              *

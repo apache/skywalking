@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.resteasy.v3.server;
 
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -127,28 +125,6 @@ public class SynchronousDispatcherInterceptorTest {
 
         synchronousDispatcherInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
         synchronousDispatcherInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
-
-        assertThat(segmentStorage.getTraceSegments().size(), is(1));
-        TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
-        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
-
-        AssertTools.assertHttpSpan(spans.get(0));
-        AssertTools.assertTraceSegmentRef(traceSegment.getRefs().get(0));
-    }
-
-    @Test
-    public void testWithSW3SerializedContextData() throws Throwable {
-        Config.Agent.ACTIVE_V1_HEADER = true;
-        Config.Agent.ACTIVE_V2_HEADER = false;
-        MultivaluedMapImpl<String, String> multivaluedMap = new MultivaluedMapImpl<String, String>();
-        multivaluedMap.putSingle(SW3CarrierItem.HEADER_NAME, "1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
-        when(request.getHttpHeaders()).thenReturn(new ResteasyHttpHeaders(multivaluedMap));
-
-        synchronousDispatcherInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
-        synchronousDispatcherInterceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
-
-        Config.Agent.ACTIVE_V1_HEADER = false;
-        Config.Agent.ACTIVE_V2_HEADER = true;
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
