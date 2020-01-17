@@ -16,24 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.mock;
-
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
+package org.apache.skywalking.apm.network;
 
 /**
- * @author peng-yongsheng
+ * The version of the protocol between agent and backend.
+ *
+ * @author kezhenxu94
  */
-public enum UniqueIdBuilder {
-    INSTANCE;
+public enum ProtocolVersion {
+    V2(2);
 
-    private AtomicLong idPart = new AtomicLong(1);
+    public final int number;
 
-    UniqueId.Builder create() {
-        UniqueId.Builder uniqueId = UniqueId.newBuilder();
-        uniqueId.addIdParts(idPart.getAndIncrement());
-        uniqueId.addIdParts(idPart.getAndIncrement());
-        uniqueId.addIdParts(idPart.getAndIncrement());
-        return uniqueId;
+    ProtocolVersion(final int number) {
+        this.number = number;
     }
 }
