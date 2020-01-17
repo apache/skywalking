@@ -116,11 +116,4 @@ public interface AbstractTracerContext {
      */
     void asyncStop(AsyncSpan span);
 
-    /**
-     * Re-check current trace need profiling, encase third part plugin change the operation name.
-     *
-     * @param span current modify span
-     * @param operationName change to operation name
-     */
-    void profilingRecheck(AbstractSpan span, String operationName);
 }

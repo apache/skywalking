@@ -174,6 +174,9 @@ public class ProfileTaskExecutionContext {
         for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
             if (profilingSegmentSlots[slot] == null) {
                 profilingSegmentSlots[slot] = segmentContext;
+
+                // see https://www.javamex.com/tutorials/volatile_arrays.shtml, solution 2
+                profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
         }

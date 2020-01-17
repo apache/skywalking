@@ -331,6 +331,7 @@ public class TracingContext implements AbstractTracerContext {
             return push(span);
         }
         AbstractSpan entrySpan;
+        TracingContext owner = this;
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
@@ -351,11 +352,11 @@ public class TracingContext implements AbstractTracerContext {
                 .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId, owner);
                     }
                 }, new PossibleFound.NotFoundAndObtain() {
                     @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName, owner);
                     }
                 });
             entrySpan.start();
@@ -381,7 +382,7 @@ public class TracingContext implements AbstractTracerContext {
          * From v6.0.0-beta, local span doesn't do op name register.
          * All op name register is related to entry and exit spans only.
          */
-        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, this);
         span.start();
         return push(span);
     }
@@ -403,6 +404,7 @@ public class TracingContext implements AbstractTracerContext {
 
         AbstractSpan exitSpan;
         AbstractSpan parentSpan = peek();
+        TracingContext owner = this;
         if (parentSpan != null && parentSpan.isExit()) {
             exitSpan = parentSpan;
         } else {
@@ -412,13 +414,13 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.FoundAndObtain() {
                         @Override
                         public Object doProcess(final int peerId) {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId, owner);
                         }
                     },
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer, owner);
                         }
                     });
             push(exitSpan);
@@ -485,7 +487,12 @@ public class TracingContext implements AbstractTracerContext {
         finish();
     }
 
-    @Override
+    /**
+     * Re-check current trace need profiling, encase third part plugin change the operation name.
+     *
+     * @param span current modify span
+     * @param operationName change to operation name
+     */
     public void profilingRecheck(AbstractSpan span, String operationName) {
         // only recheck first span
         if (span.getSpanId() != 0) {
@@ -504,15 +511,15 @@ public class TracingContext implements AbstractTracerContext {
             asyncFinishLock.lock();
         }
         try {
-            boolean tracingFinishInMainThread = activeSpanStack.isEmpty() && running;
-            if (tracingFinishInMainThread) {
+            boolean isFinishedInMainThread = activeSpanStack.isEmpty() && running;
+            if (isFinishedInMainThread) {
                 /**
                  * Notify after tracing finished in the main thread.
                  */
                 TracingThreadListenerManager.notifyFinish(this);
             }
 
-            if (tracingFinishInMainThread && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+            if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
                 /*
                  * Recheck the segment if the segment contains only one span.

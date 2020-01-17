@@ -224,18 +224,4 @@ public class ContextManager implements BootService {
 
         return runtimeContext;
     }
-
-    /**
-     * Re-check current trace need profiling, encase third part plugin change the operation name.
-     * @param span
-     * @param operationName
-     */
-    public static void profilingRecheck(AbstractTracingSpan span, String operationName) {
-        AbstractTracerContext tracerContext = get();
-        if (tracerContext == null) {
-            return;
-        }
-
-        tracerContext.profilingRecheck(span, operationName);
-    }
 }
