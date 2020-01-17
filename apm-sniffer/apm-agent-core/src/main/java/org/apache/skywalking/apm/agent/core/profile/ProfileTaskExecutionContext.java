@@ -46,6 +46,9 @@ public class ProfileTaskExecutionContext {
     // current profiling execution future
     private volatile Future profilingFuture;
 
+    // total started profiling tracing context count
+    private final AtomicInteger totalStartedProfilingCount = new AtomicInteger(0);
+
     public ProfileTaskExecutionContext(ProfileTask task) {
         this.task = task;
     }
@@ -108,7 +111,10 @@ public class ProfileTaskExecutionContext {
         // check first operation name matches
         if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
             if (alreadyProfiling) {
-                stopTracingProfile(tracingContext);
+                if (stopTracingProfile(tracingContext)) {
+                    // reduce total started profiling count when status is profiling
+                    totalStartedProfilingCount.addAndGet(-1);
+                }
             }
             return false;
         } else if (alreadyProfiling) {
@@ -123,16 +129,19 @@ public class ProfileTaskExecutionContext {
      * find tracing context and clear on slot
      *
      * @param tracingContext
+     *
+     * @return current profiler is already start profiling
      */
-    public void stopTracingProfile(TracingContext tracingContext) {
+    public boolean stopTracingProfile(TracingContext tracingContext) {
         // find current tracingContext and clear it
+        boolean isProfilingStarted = false;
         for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
             ThreadProfiler currentProfiler = profilingSegmentSlots[slot];
             if (currentProfiler != null && currentProfiler.matches(tracingContext)) {
                 profilingSegmentSlots[slot] = null;
 
                 // setting stop running
-                currentProfiler.stopProfiling();
+                isProfilingStarted = currentProfiler.stopProfiling();
                 currentProfilingCount.addAndGet(-1);
 
                 profilingSegmentSlots = profilingSegmentSlots;
@@ -140,6 +149,7 @@ public class ProfileTaskExecutionContext {
             }
         }
 
+        return isProfilingStarted;
     }
 
     public ProfileTask getTask() {
@@ -149,6 +159,16 @@ public class ProfileTaskExecutionContext {
     public ThreadProfiler[] threadProfilerSlots() {
         return profilingSegmentSlots;
     }
+
+    public boolean isStartProfileable(ThreadProfiler profiler) {
+        // check is out of max sampling count check
+        if (totalStartedProfilingCount.incrementAndGet() > task.getMaxSamplingCount()) {
+            stopTracingProfile(profiler.tracingContext());
+            return false;
+        }
+        return true;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -164,6 +184,11 @@ public class ProfileTaskExecutionContext {
     }
 
     private boolean tryToAttemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName, int currentUsingSlotCount) {
+        // if out limit started profiling count then stop add profiling
+        if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
+            return false;
+        }
+
         // try to occupy slot
         if (!currentProfilingCount.compareAndSet(currentUsingSlotCount, currentUsingSlotCount + 1)) {
             return false;

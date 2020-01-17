@@ -62,16 +62,23 @@ public class ThreadProfiler {
      */
     public void startProfilingIfNeed() {
         if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask().getMinDurationThreshold()) {
-            this.profilingStartTime = System.currentTimeMillis();
-            this.profilingStatus = ProfilingStatus.PROFILING;
+            // check is can start a new profiling
+            if (executionContext.isStartProfileable(this)) {
+                this.profilingStartTime = System.currentTimeMillis();
+                this.profilingStatus = ProfilingStatus.PROFILING;
+            }
         }
     }
 
     /**
      * Stop profiling status
+     *
+     * @return current profiler is already start profiling
      */
-    public void stopProfiling() {
+    public boolean stopProfiling() {
+        boolean isProfilingStarted = this.profilingStatus == ProfilingStatus.PROFILING;
         this.profilingStatus = ProfilingStatus.STOPPED;
+        return isProfilingStarted;
     }
 
     /**
