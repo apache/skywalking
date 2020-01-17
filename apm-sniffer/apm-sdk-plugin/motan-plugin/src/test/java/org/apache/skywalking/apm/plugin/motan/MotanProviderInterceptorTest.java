@@ -24,8 +24,7 @@ import com.weibo.api.motan.rpc.Response;
 import com.weibo.api.motan.rpc.URL;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -38,7 +37,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -83,7 +81,6 @@ public class MotanProviderInterceptorTest {
 
     @Before
     public void setUp() {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         invokeInterceptor = new MotanProviderInterceptor();
         url = URL.valueOf("motan://127.0.0.1:34000/org.apache.skywalking.apm.test.TestService");
 
@@ -95,11 +92,6 @@ public class MotanProviderInterceptorTest {
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
     }
 
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
-    }
 
     @Test
     public void testInvokerWithoutRefSegment() throws Throwable {
@@ -117,7 +109,7 @@ public class MotanProviderInterceptorTest {
     @Test
     public void testInvokerWithRefSegment() throws Throwable {
         HashMap attachments = new HashMap();
-        attachments.put(SW3CarrierItem.HEADER_NAME, "1.123.456|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        attachments.put(SW6CarrierItem.HEADER_NAME, "1-MC4wLjA=-MS4xMjMuNDU2-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
         when(request.getAttachments()).thenReturn(attachments);
 
         invokeInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, null);

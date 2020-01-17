@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
@@ -49,23 +50,15 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 
 /**
  * Notice, in here, there are following concepts match
  *
- * v5        |   v6
- *
- * 1. Application == Service 2. Server == Service Instance 3. Service == Endpoint
- *
  * @author peng-yongsheng, wusheng
  */
 public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(MultiScopesSpanListener.class);
 
     private final SourceReceiver sourceReceiver;
     private final ServiceInstanceInventoryCache instanceInventoryCache;
@@ -257,7 +250,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceReceiver.receive(entrySourceBuilder.toServiceRelation());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstanceRelation());
             EndpointRelation endpointRelation = entrySourceBuilder.toEndpointRelation();
-            /**
+            /*
              * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
              * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
              * So, I am making this source as optional.
@@ -291,15 +284,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
         if (traceId == null) {
-            StringBuilder traceIdBuilder = new StringBuilder();
-            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                if (i == 0) {
-                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
-                } else {
-                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-                }
-            }
-            traceId = traceIdBuilder.toString();
+            traceId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
         }
     }
 
