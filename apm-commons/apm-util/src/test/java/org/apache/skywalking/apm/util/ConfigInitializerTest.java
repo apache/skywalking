@@ -19,13 +19,11 @@
 
 package org.apache.skywalking.apm.util;
 
-import java.util.EmptyStackException;
+import java.util.List;
+import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by wusheng on 2017/2/27.
@@ -73,7 +71,8 @@ public class ConfigInitializerTest {
             // Try to remove empty desc
             new ConfigDesc().removeLastDesc();
             Assert.fail("Empty config desc shouldn't allow to be removed.");
-        } catch (EmptyStackException ignore) {
+        } catch (Exception ignore) {
+            // Ignore this exception
         }
     }
 

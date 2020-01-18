@@ -116,11 +116,11 @@ class ConfigDesc {
     private LinkedList<String> descs = new LinkedList<>();
 
     void append(String currentDesc) {
-        descs.push(currentDesc);
+        descs.addLast(currentDesc);
     }
 
     void removeLastDesc() {
-        descs.pop();
+        descs.removeLast();
     }
 
     @Override
