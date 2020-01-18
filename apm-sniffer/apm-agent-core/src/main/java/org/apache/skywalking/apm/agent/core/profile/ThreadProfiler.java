@@ -138,7 +138,7 @@ public class ThreadProfiler {
      *
      * @return if true means this thread profiling is continuable
      */
-    private boolean isProfilingProfilingContinuable() {
+    private boolean isProfilingContinuable() {
         return System.currentTimeMillis() - profilingStartTime < profilingMaxTimeMills;
     }
 
