@@ -104,7 +104,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     }
 
     /**
-     * Re-check current trace need profiling, encase third part plugin change the operation name.
+     * Re-check current trace need profiling, in case that third-party plugins change the operation name.
      */
     public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
