@@ -19,13 +19,8 @@ registryItems:
   instances:
   - { grpc-scenario: 1 }
   operationNames:
-  - grpc-scenario:
-      [
-        Greeter.sayHello,
-        GreeterBlocking.sayHello,
-        GreeterBlockingError.sayHello,
-        /grpc-scenario/case/grpc-scenario,
-      ]
+  - grpc-scenario: [/grpc-scenario/case/healthCheck, Greeter.sayHello, GreeterBlocking.sayHello,
+       GreeterBlockingError.sayHello, /grpc-scenario/case/grpc-scenario]
   heartbeat: []
 segmentItems:
 - applicationCode: grpc-scenario
@@ -91,7 +86,27 @@ segmentItems:
         }
   - segmentId: not null
     spans:
-    - operationName: GreeterBlocking.sayHello/server/Response/onClose
+    - operationName: Greeter.sayHello/client/Request/onComplete
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+      refs:
+        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
+           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
+           entryServiceInstanceId: 1}
+  - segmentId: not null
+    spans:
+    - operationName: Greeter.sayHello/server/Response/onClose
       operationId: 0
       parentSpanId: 0
       spanId: 1
@@ -105,22 +120,21 @@ segmentItems:
       peer: ""
       peerId: 0
       tags:
-      - { key: status_code, value: OK }
+        - key: status_code
+          value: OK
       refs:
-      - {
-          parentEndpointId: 0,
-          parentEndpoint: GreeterBlocking.sayHello,
-          networkAddressId: 0,
-          entryEndpointId: 0,
-          refType: CrossThread,
-          parentSpanId: 0,
-          parentTraceSegmentId: not null,
-          parentServiceInstanceId: 1,
-          networkAddress: "",
-          entryEndpoint: /grpc-scenario/case/grpc-scenario,
-          entryServiceInstanceId: 1,
-        }
-    - operationName: GreeterBlocking.sayHello/server/Request/onComplete
+        - parentEndpointId: 0
+          parentEndpoint: Greeter.sayHello
+          networkAddressId: 0
+          entryEndpointId: 0
+          refType: CrossThread
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: ""
+          entryEndpoint: /grpc-scenario/case/grpc-scenario
+          entryServiceInstanceId: 1
+    - operationName: Greeter.sayHello/server/Request/onComplete
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -134,48 +148,37 @@ segmentItems:
       peer: ""
       peerId: 0
       refs:
-      - {
-          parentEndpointId: 0,
-          parentEndpoint: GreeterBlocking.sayHello,
-          networkAddressId: 0,
-          entryEndpointId: 0,
-          refType: CrossThread,
-          parentSpanId: 0,
-          parentTraceSegmentId: not null,
-          parentServiceInstanceId: 1,
-          networkAddress: "",
-          entryEndpoint: /grpc-scenario/case/grpc-scenario,
-          entryServiceInstanceId: 1,
-        }
+        - parentEndpointId: 0
+          parentEndpoint: Greeter.sayHello
+          networkAddressId: 0
+          entryEndpointId: 0
+          refType: CrossThread
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: ""
+          entryEndpoint: /grpc-scenario/case/grpc-scenario
+          entryServiceInstanceId: 1
   - segmentId: not null
     spans:
-    - operationName: Greeter.sayHello/server/Response/onMessage
+    - operationName: Greeter.sayHello/client/Request/onMessage
       operationId: 0
-      parentSpanId: 0
-      spanId: 1
+      parentSpanId: -1
+      spanId: 0
       spanLayer: RPCFramework
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
-      - {
-          parentEndpointId: 0,
-          parentEndpoint: Greeter.sayHello,
-          networkAddressId: 0,
-          entryEndpointId: 0,
-          refType: CrossThread,
-          parentSpanId: 0,
-          parentTraceSegmentId: not null,
-          parentServiceInstanceId: 1,
-          networkAddress: "",
-          entryEndpoint: /grpc-scenario/case/grpc-scenario,
-          entryServiceInstanceId: 1,
-        }
+        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
+           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
+           entryServiceInstanceId: 1}
     - operationName: Greeter.sayHello/server/Request/onMessage
       operationId: 0
       parentSpanId: -1
@@ -203,6 +206,246 @@ segmentItems:
           entryEndpoint: /grpc-scenario/case/grpc-scenario,
           entryServiceInstanceId: 1,
         }
+  - segmentId: not null
+    spans:
+    - operationName: Greeter.sayHello/server/Response/onMessage
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: false
+      spanType: Local
+      peer: ""
+      peerId: 0
+      refs:
+        - {
+          parentEndpointId: 0,
+          parentEndpoint: Greeter.sayHello,
+          networkAddressId: 0,
+          entryEndpointId: 0,
+          refType: CrossThread,
+          parentSpanId: 0,
+          parentTraceSegmentId: not null,
+          parentServiceInstanceId: 1,
+          networkAddress: "",
+          entryEndpoint: /grpc-scenario/case/grpc-scenario,
+          entryServiceInstanceId: 1,
+        }
+    - operationName: Greeter.sayHello/server/Request/onMessage
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: false
+      spanType: Local
+      peer: ""
+      peerId: 0
+      refs:
+        - parentEndpointId: 0
+          parentEndpoint: Greeter.sayHello
+          networkAddressId: 0
+          entryEndpointId: 0
+          refType: CrossThread
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: ""
+          entryEndpoint: /grpc-scenario/case/grpc-scenario
+          entryServiceInstanceId: 1
+  - segmentId: not null
+    spans:
+    - operationName: GreeterBlocking.sayHello/server/Response/onClose
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: false
+      spanType: Local
+      peer: ""
+      peerId: 0
+      tags:
+        - { key: status_code, value: OK }
+      refs:
+        - {
+          parentEndpointId: 0,
+          parentEndpoint: GreeterBlocking.sayHello,
+          networkAddressId: 0,
+          entryEndpointId: 0,
+          refType: CrossThread,
+          parentSpanId: 0,
+          parentTraceSegmentId: not null,
+          parentServiceInstanceId: 1,
+          networkAddress: "",
+          entryEndpoint: /grpc-scenario/case/grpc-scenario,
+          entryServiceInstanceId: 1,
+        }
+        - operationName: GreeterBlocking.sayHello/server/Request/onComplete
+          operationId: 0
+          parentSpanId: -1
+          spanId: 0
+          spanLayer: RPCFramework
+          startTime: nq 0
+          endTime: nq 0
+          componentId: 23
+          componentName: ""
+          isError: false
+          spanType: Local
+          peer: ""
+          peerId: 0
+          refs:
+            - {
+              parentEndpointId: 0,
+              parentEndpoint: GreeterBlocking.sayHello,
+              networkAddressId: 0,
+              entryEndpointId: 0,
+              refType: CrossThread,
+              parentSpanId: 0,
+              parentTraceSegmentId: not null,
+              parentServiceInstanceId: 1,
+              networkAddress: "",
+              entryEndpoint: /grpc-scenario/case/grpc-scenario,
+              entryServiceInstanceId: 1,
+            }
+  - segmentId: not null
+    spans:
+    - operationName: Greeter.sayHello/client/Response/onMessage
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+      refs:
+        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
+           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
+           entryServiceInstanceId: 1}
+  - segmentId: not null
+    spans:
+    - operationName: Greeter.sayHello/client/Response/onClose
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+      refs:
+        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
+           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
+           entryServiceInstanceId: 1}
+  - segmentId: not null
+    spans:
+    - operationName: GreeterBlockingError.sayHello
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: false
+      spanType: Entry
+      peer: ""
+      peerId: 0
+      refs:
+        - parentEndpointId: -1
+          parentEndpoint: ""
+          networkAddressId: 0
+          entryEndpointId: -1
+          refType: CrossProcess
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: "127.0.0.1:18080"
+          entryEndpoint: ""
+          entryServiceInstanceId: 1
+  - segmentId: not null
+    spans:
+    - operationName: GreeterBlockingError.sayHello/server/Response/onClose
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: true
+      spanType: Local
+      peer: ""
+      peerId: 0
+      tags:
+        - { key: status_code, value: UNKNOWN }
+      logs:
+        - logEvent:
+            - { key: event, value: error }
+            - { key: error.kind, value: java.lang.Exception }
+            - { key: message, value: "" }
+            - key: stack
+              value: not null
+      refs:
+        - parentEndpointId: 0
+          parentEndpoint: GreeterBlockingError.sayHello
+          networkAddressId: 0
+          entryEndpointId: -1
+          refType: CrossThread
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: ""
+          entryEndpoint: ""
+          entryServiceInstanceId: 1
+    - operationName: GreeterBlockingError.sayHello/server/Request/onComplete
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ""
+      isError: false
+      spanType: Local
+      peer: ""
+      peerId: 0
+      refs:
+        - parentEndpointId: 0
+          parentEndpoint: GreeterBlockingError.sayHello
+          networkAddressId: 0
+          entryEndpointId: -1
+          refType: CrossThread
+          parentSpanId: 0
+          parentTraceSegmentId: not null
+          parentServiceInstanceId: 1
+          networkAddress: ""
+          entryEndpoint: ""
+          entryServiceInstanceId: 1
   - segmentId: not null
     spans:
     - operationName: Greeter.sayHello
@@ -260,9 +503,9 @@ segmentItems:
         - {key: status_code, value: UNKNOWN}
       logs:
         - logEvent:
-            - { key: event, value: error }
-            - { key: error.kind, value: java.lang.Exception }
-            - { key: message, value: "" }
+            - {key: event, value: error}
+            - {key: error.kind, value: io.grpc.StatusRuntimeException}
+            - {key: message, value: UNKNOWN}
             - key: stack
               value: not null
     - operationName: GreeterBlockingError.sayHello/client/Request/onCancel
@@ -278,6 +521,13 @@ segmentItems:
       spanType: Local
       peer: ''
       peerId: 0
+      logs:
+      - logEvent:
+          - {key: event, value: error}
+          - {key: error.kind, value: io.grpc.StatusRuntimeException}
+          - {key: message, value: UNKNOWN}
+          - key: stack
+            value: not null
     - operationName: GreeterBlockingError.sayHello
       operationId: 0
       parentSpanId: 0
@@ -293,9 +543,9 @@ segmentItems:
       peerId: 0
       logs:
       - logEvent:
-        - { key: event, value: error }
-        - { key: error.kind, value: java.lang.Exception }
-        - { key: message, value: "" }
+        - {key: event, value: error}
+        - {key: error.kind, value: io.grpc.StatusRuntimeException}
+        - {key: message, value: UNKNOWN}
         - key: stack
           value: not null
     - operationName: /grpc-scenario/case/grpc-scenario
@@ -317,285 +567,17 @@ segmentItems:
       - {key: status_code, value: '500'}
       logs:
       - logEvent:
-        - { key: event, value: error }
-        - { key: error.kind, value: java.lang.Exception }
-        - { key: message, value: "" }
+        - {key: event, value: error}
+        - {key: error.kind, value: org.springframework.web.util.NestedServletException}
+        - {key: message, value: 'Request processing failed; nested exception is io.grpc.StatusRuntimeException:
+              UNKNOWN'}
         - key: stack
           value: not null
-  - segmentId: not null
-    spans:
-    - operationName: Greeter.sayHello/server/Response/onMessage
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Local
-      peer: ""
-      peerId: 0
-      refs:
-      - parentEndpointId: 0
-        parentEndpoint: Greeter.sayHello
-        networkAddressId: 0
-        entryEndpointId: 0
-        refType: CrossThread
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: /grpc-scenario/case/grpc-scenario
-        entryServiceInstanceId: 1
-    - operationName: Greeter.sayHello/server/Request/onMessage
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Local
-      peer: ""
-      peerId: 0
-      refs:
-      - parentEndpointId: 0
-        parentEndpoint: Greeter.sayHello
-        networkAddressId: 0
-        entryEndpointId: 0
-        refType: CrossThread
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: /grpc-scenario/case/grpc-scenario
-        entryServiceInstanceId: 1
-  - segmentId: not null
-    spans:
-    - operationName: Greeter.sayHello/server/Response/onClose
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Local
-      peer: ""
-      peerId: 0
-      tags:
-      - key: status_code
-        value: OK
-      refs:
-      - parentEndpointId: 0
-        parentEndpoint: Greeter.sayHello
-        networkAddressId: 0
-        entryEndpointId: 0
-        refType: CrossThread
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: /grpc-scenario/case/grpc-scenario
-        entryServiceInstanceId: 1
-    - operationName: Greeter.sayHello/server/Request/onComplete
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Local
-      peer: ""
-      peerId: 0
-      refs:
-        - parentEndpointId: 0
-          parentEndpoint: Greeter.sayHello
-          networkAddressId: 0
-          entryEndpointId: 0
-          refType: CrossThread
-          parentSpanId: 0
-          parentTraceSegmentId: not null
-          parentServiceInstanceId: 1
-          networkAddress: ""
-          entryEndpoint: /grpc-scenario/case/grpc-scenario
-          entryServiceInstanceId: 1
-  - segmentId: not null
-    spans:
-    - operationName: GreeterBlockingError.sayHello
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Entry
-      peer: ""
-      peerId: 0
-      refs:
-      - parentEndpointId: -1
-        parentEndpoint: ""
-        networkAddressId: 0
-        entryEndpointId: -1
-        refType: CrossProcess
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: "127.0.0.1:18080"
-        entryEndpoint: ""
-        entryServiceInstanceId: 1
-  - segmentId: not null
-    spans:
-    - operationName: GreeterBlockingError.sayHello/server/Response/onClose
-      operationId: 0
-      parentSpanId: 0
-      spanId: 1
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: true
-      spanType: Local
-      peer: ""
-      peerId: 0
-      tags:
-      - { key: status_code, value: UNKNOWN }
-      logs:
       - logEvent:
-        - { key: event, value: error }
-        - { key: error.kind, value: java.lang.Exception }
-        - { key: message, value: "" }
-        - key: stack
-          value: not null
-      refs:
-      - parentEndpointId: 0
-        parentEndpoint: GreeterBlockingError.sayHello
-        networkAddressId: 0
-        entryEndpointId: -1
-        refType: CrossThread
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: ""
-        entryServiceInstanceId: 1
-    - operationName: GreeterBlockingError.sayHello/server/Request/onComplete
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ""
-      isError: false
-      spanType: Local
-      peer: ""
-      peerId: 0
-      refs:
-      - parentEndpointId: 0
-        parentEndpoint: GreeterBlockingError.sayHello
-        networkAddressId: 0
-        entryEndpointId: -1
-        refType: CrossThread
-        parentSpanId: 0
-        parentTraceSegmentId: not null
-        parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: ""
-        entryServiceInstanceId: 1
-  - segmentId: not null
-    spans:
-    - operationName: Greeter.sayHello/client/Request/onMessage
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 23
-      componentName: ''
-      isError: false
-      spanType: Local
-      peer: ''
-      peerId: 0
-      refs:
-        - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
-           entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-           parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
-           entryServiceInstanceId: 1}
-  - segmentId: not null
-    spans:
-      - operationName: Greeter.sayHello/client/Response/onMessage
-        operationId: 0
-        parentSpanId: -1
-        spanId: 0
-        spanLayer: RPCFramework
-        startTime: nq 0
-        endTime: nq 0
-        componentId: 23
-        componentName: ''
-        isError: false
-        spanType: Local
-        peer: ''
-        peerId: 0
-        refs:
-          - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
-             entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-             parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
-             entryServiceInstanceId: 1}
-  - segmentId: not null
-    spans:
-      - operationName: Greeter.sayHello/client/Request/onComplete
-        operationId: 0
-        parentSpanId: -1
-        spanId: 0
-        spanLayer: RPCFramework
-        startTime: nq 0
-        endTime: nq 0
-        componentId: 23
-        componentName: ''
-        isError: false
-        spanType: Local
-        peer: ''
-        peerId: 0
-        refs:
-          - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
-             entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-             parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
-             entryServiceInstanceId: 1}
-  - segmentId: not null
-    spans:
-      - operationName: Greeter.sayHello/client/Response/onClose
-        operationId: 0
-        parentSpanId: -1
-        spanId: 0
-        spanLayer: RPCFramework
-        startTime: nq 0
-        endTime: nq 0
-        componentId: 23
-        componentName: ''
-        isError: false
-        spanType: Local
-        peer: ''
-        peerId: 0
-        refs:
-          - {parentEndpointId: 0, parentEndpoint: /grpc-scenario/case/grpc-scenario, networkAddressId: 0,
-             entryEndpointId: 0, refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-             parentServiceInstanceId: 1, networkAddress: '', entryEndpoint: /grpc-scenario/case/grpc-scenario,
-             entryServiceInstanceId: 1}
+          - {key: forward-url, value: /grpc-scenario/error}
+
+
+
+
 
 
