@@ -164,6 +164,8 @@ istio-telemetry:
   default:
 envoy-metric:
   default:
+receiver-profile:
+  default:
 #    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
 #  default:
