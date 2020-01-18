@@ -173,6 +173,8 @@ istio-telemetry:
   default:
 envoy-metric:
   default:
+receiver-profile:
+  default:
 #    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
 #  default:
@@ -242,3 +244,4 @@ configuration:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
 #    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+

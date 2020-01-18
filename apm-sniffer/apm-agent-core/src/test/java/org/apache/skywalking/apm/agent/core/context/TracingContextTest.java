@@ -46,7 +46,7 @@ public class TracingContextTest {
         };
         TracingContext.ListenerManager.add(listener);
         try {
-            TracingContext tracingContext = new TracingContext();
+            TracingContext tracingContext = new TracingContext("/url");
             AbstractSpan span = tracingContext.createEntrySpan("/url");
 
             for (int i = 0; i < 10; i++) {

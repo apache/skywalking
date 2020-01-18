@@ -42,7 +42,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
 
     public SegmentStandardizationWorker(ModuleDefineHolder moduleDefineHolder,
         DataStreamReader.CallBack<UpstreamSegment> segmentParse, String path, int offsetFileMaxSize,
-        int dataFileMaxSize, boolean cleanWhenRestart, boolean isV6) throws IOException {
+        int dataFileMaxSize, boolean cleanWhenRestart) throws IOException {
         super(moduleDefineHolder);
 
         BufferStream.Builder<UpstreamSegment> builder = new BufferStream.Builder<>(path);
@@ -59,7 +59,7 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         dataCarrier.consume(new Consumer(stream), 1, 200);
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        String metricNamePrefix = isV6 ? "v6_" : "v5_";
+        String metricNamePrefix =  "v6_";
         traceBufferFileIn = metricsCreator.createCounter(metricNamePrefix + "trace_buffer_file_in", "The number of trace segment into the buffer file",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
