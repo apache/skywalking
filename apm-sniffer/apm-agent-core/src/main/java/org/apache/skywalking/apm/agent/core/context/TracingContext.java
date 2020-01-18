@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -62,9 +63,14 @@ public class TracingContext implements AbstractTracerContext {
     private long lastWarningTimestamp = 0;
 
     /**
+     * @see {@link ProfileTaskExecutionService}
+     */
+    private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
+
+    /**
      * @see {@link SamplingService}
      */
-    private SamplingService samplingService;
+    private static SamplingService SAMPLING_SERVICE;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -92,15 +98,32 @@ public class TracingContext implements AbstractTracerContext {
 
     private volatile boolean running;
 
+    private final long createTime;
+
+    /**
+     * profiling status
+     */
+    private volatile boolean profiling;
+
     /**
      * Initialize all fields with default value.
      */
-    TracingContext() {
+    TracingContext(String firstOPName) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
-        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
+        createTime = System.currentTimeMillis();
         running = true;
+
+        if (SAMPLING_SERVICE == null) {
+            SAMPLING_SERVICE = ServiceManager.INSTANCE.findService(SamplingService.class);
+        }
+
+        // profiling status
+        if (PROFILE_TASK_EXECUTION_SERVICE == null) {
+            PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        }
+        this.profiling = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -308,6 +331,7 @@ public class TracingContext implements AbstractTracerContext {
             return push(span);
         }
         AbstractSpan entrySpan;
+        TracingContext owner = this;
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
@@ -328,11 +352,11 @@ public class TracingContext implements AbstractTracerContext {
                 .findOnly(segment.getServiceId(), operationName)
                 .doInCondition(new PossibleFound.FoundAndObtain() {
                     @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId, owner);
                     }
                 }, new PossibleFound.NotFoundAndObtain() {
                     @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
+                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName, owner);
                     }
                 });
             entrySpan.start();
@@ -358,7 +382,7 @@ public class TracingContext implements AbstractTracerContext {
          * From v6.0.0-beta, local span doesn't do op name register.
          * All op name register is related to entry and exit spans only.
          */
-        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, this);
         span.start();
         return push(span);
     }
@@ -380,6 +404,7 @@ public class TracingContext implements AbstractTracerContext {
 
         AbstractSpan exitSpan;
         AbstractSpan parentSpan = peek();
+        TracingContext owner = this;
         if (parentSpan != null && parentSpan.isExit()) {
             exitSpan = parentSpan;
         } else {
@@ -389,13 +414,13 @@ public class TracingContext implements AbstractTracerContext {
                     new PossibleFound.FoundAndObtain() {
                         @Override
                         public Object doProcess(final int peerId) {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId, owner);
                         }
                     },
                     new PossibleFound.NotFoundAndObtain() {
                         @Override
                         public Object doProcess() {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
+                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer, owner);
                         }
                     });
             push(exitSpan);
@@ -463,15 +488,38 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     /**
+     * Re-check current trace need profiling, encase third part plugin change the operation name.
+     *
+     * @param span current modify span
+     * @param operationName change to operation name
+     */
+    public void profilingRecheck(AbstractSpan span, String operationName) {
+        // only recheck first span
+        if (span.getSpanId() != 0) {
+            return;
+        }
+
+        profiling = PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
+    }
+
+    /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
-     * TracingContext.ListenerManager}
+     * TracingContext.ListenerManager} and {@link TracingContext.TracingThreadListenerManager}
      */
     private void finish() {
         if (isRunningInAsyncMode) {
             asyncFinishLock.lock();
         }
         try {
-            if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+            boolean isFinishedInMainThread = activeSpanStack.isEmpty() && running;
+            if (isFinishedInMainThread) {
+                /**
+                 * Notify after tracing finished in the main thread.
+                 */
+                TracingThreadListenerManager.notifyFinish(this);
+            }
+
+            if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
                 /*
                  * Recheck the segment if the segment contains only one span.
@@ -480,7 +528,7 @@ public class TracingContext implements AbstractTracerContext {
                  * @see {@link #createSpan(String, long, boolean)}
                  */
                 if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-                    if (!samplingService.trySampling()) {
+                    if (!SAMPLING_SERVICE.trySampling()) {
                         finishedSegment.setIgnore(true);
                     }
                 }
@@ -544,6 +592,27 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     /**
+     * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
+     */
+    public static class TracingThreadListenerManager {
+        private static List<TracingThreadListener> LISTENERS = new LinkedList<>();
+
+        public static synchronized void add(TracingThreadListener listener) {
+            LISTENERS.add(listener);
+        }
+
+        static void notifyFinish(TracingContext finishedContext) {
+            for (TracingThreadListener listener : LISTENERS) {
+                listener.afterMainThreadFinish(finishedContext);
+            }
+        }
+
+        public static synchronized void remove(TracingThreadListener listener) {
+            LISTENERS.remove(listener);
+        }
+    }
+
+    /**
      * @return the top element of 'ActiveSpanStack', and remove it.
      */
     private AbstractSpan pop() {
@@ -587,4 +656,13 @@ public class TracingContext implements AbstractTracerContext {
             return false;
         }
     }
+
+    public long createTime() {
+        return this.createTime;
+    }
+
+    public boolean isProfiling() {
+        return this.profiling;
+    }
+
 }

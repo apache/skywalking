@@ -138,6 +138,26 @@ public class Config {
          * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.
          */
         public static boolean ACTIVE = true;
+
+        /**
+         * Parallel monitor segment count
+         */
+        public static int MAX_PARALLEL = 5;
+
+        /**
+         * Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.
+         */
+        public static int MAX_DURATION = 10;
+
+        /**
+         * Max dump thread stack depth
+         */
+        public static int DUMP_MAX_STACK_DEPTH = 500;
+
+        /**
+         * Snapshot transport to backend buffer size
+         */
+        public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
     }
 
     public static class Jvm {
