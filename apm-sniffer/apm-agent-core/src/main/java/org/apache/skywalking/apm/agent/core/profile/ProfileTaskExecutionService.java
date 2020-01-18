@@ -62,7 +62,9 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     private final List<ProfileTask> profileTaskList = Collections.synchronizedList(new LinkedList<>());
 
     /**
-     * get profile task from OAP
+     * add profile task from OAP
+     *
+     * @param task adding task
      */
     public void addProfileTask(ProfileTask task) {
         // update last command create time
@@ -93,6 +95,9 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * check and add {@link TracingContext} profiling
      *
+     * @param tracingContext need to profiling trace
+     * @param traceSegmentId current trace segment id
+     * @param firstSpanOPName first span operation name
      * @return has add to profiling
      */
     public boolean addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
@@ -108,6 +113,9 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * Re-check current trace need profiling, encase third part plugin change the operation name.
      *
+     * @param tracingContext need to profiling trace
+     * @param traceSegmentId current trace segment id
+     * @param firstSpanOPName first span operation name
      * @return is recheck to add profile success
      */
     public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
@@ -122,6 +130,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * active the selected profile task to execution task, and start a removal task for it.
+     *
+     * @param task start process task
      */
     private synchronized void processProfileTask(ProfileTask task) {
         // make sure prev profile task already stopped
@@ -144,6 +154,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * stop profile task, remove context data
+     *
+     * @param needToStop should stopped profile task
      */
     synchronized void stopCurrentProfileTask(ProfileTaskExecutionContext needToStop) {
         // stop same context only
@@ -191,6 +203,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     /**
      * check profile task data success, make the re-check, prevent receiving wrong data from database or OAP
+     *
+     * @param task need checked task
      * @return if not null, means profile task have error message
      */
     private CheckResult checkProfileTaskSuccess(ProfileTask task) {

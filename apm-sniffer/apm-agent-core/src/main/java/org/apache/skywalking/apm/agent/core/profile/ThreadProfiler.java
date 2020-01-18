@@ -119,6 +119,9 @@ public class ThreadProfiler {
 
     /**
      * build thread stack element code signature
+     *
+     * @param element need build code sign stack element
+     * @return code sign: className.methodName:lineNumber
      */
     private String buildStackElementCodeSignature(StackTraceElement element) {
         // className.methodName:lineNumber
@@ -127,6 +130,9 @@ public class ThreadProfiler {
 
     /**
      * matches profiling tracing context
+     *
+     * @param context compare to context
+     * @return is matches with context
      */
     public boolean matches(TracingContext context) {
         // match trace id
@@ -135,6 +141,8 @@ public class ThreadProfiler {
 
     /**
      * check profiling is should continue
+     *
+     * @return if true means this thread profiling is continuable
      */
     private boolean isProfilingProfilingContinuable() {
         return System.currentTimeMillis() - profilingStartTime < profilingMaxTimeMills;

@@ -57,6 +57,8 @@ public class ProfileTaskExecutionContext {
 
     /**
      * start profiling this task
+     *
+     * @param executorService start profiling to appoint thread pool
      */
     public void startProfiling(ExecutorService executorService) {
         profilingFuture = executorService.submit(new ProfileThread(this));
@@ -74,6 +76,9 @@ public class ProfileTaskExecutionContext {
     /**
      * check have available slot to profile and add it
      *
+     * @param tracingContext need to profiling trace
+     * @param traceSegmentId current trace segment id
+     * @param firstSpanOPName first span operation name
      * @return is add profile success
      */
     public boolean attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
@@ -126,6 +131,7 @@ public class ProfileTaskExecutionContext {
     /**
      * find tracing context and clear on slot
      *
+     * @param tracingContext stop profiling appoint trace
      * @return current profiler is already start profiling
      */
     public void stopTracingProfile(TracingContext tracingContext) {

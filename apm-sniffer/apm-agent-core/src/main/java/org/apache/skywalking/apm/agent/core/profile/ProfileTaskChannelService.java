@@ -170,6 +170,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     /**
      * add a new profiling snapshot, send to {@link #snapshotQueue}
+     *
+     * @param snapshot sending snapshot
      */
     public void addProfilingSnapshot(TracingThreadSnapshot snapshot) {
         snapshotQueue.add(snapshot);
@@ -177,6 +179,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     /**
      * notify backend profile task has finish
+     *
+     * @param task finished task
      */
     public void notifyProfileTaskFinish(ProfileTask task) {
         try {
