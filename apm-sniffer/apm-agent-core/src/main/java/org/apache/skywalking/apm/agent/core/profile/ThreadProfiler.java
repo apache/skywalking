@@ -69,8 +69,6 @@ public class ThreadProfiler {
 
     /**
      * Stop profiling status
-     *
-     * @return current profiler is already start profiling
      */
     public void stopProfiling() {
         this.profilingStatus = ProfilingStatus.STOPPED;
@@ -78,6 +76,7 @@ public class ThreadProfiler {
 
     /**
      * dump tracing thread and build thread snapshot
+     *
      * @return snapshot, if null means dump snapshot error, should stop it
      */
     public TracingThreadSnapshot buildSnapshot() {
@@ -120,19 +119,14 @@ public class ThreadProfiler {
     /**
      * build thread stack element code signature
      *
-     * @param element need build code sign stack element
      * @return code sign: className.methodName:lineNumber
      */
     private String buildStackElementCodeSignature(StackTraceElement element) {
-        // className.methodName:lineNumber
         return element.getClassName() + "." + element.getMethodName() + ":" + element.getLineNumber();
     }
 
     /**
      * matches profiling tracing context
-     *
-     * @param context compare to context
-     * @return is matches with context
      */
     public boolean matches(TracingContext context) {
         // match trace id

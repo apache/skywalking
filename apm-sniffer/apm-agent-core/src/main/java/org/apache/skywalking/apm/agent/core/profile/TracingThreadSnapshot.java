@@ -48,8 +48,6 @@ public class TracingThreadSnapshot {
 
     /**
      * transform to gRPC data
-     *
-     * @return transform to gRPC protocol message
      */
     public ThreadSnapshot transform() {
         final ThreadSnapshot.Builder builder = ThreadSnapshot.newBuilder();
