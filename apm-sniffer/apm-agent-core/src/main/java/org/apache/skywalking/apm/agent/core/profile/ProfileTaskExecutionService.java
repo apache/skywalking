@@ -71,9 +71,9 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         }
 
         // check profile task limit
-        final String dataError = checkProfileTaskSuccess(task);
-        if (dataError != null) {
-            logger.warn("check command error, cannot process this profile task. reason: {}", dataError);
+        final CheckResult dataError = checkProfileTaskSuccess(task);
+        if (!dataError.isSuccess()) {
+            logger.warn("check command error, cannot process this profile task. reason: {}", dataError.getErrorReason());
             return;
         }
 
@@ -193,36 +193,36 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
      * check profile task data success, make the re-check, prevent receiving wrong data from database or OAP
      * @return if not null, means profile task have error message
      */
-    private String checkProfileTaskSuccess(ProfileTask task) {
+    private CheckResult checkProfileTaskSuccess(ProfileTask task) {
         // endpoint name
         if (StringUtil.isEmpty(task.getFistSpanOPName())) {
-            return "endpoint name cannot be empty";
+            return new CheckResult(false, "endpoint name cannot be empty");
         }
 
         // duration
         if (task.getDuration() < ProfileConstants.TASK_DURATION_MIN_MINUTE) {
-            return "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes";
+            return new CheckResult(false, "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes");
         }
         if (task.getDuration() > ProfileConstants.TASK_DURATION_MAX_MINUTE) {
-            return "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes";
+            return new CheckResult(false, "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes");
         }
 
         // min duration threshold
         if (task.getMinDurationThreshold() < 0) {
-            return "min duration threshold must greater than or equals zero";
+            return new CheckResult(false, "min duration threshold must greater than or equals zero");
         }
 
         // dump period
         if (task.getThreadDumpPeriod() < ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS) {
-            return "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds";
+            return new CheckResult(false, "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds");
         }
 
         // max sampling count
         if (task.getMaxSamplingCount() <= 0) {
-            return "max sampling count must greater than zero";
+            return new CheckResult(false, "max sampling count must greater than zero");
         }
         if (task.getMaxSamplingCount() >= ProfileConstants.TASK_MAX_SAMPLING_COUNT) {
-            return "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT;
+            return new CheckResult(false, "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT);
         }
 
         // check task queue, check only one task in a certain time
@@ -231,11 +231,11 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
             // if the end time of the task to be added is during the execution of any data, means is a error data
             if (taskProcessFinishTime >= profileTask.getStartTime() && taskProcessFinishTime <= calcProfileTaskFinishTime(profileTask)) {
-                return "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getFistSpanOPName();
+                return new CheckResult(false, "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getFistSpanOPName());
             }
         }
 
-        return null;
+        return new CheckResult(true, null);
     }
 
     private long calcProfileTaskFinishTime(ProfileTask task) {
@@ -250,6 +250,27 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
             if (currentExecutionContext != null) {
                 currentExecutionContext.stopTracingProfile(tracingContext);
             }
+        }
+    }
+
+    /**
+     * check profile task is processable
+     */
+    private static class CheckResult {
+        private boolean success;
+        private String errorReason;
+
+        public CheckResult(boolean success, String errorReason) {
+            this.success = success;
+            this.errorReason = errorReason;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getErrorReason() {
+            return errorReason;
         }
     }
 }
