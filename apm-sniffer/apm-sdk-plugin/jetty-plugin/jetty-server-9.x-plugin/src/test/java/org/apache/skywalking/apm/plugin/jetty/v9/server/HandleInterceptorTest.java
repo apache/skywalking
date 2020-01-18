@@ -19,8 +19,7 @@
 package org.apache.skywalking.apm.plugin.jetty.v9.server;
 
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -45,7 +44,6 @@ import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.HttpTransport;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,7 +84,6 @@ public class HandleInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         jettyInvokeInterceptor = new HandleInterceptor();
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
@@ -96,11 +93,6 @@ public class HandleInterceptorTest {
         arguments = new Object[] {service};
         argumentType = new Class[] {service.getClass()};
 
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
@@ -116,7 +108,7 @@ public class HandleInterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(SW3CarrierItem.HEADER_NAME)).thenReturn("1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(request.getHeader(SW6CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
 
         jettyInvokeInterceptor.beforeMethod(service, null, arguments, argumentType, methodInterceptResult);
         jettyInvokeInterceptor.afterMethod(service, null, arguments, argumentType, null);
