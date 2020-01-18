@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class BatchDAO implements IBatchDAO {
+public class  BatchDAO implements IBatchDAO {
     private static final Logger logger = LoggerFactory.getLogger(BatchDAO.class);
     private final DataCarrier<PrepareRequest> dataCarrier;
     private final InfluxClient client;

@@ -105,21 +105,10 @@ public class LogQuery implements ILogQueryDAO {
 
         final Logs logs = new Logs();
         QueryResult.Result counter = results.get(0);
-        QueryResult.Result result = results.get(1);
-
-        if (counter.hasError() || result.hasError()) {
-            if (counter.hasError())
-                throw new IOException(counter.getError());
-            throw new IOException(result.getError());
-        }
-
-        List<QueryResult.Series> seriesList = results.get(1).getSeries();
-        if (seriesList == null || seriesList.isEmpty()) {
-            return logs;
-        }
+        QueryResult.Result seriesList = results.get(1);
 
         logs.setTotal(((Number) counter.getSeries().get(0).getValues().get(0).get(1)).intValue());
-        seriesList.forEach(series -> {
+        seriesList.getSeries().forEach(series -> {
             final List<String> columns = series.getColumns();
 
             series.getValues().forEach(values -> {

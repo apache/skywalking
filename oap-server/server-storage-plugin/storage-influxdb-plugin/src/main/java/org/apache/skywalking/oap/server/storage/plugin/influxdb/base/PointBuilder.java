@@ -62,6 +62,11 @@ public class PointBuilder {
                 .build();
     }
 
+    public static Point fromNoneStream(Model model, Map<String, Object> objectMap, StorageData storageData) {
+        Point.measurement(model.getName()).build();
+        return null; // FIXME
+    }
+
     public static Point fromRecord(Model model, Map<String, Object> objectMap, StorageData storageData) {
         Map<String, Object> fields = Maps.newHashMap();
         Object entityId = objectMap.get(Metrics.ENTITY_ID);

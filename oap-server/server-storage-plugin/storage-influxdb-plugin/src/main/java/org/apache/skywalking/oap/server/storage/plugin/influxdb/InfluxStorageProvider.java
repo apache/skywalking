@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInvent
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.*;
@@ -32,7 +33,8 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.*;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.TableMixInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.H2Installer;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.MySQLInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.*;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.*;
 import org.slf4j.Logger;
@@ -71,10 +73,10 @@ public class InfluxStorageProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException {
         Properties settings = new Properties();
-        settings.setProperty("dataSourceClassName", config.getMyDriver());
-        settings.setProperty("dataSource.url", config.getMyUrl());
-        settings.setProperty("dataSource.user", config.getMyUser());
-        settings.setProperty("dataSource.password", config.getMyPassword());
+        settings.setProperty("dataSourceClassName", config.getMetaDBDriver());
+        settings.setProperty("dataSource.url", config.getMetaDBUrl());
+        settings.setProperty("dataSource.user", config.getMetaDBUser());
+        settings.setProperty("dataSource.password", config.getMetaDBPassword());
 
         client = new JDBCHikariCPClient(settings);
         influxClient = new InfluxClient(config);
@@ -83,7 +85,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(StorageDAO.class, new InfluxStorageDAO(client, influxClient));
 
         this.lockDAO = new H2RegisterLockDAO(client);
-        this.registerServiceImplementation(IRegisterLockDAO.class, lockDAO);
+        this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO(client));
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(client));
         this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
@@ -116,7 +118,13 @@ public class InfluxStorageProvider extends ModuleProvider {
             client.connect();
             influxClient.connect();
 
-            new TableMixInstaller(getManager()).install(client);
+            ModelInstaller installer;
+            if (config.getMetaDBType().equalsIgnoreCase("h2")) {
+                installer = new H2Installer(getManager());
+            } else {
+                installer = new MySQLInstaller(getManager());
+            }
+            installer.install(client);
             new H2RegisterLockInstaller().install(client, lockDAO);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);

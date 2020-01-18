@@ -25,10 +25,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @Getter
 public class InfluxStorageConfig extends ModuleConfig {
-    private String myDriver;
-    private String myUrl;
-    private String myUser;
-    private String myPassword;
+    private String metaDBDriver;
+    private String metaDBUrl;
+    private String metaDBUser;
+    private String metaDBPassword;
+
+    private String metaDBType;
 
     private int metadataQueryMaxSize = 5000;
 

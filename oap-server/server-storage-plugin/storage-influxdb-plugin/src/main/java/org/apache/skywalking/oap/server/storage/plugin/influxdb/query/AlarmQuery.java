@@ -87,7 +87,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
         }
         List<QueryResult.Series> counter = results.get(0).getSeries();
         Alarms alarms = new Alarms();
-        alarms.setTotal(((Number) counter.get(1).getValues().get(0).get(1)).intValue());
+        alarms.setTotal(((Number) counter.get(0).getValues().get(0).get(1)).intValue());
 
         series.get(0).getValues().stream().sorted((a, b) -> {
             return Long.compare((long) b.get(1), (long) a.get(1));

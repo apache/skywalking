@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 public class MetricsDAO implements IMetricsDAO {
@@ -51,11 +52,9 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        StringBuilder builder = new StringBuilder(" id =~ /(").append(Joiner.on("|").join(ids)).append(")/");
-
         WhereQueryImpl query = select().all()
                 .from(client.getDatabase(), model.getName())
-                .where(builder.toString());
+                .where(contains("id", Joiner.on("|").join(ids)));
         List<QueryResult.Series> series = client.queryForSeries(query);
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();

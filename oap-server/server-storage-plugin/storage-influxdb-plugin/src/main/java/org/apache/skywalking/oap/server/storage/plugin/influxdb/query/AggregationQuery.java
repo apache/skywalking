@@ -102,8 +102,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
             return Collections.emptyList();
         }
 
-        List<List<Object>> dataset = series.get(0).getValues(); //
-
+        List<List<Object>> dataset = series.get(0).getValues();
         List<TopNEntity> entities = Lists.newArrayListWithCapacity(dataset.size());
         dataset.forEach(values -> {
             final TopNEntity entity = new TopNEntity();
@@ -115,7 +114,6 @@ public class AggregationQuery implements IAggregationQueryDAO {
         return entities;
     }
 
-    // TODO Take your time to polish
     private final SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, int serviceId, String name, String columnName,
                                                                long startTB, long endTB) {
         return select().fromSubQuery(client.getDatabase()).mean(columnName).from(name)
