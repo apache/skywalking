@@ -80,7 +80,7 @@ public class ThreadProfiler {
      * @return snapshot, if null means dump snapshot error, should stop it
      */
     public TracingThreadSnapshot buildSnapshot() {
-        if (!isProfilingProfilingContinuable()) {
+        if (!isProfilingContinuable()) {
             return null;
         }
 
