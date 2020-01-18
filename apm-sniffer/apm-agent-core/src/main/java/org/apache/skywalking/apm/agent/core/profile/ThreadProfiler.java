@@ -134,7 +134,7 @@ public class ThreadProfiler {
     }
 
     /**
-     * check profiling is should continue
+     * check whether profiling should continue
      *
      * @return if true means this thread profiling is continuable
      */
