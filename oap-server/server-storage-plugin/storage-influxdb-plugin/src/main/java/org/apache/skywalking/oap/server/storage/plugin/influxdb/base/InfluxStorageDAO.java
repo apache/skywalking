@@ -53,6 +53,6 @@ public class InfluxStorageDAO implements StorageDAO {
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new NoneStreamDAO();
+        return new NoneStreamDAO(influxClient, storageBuilder);
     }
 }
