@@ -91,13 +91,7 @@ public class ProfileVerificationITCase {
 
         while (true) {
             try {
-                final Map<String, String> user = new HashMap<>();
-                user.put("name", "SkyWalking");
-                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                        instrumentedServiceUrl + "/e2e/users",
-                        user,
-                        String.class
-                );
+                final ResponseEntity<String> responseEntity = sendRequest(false);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
                 final List<Trace> traces = profileClient.traces(
@@ -123,6 +117,17 @@ public class ProfileVerificationITCase {
 
     }
 
+    private ResponseEntity<String> sendRequest(boolean needProfiling) {
+        final Map<String, String> user = new HashMap<>();
+        user.put("name", "SkyWalking");
+        user.put("enableProfiling", String.valueOf(needProfiling));
+        return restTemplate.postForEntity(
+                instrumentedServiceUrl + "/e2e/users",
+                user,
+                String.class
+        );
+    }
+
     /**
      * verify create profile task
      * @param minutesAgo
@@ -134,10 +139,10 @@ public class ProfileVerificationITCase {
         final ProfileTaskCreationRequest creationRequest = ProfileTaskCreationRequest.builder()
                 .serviceId(2)
                 .endpointName("/e2e/users")
-                .duration(5)
+                .duration(1)
                 .startTime(-1)
-                .minDurationThreshold(10)
-                .dumpPeriod(10)
+                .minDurationThreshold(1000)
+                .dumpPeriod(50)
                 .maxSamplingCount(5).build();
 
         // verify create task
@@ -147,18 +152,29 @@ public class ProfileVerificationITCase {
         ProfileTaskCreationResultMatcher creationResultMatcher = new ProfileTaskCreationResultMatcher();
         creationResultMatcher.verify(creationResult);
 
+        // verify get task list and sniffer get task logs
+        verifyProfileTask(creationRequest.getServiceId(), "expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.notified.yml");
+
+        // send a profile request
+        sendRequest(true);
+
+        // verify task execution finish
+        verifyProfileTask(creationRequest.getServiceId(), "expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.finished.yml");
+    }
+
+    private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {
         // verify get task list and logs
         for (int i = 0; i < 10; i++) {
             try {
                 final ProfileTasks tasks = profileClient.getProfileTaskList(
                         new ProfileTaskQuery()
-                                .serviceId(creationRequest.getServiceId())
+                                .serviceId(serviceId)
                                 .endpointName("")
                 );
                 LOGGER.info("get profile task list: {}", tasks);
 
                 InputStream expectedInputStream =
-                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.yml").getInputStream();
+                        new ClassPathResource(verifyResources).getInputStream();
 
                 final ProfilesTasksMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfilesTasksMatcher.class);
                 servicesMatcher.verify(tasks);

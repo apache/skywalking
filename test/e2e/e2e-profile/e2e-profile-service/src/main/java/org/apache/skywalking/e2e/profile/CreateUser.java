@@ -16,25 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
-
-import com.google.gson.stream.JsonReader;
-import java.io.IOException;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
+package org.apache.skywalking.e2e.profile;
 
 /**
- * @author peng-yongsheng
+ * @author MrPro
  */
-public class UniqueIdJsonReader implements StreamJsonReader<UniqueId.Builder> {
+public class CreateUser {
 
-    @Override public UniqueId.Builder read(JsonReader reader) throws IOException {
-        UniqueId.Builder builder = UniqueId.newBuilder();
+    private String name;
 
-        reader.beginArray();
-        while (reader.hasNext()) {
-            builder.addIdParts(reader.nextLong());
-        }
-        reader.endArray();
-        return builder;
+    private boolean enableProfiling;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean getEnableProfiling() {
+        return enableProfiling;
+    }
+
+    public void setEnableProfiling(boolean enableProfiling) {
+        this.enableProfiling = enableProfiling;
+    }
+
+    public User toUser() {
+        final User user = new User();
+        user.setName(name);
+        return user;
     }
 }

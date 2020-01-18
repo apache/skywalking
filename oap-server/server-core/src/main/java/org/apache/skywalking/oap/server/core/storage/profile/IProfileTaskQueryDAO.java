@@ -41,4 +41,11 @@ public interface IProfileTaskQueryDAO extends DAO {
      */
     List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final Long startTimeBucket, final Long endTimeBucket, final Integer limit) throws IOException;
 
+    /**
+     * query profile task by id
+     * @param id
+     * @return
+     */
+    ProfileTask getById(final String id) throws IOException;
+
 }

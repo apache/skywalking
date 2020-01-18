@@ -16,30 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v5.rest.reader;
-
-import org.apache.skywalking.apm.network.language.agent.*;
+package org.apache.skywalking.apm.agent.core.profile;
 
 /**
- * @author peng-yongsheng
+ * @author MrPro
  */
-public class TraceSegment {
+public enum ProfilingStatus {
 
-    private UpstreamSegment.Builder builder;
+    READY,
 
-    public TraceSegment() {
-        builder = UpstreamSegment.newBuilder();
-    }
+    PROFILING,
 
-    public void addGlobalTraceId(UniqueId.Builder globalTraceId) {
-        builder.addGlobalTraceIds(globalTraceId);
-    }
-
-    public void setTraceSegmentBuilder(TraceSegmentObject.Builder traceSegmentBuilder) {
-        builder.setSegment(traceSegmentBuilder.build().toByteString());
-    }
-
-    public UpstreamSegment getUpstreamSegment() {
-        return builder.build();
-    }
+    STOPPED
 }
