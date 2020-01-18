@@ -22,6 +22,8 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
 /**
  * Profile task process thread, dump the executing thread stack.
  *
@@ -73,26 +75,29 @@ public class ProfileThread implements Runnable {
             currentLoopStartTime = System.currentTimeMillis();
 
             // each all slot
-            for (ThreadProfiler slot : executionContext.threadProfilerSlots()) {
-                if (slot == null) {
+            AtomicReferenceArray<ThreadProfiler> profilers = executionContext.threadProfilerSlots();
+            int profilerCount = profilers.length();
+            for (int slot = 0; slot < profilerCount; slot++) {
+                ThreadProfiler currentProfiler = profilers.get(slot);
+                if (currentProfiler == null) {
                     continue;
                 }
 
-                switch (slot.profilingStatus()) {
+                switch (currentProfiler.profilingStatus()) {
 
                     case READY:
                         // check tracing context running time
-                        slot.startProfilingIfNeed();
+                        currentProfiler.startProfilingIfNeed();
                         break;
 
                     case PROFILING:
                         // dump stack
-                        TracingThreadSnapshot snapshot = slot.buildSnapshot();
+                        TracingThreadSnapshot snapshot = currentProfiler.buildSnapshot();
                         if (snapshot != null) {
                             profileTaskChannelService.addProfilingSnapshot(snapshot);
                         } else {
                             // tell execution context current tracing thread dump failed, stop it
-                            executionContext.stopTracingProfile(slot.tracingContext());
+                            executionContext.stopTracingProfile(currentProfiler.tracingContext());
                         }
                         break;
 

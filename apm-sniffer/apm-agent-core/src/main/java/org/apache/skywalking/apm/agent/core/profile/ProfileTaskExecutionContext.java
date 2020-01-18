@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * profile task execution context, it will create on process this profile task
@@ -41,7 +42,7 @@ public class ProfileTaskExecutionContext {
     private final AtomicInteger currentProfilingCount = new AtomicInteger(0);
 
     // profiling segment slot
-    private volatile ThreadProfiler[] profilingSegmentSlots;
+    private volatile AtomicReferenceArray<ThreadProfiler> profilingSegmentSlots;
 
     // current profiling execution future
     private volatile Future profilingFuture;
@@ -51,7 +52,7 @@ public class ProfileTaskExecutionContext {
 
     public ProfileTaskExecutionContext(ProfileTask task) {
         this.task = task;
-        profilingSegmentSlots = new ThreadProfiler[Config.Profile.MAX_PARALLEL];
+        profilingSegmentSlots = new AtomicReferenceArray<>(Config.Profile.MAX_PARALLEL);
     }
 
     /**
@@ -98,11 +99,9 @@ public class ProfileTaskExecutionContext {
         }
 
         final ThreadProfiler threadProfiler = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
-        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
-            if (profilingSegmentSlots[slot] == null) {
-                profilingSegmentSlots[slot] = threadProfiler;
-
-                profilingSegmentSlots = profilingSegmentSlots;
+        int slotLength = profilingSegmentSlots.length();
+        for (int slot = 0; slot < slotLength; slot++) {
+            if (profilingSegmentSlots.compareAndSet(slot, null, threadProfiler)) {
                 break;
             }
         }
@@ -131,16 +130,15 @@ public class ProfileTaskExecutionContext {
      */
     public void stopTracingProfile(TracingContext tracingContext) {
         // find current tracingContext and clear it
-        for (int slot = 0; slot < profilingSegmentSlots.length; slot++) {
-            ThreadProfiler currentProfiler = profilingSegmentSlots[slot];
+        int slotLength = profilingSegmentSlots.length();
+        for (int slot = 0; slot < slotLength; slot++) {
+            ThreadProfiler currentProfiler = profilingSegmentSlots.get(slot);
             if (currentProfiler != null && currentProfiler.matches(tracingContext)) {
-                profilingSegmentSlots[slot] = null;
+                profilingSegmentSlots.set(slot, null);
 
                 // setting stop running
                 currentProfiler.stopProfiling();
                 currentProfilingCount.addAndGet(-1);
-
-                profilingSegmentSlots = profilingSegmentSlots;
                 break;
             }
         }
@@ -150,7 +148,7 @@ public class ProfileTaskExecutionContext {
         return task;
     }
 
-    public ThreadProfiler[] threadProfilerSlots() {
+    public AtomicReferenceArray<ThreadProfiler> threadProfilerSlots() {
         return profilingSegmentSlots;
     }
 
