@@ -83,7 +83,7 @@ public enum PropertyPlaceholderHelper {
      * Replaces all placeholders of format {@code ${name}} with the corresponding property from the supplied {@link
      * Properties}.
      *
-     * @param value      the value containing the placeholders to be replaced
+     * @param value the value containing the placeholders to be replaced
      * @param properties the {@code Properties} to use for replacement
      * @return the supplied value with placeholders replaced inline
      */
