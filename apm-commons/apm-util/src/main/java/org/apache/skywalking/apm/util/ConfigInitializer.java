@@ -95,7 +95,7 @@ public class ConfigInitializer {
     }
 
     private static List<String> convert2List(String value) {
-        if (StringUtil.isBlank(value)) {
+        if (StringUtil.isEmpty(value)) {
             return Collections.emptyList();
         }
 
@@ -104,7 +104,7 @@ public class ConfigInitializer {
         String[] segments = value.split(",");
         for (String segment : segments) {
             String trimmedSegment = segment.trim();
-            if (StringUtil.isNotBlank(trimmedSegment)) {
+            if (StringUtil.isNotEmpty(trimmedSegment)) {
                 result.add(trimmedSegment);
             }
         }

@@ -75,7 +75,7 @@ public class SnifferConfigInitializer {
             logger.error(e, "Failed to read the system properties.");
         }
 
-        if (StringUtil.isNotBlank(agentOptions)) {
+        if (StringUtil.isNotEmpty(agentOptions)) {
             try {
                 agentOptions = agentOptions.trim();
                 logger.info("Agent options is {}.", agentOptions);
@@ -86,10 +86,10 @@ public class SnifferConfigInitializer {
             }
         }
 
-        if (StringUtil.isBlank(Config.Agent.SERVICE_NAME)) {
+        if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
             throw new ExceptionInInitializerError("`agent.service_name` is missing.");
         }
-        if (StringUtil.isBlank(Config.Collector.BACKEND_SERVICE)) {
+        if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
             throw new ExceptionInInitializerError("`collector.backend_service` is missing.");
         }
         if (Config.Plugin.PEER_MAX_LENGTH <= 3) {
@@ -106,7 +106,7 @@ public class SnifferConfigInitializer {
         // Parse agent options
         Set<Option> options = parseAgentOptions(agentOptions);
         options.forEach(option -> {
-            if (StringUtil.isBlank(option.getName()) || StringUtil.isBlank(option.getValue())) {
+            if (StringUtil.isEmpty(option.getName()) || StringUtil.isEmpty(option.getValue())) {
                 // Skip empty option
                 return;
             }
@@ -126,7 +126,7 @@ public class SnifferConfigInitializer {
      * @return a set of option or empty set
      */
     private static Set<Option> parseAgentOptions(String agentOptions) {
-        if (StringUtil.isBlank(agentOptions)) {
+        if (StringUtil.isEmpty(agentOptions)) {
             return Collections.emptySet();
         }
 
@@ -196,7 +196,7 @@ public class SnifferConfigInitializer {
     private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException {
 
         String specifiedConfigPath = System.getProperties().getProperty(SPECIFIED_CONFIG_PATH);
-        File configFile = StringUtil.isBlank(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
+        File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
 
         if (configFile.exists() && configFile.isFile()) {
             try {

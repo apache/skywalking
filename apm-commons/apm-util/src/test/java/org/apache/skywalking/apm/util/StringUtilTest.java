@@ -35,26 +35,6 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testIsBlank() {
-        Assert.assertTrue(StringUtil.isBlank(""));
-        Assert.assertTrue(StringUtil.isBlank(" "));
-        Assert.assertTrue(StringUtil.isBlank(null));
-        Assert.assertTrue(StringUtil.isBlank("\t"));
-        Assert.assertTrue(StringUtil.isBlank("\n"));
-        Assert.assertTrue(StringUtil.isBlank("\r"));
-        Assert.assertTrue(StringUtil.isBlank("\f"));
-        Assert.assertTrue(StringUtil.isBlank(" \t"));
-        Assert.assertTrue(StringUtil.isBlank("\t "));
-        Assert.assertTrue(StringUtil.isBlank(" \t "));
-        Assert.assertTrue(StringUtil.isBlank("         "));
-
-        Assert.assertFalse(StringUtil.isBlank("Not Blank"));
-        Assert.assertFalse(StringUtil.isBlank(" Not Blank"));
-        Assert.assertFalse(StringUtil.isBlank("Not Blank "));
-        Assert.assertFalse(StringUtil.isBlank(" Not Blank "));
-    }
-
-    @Test
     public void testJoin() {
         Assert.assertNull(StringUtil.join('.'));
         Assert.assertEquals("Single part.", StringUtil.join('.', "Single part."));

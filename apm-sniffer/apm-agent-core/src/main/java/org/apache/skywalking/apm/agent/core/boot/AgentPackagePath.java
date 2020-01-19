@@ -78,6 +78,7 @@ public class AgentPackagePath {
             }
         }
 
+        // TODO No need to log this error message, the exception will be caught finally
         logger.error("Can not locate agent jar file.");
         throw new AgentPackageNotFoundException("Can not locate agent jar file.");
     }

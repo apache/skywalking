@@ -27,24 +27,6 @@ public final class StringUtil {
         return !isEmpty(str);
     }
 
-    public static boolean isBlank(CharSequence str) {
-        if (str == null) {
-            return true;
-        }
-
-        for (int i = 0; i < str.length(); i++) {
-            if (!Character.isWhitespace(str.charAt(i))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public static boolean isNotBlank(CharSequence str) {
-        return !isBlank(str);
-    }
-
     public static String join(final char delimiter, final String... strings) {
         if (strings.length == 0) {
             return null;
