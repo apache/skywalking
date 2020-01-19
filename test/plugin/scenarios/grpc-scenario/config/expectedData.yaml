@@ -549,7 +549,7 @@ segmentItems:
       - logEvent:
         - {key: event, value: error}
         - {key: error.kind, value: org.springframework.web.util.NestedServletException}
-        - {key: message, value: 'Request processing failed; nested exception is io.grpc.StatusRuntimeException:UNKNOWN'}
+        - {key: message, value: 'Request processing failed; nested exception is io.grpc.StatusRuntimeException: UNKNOWN'}
         - key: stack
           value: not null
       - logEvent:
