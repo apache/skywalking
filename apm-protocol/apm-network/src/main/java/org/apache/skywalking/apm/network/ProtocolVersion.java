@@ -16,23 +16,23 @@
  *
  */
 
-
-package org.apache.skywalking.apm.agent.core.context;
+package org.apache.skywalking.apm.network;
 
 /**
- * @author wusheng
+ * The version of the protocol between agent and backend.
+ *
+ * @author kezhenxu94
  */
-public class SW3CarrierItem extends CarrierItem {
-    public static final String HEADER_NAME = "sw3";
-    private ContextCarrier carrier;
+public enum ProtocolVersion {
+    V2(2);
 
-    public SW3CarrierItem(ContextCarrier carrier, CarrierItem next) {
-        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v1), next);
-        this.carrier = carrier;
+    private final int number;
+
+    ProtocolVersion(final int number) {
+        this.number = number;
     }
 
-    @Override
-    public void setHeadValue(String headValue) {
-        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v1);
+    public int number() {
+        return number;
     }
 }

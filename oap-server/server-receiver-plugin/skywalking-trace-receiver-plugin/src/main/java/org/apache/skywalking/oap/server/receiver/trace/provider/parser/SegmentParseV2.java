@@ -19,22 +19,42 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Setter;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.ProtocolVersion;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.library.buffer.*;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.library.buffer.BufferData;
+import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.*;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.ReferenceIdExchanger;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanExchanger;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SegmentParseV2 is a replication of SegmentParse, but be compatible with v2 trace protocol.
@@ -63,7 +83,7 @@ public class SegmentParseV2 {
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.segmentCoreInfo.setV2(true);
+        this.segmentCoreInfo.setVersion(ProtocolVersion.V2);
         this.config = config;
 
         if (TRACE_BUFFER_FILE_RETRY == null) {
@@ -133,25 +153,16 @@ public class SegmentParseV2 {
     }
 
     private boolean preBuild(List<UniqueId> traceIds, SegmentDecorator segmentDecorator) {
-        StringBuilder segmentIdBuilder = new StringBuilder();
-
-        for (int i = 0; i < segmentDecorator.getTraceSegmentId().getIdPartsList().size(); i++) {
-            if (i == 0) {
-                segmentIdBuilder.append(segmentDecorator.getTraceSegmentId().getIdPartsList().get(i));
-            } else {
-                segmentIdBuilder.append(".").append(segmentDecorator.getTraceSegmentId().getIdPartsList().get(i));
-            }
-        }
-
         for (UniqueId uniqueId : traceIds) {
             notifyGlobalsListener(uniqueId);
         }
 
-        segmentCoreInfo.setSegmentId(segmentIdBuilder.toString());
+        final String segmentId = segmentDecorator.getTraceSegmentId().getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
+        segmentCoreInfo.setSegmentId(segmentId);
         segmentCoreInfo.setServiceId(segmentDecorator.getServiceId());
         segmentCoreInfo.setServiceInstanceId(segmentDecorator.getServiceInstanceId());
         segmentCoreInfo.setDataBinary(segmentDecorator.toByteArray());
-        segmentCoreInfo.setV2(true);
+        segmentCoreInfo.setVersion(ProtocolVersion.V2);
 
         boolean exchanged = true;
 

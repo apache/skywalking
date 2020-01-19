@@ -51,7 +51,7 @@ public class ContextManagerExtendService implements BootService {
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             if (forceSampling || samplingService.trySampling()) {
-                context = new TracingContext();
+                context = new TracingContext(operationName);
             } else {
                 context = new IgnoredTracerContext();
             }

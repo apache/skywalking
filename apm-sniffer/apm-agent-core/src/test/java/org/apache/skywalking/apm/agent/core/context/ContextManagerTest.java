@@ -30,6 +30,11 @@ import org.apache.skywalking.apm.agent.core.context.util.SegmentHelper;
 import org.apache.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.v2.Log;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.hamcrest.MatcherAssert;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -43,12 +48,7 @@ import org.apache.skywalking.apm.agent.core.context.util.SpanHelper;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
-import org.apache.skywalking.apm.network.language.agent.LogMessage;
-import org.apache.skywalking.apm.network.language.agent.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
@@ -256,19 +256,18 @@ public class ContextManagerTest {
 
         UpstreamSegment upstreamSegment = actualSegment.transform();
         assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
-        TraceSegmentObject traceSegmentObject = TraceSegmentObject.parseFrom(upstreamSegment.getSegment());
-        TraceSegmentReference reference = traceSegmentObject.getSpans(1).getRefs(0);
+        SegmentObject traceSegmentObject = SegmentObject.parseFrom(upstreamSegment.getSegment());
+        SegmentReference reference = traceSegmentObject.getSpans(1).getRefs(0);
 
-        assertThat(reference.getEntryServiceName(), is("/portal/"));
         assertThat(reference.getNetworkAddress(), is("127.0.0.1:8080"));
         assertThat(reference.getParentSpanId(), is(3));
 
-        assertThat(traceSegmentObject.getApplicationId(), is(1));
+        assertThat(traceSegmentObject.getServiceId(), is(1));
         assertThat(traceSegmentObject.getSpans(1).getRefsCount(), is(1));
 
         assertThat(traceSegmentObject.getSpansCount(), is(2));
 
-        SpanObject actualSpan = traceSegmentObject.getSpans(1);
+        SpanObjectV2 actualSpan = traceSegmentObject.getSpans(1);
         assertThat(actualSpan.getComponentId(), is(3));
         assertThat(actualSpan.getComponent(), is(""));
 
@@ -277,7 +276,7 @@ public class ContextManagerTest {
         assertThat(actualSpan.getSpanId(), is(0));
         assertThat(actualSpan.getSpanType(), is(SpanType.Entry));
 
-        SpanObject exitSpanObject = traceSegmentObject.getSpans(0);
+        SpanObjectV2 exitSpanObject = traceSegmentObject.getSpans(0);
         assertThat(exitSpanObject.getComponentId(), is(2));
         assertThat(exitSpanObject.getComponent(), is(""));
         assertThat(exitSpanObject.getSpanType(), is(SpanType.Exit));
@@ -287,9 +286,9 @@ public class ContextManagerTest {
         assertThat(exitSpanObject.getSpanId(), is(1));
 
         assertThat(exitSpanObject.getLogsCount(), is(1));
-        LogMessage logMessage = exitSpanObject.getLogs(0);
+        Log logMessage = exitSpanObject.getLogs(0);
         assertThat(logMessage.getDataCount(), is(4));
-        List<KeyWithStringValue> values = logMessage.getDataList();
+        List<KeyStringValuePair> values = logMessage.getDataList();
 
         assertThat(values.get(0).getValue(), is("error"));
         assertThat(values.get(1).getValue(), is(RuntimeException.class.getName()));

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-import org.apache.skywalking.apm.network.language.agent.RefType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 
 /**
@@ -29,60 +26,26 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 public class ReferenceDecorator implements StandardBuilder {
 
     private boolean isOrigin = true;
-    private StandardBuilder standardBuilder;
-    private TraceSegmentReference referenceObject;
-    private TraceSegmentReference.Builder referenceBuilder;
-    private final boolean isV2;
+    private final StandardBuilder standardBuilder;
     private SegmentReference referenceObjectV2;
     private SegmentReference.Builder referenceBuilderV2;
-
-    public ReferenceDecorator(TraceSegmentReference referenceObject, StandardBuilder standardBuilder) {
-        this.referenceObject = referenceObject;
-        this.standardBuilder = standardBuilder;
-        isV2 = false;
-    }
-
-    public ReferenceDecorator(TraceSegmentReference.Builder referenceBuilder, StandardBuilder standardBuilder) {
-        this.referenceBuilder = referenceBuilder;
-        this.standardBuilder = standardBuilder;
-        this.isOrigin = false;
-        isV2 = false;
-    }
 
     public ReferenceDecorator(SegmentReference referenceObject, StandardBuilder standardBuilder) {
         this.referenceObjectV2 = referenceObject;
         this.standardBuilder = standardBuilder;
-        isV2 = true;
     }
 
     public ReferenceDecorator(SegmentReference.Builder referenceBuilder, StandardBuilder standardBuilder) {
         this.referenceBuilderV2 = referenceBuilder;
         this.standardBuilder = standardBuilder;
         this.isOrigin = false;
-        isV2 = true;
-    }
-
-    public RefType getRefType() {
-        if (isOrigin) {
-            return isV2 ? referenceObjectV2.getRefType() : referenceObject.getRefType();
-        } else {
-            return isV2 ? referenceBuilderV2.getRefType() : referenceBuilder.getRefType();
-        }
-    }
-
-    public int getRefTypeValue() {
-        if (isOrigin) {
-            return isV2 ? referenceObjectV2.getRefTypeValue() : referenceObject.getRefTypeValue();
-        } else {
-            return isV2 ? referenceBuilderV2.getRefTypeValue() : referenceBuilder.getRefTypeValue();
-        }
     }
 
     public int getEntryEndpointId() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getEntryEndpointId() : referenceObject.getEntryServiceId();
+            return referenceObjectV2.getEntryEndpointId();
         } else {
-            return isV2 ? referenceBuilderV2.getEntryEndpointId() : referenceBuilder.getEntryServiceId();
+            return referenceBuilderV2.getEntryEndpointId();
         }
     }
 
@@ -90,18 +53,14 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setEntryEndpointId(value);
-        } else {
-            referenceBuilder.setEntryServiceId(value);
-        }
+        referenceBuilderV2.setEntryEndpointId(value);
     }
 
     public String getEntryEndpointName() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getEntryEndpoint() : referenceObject.getEntryServiceName();
+            return referenceObjectV2.getEntryEndpoint();
         } else {
-            return isV2 ? referenceBuilderV2.getEntryEndpoint() : referenceBuilder.getEntryServiceName();
+            return referenceBuilderV2.getEntryEndpoint();
         }
     }
 
@@ -109,34 +68,30 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setEntryEndpoint(value);
-        } else {
-            referenceBuilder.setEntryServiceName(value);
-        }
+        referenceBuilderV2.setEntryEndpoint(value);
     }
 
     public int getEntryServiceInstanceId() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getEntryServiceInstanceId() : referenceObject.getEntryApplicationInstanceId();
+            return referenceObjectV2.getEntryServiceInstanceId();
         } else {
-            return isV2 ? referenceBuilderV2.getEntryServiceInstanceId() : referenceBuilder.getEntryApplicationInstanceId();
+            return referenceBuilderV2.getEntryServiceInstanceId();
         }
     }
 
     public int getParentServiceInstanceId() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getParentServiceInstanceId() : referenceObject.getParentApplicationInstanceId();
+            return referenceObjectV2.getParentServiceInstanceId();
         } else {
-            return isV2 ? referenceBuilderV2.getParentServiceInstanceId() : referenceBuilder.getParentApplicationInstanceId();
+            return referenceBuilderV2.getParentServiceInstanceId();
         }
     }
 
     public int getParentEndpointId() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getParentEndpointId() : referenceObject.getParentServiceId();
+            return referenceObjectV2.getParentEndpointId();
         } else {
-            return isV2 ? referenceBuilderV2.getParentEndpointId() : referenceBuilder.getParentServiceId();
+            return referenceBuilderV2.getParentEndpointId();
         }
     }
 
@@ -144,26 +99,14 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setParentEndpointId(value);
-        } else {
-            referenceBuilder.setParentServiceId(value);
-        }
-    }
-
-    public int getParentSpanId() {
-        if (isOrigin) {
-            return isV2 ? referenceObjectV2.getParentSpanId() : referenceObject.getParentSpanId();
-        } else {
-            return isV2 ? referenceBuilderV2.getParentSpanId() : referenceBuilder.getParentSpanId();
-        }
+        referenceBuilderV2.setParentEndpointId(value);
     }
 
     public String getParentEndpointName() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getParentEndpoint() : referenceObject.getParentServiceName();
+            return referenceObjectV2.getParentEndpoint();
         } else {
-            return isV2 ? referenceBuilderV2.getParentEndpoint() : referenceBuilder.getParentServiceName();
+            return referenceBuilderV2.getParentEndpoint();
         }
     }
 
@@ -171,26 +114,14 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setParentEndpoint(value);
-        } else {
-            referenceBuilder.setParentServiceName(value);
-        }
-    }
-
-    public UniqueId getParentTraceSegmentId() {
-        if (isOrigin) {
-            return isV2 ? referenceObjectV2.getParentTraceSegmentId() : referenceObject.getParentTraceSegmentId();
-        } else {
-            return isV2 ? referenceBuilderV2.getParentTraceSegmentId() : referenceBuilder.getParentTraceSegmentId();
-        }
+        referenceBuilderV2.setParentEndpoint(value);
     }
 
     public int getNetworkAddressId() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getNetworkAddressId() : referenceObject.getNetworkAddressId();
+            return referenceObjectV2.getNetworkAddressId();
         } else {
-            return isV2 ? referenceBuilderV2.getNetworkAddressId() : referenceBuilder.getNetworkAddressId();
+            return referenceBuilderV2.getNetworkAddressId();
         }
     }
 
@@ -198,18 +129,14 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setNetworkAddressId(value);
-        } else {
-            referenceBuilder.setNetworkAddressId(value);
-        }
+        referenceBuilderV2.setNetworkAddressId(value);
     }
 
     public String getNetworkAddress() {
         if (isOrigin) {
-            return isV2 ? referenceObjectV2.getNetworkAddress() : referenceObject.getNetworkAddress();
+            return referenceObjectV2.getNetworkAddress();
         } else {
-            return isV2 ? referenceBuilderV2.getNetworkAddress() : referenceBuilder.getNetworkAddress();
+            return referenceBuilderV2.getNetworkAddress();
         }
     }
 
@@ -217,21 +144,13 @@ public class ReferenceDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            referenceBuilderV2.setNetworkAddress(value);
-        } else {
-            referenceBuilder.setNetworkAddress(value);
-        }
+        referenceBuilderV2.setNetworkAddress(value);
     }
 
     @Override public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
-            if (isV2) {
-                referenceBuilderV2 = referenceObjectV2.toBuilder();
-            } else {
-                referenceBuilder = referenceObject.toBuilder();
-            }
+            referenceBuilderV2 = referenceObjectV2.toBuilder();
             standardBuilder.toBuilder();
         }
     }

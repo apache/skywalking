@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
  */
 public class SegmentParserListenerManager implements ISegmentParserListenerManager {
 
-    private List<SpanListenerFactory> spanListenerFactories;
+    private final List<SpanListenerFactory> spanListenerFactories;
 
     public SegmentParserListenerManager() {
         this.spanListenerFactories = new LinkedList<>();
