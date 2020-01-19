@@ -113,10 +113,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Entry
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -140,10 +140,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Entry
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -167,10 +167,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -181,7 +181,7 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
+        networkAddress: ''
         entryEndpoint: /grpc-scenario/case/grpc-scenario
         entryServiceInstanceId: 1
     - operationName: Greeter.sayHello/server/Request/onMessage
@@ -192,10 +192,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -206,7 +206,7 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
+        networkAddress: ''
         entryEndpoint: /grpc-scenario/case/grpc-scenario
         entryServiceInstanceId: 1
   - segmentId: not null
@@ -219,10 +219,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       tags:
       - { key: status_code, value: OK }
@@ -235,7 +235,7 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
+        networkAddress: ''
         entryEndpoint: /grpc-scenario/case/grpc-scenario
         entryServiceInstanceId: 1
     - operationName: GreeterBlocking.sayHello/server/Request/onComplete
@@ -246,10 +246,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -260,7 +260,7 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
+        networkAddress: ''
         entryEndpoint: /grpc-scenario/case/grpc-scenario
         entryServiceInstanceId: 1
   - segmentId: not null
@@ -373,14 +373,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Entry
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: -1
-        parentEndpoint: ""
+        parentEndpoint: ''
         networkAddressId: 0
         entryEndpointId: -1
         refType: CrossProcess
@@ -388,7 +388,7 @@ segmentItems:
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
         networkAddress: ''
-        entryEndpoint: ""
+        entryEndpoint: ''
         entryServiceInstanceId: 1
   - segmentId: not null
     spans:
@@ -438,10 +438,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: true
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       tags:
       - { key: status_code, value: UNKNOWN }
@@ -449,7 +449,7 @@ segmentItems:
       - logEvent:
         - { key: event, value: error }
         - { key: error.kind, value: java.lang.Exception }
-        - { key: message, value: "" }
+        - { key: message, value: '' }
         - key: stack
           value: not null
       refs:
@@ -461,8 +461,8 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: ""
+        networkAddress: ''
+        entryEndpoint: ''
         entryServiceInstanceId: 1
     - operationName: GreeterBlockingError.sayHello/server/Request/onComplete
       operationId: 0
@@ -472,10 +472,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Local
-      peer: ""
+      peer: ''
       peerId: 0
       refs:
       - parentEndpointId: 0
@@ -486,8 +486,8 @@ segmentItems:
         parentSpanId: 0
         parentTraceSegmentId: not null
         parentServiceInstanceId: 1
-        networkAddress: ""
-        entryEndpoint: ""
+        networkAddress: ''
+        entryEndpoint: ''
         entryServiceInstanceId: 1
   - segmentId: not null
     spans:
@@ -499,10 +499,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Exit
-      peer: "127.0.0.1:18080"
+      peer: '127.0.0.1:18080'
       peerId: 0
     - {operationName: GreeterBlocking.sayHello/client/Request/onComplete, operationId: 0,
        parentSpanId: 2, spanId: 3, spanLayer: RPCFramework, startTime: nq 0,
@@ -520,10 +520,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 23
-      componentName: ""
+      componentName: ''
       isError: false
       spanType: Exit
-      peer: "127.0.0.1:18080"
+      peer: '127.0.0.1:18080'
       peerId: 0
     - {operationName: GreeterBlockingError.sayHello/client/Request/onComplete, operationId: 0,
        parentSpanId: 5, spanId: 6, spanLayer: RPCFramework, startTime: nq 0,
@@ -599,10 +599,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ""
+      componentName: ''
       isError: true
       spanType: Entry
-      peer: ""
+      peer: ''
       peerId: 0
       tags:
       - {key: url, value: 'http://localhost:8080/grpc-scenario/case/grpc-scenario'}
@@ -610,11 +610,10 @@ segmentItems:
       - {key: status_code, value: '500'}
       logs:
       - logEvent:
-      - {key: event, value: error}
-      - {key: error.kind, value: org.springframework.web.util.NestedServletException}
-      - {key: message, value: 'Request processing failed; nested exception is io.grpc.StatusRuntimeException:
-            UNKNOWN'}
-      - key: stack
-        value: not null
+        - {key: event, value: error}
+        - {key: error.kind, value: org.springframework.web.util.NestedServletException}
+        - {key: message, value: 'Request processing failed; nested exception is io.grpc.StatusRuntimeException:UNKNOWN'}
+        - key: stack
+          value: not null
       - logEvent:
-      - {key: forward-url, value: /grpc-scenario/error}
+        - {key: forward-url, value: /grpc-scenario/error}
