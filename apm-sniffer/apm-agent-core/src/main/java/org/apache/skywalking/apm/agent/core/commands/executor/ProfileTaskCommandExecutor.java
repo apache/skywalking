@@ -39,7 +39,8 @@ public class ProfileTaskCommandExecutor implements CommandExecutor {
 
         // build profile task
         final ProfileTask profileTask = new ProfileTask();
-        profileTask.setEndpointName(profileTaskCommand.getEndpointName());
+        profileTask.setTaskId(profileTaskCommand.getTaskId());
+        profileTask.setFistSpanOPName(profileTaskCommand.getEndpointName());
         profileTask.setDuration(profileTaskCommand.getDuration());
         profileTask.setMinDurationThreshold(profileTaskCommand.getMinDurationThreshold());
         profileTask.setThreadDumpPeriod(profileTaskCommand.getDumpPeriod());
