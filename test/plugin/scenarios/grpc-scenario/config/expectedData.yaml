@@ -26,15 +26,15 @@ segmentItems:
 - applicationCode: grpc-scenario
   segmentSize: gt 10
   segments:
-  - segmentId: 1.28.15793137100060000
+  - segmentId: not null
     spans:
     - operationName: /grpc-scenario/case/healthCheck
       operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
-      startTime: 1579313710008
-      endTime: 1579313710108
+      startTime: nq 0
+      endTime: nq 0
       componentId: 1
       componentName: ''
       isError: false
@@ -174,8 +174,7 @@ segmentItems:
       peer: ""
       peerId: 0
       refs:
-      - {
-        parentEndpointId: 0,
+      - parentEndpointId: 0,
         parentEndpoint: Greeter.sayHello,
         networkAddressId: 0,
         entryEndpointId: 0,
@@ -185,8 +184,7 @@ segmentItems:
         parentServiceInstanceId: 1,
         networkAddress: "",
         entryEndpoint: /grpc-scenario/case/grpc-scenario,
-        entryServiceInstanceId: 1,
-      }
+        entryServiceInstanceId: 1
     - operationName: Greeter.sayHello/server/Request/onMessage
       operationId: 0
       parentSpanId: -1
@@ -619,5 +617,5 @@ segmentItems:
             UNKNOWN'}
       - key: stack
         value: not null
-    - logEvent:
+      - logEvent:
       - {key: forward-url, value: /grpc-scenario/error}
