@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
@@ -211,6 +212,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
     }
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanDecorator spanDecorator) {
+        if(Objects.isNull(endpointInventoryCache)){
+            return; // when clean OAP storage ES data and restart Skywalking ,endpointInventoryCache will be null before registered
+        }
         long latency = spanDecorator.getEndTime() - spanDecorator.getStartTime();
         sourceBuilder.setLatency((int)latency);
         sourceBuilder.setResponseCode(Const.NONE);
