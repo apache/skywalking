@@ -48,7 +48,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * The flag represents whether the span has been async stopped
      */
     private volatile boolean isAsyncStopped = false;
-    protected volatile AbstractTracerContext context;
+
+    /**
+     * The context to which the span belongs
+     */
+    protected final TracingContext owner;
 
     /**
      * The start time of this Span.
@@ -79,18 +83,20 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      */
     protected List<TraceSegmentRef> refs;
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         this.operationName = operationName;
         this.operationId = DictionaryUtil.nullValue();
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.owner = owner;
     }
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
         this.operationName = null;
         this.operationId = operationId;
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.owner = owner;
     }
 
     /**
@@ -203,6 +209,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
         this.operationId = DictionaryUtil.nullValue();
+
+        // recheck profiling status
+        owner.profilingRecheck(this, operationName);
         return this;
     }
 
@@ -332,7 +341,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         if (isInAsyncMode) {
             throw new RuntimeException("Prepare for async repeatedly. Span is already in async mode.");
         }
-        context = ContextManager.awaitFinishAsync(this);
+        ContextManager.awaitFinishAsync(this);
         isInAsyncMode = true;
         return this;
     }
@@ -345,7 +354,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             throw new RuntimeException("Can not do async finish for the span repeately.");
         }
         this.endTime = System.currentTimeMillis();
-        context.asyncStop(this);
+        owner.asyncStop(this);
         isAsyncStopped = true;
         return this;
     }

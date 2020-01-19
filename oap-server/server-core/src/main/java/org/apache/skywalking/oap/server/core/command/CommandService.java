@@ -43,7 +43,7 @@ public class CommandService implements Service {
 
     public ProfileTaskCommand newProfileTaskCommand(ProfileTask task) {
         final String serialNumber = UUID.randomUUID().toString();
-        return new ProfileTaskCommand(serialNumber, task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task.getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+        return new ProfileTaskCommand(serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task.getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
     }
 
     private String generateSerialNumber(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {

@@ -16,38 +16,16 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile;
-
-import org.springframework.web.bind.annotation.*;
-
-import java.util.concurrent.TimeUnit;
+package org.apache.skywalking.apm.agent.core.profile;
 
 /**
  * @author MrPro
  */
-@RestController
-@RequestMapping("/e2e")
-public class TestController {
-    private final UserRepo userRepo;
+public enum ProfilingStatus {
 
-    public TestController(final UserRepo userRepo) {
-        this.userRepo = userRepo;
-    }
+    READY,
 
-    @GetMapping("/health-check")
-    public String hello() {
-        return "healthy";
-    }
+    PROFILING,
 
-    @PostMapping("/users")
-    public User createAuthor(@RequestBody final CreateUser createUser) throws InterruptedException {
-        final User user = userRepo.save(createUser.toUser());
-        if (!createUser.getEnableProfiling()) {
-            return user;
-        } else {
-            // sleep 10 second
-            TimeUnit.SECONDS.sleep(10);
-            return user;
-        }
-    }
+    STOPPED
 }

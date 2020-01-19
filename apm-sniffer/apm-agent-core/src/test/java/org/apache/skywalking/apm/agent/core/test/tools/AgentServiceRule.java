@@ -21,6 +21,8 @@ package org.apache.skywalking.apm.agent.core.test.tools;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import org.apache.skywalking.apm.agent.core.context.TracingThreadListener;
 import org.junit.rules.ExternalResource;
 import org.powermock.reflect.Whitebox;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
@@ -37,6 +39,7 @@ public class AgentServiceRule extends ExternalResource {
         Whitebox.setInternalState(ServiceManager.INSTANCE, "bootedServices", new HashMap<Class, BootService>());
         Whitebox.setInternalState(TracingContext.ListenerManager.class, "LISTENERS", new LinkedList<TracingContextListener>());
         Whitebox.setInternalState(IgnoredTracerContext.ListenerManager.class, "LISTENERS", new LinkedList<TracingContextListener>());
+        Whitebox.setInternalState(TracingContext.TracingThreadListenerManager.class, "LISTENERS", new LinkedList<TracingThreadListener>());
     }
 
     @Override
