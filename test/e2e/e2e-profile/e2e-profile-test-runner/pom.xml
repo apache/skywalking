@@ -53,7 +53,7 @@
     </properties>
 
     <profiles>
-        <!--mysql environment -->
+        <!--mysql storage -->
         <profile>
             <id>mysql</id>
             <build>
@@ -131,7 +131,7 @@
             </build>
         </profile>
 
-        <!--h2 environment -->
+        <!--h2 storage -->
         <profile>
             <id>h2</id>
             <build>
@@ -184,7 +184,7 @@
             </build>
         </profile>
 
-        <!--elasticsearch environment -->
+        <!--elasticsearch storage -->
         <profile>
             <id>elasticsearch</id>
             <build>

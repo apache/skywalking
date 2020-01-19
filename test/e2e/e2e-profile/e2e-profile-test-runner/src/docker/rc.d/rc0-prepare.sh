@@ -30,9 +30,9 @@ if test "${STORAGE}" = "mysql"; then
   [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
 fi
 
-# substitute application.yml to change the storage
+# substitute application.yml to adapt the storage
 cd ${SW_HOME}/config \
-    && gawk -f /clusterize.awk application.yml > clusterized_app.yml \
+    && gawk -f /adapt_storage.awk application.yml > clusterized_app.yml \
     && mv clusterized_app.yml application.yml
 
 cd ${original_wd}
