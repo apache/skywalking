@@ -127,11 +127,8 @@ public class RunningRule {
             Window window = windows.get(meta);
             if (window == null) {
                 window = new Window(period);
-                LocalDateTime timeBucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(metrics.getTimeBucket() + "");
-                window.moveTo(timeBucket);
                 windows.put(meta, window);
             }
-
             window.add(metrics);
         }
     }
@@ -226,10 +223,13 @@ public class RunningRule {
 
             LocalDateTime timeBucket = TIME_BUCKET_FORMATTER.parseLocalDateTime(bucket + "");
 
-            int minutes = Minutes.minutesBetween(timeBucket, this.endTime).getMinutes();
-
             this.lock.lock();
             try {
+                if (this.endTime == null) {
+                    init();
+                    this.endTime = timeBucket;
+                }
+                int minutes = Minutes.minutesBetween(timeBucket, this.endTime).getMinutes();
                 if (minutes < 0) {
                     this.moveTo(timeBucket);
                     minutes = 0;
