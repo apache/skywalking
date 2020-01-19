@@ -213,7 +213,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanDecorator spanDecorator) {
         if(Objects.isNull(endpointInventoryCache)){
-            return; // when clean OAP storage ES data and restart Skywalking ,endpointInventoryCache will be null before registered
+            return; // when clean OAP storage ES data and restart Skywalking ,endpointInventoryCache will be null before agent registered
         }
         long latency = spanDecorator.getEndTime() - spanDecorator.getStartTime();
         sourceBuilder.setLatency((int)latency);
