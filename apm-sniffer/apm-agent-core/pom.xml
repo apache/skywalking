@@ -52,7 +52,6 @@
         <shade.io.perfmark.source>io.perfmark</shade.io.perfmark.source>
         <shade.io.perfmark.target>${shade.package}.${shade.io.perfmark.source}</shade.io.perfmark.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
-        <lombok.version>1.18.0</lombok.version>
     </properties>
 
     <dependencies>
@@ -119,10 +118,6 @@
             <version>${ststem-rules.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -130,12 +125,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
