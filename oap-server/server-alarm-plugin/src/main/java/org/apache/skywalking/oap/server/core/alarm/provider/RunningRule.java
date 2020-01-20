@@ -26,8 +26,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -42,22 +40,20 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author wusheng
  */
 public class RunningRule {
-    private static final Logger logger = LoggerFactory.getLogger(RunningRule.class);
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
 
-    private String ruleName;
-    private int period;
-    private String metricsName;
+    private final String ruleName;
+    private final int period;
+    private final String metricsName;
     private final Threshold threshold;
     private final OP op;
     private final int countThreshold;
     private final int silencePeriod;
-    private Map<MetaInAlarm, Window> windows;
+    private final Map<MetaInAlarm, Window> windows;
     private volatile MetricsValueType valueType;
-    private int targetScopeId;
-    private List<String> includeNames;
-    private List<String> excludeNames;
-    private AlarmMessageFormatter formatter;
+    private final List<String> includeNames;
+    private final List<String> excludeNames;
+    private final AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
         metricsName = alarmRule.getMetricsName();
@@ -120,15 +116,10 @@ public class RunningRule {
             } else {
                 return;
             }
-            targetScopeId = meta.getScopeId();
         }
 
         if (valueType != null) {
-            Window window = windows.get(meta);
-            if (window == null) {
-                window = new Window(period);
-                windows.put(meta, window);
-            }
+            Window window = windows.computeIfAbsent(meta, ignored -> new Window(period));
             window.add(metrics);
         }
     }
@@ -148,9 +139,7 @@ public class RunningRule {
     public List<AlarmMessage> check() {
         List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
 
-        windows.entrySet().forEach(entry -> {
-            MetaInAlarm meta = entry.getKey();
-            Window window = entry.getValue();
+        windows.forEach((meta, window) -> {
             AlarmMessage alarmMessage = window.checkAlarm();
             if (alarmMessage != AlarmMessage.NONE) {
                 alarmMessage.setScopeId(meta.getScopeId());
@@ -196,7 +185,6 @@ public class RunningRule {
             try {
                 if (endTime == null) {
                     init();
-                    endTime = current;
                 } else {
                     int minutes = Minutes.minutesBetween(endTime, current).getMinutes();
                     if (minutes <= 0) {
@@ -211,8 +199,8 @@ public class RunningRule {
                             values.addLast(null);
                         }
                     }
-                    endTime = current;
                 }
+                endTime = current;
             } finally {
                 lock.unlock();
             }
@@ -249,7 +237,7 @@ public class RunningRule {
 
         public AlarmMessage checkAlarm() {
             if (isMatch()) {
-                /**
+                /*
                  * When
                  * 1. Metrics value threshold triggers alarm by rule
                  * 2. Counter reaches the count threshold;
@@ -260,8 +248,7 @@ public class RunningRule {
                     silenceCountdown = silencePeriod;
 
                     // set empty message, but new message
-                    AlarmMessage message = new AlarmMessage();
-                    return message;
+                    return new AlarmMessage();
                 } else {
                     silenceCountdown--;
                 }
@@ -329,7 +316,7 @@ public class RunningRule {
         }
 
         private void init() {
-            values = new LinkedList();
+            values = new LinkedList<>();
             for (int i = 0; i < period; i++) {
                 values.add(null);
             }
