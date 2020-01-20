@@ -17,16 +17,22 @@
 
 apt-get update && apt-get install -y gawk
 
-if test "${MODE}" = "cluster"; then
-    original_wd=$(pwd)
+original_wd=$(pwd)
 
-    # substitute application.yml to be capable of cluster mode
-    cd ${SW_HOME}/config \
-        && gawk -f /clusterize.awk application.yml > clusterized_app.yml \
-        && mv clusterized_app.yml application.yml \
-        && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig" level="DEBUG"/>\
-        \n<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
-        && mv log4j2debuggable.xml log4j2.xml
 
-    cd ${original_wd}
+if test "${STORAGE}" = "mysql"; then
+  MYSQL_URL="https://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+  MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
+
+  echo "MySQL database is storage provider..."
+  # Download MySQL connector.
+  curl ${MYSQL_URL} > "${SW_HOME}/oap-libs/${MYSQL_DRIVER}"
+  [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
 fi
+
+# substitute application.yml to adapt the storage
+cd ${SW_HOME}/config \
+    && gawk -f /adapt_storage.awk application.yml > clusterized_app.yml \
+    && mv clusterized_app.yml application.yml
+
+cd ${original_wd}
