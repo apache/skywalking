@@ -53,7 +53,7 @@ jobs:
       - name: Run okhttp 3.0.x-3.14.x (34)
         run: bash test/plugin/run.sh okhttp-scenario
 
-  Spring31x_ES5_Gateway:
+  Spring31x_ES5_Gateway_Avro:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -81,6 +81,8 @@ jobs:
         run: bash test/plugin/run.sh gateway-scenario
       - name: Run elasticsearch 5.x (3)
         run: bash test/plugin/run.sh elasticsearch-5.x-scenario
+      - name: Run avro 17.4-1.8.2 (3)
+        run: bash test/plugin/run.sh avro-scenario
 
   Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
     runs-on: ubuntu-18.04

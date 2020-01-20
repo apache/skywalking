@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 public class SpecificRequestorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    private static final String INTERCEPTOR_CLASS =  "org.apache.skywalking.apm.plugin.avro.RequestorInterceptor";
+    private static final String INTERCEPTOR_CLASS =  "org.apache.skywalking.apm.plugin.avro.SpecificRequestorInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.avro.ipc.specific.SpecificRequestor";
 
     @Override

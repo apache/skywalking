@@ -15,13 +15,44 @@
 # limitations under the License.
 registryItems:
   applications:
-    - {avro-scenario: 2}
+    - {avro-server: 2}
+    - {avro-client: 3}
   instances:
-    - {avro-scenario: 1}
+    - {avro-server: 1}
+    - {avro-client: 1}
   operationNames:
-    - avro-scenario: []
+    - avro-server: [example.proto.Greeter.hello]
   heartbeat: []
 segmentItems:
-  - applicationCode: avro-scenario
-    segmentSize:
+  - applicationCode: avro-server
+    segmentSize: 1
     segments:
+      - segmentId: not null
+        spans:
+          - operationName: example.proto.Greeter.hello
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 1
+            endTime: gt 1
+            componentId: 82
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: -1,
+                 refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 2, networkAddress: 'localhost/127.0.0.1:9018', entryEndpoint: '',
+                 entryServiceInstanceId: 2}
+  - applicationCode: avro-client
+    segmentSize: 1
+    segments:
+      - segmentId: not null
+        spans:
+          - {operationName: example.proto.Greeter.hello, operationId: 0, parentSpanId: -1,
+             spanId: 0, spanLayer: RPCFramework, startTime: gt 1, endTime: gt 1,
+             componentId: 83, componentName: '', isError: false, spanType: Exit, peer: 'localhost/127.0.0.1:9018',
+             peerId: 0}

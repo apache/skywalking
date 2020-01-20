@@ -19,13 +19,9 @@ package org.apache.skywalking.apm.testcase.avro;
 
 import example.proto.Greeter;
 import example.proto.Message;
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.apache.avro.AvroRemoteException;
-import org.apache.avro.ipc.HttpServer;
 import org.apache.avro.ipc.NettyServer;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.avro.util.Utf8;
@@ -41,25 +37,9 @@ public class Application {
         }
     }
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(2);
-
     public static void main(String[] args) throws Exception {
-        // For NettyServer
-        executor.submit(() -> {
-            SpecificResponder responder = new SpecificResponder(Greeter.class, new GreeterImpl());
-            NettyServer server = new NettyServer(responder, new InetSocketAddress(9018));
-            server.start();
-        });
-
-        // For HttpServer
-        executor.submit(() -> {
-            try {
-                SpecificResponder responder = new SpecificResponder(Greeter.class, new GreeterImpl());
-                HttpServer server = new HttpServer(responder, 9019);
-                server.start();
-            } catch (IOException e) {
-                LOG.error("", e);
-            }
-        });
+        SpecificResponder responder = new SpecificResponder(Greeter.class, new GreeterImpl());
+        NettyServer server = new NettyServer(responder, new InetSocketAddress(9018));
+        server.start();
     }
 }

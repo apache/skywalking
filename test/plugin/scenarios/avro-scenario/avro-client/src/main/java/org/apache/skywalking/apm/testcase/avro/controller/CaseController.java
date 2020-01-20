@@ -22,13 +22,7 @@ import example.proto.Greeter;
 import example.proto.Message;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.ipc.HttpTransceiver;
 import org.apache.avro.ipc.NettyTransceiver;
-import org.apache.avro.ipc.generic.GenericRequestor;
 import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,29 +36,17 @@ public class CaseController {
     private static final Logger logger = LogManager.getLogger(CaseController.class);
 
     private static final String SUCCESS = "Success";
-    private Greeter httpClient;
     private Greeter nettyClient;
 
     @RequestMapping("/avro-scenario")
     @ResponseBody
     public String testcase() throws IOException {
-        nettyClient.hello(new Message("SkyWalker"));
-        httpClient.hello(new Message("SkyWalker"));
-
-        testGeneric();
+        try {
+            nettyClient.hello(new Message("SkyWalker"));
+        } catch (Exception e) {
+            throw e;
+        }
         return SUCCESS;
-    }
-
-    public void testGeneric() throws IOException {
-        GenericRecord datum = new GenericData.Record(Message.getClassSchema());
-        datum.put("name", "SkyWalker");
-
-        Schema schemaRequest = Greeter.PROTOCOL.getMessages().get("hello").getRequest();
-        GenericRecord request = new GenericData.Record(schemaRequest);
-        request.put("message", datum);
-
-        GenericRequestor requestor = new GenericRequestor(Greeter.PROTOCOL, new NettyTransceiver(new InetSocketAddress("localhost", 9018)));
-        requestor.request("hello", request);
     }
 
     @RequestMapping("/healthCheck")
@@ -72,11 +54,10 @@ public class CaseController {
     public String healthCheck() throws IOException {
         try {
             nettyClient = SpecificRequestor.getClient(Greeter.class, new NettyTransceiver(new InetSocketAddress("localhost", 9018)));
-            httpClient = SpecificRequestor.getClient(Greeter.class, new HttpTransceiver(new URL("http://localhost:9019")));
+            return SUCCESS;
         } catch (Exception e) {
             throw e;
         }
-        return SUCCESS;
     }
 
 }
