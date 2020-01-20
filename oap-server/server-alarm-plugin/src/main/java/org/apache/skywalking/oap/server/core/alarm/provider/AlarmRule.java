@@ -40,8 +40,8 @@ public class AlarmRule {
     private String alarmRuleName;
 
     private String metricsName;
-    private ArrayList includeNames;
-    private ArrayList excludeNames;
+    private ArrayList<String> includeNames;
+    private ArrayList<String> excludeNames;
     private String threshold;
     private String op;
     private int period;
