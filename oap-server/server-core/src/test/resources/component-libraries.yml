@@ -239,6 +239,16 @@ spring-tx:
 Armeria:
   id: 79
   languages: Java
+JdkThreading:
+  id: 80
+  languages: Java
+AvroServer:
+  id: 82
+  languages: Java
+AvroClient:
+  id: 83
+  languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

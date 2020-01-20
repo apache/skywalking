@@ -34,19 +34,21 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Requestor requestor = (Requestor)objInst;
-        requestor.addRPCPlugin(new SWClientRPCPlugin());
+        if (objInst.getSkyWalkingDynamicField() == null) {
+            Requestor requestor = (Requestor)objInst;
+            requestor.addRPCPlugin(new SWClientRPCPlugin());
 
-        Protocol protocol = (Protocol)allArguments[0];
-        Transceiver transceiver = (Transceiver)allArguments[1];
-        try {
-            objInst.setSkyWalkingDynamicField(new AvroInstance(
-                protocol.getNamespace() + "." + protocol.getName() + ".",
-                transceiver.getRemoteName()
-            ));
-        } catch (IOException e) {
-            objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
-            LOG.error("", e);
+            Protocol protocol = (Protocol)allArguments[0];
+            Transceiver transceiver = (Transceiver)allArguments[1];
+            try {
+                objInst.setSkyWalkingDynamicField(new AvroInstance(
+                    protocol.getNamespace() + "." + protocol.getName() + ".",
+                    transceiver.getRemoteName()
+                ));
+            } catch (IOException e) {
+                objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
+                LOG.error("", e);
+            }
         }
     }
 

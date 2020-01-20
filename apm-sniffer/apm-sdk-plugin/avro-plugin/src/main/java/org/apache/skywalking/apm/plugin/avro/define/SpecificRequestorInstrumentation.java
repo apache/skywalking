@@ -36,7 +36,7 @@ public class SpecificRequestorInstrumentation extends ClassInstanceMethodsEnhanc
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return ElementMatchers.takesArguments(3);
+                    return ElementMatchers.any();
                 }
 
                 @Override
