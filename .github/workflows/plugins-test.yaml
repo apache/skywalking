@@ -81,7 +81,7 @@ jobs:
         run: bash test/plugin/run.sh gateway-scenario
       - name: Run elasticsearch 5.x (3)
         run: bash test/plugin/run.sh elasticsearch-5.x-scenario
-      - name: Run avro 17.4-1.8.2 (3)
+      - name: Run avro 17.0-1.8.2 (10)
         run: bash test/plugin/run.sh avro-scenario
 
   Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
