@@ -44,7 +44,6 @@ public class CaseController {
     private static final String SUCCESS = "Success";
     private Greeter httpClient;
     private Greeter nettyClient;
-    private GenericRequestor genericRequestor;
 
     @RequestMapping("/avro-scenario")
     @ResponseBody
@@ -64,7 +63,8 @@ public class CaseController {
         GenericRecord request = new GenericData.Record(schemaRequest);
         request.put("message", datum);
 
-        genericRequestor.request("hello", request);
+        GenericRequestor requestor = new GenericRequestor(Greeter.PROTOCOL, new NettyTransceiver(new InetSocketAddress("localhost", 9018)));
+        requestor.request("hello", request);
     }
 
     @RequestMapping("/healthCheck")
@@ -73,8 +73,6 @@ public class CaseController {
         try {
             nettyClient = SpecificRequestor.getClient(Greeter.class, new NettyTransceiver(new InetSocketAddress("localhost", 9018)));
             httpClient = SpecificRequestor.getClient(Greeter.class, new HttpTransceiver(new URL("http://localhost:9019")));
-
-            genericRequestor = new GenericRequestor(Greeter.PROTOCOL, new NettyTransceiver(new InetSocketAddress("localhost", 9018)));
         } catch (Exception e) {
             throw e;
         }

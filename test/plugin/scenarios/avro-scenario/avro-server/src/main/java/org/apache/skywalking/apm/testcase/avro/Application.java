@@ -37,7 +37,6 @@ public class Application {
 
     public static class GreeterImpl implements Greeter {
         @Override public CharSequence hello(Message message) throws AvroRemoteException {
-            System.out.println(message);
             return new Utf8("success");
         }
     }
