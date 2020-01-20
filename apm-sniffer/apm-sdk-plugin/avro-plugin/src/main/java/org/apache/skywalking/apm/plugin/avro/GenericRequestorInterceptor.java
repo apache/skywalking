@@ -35,7 +35,7 @@ public class GenericRequestorInterceptor extends AbstractRequestInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(instance.namespace + allArguments[0], instance.remotePeer);
         SpanLayer.asRPCFramework(span);
         span.setPeer(instance.remotePeer);
-        span.setComponent(ComponentsDefine.GRPC);
+        span.setComponent(ComponentsDefine.AVRO_CLIENT);
     }
 
 }

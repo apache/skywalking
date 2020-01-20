@@ -41,7 +41,9 @@ public class CaseController {
     @RequestMapping("/avro-scenario")
     @ResponseBody
     public String testcase() throws IOException {
-        nettyClient.hello(new Message("SkyWalker"));
+        Message message = new Message();
+        message.setName("SkyWalker");
+        nettyClient.hello(message);
         return SUCCESS;
     }
 

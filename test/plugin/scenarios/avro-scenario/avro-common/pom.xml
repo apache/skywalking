@@ -51,10 +51,6 @@
                             <goal>protocol</goal>
                             <goal>idl-protocol</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
