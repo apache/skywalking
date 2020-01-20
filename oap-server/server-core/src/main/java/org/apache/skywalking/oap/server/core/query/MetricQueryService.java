@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
@@ -64,7 +64,7 @@ public class MetricQueryService implements Service {
         final long startTB,
         final long endTB) throws IOException {
         if (CollectionUtils.isEmpty(ids)) {
-            /**
+            /*
              * Don't support query values w/o ID. but UI still did this(as bug),
              * we return an empty list, and a debug level log,
              * rather than an exception, which always being considered as a serious error from new users.
@@ -84,7 +84,7 @@ public class MetricQueryService implements Service {
 
     public IntValues getLinearIntValues(final String indName, final String id, final Downsampling downsampling,
         final long startTB,
-        final long endTB) throws IOException, ParseException {
+        final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
@@ -99,7 +99,7 @@ public class MetricQueryService implements Service {
     public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
         final Downsampling downsampling,
         final long startTB,
-        final long endTB) throws IOException, ParseException {
+        final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
@@ -110,16 +110,14 @@ public class MetricQueryService implements Service {
 
         IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
 
-        ArrayList<IntValues> response = new ArrayList<IntValues>(numOfLinear);
-        for (IntValues value : multipleLinearIntValues) {
-            response.add(value);
-        }
+        List<IntValues> response = new ArrayList<>(numOfLinear);
+        Collections.addAll(response, multipleLinearIntValues);
         return response;
     }
 
     public Thermodynamic getThermodynamic(final String indName, final String id, final Downsampling downsampling,
         final long startTB,
-        final long endTB) throws IOException, ParseException {
+        final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         durationPoints.forEach(durationPoint -> {
