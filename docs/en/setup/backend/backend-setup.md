@@ -80,8 +80,7 @@ rules targeting the analysis oal metrics objects.
 scale and support high payload, you may need this. 
 1. [Metrics exporter](metrics-exporter.md). Use metrics data exporter to forward metrics data to 3rd party
 system.
-1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, they would be saved forever, you could 
-set the expired time for each dimension.
+1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, TTL settings affect the expired time of them.
 1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
 or 3rd party configuration management system.
 1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
