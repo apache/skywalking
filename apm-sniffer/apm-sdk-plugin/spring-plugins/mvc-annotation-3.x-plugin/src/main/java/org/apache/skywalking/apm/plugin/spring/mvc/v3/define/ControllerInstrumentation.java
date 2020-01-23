@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritsDeclaringAnnotationMatcher.isInheritsAnnotatedWith;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_MAPPING_METHOD_INTERCEPTOR;
 
 /**
@@ -65,7 +66,7 @@ public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isAnnotatedWith(named(REQUEST_MAPPING_ENHANCE_ANNOTATION));
+                    return isInheritsAnnotatedWith(named(REQUEST_MAPPING_ENHANCE_ANNOTATION));
                 }
 
                 @Override
