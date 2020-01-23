@@ -34,8 +34,8 @@ import java.util.Objects;
 import static net.bytebuddy.matcher.ElementMatchers.annotationType;
 
 /**
- * @description: Matching used to match method annotations, Can match annotations on interface methods
- * @auther: jialong  by 2020-01-23 15:41
+ * Matching used to match method annotations, Can match annotations on interface methods
+ * @auther jialong
  */
 @HashCodeAndEqualsPlugin.Enhance
 public class MethodInheritsDeclaringAnnotationMatcher<T extends MethodDescription> extends ElementMatcher.Junction.AbstractBase<T> {

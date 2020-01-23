@@ -33,8 +33,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritsDeclaringAnnotationMatcher.isInheritsAnnotatedWith;
 
 /**
- * @description:
- * @auther: jialong  by 2020-01-23 16:09
+ * @auther jialong
  */
 public class MethodInheritsDeclaringAnnotationMatcherTest {
 
@@ -46,7 +45,6 @@ public class MethodInheritsDeclaringAnnotationMatcherTest {
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test2", String.class))));
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test3", String.class))));
     }
-
 
     private class TestBean implements TestInterface1, TestInterface3 {
         @Override

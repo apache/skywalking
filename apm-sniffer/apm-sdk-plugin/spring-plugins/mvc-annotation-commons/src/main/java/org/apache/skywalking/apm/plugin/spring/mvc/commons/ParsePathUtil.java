@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * @description: Tools for parsing path from annotation
- * @auther: jialong  by 2020-01-23 15:50
+ * Tools for parsing path from annotation
+ * @auther jialong
  */
 public class ParsePathUtil {
 
