@@ -242,7 +242,7 @@ segmentItems:
               - {key: http.method, value: GET}
             refs:
               - {parentEndpointId: 0, parentEndpoint: /case/resttemplate, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 6, parentTraceSegmentId: not null,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 7, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /case/resttemplate,
                  entryServiceInstanceId: 1}
       - segmentId: not null
@@ -265,7 +265,7 @@ segmentItems:
               - {key: http.method, value: GET}
             refs:
               - {parentEndpointId: 0, parentEndpoint: /case/resttemplate, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 6, parentTraceSegmentId: not null,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 8, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /case/resttemplate,
                  entryServiceInstanceId: 1}
       - segmentId: not null
