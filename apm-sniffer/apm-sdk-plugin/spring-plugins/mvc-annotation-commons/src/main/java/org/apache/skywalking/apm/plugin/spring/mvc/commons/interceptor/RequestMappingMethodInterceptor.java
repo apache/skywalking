@@ -35,7 +35,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     public String getRequestURL(Method method) {
         return ParsePathUtil.recursiveParseMethodAnnotaion(method, m -> {
             String requestURL = null;
-            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(method, RequestMapping.class);
+            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
             if (methodRequestMapping != null) {
                 if (methodRequestMapping.value().length > 0) {
                     requestURL = methodRequestMapping.value()[0];
@@ -50,7 +50,7 @@ public class RequestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override
     public String getAcceptedMethodTypes(Method method) {
         return ParsePathUtil.recursiveParseMethodAnnotaion(method, m -> {
-            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(method, RequestMapping.class);
+            RequestMapping methodRequestMapping = AnnotationUtils.getAnnotation(m, RequestMapping.class);
             if (methodRequestMapping == null || methodRequestMapping.method().length == 0) {
                 return null;
             }

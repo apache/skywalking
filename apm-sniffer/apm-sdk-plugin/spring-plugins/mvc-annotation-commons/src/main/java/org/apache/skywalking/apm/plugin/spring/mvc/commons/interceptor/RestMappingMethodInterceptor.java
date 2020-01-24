@@ -41,11 +41,11 @@ public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     public String getRequestURL(Method method) {
         return ParsePathUtil.recursiveParseMethodAnnotaion(method, m -> {
             String requestURL = null;
-            GetMapping getMapping = AnnotationUtils.getAnnotation(method, GetMapping.class);
-            PostMapping postMapping = AnnotationUtils.getAnnotation(method, PostMapping.class);
-            PutMapping putMapping = AnnotationUtils.getAnnotation(method, PutMapping.class);
-            DeleteMapping deleteMapping = AnnotationUtils.getAnnotation(method, DeleteMapping.class);
-            PatchMapping patchMapping = AnnotationUtils.getAnnotation(method, PatchMapping.class);
+            GetMapping getMapping = AnnotationUtils.getAnnotation(m, GetMapping.class);
+            PostMapping postMapping = AnnotationUtils.getAnnotation(m, PostMapping.class);
+            PutMapping putMapping = AnnotationUtils.getAnnotation(m, PutMapping.class);
+            DeleteMapping deleteMapping = AnnotationUtils.getAnnotation(m, DeleteMapping.class);
+            PatchMapping patchMapping = AnnotationUtils.getAnnotation(m, PatchMapping.class);
             if (getMapping != null) {
                 if (getMapping.value().length > 0) {
                     requestURL = getMapping.value()[0];
