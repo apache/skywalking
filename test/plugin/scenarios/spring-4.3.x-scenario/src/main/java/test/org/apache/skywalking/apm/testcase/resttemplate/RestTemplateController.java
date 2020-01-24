@@ -67,11 +67,11 @@ public class RestTemplateController {
         logger.info(response.toString());
 
         Request implRequestMappingRequest = new Request.Builder().url(url + "/impl/requestmapping").build();
-        response = new OkHttpClient().newCall(inheritRequest).execute();
+        response = new OkHttpClient().newCall(implRequestMappingRequest).execute();
         logger.info(response.toString());
 
         Request implRestMappingRequest = new Request.Builder().url(url + "/impl/restmapping").build();
-        response = new OkHttpClient().newCall(inheritRequest).execute();
+        response = new OkHttpClient().newCall(implRestMappingRequest).execute();
         logger.info(response.toString());
 
         return SUCCESS;
