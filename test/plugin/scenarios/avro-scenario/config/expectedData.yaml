@@ -22,6 +22,7 @@ registryItems:
     - {avro-client: 1}
   operationNames:
     - avro-server: [example.proto.Greeter.hello]
+    - avro-client: [/avro-scenario/case/healthCheck, /avro-scenario/case/avro-scenario]
   heartbeat: []
 segmentItems:
   - applicationCode: avro-server
@@ -34,8 +35,8 @@ segmentItems:
             parentSpanId: -1
             spanId: 0
             spanLayer: RPCFramework
-            startTime: gt 1
-            endTime: gt 1
+            startTime: gt 0
+            endTime: gt 0
             componentId: 82
             componentName: ''
             isError: false
@@ -43,16 +44,32 @@ segmentItems:
             peer: ''
             peerId: 0
             refs:
-              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0, entryEndpointId: -1,
-                 refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: 2, networkAddress: 'localhost/127.0.0.1:9018', entryEndpoint: '',
+              - {parentEndpointId: 0, parentEndpoint: /avro-scenario/case/avro-scenario, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 2, networkAddress: 'localhost/127.0.0.1:9018', entryEndpoint: /avro-scenario/case/avro-scenario,
                  entryServiceInstanceId: 2}
   - applicationCode: avro-client
-    segmentSize: 1
+    segmentSize: ge 2
     segments:
       - segmentId: not null
         spans:
-          - {operationName: example.proto.Greeter.hello, operationId: 0, parentSpanId: -1,
-             spanId: 0, spanLayer: RPCFramework, startTime: gt 1, endTime: gt 1,
+          - {operationName: example.proto.Greeter.hello, operationId: 0, parentSpanId: 0,
+             spanId: 1, spanLayer: RPCFramework, startTime: gt 0, endTime: gt 0,
              componentId: 83, componentName: '', isError: false, spanType: Exit, peer: 'localhost/127.0.0.1:9018',
              peerId: 0}
+          - operationName: /avro-scenario/case/avro-scenario
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/avro-scenario/case/avro-scenario'}
+              - {key: http.method, value: GET}
