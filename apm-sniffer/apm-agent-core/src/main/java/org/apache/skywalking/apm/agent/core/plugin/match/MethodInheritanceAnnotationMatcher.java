@@ -38,7 +38,7 @@ import static net.bytebuddy.matcher.ElementMatchers.annotationType;
  * @auther jialong
  */
 @HashCodeAndEqualsPlugin.Enhance
-public class MethodInheritsAnnotationMatcher<T extends MethodDescription> extends ElementMatcher.Junction.AbstractBase<T> {
+public class MethodInheritanceAnnotationMatcher<T extends MethodDescription> extends ElementMatcher.Junction.AbstractBase<T> {
     /**
      * The matcher to be applied to the provided annotation list.
      */
@@ -49,7 +49,7 @@ public class MethodInheritsAnnotationMatcher<T extends MethodDescription> extend
      *
      * @param matcher The matcher to be applied to the provided annotation list.
      */
-    public MethodInheritsAnnotationMatcher(ElementMatcher<? super AnnotationList> matcher) {
+    public MethodInheritanceAnnotationMatcher(ElementMatcher<? super AnnotationList> matcher) {
         this.matcher = matcher;
     }
 
@@ -95,7 +95,7 @@ public class MethodInheritsAnnotationMatcher<T extends MethodDescription> extend
         return true;
     }
 
-    public static <T extends AnnotationSource> ElementMatcher.Junction<T> byInheritsAnnotatedWith(ElementMatcher<? super TypeDescription> matcher) {
-        return new MethodInheritsAnnotationMatcher(new CollectionItemMatcher<>(annotationType(matcher)));
+    public static <T extends AnnotationSource> ElementMatcher.Junction<T> byMethodInheritanceAnnotationMatcher(ElementMatcher<? super TypeDescription> matcher) {
+        return new MethodInheritanceAnnotationMatcher(new CollectionItemMatcher<>(annotationType(matcher)));
     }
 }

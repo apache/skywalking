@@ -30,16 +30,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritsAnnotationMatcher.byInheritsAnnotatedWith;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanceAnnotationMatcher.byMethodInheritanceAnnotationMatcher;
 
 /**
  * @auther jialong
  */
-public class MethodInheritsAnnotationMatcherTest {
+public class MethodInheritanceAnnotationMatcherTest {
 
     @Test
     public void testMatch() throws Exception {
-        ElementMatcher.Junction<AnnotationSource> matcher = byInheritsAnnotatedWith(named("org.apache.skywalking.apm.agent.core.plugin.bytebuddy.MethodInheritsDeclaringAnnotationMatcherTest$TestAnnotaion"));
+        ElementMatcher.Junction<AnnotationSource> matcher = byMethodInheritanceAnnotationMatcher(named("org.apache.skywalking.apm.agent.core.plugin.bytebuddy.MethodInheritsDeclaringAnnotationMatcherTest$TestAnnotaion"));
 
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test1", String.class))));
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test2", String.class))));
