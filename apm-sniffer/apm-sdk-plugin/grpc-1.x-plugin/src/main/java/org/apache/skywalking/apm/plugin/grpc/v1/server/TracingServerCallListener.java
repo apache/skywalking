@@ -56,11 +56,11 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
                 span.setComponent(ComponentsDefine.GRPC);
                 span.setLayer(SpanLayer.RPC_FRAMEWORK);
                 ContextManager.continued(contextSnapshot);
-                super.onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
                 throw t;
             } finally {
+                super.onMessage(message);
                 ContextManager.stopSpan();
             }
         } else {
@@ -75,11 +75,11 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
             ContextManager.continued(contextSnapshot);
-            super.onCancel();
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
+            super.onCancel();
             ContextManager.stopSpan();
         }
     }
@@ -91,11 +91,11 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
             ContextManager.continued(contextSnapshot);
-            super.onHalfClose();
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
+            super.onHalfClose();
             ContextManager.stopSpan();
         }
     }

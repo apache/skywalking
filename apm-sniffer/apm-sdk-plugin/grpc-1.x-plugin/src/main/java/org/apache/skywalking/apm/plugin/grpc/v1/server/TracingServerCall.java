@@ -55,11 +55,11 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
                 span.setComponent(ComponentsDefine.GRPC);
                 span.setLayer(SpanLayer.RPC_FRAMEWORK);
                 ContextManager.continued(contextSnapshot);
-                super.sendMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
                 throw t;
             } finally {
+                super.sendMessage(message);
                 ContextManager.stopSpan();
             }
         } else {
@@ -100,11 +100,11 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
                     break;
             }
             Tags.STATUS_CODE.set(span, status.getCode().name());
-            super.close(status, trailers);
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
+            super.close(status, trailers);
             ContextManager.stopSpan();
         }
     }

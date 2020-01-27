@@ -35,7 +35,7 @@ import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
- * Fully client tracing for external gRPC server which not be registered in the same Skywalking server.
+ * Fully client tracing for gRPC servers.
  *
  * @author zhang xin, kanro
  */
