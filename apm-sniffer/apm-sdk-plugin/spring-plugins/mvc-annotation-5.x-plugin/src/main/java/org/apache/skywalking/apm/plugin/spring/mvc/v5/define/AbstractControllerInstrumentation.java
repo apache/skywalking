@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
-import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritsDeclaringAnnotationMatcher.isInheritsAnnotatedWith;
+import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritsAnnotationMatcher.byInheritsAnnotatedWith;
 
 /**
  * {@link ControllerInstrumentation} enhance all constructor and method annotated with
@@ -68,7 +68,7 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.RequestMapping"));
+                    return byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.RequestMapping"));
                 }
 
                 @Override
@@ -84,11 +84,11 @@ public abstract class AbstractControllerInstrumentation extends AbstractSpring5I
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.GetMapping"))
-                        .or(isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PostMapping")))
-                        .or(isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PutMapping")))
-                        .or(isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.DeleteMapping")))
-                        .or(isInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PatchMapping")));
+                    return byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.GetMapping"))
+                        .or(byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PostMapping")))
+                        .or(byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PutMapping")))
+                        .or(byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.DeleteMapping")))
+                        .or(byInheritsAnnotatedWith(named("org.springframework.web.bind.annotation.PatchMapping")));
                 }
 
                 @Override
