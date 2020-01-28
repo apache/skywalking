@@ -47,7 +47,7 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
                 ));
             } catch (IOException e) {
                 objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
-                LOG.error("", e);
+                LOG.error("Failed to get Avro Remote Client Information.", e);
             }
         }
     }
