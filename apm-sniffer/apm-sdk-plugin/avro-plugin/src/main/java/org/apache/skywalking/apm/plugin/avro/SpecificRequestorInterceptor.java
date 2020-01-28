@@ -34,6 +34,8 @@ public class SpecificRequestorInterceptor extends AbstractRequestInterceptor imp
         AvroInstance instance = (AvroInstance)objInst.getSkyWalkingDynamicField();
         Method invoke = (Method)allArguments[1];
 
+        System.out.println(invoke.getName());
+
         AbstractSpan span = ContextManager.createExitSpan(instance.namespace + invoke.getName(), instance.remotePeer);
         SpanLayer.asRPCFramework(span);
         span.setPeer(instance.remotePeer);
