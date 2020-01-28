@@ -51,16 +51,16 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
     public void onMessage(REQUEST message) {
         // We just create the request on message span for client stream calls.
         if (!methodType.clientSendsOneMessage()) {
+            final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_MESSAGE_OPERATION_NAME);
+            span.setComponent(ComponentsDefine.GRPC);
+            span.setLayer(SpanLayer.RPC_FRAMEWORK);
+            ContextManager.continued(contextSnapshot);
             try {
-                final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_MESSAGE_OPERATION_NAME);
-                span.setComponent(ComponentsDefine.GRPC);
-                span.setLayer(SpanLayer.RPC_FRAMEWORK);
-                ContextManager.continued(contextSnapshot);
+                super.onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
                 throw t;
             } finally {
-                super.onMessage(message);
                 ContextManager.stopSpan();
             }
         } else {
@@ -70,32 +70,34 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
 
     @Override
     public void onCancel() {
+        final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_CANCEL_OPERATION_NAME);
+        span.setComponent(ComponentsDefine.GRPC);
+        span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        ContextManager.continued(contextSnapshot);
+
         try {
-            final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_CANCEL_OPERATION_NAME);
-            span.setComponent(ComponentsDefine.GRPC);
-            span.setLayer(SpanLayer.RPC_FRAMEWORK);
-            ContextManager.continued(contextSnapshot);
+            super.onCancel();
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
-            super.onCancel();
             ContextManager.stopSpan();
         }
     }
 
     @Override
     public void onHalfClose() {
+        final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_COMPLETE_OPERATION_NAME);
+        span.setComponent(ComponentsDefine.GRPC);
+        span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        ContextManager.continued(contextSnapshot);
+
         try {
-            final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + REQUEST_ON_COMPLETE_OPERATION_NAME);
-            span.setComponent(ComponentsDefine.GRPC);
-            span.setLayer(SpanLayer.RPC_FRAMEWORK);
-            ContextManager.continued(contextSnapshot);
+            super.onHalfClose();
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
-            super.onHalfClose();
             ContextManager.stopSpan();
         }
     }

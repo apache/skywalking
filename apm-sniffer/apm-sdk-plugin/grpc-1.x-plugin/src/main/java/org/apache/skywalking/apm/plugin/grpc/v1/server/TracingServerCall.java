@@ -50,16 +50,17 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
     public void sendMessage(RESPONSE message) {
         // We just create the request on message span for server stream calls.
         if (!getMethodDescriptor().getType().serverSendsOneMessage()) {
+            final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_MESSAGE_OPERATION_NAME);
+            span.setComponent(ComponentsDefine.GRPC);
+            span.setLayer(SpanLayer.RPC_FRAMEWORK);
+            ContextManager.continued(contextSnapshot);
+
             try {
-                final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_MESSAGE_OPERATION_NAME);
-                span.setComponent(ComponentsDefine.GRPC);
-                span.setLayer(SpanLayer.RPC_FRAMEWORK);
-                ContextManager.continued(contextSnapshot);
+                super.sendMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
                 throw t;
             } finally {
-                super.sendMessage(message);
                 ContextManager.stopSpan();
             }
         } else {
@@ -69,42 +70,42 @@ public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.S
 
     @Override
     public void close(Status status, Metadata trailers) {
-        try {
-            final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_CLOSE_OPERATION_NAME);
-            span.setComponent(ComponentsDefine.GRPC);
-            span.setLayer(SpanLayer.RPC_FRAMEWORK);
-            ContextManager.continued(contextSnapshot);
+        final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_CLOSE_OPERATION_NAME);
+        span.setComponent(ComponentsDefine.GRPC);
+        span.setLayer(SpanLayer.RPC_FRAMEWORK);
+        ContextManager.continued(contextSnapshot);
+        switch (status.getCode()) {
+            case OK:
+                break;
+            // UNKNOWN/INTERNAL status code will case error in this span.
+            // Those status code means some unexpected error occurred in server.
+            // Similar to 5XX in HTTP status.
+            case UNKNOWN:
+            case INTERNAL:
+                if (status.getCause() == null) {
+                    span.errorOccurred().log(status.asRuntimeException());
+                } else {
+                    span.errorOccurred().log(status.getCause());
+                }
+                break;
+            // Other status code means some predictable error occurred in server.
+            // Like PERMISSION_DENIED or UNAUTHENTICATED somethings.
+            // Similar to 4XX in HTTP status.
+            default:
+                // But if the status still has cause exception, we will log it too.
+                if (status.getCause() != null) {
+                    span.errorOccurred().log(status.getCause());
+                }
+                break;
+        }
+        Tags.STATUS_CODE.set(span, status.getCode().name());
 
-            switch (status.getCode()) {
-                case OK:
-                    break;
-                // UNKNOWN/INTERNAL status code will case error in this span.
-                // Those status code means some unexpected error occurred in server.
-                // Similar to 5XX in HTTP status.
-                case UNKNOWN:
-                case INTERNAL:
-                    if (status.getCause() == null) {
-                        span.errorOccurred().log(status.asRuntimeException());
-                    } else {
-                        span.errorOccurred().log(status.getCause());
-                    }
-                    break;
-                // Other status code means some predictable error occurred in server.
-                // Like PERMISSION_DENIED or UNAUTHENTICATED somethings.
-                // Similar to 4XX in HTTP status.
-                default:
-                    // But if the status still has cause exception, we will log it too.
-                    if (status.getCause() != null) {
-                        span.errorOccurred().log(status.getCause());
-                    }
-                    break;
-            }
-            Tags.STATUS_CODE.set(span, status.getCode().name());
+        try {
+            super.close(status, trailers);
         } catch (Throwable t) {
             ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
-            super.close(status, trailers);
             ContextManager.stopSpan();
         }
     }

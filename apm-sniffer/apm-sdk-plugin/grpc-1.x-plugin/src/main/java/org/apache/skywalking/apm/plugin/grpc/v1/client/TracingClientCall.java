@@ -169,8 +169,9 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_MESSAGE_OPERATION_NAME);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
+            ContextManager.continued(contextSnapshot);
+
             try {
-                ContextManager.continued(contextSnapshot);
                 delegate().onMessage(message);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
@@ -184,12 +185,13 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
             final AbstractSpan span = ContextManager.createLocalSpan(operationPrefix + RESPONSE_ON_CLOSE_OPERATION_NAME);
             span.setComponent(ComponentsDefine.GRPC);
             span.setLayer(SpanLayer.RPC_FRAMEWORK);
+            ContextManager.continued(contextSnapshot);
+            if (!status.isOk()) {
+                span.errorOccurred().log(status.asRuntimeException());
+                Tags.STATUS_CODE.set(span, status.getCode().name());
+            }
+
             try {
-                ContextManager.continued(contextSnapshot);
-                if (!status.isOk()) {
-                    span.errorOccurred().log(status.asRuntimeException());
-                    Tags.STATUS_CODE.set(span, status.getCode().name());
-                }
                 delegate().onClose(status, trailers);
             } catch (Throwable t) {
                 ContextManager.activeSpan().errorOccurred().log(t);
