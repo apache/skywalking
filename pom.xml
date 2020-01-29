@@ -452,6 +452,9 @@
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
 
+                        <!-- generated file from test agent plugin scenarios -->
+                        <exclude>**/test/plugin/workspace/**</exclude>
+
                         <exclude>.m2/**</exclude>
                     </excludes>
                 </configuration>
