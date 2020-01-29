@@ -24,8 +24,7 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -102,10 +101,9 @@ public class TracingHandlerTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         TracingHandler handler = new TracingHandler(httpHandler);
         HttpServerExchange exchange = buildExchange();
-        exchange.getRequestHeaders().put(HttpString.tryFromString(SW3CarrierItem.HEADER_NAME), "1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        exchange.getRequestHeaders().put(HttpString.tryFromString(SW6CarrierItem.HEADER_NAME), "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
         handler.handleRequest(exchange);
         exchange.endExchange();
 
@@ -115,7 +113,6 @@ public class TracingHandlerTest {
 
         assertHttpSpan(spans.get(0));
         assertTraceSegmentRef(traceSegment.getRefs().get(0));
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     private HttpServerExchange buildExchange() {

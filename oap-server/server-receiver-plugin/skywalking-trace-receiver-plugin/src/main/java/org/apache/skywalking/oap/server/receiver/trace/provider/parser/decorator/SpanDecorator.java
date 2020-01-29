@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-import java.util.*;
+import java.util.List;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 
 import static java.util.Objects.isNull;
@@ -29,35 +30,16 @@ import static java.util.Objects.isNull;
  * @author peng-yongsheng
  */
 public class SpanDecorator implements StandardBuilder {
-    private final boolean isV2;
     private boolean isOrigin = true;
-    private StandardBuilder standardBuilder;
-    private SpanObject spanObject;
+    private final StandardBuilder standardBuilder;
     private SpanObjectV2 spanObjectV2;
-    private SpanObject.Builder spanBuilder;
     private SpanObjectV2.Builder spanBuilderV2;
     private final ReferenceDecorator[] referenceDecorators;
-
-    public SpanDecorator(SpanObject spanObject, StandardBuilder standardBuilder) {
-        this.spanObject = spanObject;
-        this.standardBuilder = standardBuilder;
-        this.referenceDecorators = new ReferenceDecorator[spanObject.getRefsCount()];
-        this.isV2 = false;
-    }
-
-    public SpanDecorator(SpanObject.Builder spanBuilder, StandardBuilder standardBuilder) {
-        this.spanBuilder = spanBuilder;
-        this.standardBuilder = standardBuilder;
-        this.isOrigin = false;
-        this.referenceDecorators = new ReferenceDecorator[spanBuilder.getRefsCount()];
-        this.isV2 = false;
-    }
 
     public SpanDecorator(SpanObjectV2 spanObject, StandardBuilder standardBuilder) {
         this.spanObjectV2 = spanObject;
         this.standardBuilder = standardBuilder;
         this.referenceDecorators = new ReferenceDecorator[spanObject.getRefsCount()];
-        this.isV2 = true;
     }
 
     public SpanDecorator(SpanObjectV2.Builder spanBuilder, StandardBuilder standardBuilder) {
@@ -65,78 +47,61 @@ public class SpanDecorator implements StandardBuilder {
         this.standardBuilder = standardBuilder;
         this.isOrigin = false;
         this.referenceDecorators = new ReferenceDecorator[spanBuilder.getRefsCount()];
-        this.isV2 = true;
     }
 
     public int getSpanId() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanId() : spanObject.getSpanId();
+            return spanObjectV2.getSpanId();
         } else {
-            return isV2 ? spanBuilderV2.getSpanId() : spanBuilder.getSpanId();
-        }
-    }
-
-    public int getParentSpanId() {
-        if (isOrigin) {
-            return isV2 ? spanObjectV2.getParentSpanId() : spanObject.getParentSpanId();
-        } else {
-            return isV2 ? spanBuilderV2.getParentSpanId() : spanBuilder.getParentSpanId();
+            return spanBuilderV2.getSpanId();
         }
     }
 
     public SpanType getSpanType() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanType() : spanObject.getSpanType();
+            return spanObjectV2.getSpanType();
         } else {
-            return isV2 ? spanBuilderV2.getSpanType() : spanBuilder.getSpanType();
-        }
-    }
-
-    public int getSpanTypeValue() {
-        if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanTypeValue() : spanObject.getSpanTypeValue();
-        } else {
-            return isV2 ? spanBuilderV2.getSpanTypeValue() : spanBuilder.getSpanTypeValue();
+            return spanBuilderV2.getSpanType();
         }
     }
 
     public SpanLayer getSpanLayer() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanLayer() : spanObject.getSpanLayer();
+            return spanObjectV2.getSpanLayer();
         } else {
-            return isV2 ? spanBuilderV2.getSpanLayer() : spanBuilder.getSpanLayer();
+            return spanBuilderV2.getSpanLayer();
         }
     }
 
     public int getSpanLayerValue() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getSpanLayerValue() : spanObject.getSpanLayerValue();
+            return spanObjectV2.getSpanLayerValue();
         } else {
-            return isV2 ? spanBuilderV2.getSpanLayerValue() : spanBuilder.getSpanLayerValue();
+            return spanBuilderV2.getSpanLayerValue();
         }
     }
 
     public long getStartTime() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getStartTime() : spanObject.getStartTime();
+            return spanObjectV2.getStartTime();
         } else {
-            return isV2 ? spanBuilderV2.getStartTime() : spanBuilder.getStartTime();
+            return spanBuilderV2.getStartTime();
         }
     }
 
     public long getEndTime() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getEndTime() : spanObject.getEndTime();
+            return spanObjectV2.getEndTime();
         } else {
-            return isV2 ? spanBuilderV2.getEndTime() : spanBuilder.getEndTime();
+            return spanBuilderV2.getEndTime();
         }
     }
 
     public int getComponentId() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getComponentId() : spanObject.getComponentId();
+            return spanObjectV2.getComponentId();
         } else {
-            return isV2 ? spanBuilderV2.getComponentId() : spanBuilder.getComponentId();
+            return spanBuilderV2.getComponentId();
         }
     }
 
@@ -144,18 +109,14 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setComponentId(value);
-        } else {
-            spanBuilder.setComponentId(value);
-        }
+        spanBuilderV2.setComponentId(value);
     }
 
     public String getComponent() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getComponent() : spanObject.getComponent();
+            return spanObjectV2.getComponent();
         } else {
-            return isV2 ? spanBuilderV2.getComponent() : spanBuilder.getComponent();
+            return spanBuilderV2.getComponent();
         }
     }
 
@@ -163,18 +124,14 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setComponent(value);
-        } else {
-            spanBuilder.setComponent(value);
-        }
+        spanBuilderV2.setComponent(value);
     }
 
     public int getPeerId() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getPeerId() : spanObject.getPeerId();
+            return spanObjectV2.getPeerId();
         } else {
-            return isV2 ? spanBuilderV2.getPeerId() : spanBuilder.getPeerId();
+            return spanBuilderV2.getPeerId();
         }
     }
 
@@ -182,18 +139,14 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setPeerId(peerId);
-        } else {
-            spanBuilder.setPeerId(peerId);
-        }
+        spanBuilderV2.setPeerId(peerId);
     }
 
     public String getPeer() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getPeer() : spanObject.getPeer();
+            return spanObjectV2.getPeer();
         } else {
-            return isV2 ? spanBuilderV2.getPeer() : spanBuilder.getPeer();
+            return spanBuilderV2.getPeer();
         }
     }
 
@@ -201,18 +154,14 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setPeer(peer);
-        } else {
-            spanBuilder.setPeer(peer);
-        }
+        spanBuilderV2.setPeer(peer);
     }
 
     public int getOperationNameId() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getOperationNameId() : spanObject.getOperationNameId();
+            return spanObjectV2.getOperationNameId();
         } else {
-            return isV2 ? spanBuilderV2.getOperationNameId() : spanBuilder.getOperationNameId();
+            return spanBuilderV2.getOperationNameId();
         }
     }
 
@@ -220,18 +169,14 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setOperationNameId(value);
-        } else {
-            spanBuilder.setOperationNameId(value);
-        }
+        spanBuilderV2.setOperationNameId(value);
     }
 
     public String getOperationName() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getOperationName() : spanObject.getOperationName();
+            return spanObjectV2.getOperationName();
         } else {
-            return isV2 ? spanBuilderV2.getOperationName() : spanBuilder.getOperationName();
+            return spanBuilderV2.getOperationName();
         }
     }
 
@@ -239,43 +184,31 @@ public class SpanDecorator implements StandardBuilder {
         if (isOrigin) {
             toBuilder();
         }
-        if (isV2) {
-            spanBuilderV2.setOperationName(value);
-        } else {
-            spanBuilder.setOperationName(value);
-        }
+        spanBuilderV2.setOperationName(value);
     }
 
     public boolean getIsError() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getIsError() : spanObject.getIsError();
+            return spanObjectV2.getIsError();
         } else {
-            return isV2 ? spanBuilderV2.getIsError() : spanBuilder.getIsError();
+            return spanBuilderV2.getIsError();
         }
     }
 
     public int getRefsCount() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getRefsCount() : spanObject.getRefsCount();
+            return spanObjectV2.getRefsCount();
         } else {
-            return isV2 ? spanBuilderV2.getRefsCount() : spanBuilder.getRefsCount();
+            return spanBuilderV2.getRefsCount();
         }
     }
 
     public ReferenceDecorator getRefs(int index) {
         if (isNull(referenceDecorators[index])) {
             if (isOrigin) {
-                if (isV2) {
-                    referenceDecorators[index] = new ReferenceDecorator(spanObjectV2.getRefs(index), this);
-                } else {
-                    referenceDecorators[index] = new ReferenceDecorator(spanObject.getRefs(index), this);
-                }
+                referenceDecorators[index] = new ReferenceDecorator(spanObjectV2.getRefs(index), this);
             } else {
-                if (isV2) {
-                    referenceDecorators[index] = new ReferenceDecorator(spanBuilderV2.getRefsBuilder(index), this);
-                } else {
-                    referenceDecorators[index] = new ReferenceDecorator(spanBuilder.getRefsBuilder(index), this);
-                }
+                referenceDecorators[index] = new ReferenceDecorator(spanBuilderV2.getRefsBuilder(index), this);
             }
         }
         return referenceDecorators[index];
@@ -283,33 +216,18 @@ public class SpanDecorator implements StandardBuilder {
 
     public List<KeyStringValuePair> getAllTags() {
         if (isOrigin) {
-            return isV2 ? spanObjectV2.getTagsList() : convert(spanObject.getTagsList());
+            return spanObjectV2.getTagsList();
         } else {
-            return isV2 ? spanBuilderV2.getTagsList() : convert(spanBuilder.getTagsList());
+            return spanBuilderV2.getTagsList();
         }
     }
 
     @Override public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
-            if (isV2) {
-                spanBuilderV2 = spanObjectV2.toBuilder();
-            } else {
-                spanBuilder = spanObject.toBuilder();
-            }
+            spanBuilderV2 = spanObjectV2.toBuilder();
             standardBuilder.toBuilder();
         }
     }
 
-    private List<KeyStringValuePair> convert(List<KeyWithStringValue> list) {
-        List<KeyStringValuePair> result = new ArrayList<>();
-        if (list != null) {
-            list.forEach(element -> {
-                result.add(KeyStringValuePair.newBuilder()
-                    .setKey(element.getKey())
-                    .setValue(element.getValue()).build());
-            });
-        }
-        return result;
-    }
 }

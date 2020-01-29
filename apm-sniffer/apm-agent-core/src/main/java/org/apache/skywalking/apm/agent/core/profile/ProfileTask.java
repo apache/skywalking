@@ -27,8 +27,11 @@ import java.util.Objects;
  */
 public class ProfileTask {
 
-    // monitor endpoint name
-    private String endpointName;
+    // task id
+    private String taskId;
+
+    // monitor first span operation name
+    private String fistSpanOPName;
 
     // task duration (minute)
     private int duration;
@@ -48,12 +51,12 @@ public class ProfileTask {
     // task create time
     private long createTime;
 
-    public String getEndpointName() {
-        return endpointName;
+    public String getFistSpanOPName() {
+        return fistSpanOPName;
     }
 
-    public void setEndpointName(String endpointName) {
-        this.endpointName = endpointName;
+    public void setFistSpanOPName(String fistSpanOPName) {
+        this.fistSpanOPName = fistSpanOPName;
     }
 
     public int getDuration() {
@@ -104,6 +107,14 @@ public class ProfileTask {
         this.createTime = createTime;
     }
 
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,11 +126,12 @@ public class ProfileTask {
                 maxSamplingCount == that.maxSamplingCount &&
                 startTime == that.startTime &&
                 createTime == that.createTime &&
-                endpointName.equals(that.endpointName);
+                taskId.equals(that.taskId) &&
+                fistSpanOPName.equals(that.fistSpanOPName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(endpointName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
+        return Objects.hash(taskId, fistSpanOPName, duration, minDurationThreshold, threadDumpPeriod, maxSamplingCount, startTime, createTime);
     }
 }

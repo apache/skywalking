@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
+import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -81,10 +82,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
         segment.setTimeBucket(timeBucket);
         segment.setDataBinary(segmentCoreInfo.getDataBinary());
-        /**
-         * Only consider v1, v2 compatible for now.
-         */
-        segment.setVersion(segmentCoreInfo.isV2() ? 2 : 1);
+        segment.setVersion(segmentCoreInfo.getVersion().number());
 
         firstEndpointId = spanDecorator.getOperationNameId();
         firstEndpointName = spanDecorator.getOperationName();
@@ -107,15 +105,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        StringBuilder traceIdBuilder = new StringBuilder();
-        for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-            if (i == 0) {
-                traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
-            } else {
-                traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-            }
-        }
-        segment.setTraceId(traceIdBuilder.toString());
+        final String traceId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
+        segment.setTraceId(traceId);
     }
 
     @Override public void build() {
@@ -129,13 +120,13 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
         if (entryEndpointId == Const.NONE) {
             if (firstEndpointId != Const.NONE) {
-                /**
+                /*
                  * Since 6.6.0, only entry span is treated as an endpoint. Other span's endpoint id == 0.
                  */
                 segment.setEndpointId(firstEndpointId);
                 segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
             } else {
-                /**
+                /*
                  * Only fill first operation name for the trace list query, as no endpoint id.
                  */
                 segment.setEndpointName(firstEndpointName);
@@ -153,7 +144,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     }
 
     public static class Factory implements SpanListenerFactory {
-        private TraceSegmentSampler sampler;
+        private final TraceSegmentSampler sampler;
 
         public Factory(int segmentSamplingRate) {
             this.sampler = new TraceSegmentSampler(segmentSamplingRate);

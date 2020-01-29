@@ -78,11 +78,9 @@ property key | Description | Default |
 `agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, SkyWalking keep your application memory cost estimated.|300 |
 `agent.ignore_suffix`|If the operation name of the first span is included in this set, this segment should be ignored.|Not set|
 `agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder. SkyWalking team may ask for these files in order to resolve compatible problem.|Not set|
-`agent.active_v2_header`|Active V2 header in default.|`true`|
 `agent.instance_uuid` |Instance uuid is the identity of an instance, SkyWalking treat same instance uuid as one instance.if empty, SkyWalking agent will generate an 32-bit uuid. Using `NAME:` as UUID prefix could set the customized instance name. Such as, set it as `NAME:SVR-INSTANCE-A`,  `SVR-INSTANCE-A` is the instance name. Otherwise, use `ServiceName`-pid:`id`@`hostname` as the instance name. |`""`|
 `agent.instance_properties[key]=value` | Add service instance custom properties. | Not set|
 `agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
-`agent.active_v1_header `|Deactivate V1 header in default.|`false`|
 `agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 500 is not recommended.|`500`|
@@ -104,6 +102,10 @@ property key | Description | Default |
 `dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
 `profile.active`|If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.|`true`|
+`profile.max_parallel`|Parallel monitor segment count|`5`|
+`profile.duration`|Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.|`10`|
+`profile.dump_max_stack_depth`|Max dump thread stack depth|`500`|
+`profile.snapshot_transport_buffer_size`|Snapshot transport to backend buffer size|`50`|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|

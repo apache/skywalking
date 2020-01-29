@@ -36,6 +36,9 @@ while [[ $# -gt 0 ]]; do
     --profiles=*)
       profiles=${1#*=}
       ;;
+    --storage=*)
+      storage=${1#*=}
+      ;;
     *)
       cases+=($1)
   esac
@@ -70,6 +73,7 @@ do
          -De2e.container.version="${E2E_VERSION}" \
          -Delasticsearch.version="${ES_VERSION}" \
          -Dsw.home="${base_dir}/$test_case/${DIST_PACKAGE//.tar.gz/}" \
+         `if [ ! -z "${storage}" ] ; then echo -P"${storage}"; fi` \
          -f test/e2e/pom.xml -pl "$test_case" -am verify
 
   status_code=$?

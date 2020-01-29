@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.library.buffer;
 
 import com.google.protobuf.GeneratedMessageV3;
-import lombok.*;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 /**
@@ -29,7 +29,6 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 @Getter
 public class BufferData<MESSAGE_TYPE extends GeneratedMessageV3> {
     private MESSAGE_TYPE messageType;
-    @Setter private TraceSegmentObject v1Segment;
     @Setter private SegmentObject v2Segment;
 
     public BufferData(MESSAGE_TYPE messageType) {

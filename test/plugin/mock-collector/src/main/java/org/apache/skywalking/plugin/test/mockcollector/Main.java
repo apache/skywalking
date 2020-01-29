@@ -39,13 +39,8 @@ public class Main {
                 .maxConcurrentCallsPerConnection(12).maxMessageSize(16777216)
                 .addService(new MockRegisterService())
                 .addService(new MockInstancePingService())
-                .addService(new MockJVMMetricsService())
-                .addService(new MockTraceSegmentV1Service())
-                .addService(new MockApplicationRegisterService())
                 .addService(new MockInstanceDiscoveryService())
-                .addService(new MockJVMMetricsV1Service())
                 .addService(new MockNetworkAddressRegisterService())
-                .addService(new MockServiceNameDiscoveryService())
                 .addService(new MockTraceSegmentService())
                 .addService(new MockJVMMetricReportService())
                 .build().start();
