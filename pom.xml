@@ -450,9 +450,6 @@
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
 
-                        <!-- generated file from oap or webapp logs files -->
-                        <exclude>**/apm-dist/logs/**</exclude>
-
                         <!-- generated file from test plugin scenarios files -->
                         <exclude>**/test/plugin/workspace/**</exclude>
 
