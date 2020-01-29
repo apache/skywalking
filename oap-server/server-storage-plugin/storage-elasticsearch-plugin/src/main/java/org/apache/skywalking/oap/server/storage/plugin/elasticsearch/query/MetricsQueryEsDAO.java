@@ -19,11 +19,20 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.query.sql.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
+import org.apache.skywalking.oap.server.core.query.entity.IntValues;
+import org.apache.skywalking.oap.server.core.query.entity.KVInt;
+import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -31,7 +40,8 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.Avg;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -45,7 +55,9 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         super(client);
     }
 
-    @Override public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where, String valueCName,
+    @Override
+    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
+        String valueCName,
         Function function) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
@@ -100,7 +112,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }
     }
 
-    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
+    @Override public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
+        String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
@@ -121,7 +134,43 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return intValues;
     }
 
-    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException {
+    @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
+        List<String> ids, int numOfLinear, String valueCName) throws IOException {
+        String indexName = ModelName.build(downsampling, indName);
+
+        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
+        Map<String, Map<String, Object>> idMap = toMap(response);
+
+        IntValues[] intValuesArray = new IntValues[numOfLinear];
+        for (int i = 0; i < intValuesArray.length; i++) {
+            intValuesArray[i] = new IntValues();
+        }
+
+        for (String id : ids) {
+            for (int i = 0; i < intValuesArray.length; i++) {
+                KVInt kvInt = new KVInt();
+                kvInt.setId(id);
+                kvInt.setValue(0);
+                intValuesArray[i].addKVInt(kvInt);
+            }
+
+            if (idMap.containsKey(id)) {
+                Map<String, Object> source = idMap.get(id);
+                IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
+                multipleValues.toObject((String)source.getOrDefault(valueCName, ""));
+
+                for (int i = 0; i < intValuesArray.length; i++) {
+                    intValuesArray[i].getLast().setValue(multipleValues.get(i).getValue());
+                }
+            }
+
+        }
+
+        return intValuesArray;
+    }
+
+    @Override public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
+        String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         Thermodynamic thermodynamic = new Thermodynamic();

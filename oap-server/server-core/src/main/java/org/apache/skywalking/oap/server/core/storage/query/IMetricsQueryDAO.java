@@ -34,5 +34,7 @@ public interface IMetricsQueryDAO extends DAO {
 
     IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException;
 
+    IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids, int numOfLinear, String valueCName) throws IOException;
+
     Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName) throws IOException;
 }

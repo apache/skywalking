@@ -15,11 +15,15 @@ public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builde
     <#list serializeFields.intFields as field>
         remoteBuilder.addDataIntegers(${field.getter}());
     </#list>
+    java.util.Iterator iterator;
+    org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList.Builder pairListBuilder;
     <#list serializeFields.intKeyLongValueHashMapFields as field>
-        java.util.Iterator iterator = super.getDetailGroup().values().iterator();
+        iterator = super.${field.getter}().values().iterator();
+        pairListBuilder = org.apache.skywalking.oap.server.core.remote.grpc.proto.DataIntLongPairList.newBuilder();
         while (iterator.hasNext()) {
-            remoteBuilder.addDataIntLongPairList(((org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)(iterator.next())).serialize());
+            pairListBuilder.addValue(((org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue)(iterator.next())).serialize());
         }
+        remoteBuilder.addDataLists(pairListBuilder);
     </#list>
 
     return remoteBuilder;

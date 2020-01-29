@@ -37,15 +37,15 @@ rules:
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 3
     message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
-  service_p90_sla_rule:
+  service_resp_time_percentile_rule:
     # Metrics value need to be long, double or int
-    metrics-name: service_p90
+    metrics-name: service_percentile
     op: ">"
-    threshold: 1000
+    threshold: 1000,1000,1000,1000,1000
     period: 10
     count: 3
     silence-period: 5
-    message: 90% response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes
+    message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
   service_instance_resp_time_rule:
     metrics-name: service_instance_resp_time
     op: ">"
