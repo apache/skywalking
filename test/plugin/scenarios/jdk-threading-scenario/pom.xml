@@ -26,7 +26,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.6</compiler.version>
+        <compiler.version>1.8</compiler.version>
         <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
     </properties>
 
