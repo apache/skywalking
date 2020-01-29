@@ -423,14 +423,32 @@ segmentItems:
       spanType: Exit
       peer: '127.0.0.1:18080'
       peerId: 0
-    - {operationName: GreeterBlocking.sayHello/client/Request/onComplete, operationId: 0,
-       parentSpanId: 2, spanId: 3, spanLayer: RPCFramework, startTime: nq 0,
-       endTime: nq 0, componentId: 23, componentName: '', isError: false,
-       spanType: Local, peer: '', peerId: 0}
-    - {operationName: GreeterBlocking.sayHello/client/Response/onClose, operationId: 0,
-       parentSpanId: 2, spanId: 4, spanLayer: RPCFramework, startTime: nq 0,
-       endTime: nq 0, componentId: 23, componentName: '', isError: false,
-       spanType: Local, peer: '', peerId: 0}
+    - operationName: GreeterBlocking.sayHello/client/Request/onComplete
+      operationId: 0
+      parentSpanId: 2
+      spanId: 3
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
+    - operationName: GreeterBlocking.sayHello/client/Response/onClose
+      operationId: 0
+      parentSpanId: 2
+      spanId: 4
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
     - operationName: GreeterBlocking.sayHello
       operationId: 0
       parentSpanId: 0
@@ -444,10 +462,19 @@ segmentItems:
       spanType: Exit
       peer: '127.0.0.1:18080'
       peerId: 0
-    - {operationName: GreeterBlockingError.sayHello/client/Request/onComplete, operationId: 0,
-       parentSpanId: 5, spanId: 6, spanLayer: RPCFramework, startTime: nq 0,
-       endTime: nq 0, componentId: 23, componentName: '', isError: false,
-       spanType: Local, peer: '', peerId: 0}
+    - operationName: GreeterBlockingError.sayHello/client/Request/onComplete
+      operationId: 0
+      parentSpanId: 5
+      spanId: 6
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 23
+      componentName: ''
+      isError: false
+      spanType: Local
+      peer: ''
+      peerId: 0
     - operationName: GreeterBlockingError.sayHello/client/Response/onClose
       operationId: 0
       parentSpanId: 5
