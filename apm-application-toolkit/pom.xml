@@ -27,7 +27,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <compiler.version>1.6</compiler.version>
+        <compiler.version>1.8</compiler.version>
     </properties>
 
     <modules>
