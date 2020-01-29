@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -45,7 +45,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.asf.dubbo.DubboInterceptor;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,7 +94,6 @@ public class DubboInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         dubboInterceptor = new DubboInterceptor();
 
         PowerMockito.mockStatic(RpcContext.class);
@@ -109,11 +107,6 @@ public class DubboInterceptorTest {
         allArguments = new Object[] {invoker, invocation};
         argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
         Config.Agent.SERVICE_NAME = "DubboTestCases-APP";
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
@@ -167,7 +160,7 @@ public class DubboInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(rpcContext.getAttachment(SW3CarrierItem.HEADER_NAME)).thenReturn("1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(rpcContext.getAttachment(SW6CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
 
         dubboInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         dubboInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);

@@ -20,6 +20,8 @@ package org.apache.skywalking.e2e.profile;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author MrPro
  */
@@ -38,8 +40,14 @@ public class TestController {
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) throws InterruptedException {
-        Thread.sleep(1000L);
-        return userRepo.save(user);
+    public User createAuthor(@RequestBody final CreateUser createUser) throws InterruptedException {
+        final User user = userRepo.save(createUser.toUser());
+        if (!createUser.getEnableProfiling()) {
+            return user;
+        } else {
+            // sleep 10 second
+            TimeUnit.SECONDS.sleep(10);
+            return user;
+        }
     }
 }

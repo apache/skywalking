@@ -23,7 +23,6 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.state.CommandVisitor;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
@@ -126,7 +125,6 @@ public class ActiveMQConsumerInterceptorTest {
 
     @Before
     public void setUp() throws IOException {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         activeMQConsumerInterceptor = new ActiveMQConsumerInterceptor();
         messageDispatch = new MessageDispatch();
 
@@ -134,15 +132,9 @@ public class ActiveMQConsumerInterceptorTest {
         des.setPhysicalName("test");
         messageDispatch.setDestination(des);
         Message msg = new Msg();
-        msg.setProperty("sw3", "");
         messageDispatch.setMessage(msg);
         arguments = new Object[] {messageDispatch};
         argumentType = null;
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test
