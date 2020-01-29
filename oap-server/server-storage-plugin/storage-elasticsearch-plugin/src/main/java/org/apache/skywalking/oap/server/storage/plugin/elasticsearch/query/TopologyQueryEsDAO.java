@@ -96,13 +96,13 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds));
             serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
         }
-        sourceBuilder.query(boolQuery);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQuery));
     }
 
     @Override public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB)));
         sourceBuilder.size(0);
 
         return load(sourceBuilder, indexName, DetectPoint.SERVER);
@@ -111,7 +111,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB)));
         sourceBuilder.size(0);
 
         return load(sourceBuilder, indexName, DetectPoint.CLIENT);
@@ -156,7 +156,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
         clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
 
-        sourceBuilder.query(boolQuery);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQuery));
     }
 
     @Override
@@ -174,7 +174,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
         serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
 
-        sourceBuilder.query(boolQuery);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQuery));
 
         return load(sourceBuilder, indexName, DetectPoint.SERVER);
     }

@@ -43,7 +43,7 @@ public class ServiceInventoryCacheEs7DAO extends ServiceInventoryCacheEsDAO {
     @Override public ServiceInventory get(int serviceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, searchSourceBuilder);

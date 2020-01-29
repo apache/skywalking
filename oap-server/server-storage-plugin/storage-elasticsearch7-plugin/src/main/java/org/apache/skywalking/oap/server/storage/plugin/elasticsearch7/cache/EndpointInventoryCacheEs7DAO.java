@@ -44,7 +44,7 @@ public class EndpointInventoryCacheEs7DAO extends EndpointInventoryCacheEsDAO {
     public EndpointInventory get(int endpointId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);

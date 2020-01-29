@@ -43,7 +43,7 @@ public class NetworkAddressInventoryCacheEs7DAO extends NetworkAddressInventoryC
     @Override public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);

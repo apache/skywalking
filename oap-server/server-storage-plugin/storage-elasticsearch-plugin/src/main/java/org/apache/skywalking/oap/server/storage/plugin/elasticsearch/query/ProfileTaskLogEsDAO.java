@@ -52,7 +52,7 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
         final SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
 
         if (taskId != null) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskLogRecord.TASK_ID, taskId));

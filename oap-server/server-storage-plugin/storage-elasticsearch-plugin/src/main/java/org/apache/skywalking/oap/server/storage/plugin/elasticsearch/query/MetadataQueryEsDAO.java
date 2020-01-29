@@ -72,13 +72,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     @Override public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
+
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -92,7 +93,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
@@ -103,7 +104,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     public int numOfConjectural(int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue)));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -121,7 +122,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -139,7 +140,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Browser.value()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -154,7 +155,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Database.value()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -193,7 +194,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
         }
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -227,7 +228,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(limit);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
@@ -254,7 +255,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(queryMaxSize);
 
         SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, sourceBuilder);

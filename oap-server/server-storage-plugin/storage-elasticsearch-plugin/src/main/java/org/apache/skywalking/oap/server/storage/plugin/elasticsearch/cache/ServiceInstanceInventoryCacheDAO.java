@@ -55,7 +55,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
     @Override public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);
@@ -91,7 +91,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
             boolQuery.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.IS_ADDRESS, BooleanUtils.TRUE));
             boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInstanceInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
 
-            searchSourceBuilder.query(boolQuery);
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(boolQuery));
             searchSourceBuilder.size(resultWindowMaxSize);
 
             SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);

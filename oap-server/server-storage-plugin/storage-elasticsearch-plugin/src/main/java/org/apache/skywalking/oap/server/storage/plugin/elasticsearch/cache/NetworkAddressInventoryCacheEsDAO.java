@@ -64,7 +64,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
     @Override public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
@@ -85,7 +85,7 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
 
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime)));
             searchSourceBuilder.size(resultWindowMaxSize);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);

@@ -68,7 +68,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTB != 0 && endSecondTB != 0) {

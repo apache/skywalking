@@ -50,7 +50,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
@@ -65,7 +65,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
@@ -76,7 +76,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
     public int numOfConjectural(int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue)));
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);

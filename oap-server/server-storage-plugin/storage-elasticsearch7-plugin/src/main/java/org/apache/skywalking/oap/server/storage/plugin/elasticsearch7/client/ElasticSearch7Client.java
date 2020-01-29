@@ -193,7 +193,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         indexName = formatIndexName(indexName);
 
         SearchRequest searchRequest = new SearchRequest(indexName);
-        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
+        searchRequest.source().query(QueryBuilders.boolQuery().filter(QueryBuilders.idsQuery().addIds(ids))).size(ids.length);
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }
 
@@ -240,7 +240,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest(indexName);
         deleteByQueryRequest.setAbortOnVersionConflict(false);
         deleteByQueryRequest.setQuery(
-            QueryBuilders.rangeQuery(timeBucketColumnName).lte(endTimeBucket)
+            QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(timeBucketColumnName).lte(endTimeBucket))
         );
         BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(deleteByQueryRequest, RequestOptions.DEFAULT);
         logger.debug(

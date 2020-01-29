@@ -52,7 +52,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
 
         if (serviceId != null) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskNoneStream.SERVICE_ID, serviceId));
@@ -95,7 +95,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         }
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.idsQuery().addIds(id));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.idsQuery().addIds(id)));
         sourceBuilder.size(1);
 
         final SearchResponse response = getClient().search(ProfileTaskNoneStream.INDEX_NAME, sourceBuilder);

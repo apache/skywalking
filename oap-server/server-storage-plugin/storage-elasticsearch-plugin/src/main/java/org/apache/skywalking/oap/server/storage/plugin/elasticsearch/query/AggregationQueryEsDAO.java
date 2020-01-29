@@ -50,7 +50,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB)));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -59,7 +59,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB)));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -70,7 +70,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
 
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
@@ -84,7 +84,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB)));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
@@ -96,7 +96,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.query(QueryBuilders.boolQuery().filter(boolQueryBuilder));
 
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));

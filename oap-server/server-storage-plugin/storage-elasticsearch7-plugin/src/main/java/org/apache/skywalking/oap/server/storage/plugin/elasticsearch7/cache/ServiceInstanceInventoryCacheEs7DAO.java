@@ -44,7 +44,7 @@ public class ServiceInstanceInventoryCacheEs7DAO extends ServiceInstanceInventor
     public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
+            searchSourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId)));
             searchSourceBuilder.size(1);
 
             SearchResponse response = getClient().search(ServiceInstanceInventory.INDEX_NAME, searchSourceBuilder);
