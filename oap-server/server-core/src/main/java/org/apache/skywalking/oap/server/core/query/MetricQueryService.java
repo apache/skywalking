@@ -100,6 +100,19 @@ public class MetricQueryService implements Service {
         final Downsampling downsampling,
         final long startTB,
         final long endTB) throws IOException {
+        List<Integer> linearIndex = new ArrayList<>(numOfLinear);
+        for (int i = 0; i < numOfLinear; i++) {
+            linearIndex.add(i);
+        }
+
+        return getSubsetOfMultipleLinearIntValues(indName, id, linearIndex, downsampling, startTB, endTB);
+    }
+
+    public List<IntValues> getSubsetOfMultipleLinearIntValues(final String indName, final String id,
+        final List<Integer> linearIndex,
+        final Downsampling downsampling,
+        final long startTB,
+        final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
@@ -108,9 +121,9 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, numOfLinear, ValueColumnIds.INSTANCE.getValueCName(indName));
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnIds.INSTANCE.getValueCName(indName));
 
-        List<IntValues> response = new ArrayList<>(numOfLinear);
+        List<IntValues> response = new ArrayList<>(linearIndex.size());
         Collections.addAll(response, multipleLinearIntValues);
         return response;
     }

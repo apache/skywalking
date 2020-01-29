@@ -135,13 +135,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
-        List<String> ids, int numOfLinear, String valueCName) throws IOException {
+        List<String> ids, List<Integer> linearIndex, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
-        IntValues[] intValuesArray = new IntValues[numOfLinear];
+        IntValues[] intValuesArray = new IntValues[linearIndex.size()];
         for (int i = 0; i < intValuesArray.length; i++) {
             intValuesArray[i] = new IntValues();
         }
@@ -159,8 +159,9 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
                 multipleValues.toObject((String)source.getOrDefault(valueCName, ""));
 
-                for (int i = 0; i < intValuesArray.length; i++) {
-                    intValuesArray[i].getLast().setValue(multipleValues.get(i).getValue());
+                for (int i = 0; i < linearIndex.size(); i++) {
+                    Integer index = linearIndex.get(i);
+                    intValuesArray[i].getLast().setValue(multipleValues.get(index).getValue());
                 }
             }
 
