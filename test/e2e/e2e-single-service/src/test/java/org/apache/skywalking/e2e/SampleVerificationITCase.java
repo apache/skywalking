@@ -327,6 +327,9 @@ public class SampleVerificationITCase {
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
+
+        LOGGER.info("traces: {}", traces);
+        LOGGER.info("tracesMatcher: {}", tracesMatcher);
         tracesMatcher.verify(traces);
     }
 
@@ -365,6 +368,7 @@ public class SampleVerificationITCase {
                 runnable.run();
                 break;
             } catch (Throwable ignored) {
+                LOGGER.error(ignored.getMessage());
                 Thread.sleep(retryInterval);
             }
         }
