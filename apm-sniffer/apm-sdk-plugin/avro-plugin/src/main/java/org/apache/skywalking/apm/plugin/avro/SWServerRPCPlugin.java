@@ -29,6 +29,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
+/**
+ * A SkyWalking tracing plugin for Avro Server.
+ * Extract the CarrierItems from RPC's metadata and inject them into ContextCarrier.
+ */
 public class SWServerRPCPlugin extends RPCPlugin {
     private final String prefix;
 

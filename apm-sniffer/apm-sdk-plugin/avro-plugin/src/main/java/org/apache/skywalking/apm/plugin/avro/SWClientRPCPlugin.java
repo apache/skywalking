@@ -25,19 +25,21 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 
 import java.nio.ByteBuffer;
 
+/**
+ * A SkyWalking tracing plugin for Avro Client.
+ * Inject CarrierItems into RPC's metadata from cross-process propagation.
+ */
 public class SWClientRPCPlugin extends RPCPlugin {
 
     @Override
     public void clientSendRequest(RPCContext context) {
-        if (ContextManager.isActive()) {
-            ContextCarrier carrier = new ContextCarrier();
-            ContextManager.inject(carrier);
+        ContextCarrier carrier = new ContextCarrier();
+        ContextManager.inject(carrier);
 
-            CarrierItem items = carrier.items();
-            while (items.hasNext()) {
-                items = items.next();
-                context.requestCallMeta().put(items.getHeadKey(), ByteBuffer.wrap(items.getHeadValue().getBytes()));
-            }
+        CarrierItem items = carrier.items();
+        while (items.hasNext()) {
+            items = items.next();
+            context.requestCallMeta().put(items.getHeadKey(), ByteBuffer.wrap(items.getHeadValue().getBytes()));
         }
     }
 
