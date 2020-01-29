@@ -51,6 +51,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.boolQuery().filter(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB)));
+        
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
