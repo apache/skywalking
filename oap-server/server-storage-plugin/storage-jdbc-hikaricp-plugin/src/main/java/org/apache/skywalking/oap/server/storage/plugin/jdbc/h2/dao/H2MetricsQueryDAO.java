@@ -145,7 +145,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
 
     @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling,
         List<String> ids,
-        int numOfLinear,
+        final List<Integer> linearIndex,
         String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
@@ -157,7 +157,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             idValues.append("'").append(ids.get(valueIdx)).append("'");
         }
 
-        IntValues[] intValuesArray = new IntValues[numOfLinear];
+        IntValues[] intValuesArray = new IntValues[linearIndex.size()];
         for (int i = 0; i < intValuesArray.length; i++) {
             intValuesArray[i] = new IntValues();
         }
@@ -170,10 +170,11 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
                     multipleValues.toObject(resultSet.getString(valueCName));
 
-                    for (int i = 0; i < intValuesArray.length; i++) {
+                    for (int i = 0; i < linearIndex.size(); i++) {
+                        Integer index = linearIndex.get(i);
                         KVInt kv = new KVInt();
                         kv.setId(id);
-                        kv.setValue(multipleValues.get(i).getValue());
+                        kv.setValue(multipleValues.get(index).getValue());
                         intValuesArray[i].addKVInt(kv);
                     }
                 }
