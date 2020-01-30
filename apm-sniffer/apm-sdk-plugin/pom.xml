@@ -86,6 +86,7 @@
         <module>httpclient-3.x-plugin</module>
         <module>play-2.x-plugin</module>
         <module>lettuce-5.x-plugin</module>
+        <module>avro-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
