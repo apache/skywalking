@@ -26,10 +26,7 @@ import io.grpc.stub.ClientResponseObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.testcase.grpc.consumr.ConsumerInterceptor;
-import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingGrpc;
-import org.apache.skywalking.apm.testcase.grpc.proto.GreeterGrpc;
-import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
-import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
+import org.apache.skywalking.apm.testcase.grpc.proto.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,12 +49,14 @@ public class CaseController {
     private ManagedChannel channel;
     private GreeterGrpc.GreeterStub greeterStub;
     private GreeterBlockingGrpc.GreeterBlockingBlockingStub greeterBlockingStub;
+    private GreeterBlockingErrorGrpc.GreeterBlockingErrorBlockingStub greeterBlockingErrorStub;
 
     @PostConstruct
     public void up() {
         channel = ManagedChannelBuilder.forAddress(gprcProviderHost, grpcProviderPort).usePlaintext(true).build();
         greeterStub = GreeterGrpc.newStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
         greeterBlockingStub = GreeterBlockingGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
+        greeterBlockingErrorStub = GreeterBlockingErrorGrpc.newBlockingStub(ClientInterceptors.intercept(channel, new ConsumerInterceptor()));
     }
 
     @RequestMapping("/grpc-scenario")
@@ -65,6 +64,7 @@ public class CaseController {
     public String testcase() {
         greetService();
         greetBlockingService();
+        greetBlockingErrorService();
         return SUCCESS;
     }
 
@@ -128,5 +128,10 @@ public class CaseController {
     private void greetBlockingService() {
         HelloRequest request = HelloRequest.newBuilder().setName("Sophia").build();
         greeterBlockingStub.sayHello(request);
+    }
+
+    private void greetBlockingErrorService() {
+        HelloRequest request = HelloRequest.newBuilder().setName("Tony").build();
+        greeterBlockingErrorStub.sayHello(request);
     }
 }

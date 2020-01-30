@@ -33,7 +33,7 @@ public class AbstractServerImplBuilderInstrumentation extends ClassInstanceMetho
 
     public static final String ENHANCE_CLASS = "io.grpc.internal.AbstractServerImplBuilder";
     public static final String ENHANCE_METHOD = "addService";
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractServerImplBuilderInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.server.AbstractServerImplBuilderInterceptor";
     public static final String ARGUMENT_TYPE = "io.grpc.ServerServiceDefinition";
 
     @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

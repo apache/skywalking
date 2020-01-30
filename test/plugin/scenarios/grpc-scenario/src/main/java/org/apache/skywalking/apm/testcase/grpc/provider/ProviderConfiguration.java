@@ -22,6 +22,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.ServerInterceptors;
 import org.apache.skywalking.apm.testcase.grpc.provider.interceptor.ProviderInterceptor;
+import org.apache.skywalking.apm.testcase.grpc.provider.service.GreeterBlockingErrorServiceImpl;
 import org.apache.skywalking.apm.testcase.grpc.provider.service.GreeterBlockingServiceImpl;
 import org.apache.skywalking.apm.testcase.grpc.provider.service.GreeterServiceImpl;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -38,8 +39,9 @@ public class ProviderConfiguration {
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     public Server server() {
         return ServerBuilder.forPort(18080)
-            .addService(ServerInterceptors.intercept(new GreeterServiceImpl(), new ProviderInterceptor()))
-            .addService(ServerInterceptors.intercept(new GreeterBlockingServiceImpl(), new ProviderInterceptor()))
-            .build();
+                .addService(ServerInterceptors.intercept(new GreeterServiceImpl(), new ProviderInterceptor()))
+                .addService(ServerInterceptors.intercept(new GreeterBlockingServiceImpl(), new ProviderInterceptor()))
+                .addService(ServerInterceptors.intercept(new GreeterBlockingErrorServiceImpl(), new ProviderInterceptor()))
+                .build();
     }
 }
