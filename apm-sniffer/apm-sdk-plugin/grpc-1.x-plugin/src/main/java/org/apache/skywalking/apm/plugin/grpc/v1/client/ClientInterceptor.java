@@ -16,19 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
+import io.grpc.CallOptions;
 import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.MethodDescriptor;
 
 /**
- * @author AI
- * 2019-07-22
+ * @author zhang xin, kanro
  */
-public interface CallClientInterceptor {
+public class ClientInterceptor implements io.grpc.ClientInterceptor {
 
-    public Channel getChannel();
-
-    public MethodDescriptor getMethodDescriptor();
-
+    @Override
+    public <REQUEST, RESPONSE> ClientCall<REQUEST, RESPONSE> interceptCall(MethodDescriptor<REQUEST, RESPONSE> method,
+                                                                           CallOptions callOptions, Channel channel) {
+        return new TracingClientCall<>(channel.newCall(method, callOptions), method, channel);
+    }
 }

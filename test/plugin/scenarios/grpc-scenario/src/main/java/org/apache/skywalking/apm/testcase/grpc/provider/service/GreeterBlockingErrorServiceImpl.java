@@ -15,29 +15,17 @@
  * limitations under the License.
  *
  */
-syntax = "proto3";
+package org.apache.skywalking.apm.testcase.grpc.provider.service;
 
-option java_multiple_files = true;
-option java_package = "org.apache.skywalking.apm.testcase.grpc.proto";
+import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingErrorGrpc;
+import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingGrpc;
+import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
+import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
 
-service Greeter {
-    rpc SayHello (stream HelloRequest) returns (stream HelloReply) {
+public class GreeterBlockingErrorServiceImpl extends GreeterBlockingErrorGrpc.GreeterBlockingErrorImplBase {
+    @Override
+    public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+        responseObserver.onError(new Exception());
     }
-}
-
-service GreeterBlocking {
-    rpc SayHello (HelloRequest) returns (HelloReply) {
-    }
-}
-service GreeterBlockingError {
-    rpc SayHello (HelloRequest) returns (HelloReply) {
-    }
-}
-
-message HelloRequest {
-    string name = 1;
-}
-
-message HelloReply {
-    string message = 1;
 }

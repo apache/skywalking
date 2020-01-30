@@ -16,17 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.grpc.v1.server;
 
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
+
 import java.lang.reflect.Method;
+
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link AbstractServerImplBuilderInterceptor} add the {@link CallServerInterceptor} interceptor for every
+ * {@link AbstractServerImplBuilderInterceptor} add the {@link ServerInterceptor} interceptor for every
  * ServerService.
  *
  * @author zhang xin
@@ -34,18 +36,19 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 public class AbstractServerImplBuilderInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        allArguments[0] = ServerInterceptors.intercept((ServerServiceDefinition)allArguments[0], new CallServerInterceptor());
+                             MethodInterceptResult result) {
+        allArguments[0] = ServerInterceptors.intercept((ServerServiceDefinition) allArguments[0], new ServerInterceptor());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }
