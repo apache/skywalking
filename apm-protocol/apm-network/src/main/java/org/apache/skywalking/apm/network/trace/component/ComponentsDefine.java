@@ -153,4 +153,8 @@ public class ComponentsDefine {
     public static final OfficialComponent JDK_THREADING = new OfficialComponent(80, "JdkThreading");
 
     public static final OfficialComponent KT_COROUTINE = new OfficialComponent(81, "KotlinCoroutine");
+
+    public static final OfficialComponent AVRO_SERVER = new OfficialComponent(82, "avro-server");
+
+    public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "avro-client");
 }
