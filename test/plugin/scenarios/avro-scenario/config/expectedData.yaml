@@ -1,0 +1,84 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+registryItems:
+  applications:
+    - {avro-server: 2}
+    - {avro-client: 3}
+  instances:
+    - {avro-server: 1}
+    - {avro-client: 1}
+  operationNames:
+    - avro-server: [example.proto.Greeter.hello]
+    - avro-client: [/avro-scenario/case/healthCheck, /avro-scenario/case/avro-scenario]
+  heartbeat: []
+segmentItems:
+  - applicationCode: avro-server
+    segmentSize: 1
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: example.proto.Greeter.hello
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 82
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /avro-scenario/case/avro-scenario, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 2, networkAddress: 'localhost/127.0.0.1:9018', entryEndpoint: /avro-scenario/case/avro-scenario,
+                 entryServiceInstanceId: 2}
+  - applicationCode: avro-client
+    segmentSize: ge 2
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: example.proto.Greeter.hello
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: RPCFramework
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 83
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: 'localhost/127.0.0.1:9018'
+            peerId: 0
+          - operationName: /avro-scenario/case/avro-scenario
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 1
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/avro-scenario/case/avro-scenario'}
+              - {key: http.method, value: GET}
