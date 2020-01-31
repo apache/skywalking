@@ -33,13 +33,13 @@ public class ProfileStackElement {
     // stack code signature
     private String codeSignature;
 
-    // duration includes the execution time of children(millisecond)
+    // include the execution time of children(millisecond)
     private int duration;
 
-    // duration excludes the execution time of children(millisecond)
+    // exclude the execution time of children(millisecond)
     private int durationChildExcluded;
 
-    // total dump count
+    // continuous dump count
     private int count;
 
     // children of this stack code sign
