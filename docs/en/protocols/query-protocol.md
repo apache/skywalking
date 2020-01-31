@@ -101,3 +101,40 @@ The following query(s) are for specific features, including trace, alarm or prof
 
 The actual query GraphQL scrips could be found inside `query-protocol` folder in [here](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources).
 
+## Condition
+### Duration
+Duration is a widely used parameter type as the APM data is time related. The explanations are as following. 
+Step is related the precision. 
+```graphql
+# The Duration defines the start and end time for each query operation.
+# Fields: `start` and `end`
+#   represents the time span. And each of them matches the step.
+#   ref https://www.ietf.org/rfc/rfc3339.txt
+#   The time formats are
+#       `SECOND` step: yyyy-MM-dd HHmmss
+#       `MINUTE` step: yyyy-MM-dd HHmm
+#       `HOUR` step: yyyy-MM-dd HH
+#       `DAY` step: yyyy-MM-dd
+#       `MONTH` step: yyyy-MM
+# Field: `step`
+#   represents the accurate time point.
+# e.g.
+#   if step==HOUR , start=2017-11-08 09, end=2017-11-08 19
+#   then
+#       metrics from the following time points expected
+#       2017-11-08 9:00 -> 2017-11-08 19:00
+#       there are 11 time points (hours) in the time span.
+input Duration {
+    start: String!
+    end: String!
+    step: Step!
+}
+
+enum Step {
+    MONTH
+    DAY
+    HOUR
+    MINUTE
+    SECOND
+}
+```

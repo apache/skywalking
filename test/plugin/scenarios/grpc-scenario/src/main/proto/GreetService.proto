@@ -29,6 +29,10 @@ service GreeterBlocking {
     rpc SayHello (HelloRequest) returns (HelloReply) {
     }
 }
+service GreeterBlockingError {
+    rpc SayHello (HelloRequest) returns (HelloReply) {
+    }
+}
 
 message HelloRequest {
     string name = 1;

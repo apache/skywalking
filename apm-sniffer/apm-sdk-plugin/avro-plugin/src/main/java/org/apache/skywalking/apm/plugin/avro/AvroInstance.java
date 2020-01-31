@@ -15,20 +15,14 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.plugin.avro;
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+public class AvroInstance {
+    public final String namespace;
+    public final String remotePeer;
 
-import io.grpc.Channel;
-import io.grpc.MethodDescriptor;
-
-/**
- * @author AI
- * 2019-07-22
- */
-public interface CallClientInterceptor {
-
-    public Channel getChannel();
-
-    public MethodDescriptor getMethodDescriptor();
-
+    public AvroInstance(String namespace, String remotePeer) {
+        this.namespace = namespace;
+        this.remotePeer = remotePeer;
+    }
 }

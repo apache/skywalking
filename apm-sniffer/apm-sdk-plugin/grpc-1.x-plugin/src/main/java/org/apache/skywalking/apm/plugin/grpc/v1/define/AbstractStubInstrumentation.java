@@ -31,7 +31,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 public class AbstractStubInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AbstractStubInterceptor";
+    public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.client.AbstractStubInterceptor";
     public static final String ENHANCE_METHOD = "getChannel";
     public static final String ENHANCE_CLASS = "io.grpc.stub.AbstractStub";
 

@@ -21,23 +21,52 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
 /**
  * Constant variables
  *
- * @author zhang xin
+ * @author zhang xin, wang zheng, kanro
  */
 public class Constants {
+
+    /**
+     * Mark the current application is the gRPC client in current tracing span.
+     */
     public static final String CLIENT = "/client";
 
+    /**
+     * Mark the current application is the gRPC server in current tracing span.
+     */
     public static final String SERVER = "/server";
 
-    public static final String STREAM_REQUEST_OBSERVER_ON_NEXT_OPERATION_NAME = "/RequestObserver/onNext";
+    /**
+     * Operation name for request message received on server or sent on client.
+     *
+     * Spans of this operations just be create with request stream calls.
+     */
+    public static final String REQUEST_ON_MESSAGE_OPERATION_NAME = "/Request/onMessage";
 
-    public static final String STREAM_REQUEST_OBSERVER_ON_ERROR_OPERATION_NAME = "/RequestObserver/onError";
+    /**
+     * Operation name for client has completed request sending, there are no more incoming request.
+     *
+     * It should happen with half close state usually.
+     */
+    public static final String REQUEST_ON_COMPLETE_OPERATION_NAME = "/Request/onComplete";
 
-    public static final String STREAM_REQUEST_OBSERVER_ON_COMPLETE_OPERATION_NAME = "/RequestObserver/onComplete";
+    /**
+     * Operation name for client has cancelled the call.
+     */
+    public static final String REQUEST_ON_CANCEL_OPERATION_NAME = "/Request/onCancel";
 
-    public static final String STREAM_RESPONSE_OBSERVER_ON_NEXT_OPERATION_NAME = "/ResponseObserver/onNext";
+    /**
+     * Operation name for response message received on client or sent on server.
+     *
+     * Spans of this operations just be create with response stream calls.
+     */
+    public static final String RESPONSE_ON_MESSAGE_OPERATION_NAME = "/Response/onMessage";
 
-    public static final String STREAM_RESPONSE_OBSERVER_ON_ERROR_OPERATION_NAME = "/ResponseObserver/onError";
+    /**
+     * Operation name for call closed with status and trailers.
+     *
+     * Exceptions will be logs here.
+     */
+    public static final String RESPONSE_ON_CLOSE_OPERATION_NAME = "/Response/onClose";
 
-    public static final String STREAM_RESPONSE_OBSERVER_ON_COMPLETE_OPERATION_NAME = "/ResponseObserver/onComplete";
-
+    public static final String BLOCKING_CALL_EXIT_SPAN = "SW_GRPC_BLOCKING_CALL_EXIT_SPAN";
 }
