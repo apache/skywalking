@@ -33,10 +33,10 @@ public class ProfileStackElement {
     // stack code signature
     private String codeSignature;
 
-    // self include children duration(millisecond)
+    // duration includes the execution time of children(millisecond)
     private int duration;
 
-    // self exclude children duration(millisecond)
+    // duration excludes the execution time of children(millisecond)
     private int durationChildExcluded;
 
     // total dump count
