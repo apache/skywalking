@@ -39,7 +39,7 @@ public class MethodInheritanceAnnotationMatcherTest {
 
     @Test
     public void testMatch() throws Exception {
-        ElementMatcher.Junction<AnnotationSource> matcher = byMethodInheritanceAnnotationMatcher(named("org.apache.skywalking.apm.agent.core.plugin.bytebuddy.MethodInheritsDeclaringAnnotationMatcherTest$TestAnnotaion"));
+        ElementMatcher.Junction<AnnotationSource> matcher = byMethodInheritanceAnnotationMatcher(named("org.apache.skywalking.apm.agent.core.plugin.bytebuddy.MethodInheritanceAnnotationMatcherTest$TestAnnotaion"));
 
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test1", String.class))));
         Assert.assertTrue(matcher.matches(new MethodDescription.ForLoadedMethod(TestBean.class.getMethod("test2", String.class))));
