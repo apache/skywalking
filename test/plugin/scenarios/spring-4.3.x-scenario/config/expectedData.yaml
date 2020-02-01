@@ -21,11 +21,11 @@ registryItems:
   operationNames:
     - spring-4.3.x-scenario: [/create/, '/delete/{id}', /inherit/child/test, /healthCheck,
                               '/get/{id}', '/update/{id}', /case/resttemplate,
-                              /case/spring3]
+                              /case/spring3, /impl/requestmapping, /impl/restmapping]
   heartbeat: []
 segmentItems:
   - applicationCode: spring-4.3.x-scenario
-    segmentSize: ge 8
+    segmentSize: ge 10
     segments:
       - segmentId: not null
         spans:
@@ -224,6 +224,52 @@ segmentItems:
                  entryServiceInstanceId: 1}
       - segmentId: not null
         spans:
+          - operationName: /impl/requestmapping
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 14
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/impl/requestmapping'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /case/resttemplate, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 7, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /case/resttemplate,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /impl/restmapping
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 14
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/impl/restmapping'}
+              - {key: http.method, value: GET}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /case/resttemplate, networkAddressId: 0,
+                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 8, parentTraceSegmentId: not null,
+                 parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /case/resttemplate,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
           - operationName: /spring-4.3.x-scenario/case/spring3/
             operationId: 0
             parentSpanId: 0
@@ -320,6 +366,38 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/inherit/child/test'}
+          - operationName: /spring-4.3.x-scenario/impl/requestmapping
+            operationId: 0
+            parentSpanId: 0
+            spanId: 7
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/impl/requestmapping'}
+          - operationName: /spring-4.3.x-scenario/impl/restmapping
+            operationId: 0
+            parentSpanId: 0
+            spanId: 8
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 12
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: 'http://localhost:8080/spring-4.3.x-scenario/impl/restmapping'}
           - operationName: /case/resttemplate
             operationId: 0
             parentSpanId: -1
