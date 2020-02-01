@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /**
  * Tools for parsing path from annotation
- * @auther jialong
+ * @author jialong
  */
 public class ParsePathUtil {
 

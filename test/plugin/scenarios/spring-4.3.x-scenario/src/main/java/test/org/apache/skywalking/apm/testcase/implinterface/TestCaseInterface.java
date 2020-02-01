@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * @auther jialong
+ * @author jialong
  */
 public interface TestCaseInterface {
     @RequestMapping("/impl/requestmapping")

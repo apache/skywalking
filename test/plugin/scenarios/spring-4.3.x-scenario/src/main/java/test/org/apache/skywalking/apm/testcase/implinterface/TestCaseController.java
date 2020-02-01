@@ -21,7 +21,7 @@ package test.org.apache.skywalking.apm.testcase.implinterface;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @auther jialong
+ * @author jialong
  */
 @RestController
 public class TestCaseController implements TestCaseInterface {

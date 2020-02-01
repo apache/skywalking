@@ -33,7 +33,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanceAnnotationMatcher.byMethodInheritanceAnnotationMatcher;
 
 /**
- * @auther jialong
+ * @author jialong
  */
 public class MethodInheritanceAnnotationMatcherTest {
 
