@@ -16,30 +16,21 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
+package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
 
 /**
- * {@link GRPCClientInterceptor} determines the returned Interceptor based on the method type. If the method type is
- * UNARY, {@link GRPCClientInterceptor} returns BlockingCallClientInterceptor, or it returns
- * StreamCallClientInterceptor.
- *
- * @author zhang xin
+ * @author zhang xin, kanro
  */
-public class GRPCClientInterceptor implements ClientInterceptor {
+public class ClientInterceptor implements io.grpc.ClientInterceptor {
 
     @Override
-    public ClientCall interceptCall(MethodDescriptor method,
-        CallOptions callOptions, Channel channel) {
-        if (method.getType() != MethodDescriptor.MethodType.UNARY) {
-            return new StreamCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
-        }
-        return new BlockingCallClientInterceptor(channel.newCall(method, callOptions), method, channel);
+    public <REQUEST, RESPONSE> ClientCall<REQUEST, RESPONSE> interceptCall(MethodDescriptor<REQUEST, RESPONSE> method,
+                                                                           CallOptions callOptions, Channel channel) {
+        return new TracingClientCall<>(channel.newCall(method, callOptions), method, channel);
     }
-
 }

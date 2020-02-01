@@ -32,10 +32,8 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * @author zhang xin
  */
 public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
-
     private static final String ENHANCE_CLASS = "io.grpc.stub.ClientCalls";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.BlockingCallInterceptor";
-    private static final String FUTURE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.AsyncUnaryRequestCallCallInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.grpc.v1.client.BlockingCallInterceptor";
 
     @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
@@ -50,32 +48,6 @@ public class ClientCallsInstrumentation extends ClassStaticMethodsEnhancePluginD
 
                 @Override public boolean isOverrideArgs() {
                     return false;
-                }
-            },
-//            new StaticMethodsInterceptPoint() {
-//                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-//                    return named("blockingServerStreamingCall").and(takesArgumentWithType(1, "io.grpc.MethodDescriptor"));
-//                }
-//
-//                @Override public String getMethodsInterceptor() {
-//                    return INTERCEPTOR_CLASS;
-//                }
-//
-//                @Override public boolean isOverrideArgs() {
-//                    return false;
-//                }
-//            },
-            new StaticMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("asyncUnaryRequestCall").and(takesArgumentWithType(2, "io.grpc.ClientCall$Listener"));
-                }
-
-                @Override public String getMethodsInterceptor() {
-                    return FUTURE_INTERCEPTOR_CLASS;
-                }
-
-                @Override public boolean isOverrideArgs() {
-                    return true;
                 }
             }
         };
