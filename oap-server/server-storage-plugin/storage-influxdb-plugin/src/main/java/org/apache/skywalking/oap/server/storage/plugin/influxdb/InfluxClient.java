@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import com.google.common.base.Strings;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
 import okhttp3.OkHttpClient;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -33,10 +35,6 @@ import org.influxdb.querybuilder.time.TimeInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.ti;
 
 public class InfluxClient implements Client {
@@ -47,7 +45,6 @@ public class InfluxClient implements Client {
     public static final String TIME = "time";
     public static final String TAG_ENTITY_ID = "entity_id";
     private final String database;
-
 
     public InfluxClient(InfluxStorageConfig config) {
         this.config = config;
@@ -61,7 +58,7 @@ public class InfluxClient implements Client {
     @Override
     public void connect() {
         influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
-                new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
+            new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
         influx.query(new Query("CREATE DATABASE " + database));
 
         // TODO need to configure RPs
