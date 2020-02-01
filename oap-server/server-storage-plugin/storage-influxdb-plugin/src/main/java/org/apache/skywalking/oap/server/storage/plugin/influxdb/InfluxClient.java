@@ -63,10 +63,8 @@ public class InfluxClient implements Client {
         influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
                 new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
         influx.query(new Query("CREATE DATABASE " + database));
-        String policy = config.getRetentionPolicy();
-        if (!Strings.isNullOrEmpty(policy)) {
-            // TODO
-        }
+
+        // TODO need to configure RPs
 
         influx.setDatabase(database);
         influx.enableBatch();

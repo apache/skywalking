@@ -102,10 +102,10 @@ public class InfluxStorageProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException {
         Properties settings = new Properties();
-        settings.setProperty("dataSourceClassName", config.getMetaDBDriver());
-        settings.setProperty("dataSource.url", config.getMetaDBUrl());
-        settings.setProperty("dataSource.user", config.getMetaDBUser());
-        settings.setProperty("dataSource.password", config.getMetaDBPassword());
+        settings.setProperty("dataSourceClassName", config.getMetabaseDriver());
+        settings.setProperty("dataSource.url", config.getMetabaseUrl());
+        settings.setProperty("dataSource.user", config.getMetabaseUser());
+        settings.setProperty("dataSource.password", config.getMetabasePassword());
 
         client = new JDBCHikariCPClient(settings);
         influxClient = new InfluxClient(config);
@@ -148,7 +148,7 @@ public class InfluxStorageProvider extends ModuleProvider {
             influxClient.connect();
 
             ModelInstaller installer;
-            if (config.getMetaDBType().equalsIgnoreCase("h2")) {
+            if (config.getMetabaseType().equalsIgnoreCase("h2")) {
                 installer = new H2Installer(getManager());
             } else {
                 installer = new MySQLInstaller(getManager());

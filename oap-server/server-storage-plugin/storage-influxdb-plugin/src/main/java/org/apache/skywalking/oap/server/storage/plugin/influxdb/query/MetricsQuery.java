@@ -190,8 +190,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
         return intValues;
     }
 
-    @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids, int numOfLinear, String valueCName) throws IOException {
+    @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
+        List<Integer> linearIndex, String valueCName) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
         WhereQueryImpl<SelectQueryImpl> query = select()
@@ -211,7 +211,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (LOG.isDebugEnabled()) {
             LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
         }
-        IntValues[] intValues = new IntValues[numOfLinear];
+        IntValues[] intValues = new IntValues[linearIndex.size()];
         for (int i = 0; i < intValues.length; i++) {
             intValues[i] = new IntValues();
         }
@@ -224,7 +224,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             multipleValues.toObject((String) values.get(2));
 
             final String id = (String) values.get(1);
-            for (int i = 0; i < numOfLinear; i++) {
+            for (int i = 0; i < indName.length(); i++) {
                 KVInt kv = new KVInt();
                 kv.setId(id);
                 kv.setValue(multipleValues.get(i).getValue());

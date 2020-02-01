@@ -20,17 +20,29 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
-public class MySQLInstaller extends MySQLTableInstaller {
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
-    public MySQLInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
-    }
+/**
+ * Some tables, such as Metrics and SegmentRecord, they are stored in InfluxDB.
+ * We don't need to create the tables explicitly in InfluxDB.
+ * <p>
+ * In different with InfluxDB, we must execute DDL for MySQL/H2.
+ */
+public class TableMixInstaller {
 
-    @Override
-    protected boolean isExists(Client client, Model model) throws StorageException {
-        return TableMixInstaller.isExists(client, model);
+    public static boolean isExists(Client client, Model model) throws StorageException {
+        TableMetaInfo.addModel(model);
+        switch (model.getScopeId()) {
+            case SERVICE_INVENTORY:
+            case SERVICE_INSTANCE_INVENTORY:
+            case NETWORK_ADDRESS:
+            case ENDPOINT_INVENTORY:
+            case PROFILE_TASK:
+            case PROFILE_TASK_SEGMENT_SNAPSHOT:
+                return false;
+        }
+        return true;
     }
 }
