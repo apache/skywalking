@@ -15,41 +15,27 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.apm.plugin.avro;
 
-package org.apache.skywalking.apm.plugin.grpc.v1;
-
-import io.grpc.Channel;
-import io.grpc.ClientInterceptors;
 import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * {@link AbstractStubInterceptor} add the interceptor for every ClientCall.
- *
- * @author zhang xin
- */
-public class AbstractStubInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Channel channel = (Channel)allArguments[0];
-        objInst.setSkyWalkingDynamicField(ClientInterceptors.intercept(channel, new GRPCClientInterceptor()));
-    }
+public class GenericRequestorInterceptor extends AbstractRequestInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        AvroInstance instance = (AvroInstance)objInst.getSkyWalkingDynamicField();
+
+        AbstractSpan span = ContextManager.createExitSpan(instance.namespace + allArguments[0], instance.remotePeer);
+        SpanLayer.asRPCFramework(span);
+        span.setPeer(instance.remotePeer);
+        span.setComponent(ComponentsDefine.AVRO_CLIENT);
     }
 
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        return objInst.getSkyWalkingDynamicField();
-    }
-
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-    }
 }
