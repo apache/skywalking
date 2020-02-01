@@ -120,11 +120,11 @@ storage:
 #    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
 #    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
 #    profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
-#  h2:
-#    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-#    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
-#    user: ${SW_STORAGE_H2_USER:sa}
-#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+  h2:
+    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+    user: ${SW_STORAGE_H2_USER:sa}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 #  mysql:
 #    properties:
 #      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
@@ -135,17 +135,17 @@ storage:
 #      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
 #      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
 #    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-  influx:
-    metabaseDriver: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    metabaseUrl: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
-    metabaseUser: ${SW_STORAGE_METABASE_USER:sa}
-    metabasePassword: ${SW_STORAGE_METABASE_PASSWORD:}
-    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2}
-    url: ${SW_STORAGE_URL:http://localhost:8086}
-    user: ${SW_STORAGE_USER:root}
-    password: ${SW_STORAGE_PASSWORD:}
-    database: ${SW_STORAGE_DATABASE:skywalking}
-    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+#  influx:
+#    metabaseDriver: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
+#    metabaseUrl: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
+#    metabaseUser: ${SW_STORAGE_METABASE_USER:sa}
+#    metabasePassword: ${SW_STORAGE_METABASE_PASSWORD:}
+#    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2}
+#    url: ${SW_STORAGE_URL:http://localhost:8086}
+#    user: ${SW_STORAGE_USER:root}
+#    password: ${SW_STORAGE_PASSWORD:}
+#    database: ${SW_STORAGE_DATABASE:skywalking}
+#    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
 receiver-register:

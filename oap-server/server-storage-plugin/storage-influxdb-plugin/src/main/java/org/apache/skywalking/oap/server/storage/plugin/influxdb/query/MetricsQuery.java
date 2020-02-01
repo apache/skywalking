@@ -223,11 +223,14 @@ public class MetricsQuery implements IMetricsQueryDAO {
             IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
             multipleValues.toObject((String) values.get(2));
 
+
+
             final String id = (String) values.get(1);
             for (int i = 0; i < indName.length(); i++) {
+                Integer index = linearIndex.get(i);
                 KVInt kv = new KVInt();
                 kv.setId(id);
-                kv.setValue(multipleValues.get(i).getValue());
+                kv.setValue(multipleValues.get(index).getValue());
                 intValues[i].addKVInt(kv);
             }
         });
