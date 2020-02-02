@@ -88,7 +88,8 @@ public class InfluxClient implements Client {
     }
 
     public void dropSeries(String measurement, String timeBucket) throws IOException {
-        QueryResult result = getInflux().query(new Query("DROP SERIES FROM " + measurement + " WHERE TIME_BUCKET=" + timeBucket));
+        QueryResult result = getInflux().query(
+            new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'"));
         if (result.hasError()) {
             throw new IOException(result.getError());
         }

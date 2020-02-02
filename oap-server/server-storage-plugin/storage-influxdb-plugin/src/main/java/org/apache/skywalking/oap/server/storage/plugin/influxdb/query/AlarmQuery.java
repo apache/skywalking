@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.entity.Alarms;
@@ -32,12 +36,11 @@ import org.influxdb.querybuilder.WhereQueryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Objects;
-
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.regex;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 public class AlarmQuery implements IAlarmQueryDAO {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -48,18 +51,19 @@ public class AlarmQuery implements IAlarmQueryDAO {
     }
 
     @Override
-    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB, long endTB) throws IOException {
+    public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
+        long endTB) throws IOException {
 
         WhereQueryImpl<SelectQueryImpl> query1 = select()
-                .function("top", AlarmRecord.START_TIME, limit + from).as(AlarmRecord.START_TIME)
-                .column(AlarmRecord.ID0)
-                .column(AlarmRecord.ALARM_MESSAGE)
-                .column(AlarmRecord.SCOPE)
-                .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
-                .where();
+            .function("top", AlarmRecord.START_TIME, limit + from).as(AlarmRecord.START_TIME)
+            .column(AlarmRecord.ID0)
+            .column(AlarmRecord.ALARM_MESSAGE)
+            .column(AlarmRecord.SCOPE)
+            .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
+            .where();
         if (startTB > 0 && endTB > 0) {
             query1.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                    .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         }
         if (!Strings.isNullOrEmpty(keyword)) {
             query1.and(regex(AlarmRecord.ALARM_MESSAGE, keyword));
@@ -87,23 +91,25 @@ public class AlarmQuery implements IAlarmQueryDAO {
         }
         List<QueryResult.Series> counter = results.get(0).getSeries();
         Alarms alarms = new Alarms();
-        alarms.setTotal(((Number) counter.get(0).getValues().get(0).get(1)).intValue());
+        alarms.setTotal(((Number)counter.get(0).getValues().get(0).get(1)).intValue());
 
-        series.get(0).getValues().stream().sorted((a, b) -> {
-            return Long.compare((long) b.get(1), (long) a.get(1));
-        }).skip(from).forEach(values -> {
-            final int sid = (int) values.get(4);
-            Scope scope = Scope.Finder.valueOf(sid);
+        series.get(0).getValues()
+            .stream()
+            .sorted((a, b) -> Long.compare((long)b.get(1), (long)a.get(1)))
+            .skip(from)
+            .forEach(values -> {
+                final int sid = (int)values.get(4);
+                Scope scope = Scope.Finder.valueOf(sid);
 
-            AlarmMessage message = new AlarmMessage();
-            message.setStartTime((long) values.get(1));
-            message.setId((String) values.get(2));
-            message.setMessage((String) values.get(3));
-            message.setScope(scope);
-            message.setScopeId(sid);
+                AlarmMessage message = new AlarmMessage();
+                message.setStartTime((long)values.get(1));
+                message.setId((String)values.get(2));
+                message.setMessage((String)values.get(3));
+                message.setScope(scope);
+                message.setScopeId(sid);
 
-            alarms.getMsgs().add(message);
-        });
+                alarms.getMsgs().add(message);
+            });
         return alarms;
     }
 }

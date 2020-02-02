@@ -63,9 +63,11 @@ public class PointBuilder {
                 fields.put(column.getColumnName().getStorageName(), value);
             }
         }
-        fields.put("id", metrics.id());
+        long timeBucket = (long) fields.remove(Metrics.TIME_BUCKET);
         return builder.fields(fields)
-            .time(getTimestamp((long)fields.get(Metrics.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
+            .addField("id", metrics.id())
+            .tag(Metrics.TIME_BUCKET, String.valueOf(timeBucket))
+            .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
             .build();
     }
 
@@ -85,16 +87,10 @@ public class PointBuilder {
         }
         Point.Builder builder = null;
         switch (model.getScopeId()) {
-            case SEGMENT: {
-                builder = fromSegmentRecord(model, fields);
-                break;
-            }
+            case SEGMENT:
             case HTTP_ACCESS_LOG:
             case DATABASE_ACCESS:
-            case DATABASE_SLOW_STATEMENT: {
-                builder = fromLogRecord(model, fields);
-                break;
-            }
+            case DATABASE_SLOW_STATEMENT:
             case ALARM:
             case JAEGER_SPAN:
             case ZIPKIN_SPAN: {
@@ -109,21 +105,20 @@ public class PointBuilder {
         if (Objects.nonNull(entityId)) {
             builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(entityId));
         }
+        long timeBucket = (long) fields.remove(Record.TIME_BUCKET);
         return builder.addField("id", storageData.id())
-            .time(getTimestamp((long)fields.get(Record.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
+            .addField(Record.TIME_BUCKET, timeBucket)
+            .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
             .build();
     }
 
-    public static final Point.Builder fromSegmentRecord(Model model, Map<String, Object> record) {
-        return Point.measurement(model.getName())
-            .fields(record);
-    }
-
-    public static final Point.Builder fromLogRecord(Model model, Map<String, Object> record) {
-        String statusCode = (String)record.remove(AbstractLogRecord.STATUS_CODE);
-
-        return Point.measurement(model.getName())
-            .tag(AbstractLogRecord.STATUS_CODE, statusCode)
-            .fields(record);
-    }
+//    public static final Point.Builder fromSegmentRecord(Model model, Map<String, Object> record) {
+//        return Point.measurement(model.getName())
+//            .fields(record);
+//    }
+//
+//    public static final Point.Builder fromLogRecord(Model model, Map<String, Object> record) {
+//        return Point.measurement(model.getName())
+//            .fields(record);
+//    }
 }
