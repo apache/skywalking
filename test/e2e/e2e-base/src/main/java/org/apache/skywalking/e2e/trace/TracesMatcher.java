@@ -20,13 +20,14 @@ package org.apache.skywalking.e2e.trace;
 
 import java.util.LinkedList;
 import java.util.List;
+import lombok.Data;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author kezhenxu94
  */
+@Data
 public class TracesMatcher {
     private List<TraceMatcher> traces;
 
@@ -34,35 +35,17 @@ public class TracesMatcher {
         this.traces = new LinkedList<>();
     }
 
-    public List<TraceMatcher> getTraces() {
-        return traces;
-    }
-
-    public void setTraces(List<TraceMatcher> traces) {
-        this.traces = traces;
-    }
-
-    public void verify(final List<Trace> traces) {
-        assertThat(traces).hasSameSizeAs(this.traces);
-
-        int size = this.traces.size();
-
-        for (int i = 0; i < size; i++) {
-            this.traces.get(i).verify(traces.get(i));
-        }
-    }
-
     /**
      * Verify the traces in a loose manner
      *
-     * @param traces
+     * @param traces the traces to verify
      */
     public void verifyLoosely(final List<Trace> traces) {
-        for (int i = 0; i < getTraces().size(); i++) {
+        for (final TraceMatcher matcher : getTraces()) {
             boolean matched = false;
-            for (int j = 0; j < traces.size(); j++) {
+            for (final Trace trace : traces) {
                 try {
-                    getTraces().get(i).verify(traces.get(j));
+                    matcher.verify(trace);
                     matched = true;
                 } catch (Throwable ignored) {
                 }
@@ -71,12 +54,5 @@ public class TracesMatcher {
                 fail("Expected: %s\n Actual: %s", getTraces(), traces);
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return "TracesMatcher{" +
-            "traces=" + traces +
-            '}';
     }
 }
