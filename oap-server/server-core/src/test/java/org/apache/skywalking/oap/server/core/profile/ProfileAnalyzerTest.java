@@ -37,15 +37,9 @@ public class ProfileAnalyzerTest {
 
     @Test
     public void testAnalyze() {
-        long start = System.currentTimeMillis();
         final ProfileStackHolder dataHolder = loadYaml("thread-snapshot.yml", ProfileStackHolder.class);
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
         ProfileAnalyzation analyze = ProfileAnalyzer.analyze(dataHolder.getList());
-        System.out.println(System.currentTimeMillis() - start);
-        start = System.currentTimeMillis();
         final ProfileAnalyzation verify = loadYaml("thread-snapshot-verify.yml", ProfileAnalyzation.class);
-        System.out.println(System.currentTimeMillis() - start);
 
         assertSame(analyze, verify);
     }
