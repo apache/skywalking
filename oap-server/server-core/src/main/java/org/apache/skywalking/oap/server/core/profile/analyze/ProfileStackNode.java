@@ -116,7 +116,7 @@ public class ProfileStackNode {
                 if (combinedNode == null) {
                     combineTo.children.add(needCombineChildren);
                     combinedNode = needCombineChildren;
-                } else if (needCombineChildren != combinedNode){
+                } else if (needCombineChildren != combinedNode) {
                     combinedNode.combineThisNode(needCombineChildren);
                 } else {
                     // if same reference, dont need to combine anymore
