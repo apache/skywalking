@@ -35,9 +35,9 @@ jobs:
         run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: Compile & Install Test Codes
         run: |
-          ./mvnw checkstyle:check apache-rat:check
-          ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode checkstyle:check apache-rat:check
+          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: Single Node Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-single-service
       - name: Single Node Tests(MySQL/JDK8)
@@ -67,9 +67,9 @@ jobs:
         run: export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: Compile & Install Test Codes
         run: |
-          ./mvnw checkstyle:check apache-rat:check
-          ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode checkstyle:check apache-rat:check
+          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: Cluster Tests (ES6/ZK/JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner
       - name: Cluster With Gateway Tests (ES6/ZK/JDK8)
@@ -91,9 +91,9 @@ jobs:
         run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: Compile & Install Test Codes
         run: |
-          ./mvnw checkstyle:check apache-rat:check
-          ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode checkstyle:check apache-rat:check
+          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: 6.x Agents & 7.x Backend
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-6.x-agent-7.x-oap-compatibility
 
@@ -107,9 +107,9 @@ jobs:
         run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
       - name: Compile & Install Test Codes
         run: |
-          ./mvnw checkstyle:check apache-rat:check
-          ./mvnw -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode checkstyle:check apache-rat:check
+          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: Profile Tests H2(JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=h2
       - name: Profile Tests MySQL(JDK8)
