@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -31,20 +34,23 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.Point;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
 import static org.apache.skywalking.oap.server.core.analysis.TimeBucket.getTimestamp;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JAEGER_SPAN;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ZIPKIN_SPAN;
 
+/**
+ * A helper help to build a InfluxDB Point from StorageData.
+ */
 public class PointBuilder {
 
     public static Point fromMetrics(Model model, Metrics metrics, Map<String, Object> objectMap) throws IOException {
         Point.Builder builder = Point.measurement(model.getName());
         builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(objectMap.get(Metrics.ENTITY_ID)));
-        builder.tag("id", metrics.id());
 
         Map<String, Object> fields = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
@@ -52,22 +58,18 @@ public class PointBuilder {
 
             if (value instanceof StorageDataType) {
                 fields.put(column.getColumnName().getStorageName(),
-                        ((StorageDataType) value).toStorageData());
+                    ((StorageDataType)value).toStorageData());
             } else {
                 fields.put(column.getColumnName().getStorageName(), value);
             }
         }
+        fields.put("id", metrics.id());
         return builder.fields(fields)
-                .time(getTimestamp((long) fields.get(Metrics.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
-                .build();
+            .time(getTimestamp((long)fields.get(Metrics.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
+            .build();
     }
 
-    public static Point fromNoneStream(Model model, Map<String, Object> objectMap, StorageData storageData) {
-        Point.measurement(model.getName()).build();
-        return null; // FIXME
-    }
-
-    public static Point fromRecord(Model model, Map<String, Object> objectMap, StorageData storageData) {
+    public static Point fromRecord(Model model, Map<String, Object> objectMap, StorageData storageData) throws IOException {
         Map<String, Object> fields = Maps.newHashMap();
         Object entityId = objectMap.get(Metrics.ENTITY_ID);
 
@@ -76,7 +78,7 @@ public class PointBuilder {
             Object value = objectMap.get(name.getName());
 
             if (value instanceof StorageDataType) {
-                fields.put(name.getStorageName(), ((StorageDataType) value).toStorageData());
+                fields.put(name.getStorageName(), ((StorageDataType)value).toStorageData());
             } else {
                 fields.put(name.getStorageName(), value);
             }
@@ -97,35 +99,31 @@ public class PointBuilder {
             case JAEGER_SPAN:
             case ZIPKIN_SPAN: {
                 builder = Point.measurement(model.getName())
-                        .fields(fields);
+                    .fields(fields);
                 break;
             }
-            default: // FIXME need to throw an exception.
-                return null;
+            default: {
+                throw new IOException("Unknown ScopeId(" + model.getScopeId() + ")");
+            }
         }
         if (Objects.nonNull(entityId)) {
             builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(entityId));
         }
-        return builder.tag("id", storageData.id())
-                .time(getTimestamp((long) fields.get(Record.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
-                .build();
+        return builder.addField("id", storageData.id())
+            .time(getTimestamp((long)fields.get(Record.TIME_BUCKET), model.getDownsampling()), TimeUnit.MILLISECONDS)
+            .build();
     }
 
     public static final Point.Builder fromSegmentRecord(Model model, Map<String, Object> record) {
-        String traceId = (String) record.remove(SegmentRecord.TRACE_ID);
-
         return Point.measurement(model.getName())
-                .tag(SegmentRecord.TRACE_ID, traceId)
-                .fields(record);
+            .fields(record);
     }
 
     public static final Point.Builder fromLogRecord(Model model, Map<String, Object> record) {
-        String traceId = (String) record.remove(AbstractLogRecord.TRACE_ID);
-        String statusCode = (String) record.remove(AbstractLogRecord.STATUS_CODE);
+        String statusCode = (String)record.remove(AbstractLogRecord.STATUS_CODE);
 
         return Point.measurement(model.getName())
-                .tag(AbstractLogRecord.TRACE_ID, traceId)
-                .tag(AbstractLogRecord.STATUS_CODE, statusCode)
-                .fields(record);
+            .tag(AbstractLogRecord.STATUS_CODE, statusCode)
+            .fields(record);
     }
 }

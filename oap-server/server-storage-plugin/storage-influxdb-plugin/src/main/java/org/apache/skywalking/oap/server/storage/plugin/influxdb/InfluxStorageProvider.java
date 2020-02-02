@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import java.io.IOException;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCac
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
@@ -50,6 +49,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.BatchDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.H2Installer;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.MySQLInstaller;
@@ -133,16 +133,13 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient));
 
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new IHistoryDeleteDAO() {
-            @Override
-            public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
-                // need to do nothing here. InfluxDB eliminates the time-out live record by RetentionPolicy.
-            }
-        });
+        this.registerServiceImplementation(IHistoryDeleteDAO.class,
+            new HistoryDeleteDAO(getManager(), influxClient, new InfluxTTLCalculatorProvider(getManager())));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        overrideCoreModuleTTLConfig();
         try {
             client.connect();
             influxClient.connect();
@@ -158,6 +155,15 @@ public class InfluxStorageProvider extends ModuleProvider {
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+    }
+
+    private void overrideCoreModuleTTLConfig() {
+        ConfigService configService = getManager().find(CoreModule.NAME).provider().getService(ConfigService.class);
+        configService.getDataTTLConfig().setRecordDataTTL(config.getRecordDataTTL());
+        configService.getDataTTLConfig().setMinuteMetricsDataTTL(config.getMinuteMetricsDataTTL());
+        configService.getDataTTLConfig().setHourMetricsDataTTL(config.getHourMetricsDataTTL());
+        configService.getDataTTLConfig().setDayMetricsDataTTL(config.getDayMetricsDataTTL());
+        configService.getDataTTLConfig().setMonthMetricsDataTTL(config.getMonthMetricsDataTTL());
     }
 
     @Override

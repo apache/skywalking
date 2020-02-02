@@ -25,6 +25,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 
 /**
+ * A utils for different databases to install(create) tables. It provides the table whether need to create.
+ *
  * Some tables, such as Metrics and SegmentRecord, they are stored in InfluxDB.
  * We don't need to create the tables explicitly in InfluxDB.
  * <p>
@@ -33,7 +35,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
 public class TableMixInstaller {
 
     public static boolean isExists(Client client, Model model) throws StorageException {
-        TableMetaInfo.addModel(model);
         switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
@@ -43,6 +44,8 @@ public class TableMixInstaller {
             case PROFILE_TASK_SEGMENT_SNAPSHOT:
                 return false;
         }
+        //
+        TableMetaInfo.addModel(model);
         return true;
     }
 }

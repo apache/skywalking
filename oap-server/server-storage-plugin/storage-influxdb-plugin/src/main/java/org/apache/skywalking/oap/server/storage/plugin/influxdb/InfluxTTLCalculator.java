@@ -15,34 +15,25 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.DataTTLConfig;
 
-@Setter
-@Getter
-public class InfluxStorageConfig extends ModuleConfig {
-    private String metabaseDriver;
-    private String metabaseUrl;
-    private String metabaseUser;
-    private String metabasePassword;
+public interface InfluxTTLCalculator {
 
-    private String metabaseType;
+    /**
+     * To calculate the name of the latest time-bucket that we need to delete.
+     *
+     * @param dataTTLConfig
+     * @return the name of the latest time-bucket
+     */
+    String timeBucketBefore(DataTTLConfig dataTTLConfig);
 
-    private int metadataQueryMaxSize = 5000;
-
-    private String url;
-    private String user;
-    private String password;
-    private String database;
-
-    private int recordDataTTL;
-    private int minuteMetricsDataTTL;
-    private int hourMetricsDataTTL;
-    private int dayMetricsDataTTL;
-    private int monthMetricsDataTTL;
-
+    /**
+     * To calculate the timestamp of the latest
+     *
+     * @param dataTTLConfig
+     * @return timestamp
+     */
+    long timestampBefore(DataTTLConfig dataTTLConfig);
 }

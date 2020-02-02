@@ -87,8 +87,22 @@ public class InfluxClient implements Client {
         }
     }
 
+    public void dropSeries(String measurement, String timeBucket) throws IOException {
+        QueryResult result = getInflux().query(new Query("DROP SERIES FROM " + measurement + " WHERE TIME_BUCKET=" + timeBucket));
+        if (result.hasError()) {
+            throw new IOException(result.getError());
+        }
+    }
+
     public List<QueryResult.Series> queryForSeries(Query query) throws IOException {
         return query(query).get(0).getSeries();
+    }
+
+    public void queryForDelete(String statement) throws IOException {
+        QueryResult result = getInflux().query(new Query(statement));
+        if (result.hasError()) {
+            throw new IOException(result.getError());
+        }
     }
 
     public void write(Point point) {

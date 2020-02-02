@@ -21,6 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -32,11 +36,6 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
@@ -53,8 +52,8 @@ public class MetricsDAO implements IMetricsDAO {
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
         WhereQueryImpl query = select().all()
-                .from(client.getDatabase(), model.getName())
-                .where(contains("id", Joiner.on("|").join(ids)));
+            .from(client.getDatabase(), model.getName())
+            .where(contains("id", Joiner.on("|").join(ids)));
         List<QueryResult.Series> series = client.queryForSeries(query);
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();
@@ -73,7 +72,7 @@ public class MetricsDAO implements IMetricsDAO {
             for (int i = 1; i < columns.size(); i++) {
                 Object value = values.get(i);
                 if (value instanceof StorageDataType) {
-                    value = ((StorageDataType) value).toStorageData();
+                    value = ((StorageDataType)value).toStorageData();
                 }
 
                 data.put(storageAndColumnNames.get(columns.get(i)), value);
@@ -91,6 +90,6 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-        return (UpdateRequest) this.prepareBatchInsert(model, metrics);
+        return (UpdateRequest)this.prepareBatchInsert(model, metrics);
     }
 }

@@ -31,6 +31,6 @@ public class MySQLInstaller extends MySQLTableInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        return TableMixInstaller.isExists(client, model);
+        return TableMixInstaller.isExists(client, model) && super.isExists(client, model);
     }
 }
