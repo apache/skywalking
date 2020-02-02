@@ -22,6 +22,7 @@ package org.apache.skywalking.apm.agent.core.context;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
 
+import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -80,7 +81,7 @@ public class ContextManagerTest {
 
     @Test
     public void createSpanWithInvalidateContextCarrier() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier();
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testEntrySpan", contextCarrier);
         firstEntrySpan.setComponent(ComponentsDefine.TOMCAT);
@@ -94,7 +95,7 @@ public class ContextManagerTest {
         assertNull(actualSegment.getRefs());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
-        assertThat(spanList.size(), is(1));
+        assertThat(Objects.requireNonNull(spanList).size(), is(1));
 
         AbstractTracingSpan actualEntrySpan = spanList.get(0);
         assertThat(actualEntrySpan.getOperationName(), is("/testEntrySpan"));
@@ -104,7 +105,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1-MS4yMzQzLjIzNDIzNDIzNA==-MS4yMzQzLjIzNDIzNDIzNA==-1-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu", ContextCarrier.HeaderVersion.v2);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -195,7 +196,7 @@ public class ContextManagerTest {
         assertNull(actualSegment.getRefs());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
-        assertThat(spanList.size(), is(2));
+        assertThat(Objects.requireNonNull(spanList).size(), is(2));
 
         AbstractTracingSpan actualFirstExitSpan = spanList.get(0);
         assertThat(actualFirstExitSpan.getOperationName(), is("/testFirstExit"));
@@ -227,7 +228,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1-MS4yMzQzLjIzNDIzNDIzNA==-MS4yMzQuMTk4MzgyOQ==-3-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu", ContextCarrier.HeaderVersion.v2);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
