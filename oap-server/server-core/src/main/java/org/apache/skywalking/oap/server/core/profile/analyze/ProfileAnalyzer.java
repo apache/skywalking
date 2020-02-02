@@ -23,11 +23,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -51,32 +46,7 @@ public class ProfileAnalyzer {
         Map<String, ProfileStackElement> stackTrees = stacks.parallelStream()
                 // stack list cannot be empty
                 .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
-                .collect(Collectors.groupingBy(s -> s.getStack().get(0), new Collector<ProfileStack, ProfileStackNode, ProfileStackElement>() {
-            @Override
-            public Supplier<ProfileStackNode> supplier() {
-                return ProfileStackNode::createEmptyNode;
-            }
-
-            @Override
-            public BiConsumer<ProfileStackNode, ProfileStack> accumulator() {
-                return (node, stack) -> node.accumulateFrom(stack);
-            }
-
-            @Override
-            public BinaryOperator<ProfileStackNode> combiner() {
-                return (node1, node2) -> node1.combine(node2);
-            }
-
-            @Override
-            public Function<ProfileStackNode, ProfileStackElement> finisher() {
-                return ProfileStackNode::buildAnalyzeResult;
-            }
-
-            @Override
-            public Set<Characteristics> characteristics() {
-                return Collections.unmodifiableSet(EnumSet.of(Characteristics.CONCURRENT, Characteristics.UNORDERED));
-            }
-        }));
+                .collect(Collectors.groupingBy(s -> s.getStack().get(0), new ProfileAnalyzeCollector()));
 
         ProfileAnalyzation analyzer = new ProfileAnalyzation();
         analyzer.setStack(new ArrayList<>(stackTrees.values()));

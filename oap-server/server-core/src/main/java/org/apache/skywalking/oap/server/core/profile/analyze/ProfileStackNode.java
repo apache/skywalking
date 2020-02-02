@@ -162,7 +162,7 @@ public class ProfileStackNode {
             Pair<ProfileStackElement, List<ProfileStackNode>> needCombineNode = stack.pop();
             ProfileStackElement combineTo = needCombineNode.key;
 
-            combineTo.setChilds(needCombineNode.value.stream().map((c) -> {
+            combineTo.setChilds(needCombineNode.value.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
                 stack.add(new Pair<>(element, c.childes));
 
@@ -235,7 +235,7 @@ public class ProfileStackNode {
      * @param element
      */
     private void calculateDurationExcludeChild(ProfileStackElement element) {
-        element.setDurationChildExcluded(element.getDuration() - childes.stream().mapToInt(t->t.duration).sum());
+        element.setDurationChildExcluded(element.getDuration() - childes.stream().mapToInt(t -> t.duration).sum());
     }
 
     private class Pair<K, V> {

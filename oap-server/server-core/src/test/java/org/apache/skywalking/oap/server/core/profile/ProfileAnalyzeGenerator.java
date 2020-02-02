@@ -24,14 +24,20 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author MrPro
  */
 public class ProfileAnalyzeGenerator {
 
-    public void generateStack() {
+    /**
+     * generate thread stacks yaml string, such as thread-snapshot.yml
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public String generateStack() throws ExecutionException, InterruptedException {
         Thread watchThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -41,24 +47,32 @@ public class ProfileAnalyzeGenerator {
                 }
             }
         });
+        watchThread.setDaemon(true);
 
-        watchThread.start();
-        printWatchThread(watchThread);
+        return printWatchThread(watchThread);
     }
 
-    public void generateAnalyzation() {
+    /**
+     * generate thread analyze result yaml string, such as thread-snapshot-verify.yml
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public String generateAnalyzation() {
         InputStream expectedInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("thread-snapshot.yml");
         ProfileStackHolder holder = new Yaml().loadAs(expectedInputStream, ProfileStackHolder.class);
 
         ProfileAnalyzation analyze = ProfileAnalyzer.analyze(holder.getList());
-        printAnalyzation(analyze);
+        return printAnalyzation(analyze);
     }
 
-    private void printAnalyzation(ProfileAnalyzation analyzation) {
-        System.out.println("stack:");
+    private String printAnalyzation(ProfileAnalyzation analyzation) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("stack:\r\n");
         for (ProfileStackElement element : analyzation.getStack()) {
-            System.out.println(printStackElement(element, 0));
+            sb.append(printStackElement(element, 0)).append("\r\n");
         }
+        return sb.toString();
     }
 
     private String printStackElement(ProfileStackElement element, int deep) {
@@ -69,12 +83,12 @@ public class ProfileAnalyzeGenerator {
         String prefix = sb.toString();
 
         sb = new StringBuilder();
-        sb.append(prefix).append("- codeSignature: ").append(element.getCodeSignature()).append("\n");
-        sb.append(prefix).append("  duration: ").append(element.getDuration()).append("\n");
-        sb.append(prefix).append("  durationChildExcluded: ").append(element.getDurationChildExcluded()).append("\n");
-        sb.append(prefix).append("  count: ").append(element.getCount()).append("\n");
+        sb.append(prefix).append("- codeSignature: ").append(element.getCodeSignature()).append("\r\n");
+        sb.append(prefix).append("  duration: ").append(element.getDuration()).append("\r\n");
+        sb.append(prefix).append("  durationChildExcluded: ").append(element.getDurationChildExcluded()).append("\r\n");
+        sb.append(prefix).append("  count: ").append(element.getCount()).append("\r\n");
         if (!CollectionUtils.isEmpty(element.getChilds())) {
-            sb.append(prefix).append("  childs: \n");
+            sb.append(prefix).append("  childs: \r\n");
             for (ProfileStackElement child : element.getChilds()) {
                 sb.append(printStackElement(child, deep + 1));
             }
@@ -83,13 +97,22 @@ public class ProfileAnalyzeGenerator {
         return sb.toString();
     }
 
-    private void printWatchThread(Thread thread) {
-        new Thread(new Runnable() {
+    private String printWatchThread(Thread thread) throws ExecutionException, InterruptedException {
+        thread.start();
+        Future<String> result = Executors.newSingleThreadExecutor(new ThreadFactory() {
             @Override
-            public void run() {
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                return t;
+            }
+        }).submit(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("list:\r\n");
                 int seq = 0;
                 long currentLoopStartTime = -1;
-                System.out.println("list:");
                 while (thread.isAlive()) {
                     currentLoopStartTime = System.currentTimeMillis();
                     StackTraceElement[] stackElements = thread.getStackTrace();
@@ -97,12 +120,11 @@ public class ProfileAnalyzeGenerator {
                         break;
                     }
 
-                    StringBuilder stringBuilder = new StringBuilder();
-                    stringBuilder.append("- dumpTime: ").append(System.currentTimeMillis()).append("\n");
-                    stringBuilder.append("  sequence: ").append(seq++).append("\n");
-                    stringBuilder.append("  stack:").append("\n");
+                    stringBuilder.append("- dumpTime: ").append(System.currentTimeMillis()).append("\r\n");
+                    stringBuilder.append("  sequence: ").append(seq++).append("\r\n");
+                    stringBuilder.append("  stack:").append("\r\n");
                     for (int i = stackElements.length - 1; i >= 0; i--) {
-                        stringBuilder.append("\t").append("  - ").append(stackElements[i].getClassName()).append(".").append(stackElements[i].getMethodName()).append(":").append(stackElements[i].getLineNumber()).append("\n");
+                        stringBuilder.append("\t").append("  - ").append(stackElements[i].getClassName()).append(".").append(stackElements[i].getMethodName()).append(":").append(stackElements[i].getLineNumber()).append("\r\n");
                     }
 
                     long needToSleep = (currentLoopStartTime + 10) - System.currentTimeMillis();
@@ -111,11 +133,12 @@ public class ProfileAnalyzeGenerator {
                         Thread.sleep(needToSleep);
                     } catch (InterruptedException e) {
                     }
-                    System.out.print(stringBuilder.toString());
                 }
-
+                return stringBuilder.toString();
             }
-        }).start();
+        });
+
+        return result.get();
     }
 
     private static void methodA() throws InterruptedException {
@@ -129,8 +152,8 @@ public class ProfileAnalyzeGenerator {
         TimeUnit.MILLISECONDS.sleep(20);
     }
 
-    public static void main(String[] args) {
-        new ProfileAnalyzeGenerator().generateStack();
-    }
+//    public static void main(String[] args) throws ExecutionException, InterruptedException {
+//        String stackYaml = new ProfileAnalyzeGenerator().generateStack();
+//    }
 
 }
