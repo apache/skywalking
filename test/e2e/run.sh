@@ -55,7 +55,7 @@ done
 
 [[ ${build} -eq 1 ]] \
   && echo 'Building distribution package...' \
-  && ./mvnw --activate-profiles "${profiles}" -q -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -DskipTests -am clean install
+  && ./mvnw --batch-mode --activate-profiles "${profiles}" -q -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -DskipTests -am clean install
 
 echo "Running cases: $(IFS=$' '; echo "${cases[*]}")"
 
@@ -69,7 +69,7 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/${DIST_PACKAGE} -C "$test_case"
 
-  ./mvnw -Dbuild.id="${BUILD_ID:-local}" \
+  ./mvnw --batch-mode -Dbuild.id="${BUILD_ID:-local}" \
          -De2e.container.version="${E2E_VERSION}" \
          -Delasticsearch.version="${ES_VERSION}" \
          -Dsw.home="${base_dir}/$test_case/${DIST_PACKAGE//.tar.gz/}" \

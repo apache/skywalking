@@ -327,7 +327,7 @@ public class SampleVerificationITCase {
             new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
-        tracesMatcher.verify(traces);
+        tracesMatcher.verifyLoosely(traces);
     }
 
     private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
