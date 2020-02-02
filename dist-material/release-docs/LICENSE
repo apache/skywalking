@@ -341,6 +341,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
+    influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
 
 ========================================================================
 MIT licenses
