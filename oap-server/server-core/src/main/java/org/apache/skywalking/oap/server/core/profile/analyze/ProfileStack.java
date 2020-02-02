@@ -43,7 +43,7 @@ public class ProfileStack implements Comparable<ProfileStack> {
         try {
             threadStack = ThreadStack.parseFrom(record.getStackBinary());
         } catch (InvalidProtocolBufferException e) {
-            new IllegalArgumentException("wrong stack data");
+            throw new IllegalArgumentException("wrong stack data");
         }
 
         // build data

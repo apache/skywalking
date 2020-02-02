@@ -40,12 +40,12 @@ public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileS
 
     @Override
     public BiConsumer<ProfileStackNode, ProfileStack> accumulator() {
-        return (node, stack) -> node.accumulateFrom(stack);
+        return ProfileStackNode::accumulateFrom;
     }
 
     @Override
     public BinaryOperator<ProfileStackNode> combiner() {
-        return (node1, node2) -> node1.combine(node2);
+        return ProfileStackNode::combine;
     }
 
     @Override

@@ -21,10 +21,7 @@ package org.apache.skywalking.oap.server.core.profile.analyze;
 import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,7 +36,7 @@ public class ProfileStackNode {
     // owner list
     private List<ProfileStack> owners;
     // children nodes
-    private List<ProfileStackNode> childes;
+    private List<ProfileStackNode> children;
     // include the execution time of children
     private int duration;
 
@@ -50,7 +47,7 @@ public class ProfileStackNode {
     public static ProfileStackNode createEmptyNode() {
         ProfileStackNode emptyNode = new ProfileStackNode();
         emptyNode.owners = new LinkedList<>();
-        emptyNode.childes = new LinkedList<>();
+        emptyNode.children = new LinkedList<>();
         return emptyNode;
     }
 
@@ -73,7 +70,7 @@ public class ProfileStackNode {
 
             // find same code signature children
             ProfileStackNode childElement = null;
-            for (ProfileStackNode child : parent.childes) {
+            for (ProfileStackNode child : parent.children) {
                 if (Objects.equal(child.codeSignature, elementCodeSign)) {
                     childElement = child;
                     break;
@@ -90,7 +87,7 @@ public class ProfileStackNode {
                 childNode.codeSignature = elementCodeSign;
                 childNode.increase(stack);
 
-                parent.childes.add(childNode);
+                parent.children.add(childNode);
                 parent = childNode;
             }
         }
@@ -107,7 +104,7 @@ public class ProfileStackNode {
 
         // merge tree using pre order
         LinkedList<Pair<ProfileStackNode, List<ProfileStackNode>>> stack = new LinkedList<>();
-        stack.add(new Pair<>(this, node.childes));
+        stack.add(new Pair<>(this, node.children));
         while (!stack.isEmpty()) {
             Pair<ProfileStackNode, List<ProfileStackNode>> needCombineNode = stack.pop();
             ProfileStackNode combineTo = needCombineNode.key;
@@ -116,28 +113,20 @@ public class ProfileStackNode {
             for (ProfileStackNode needCombineChildren : needCombineNode.value) {
                 boolean sameReference = false;
                 // find node
-                ProfileStackNode combinedNode = null;
-                for (ProfileStackNode combineNodeChildren : combineTo.childes) {
-                    // same code signature
-                    if (Objects.equal(needCombineChildren.codeSignature, combineNodeChildren.codeSignature)) {
-                        // if same reference, dont need to combine anymore
-                        if (needCombineChildren == combineNodeChildren) {
-                            sameReference = true;
-                        } else {
-                            combineNodeChildren.combineThisNode(needCombineChildren);
-                        }
-                        combinedNode = combineNodeChildren;
-                        break;
-                    }
-                }
+                ProfileStackNode combinedNode = combineTo.children.stream().filter(n -> needCombineChildren.matches(n)).findFirst().orElse(null);
 
                 if (combinedNode == null) {
-                    combineTo.childes.add(needCombineChildren);
+                    combineTo.children.add(needCombineChildren);
                     combinedNode = needCombineChildren;
+                } else if (needCombineChildren != combinedNode){
+                    combinedNode.combineThisNode(needCombineChildren);
+                } else {
+                    // if same reference, dont need to combine anymore
+                    sameReference = true;
                 }
 
                 if (!sameReference) {
-                    stack.add(new Pair(combinedNode, needCombineChildren.childes));
+                    stack.add(new Pair<>(combinedNode, needCombineChildren.children));
                 }
             }
         }
@@ -157,14 +146,14 @@ public class ProfileStackNode {
 
         // using pre order, build element tree
         LinkedList<Pair<ProfileStackElement, List<ProfileStackNode>>> stack = new LinkedList<>();
-        stack.add(new Pair<>(root, this.childes));
+        stack.add(new Pair<>(root, this.children));
         while (!stack.isEmpty()) {
             Pair<ProfileStackElement, List<ProfileStackNode>> needCombineNode = stack.pop();
             ProfileStackElement combineTo = needCombineNode.key;
 
             combineTo.setChilds(needCombineNode.value.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
-                stack.add(new Pair<>(element, c.childes));
+                stack.add(new Pair<>(element, c.children));
 
                 allNodes.add(new Pair<>(c, element));
 
@@ -235,10 +224,14 @@ public class ProfileStackNode {
      * @param element
      */
     private void calculateDurationExcludeChild(ProfileStackElement element) {
-        element.setDurationChildExcluded(element.getDuration() - childes.stream().mapToInt(t -> t.duration).sum());
+        element.setDurationChildExcluded(element.getDuration() - children.stream().mapToInt(t -> t.duration).sum());
     }
 
-    private class Pair<K, V> {
+    private boolean matches(ProfileStackNode node) {
+        return Objects.equal(this.codeSignature, node.codeSignature);
+    }
+
+    private static class Pair<K, V> {
         private final K key;
         private final V value;
 

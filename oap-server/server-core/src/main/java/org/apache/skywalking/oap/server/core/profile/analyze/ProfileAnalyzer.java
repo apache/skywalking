@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
  */
 public class ProfileAnalyzer {
 
+    private static final ProfileAnalyzeCollector ANALYZE_COLLECTOR = new ProfileAnalyzeCollector();
+
     /**
      * Analyze records
      * @param stacks
@@ -47,7 +49,7 @@ public class ProfileAnalyzer {
         Map<String, ProfileStackElement> stackTrees = stacks.parallelStream()
                 // stack list cannot be empty
                 .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
-                .collect(Collectors.groupingBy(s -> s.getStack().get(0), new ProfileAnalyzeCollector()));
+                .collect(Collectors.groupingBy(s -> s.getStack().get(0), ANALYZE_COLLECTOR));
 
         ProfileAnalyzation analyzer = new ProfileAnalyzation();
         analyzer.setStack(new ArrayList<>(stackTrees.values()));
