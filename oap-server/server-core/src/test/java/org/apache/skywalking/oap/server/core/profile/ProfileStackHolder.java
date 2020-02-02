@@ -24,9 +24,6 @@ import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
 
 import java.util.List;
 
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 public class ProfileStackHolder {

@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 /**
- * @author MrPro
+ * Work for {@link ProfileAnalyzer} to analyze.
  */
 public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileStackNode, ProfileStackElement> {
     @Override

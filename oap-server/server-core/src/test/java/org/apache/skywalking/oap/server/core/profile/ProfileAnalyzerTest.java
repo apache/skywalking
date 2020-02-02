@@ -30,9 +30,6 @@ import java.io.InputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- * @author MrPro
- */
 public class ProfileAnalyzerTest {
 
     @Test

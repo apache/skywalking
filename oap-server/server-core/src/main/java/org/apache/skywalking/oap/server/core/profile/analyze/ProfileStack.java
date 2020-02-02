@@ -28,8 +28,6 @@ import java.util.List;
 
 /**
  * Deserialize from {@link ProfileTaskSegmentSnapshotRecord}
- *
- * @author MrPro
  */
 @Data
 public class ProfileStack implements Comparable<ProfileStack> {

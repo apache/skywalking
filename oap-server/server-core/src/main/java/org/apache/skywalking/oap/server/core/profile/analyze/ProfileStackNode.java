@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 
 /**
  * Work for profiling stacks, intermediate state of the {@link ProfileStackElement} and {@link ProfileStack}
- *
- * @author MrPro
  */
 public class ProfileStackNode {
 
