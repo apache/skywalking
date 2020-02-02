@@ -142,6 +142,9 @@ miss any newly-added dependency:
 - Check the LICENSE's and NOTICE's of those dependencies, if they can be included in an ASF project, add them in the `apm-dist/release-docs/{LICENSE,NOTICE}` file.
 - Add those dependencies' names to the `tools/dependencies/known-oap-backend-dependencies.txt` file (**alphabetical order**), the next run of `check-LICENSE.sh` should pass. 
 
+## Profile
+[Profile Guide](backend-profile.md) introduces this function and implementation details.
+
 ## For release
 [Apache Release Guide](How-to-release.md) introduces to the committer team about doing official Apache version release, to avoid 
 breaking any Apache rule. Apache license allows everyone to redistribute if you keep our licenses and NOTICE
