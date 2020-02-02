@@ -1,6 +1,5 @@
-# Profile
-The profile is a sniffer line level analysis tool. Add the endpoint of the need profile in the UI interface, and the sniffer will perform the thread stack dump within the specified time. Finally, the existing stack data can be analyzed in the UI interface.
-1. [Thread analyst](#thread-analyst). They introduce how to analyze all thread dump and combine them to one stack tree.
+# Thread dump merging mechanism
+The performance profile is an enhancement feature in the APM system. We are using the thread dump to estimate the method execution time, rather than adding many local spans. In this way, the resource cost would be much less than using distributed tracing to locate slow method. This feature is suitable in the production environment. This document introduces how thread dumps are merged into the final report as a stack tree(s).
 
 ## Thread analyst
 ### Read data and transform
@@ -34,12 +33,12 @@ st(right)->op1->sup(right)->acc
 acc(right)->com(right)->fin->e
 ```
 Copy code and paste it into this [link](http://flowchart.js.org/) to generate flow chart.
-- **Supplier**: Generate multiple top-level empty tree nodes in preparation for the following steps.
-- **Accumulator**: Add each data to the tree.
-    1. Traverse each layer in the stack, add related child nodes and add nodes when the node does not exist.
-    2. Save the dump time and sequence in the current stack to this node.
-- **Combine**: Combine all tree structures generated in the first step into one.
-- **Finisher**: Calculate relevant statistics and generate GraphQL data.
+- **Supplier**: Generate multiple top-level empty trees for preparation of the following steps.
+- **Accumulator**: Add every thread dump into the generated trees.
+    1. Merge the thread dump when the code signature and stack depth are equal.
+    2. Keep the dump sequences and timestamps in each nodes from the source.
+- **Combiner**: Combine all trees structures into one by using the rules as same as `Accumulator`.
+- **Finisher**: Calculate relevant statistics and generate response.
     1. Convert to a GraphQL data structure, and put all nodes merged in the Combiner into a list for subsequent calculations.
-    2. Calculate each node's duration in parallel: sort all the snapshots in the node according to sequence, and summarize them according to each time pane.
-    3. Calculate the execution time of children of each node in parallel: the duration of the current node minus the time consumed by all children.
+    2. Calculate each node's duration in parallel. For each node, sort the sequences, if there are two continuous sequences, the duration should add the duration of these two seq's timestamp.
+    3. Calculate each node execution in parallel. For each node, the duration of the current node should minus the time consumed by all children.
