@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -63,7 +62,7 @@ public class PointBuilder {
                 fields.put(column.getColumnName().getStorageName(), value);
             }
         }
-        long timeBucket = (long) fields.remove(Metrics.TIME_BUCKET);
+        long timeBucket = (long)fields.remove(Metrics.TIME_BUCKET);
         return builder.fields(fields)
             .addField("id", metrics.id())
             .tag(Metrics.TIME_BUCKET, String.valueOf(timeBucket))
@@ -71,7 +70,8 @@ public class PointBuilder {
             .build();
     }
 
-    public static Point fromRecord(Model model, Map<String, Object> objectMap, StorageData storageData) throws IOException {
+    public static Point fromRecord(Model model, Map<String, Object> objectMap,
+        StorageData storageData) throws IOException {
         Map<String, Object> fields = Maps.newHashMap();
         Object entityId = objectMap.get(Metrics.ENTITY_ID);
 
@@ -105,20 +105,11 @@ public class PointBuilder {
         if (Objects.nonNull(entityId)) {
             builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(entityId));
         }
-        long timeBucket = (long) fields.remove(Record.TIME_BUCKET);
+        long timeBucket = (long)fields.remove(Record.TIME_BUCKET);
         return builder.addField("id", storageData.id())
             .addField(Record.TIME_BUCKET, timeBucket)
             .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
             .build();
     }
 
-//    public static final Point.Builder fromSegmentRecord(Model model, Map<String, Object> record) {
-//        return Point.measurement(model.getName())
-//            .fields(record);
-//    }
-//
-//    public static final Point.Builder fromLogRecord(Model model, Map<String, Object> record) {
-//        return Point.measurement(model.getName())
-//            .fields(record);
-//    }
 }
