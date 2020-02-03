@@ -206,7 +206,7 @@ public class ProfileStackNode {
             // is continuity
             if (currentTimeWindowEndTack.getSequence() + 1 != currentStack.getSequence()) {
                 duration += currentTimeWindowEndTack.getDumpTime() - currentTimeWindowStartStack.getDumpTime();
-                currentTimeWindowStartStack = currentTimeWindowEndTack;
+                currentTimeWindowStartStack = currentStack;
             }
 
             currentTimeWindowEndTack = currentStack;

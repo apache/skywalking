@@ -13,71 +13,163 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# verify: read to analyze stack info
+#   limit: per stack snapshot dump limit
+#   stack: per data means one snapshot, stack elements split by "-"
+# except: need verify data analyze result
+#   info: follow this pattern: codeSignature(duration:durationExcludeChild)
+#   children: all children nodes
+
 list:
-  - dumpTime: 1580631602493
-    sequence: 0
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:106
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602502
-    sequence: 1
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:106
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602515
-    sequence: 2
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:106
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602525
-    sequence: 3
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:108
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodB:113
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602536
-    sequence: 4
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:108
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodB:113
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602548
-    sequence: 5
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:108
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodB:113
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
-  - dumpTime: 1580631602558
-    sequence: 6
-    stack:
-      - java.lang.Thread.run:745
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator$2.run:58
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodA:108
-      - org.apache.skywalking.oap.server.core.profile.ProfileAnalyzeGenerator.methodB:113
-      - java.util.concurrent.TimeUnit.sleep:386
-      - java.lang.Thread.sleep:340
-      - java.lang.Thread.sleep:-2
+  # case 1
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C
+        - A-B
+        - A-B-C-D
+    except:
+      - code: A
+        count: 3
+        duration: 20:0
+        children:
+          - code: B
+            count: 3
+            duration: 20:20
+            children:
+              - code: C
+                count: 2
+                duration: 0:0
+                children:
+                  - code: D
+                    count: 1
+                    duration: 0:0
+
+  # case 2
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C
+        - B-C-D
+    except:
+      - code: A
+        count: 1
+        duration: 0:0
+        children:
+          - code: B
+            count: 1
+            duration: 0:0
+            children:
+              - code: C
+                count: 1
+                duration: 0:0
+      - code: B
+        count: 1
+        duration: 0:0
+        children:
+          - code: C
+            count: 1
+            duration: 0:0
+            children:
+              - code: D
+                count: 1
+                duration: 0:0
+
+  # case 3
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C-D
+        - A-B
+        - A-B-C
+        - A-B
+        - A-B-C-D
+    except:
+      - code: A
+        count: 5
+        duration: 40:0
+        children:
+          - code: B
+            count: 5
+            duration: 40:40
+            children:
+              - code: C
+                count: 3
+                duration: 0:0
+                children:
+                  - code: D
+                    count: 2
+                    duration: 0:0
+
+  # case 4:
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C
+        - A-B-C-A
+        - A-C-A
+        - A-B-C-B
+    except:
+      - code: A
+        count: 4
+        duration: 30:20
+        children:
+          - code: B
+            count: 3
+            duration: 10:0
+            children:
+              - code: C
+                count: 3
+                duration: 10:10
+                children:
+                  - code: A
+                    count: 1
+                    duration: 0:0
+                  - code: B
+                    count: 1
+                    duration: 0:0
+          - code: C
+            count: 1
+            duration: 0:0
+            children:
+              - code: A
+                count: 1
+                duration: 0:0
+
+  # case 5:
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C
+        - A-B-B-C
+        - A-B-B-B
+        - A-C-B
+    except:
+      - code: A
+        count: 4
+        duration: 30:10
+        children:
+          - code: B
+            count: 3
+            duration: 20:10
+            children:
+              - code: C
+                count: 1
+                duration: 0:0
+              - code: B
+                count: 2
+                duration: 10:10
+                children:
+                  - code: C
+                    count: 1
+                    duration: 0:0
+                  - code: B
+                    count: 1
+                    duration: 0:0
+          - code: C
+            count: 1
+            duration: 0:0
+            children:
+              - code: B
+                count: 1
+                duration: 0:0
