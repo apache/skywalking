@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.ti;
 
 public class InfluxClient implements Client {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private InfluxStorageConfig config;
     private InfluxDB influx;
 
@@ -61,8 +61,6 @@ public class InfluxClient implements Client {
             new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
         influx.query(new Query("CREATE DATABASE " + database));
 
-        // TODO need to configure RPs
-
         influx.setDatabase(database);
         influx.enableBatch();
     }
@@ -72,10 +70,10 @@ public class InfluxClient implements Client {
     }
 
     public List<QueryResult.Result> query(Query query) throws IOException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL Statement: {}", query.getCommand());
+        if (logger.isDebugEnabled()) {
+            logger.debug("SQL Statement: {}", query.getCommand());
         }
-        LOG.info("SQL Statement: {}", query.getCommand());
+
         try {
             QueryResult result = getInflux().query(query);
             if (result.hasError()) {
@@ -88,10 +86,14 @@ public class InfluxClient implements Client {
     }
 
     public void dropSeries(String measurement, String timeBucket) throws IOException {
-        QueryResult result = getInflux().query(
-            new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'"));
+        Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'");
+        QueryResult result = getInflux().query(query);
+        if (logger.isDebugEnabled()) {
+            logger.debug("TTL execution log, statement: {}, result: {}", query.getCommand(), result);
+        }
+
         if (result.hasError()) {
-            throw new IOException(result.getError());
+            throw new IOException("Statement: " + query.getCommand() + ", ErrorMsg: " + result.getError());
         }
     }
 
@@ -102,7 +104,7 @@ public class InfluxClient implements Client {
     public void queryForDelete(String statement) throws IOException {
         QueryResult result = getInflux().query(new Query(statement));
         if (result.hasError()) {
-            throw new IOException(result.getError());
+            throw new IOException("Statement: " + statement + ", ErrorMsg: " + result.getError());
         }
     }
 

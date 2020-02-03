@@ -218,15 +218,12 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (series == null || series.isEmpty()) {
             return intValues;
         }
-
         series.get(0).getValues().forEach(values -> {
             IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
             multipleValues.toObject((String) values.get(2));
 
-
-
             final String id = (String) values.get(1);
-            for (int i = 0; i < indName.length(); i++) {
+            for (int i = 0; i < intValues.length; i++) {
                 Integer index = linearIndex.get(i);
                 KVInt kv = new KVInt();
                 kv.setId(id);
