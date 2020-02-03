@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -103,24 +104,33 @@ public class ProfileStackNode {
         stack.add(new Pair<>(this, node));
         while (!stack.isEmpty()) {
             Pair<ProfileStackNode, ProfileStackNode> needCombineNode = stack.pop();
-            ProfileStackNode combineTo = needCombineNode.key;
 
             // merge value children to key
-            for (ProfileStackNode needCombineChildren : needCombineNode.value.children) {
-                // find node
-                ProfileStackNode combinedNode = combineTo.children.stream().filter(n -> needCombineChildren.matches(n)).findFirst().orElse(null);
-
-                if (combinedNode == null) {
-                    combineTo.children.add(needCombineChildren);
-                } else {
-                    combinedNode.combineDetectedStacks(needCombineChildren);
-                    stack.add(new Pair<>(combinedNode, needCombineChildren));
-                }
-
-            }
+            // add to stack if need to keep traversal
+            combineChildrenNodes(needCombineNode.key, needCombineNode.value, stack::add);
         }
 
         return this;
+    }
+
+    /**
+     * merge all children nodes to appoint node
+     * @param mergeTo
+     * @param combineNode
+     * @param needKeepEach if keep traversal, need report
+     */
+    private void combineChildrenNodes(ProfileStackNode mergeTo, ProfileStackNode combineNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> needKeepEach) {
+        for (ProfileStackNode childrenNode : combineNode.children) {
+            // find node from mergeTo children
+            ProfileStackNode combinedNode = mergeTo.children.stream().filter(n -> childrenNode.matches(n)).findFirst().orElse(null);
+
+            if (combinedNode == null) {
+                mergeTo.children.add(childrenNode);
+            } else {
+                combinedNode.combineDetectedStacks(childrenNode);
+                needKeepEach.accept(new Pair<>(combinedNode, childrenNode));
+            }
+        }
     }
 
     /**
@@ -128,10 +138,10 @@ public class ProfileStackNode {
      * @return
      */
     public ProfileStackElement buildAnalyzeResult() {
-        // all nodes add to one list, work for parallel calculating
-        LinkedList<Pair<ProfileStackNode, ProfileStackElement>> allNodes = new LinkedList<>();
+        // all nodes add to single-level list (such as flat), work for parallel calculating
+        LinkedList<Pair<ProfileStackElement, ProfileStackNode>> nodeMapping = new LinkedList<>();
         ProfileStackElement root = buildElement();
-        allNodes.add(new Pair<>(this, root));
+        nodeMapping.add(new Pair<>(root, this));
 
         // same with combine logic
         LinkedList<Pair<ProfileStackElement, ProfileStackNode>> stack = new LinkedList<>();
@@ -140,19 +150,20 @@ public class ProfileStackNode {
             Pair<ProfileStackElement, ProfileStackNode> needCombineNode = stack.pop();
             ProfileStackElement combineTo = needCombineNode.key;
 
+            // generate children node and add to stack and all node mapping
             combineTo.setChilds(needCombineNode.value.children.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
-                stack.add(new Pair<>(element, c));
-
-                allNodes.add(new Pair<>(c, element));
+                Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, c);
+                stack.add(pair);
+                nodeMapping.add(pair);
 
                 return element;
             }).collect(Collectors.toList()));
         }
 
         // calculate durations
-        allNodes.parallelStream().forEach(t -> t.key.calculateDuration(t.value));
-        allNodes.parallelStream().forEach(t -> t.key.calculateDurationExcludeChild(t.value));
+        nodeMapping.parallelStream().forEach(t -> t.value.calculateDuration(t.key));
+        nodeMapping.parallelStream().forEach(t -> t.value.calculateDurationExcludeChild(t.key));
 
         return root;
     }
