@@ -96,19 +96,17 @@ public class ProfileStackNode {
         // combine this node
         this.combineDetectedStacks(node);
 
-        // merge tree using pre order
+        // merge tree using LDR to traversal tree node
         // using stack to avoid recursion
-        // pair:
-        //      key: parent node need to merge,
-        //      value: children nodes merge to pair key.
-        LinkedList<Pair<ProfileStackNode, List<ProfileStackNode>>> stack = new LinkedList<>();
-        stack.add(new Pair<>(this, node.children));
+        // merge key.children <- value.children
+        LinkedList<Pair<ProfileStackNode, ProfileStackNode>> stack = new LinkedList<>();
+        stack.add(new Pair<>(this, node));
         while (!stack.isEmpty()) {
-            Pair<ProfileStackNode, List<ProfileStackNode>> needCombineNode = stack.pop();
+            Pair<ProfileStackNode, ProfileStackNode> needCombineNode = stack.pop();
             ProfileStackNode combineTo = needCombineNode.key;
 
-            // merge node
-            for (ProfileStackNode needCombineChildren : needCombineNode.value) {
+            // merge value children to key
+            for (ProfileStackNode needCombineChildren : needCombineNode.value.children) {
                 // find node
                 ProfileStackNode combinedNode = combineTo.children.stream().filter(n -> needCombineChildren.matches(n)).findFirst().orElse(null);
 
@@ -116,7 +114,7 @@ public class ProfileStackNode {
                     combineTo.children.add(needCombineChildren);
                 } else {
                     combinedNode.combineDetectedStacks(needCombineChildren);
-                    stack.add(new Pair<>(combinedNode, needCombineChildren.children));
+                    stack.add(new Pair<>(combinedNode, needCombineChildren));
                 }
 
             }
@@ -135,16 +133,16 @@ public class ProfileStackNode {
         ProfileStackElement root = buildElement();
         allNodes.add(new Pair<>(this, root));
 
-        // using pre order, build element tree
-        LinkedList<Pair<ProfileStackElement, List<ProfileStackNode>>> stack = new LinkedList<>();
-        stack.add(new Pair<>(root, this.children));
+        // same with combine logic
+        LinkedList<Pair<ProfileStackElement, ProfileStackNode>> stack = new LinkedList<>();
+        stack.add(new Pair<>(root, this));
         while (!stack.isEmpty()) {
-            Pair<ProfileStackElement, List<ProfileStackNode>> needCombineNode = stack.pop();
+            Pair<ProfileStackElement, ProfileStackNode> needCombineNode = stack.pop();
             ProfileStackElement combineTo = needCombineNode.key;
 
-            combineTo.setChilds(needCombineNode.value.stream().map(c -> {
+            combineTo.setChilds(needCombineNode.value.children.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
-                stack.add(new Pair<>(element, c.children));
+                stack.add(new Pair<>(element, c));
 
                 allNodes.add(new Pair<>(c, element));
 
