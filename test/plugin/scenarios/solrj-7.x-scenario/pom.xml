@@ -35,7 +35,6 @@
         <docker.image.version>${test.framework.version}</docker.image.version>
 
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
-        <lombok.version>1.16.20</lombok.version>
         <log4j.version>2.6.2</log4j.version>
     </properties>
 
