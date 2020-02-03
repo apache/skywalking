@@ -30,15 +30,15 @@ import static org.junit.Assert.assertEquals;
 public class ProfileStackAnalyze {
 
     private ProfileStackData data;
-    private List<ProfileStackElementMatcher> except;
+    private List<ProfileStackElementMatcher> expected;
 
     public void analyzeAndAssert() {
         List<ProfileStack> stacks = data.transform();
         ProfileAnalyzation analyze = ProfileAnalyzer.analyze(stacks);
 
-        assertEquals(analyze.getStack().size(), except.size());
+        assertEquals(analyze.getStack().size(), expected.size());
         for (int i = 0; i < analyze.getStack().size(); i++) {
-            except.get(i).verify(analyze.getStack().get(i));
+            expected.get(i).verify(analyze.getStack().get(i));
         }
     }
 

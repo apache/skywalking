@@ -16,7 +16,7 @@
 # verify: read to analyze stack info
 #   limit: per stack snapshot dump limit
 #   stack: per data means one snapshot, stack elements split by "-"
-# except: need verify data analyze result
+# expected: need verify data analyze result
 #   info: follow this pattern: codeSignature(duration:durationExcludeChild)
 #   children: all children nodes
 
@@ -28,7 +28,7 @@ list:
         - A-B-C
         - A-B
         - A-B-C-D
-    except:
+    expected:
       - code: A
         count: 3
         duration: 20:0
@@ -51,7 +51,7 @@ list:
       snapshots:
         - A-B-C
         - B-C-D
-    except:
+    expected:
       - code: A
         count: 1
         duration: 0:0
@@ -84,7 +84,7 @@ list:
         - A-B-C
         - A-B
         - A-B-C-D
-    except:
+    expected:
       - code: A
         count: 5
         duration: 40:0
@@ -109,7 +109,7 @@ list:
         - A-B-C-A
         - A-C-A
         - A-B-C-B
-    except:
+    expected:
       - code: A
         count: 4
         duration: 30:20
@@ -144,7 +144,7 @@ list:
         - A-B-B-C
         - A-B-B-B
         - A-C-B
-    except:
+    expected:
       - code: A
         count: 4
         duration: 30:10
