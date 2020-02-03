@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.junit.Assert;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +60,11 @@ public class ProfileStackElementMatcher {
             element.setChilds(Collections.emptyList());
         }
         assertEquals(children.size(), element.getChilds().size());
+
+        // children code signature not sorted, need sort it, then verify
+        Collections.sort(children, Comparator.comparing(c -> c.code));
+        Collections.sort(element.getChilds(), Comparator.comparing(c -> c.getCodeSignature()));
+
         for (int i = 0; i < children.size(); i++) {
             children.get(i).verify(element.getChilds().get(i));
         }

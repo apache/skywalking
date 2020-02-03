@@ -120,17 +120,41 @@ public class ProfileStackNode {
      * @param continueChildrenMerging
      */
     private void combineChildrenNodes(ProfileStackNode targetNode, ProfileStackNode beingMergedNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
-        for (ProfileStackNode childrenNode : beingMergedNode.children) {
-            // find node from target node children
-            ProfileStackNode combinedNode = targetNode.children.stream().filter(n -> childrenNode.matches(n)).findFirst().orElse(null);
+        if (beingMergedNode.children.isEmpty()) {
+            return;
+        }
 
-            if (combinedNode == null) {
-                targetNode.children.add(childrenNode);
-            } else {
-                combinedNode.combineDetectedStacks(childrenNode);
-                continueChildrenMerging.accept(new Pair<>(combinedNode, childrenNode));
+        for (ProfileStackNode childrenNode : targetNode.children) {
+            // find node from being merged node children
+            for (ListIterator<ProfileStackNode> it = beingMergedNode.children.listIterator(); it.hasNext();) {
+                ProfileStackNode node = it.next();
+                if (node != null && node.matches(childrenNode)) {
+                    childrenNode.combineDetectedStacks(node);
+                    continueChildrenMerging.accept(new Pair<>(childrenNode, node));
+
+                    it.set(null);
+                    break;
+                }
             }
         }
+
+        // targetNode.children add to beingMergedNode.children, merge children to single list
+        int searchingIndex = 0;
+        int beingMergeChildrenCount = beingMergedNode.children.size();
+        for (int nodeInx = 0; nodeInx < targetNode.children.size(); ) {
+            if (searchingIndex >= beingMergeChildrenCount) {
+                beingMergedNode.children.addAll(targetNode.children.subList(nodeInx, targetNode.children.size()));
+                break;
+            }
+            for (; searchingIndex < beingMergeChildrenCount; searchingIndex++) {
+                if (beingMergedNode.children.get(searchingIndex) == null) {
+                    beingMergedNode.children.set(searchingIndex, targetNode.children.get(nodeInx));
+                    nodeInx++;
+                    break;
+                }
+            }
+        }
+        targetNode.children = beingMergedNode.children;
     }
 
     /**
