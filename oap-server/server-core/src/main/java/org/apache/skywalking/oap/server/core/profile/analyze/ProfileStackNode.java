@@ -117,9 +117,9 @@ public class ProfileStackNode {
      * merge all children nodes to appoint node
      * @param mergeTo
      * @param combineNode
-     * @param needKeepEach if keep traversal, need report
+     * @param continueChildrenMerging
      */
-    private void combineChildrenNodes(ProfileStackNode mergeTo, ProfileStackNode combineNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> needKeepEach) {
+    private void combineChildrenNodes(ProfileStackNode mergeTo, ProfileStackNode combineNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
         for (ProfileStackNode childrenNode : combineNode.children) {
             // find node from mergeTo children
             ProfileStackNode combinedNode = mergeTo.children.stream().filter(n -> childrenNode.matches(n)).findFirst().orElse(null);
@@ -128,7 +128,7 @@ public class ProfileStackNode {
                 mergeTo.children.add(childrenNode);
             } else {
                 combinedNode.combineDetectedStacks(childrenNode);
-                needKeepEach.accept(new Pair<>(combinedNode, childrenNode));
+                continueChildrenMerging.accept(new Pair<>(combinedNode, childrenNode));
             }
         }
     }
