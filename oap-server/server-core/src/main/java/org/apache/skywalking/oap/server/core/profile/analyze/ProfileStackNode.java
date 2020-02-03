@@ -97,6 +97,10 @@ public class ProfileStackNode {
         this.combineDetectedStacks(node);
 
         // merge tree using pre order
+        // using stack to avoid recursion
+        // pair:
+        //      key: parent node need to merge,
+        //      value: children nodes merge to pair key.
         LinkedList<Pair<ProfileStackNode, List<ProfileStackNode>>> stack = new LinkedList<>();
         stack.add(new Pair<>(this, node.children));
         while (!stack.isEmpty()) {
