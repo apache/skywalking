@@ -29,23 +29,19 @@ import java.util.stream.Collectors;
  */
 public class ProfileStackNode {
 
-    // stack code signature
     private String codeSignature;
-    // owner list
-    private List<ProfileStack> owners;
-    // children nodes
+    private List<ProfileStack> detectedStacks;
     private List<ProfileStackNode> children;
-    // include the execution time of children
     private int duration;
 
     /**
      * create new empty, un-init node
      * @return
      */
-    public static ProfileStackNode createEmptyNode() {
+    public static ProfileStackNode newNode() {
         ProfileStackNode emptyNode = new ProfileStackNode();
-        emptyNode.owners = new LinkedList<>();
-        emptyNode.children = new LinkedList<>();
+        emptyNode.detectedStacks = new LinkedList<>();
+        emptyNode.children = new ArrayList<>();
         return emptyNode;
     }
 
@@ -59,17 +55,17 @@ public class ProfileStackNode {
             codeSignature = stackList.get(0);
         }
         // increase self
-        this.increase(stack);
+        this.detectedBy(stack);
 
         // handle stack children
         ProfileStackNode parent = this;
-        for (int childDepth = 1; childDepth < stackList.size(); childDepth++) {
-            String elementCodeSign = stackList.get(childDepth);
+        for (int depth = 1; depth < stackList.size(); depth++) {
+            String elementCodeSignature = stackList.get(depth);
 
             // find same code signature children
             ProfileStackNode childElement = null;
             for (ProfileStackNode child : parent.children) {
-                if (Objects.equal(child.codeSignature, elementCodeSign)) {
+                if (Objects.equal(child.codeSignature, elementCodeSignature)) {
                     childElement = child;
                     break;
                 }
@@ -77,13 +73,13 @@ public class ProfileStackNode {
 
             if (childElement != null) {
                 // increase child node
-                childElement.increase(stack);
+                childElement.detectedBy(stack);
                 parent = childElement;
             } else {
                 // add children
-                ProfileStackNode childNode = createEmptyNode();
-                childNode.codeSignature = elementCodeSign;
-                childNode.increase(stack);
+                ProfileStackNode childNode = newNode();
+                childNode.codeSignature = elementCodeSignature;
+                childNode.detectedBy(stack);
 
                 parent.children.add(childNode);
                 parent = childNode;
@@ -98,7 +94,7 @@ public class ProfileStackNode {
      */
     public ProfileStackNode combine(ProfileStackNode node) {
         // combine this node
-        this.combineThisNode(node);
+        this.combineDetectedStacks(node);
 
         // merge tree using pre order
         LinkedList<Pair<ProfileStackNode, List<ProfileStackNode>>> stack = new LinkedList<>();
@@ -109,23 +105,16 @@ public class ProfileStackNode {
 
             // merge node
             for (ProfileStackNode needCombineChildren : needCombineNode.value) {
-                boolean sameReference = false;
                 // find node
                 ProfileStackNode combinedNode = combineTo.children.stream().filter(n -> needCombineChildren.matches(n)).findFirst().orElse(null);
 
                 if (combinedNode == null) {
                     combineTo.children.add(needCombineChildren);
-                    combinedNode = needCombineChildren;
-                } else if (needCombineChildren != combinedNode) {
-                    combinedNode.combineThisNode(needCombineChildren);
                 } else {
-                    // if same reference, dont need to combine anymore
-                    sameReference = true;
-                }
-
-                if (!sameReference) {
+                    combinedNode.combineDetectedStacks(needCombineChildren);
                     stack.add(new Pair<>(combinedNode, needCombineChildren.children));
                 }
+
             }
         }
 
@@ -166,19 +155,19 @@ public class ProfileStackNode {
         return root;
     }
 
-    private void increase(ProfileStack stack) {
-        this.owners.add(stack);
+    private void detectedBy(ProfileStack stack) {
+        this.detectedStacks.add(stack);
     }
 
-    private void combineThisNode(ProfileStackNode node) {
-        this.owners.addAll(node.owners);
+    private void combineDetectedStacks(ProfileStackNode node) {
+        this.detectedStacks.addAll(node.detectedStacks);
     }
 
     private ProfileStackElement buildElement() {
         ProfileStackElement element = new ProfileStackElement();
         element.setCodeSignature(this.codeSignature);
         element.setChilds(new LinkedList<>());
-        element.setCount(this.owners.size());
+        element.setCount(this.detectedStacks.size());
         return element;
     }
 
@@ -186,19 +175,19 @@ public class ProfileStackNode {
      * calculate duration to {@link ProfileStackElement#getDuration()}
      */
     private void calculateDuration(ProfileStackElement element) {
-        if (this.owners.size() <= 1) {
+        if (this.detectedStacks.size() <= 1) {
             element.setDuration(0);
             return;
         }
 
         // sort owners
-        Collections.sort(this.owners);
+        Collections.sort(this.detectedStacks);
 
         // calculate time windows duration
-        ProfileStack currentTimeWindowStartStack = owners.get(0);
-        ProfileStack currentTimeWindowEndTack = owners.get(0);
+        ProfileStack currentTimeWindowStartStack = detectedStacks.get(0);
+        ProfileStack currentTimeWindowEndTack = detectedStacks.get(0);
         long duration = 0;
-        for (ListIterator<ProfileStack> it = owners.listIterator(1); it.hasNext(); ) {
+        for (ListIterator<ProfileStack> it = detectedStacks.listIterator(1); it.hasNext(); ) {
             ProfileStack currentStack = it.next();
 
             // is continuity

@@ -35,7 +35,7 @@ import java.util.stream.Collector;
 public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileStackNode, ProfileStackElement> {
     @Override
     public Supplier<ProfileStackNode> supplier() {
-        return ProfileStackNode::createEmptyNode;
+        return ProfileStackNode::newNode;
     }
 
     @Override
