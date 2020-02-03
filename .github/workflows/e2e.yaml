@@ -40,6 +40,8 @@ jobs:
           ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: Single Node Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-single-service
+      - name: Single Node Tests(InfluxDB/JDK8)
+        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-influxdb
       - name: Single Node Tests(MySQL/JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-mysql
       - name: Single Node Tests(JDK9)

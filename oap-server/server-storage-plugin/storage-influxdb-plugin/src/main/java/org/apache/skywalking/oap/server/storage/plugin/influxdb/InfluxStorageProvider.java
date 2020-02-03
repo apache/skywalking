@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
@@ -163,6 +162,6 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[] {CoreModule.NAME};
     }
 }
