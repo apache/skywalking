@@ -138,23 +138,11 @@ public class ProfileStackNode {
             }
         }
 
-        // targetNode.children add to beingMergedNode.children, merge children to single list
-        int searchingIndex = 0;
-        int beingMergeChildrenCount = beingMergedNode.children.size();
-        for (int nodeInx = 0; nodeInx < targetNode.children.size(); ) {
-            if (searchingIndex >= beingMergeChildrenCount) {
-                beingMergedNode.children.addAll(targetNode.children.subList(nodeInx, targetNode.children.size()));
-                break;
-            }
-            for (; searchingIndex < beingMergeChildrenCount; searchingIndex++) {
-                if (beingMergedNode.children.get(searchingIndex) == null) {
-                    beingMergedNode.children.set(searchingIndex, targetNode.children.get(nodeInx));
-                    nodeInx++;
-                    break;
-                }
+        for (ProfileStackNode node : beingMergedNode.children) {
+            if (node != null) {
+                targetNode.children.add(node);
             }
         }
-        targetNode.children = beingMergedNode.children;
     }
 
     /**
