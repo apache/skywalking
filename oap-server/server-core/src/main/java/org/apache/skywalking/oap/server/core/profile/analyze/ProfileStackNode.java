@@ -55,7 +55,7 @@ public class ProfileStackNode {
         if (codeSignature == null) {
             codeSignature = stackList.get(0);
         }
-        // increase self
+        // add detected stack
         this.detectedBy(stack);
 
         // handle stack children
@@ -73,7 +73,7 @@ public class ProfileStackNode {
             }
 
             if (childElement != null) {
-                // increase child node
+                // add detected stack
                 childElement.detectedBy(stack);
                 parent = childElement;
             } else {
