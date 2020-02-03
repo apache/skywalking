@@ -139,7 +139,6 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        overrideCoreModuleTTLConfig();
         try {
             client.connect();
             influxClient.connect();
@@ -155,15 +154,6 @@ public class InfluxStorageProvider extends ModuleProvider {
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-    }
-
-    private void overrideCoreModuleTTLConfig() {
-        ConfigService configService = getManager().find(CoreModule.NAME).provider().getService(ConfigService.class);
-        configService.getDataTTLConfig().setRecordDataTTL(config.getRecordDataTTL());
-        configService.getDataTTLConfig().setMinuteMetricsDataTTL(config.getMinuteMetricsDataTTL());
-        configService.getDataTTLConfig().setHourMetricsDataTTL(config.getHourMetricsDataTTL());
-        configService.getDataTTLConfig().setDayMetricsDataTTL(config.getDayMetricsDataTTL());
-        configService.getDataTTLConfig().setMonthMetricsDataTTL(config.getMonthMetricsDataTTL());
     }
 
     @Override

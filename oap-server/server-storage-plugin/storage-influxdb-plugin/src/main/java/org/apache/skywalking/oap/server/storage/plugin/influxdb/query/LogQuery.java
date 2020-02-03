@@ -52,7 +52,7 @@ public class LogQuery implements ILogQueryDAO {
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
                           LogState state, String stateCode, Pagination paging, int from, int limit,
                           long startTB, long endTB) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query1 = select().all()
+        WhereQueryImpl<SelectQueryImpl> query1 = select("*::field")
                 .from(client.getDatabase(), metricName)
                 .where();
         if (serviceId != Const.NONE) {

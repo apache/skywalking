@@ -51,7 +51,7 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        WhereQueryImpl query = select().all()
+        WhereQueryImpl query = select("*::field")
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
         List<QueryResult.Series> series = client.queryForSeries(query);

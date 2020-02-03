@@ -38,11 +38,4 @@ public class InfluxStorageConfig extends ModuleConfig {
     private String user;
     private String password;
     private String database;
-
-    private int recordDataTTL;
-    private int minuteMetricsDataTTL;
-    private int hourMetricsDataTTL;
-    private int dayMetricsDataTTL;
-    private int monthMetricsDataTTL;
-
 }
