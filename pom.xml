@@ -186,6 +186,7 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-all.version>1.10.19</mockito-all.version>
+        <lombok.version>1.18.10</lombok.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.26.0</grpc.version>
@@ -246,6 +247,12 @@
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
