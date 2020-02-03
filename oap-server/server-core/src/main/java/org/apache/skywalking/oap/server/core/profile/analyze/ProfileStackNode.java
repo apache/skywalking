@@ -159,11 +159,11 @@ public class ProfileStackNode {
         LinkedList<Pair<ProfileStackElement, ProfileStackNode>> stack = new LinkedList<>();
         stack.add(new Pair<>(root, this));
         while (!stack.isEmpty()) {
-            Pair<ProfileStackElement, ProfileStackNode> needCombineNode = stack.pop();
-            ProfileStackElement combineTo = needCombineNode.key;
+            Pair<ProfileStackElement, ProfileStackNode> mergingPair = stack.pop();
+            ProfileStackElement respElement = mergingPair.key;
 
             // generate children node and add to stack and all node mapping
-            combineTo.setChildren(needCombineNode.value.children.stream().map(c -> {
+            respElement.setChildren(mergingPair.value.children.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
                 Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, c);
                 stack.add(pair);
