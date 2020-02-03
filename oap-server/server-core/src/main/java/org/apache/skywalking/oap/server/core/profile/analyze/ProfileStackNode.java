@@ -163,7 +163,7 @@ public class ProfileStackNode {
             ProfileStackElement combineTo = needCombineNode.key;
 
             // generate children node and add to stack and all node mapping
-            combineTo.setChilds(needCombineNode.value.children.stream().map(c -> {
+            combineTo.setChildren(needCombineNode.value.children.stream().map(c -> {
                 ProfileStackElement element = c.buildElement();
                 Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, c);
                 stack.add(pair);
@@ -191,7 +191,7 @@ public class ProfileStackNode {
     private ProfileStackElement buildElement() {
         ProfileStackElement element = new ProfileStackElement();
         element.setCodeSignature(this.codeSignature);
-        element.setChilds(new LinkedList<>());
+        element.setChildren(new LinkedList<>());
         element.setCount(this.detectedStacks.size());
         return element;
     }

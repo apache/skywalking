@@ -43,6 +43,6 @@ public class ProfileStackElement {
     private int count;
 
     // children of this stack code sign
-    private List<ProfileStackElement> childs;
+    private List<ProfileStackElement> children;
 
 }

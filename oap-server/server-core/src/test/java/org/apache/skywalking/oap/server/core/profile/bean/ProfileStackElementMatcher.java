@@ -56,17 +56,17 @@ public class ProfileStackElementMatcher {
         if (CollectionUtils.isEmpty(children)) {
             children = Collections.emptyList();
         }
-        if (CollectionUtils.isEmpty(element.getChilds())) {
-            element.setChilds(Collections.emptyList());
+        if (CollectionUtils.isEmpty(element.getChildren())) {
+            element.setChildren(Collections.emptyList());
         }
-        assertEquals(children.size(), element.getChilds().size());
+        assertEquals(children.size(), element.getChildren().size());
 
         // children code signature not sorted, need sort it, then verify
         Collections.sort(children, Comparator.comparing(c -> c.code));
-        Collections.sort(element.getChilds(), Comparator.comparing(c -> c.getCodeSignature()));
+        Collections.sort(element.getChildren(), Comparator.comparing(c -> c.getCodeSignature()));
 
         for (int i = 0; i < children.size(); i++) {
-            children.get(i).verify(element.getChilds().get(i));
+            children.get(i).verify(element.getChildren().get(i));
         }
 
     }
