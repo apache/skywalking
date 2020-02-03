@@ -115,17 +115,17 @@ public class ProfileStackNode {
 
     /**
      * merge all children nodes to appoint node
-     * @param mergeTo
-     * @param combineNode
+     * @param targetNode
+     * @param beingMergedNode
      * @param continueChildrenMerging
      */
-    private void combineChildrenNodes(ProfileStackNode mergeTo, ProfileStackNode combineNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
-        for (ProfileStackNode childrenNode : combineNode.children) {
-            // find node from mergeTo children
-            ProfileStackNode combinedNode = mergeTo.children.stream().filter(n -> childrenNode.matches(n)).findFirst().orElse(null);
+    private void combineChildrenNodes(ProfileStackNode targetNode, ProfileStackNode beingMergedNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
+        for (ProfileStackNode childrenNode : beingMergedNode.children) {
+            // find node from target node children
+            ProfileStackNode combinedNode = targetNode.children.stream().filter(n -> childrenNode.matches(n)).findFirst().orElse(null);
 
             if (combinedNode == null) {
-                mergeTo.children.add(childrenNode);
+                targetNode.children.add(childrenNode);
             } else {
                 combinedNode.combineDetectedStacks(childrenNode);
                 continueChildrenMerging.accept(new Pair<>(combinedNode, childrenNode));
