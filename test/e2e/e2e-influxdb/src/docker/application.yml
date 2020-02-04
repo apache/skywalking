@@ -119,11 +119,6 @@ storage:
     password: ${SW_STORAGE_PASSWORD:}
     database: ${SW_STORAGE_DATABASE:skywalking}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
-    recordDataTTL: ${SW_STORAGE_RECORD_DATA_TTL:7} # keeps 7 days
-    minuteMetricsDataTTL: ${SW_STORAGE_MINUTE_METRICS_DATA_TTL:64800} # Unit is minute, keeps 45 days
-    hourMetricsDataTTL: ${SW_STORAGE_HOUR_METRICS_DATA_TTL:1080} # Unit is hour, keeps 45 days
-    dayMetricsDataTTL: ${SW_STORAGE_DAY_METRICS_DATA_TTL:45} # Unit is day, keeps 45 days
-    monthMetricsDataTTL: ${SW_STORAGE_MONTH_METRICS_DATA_TTL:18} # Unit is month, keeps 18 months
 receiver-sharing-server:
   default:
 receiver-register:

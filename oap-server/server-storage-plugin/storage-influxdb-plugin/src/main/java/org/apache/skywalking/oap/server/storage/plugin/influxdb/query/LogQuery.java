@@ -19,8 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.ContentType;
+import org.apache.skywalking.oap.server.core.query.entity.Log;
+import org.apache.skywalking.oap.server.core.query.entity.LogState;
+import org.apache.skywalking.oap.server.core.query.entity.Logs;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.elasticsearch.common.Strings;
@@ -29,19 +37,23 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.ConjunctionClause;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Map;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.*;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
-
+@Slf4j
 public class LogQuery implements ILogQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxClient client;
 
     public LogQuery(InfluxClient client) {
@@ -50,11 +62,11 @@ public class LogQuery implements ILogQueryDAO {
 
     @Override
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-                          LogState state, String stateCode, Pagination paging, int from, int limit,
-                          long startTB, long endTB) throws IOException {
+        LogState state, String stateCode, Pagination paging, int from, int limit,
+        long startTB, long endTB) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query1 = select("*::field")
-                .from(client.getDatabase(), metricName)
-                .where();
+            .from(client.getDatabase(), metricName)
+            .where();
         if (serviceId != Const.NONE) {
             query1.and(eq(SERVICE_ID, serviceId));
         }
@@ -81,7 +93,7 @@ public class LogQuery implements ILogQueryDAO {
             query1.and(eq(STATUS_CODE, stateCode));
         }
         query1.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         if (from > Const.NONE) {
             limit += from;
             query1.limit(limit, from);
@@ -96,8 +108,8 @@ public class LogQuery implements ILogQueryDAO {
 
         Query query = new Query(query2.getCommand() + query1.getCommand());
         List<QueryResult.Result> results = client.query(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), results);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} \nresult set: {}", query.getCommand(), results);
         }
         if (results.size() != 2) {
             throw new IOException("We expect to get 2 Results, but it is " + results.size());
@@ -107,7 +119,7 @@ public class LogQuery implements ILogQueryDAO {
         QueryResult.Result counter = results.get(0);
         QueryResult.Result seriesList = results.get(1);
 
-        logs.setTotal(((Number) counter.getSeries().get(0).getValues().get(0).get(1)).intValue());
+        logs.setTotal(((Number)counter.getSeries().get(0).getValues().get(0).get(1)).intValue());
         seriesList.getSeries().forEach(series -> {
             final List<String> columns = series.getColumns();
 
@@ -118,17 +130,17 @@ public class LogQuery implements ILogQueryDAO {
                 for (int i = 0; i < columns.size(); i++) {
                     data.put(columns.get(i), values.get(i));
                 }
-                log.setContent((String) data.get(CONTENT));
-                log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));
+                log.setContent((String)data.get(CONTENT));
+                log.setContentType(ContentType.instanceOf((int)data.get(CONTENT_TYPE)));
 
-                log.setEndpointId((int) data.get(ENDPOINT_ID));
-                log.setTraceId((String) data.get(TRACE_ID));
-                log.setTimestamp((String) data.get(TIMESTAMP));
+                log.setEndpointId((int)data.get(ENDPOINT_ID));
+                log.setTraceId((String)data.get(TRACE_ID));
+                log.setTimestamp((String)data.get(TIMESTAMP));
 
-                log.setStatusCode((String) data.get(STATUS_CODE));
+                log.setStatusCode((String)data.get(STATUS_CODE));
 
-                log.setServiceId((int) data.get(SERVICE_ID));
-                log.setServiceInstanceId((int) data.get(SERVICE_INSTANCE_ID));
+                log.setServiceId((int)data.get(SERVICE_ID));
+                log.setServiceInstanceId((int)data.get(SERVICE_INSTANCE_ID));
 
                 logs.getLogs().add(log);
             });

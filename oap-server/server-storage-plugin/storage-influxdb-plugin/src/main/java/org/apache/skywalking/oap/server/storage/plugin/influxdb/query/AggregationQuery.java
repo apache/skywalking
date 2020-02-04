@@ -19,6 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
@@ -31,20 +36,15 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectSubQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
-
+@Slf4j
 public class AggregationQuery implements IAggregationQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final InfluxClient client;
+    private InfluxClient client;
 
     public AggregationQuery(InfluxClient client) {
         this.client = client;
@@ -52,35 +52,39 @@ public class AggregationQuery implements IAggregationQueryDAO {
 
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-                                           long startTB, long endTB, Order order) throws IOException {
+        long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
-    public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-                                                      long startTB, long endTB, Order order) throws IOException {
+    public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
+        Downsampling downsampling,
+        long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
-                                                   long startTB, long endTB, Order order) throws IOException {
+    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
+        Downsampling downsampling,
+        long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(ServiceInstanceInventory.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
     public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-                                               long startTB, long endTB, Order order) throws IOException {
+        long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
-                                            long startTB, long endTB, Order order) throws IOException {
+    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
+        Downsampling downsampling,
+        long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(EndpointInventory.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN);
     }
 
-    private final List<TopNEntity> getTopNEntity(Downsampling downsampling, String name, SelectSubQueryImpl<SelectQueryImpl> subQuery, Order order, int topN) throws IOException {
+    private List<TopNEntity> getTopNEntity(Downsampling downsampling, String name,
+        SelectSubQueryImpl<SelectQueryImpl> subQuery, Order order, int topN) throws IOException {
         String measurement = ModelName.build(downsampling, name);
         Comparator<TopNEntity> comparator = DESCENDING;
         String functionName = "top";
@@ -90,13 +94,13 @@ public class AggregationQuery implements IAggregationQueryDAO {
         }
 
         SelectQueryImpl query = select().function(functionName, "mean", topN).as("value")
-                .column(Metrics.ENTITY_ID)
-                .from(client.getDatabase(), measurement);
+            .column(Metrics.ENTITY_ID)
+            .from(client.getDatabase(), measurement);
         query.setSubQuery(subQuery);
 
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();
@@ -106,30 +110,31 @@ public class AggregationQuery implements IAggregationQueryDAO {
         List<TopNEntity> entities = Lists.newArrayListWithCapacity(dataset.size());
         dataset.forEach(values -> {
             final TopNEntity entity = new TopNEntity();
-            entity.setId((String) values.get(2));
-            entity.setValue(((Double) values.get(1)).longValue());
+            entity.setId((String)values.get(2));
+            entity.setValue(((Double)values.get(1)).longValue());
             entities.add(entity);
         });
         Collections.sort(entities, comparator);
         return entities;
     }
 
-    private final SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, int serviceId, String name, String columnName,
-                                                               long startTB, long endTB) {
+    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, int serviceId, String name,
+        String columnName,
+        long startTB, long endTB) {
         return select().fromSubQuery(client.getDatabase()).mean(columnName).from(name)
-                .where()
-                .and(eq(serviceColumnName, serviceId))
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
-                .groupBy(InfluxClient.TAG_ENTITY_ID);
+            .where()
+            .and(eq(serviceColumnName, serviceId))
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
+            .groupBy(InfluxClient.TAG_ENTITY_ID);
     }
 
-    private final SelectSubQueryImpl<SelectQueryImpl> subQuery(String name, String columnName, long startTB, long endTB) {
+    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String name, String columnName, long startTB, long endTB) {
         return select().fromSubQuery(client.getDatabase()).mean(columnName).from(name)
-                .where()
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
-                .groupBy(InfluxClient.TAG_ENTITY_ID);
+            .where()
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
+            .groupBy(InfluxClient.TAG_ENTITY_ID);
     }
 
     private static final Comparator<TopNEntity> ASCENDING = Comparator.comparingLong(TopNEntity::getValue);

@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
@@ -51,7 +52,7 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        WhereQueryImpl query = select("*::field")
+        WhereQueryImpl<SelectQueryImpl> query = select("*::field")
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
         List<QueryResult.Series> series = client.queryForSeries(query);

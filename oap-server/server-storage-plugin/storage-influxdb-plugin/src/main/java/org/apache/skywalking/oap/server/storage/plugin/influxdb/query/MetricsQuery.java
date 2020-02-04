@@ -20,6 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
@@ -40,20 +46,15 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
-
+@Slf4j
 public class MetricsQuery implements IMetricsQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxClient client;
 
     public MetricsQuery(InfluxClient client) {
@@ -62,7 +63,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
 
     @Override
     public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB,
-                               Where where, String valueCName, Function function) throws IOException {
+        Where where, String valueCName, Function function) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
         SelectionQueryImpl query = select();
@@ -98,9 +99,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
                     ids.addAll(values);
                     if (type == String.class) {
                         clauseBuilder.append(kv.getKey())
-                                .append(" =~ /")
-                                .append(Joiner.on("|").join(values))
-                                .append("/ OR ");
+                            .append(" =~ /")
+                            .append(Joiner.on("|").join(values))
+                            .append("/ OR ");
                         continue;
                     }
                     for (String value : values) {
@@ -111,14 +112,14 @@ public class MetricsQuery implements IMetricsQueryDAO {
             queryWhereQuery.where(clauseBuilder.substring(0, clauseBuilder.length() - 4));
         }
         queryWhereQuery
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB, downsampling)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB, downsampling)))
-                .groupBy(InfluxClient.TAG_ENTITY_ID);
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB, downsampling)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB, downsampling)))
+            .groupBy(InfluxClient.TAG_ENTITY_ID);
 
         IntValues intValues = new IntValues();
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", queryWhereQuery.getCommand(), seriesList);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", queryWhereQuery.getCommand(), seriesList);
         }
         if (seriesList == null || seriesList.isEmpty()) {
             return intValues;
@@ -126,7 +127,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         for (QueryResult.Series series : seriesList) {
             KVInt kv = new KVInt();
             kv.setId(series.getTags().get(Metrics.ENTITY_ID));
-            Number value = (Number) series.getValues().get(0).get(1);
+            Number value = (Number)series.getValues().get(0).get(1);
             kv.setValue(value.longValue());
 
             intValues.addKVInt(kv);
@@ -137,14 +138,14 @@ public class MetricsQuery implements IMetricsQueryDAO {
 
     @Override
     public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName)
-            throws IOException {
+        throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
         WhereQueryImpl<SelectQueryImpl> query = select()
-                .column("id")
-                .column(valueCName)
-                .from(client.getDatabase(), measurement)
-                .where();
+            .column("id")
+            .column(valueCName)
+            .from(client.getDatabase(), measurement)
+            .where();
 
         if (ids != null && !ids.isEmpty()) {
             if (ids.size() == 1) {
@@ -154,8 +155,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
             }
         }
         List<QueryResult.Series> seriesList = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), seriesList);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), seriesList);
         }
         IntValues intValues = new IntValues();
         if (seriesList == null || seriesList.isEmpty()) {
@@ -163,8 +164,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
         seriesList.get(0).getValues().forEach(values -> {
             KVInt kv = new KVInt();
-            kv.setValue((int) values.get(2));
-            kv.setId((String) values.get(1));
+            kv.setValue((int)values.get(2));
+            kv.setId((String)values.get(1));
             intValues.addKVInt(kv);
         });
         return orderWithDefault0(intValues, ids);
@@ -195,10 +196,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
         String measurement = ModelName.build(downsampling, indName);
 
         WhereQueryImpl<SelectQueryImpl> query = select()
-                .column("id")
-                .column(valueCName)
-                .from(client.getDatabase(), measurement)
-                .where();
+            .column("id")
+            .column(valueCName)
+            .from(client.getDatabase(), measurement)
+            .where();
 
         if (ids != null && !ids.isEmpty()) {
             if (ids.size() == 1) {
@@ -208,8 +209,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
             }
         }
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
         IntValues[] intValues = new IntValues[linearIndex.size()];
         for (int i = 0; i < intValues.length; i++) {
@@ -220,9 +221,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
         series.get(0).getValues().forEach(values -> {
             IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
-            multipleValues.toObject((String) values.get(2));
+            multipleValues.toObject((String)values.get(2));
 
-            final String id = (String) values.get(1);
+            final String id = (String)values.get(1);
             for (int i = 0; i < intValues.length; i++) {
                 Integer index = linearIndex.get(i);
                 KVInt kv = new KVInt();
@@ -249,21 +250,22 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids, String valueCName)
-            throws IOException {
+    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
+        String valueCName)
+        throws IOException {
         String measurement = ModelName.build(downsampling, indName);
         WhereQueryImpl<SelectQueryImpl> query = select()
-                .column(ThermodynamicMetrics.STEP)
-                .column(ThermodynamicMetrics.NUM_OF_STEPS)
-                .column(ThermodynamicMetrics.DETAIL_GROUP)
-                .column("id")
-                .from(client.getDatabase(), measurement)
-                .where(contains("id", Joiner.on("|").join(ids)));
+            .column(ThermodynamicMetrics.STEP)
+            .column(ThermodynamicMetrics.NUM_OF_STEPS)
+            .column(ThermodynamicMetrics.DETAIL_GROUP)
+            .column("id")
+            .from(client.getDatabase(), measurement)
+            .where(contains("id", Joiner.on("|").join(ids)));
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
         if (series == null || series.isEmpty()) {
             return new Thermodynamic();
@@ -273,10 +275,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
         List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
         Thermodynamic thermodynamic = new Thermodynamic();
         for (List<Object> values : series.get(0).getValues()) {
-            numOfSteps = (int) values.get(2) + 1;
-            axisYStep = (int) values.get(1);
+            numOfSteps = (int)values.get(2) + 1;
+            axisYStep = (int)values.get(1);
             IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
-            intKeyLongValues.toObject((String) values.get(3));
+            intKeyLongValues.toObject((String)values.get(3));
             List<Long> axisYValues = new ArrayList<>(numOfSteps);
             for (int i = 0; i < numOfSteps; i++) {
                 axisYValues.add(0L);
@@ -284,7 +286,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
                 axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
             }
-            thermodynamicValueMatrix.put((String) values.get(4), axisYValues);
+            thermodynamicValueMatrix.put((String)values.get(4), axisYValues);
         }
         // try to add default values when there is no data in that time bucket.
         ids.forEach(id -> {

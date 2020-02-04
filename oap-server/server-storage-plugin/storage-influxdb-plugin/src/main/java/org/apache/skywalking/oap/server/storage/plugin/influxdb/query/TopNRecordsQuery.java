@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -26,21 +32,16 @@ import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
-
+@Slf4j
 public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxClient client;
 
     public TopNRecordsQuery(InfluxClient client) {
@@ -49,7 +50,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
 
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName,
-                                           int serviceId, int topN, Order order) throws IOException {
+        int serviceId, int topN, Order order) throws IOException {
         String function = "bottom";
         Comparator<TopNRecord> comparator = Comparator.comparingLong(TopNRecord::getLatency);
         if (order.equals(Order.DES)) {
@@ -57,21 +58,22 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             comparator = (a, b) -> Long.compare(b.getLatency(), a.getLatency());
         }
 
-        WhereQueryImpl query = select()
-                .function(function, TopN.LATENCY, topN)
-                .column(TopN.STATEMENT)
-                .column(TopN.TRACE_ID)
-                .from(client.getDatabase(), metricName)
-                .where()
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startSecondTB, Downsampling.Second)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endSecondTB, Downsampling.Second)));
+        WhereQueryImpl<SelectQueryImpl> query =
+            select()
+            .function(function, TopN.LATENCY, topN)
+            .column(TopN.STATEMENT)
+            .column(TopN.TRACE_ID)
+            .from(client.getDatabase(), metricName)
+            .where()
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startSecondTB, Downsampling.Second)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endSecondTB, Downsampling.Second)));
         if (serviceId != Const.NONE) {
             query.and(eq(TopN.SERVICE_ID, serviceId));
         }
 
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();
@@ -80,9 +82,9 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
         final List<TopNRecord> records = new ArrayList<>();
         series.get(0).getValues().forEach(values -> {
             TopNRecord record = new TopNRecord();
-            record.setLatency((long) values.get(1));
-            record.setTraceId((String) values.get(3));
-            record.setStatement((String) values.get(2));
+            record.setLatency((long)values.get(1));
+            record.setTraceId((String)values.get(3));
+            record.setStatement((String)values.get(2));
             records.add(record);
         });
         Collections.sort(records, comparator);

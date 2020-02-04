@@ -81,16 +81,13 @@ public class InfluxClient implements Client {
             }
             return result.getResults();
         } catch (Exception e) {
-            throw new IOException(e.getMessage() + "\r\nSQL Statement: " + query.getCommand(), e);
+            throw new IOException(e.getMessage() + System.lineSeparator() + "SQL Statement: " + query.getCommand(), e);
         }
     }
 
     public void dropSeries(String measurement, String timeBucket) throws IOException {
         Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'");
         QueryResult result = getInflux().query(query);
-        if (logger.isDebugEnabled()) {
-            logger.debug("TTL execution log, statement: {}, result: {}", query.getCommand(), result);
-        }
 
         if (result.hasError()) {
             throw new IOException("Statement: " + query.getCommand() + ", ErrorMsg: " + result.getError());

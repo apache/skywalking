@@ -28,13 +28,11 @@
     <artifactId>storage-influxdb-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+    <properties>
+        <influxdb-jave.version>2.15</influxdb-jave.version>
+    </properties>
 
+    <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
@@ -44,7 +42,7 @@
         <dependency>
             <groupId>org.influxdb</groupId>
             <artifactId>influxdb-java</artifactId>
-            <version>2.15</version>
+            <version>${influxdb-jave.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -44,7 +44,6 @@ public class TableMixInstaller {
             case PROFILE_TASK_SEGMENT_SNAPSHOT:
                 return false;
         }
-        //
         TableMetaInfo.addModel(model);
         return true;
     }

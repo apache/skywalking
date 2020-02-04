@@ -17,6 +17,11 @@
  */
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
@@ -31,125 +36,126 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
+import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.*;
-
+@Slf4j
 public class TopologyQuery implements ITopologyQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxClient client;
 
     public TopologyQuery(InfluxClient client) {
         this.client = client;
     }
 
-
     @Override
-    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
-                                                                         List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB,
+        List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceCallsQuery(
-                measurement,
-                startTB,
-                endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
-                serviceIds);
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+            measurement,
+            startTB,
+            endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+            serviceIds);
         return buildCalls(query, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
-                                                                         List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB,
+        List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceCallsQuery(
-                measurement,
-                startTB,
-                endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
-                serviceIds);
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+            measurement,
+            startTB,
+            endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+            serviceIds);
         return buildCalls(query, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceCallsQuery(
-                measurement,
-                startTB,
-                endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
-                new ArrayList<>(0));
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+            measurement,
+            startTB,
+            endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+            new ArrayList<>(0));
         return buildCalls(query, DetectPoint.SERVER);
-
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceCallsQuery(
-                tableName,
-                startTB,
-                endTB,
-                ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
-                new ArrayList<>(0));
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+            tableName,
+            startTB,
+            endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+            new ArrayList<>(0));
         return buildCalls(query, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
+        Downsampling downsampling, long startTB, long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceInstanceCallsQuery(measurement,
-                startTB,
-                endTB,
-                ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
-                clientServiceId, serverServiceId);
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceInstanceCallsQuery(measurement,
+            startTB,
+            endTB,
+            ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
+            clientServiceId, serverServiceId);
         return buildCalls(query, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
+        Downsampling downsampling, long startTB, long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl query = buildServiceInstanceCallsQuery(measurement,
-                startTB,
-                endTB,
-                ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-                ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
-                clientServiceId, serverServiceId);
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceInstanceCallsQuery(measurement,
+            startTB,
+            endTB,
+            ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+            ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
+            clientServiceId, serverServiceId);
         return buildCalls(query, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB,
+        long endTB, int destEndpointId) throws IOException {
         String measurement = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
-        WhereQueryImpl query = buildServiceCallsQuery(measurement,
-                startTB,
-                endTB,
-                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-                EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
-                Collections.emptyList());
+        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(measurement,
+            startTB,
+            endTB,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            Collections.emptyList());
         query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
 
-        WhereQueryImpl query2 = buildServiceCallsQuery(measurement,
-                startTB,
-                endTB,
-                EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-                EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
-                Collections.emptyList());
+        WhereQueryImpl<SelectQueryImpl> query2 = buildServiceCallsQuery(measurement,
+            startTB,
+            endTB,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            Collections.emptyList());
         query2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
 
         List<Call.CallDetail> calls = buildCalls(query, DetectPoint.SERVER);
@@ -158,52 +164,53 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     private WhereQueryImpl buildServiceCallsQuery(String measurement, long startTB, long endTB, String sourceCName,
-                                                  String destCName, List<Integer> serviceIds) {
-        WhereQueryImpl query = select()
-                .function("distinct", Metrics.ENTITY_ID)
-                .from(client.getDatabase(), measurement)
-                .where()
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+        String destCName, List<Integer> serviceIds) {
+        WhereQueryImpl<SelectQueryImpl> query = select()
+            .function("distinct", Metrics.ENTITY_ID)
+            .from(client.getDatabase(), measurement)
+            .where()
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
 
         if (!serviceIds.isEmpty()) {
             WhereNested whereNested = query.andNested();
             for (Integer id : serviceIds) {
                 whereNested.or(eq(sourceCName, id))
-                        .or(eq(destCName, id));
+                    .or(eq(destCName, id));
             }
             whereNested.close();
         }
         return query;
     }
 
-    private WhereQueryImpl buildServiceInstanceCallsQuery(String measurement, long startTB, long endTB, String sourceCName,
-                                                          String destCName, int sourceServiceId, int destServiceId) {
-        WhereQueryImpl query = select()
-                .function("distinct", Metrics.ENTITY_ID)
-                .from(client.getDatabase(), measurement)
-                .where()
-                .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+    private WhereQueryImpl<SelectQueryImpl> buildServiceInstanceCallsQuery(String measurement, long startTB, long endTB,
+        String sourceCName,
+        String destCName, int sourceServiceId, int destServiceId) {
+        WhereQueryImpl<SelectQueryImpl> query = select()
+            .function("distinct", Metrics.ENTITY_ID)
+            .from(client.getDatabase(), measurement)
+            .where()
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
 
         StringBuilder builder = new StringBuilder("((");
         builder.append(sourceCName).append("=").append(sourceServiceId)
-                .append(" and ")
-                .append(destCName).append("=").append(destServiceId)
-                .append(") or (")
-                .append(sourceCName).append("=").append(destServiceId)
-                .append(") and (")
-                .append(destCName).append("=").append(sourceServiceId)
-                .append("))");
+            .append(" and ")
+            .append(destCName).append("=").append(destServiceId)
+            .append(") or (")
+            .append(sourceCName).append("=").append(destServiceId)
+            .append(") and (")
+            .append(destCName).append("=").append(sourceServiceId)
+            .append("))");
         query.where(builder.toString());
         return query;
     }
 
-    public List<Call.CallDetail> buildCalls(WhereQueryImpl query, DetectPoint detectPoint) throws IOException {
+    public List<Call.CallDetail> buildCalls(WhereQueryImpl<SelectQueryImpl> query, DetectPoint detectPoint) throws IOException {
         List<QueryResult.Series> seriesList = client.queryForSeries(query);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), seriesList);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), seriesList);
         }
         if (seriesList == null || seriesList.isEmpty()) {
             return Collections.emptyList();
@@ -212,7 +219,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         List<Call.CallDetail> calls = new ArrayList<>();
         seriesList.get(0).getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
-            String entityId = (String) values.get(1);
+            String entityId = (String)values.get(1);
             RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
 
             call.setSource(relationDefine.getSource());

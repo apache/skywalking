@@ -18,25 +18,24 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxTTLCalculatorProvider;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxTTLCalculator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxTTLCalculatorProvider;
 
+@Slf4j
 public class HistoryDeleteDAO implements IHistoryDeleteDAO {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxTTLCalculatorProvider calculatorProvider;
     private final ModuleDefineHolder moduleDefineHolder;
     private final InfluxClient client;
 
-    public HistoryDeleteDAO(ModuleDefineHolder moduleDefineHolder, InfluxClient client, InfluxTTLCalculatorProvider calculatorProvider) {
+    public HistoryDeleteDAO(ModuleDefineHolder moduleDefineHolder, InfluxClient client,
+        InfluxTTLCalculatorProvider calculatorProvider) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.calculatorProvider = calculatorProvider;
         this.client = client;
@@ -52,12 +51,19 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
             ttlCalculator = calculatorProvider.metricsCalculator(model.getDownsampling());
         }
 
-        if (model.isCapableOfTimeSeries()) {
-            // drop the whole series
-            client.dropSeries(model.getName(), ttlCalculator.timeBucketBefore(configService.getDataTTLConfig()));
-        } else {
-            long timeBefore = ttlCalculator.timestampBefore(configService.getDataTTLConfig());
-            client.queryForDelete("DELETE FROM " + model.getName() + " WHERE time <= " + timeBefore + "ms");
+        try {
+            if (model.isCapableOfTimeSeries()) {
+                // drop the whole series
+                client.dropSeries(model.getName(), ttlCalculator.timeBucketBefore(configService.getDataTTLConfig()));
+            } else {
+                long timeBefore = ttlCalculator.timestampBefore(configService.getDataTTLConfig());
+                client.queryForDelete("DELETE FROM " + model.getName() + " WHERE time <= " + timeBefore + "ms");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("TTL execution log, model: {} Success!", model.getName());
+            }
+        } catch (IOException e) {
+            log.error("TTL execution log, model: {}, errMsg: {}", model.getName(), e.getMessage());
         }
     }
 }

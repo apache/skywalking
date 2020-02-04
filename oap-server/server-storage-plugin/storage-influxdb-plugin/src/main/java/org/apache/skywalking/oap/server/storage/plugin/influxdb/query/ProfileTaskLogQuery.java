@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
@@ -33,14 +33,12 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@Slf4j
 public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private InfluxClient client;
 
     public ProfileTaskLogQuery(InfluxClient client) {
@@ -60,8 +58,8 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
         }
 
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), series);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
         if (series == null || series.isEmpty()) {
             return Collections.emptyList();

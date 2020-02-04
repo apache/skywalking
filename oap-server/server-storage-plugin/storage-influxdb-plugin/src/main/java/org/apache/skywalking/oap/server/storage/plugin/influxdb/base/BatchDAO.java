@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
@@ -29,13 +31,9 @@ import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.BatchPoints;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-public class  BatchDAO implements IBatchDAO {
-    private static final Logger logger = LoggerFactory.getLogger(BatchDAO.class);
+@Slf4j
+public class BatchDAO implements IBatchDAO {
     private final DataCarrier<PrepareRequest> dataCarrier;
     private final InfluxClient client;
 
@@ -66,13 +64,13 @@ public class  BatchDAO implements IBatchDAO {
             return;
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("batch sql statements execute, data size: {}", prepareRequests.size());
+        if (log.isDebugEnabled()) {
+            log.debug("batch sql statements execute, data size: {}", prepareRequests.size());
         }
 
         final BatchPoints.Builder builder = BatchPoints.builder();
         prepareRequests.forEach(e -> {
-            builder.point(((InfluxInsertRequest) e).getPoint());
+            builder.point(((InfluxInsertRequest)e).getPoint());
         });
 
         client.write(builder.build());
@@ -97,7 +95,7 @@ public class  BatchDAO implements IBatchDAO {
 
         @Override
         public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
-            logger.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         }
 
         @Override

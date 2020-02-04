@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.query.entity.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.entity.Alarms;
@@ -33,8 +33,6 @@ import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
@@ -42,8 +40,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.regex;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@Slf4j
 public class AlarmQuery implements IAlarmQueryDAO {
-    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final InfluxClient client;
 
     public AlarmQuery(InfluxClient client) {
@@ -79,8 +77,8 @@ public class AlarmQuery implements IAlarmQueryDAO {
 
         Query query = new Query(query2.getCommand() + query1.getCommand());
         List<QueryResult.Result> results = client.query(query);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SQL: {} \nresult set: {}", query.getCommand(), results);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), results);
         }
         if (results.size() != 2) {
             throw new IOException("We expect to get 2 Results, but it is " + results.size());

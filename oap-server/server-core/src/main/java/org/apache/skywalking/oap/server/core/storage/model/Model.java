@@ -19,9 +19,6 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
-import java.util.TreeMap;
-
-import com.google.common.collect.Maps;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
@@ -38,7 +35,6 @@ public class Model {
     private final List<ModelColumn> columns;
     private final int scopeId;
     private final boolean record;
-    private final TreeMap<String, ModelColumn> storageColumns;
 
     public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling, boolean record) {
         this.columns = columns;
@@ -48,11 +44,5 @@ public class Model {
         this.scopeId = scopeId;
         this.name = ModelName.build(downsampling, name);
         this.record = record;
-        this.storageColumns = Maps.newTreeMap();
-        columns.forEach(column -> { storageColumns.put(column.getColumnName().getStorageName(), column); });
-    }
-
-    public ModelColumn getColumnByStorageCName(String storageCName) {
-        return storageColumns.get(storageCName);
     }
 }
