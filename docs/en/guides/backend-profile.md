@@ -36,13 +36,13 @@ Copy code and paste it into this [link](http://flowchart.js.org/) to generate fl
 - **Generate empty stack tree**: Generate multiple top-level empty trees for preparation of the following steps, 
 The reason for generating multiple top-level trees is that original data can be add in parallel without generating locks.
 - **Accumulator data to stack tree**: Add every thread dump into the generated trees.
-    1. Iterate through each element in the thread dump to find if there are any child elements with the same code signature and same stack depth in the parent element. 
+    1. Iterate through each element in the thread dump to find if there is any child element with the same code signature and same stack depth in the parent element. 
     If not, then add this element.
     2. Keep the dump sequences and timestamps in each nodes from the source.
 - **Combine stack trees**: Combine all trees structures into one by using the rules as same as `Accumulator`.
-    1. Using LDR to traversal tree node. To prevent large stack depth, use the `Stack` data structure to avoid recursive calls, each stack element represents the node that needs to be merged.
-    2. The task of merging two nodes is to merge the list of children nodes. If they have the same code signature, save the dump sequences and timestamps to this node. Otherwise, the node needs to be added to the target node children.
+    1. Use LDR to traversal tree node. Use the `Stack` data structure to avoid recursive calls, each stack element represents the node that needs to be merged.
+    2. The task of merging two nodes is to merge the list of children nodes. If they have the same code signature and same parents, save the dump sequences and timestamps in this node. Otherwise, the node needs to be added into the target node as a new child.
 - **Calculate durations and build result**: Calculate relevant statistics and generate response.
-    1. Use the same traversal node logic as in the previous step. Convert to a GraphQL data structure, and put all nodes merged in the Combiner into a list for subsequent calculations.
+    1. Use the same traversal node logic as in the `Combine stack trees` step. Convert to a GraphQL data structure, and put all nodes into a list for subsequent duration calculations.
     2. Calculate each node's duration in parallel. For each node, sort the sequences, if there are two continuous sequences, the duration should add the duration of these two seq's timestamp.
     3. Calculate each node execution in parallel. For each node, the duration of the current node should minus the time consumed by all children.
