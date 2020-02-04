@@ -17,5 +17,5 @@
 
 echo "InfluxDB with H2 database is storage provider..."
 
-# Modify application.yml to set MySQL as storage provider.
+# Modify application.yml to set InfluxDB as storage provider.
 cat /application.yml > "${SW_HOME}/config/application.yml"
