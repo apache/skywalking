@@ -15,34 +15,15 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.profile.bean;
 
-package org.apache.skywalking.oap.server.core.query.entity;
-
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-/**
- * @author MrPro
- */
-@Getter
-@Setter
-public class ProfileStackElement {
+@Data
+public class ProfileStackAnalyzeHolder {
 
-    // stack code signature
-    private String codeSignature;
-
-    // include the execution time of children(millisecond)
-    private int duration;
-
-    // exclude the execution time of children(millisecond)
-    private int durationChildExcluded;
-
-    // continuous dump count
-    private int count;
-
-    // children of this stack code sign
-    private List<ProfileStackElement> children;
+    private List<ProfileStackAnalyze> list;
 
 }
