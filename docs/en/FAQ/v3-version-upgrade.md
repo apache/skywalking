@@ -1,5 +1,4 @@
-# Upgrade FAQs
-## Version 3.x -> 5.0.0-alpha
+## Version 3.x -> 5.0.0-alpha Upgrade FAQs
 ### Collector
 ### Problem
 There is no information showing in the UI.
