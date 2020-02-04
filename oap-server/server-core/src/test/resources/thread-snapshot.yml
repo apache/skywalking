@@ -173,3 +173,30 @@ list:
               - code: B
                 count: 1
                 duration: 0:0
+
+  # case 6:
+  - data:
+      limit: 10
+      snapshots:
+        - A-B-C
+        - A-B
+        - D-E
+    expected:
+      - code: A
+        count: 2
+        duration: 10:0
+        children:
+          - code: B
+            count: 2
+            duration: 10:10
+            children:
+              - code: C
+                count: 1
+                duration: 0:0
+      - code: D
+        count: 1
+        duration: 0:0
+        children:
+          - code: E
+            count: 1
+            duration: 0:0
