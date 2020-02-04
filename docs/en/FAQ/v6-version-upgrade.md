@@ -26,5 +26,5 @@ back online. More detail, read the backend setup document.
 it may not work in some network scenarios, especially in k8s.
 
 ## Agent Compatibility
-All versions of SkyWalking 6.x(even 7.x) are compatible with each others, so users could not upgrade the agents. 
+All versions of SkyWalking 6.x(even 7.x) are compatible with each others, so users could only upgrade the OAP servers first. 
 The agent is also enhanced from version to version, so from SkyWalking team's recommendations, upgrade the agent once you have the chance.
