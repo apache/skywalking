@@ -15,34 +15,33 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.profile.bean;
 
-package org.apache.skywalking.oap.server.core.query.entity;
+import com.google.common.base.Splitter;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author MrPro
- */
-@Getter
-@Setter
-public class ProfileStackElement {
+@Data
+public class ProfileStackData {
 
-    // stack code signature
-    private String codeSignature;
+    private int limit;
+    private List<String> snapshots;
 
-    // include the execution time of children(millisecond)
-    private int duration;
+    public List<ProfileStack> transform() {
+        ArrayList<ProfileStack> result = new ArrayList<>(snapshots.size());
 
-    // exclude the execution time of children(millisecond)
-    private int durationChildExcluded;
+        for (int i = 0; i < snapshots.size(); i++) {
+            ProfileStack stack = new ProfileStack();
+            stack.setSequence(i);
+            stack.setDumpTime(i * limit);
+            stack.setStack(Splitter.on("-").splitToList(snapshots.get(i)));
+            result.add(stack);
+        }
 
-    // continuous dump count
-    private int count;
-
-    // children of this stack code sign
-    private List<ProfileStackElement> children;
+        return result;
+    }
 
 }
