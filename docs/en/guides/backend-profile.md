@@ -33,6 +33,7 @@ st(right)->op1->sup(right)->acc
 acc(right)->com(right)->fin->e
 ```
 Copy code and paste it into this [link](http://flowchart.js.org/) to generate flow chart.
+- **Group by first stack element**: Use the first level element in each stack to group, ensuring that the stacks have the same root node.
 - **Generate empty stack tree**: Generate multiple top-level empty trees for preparation of the following steps, 
 The reason for generating multiple top-level trees is that original data can be add in parallel without generating locks.
 - **Accumulator data to stack tree**: Add every thread dump into the generated trees.
