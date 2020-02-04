@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.customize.interceptor;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 import org.apache.skywalking.apm.plugin.customize.conf.MethodConfiguration;
@@ -75,7 +76,7 @@ class BaseInterceptorMethods {
                 AbstractSpan span = ContextManager.createLocalSpan(operationName);
                 if (!spanTags.isEmpty()) {
                     for (Map.Entry<String, String> tag : spanTags.entrySet()) {
-                        span.tag(tag.getKey(), tag.getValue());
+                        span.tag(Tags.ofKey(tag.getKey()), tag.getValue());
                     }
                 }
                 if (!spanLogs.isEmpty()) {

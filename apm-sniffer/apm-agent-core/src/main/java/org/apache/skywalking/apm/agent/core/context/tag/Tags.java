@@ -19,6 +19,9 @@
 
 package org.apache.skywalking.apm.agent.core.context.tag;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The span tags are supported by sky-walking engine. As default, all tags will be stored, but these ones have
  * particular meanings.
@@ -26,6 +29,8 @@ package org.apache.skywalking.apm.agent.core.context.tag;
  * Created by wusheng on 2017/2/17.
  */
 public final class Tags {
+    private static final Map<String, StringTag> TAG_PROTOTYPES = new ConcurrentHashMap<>();
+
     private Tags() {
     }
 
@@ -78,5 +83,16 @@ public final class Tags {
         public static final StringTag METHOD = new StringTag(10, "http.method");
 
         public static final StringTag PARAMS = new StringTag(11, "http.params");
+    }
+
+    /**
+     * Creates a {@code StringTag} with the given key and cache it,
+     * if it's created before, simply return it without creating a new one.
+     *
+     * @param key the {@code key} of the tag
+     * @return the {@code StringTag}
+     */
+    public static AbstractTag<String> ofKey(final String key) {
+        return TAG_PROTOTYPES.computeIfAbsent(key, StringTag::new);
     }
 }
