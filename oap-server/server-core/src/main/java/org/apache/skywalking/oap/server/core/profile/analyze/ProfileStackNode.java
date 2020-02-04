@@ -205,7 +205,6 @@ public class ProfileStackNode {
             return;
         }
 
-        // sort owners
         Collections.sort(this.detectedStacks);
 
         // calculate time windows duration
