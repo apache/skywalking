@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -52,7 +51,6 @@ public class ProfileTaskQueryService implements Service {
     private IProfileTaskQueryDAO profileTaskQueryDAO;
     private IProfileTaskLogQueryDAO profileTaskLogQueryDAO;
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
-    private ITraceQueryDAO traceQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
@@ -93,13 +91,6 @@ public class ProfileTaskQueryService implements Service {
             profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
         }
         return profileThreadSnapshotQueryDAO;
-    }
-
-    public ITraceQueryDAO getTraceQueryDAO() {
-        if (isNull(traceQueryDAO)) {
-            traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
-        }
-        return traceQueryDAO;
     }
 
     /**
