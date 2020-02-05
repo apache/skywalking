@@ -19,22 +19,28 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
 
 /**
- * A utils for different databases to install(create) tables. It provides the table whether need to create.
- *
- * Some tables, such as Metrics and SegmentRecord, they are stored in InfluxDB.
- * We don't need to create the tables explicitly in InfluxDB.
- * <p>
- * In different with InfluxDB, we must execute DDL for MySQL/H2.
+ * Here defines which table is stored in metadata database(H2/MySQL).
  */
-public class TableMixInstaller {
+public class MetaTableDefine {
 
-    public static boolean isExists(Client client, Model model) throws StorageException {
+    /**
+     * Test a {@link Model} is stored in H2/MySQL or not.
+     *
+     * @param model
+     * @return true if the {@link Model} is stored in H2/MySQL
+     * @throws StorageException
+     */
+    public static boolean contains(Model model) throws StorageException {
         switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
@@ -42,9 +48,9 @@ public class TableMixInstaller {
             case ENDPOINT_INVENTORY:
             case PROFILE_TASK:
             case PROFILE_TASK_SEGMENT_SNAPSHOT:
-                return false;
+                return true;
         }
         TableMetaInfo.addModel(model);
-        return true;
+        return false;
     }
 }

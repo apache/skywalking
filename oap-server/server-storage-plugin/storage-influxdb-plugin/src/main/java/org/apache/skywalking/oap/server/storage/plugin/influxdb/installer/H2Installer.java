@@ -32,7 +32,7 @@ public class H2Installer extends H2TableInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        return TableMixInstaller.isExists(client, model) || super.isExists(client, model);
+        return MetaTableDefine.contains(model) && super.isExists(client, model);
     }
 
 }

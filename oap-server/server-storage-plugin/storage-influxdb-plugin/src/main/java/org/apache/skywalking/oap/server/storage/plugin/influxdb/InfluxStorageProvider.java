@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.ttl.GeneralStorageTTL;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -132,8 +133,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient));
 
-        this.registerServiceImplementation(IHistoryDeleteDAO.class,
-            new HistoryDeleteDAO(getManager(), influxClient, new InfluxTTLCalculatorProvider(getManager())));
+        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteDAO(getManager(), influxClient, new GeneralStorageTTL()));
     }
 
     @Override
