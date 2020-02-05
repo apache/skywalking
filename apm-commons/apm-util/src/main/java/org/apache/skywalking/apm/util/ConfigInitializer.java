@@ -57,22 +57,24 @@ public class ConfigInitializer {
                      */
                     // Deduct two generic types of the map
                     ParameterizedType genericType = (ParameterizedType)field.getGenericType();
-                    Type[] genericTypes = genericType.getActualTypeArguments();
+                    Type[] argumentTypes = genericType.getActualTypeArguments();
 
-                    // Get type of key
                     Type keyType = null;
                     Type valueType = null;
-                    if (genericTypes != null && genericTypes.length == 2) {
-                        keyType = genericTypes[0];
-                        valueType = genericTypes[1];
+                    if (argumentTypes != null && argumentTypes.length == 2) {
+                        // Get key type and value type of the map
+                        keyType = argumentTypes[0];
+                        valueType = argumentTypes[1];
                     }
                     Map map = (Map)field.get(null);
+                    // Set the map from config key and properties
                     setForMapType(configKey, map, properties, keyType, valueType);
                 } else {
                     /*
                      * Others typical field type
                      */
                     String value = properties.getProperty(configKey);
+                    // Convert the value into real type
                     Object convertedValue = convertToTypicalType(type, value);
                     if (convertedValue != null) {
                         field.set(null, convertedValue);
@@ -127,12 +129,12 @@ public class ConfigInitializer {
      * @param configKey config key must not be null
      * @param map map to set must not be null
      * @param properties properties must not be null
-     * @param finalKeyType
-     * @param finalValueType
+     * @param keyType  key type of the map
+     * @param valueType value type of the map
      */
     private static void setForMapType(String configKey, Map<Object, Object> map, Properties properties,
-        final Type finalKeyType,
-        final Type finalValueType) {
+        final Type keyType,
+        final Type valueType) {
 
         Objects.requireNonNull(configKey);
         Objects.requireNonNull(map);
@@ -142,14 +144,14 @@ public class ConfigInitializer {
         String suffix = "]";
 
         properties.forEach((propertyKey, propertyValue) -> {
-            String key = propertyKey.toString();
-            if (key.startsWith(prefix) && key.endsWith(suffix)) {
-                String itemKey = key.substring(prefix.length(), key.length() - suffix.length());
-                Object keyObj = null;
-                Object valueObj = null;
+            String propertyStringKey = propertyKey.toString();
+            if (propertyStringKey.startsWith(prefix) && propertyStringKey.endsWith(suffix)) {
+                String itemKey = propertyStringKey.substring(prefix.length(), propertyStringKey.length() - suffix.length());
+                Object keyObj;
+                Object valueObj;
 
-                keyObj = convertToTypicalType(finalKeyType, itemKey);
-                valueObj = convertToTypicalType(finalValueType, propertyValue.toString());
+                keyObj = convertToTypicalType(keyType, itemKey);
+                valueObj = convertToTypicalType(valueType, propertyValue.toString());
 
                 if (keyObj == null) {
                     keyObj = itemKey;
