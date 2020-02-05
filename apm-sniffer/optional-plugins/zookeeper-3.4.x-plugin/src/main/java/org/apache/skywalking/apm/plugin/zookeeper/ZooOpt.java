@@ -19,6 +19,8 @@
 package org.apache.skywalking.apm.plugin.zookeeper;
 
 import org.apache.jute.Record;
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooDefs;
@@ -32,12 +34,12 @@ import java.util.Map;
  */
 class ZooOpt {
 
-    private static final Map<Integer, String> OPTS = new HashMap<Integer, String>();
-    private static final String PATH = "path";
-    private static final String VERSION = "version";
-    private static final String WATCH = "watch";
-    private static final String MAX_CHILDREN = "max";
-    private static final String KEEPER_STATE = "state";
+    private static final Map<Integer, String> OPTS = new HashMap<>();
+    private static final AbstractTag<String> PATH = Tags.ofKey("path");
+    private static final AbstractTag<String> VERSION = Tags.ofKey("version");
+    private static final AbstractTag<String> WATCH = Tags.ofKey("watch");
+    private static final AbstractTag<String> MAX_CHILDREN = Tags.ofKey("max");
+    private static final AbstractTag<String> KEEPER_STATE = Tags.ofKey("state");
 
     static {
         OPTS.put(ZooDefs.OpCode.notification, "notification");

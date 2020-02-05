@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.gson;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -38,8 +39,8 @@ public class GsonToJsonInterceptor implements InstanceMethodsAroundInterceptor {
 
         AbstractSpan span = ContextManager.createLocalSpan("Gson/ToJson");
         span.setComponent(ComponentsDefine.GSON);
-        Integer length = allArguments[0].toString().length();
-        span.tag("length", length.toString());
+        int length = allArguments[0].toString().length();
+        span.tag(Tags.ofKey("length"), Integer.toString(length));
 
     }
 
