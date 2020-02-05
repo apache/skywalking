@@ -94,10 +94,6 @@ public class OracleURLParser extends AbstractURLParser {
         String[] hostSegment = splitDatabaseAddress(host);
         String databaseName = fetchDatabaseNameFromURL();
         if (hostSegment.length == 1) {
-            if (databaseName.contains("/") && databaseName.split("/").length == 2) {
-                String[] portAndDatabaseName = databaseName.split("/");
-                return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, host, Integer.valueOf(portAndDatabaseName[0]), portAndDatabaseName[1]);
-            }
             return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, host, DEFAULT_PORT, databaseName);
         } else {
             return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
@@ -140,6 +136,22 @@ public class OracleURLParser extends AbstractURLParser {
 
     private String[] splitDatabaseAddress(String address) {
         String[] hostSegment = address.split(":");
-        return hostSegment;
+        if (hostSegment.length == 1 && super.fetchDatabaseNameFromURL().contains("/")) {
+            String[] portAndDatabaseName = super.fetchDatabaseNameFromURL().split("/");
+            return new String[]{hostSegment[0], portAndDatabaseName[0]};
+        } else {
+            return hostSegment;
+        }
+    }
+
+    @Override
+    protected String fetchDatabaseNameFromURL() {
+        String databaseName = super.fetchDatabaseNameFromURL();
+        if (databaseName.contains("/")) {
+            String[] portAndDatabaseName = databaseName.split("/");
+            return portAndDatabaseName[1];
+        } else {
+            return databaseName;
+        }
     }
 }
