@@ -94,6 +94,10 @@ public class OracleURLParser extends AbstractURLParser {
         String[] hostSegment = splitDatabaseAddress(host);
         String databaseName = fetchDatabaseNameFromURL();
         if (hostSegment.length == 1) {
+            if (databaseName.contains("/") && databaseName.split("/").length == 2) {
+                String[] portAndDatabaseName = databaseName.split("/");
+                return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, host, Integer.valueOf(portAndDatabaseName[0]), portAndDatabaseName[1]);
+            }
             return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, host, DEFAULT_PORT, databaseName);
         } else {
             return new ConnectionInfo(ComponentsDefine.OJDBC, DB_TYPE, hostSegment[0], Integer.valueOf(hostSegment[1]), databaseName);
