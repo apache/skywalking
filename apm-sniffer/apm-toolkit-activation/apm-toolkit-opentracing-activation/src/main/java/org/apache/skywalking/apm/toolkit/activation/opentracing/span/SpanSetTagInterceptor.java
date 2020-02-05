@@ -46,7 +46,7 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
         } else if (Tags.ERROR.getKey().equals(tagKey) && "true".equals(tagValue)) {
             activeSpan.errorOccurred();
         } else {
-            activeSpan.tag(tagKey, tagValue);
+            activeSpan.tag(org.apache.skywalking.apm.agent.core.context.tag.Tags.ofKey(tagKey), tagValue);
         }
         return ret;
     }
