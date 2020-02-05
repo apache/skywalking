@@ -73,7 +73,7 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
         return this;
     }
 
-    @Override public AbstractTracingSpan tag(AbstractTag tag, String value) {
+    @Override public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
         if (stackDepth == 1 || tag.isCanOverwrite()) {
             super.tag(tag, value);
         }

@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.plugin.netty.socketio;
 import com.corundumstudio.socketio.SocketIOClient;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -47,7 +48,7 @@ public class NettySocketIOConnectionInterceptor implements InstanceMethodsAround
         // set client addr
         InetSocketAddress remoteAddress = (InetSocketAddress) client.getRemoteAddress();
         String clientAddress = remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();
-        span.tag("from", clientAddress);
+        span.tag(Tags.ofKey("from"), clientAddress);
     }
 
     @Override
