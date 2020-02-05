@@ -55,8 +55,8 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
     }
 
-    public List<BasicTrace> getProfileTaskSegmentList(final String taskID) {
-        return Collections.emptyList();
+    public List<BasicTrace> getProfileTaskSegmentList(final String taskID) throws IOException {
+        return getProfileTaskQueryService().getTaskTraces(taskID);
     }
 
     public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) {

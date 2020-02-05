@@ -21,6 +21,7 @@ import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -28,6 +29,8 @@ import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -48,6 +51,8 @@ public class ProfileTaskQueryService implements Service {
     private final ModuleManager moduleManager;
     private IProfileTaskQueryDAO profileTaskQueryDAO;
     private IProfileTaskLogQueryDAO profileTaskLogQueryDAO;
+    private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
+    private ITraceQueryDAO traceQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
@@ -69,18 +74,32 @@ public class ProfileTaskQueryService implements Service {
         return serviceInventoryCache;
     }
 
-    public IProfileTaskLogQueryDAO getProfileTaskLogQueryDAO() {
+    private IProfileTaskLogQueryDAO getProfileTaskLogQueryDAO() {
         if (isNull(profileTaskLogQueryDAO)) {
             profileTaskLogQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskLogQueryDAO.class);
         }
         return profileTaskLogQueryDAO;
     }
 
-    public ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
+    private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
         if (isNull(serviceInstanceInventoryCache)) {
             serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
         }
         return serviceInstanceInventoryCache;
+    }
+
+    private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
+        if (isNull(profileThreadSnapshotQueryDAO)) {
+            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
+        }
+        return profileThreadSnapshotQueryDAO;
+    }
+
+    public ITraceQueryDAO getTraceQueryDAO() {
+        if (isNull(traceQueryDAO)) {
+            traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
+        }
+        return traceQueryDAO;
     }
 
     /**
@@ -121,6 +140,20 @@ public class ProfileTaskQueryService implements Service {
         }
 
         return tasks;
+    }
+
+    /**
+     * search profiled traces
+     */
+    public List<BasicTrace> getTaskTraces(String taskId) throws IOException {
+        // query segments
+        List<String> segmentList = getProfileThreadSnapshotQueryDAO().getProfiledSegmentList(taskId);
+        if (CollectionUtils.isEmpty(segmentList)) {
+            return Collections.emptyList();
+        }
+
+        // build traces
+        return getTraceQueryDAO().queryBySegmentIdList(segmentList);
     }
 
 }

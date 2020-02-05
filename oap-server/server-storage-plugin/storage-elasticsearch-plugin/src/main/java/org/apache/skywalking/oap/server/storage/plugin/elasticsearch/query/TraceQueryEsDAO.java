@@ -110,14 +110,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         traceBrief.setTotal((int)response.getHits().totalHits);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            BasicTrace basicTrace = new BasicTrace();
+            BasicTrace basicTrace = buildBasicTrace(searchHit);
 
-            basicTrace.setSegmentId((String)searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
-            basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add((String)searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
-            basicTrace.setDuration(((Number)searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
-            basicTrace.getTraceIds().add((String)searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             traceBrief.getTraces().add(basicTrace);
         }
 
@@ -154,5 +148,43 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
     @Override public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<BasicTrace> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(boolQueryBuilder);
+        List<QueryBuilder> shouldQueryList = boolQueryBuilder.should();
+
+        for (String segmentId : segmentIdList) {
+            shouldQueryList.add(QueryBuilders.termQuery(SegmentRecord.SEGMENT_ID, segmentId));
+        }
+        sourceBuilder.size(segmentIdList.size());
+
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+
+        List<BasicTrace> result = new ArrayList<>();
+        for (SearchHit searchHit : response.getHits().getHits()) {
+            BasicTrace basicTrace = buildBasicTrace(searchHit);
+
+            result.add(basicTrace);
+        }
+
+        return result;
+    }
+
+    private BasicTrace buildBasicTrace(SearchHit searchHit) {
+        BasicTrace basicTrace = new BasicTrace();
+
+        basicTrace.setSegmentId((String)searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
+        basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
+        basicTrace.getEndpointNames().add((String)searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
+        basicTrace.setDuration(((Number)searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
+        basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
+        basicTrace.getTraceIds().add((String)searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
+
+        return basicTrace;
     }
 }

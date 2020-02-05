@@ -218,4 +218,9 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         return spanList;
     }
+
+    @Override
+    public List<BasicTrace> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        return Collections.emptyList();
+    }
 }

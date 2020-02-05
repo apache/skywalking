@@ -42,4 +42,12 @@ public interface ITraceQueryDAO extends Service {
      * @throws IOException
      */
     List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
+
+    /**
+     * query trace basic info list from appoint segments
+     * @param segmentIdList
+     * @return
+     * @throws IOException
+     */
+    List<BasicTrace> queryBySegmentIdList(List<String> segmentIdList) throws IOException;
 }

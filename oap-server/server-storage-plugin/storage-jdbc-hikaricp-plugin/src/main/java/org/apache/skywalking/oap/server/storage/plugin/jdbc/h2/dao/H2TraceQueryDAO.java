@@ -124,15 +124,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
-                    BasicTrace basicTrace = new BasicTrace();
+                    BasicTrace basicTrace = buildBasicTrace(resultSet);
 
-                    basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                    basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                    basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
-                    basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
-                    basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
-                    String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
-                    basicTrace.getTraceIds().add(traceIds);
                     traceBrief.getTraces().add(basicTrace);
                 }
             }
@@ -183,5 +176,46 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
     @Override public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<BasicTrace> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("from ").append(SegmentRecord.INDEX_NAME).append(" where ");
+        sql.append(" 1=1 ");
+
+        for (int i = 0; i < segmentIdList.size(); i++) {
+            sql.append(" and ").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
+        }
+
+        ArrayList<BasicTrace> result = new ArrayList<>(segmentIdList.size());
+        try (Connection connection = h2Client.getConnection()) {
+
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * " + sql.toString(), segmentIdList.toArray(new String[segmentIdList.size()]))) {
+                while (resultSet.next()) {
+                    BasicTrace basicTrace = buildBasicTrace(resultSet);
+
+                    result.add(basicTrace);
+                }
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return result;
+    }
+
+    private BasicTrace buildBasicTrace(ResultSet resultSet) throws SQLException {
+        BasicTrace basicTrace = new BasicTrace();
+
+        basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
+        basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
+        basicTrace.getEndpointNames().add(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
+        basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
+        basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
+        String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
+        basicTrace.getTraceIds().add(traceIds);
+
+        return basicTrace;
     }
 }

@@ -150,7 +150,7 @@ public class ProfileTaskExecutionContext {
 
     public boolean isStartProfileable() {
         // check is out of max sampling count check
-        return totalStartedProfilingCount.incrementAndGet() > task.getMaxSamplingCount();
+        return totalStartedProfilingCount.incrementAndGet() <= task.getMaxSamplingCount();
     }
 
     @Override

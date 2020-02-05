@@ -263,6 +263,11 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         return spanList;
     }
 
+    @Override
+    public List<BasicTrace> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        return Collections.emptyList();
+    }
+
     private String id(String traceId, String spanId) {
         return traceId + "_" + spanId;
     }

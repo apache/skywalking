@@ -35,14 +35,13 @@ import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.trace.Trace;
-import org.apache.skywalking.e2e.trace.TracesQuery;
+import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -56,8 +55,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mrpro
@@ -78,8 +75,8 @@ public class ProfileVerificationITCase {
         //        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32782");
-        //        final String instrumentedServicePort = System.getProperty("service.port", "9090");
+//        final String instrumentedServicePort = System.getProperty("service.port", "32782");
+        final String instrumentedServicePort = System.getProperty("service.port", "9090");
         profileClient = new ProfileClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
@@ -88,28 +85,6 @@ public class ProfileVerificationITCase {
     @DirtiesContext
     public void verify() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
-
-        while (true) {
-            try {
-                final ResponseEntity<String> responseEntity = sendRequest(false);
-                LOGGER.info("responseEntity: {}", responseEntity);
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                final List<Trace> traces = profileClient.traces(
-                        new TracesQuery()
-                                .start(minutesAgo)
-                                .end(LocalDateTime.now())
-                                .orderByDuration()
-                );
-                if (!traces.isEmpty()) {
-                    break;
-                }
-                Thread.sleep(10000L);
-            } catch (Exception ignored) {
-            }
-        }
-
-        // verify basic info
-        verifyServices(minutesAgo);
 
         // create profile task
         verifyCreateProfileTask(minutesAgo);
@@ -159,6 +134,32 @@ public class ProfileVerificationITCase {
 
         // verify task execution finish
         verifyProfileTask(creationRequest.getServiceId(), "expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.finished.yml");
+
+        // verify profiled segment
+        verifyProfiledSegment(creationResult.getId());
+    }
+
+    private void verifyProfiledSegment(String taskId) throws InterruptedException {
+        // found segment id
+        String foundedSegmentId = null;
+        for (int i = 0; i < 10; i++) {
+            try {
+                List<Trace> traces = profileClient.getProfiledTraces(taskId);
+                LOGGER.info("get profiled segemnt list: {}", traces);
+
+                InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileSegments.yml").getInputStream();
+                final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
+                tracesMatcher.verifyLoosely(traces);
+                foundedSegmentId = traces.get(0).getKey();
+                break;
+
+            } catch (Exception e) {
+                if (i == 10 - 1) {
+                    throw new IllegalStateException("match profiled segment list fail!", e);
+                }
+                TimeUnit.SECONDS.sleep(retryInterval);
+            }
+        }
     }
 
     private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {
