@@ -36,18 +36,6 @@ public class LocalSpan extends AbstractTracingSpan {
         super(spanId, parentSpanId, operationName, owner);
     }
 
-    @Override
-    public LocalSpan tag(String key, String value) {
-        super.tag(key, value);
-        return this;
-    }
-
-    @Override
-    public LocalSpan log(Throwable t) {
-        super.log(t);
-        return this;
-    }
-
     @Override public boolean isEntry() {
         return false;
     }

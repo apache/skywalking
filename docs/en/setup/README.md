@@ -44,3 +44,6 @@ Follow [backend and UI setup document](backend/backend-ui-setup.md) to understan
 ## Changes log
 
 Backend, UI and Java agent changes are available [here](../../../CHANGES.md).
+
+## Upgrade FAQ
+[6.x version upgrade FAQ](../FAQ/v6-version-upgrade.md) introduces the recommendation ways to do SkyWalking upgrade.
