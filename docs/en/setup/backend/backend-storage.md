@@ -7,6 +7,7 @@ Native supported storage
 - ElasticSearch 6, 7
 - MySQL
 - TiDB
+- InfluxDB
 
 Redistribution version with supported storage.
 - ElasticSearch 5
@@ -225,6 +226,27 @@ storage:
 ```
 All connection related settings including link url, username and password are in `application.yml`. 
 These settings can refer to the configuration of *MySQL* above.
+
+## InfluxDB
+InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugin to store `metadata` likes `Inventory` and `ProfileTask`. So, when we set `InfluxDB` as storage provider, we need to configure `InfluxDB`'s properties and `H2/MySQL`.
+
+```yaml
+storage
+  influx:
+    # Metadata storage provider configuration
+    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2}
+    metabaseDriver: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
+    metabaseUrl: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
+    metabaseUser: ${SW_STORAGE_METABASE_USER:sa}
+    metabasePassword: ${SW_STORAGE_METABASE_PASSWORD:}
+    metadataQueryMaxSize: ${SW_STORAGE_METABASE_QUERY_MAX_SIZE:5000}
+    # InfluxDB configuration
+    url: ${SW_STORAGE_URL:http://localhost:8086}
+    user: ${SW_STORAGE_USER:root}
+    password: ${SW_STORAGE_PASSWORD:}
+    database: ${SW_STORAGE_DATABASE:skywalking}
+```
+All connection related settings including link url, username and password are in `application.yml`. The Metadata storage provider settings can refer to the configuration of **H2/MySQL** above.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
