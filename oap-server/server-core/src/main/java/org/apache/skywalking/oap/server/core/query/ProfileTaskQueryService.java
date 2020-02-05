@@ -146,14 +146,7 @@ public class ProfileTaskQueryService implements Service {
      * search profiled traces
      */
     public List<BasicTrace> getTaskTraces(String taskId) throws IOException {
-        // query segments
-        List<String> segmentList = getProfileThreadSnapshotQueryDAO().getProfiledSegmentList(taskId);
-        if (CollectionUtils.isEmpty(segmentList)) {
-            return Collections.emptyList();
-        }
-
-        // build traces
-        return getTraceQueryDAO().queryBySegmentIdList(segmentList);
+        return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
     }
 
 }
