@@ -102,18 +102,18 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * Set a key:value tag on the Span.
      *
+     * {@inheritDoc}
      * @return this Span instance, for chaining
      */
     @Override
-    @Deprecated
     public AbstractTracingSpan tag(String key, String value) {
-        return tag(new StringTag(key), value);
+        return tag(Tags.ofKey(key), value);
     }
 
     @Override
-    public AbstractTracingSpan tag(AbstractTag tag, String value) {
+    public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
         if (tags == null) {
-            tags = new ArrayList<TagValuePair>(8);
+            tags = new ArrayList<>(8);
         }
 
         if (tag.isCanOverwrite()) {
@@ -156,7 +156,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan log(Throwable t) {
         if (logs == null) {
-            logs = new LinkedList<LogDataEntity>();
+            logs = new LinkedList<>();
         }
         logs.add(new LogDataEntity.Builder()
             .add(new KeyValuePair("event", "error"))
@@ -176,7 +176,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan log(long timestampMicroseconds, Map<String, ?> fields) {
         if (logs == null) {
-            logs = new LinkedList<LogDataEntity>();
+            logs = new LinkedList<>();
         }
         LogDataEntity.Builder builder = new LogDataEntity.Builder();
         for (Map.Entry<String, ?> entry : fields.entrySet()) {
@@ -330,7 +330,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     @Override public void ref(TraceSegmentRef ref) {
         if (refs == null) {
-            refs = new LinkedList<TraceSegmentRef>();
+            refs = new LinkedList<>();
         }
         if (!refs.contains(ref)) {
             refs.add(ref);
