@@ -21,9 +21,13 @@ package org.apache.skywalking.apm.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -44,38 +48,34 @@ public class ConfigInitializer {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 String configKey = (parentDesc + "." + field.getName()).toLowerCase();
-                /**
-                 * Map config format is, config_key[map_key]=map_value
-                 * Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
-                 */
-                if (field.getType().equals(Map.class)) {
-                    Map map = (Map)field.get(null);
-                    for (Object key : properties.keySet()) {
-                        String stringKey = key.toString();
-                        if (stringKey.startsWith(configKey + "[") && stringKey.endsWith("]")) {
-                            String itemKey = stringKey.substring(configKey.length() + 1, stringKey.length() - 1);
-                            map.put(itemKey, properties.getProperty(stringKey));
-                        }
+                Class<?> type = field.getType();
+
+                if (type.equals(Map.class)) {
+                    /*
+                     * Map config format is, config_key[map_key]=map_value
+                     * Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
+                     */
+                    // Deduct two generic types of the map
+                    ParameterizedType genericType = (ParameterizedType)field.getGenericType();
+                    Type[] genericTypes = genericType.getActualTypeArguments();
+
+                    // Get type of key
+                    Type keyType = null;
+                    Type valueType = null;
+                    if (genericTypes != null && genericTypes.length == 2) {
+                        keyType = genericTypes[0];
+                        valueType = genericTypes[1];
                     }
+                    Map map = (Map)field.get(null);
+                    setForMapType(configKey, map, properties, keyType, valueType);
                 } else {
-                    /**
+                    /*
                      * Others typical field type
                      */
                     String value = properties.getProperty(configKey);
-                    if (value != null) {
-                        Class<?> type = field.getType();
-                        if (type.equals(int.class))
-                            field.set(null, Integer.valueOf(value));
-                        else if (type.equals(String.class))
-                            field.set(null, value);
-                        else if (type.equals(long.class))
-                            field.set(null, Long.valueOf(value));
-                        else if (type.equals(boolean.class))
-                            field.set(null, Boolean.valueOf(value));
-                        else if (type.equals(List.class))
-                            field.set(null, convert2List(value));
-                        else if (type.isEnum())
-                            field.set(null, Enum.valueOf((Class<Enum>)type, value.toUpperCase()));
+                    Object convertedValue = convertToTypicalType(type, value);
+                    if (convertedValue != null) {
+                        field.set(null, convertedValue);
                     }
                 }
             }
@@ -87,28 +87,108 @@ public class ConfigInitializer {
         }
     }
 
-    private static List convert2List(String value) {
-        List result = new LinkedList();
-        if (StringUtil.isEmpty(value)) {
-            return result;
+    /**
+     * Convert string value to typical type.
+     * @param type type to convert
+     * @param value string value to be converted
+     * @return converted value or null
+     */
+    private static Object convertToTypicalType(Type type, String value) {
+        if (value == null || type == null) {
+            return null;
         }
+
+        Object result = null;
+        if (String.class.equals(type)) {
+            result = value;
+        } else if (int.class.equals(type) || Integer.class.equals(type)) {
+            result = Integer.valueOf(value);
+        } else if (long.class.equals(type) || Long.class.equals(type)) {
+            result = Long.valueOf(value);
+        } else if (boolean.class.equals(type) || Boolean.class.equals(type)) {
+            result = Boolean.valueOf(value);
+        } else if (float.class.equals(type) || Float.class.equals(type)) {
+            result = Boolean.valueOf(value);
+        } else if (double.class.equals(type) || Double.class.equals(type)) {
+            result = Double.valueOf(value);
+        } else if (List.class.equals(type)) {
+            result = convert2List(value);
+        } else if (type instanceof Class) {
+            Class<?> clazz = (Class<?>)type;
+            if (clazz.isEnum()) {
+                result = Enum.valueOf((Class<Enum>)type, value.toUpperCase());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Set map items.
+     * @param configKey config key must not be null
+     * @param map map to set must not be null
+     * @param properties properties must not be null
+     * @param finalKeyType
+     * @param finalValueType
+     */
+    private static void setForMapType(String configKey, Map<Object, Object> map, Properties properties,
+        final Type finalKeyType,
+        final Type finalValueType) {
+
+        Objects.requireNonNull(configKey);
+        Objects.requireNonNull(map);
+        Objects.requireNonNull(properties);
+
+        String prefix = configKey + "[";
+        String suffix = "]";
+
+        properties.forEach((propertyKey, propertyValue) -> {
+            String key = propertyKey.toString();
+            if (key.startsWith(prefix) && key.endsWith(suffix)) {
+                String itemKey = key.substring(prefix.length(), key.length() - suffix.length());
+                Object keyObj = null;
+                Object valueObj = null;
+
+                keyObj = convertToTypicalType(finalKeyType, itemKey);
+                valueObj = convertToTypicalType(finalValueType, propertyValue.toString());
+
+                if (keyObj == null) {
+                    keyObj = itemKey;
+                }
+
+                if (valueObj == null) {
+                    valueObj = propertyValue;
+                }
+
+                map.put(keyObj, valueObj);
+            }
+        });
+    }
+
+    private static List<String> convert2List(String value) {
+        if (StringUtil.isEmpty(value)) {
+            return Collections.emptyList();
+        }
+        List<String> result = new LinkedList<>();
 
         String[] segments = value.split(",");
         for (String segment : segments) {
             String trimmedSegment = segment.trim();
-            if (!StringUtil.isEmpty(trimmedSegment)) {
+            if (StringUtil.isNotEmpty(trimmedSegment)) {
                 result.add(trimmedSegment);
             }
         }
         return result;
     }
+
 }
 
 class ConfigDesc {
-    private LinkedList<String> descs = new LinkedList<String>();
+    private LinkedList<String> descs = new LinkedList<>();
 
     void append(String currentDesc) {
-        descs.addLast(currentDesc);
+        if (StringUtil.isNotEmpty(currentDesc)) {
+            descs.addLast(currentDesc);
+        }
     }
 
     void removeLastDesc() {
@@ -117,18 +197,6 @@ class ConfigDesc {
 
     @Override
     public String toString() {
-        if (descs.size() == 0) {
-            return "";
-        }
-        StringBuilder ret = new StringBuilder(descs.getFirst());
-        boolean first = true;
-        for (String desc : descs) {
-            if (first) {
-                first = false;
-                continue;
-            }
-            ret.append(".").append(desc);
-        }
-        return ret.toString();
+        return String.join(".", descs);
     }
 }
