@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInven
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -121,6 +122,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config.getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(elasticSearchClient, config.getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config.getProfileTaskQueryMaxSize()));
     }
 
     @Override

@@ -26,6 +26,8 @@ import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResultWrapper;
 import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
 import org.apache.skywalking.e2e.profile.query.ProfileTasks;
+import org.apache.skywalking.e2e.profile.query.Traces;
+import org.apache.skywalking.e2e.trace.Trace;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +98,27 @@ public class ProfileClient extends SimpleQueryClient {
 
         return responseEntity.getBody().getData();
     }
+
+    public List<Trace> getProfiledTraces(final String taskId) throws Exception {
+        final URL queryFileUrl = Resources.getResource("getProfileTaskSegmentList.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{taskID}", taskId);
+        final ResponseEntity<GQLResponse<Traces>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<Traces>>() {
+                }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getTraces();
+    }
+
 
 
 }
