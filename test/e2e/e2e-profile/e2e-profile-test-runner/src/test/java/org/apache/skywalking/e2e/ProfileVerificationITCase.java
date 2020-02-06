@@ -35,6 +35,7 @@ import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.trace.Trace;
+import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,11 +76,9 @@ public class ProfileVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        //        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("service.port", "32782");
-        //        final String instrumentedServicePort = System.getProperty("service.port", "9090");
+        final String instrumentedServicePort = System.getProperty("service.port", "9090");
         profileClient = new ProfileClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
@@ -109,7 +108,16 @@ public class ProfileVerificationITCase {
         }
 
         // verify basic info
-        verifyServices(minutesAgo);
+        int verifyServiceCount = 3;
+        for (int i = 1; i <= verifyServiceCount; i++) {
+            try {
+                verifyServices(minutesAgo);
+            } catch (Exception e) {
+                if (i == verifyServiceCount) {
+                    throw new IllegalStateException("match services fail!", e);
+                }
+            }
+        }
 
         // create profile task
         verifyCreateProfileTask(minutesAgo);
@@ -159,6 +167,32 @@ public class ProfileVerificationITCase {
 
         // verify task execution finish
         verifyProfileTask(creationRequest.getServiceId(), "expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileTasks.finished.yml");
+
+        // verify profiled segment
+        verifyProfiledSegment(creationResult.getId());
+    }
+
+    private void verifyProfiledSegment(String taskId) throws InterruptedException {
+        // found segment id
+        String foundedSegmentId = null;
+        for (int i = 0; i < 10; i++) {
+            try {
+                List<Trace> traces = profileClient.getProfiledTraces(taskId);
+                LOGGER.info("get profiled segemnt list: {}", traces);
+
+                InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileSegments.yml").getInputStream();
+                final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
+                tracesMatcher.verifyLoosely(traces);
+                foundedSegmentId = traces.get(0).getKey();
+                break;
+
+            } catch (Exception e) {
+                if (i == 10 - 1) {
+                    throw new IllegalStateException("match profiled segment list fail!", e);
+                }
+                TimeUnit.SECONDS.sleep(retryInterval);
+            }
+        }
     }
 
     private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {
