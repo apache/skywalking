@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.profile;
 
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.DAO;
@@ -32,8 +31,8 @@ import java.util.List;
 public interface IProfileThreadSnapshotQueryDAO extends DAO {
 
     /**
-     * search all profiled segments, need appoint taskId and {@link ProfileThreadSnapshotRecord#getSequence()} equals 0
-     * sort by {@link SegmentRecord#getStartTime()}}
+     * search all profiled segments, need appoint taskId and snapshot sequence equals 0
+     * sort by segment start time
      * @param taskId
      * @return it represents the segments having profile snapshot data.
      */
