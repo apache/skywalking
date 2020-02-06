@@ -116,6 +116,7 @@
                                                 <volume>../${provider.name}/target/${provider.name}-${project.version}.jar:/home/${provider.name}-${project.version}.jar</volume>
                                                 <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                                 <volume>${project.basedir}/src/docker/clusterize.awk:/clusterize.awk</volume>
+                                                <volume>${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal</volume>
                                             </bind>
                                         </volumes>
                                         <wait>

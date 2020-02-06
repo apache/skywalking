@@ -33,6 +33,7 @@ fi
 # substitute application.yml to adapt the storage
 cd ${SW_HOME}/config \
     && gawk -f /adapt_storage.awk application.yml > clusterized_app.yml \
-    && mv clusterized_app.yml application.yml
+    && mv clusterized_app.yml application.yml \
+    && cp /profile_official_analysis.oal official_analysis.oal \
 
 cd ${original_wd}
