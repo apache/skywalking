@@ -17,6 +17,9 @@
  */
 package org.apache.skywalking.apm.plugin.spring.transaction.context;
 
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+
 /**
  * @author zhaoyuguang
  */
@@ -25,11 +28,11 @@ public interface Constants {
     String OPERATION_NAME_SPRING_TRANSACTION_PREFIX = "TX/";
     String OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD = OPERATION_NAME_SPRING_TRANSACTION_PREFIX + "get/";
     String OPERATION_NAME_SPRING_TRANSACTION_NO_TRANSACTION_DEFINITION_GIVEN = OPERATION_NAME_SPRING_TRANSACTION_GET_TRANSACTION_METHOD + "noTransactionDefinitionGiven";
-    String TAG_SPRING_TRANSACTION_ISOLATION_LEVEL = "isolationLevel";
-    String TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR = "propagationBehavior";
-    String TAG_SPRING_TRANSACTION_TIMEOUT = "timeout";
-    String TAG_SPRING_TRANSACTION_IS_NEW_TRANSACTION = "isNewTransaction";
-    String TAG_SPRING_TRANSACTION_HAS_SAVEPOINT = "hasSavepoint";
-    String TAG_SPRING_TRANSACTION_ROLLBACK_ONLY = "rollbackOnly";
-    String TAG_SPRING_TRANSACTION_IS_COMPLETED = "isCompleted";
+    AbstractTag<String> TAG_SPRING_TRANSACTION_ISOLATION_LEVEL = Tags.ofKey("isolationLevel");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_PROPAGATION_BEHAVIOR = Tags.ofKey("propagationBehavior");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_TIMEOUT = Tags.ofKey("timeout");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_IS_NEW_TRANSACTION = Tags.ofKey("isNewTransaction");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_HAS_SAVEPOINT = Tags.ofKey("hasSavepoint");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_ROLLBACK_ONLY = Tags.ofKey("rollbackOnly");
+    AbstractTag<String> TAG_SPRING_TRANSACTION_IS_COMPLETED = Tags.ofKey("isCompleted");
 }

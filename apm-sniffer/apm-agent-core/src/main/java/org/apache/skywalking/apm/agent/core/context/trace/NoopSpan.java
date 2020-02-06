@@ -65,7 +65,7 @@ public class NoopSpan implements AbstractSpan {
         return this;
     }
 
-    @Override public AbstractSpan tag(AbstractTag tag, String value) {
+    @Override public AbstractSpan tag(AbstractTag<?> tag, String value) {
         return this;
     }
 

@@ -24,6 +24,7 @@ import com.dangdang.ddframe.job.executor.ShardingContexts;
 import com.google.common.base.Strings;
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -49,7 +50,7 @@ public class JobExecutorInterceptor implements InstanceMethodsAroundInterceptor 
         }
         AbstractSpan span = ContextManager.createLocalSpan(operateName);
         span.setComponent(ComponentsDefine.ELASTIC_JOB);
-        span.tag("sharding_context", shardingContext.toString());
+        span.tag(Tags.ofKey("sharding_context"), shardingContext.toString());
     }
 
     @Override

@@ -15,26 +15,33 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.agent.core.base64;
+package org.apache.skywalking.oap.server.core.profile.bean;
 
-import java.nio.charset.StandardCharsets;
+import com.google.common.base.Splitter;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
 
-/**
- * A wrapper of {@link java.util.Base64} with convenient conversion methods between {@code byte[]} and {@code String}
- */
-public final class Base64 {
-    private static final java.util.Base64.Decoder DECODER = java.util.Base64.getDecoder();
-    private static final java.util.Base64.Encoder ENCODER = java.util.Base64.getEncoder();
+import java.util.ArrayList;
+import java.util.List;
 
-    private Base64() {
-    }
+@Data
+public class ProfileStackData {
 
-    public static String decode2UTFString(String in) {
-        return new String(DECODER.decode(in), StandardCharsets.UTF_8);
-    }
+    private int limit;
+    private List<String> snapshots;
 
-    public static String encode(String text) {
-        return ENCODER.encodeToString(text.getBytes(StandardCharsets.UTF_8));
+    public List<ProfileStack> transform() {
+        ArrayList<ProfileStack> result = new ArrayList<>(snapshots.size());
+
+        for (int i = 0; i < snapshots.size(); i++) {
+            ProfileStack stack = new ProfileStack();
+            stack.setSequence(i);
+            stack.setDumpTime(i * limit);
+            stack.setStack(Splitter.on("-").splitToList(snapshots.get(i)));
+            result.add(stack);
+        }
+
+        return result;
     }
 
 }

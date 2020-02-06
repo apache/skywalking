@@ -15,26 +15,15 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.agent.core.base64;
+package org.apache.skywalking.oap.server.core.profile.bean;
 
-import java.nio.charset.StandardCharsets;
+import lombok.Data;
 
-/**
- * A wrapper of {@link java.util.Base64} with convenient conversion methods between {@code byte[]} and {@code String}
- */
-public final class Base64 {
-    private static final java.util.Base64.Decoder DECODER = java.util.Base64.getDecoder();
-    private static final java.util.Base64.Encoder ENCODER = java.util.Base64.getEncoder();
+import java.util.List;
 
-    private Base64() {
-    }
+@Data
+public class ProfileStackAnalyzeHolder {
 
-    public static String decode2UTFString(String in) {
-        return new String(DECODER.decode(in), StandardCharsets.UTF_8);
-    }
-
-    public static String encode(String text) {
-        return ENCODER.encodeToString(text.getBytes(StandardCharsets.UTF_8));
-    }
+    private List<ProfileStackAnalyze> list;
 
 }

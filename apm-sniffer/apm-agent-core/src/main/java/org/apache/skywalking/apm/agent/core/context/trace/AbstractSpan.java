@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context.trace;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.AsyncSpan;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
@@ -53,6 +54,7 @@ public interface AbstractSpan extends AsyncSpan {
      * Set a key:value tag on the Span.
      *
      * @return this Span instance, for chaining
+     * @deprecated use {@link #tag(AbstractTag, String)} in companion with {@link Tags#ofKey(String)} instead
      */
     @Deprecated
     AbstractSpan tag(String key, String value);
@@ -62,7 +64,7 @@ public interface AbstractSpan extends AsyncSpan {
      * @param value
      * @return
      */
-    AbstractSpan tag(AbstractTag tag, String value);
+    AbstractSpan tag(AbstractTag<?> tag, String value);
 
     /**
      * Record an exception event of the current walltime timestamp.
