@@ -36,12 +36,14 @@ import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
+import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -55,6 +57,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mrpro
@@ -72,10 +76,8 @@ public class ProfileVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        //        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String instrumentedServiceHost = System.getProperty("service.host", "127.0.0.1");
-//        final String instrumentedServicePort = System.getProperty("service.port", "32782");
         final String instrumentedServicePort = System.getProperty("service.port", "9090");
         profileClient = new ProfileClient(swWebappHost, swWebappPort);
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
@@ -85,6 +87,37 @@ public class ProfileVerificationITCase {
     @DirtiesContext
     public void verify() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
+
+        while (true) {
+            try {
+                final ResponseEntity<String> responseEntity = sendRequest(false);
+                LOGGER.info("responseEntity: {}", responseEntity);
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+                final List<Trace> traces = profileClient.traces(
+                        new TracesQuery()
+                                .start(minutesAgo)
+                                .end(LocalDateTime.now())
+                                .orderByDuration()
+                );
+                if (!traces.isEmpty()) {
+                    break;
+                }
+                Thread.sleep(10000L);
+            } catch (Exception ignored) {
+            }
+        }
+
+        // verify basic info
+        int verifyServiceCount = 3;
+        for (int i = 1; i <= verifyServiceCount; i++) {
+            try {
+                verifyServices(minutesAgo);
+            } catch (Exception e) {
+                if (i == verifyServiceCount) {
+                    throw new IllegalStateException("match services fail!", e);
+                }
+            }
+        }
 
         // create profile task
         verifyCreateProfileTask(minutesAgo);
