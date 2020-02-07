@@ -148,6 +148,8 @@ storage:
 #    user: ${SW_STORAGE_USER:root}
 #    password: ${SW_STORAGE_PASSWORD:}
 #    database: ${SW_STORAGE_DATABASE:skywalking}
+#    actions: ${SW_STORAGE_INFLUX_ACTIONS:1000} # the number of actions to collect
+#    duration: ${SW_STORAGR_INFLUX_DURATION:1000} # the time to wait at most (milliseconds)
 receiver-sharing-server:
   default:
     authentication: ${SW_AUTHENTICATION:""}
