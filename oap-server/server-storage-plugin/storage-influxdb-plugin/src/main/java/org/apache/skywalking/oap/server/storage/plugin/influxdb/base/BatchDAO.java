@@ -20,11 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;

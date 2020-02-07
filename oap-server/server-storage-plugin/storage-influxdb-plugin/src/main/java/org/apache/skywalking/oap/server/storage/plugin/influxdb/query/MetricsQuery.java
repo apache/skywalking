@@ -42,7 +42,6 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.elasticsearch.action.search.SearchResponse;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;

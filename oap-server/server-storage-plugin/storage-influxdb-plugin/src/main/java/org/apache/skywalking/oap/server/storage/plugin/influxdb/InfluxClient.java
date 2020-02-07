@@ -26,7 +26,6 @@ import okhttp3.OkHttpClient;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
