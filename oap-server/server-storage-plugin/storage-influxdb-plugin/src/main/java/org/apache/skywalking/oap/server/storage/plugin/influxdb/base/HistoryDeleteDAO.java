@@ -35,29 +35,28 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
     private final InfluxClient client;
     private final StorageTTL storageTTL;
 
-    public HistoryDeleteDAO(ModuleDefineHolder moduleDefineHolder, InfluxClient client,
-        StorageTTL storageTTL) {
+    public HistoryDeleteDAO(ModuleDefineHolder moduleDefineHolder, InfluxClient client, StorageTTL storageTTL) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.storageTTL = storageTTL;
         this.client = client;
     }
 
     @Override public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
-        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
-
-        TTLCalculator ttlCalculator;
-        if (model.isRecord()) {
-            ttlCalculator = storageTTL.recordCalculator();
-        } else {
-            ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
+        if (log.isDebugEnabled()) {
+            log.debug("TTL execution log, model: {}", model.getName());
         }
-
         try {
-            client.dropSeries(model.getName(), ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig()));
-            if (log.isDebugEnabled()) {
-                log.debug("TTL execution log, model: {} Success!", model.getName());
+            ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
+
+            TTLCalculator ttlCalculator;
+            if (model.isRecord()) {
+                ttlCalculator = storageTTL.recordCalculator();
+            } else {
+                ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
             }
-        } catch (IOException e) {
+
+            client.dropSeries(model.getName(), ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig()));
+        } catch (Exception e) {
             log.error("TTL execution log, model: {}, errMsg: {}", model.getName(), e.getMessage());
         }
     }

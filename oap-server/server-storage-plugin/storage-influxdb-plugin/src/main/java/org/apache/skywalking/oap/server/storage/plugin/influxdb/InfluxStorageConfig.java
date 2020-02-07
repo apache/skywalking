@@ -38,4 +38,7 @@ public class InfluxStorageConfig extends ModuleConfig {
     private String user;
     private String password;
     private String database;
+
+    private int actions;
+    private int duration;
 }

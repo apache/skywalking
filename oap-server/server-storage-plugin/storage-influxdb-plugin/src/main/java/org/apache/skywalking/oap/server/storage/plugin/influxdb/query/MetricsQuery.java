@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.elasticsearch.action.search.SearchResponse;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
@@ -121,16 +122,15 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", queryWhereQuery.getCommand(), seriesList);
         }
-        if (seriesList == null || seriesList.isEmpty()) {
-            return intValues;
-        }
-        for (QueryResult.Series series : seriesList) {
-            KVInt kv = new KVInt();
-            kv.setId(series.getTags().get(Metrics.ENTITY_ID));
-            Number value = (Number)series.getValues().get(0).get(1);
-            kv.setValue(value.longValue());
+        if (!(seriesList == null || seriesList.isEmpty())) {
+            for (QueryResult.Series series : seriesList) {
+                KVInt kv = new KVInt();
+                kv.setId(series.getTags().get(Metrics.ENTITY_ID));
+                Number value = (Number)series.getValues().get(0).get(1);
+                kv.setValue(value.longValue());
 
-            intValues.addKVInt(kv);
+                intValues.addKVInt(kv);
+            }
         }
 
         return orderWithDefault0(intValues, ids);
@@ -158,16 +158,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), seriesList);
         }
+
         IntValues intValues = new IntValues();
-        if (seriesList == null || seriesList.isEmpty()) {
-            return intValues;
+        if (!(seriesList == null || seriesList.isEmpty())) {
+            seriesList.get(0).getValues().forEach(values -> {
+                KVInt kv = new KVInt();
+                kv.setValue((int)values.get(2));
+                kv.setId((String)values.get(1));
+                intValues.addKVInt(kv);
+            });
         }
-        seriesList.get(0).getValues().forEach(values -> {
-            KVInt kv = new KVInt();
-            kv.setValue((int)values.get(2));
-            kv.setId((String)values.get(1));
-            intValues.addKVInt(kv);
-        });
         return orderWithDefault0(intValues, ids);
     }
 

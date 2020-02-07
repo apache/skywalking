@@ -31,6 +31,9 @@ public class MySQLInstaller extends MySQLTableInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        return MetaTableDefine.contains(model) && super.isExists(client, model);
+        if (!MetaTableDefine.contains(model)) {
+            return true;
+        }
+        return super.isExists(client, model);
     }
 }

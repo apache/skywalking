@@ -34,28 +34,15 @@ import org.influxdb.dto.BatchPoints;
 
 @Slf4j
 public class BatchDAO implements IBatchDAO {
-    private final DataCarrier<PrepareRequest> dataCarrier;
     private final InfluxClient client;
 
     public BatchDAO(InfluxClient client) {
         this.client = client;
-
-        String name = "INFLUX_ASYNC_BATCH_PERSISTENT";
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, 1, 20L);
-
-        try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
-        } catch (Exception e) {
-            throw new UnexpectedException(e.getMessage(), e);
-        }
-
-        this.dataCarrier = new DataCarrier(1, 10000);
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new InfluxBatchConsumer(this));
     }
 
     @Override
     public void asynchronous(InsertRequest insertRequest) {
-        dataCarrier.produce(insertRequest);
+        client.getInflux().write(((InfluxInsertRequest)insertRequest).getPoint());
     }
 
     @Override
@@ -74,32 +61,5 @@ public class BatchDAO implements IBatchDAO {
         });
 
         client.write(builder.build());
-    }
-
-    private class InfluxBatchConsumer implements IConsumer<PrepareRequest> {
-        private final BatchDAO batchDAO;
-
-        private InfluxBatchConsumer(BatchDAO batchDAO) {
-            this.batchDAO = batchDAO;
-        }
-
-        @Override
-        public void init() {
-
-        }
-
-        @Override
-        public void consume(List<PrepareRequest> prepareRequests) {
-            batchDAO.synchronous(prepareRequests);
-        }
-
-        @Override
-        public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
-            log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
-        }
     }
 }

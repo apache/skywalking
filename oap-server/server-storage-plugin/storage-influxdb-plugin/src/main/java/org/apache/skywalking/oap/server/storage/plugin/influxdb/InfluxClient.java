@@ -21,10 +21,12 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.influxdb.BatchOptions;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
@@ -38,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.ti;
 
 /**
- *
+ * InfluxDB connection maintainer, provides base data write/query API.
  */
 public class InfluxClient implements Client {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -71,12 +73,12 @@ public class InfluxClient implements Client {
             new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
         influx.query(new Query("CREATE DATABASE " + database));
 
+        influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
         influx.setDatabase(database);
-        influx.enableBatch();
     }
 
     /**
-     * To get a connection of InfluxDB
+     * To get a connection of InfluxDB.
      *
      * @return InfluxDB's connection
      */
@@ -127,24 +129,11 @@ public class InfluxClient implements Client {
      * @throws IOException
      */
     public void dropSeries(String measurement, long timeBucket) throws IOException {
-        Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'");
+        Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket<='" + timeBucket + "'");
         QueryResult result = getInflux().query(query);
 
         if (result.hasError()) {
             throw new IOException("Statement: " + query.getCommand() + ", ErrorMsg: " + result.getError());
-        }
-    }
-
-    /**
-     * Data management, to delete data by a statement. If an exception isn't thrown, it means execution success.
-     *
-     * @param statement
-     * @throws IOException
-     */
-    public void queryForDelete(String statement) throws IOException {
-        QueryResult result = getInflux().query(new Query(statement));
-        if (result.hasError()) {
-            throw new IOException("Statement: " + statement + ", ErrorMsg: " + result.getError());
         }
     }
 
