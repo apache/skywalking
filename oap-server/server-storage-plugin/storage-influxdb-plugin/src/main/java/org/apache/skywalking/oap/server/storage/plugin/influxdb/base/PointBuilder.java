@@ -85,23 +85,7 @@ public class PointBuilder {
                 fields.put(name.getStorageName(), value);
             }
         }
-        Point.Builder builder = null;
-        switch (model.getScopeId()) {
-            case SEGMENT:
-            case HTTP_ACCESS_LOG:
-            case DATABASE_ACCESS:
-            case DATABASE_SLOW_STATEMENT:
-            case ALARM:
-            case JAEGER_SPAN:
-            case ZIPKIN_SPAN: {
-                builder = Point.measurement(model.getName())
-                    .fields(fields);
-                break;
-            }
-            default: {
-                throw new IOException("Unknown ScopeId(" + model.getScopeId() + ")");
-            }
-        }
+        Point.Builder builder = Point.measurement(model.getName()).fields(fields);
         if (Objects.nonNull(entityId)) {
             builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(entityId));
         }
