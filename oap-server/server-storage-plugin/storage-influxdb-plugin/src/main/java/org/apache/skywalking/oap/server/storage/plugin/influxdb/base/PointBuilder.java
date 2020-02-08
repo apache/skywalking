@@ -34,13 +34,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.Point;
 
 import static org.apache.skywalking.oap.server.core.analysis.TimeBucket.getTimestamp;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JAEGER_SPAN;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ZIPKIN_SPAN;
 
 /**
  * A helper help to build a InfluxDB Point from StorageData.

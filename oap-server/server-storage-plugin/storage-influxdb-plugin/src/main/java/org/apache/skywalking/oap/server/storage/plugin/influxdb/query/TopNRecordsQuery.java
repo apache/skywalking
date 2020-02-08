@@ -71,16 +71,16 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             query.and(eq(TopN.SERVICE_ID, serviceId));
         }
 
-        List<QueryResult.Series> series = client.queryForSeries(query);
+        QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        if (series == null || series.isEmpty()) {
+        if (series == null) {
             return Collections.emptyList();
         }
 
         final List<TopNRecord> records = new ArrayList<>();
-        series.get(0).getValues().forEach(values -> {
+        series.getValues().forEach(values -> {
             TopNRecord record = new TopNRecord();
             record.setLatency((long)values.get(1));
             record.setTraceId((String)values.get(3));

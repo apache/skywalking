@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
@@ -52,15 +51,15 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
         final LinkedList<String> segments = new LinkedList<>();
-        client.queryForSeries(query).get(0).getValues().forEach(values -> {
-            segments.add(String.valueOf(values.get(0)));
+        client.queryForSingleSeries(query).getValues().forEach(values -> {
+            segments.add(String.valueOf(values));
         });
 
         if (segments.isEmpty()) {
             return Collections.emptyList();
         }
 
-        WhereQueryImpl<SelectQueryImpl> query2 = select()
+        query = select()
             .function("bottom", SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
@@ -73,8 +72,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .and(contains(SegmentRecord.SEGMENT_ID, Joiner.on("|").join(segments)));
 
         ArrayList<BasicTrace> result = Lists.newArrayListWithCapacity(segments.size());
-        client.queryForSeries(query2)
-            .get(0)
+        client.queryForSingleSeries(query)
             .getValues()
             .stream()
             .sorted((a, b) -> Long.compare(((Number)b.get(1)).longValue(), ((Number)a.get(1)).longValue()))

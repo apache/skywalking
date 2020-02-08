@@ -55,19 +55,19 @@ public class MetricsDAO implements IMetricsDAO {
         WhereQueryImpl<SelectQueryImpl> query = select("*::field")
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
-        List<QueryResult.Series> series = client.queryForSeries(query);
-        if (series == null || series.isEmpty()) {
+        QueryResult.Series series = client.queryForSingleSeries(query);
+        if (series == null) {
             return Collections.emptyList();
         }
 
         final List<Metrics> metrics = Lists.newArrayList();
-        List<String> columns = series.get(0).getColumns();
+        List<String> columns = series.getColumns();
         Map<String, String> storageAndColumnNames = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
             storageAndColumnNames.put(column.getColumnName().getName(), column.getColumnName().getStorageName());
         }
 
-        series.get(0).getValues().forEach(values -> {
+        series.getValues().forEach(values -> {
             Map<String, Object> data = Maps.newHashMap();
 
             for (int i = 1; i < columns.size(); i++) {

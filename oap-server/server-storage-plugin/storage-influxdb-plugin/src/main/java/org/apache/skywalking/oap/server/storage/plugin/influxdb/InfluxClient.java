@@ -26,6 +26,7 @@ import okhttp3.OkHttpClient;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
@@ -84,10 +85,11 @@ public class InfluxClient implements Client {
     }
 
     /**
-     * Request with a {@link Query} to InfluxDB and return a set of {@link QueryResult.Result}s.
+     * Execute a query against InfluxDB and return a set of {@link QueryResult.Result}s. Normally, InfluxDB supports
+     * combining multiple statements into one query, so that we do get multi-results.
      *
      * @param query
-     * @return a set of Result.
+     * @return a set of {@link QueryResult.Result}s.
      * @throws IOException
      */
     public List<QueryResult.Result> query(Query query) throws IOException {
@@ -107,14 +109,34 @@ public class InfluxClient implements Client {
     }
 
     /**
-     * Request with one statement to InfluxDB and return a set of {@link QueryResult.Series}s.
+     * Execute a query against InfluxDB with a single statement.
      *
      * @param query
-     * @return a set of Series
+     * @return a set of {@link QueryResult.Series}s
      * @throws IOException
      */
     public List<QueryResult.Series> queryForSeries(Query query) throws IOException {
-        return query(query).get(0).getSeries();
+        List<QueryResult.Result> results = query(query);
+
+        if (CollectionUtils.isEmpty(results)) {
+            return null;
+        }
+        return results.get(0).getSeries();
+    }
+
+    /**
+     * Execute a query against InfluxDB with a single statement but return a single {@link QueryResult.Series}.
+     *
+     * @param query
+     * @return {@link QueryResult.Series}
+     * @throws IOException
+     */
+    public QueryResult.Series queryForSingleSeries(Query query) throws IOException {
+        List<QueryResult.Series> series = queryForSeries(query);
+        if (CollectionUtils.isEmpty(series)) {
+            return null;
+        }
+        return series.get(0);
     }
 
     /**
@@ -135,7 +157,8 @@ public class InfluxClient implements Client {
     }
 
     /**
-     * Write a {@link Point} into InfluxDB.
+     * Write a {@link Point} into InfluxDB. Note that, the {@link Point} is written into buffer of InfluxDB Client and
+     * wait for buffer flushing.
      *
      * @param point
      */
@@ -144,7 +167,7 @@ public class InfluxClient implements Client {
     }
 
     /**
-     * A batch operation of write.
+     * A batch operation of write. {@link Point}s flush directly.
      *
      * @param points
      */

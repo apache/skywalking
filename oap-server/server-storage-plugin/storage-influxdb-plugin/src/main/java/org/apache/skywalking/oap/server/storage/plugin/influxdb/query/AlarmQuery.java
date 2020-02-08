@@ -52,7 +52,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
         long endTB) throws IOException {
 
-        WhereQueryImpl<SelectQueryImpl> query1 = select()
+        WhereQueryImpl<SelectQueryImpl> recallQuery = select()
             .function("top", AlarmRecord.START_TIME, limit + from).as(AlarmRecord.START_TIME)
             .column(AlarmRecord.ID0)
             .column(AlarmRecord.ALARM_MESSAGE)
@@ -60,28 +60,28 @@ public class AlarmQuery implements IAlarmQueryDAO {
             .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
             .where();
         if (startTB > 0 && endTB > 0) {
-            query1.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+            recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
                 .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         }
         if (!Strings.isNullOrEmpty(keyword)) {
-            query1.and(regex(AlarmRecord.ALARM_MESSAGE, keyword));
+            recallQuery.and(regex(AlarmRecord.ALARM_MESSAGE, keyword));
         }
         if (Objects.nonNull(scopeId)) {
-            query1.and(eq(AlarmRecord.SCOPE, scopeId));
+            recallQuery.and(eq(AlarmRecord.SCOPE, scopeId));
         }
 
-        WhereQueryImpl<SelectQueryImpl> query2 = select().count(AlarmRecord.ID0).from(client.getDatabase(), AlarmRecord.INDEX_NAME).where();
-        query1.getClauses().forEach(clause -> {
-            query2.where(clause);
+        WhereQueryImpl<SelectQueryImpl> countQuery = select().count(AlarmRecord.ID0).from(client.getDatabase(), AlarmRecord.INDEX_NAME).where();
+        recallQuery.getClauses().forEach(clause -> {
+            countQuery.where(clause);
         });
 
-        Query query = new Query(query2.getCommand() + query1.getCommand());
+        Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
         List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), results);
         }
         if (results.size() != 2) {
-            throw new IOException("We expect to get 2 Results, but it is " + results.size());
+            throw new IOException("Expecting to get 2 Results, but it is " + results.size());
         }
         List<QueryResult.Series> series = results.get(1).getSeries();
         if (series == null || series.isEmpty()) {

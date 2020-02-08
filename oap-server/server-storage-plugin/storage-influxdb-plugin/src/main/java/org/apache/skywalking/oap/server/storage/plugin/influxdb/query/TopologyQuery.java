@@ -207,17 +207,17 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     public List<Call.CallDetail> buildCalls(WhereQueryImpl<SelectQueryImpl> query, DetectPoint detectPoint) throws IOException {
-        List<QueryResult.Series> seriesList = client.queryForSeries(query);
+        QueryResult.Series series = client.queryForSingleSeries(query);
 
         if (log.isDebugEnabled()) {
-            log.debug("SQL: {} result set: {}", query.getCommand(), seriesList);
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        if (seriesList == null || seriesList.isEmpty()) {
+        if (series == null) {
             return Collections.emptyList();
         }
 
         List<Call.CallDetail> calls = new ArrayList<>();
-        seriesList.get(0).getValues().forEach(values -> {
+        series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = (String)values.get(1);
             RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);

@@ -61,21 +61,21 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
             query.and(eq(ProfileTaskLogRecord.TASK_ID, taskId));
         }
 
-        List<QueryResult.Series> series = client.queryForSeries(query);
+        QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        if (series == null || series.isEmpty()) {
+        if (series == null) {
             return Collections.emptyList();
         }
-        List<String> columns = series.get(0).getColumns();
+        List<String> columns = series.getColumns();
         Map<String, Integer> columnsMap = Maps.newHashMap();
         for (int i = 0; i < columns.size(); i++) {
             columnsMap.put(columns.get(i), i);
         }
 
         List<ProfileTaskLog> taskLogs = Lists.newArrayList();
-        series.get(0).getValues().stream()
+        series.getValues().stream()
             .sorted((a, b) -> Long.compare(((Number)b.get(1)).longValue(), ((Number)a.get(1)).longValue()))
             .forEach(values -> {
                 taskLogs.add(ProfileTaskLog.builder()

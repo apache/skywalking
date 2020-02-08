@@ -64,55 +64,55 @@ public class LogQuery implements ILogQueryDAO {
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
         LogState state, String stateCode, Pagination paging, int from, int limit,
         long startTB, long endTB) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query1 = select("*::field")
+        WhereQueryImpl<SelectQueryImpl> recallQuery = select("*::field")
             .from(client.getDatabase(), metricName)
             .where();
         if (serviceId != Const.NONE) {
-            query1.and(eq(SERVICE_ID, serviceId));
+            recallQuery.and(eq(SERVICE_ID, serviceId));
         }
         if (serviceInstanceId != Const.NONE) {
-            query1.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));
+            recallQuery.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (endpointId != Const.NONE) {
-            query1.and(eq(ENDPOINT_ID, endpointId));
+            recallQuery.and(eq(ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
-            query1.and(eq(TRACE_ID, traceId));
+            recallQuery.and(eq(TRACE_ID, traceId));
         }
         switch (state) {
             case ERROR: {
-                query1.and(eq(IS_ERROR, true));
+                recallQuery.and(eq(IS_ERROR, true));
                 break;
             }
             case SUCCESS: {
-                query1.and(eq(IS_ERROR, false));
+                recallQuery.and(eq(IS_ERROR, false));
                 break;
             }
         }
         if (!Strings.isNullOrEmpty(stateCode)) {
-            query1.and(eq(STATUS_CODE, stateCode));
+            recallQuery.and(eq(STATUS_CODE, stateCode));
         }
-        query1.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
             .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         if (from > Const.NONE) {
             limit += from;
-            query1.limit(limit, from);
+            recallQuery.limit(limit, from);
         } else {
-            query1.limit(limit);
+            recallQuery.limit(limit);
         }
 
-        SelectQueryImpl query2 = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
-        for (ConjunctionClause clause : query1.getClauses()) {
-            query2.where(clause);
+        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
+        for (ConjunctionClause clause : recallQuery.getClauses()) {
+            countQuery.where(clause);
         }
 
-        Query query = new Query(query2.getCommand() + query1.getCommand());
+        Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
         List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} \nresult set: {}", query.getCommand(), results);
         }
         if (results.size() != 2) {
-            throw new IOException("We expect to get 2 Results, but it is " + results.size());
+            throw new IOException("Expecting to get 2 Results, but it is " + results.size());
         }
 
         final Logs logs = new Logs();

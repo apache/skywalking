@@ -67,7 +67,7 @@ public class TraceQuery implements ITraceQueryDAO {
             orderBy = SegmentRecord.LATENCY;
         }
 
-        WhereQueryImpl<SelectQueryImpl> query1 = select()
+        WhereQueryImpl<SelectQueryImpl> recallQuery = select()
             .function("top", orderBy, limit + from)
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
@@ -79,54 +79,54 @@ public class TraceQuery implements ITraceQueryDAO {
             .where();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-            query1.and(gte(InfluxClient.TIME, timeInterval(startSecondTB, Downsampling.Second)))
+            recallQuery.and(gte(InfluxClient.TIME, timeInterval(startSecondTB, Downsampling.Second)))
                 .and(lte(InfluxClient.TIME, timeInterval(endSecondTB, Downsampling.Second)));
         }
         if (minDuration != 0) {
-            query1.and(gte(SegmentRecord.LATENCY, minDuration));
+            recallQuery.and(gte(SegmentRecord.LATENCY, minDuration));
         }
         if (maxDuration != 0) {
-            query1.and(lte(SegmentRecord.LATENCY, maxDuration));
+            recallQuery.and(lte(SegmentRecord.LATENCY, maxDuration));
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            query1.and(regex(SegmentRecord.ENDPOINT_NAME, "/" + endpointName.replaceAll("/", "\\\\/") + "/"));
+            recallQuery.and(regex(SegmentRecord.ENDPOINT_NAME, "/" + endpointName.replaceAll("/", "\\\\/") + "/"));
         }
         if (serviceId != 0) {
-            query1.and(eq(SegmentRecord.SERVICE_ID, serviceId));
+            recallQuery.and(eq(SegmentRecord.SERVICE_ID, serviceId));
         }
         if (serviceInstanceId != 0) {
-            query1.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (endpointId != 0) {
-            query1.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
+            recallQuery.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
-            query1.and(eq(SegmentRecord.TRACE_ID, traceId));
+            recallQuery.and(eq(SegmentRecord.TRACE_ID, traceId));
         }
         switch (traceState) {
             case ERROR:
-                query1.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
+                recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
                 break;
             case SUCCESS:
-                query1.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
+                recallQuery.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
         }
 
-        WhereQueryImpl<SelectQueryImpl> query2 = select()
+        WhereQueryImpl<SelectQueryImpl> countQuery = select()
             .count(SegmentRecord.ENDPOINT_ID)
             .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
             .where();
-        for (Clause clause : query1.getClauses()) {
-            query2.where(clause);
+        for (Clause clause : recallQuery.getClauses()) {
+            countQuery.where(clause);
         }
-        Query query = new Query(query2.getCommand() + query1.getCommand());
+        Query query = new Query(countQuery.getCommand() + recallQuery.getCommand());
 
         List<QueryResult.Result> results = client.query(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), results);
         }
         if (results.size() != 2) {
-            throw new IOException("We expect to get 2 Results, but it is " + results.size());
+            throw new IOException("Expecting to get 2 Results, but it is " + results.size());
         }
         List<QueryResult.Series> counter = results.get(0).getSeries();
         List<QueryResult.Series> result = results.get(1).getSeries();
