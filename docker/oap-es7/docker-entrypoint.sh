@@ -149,6 +149,25 @@ storage:
 EOT
 }
 
+generateStorageInfluxDB() {
+    cat <<EOT >> ${var_application_file}
+storage:
+  influx:
+    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2}
+    metabaseDriver: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
+    metabaseUrl: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
+    metabaseUser: ${SW_STORAGE_METABASE_USER:sa}
+    metabasePassword: ${SW_STORAGE_METABASE_PASSWORD:}
+    metadataQueryMaxSize: ${SW_STORAGE_METABASE_QUERY_MAX_SIZE:5000}
+    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
+    user: ${SW_STORAGE_INFLUXDB_USER:root}
+    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
+    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
+    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000}
+    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000}
+EOT
+}
+
 generateConfigurationNone() {
     cat <<EOT >> ${var_application_file}
 configuration:
