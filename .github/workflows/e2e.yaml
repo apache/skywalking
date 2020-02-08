@@ -120,5 +120,7 @@ jobs:
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=mysql
       - name: Profile Tests ES6(JDK8)
         run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=elasticsearch
+      - name: Profile Tests InfluxDB(JDK8)
+        run: export E2E_VERSION=jdk8-1.3 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=influxdb
       - name: Profile Tests ES7(JDK8)
         run: export E2E_VERSION=jdk8-1.3 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=elasticsearch
