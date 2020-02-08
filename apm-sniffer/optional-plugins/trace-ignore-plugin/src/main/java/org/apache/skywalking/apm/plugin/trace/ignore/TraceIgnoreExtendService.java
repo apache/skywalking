@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore;
 
-import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
-import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.context.AbstractTracerContext;
 import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
@@ -40,8 +38,6 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     private static final ILog LOGGER = LogManager.getLogger(TraceIgnoreExtendService.class);
 
-    private static final String DEFAULT_PATH_SEPARATOR = "/";
-
     private static final String PATTERN_SEPARATOR = ",";
 
     private TracePathMatcher pathMatcher = new FastPathMatcher();
@@ -50,13 +46,9 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     @Override
     public void boot() {
-        try {
-            IgnoreConfigInitializer.initialize();
-            if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
-                patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
-            }
-        } catch (ConfigNotFoundException | AgentPackageNotFoundException e) {
-            LOGGER.error("trace ignore config init error", e);
+        IgnoreConfigInitializer.initialize();
+        if (StringUtil.isNotEmpty(IgnoreConfig.Trace.IGNORE_PATH)) {
+            patterns = IgnoreConfig.Trace.IGNORE_PATH.split(PATTERN_SEPARATOR);
         }
     }
 
