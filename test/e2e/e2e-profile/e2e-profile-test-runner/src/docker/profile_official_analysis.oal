@@ -17,15 +17,5 @@
  */
 
 
-package org.apache.skywalking.apm.agent.core.context;
+// Disable all oal in profile e2e testing.
 
-/**
- * @author wusheng
- */
-public class TraceContextCarrierItem extends CarrierItem {
-    private static final String HEAD_NAME = "Trace-Context";
-
-    public TraceContextCarrierItem(String headValue, CarrierItem next) {
-        super(HEAD_NAME, headValue, next);
-    }
-}

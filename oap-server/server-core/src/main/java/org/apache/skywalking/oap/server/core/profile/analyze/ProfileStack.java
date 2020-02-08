@@ -22,12 +22,12 @@ import com.google.common.primitives.Ints;
 import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.Data;
 import org.apache.skywalking.apm.network.language.profile.ThreadStack;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskSegmentSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 
 import java.util.List;
 
 /**
- * Deserialize from {@link ProfileTaskSegmentSnapshotRecord}
+ * Deserialize from {@link ProfileThreadSnapshotRecord}
  */
 @Data
 public class ProfileStack implements Comparable<ProfileStack> {
@@ -36,7 +36,7 @@ public class ProfileStack implements Comparable<ProfileStack> {
     private long dumpTime;
     private List<String> stack;
 
-    public static ProfileStack deserialize(ProfileTaskSegmentSnapshotRecord record) {
+    public static ProfileStack deserialize(ProfileThreadSnapshotRecord record) {
         ThreadStack threadStack = null;
         try {
             threadStack = ThreadStack.parseFrom(record.getStackBinary());

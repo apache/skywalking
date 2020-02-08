@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Analyze {@link ProfileStack} data to {@link ProfileAnalyzation}
  *
- * See: https://github.com/apache/skywalking/blob/docs/en/guides/backend-profile.md#thread-analyst
+ * See: https://github.com/apache/skywalking/blob/421ba88dbfba48cdc5845547381aa4763775b4b1/docs/en/guides/backend-profile.md#thread-analyst
  */
 public class ProfileAnalyzer {
 

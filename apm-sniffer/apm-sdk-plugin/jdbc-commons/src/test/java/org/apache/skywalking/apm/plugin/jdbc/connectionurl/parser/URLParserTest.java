@@ -83,6 +83,14 @@ public class URLParserTest {
     }
 
     @Test
+    public void testParseOracleSID() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522/orcl");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
+    }
+
+    @Test
     public void testParseOracleServiceName() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@//localhost:1521/orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));

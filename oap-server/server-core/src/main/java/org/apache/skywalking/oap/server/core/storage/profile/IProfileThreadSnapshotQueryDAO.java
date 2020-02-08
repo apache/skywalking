@@ -16,17 +16,26 @@
  *
  */
 
+package org.apache.skywalking.oap.server.core.storage.profile;
 
-package org.apache.skywalking.apm.agent.core.remote;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.storage.DAO;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
- * The <code>RESTResponseStatusError</code> represents the REST-Service discovery got an unexpected response code.
- * Most likely, the response code is not 200.
- *
- * @author wusheng
+ * {@link ProfileThreadSnapshotRecord} database queries
  */
-class RESTResponseStatusError extends Exception {
-    RESTResponseStatusError(int responseCode) {
-        super("Unexpected service response code: " + responseCode);
-    }
+public interface IProfileThreadSnapshotQueryDAO extends DAO {
+
+    /**
+     * search all profiled segments, need appoint taskId and snapshot sequence equals 0
+     * sort by segment start time
+     * @param taskId
+     * @return it represents the segments having profile snapshot data.
+     */
+    List<BasicTrace> queryProfiledSegments(String taskId) throws IOException;
+
 }
