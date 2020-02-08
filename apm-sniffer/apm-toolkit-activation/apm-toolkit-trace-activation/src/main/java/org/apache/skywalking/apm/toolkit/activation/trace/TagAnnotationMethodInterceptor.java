@@ -23,8 +23,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.util.TagUtil;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -54,19 +54,18 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         final Tags tags = method.getAnnotation(Tags.class);
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
-                tagSpan(activeSpan, tag, context);
+                if (!TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagParamsSpan(activeSpan, context, tag.key(), tag.value());
+                }
             }
         }
 
         final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null) {
-            tagSpan(activeSpan, tag, context);
+        if (tag != null && !TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagParamsSpan(activeSpan, context, tag.key(), tag.value());
         }
     }
 
-    private void tagSpan(final AbstractSpan span, final Tag tag, final Map<String, Object> context) {
-        new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
-    }
 
     @Override
     public Object afterMethod(
@@ -75,6 +74,25 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         final Object[] allArguments,
         final Class<?>[] argumentsTypes,
         final Object ret) {
+        if (ret == null || !ContextManager.isActive()) {
+            ContextManager.stopSpan();
+            return ret;
+        }
+        final AbstractSpan localSpan = ContextManager.activeSpan();
+        final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
+        final Tags tags = method.getAnnotation(Tags.class);
+        if (tags != null && tags.value().length > 0) {
+            for (final Tag tag : tags.value()) {
+                if (TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagReturnSpanSpan(localSpan, context, tag.key(), tag.value());
+                }
+            }
+        }
+        final Tag tag = method.getAnnotation(Tag.class);
+        if (tag != null && TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagReturnSpanSpan(localSpan, context, tag.key(), tag.value());
+        }
+        ContextManager.stopSpan();
         return ret;
     }
 

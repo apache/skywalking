@@ -48,6 +48,19 @@ public class CustomizeExpression {
         }
         return context;
     }
+    public static Map<String, Object> evaluationReturnContext(Object ret)  {
+        Map<String, Object> context = new HashMap<>();
+        Field[] fields = ret.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            try {
+                context.put(field.getName(),field.get(ret));
+            } catch (Exception e) {
+                logger.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
+            }
+        }
+        return context;
+    }
 
     public static String parseExpression(String expression, Map<String, Object> context) {
         try {
@@ -58,7 +71,17 @@ public class CustomizeExpression {
             logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
         }
         return "null";
+    }
 
+    public static String parseReturnExpression(String expression, Map<String, Object> context) {
+        try {
+            String[] es = expression.split("\\.");
+            Object o = context.get(es[1]);
+            return o == null ? "null" : String.valueOf(parse(es, o, 1));
+        } catch (Exception e) {
+            logger.debug("parse expression error, expression is {}, exception is {}", expression, e.getMessage());
+        }
+        return "null";
     }
 
     private static Object parse(String[] expressions, Object o, int i) {
