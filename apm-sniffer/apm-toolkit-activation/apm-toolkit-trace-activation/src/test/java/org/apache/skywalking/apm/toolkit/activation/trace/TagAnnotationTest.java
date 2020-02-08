@@ -22,7 +22,6 @@ package org.apache.skywalking.apm.toolkit.activation.trace;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
