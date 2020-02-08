@@ -77,11 +77,11 @@
                             <alias>${e2e.container.name.prefix}-influxdb</alias>
                             <run>
                                 <ports>
-                                    <port>8086:8086</port>
+                                    <port>influxdb.port:8086</port>
                                 </ports>
                                 <wait>
                                     <http>
-                                        <url>http://localhost:8086/ping</url>
+                                        <url>http://${docker.host.address}:${influxdb.port}/ping</url>
                                         <method>GET</method>
                                     </http>
                                     <time>50000</time>
@@ -94,7 +94,7 @@
                             <run>
                                 <env>
                                     <MODE>standalone</MODE>
-                                    <SW_STORAGE_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_URL>
+                                    <SW_STORAGE_INFLUXDB_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_INFLUXDB_URL>
                                 </env>
                                 <dependsOn>
                                     <container>${e2e.container.name.prefix}-influxdb</container>

@@ -44,12 +44,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.influxdb</groupId>
-            <artifactId>influxdb-java</artifactId>
-            <version>${influxdb-java.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
@@ -92,11 +86,11 @@
                             <alias>${e2e.container.name.prefix}-influxdb</alias>
                             <run>
                                 <ports>
-                                    <port>8086:8086</port>
+                                    <port>influxdb.port:8086</port>
                                 </ports>
                                 <wait>
                                     <http>
-                                        <url>http://localhost:8086/ping</url>
+                                        <url>http://${docker.host.address}:${influxdb.port}/ping</url>
                                         <method>GET</method>
                                     </http>
                                     <time>50000</time>
@@ -109,7 +103,7 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <SW_STORAGE_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_URL>
+                                    <SW_STORAGE_INFLUXDB_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_INFLUXDB_URL>
                                 </env>
                                 <dependsOn>
                                     <container>${e2e.container.name.prefix}-influxdb</container>

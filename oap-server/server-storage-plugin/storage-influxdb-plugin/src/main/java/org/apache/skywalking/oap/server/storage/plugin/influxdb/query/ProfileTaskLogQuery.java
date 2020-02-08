@@ -49,7 +49,11 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
     public List<ProfileTaskLog> getTaskLogList(String taskId) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
             .function("top", ProfileTaskLogRecord.OPERATION_TIME, 100) // FIXME how much size by default?
-            .all()
+            .column("id")
+            .column(ProfileTaskLogRecord.TASK_ID)
+            .column(ProfileTaskLogRecord.INSTANCE_ID)
+            .column(ProfileTaskLogRecord.OPERATION_TIME)
+            .column(ProfileTaskLogRecord.OPERATION_TYPE)
             .from(client.getDatabase(), ProfileTaskLogRecord.INDEX_NAME)
             .where();
 

@@ -47,6 +47,7 @@
     </dependencies>
 
     <properties>
+        <influxdb.version>1.7.9</influxdb.version>
         <provider.name>e2e-profile-service</provider.name>
         <e2e.container.version>1.1</e2e.container.version>
         <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-profile</e2e.container.name.prefix>
@@ -286,11 +287,11 @@
                                     <alias>${e2e.container.name.prefix}-influxdb</alias>
                                     <run>
                                         <ports>
-                                            <port>8086:8086</port>
+                                            <port>influxdb.port:8086</port>
                                         </ports>
                                         <wait>
                                             <http>
-                                                <url>http://localhost:8086/ping</url>
+                                                <url>http://${docker.host.address}:${influxdb.port}/ping</url>
                                                 <method>GET</method>
                                             </http>
                                             <time>50000</time>
@@ -302,11 +303,8 @@
                                     <alias>${e2e.container.name.prefix}</alias>
                                     <run>
                                         <env>
-                                            <STORAGE>elasticsearch</STORAGE>
-                                            <ES_VERSION>${elasticsearch.version}</ES_VERSION>
-                                            <SW_STORAGE_ES_CLUSTER_NODES>
-                                                ${e2e.container.name.prefix}-inflxudb:8086
-                                            </SW_STORAGE_ES_CLUSTER_NODES>
+                                            <STORAGE>influxdb</STORAGE>
+                                            <SW_STORAGE_INFLUXDB_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_INFLUXDB_URL>
                                             <INSTRUMENTED_SERVICE_1>
                                                 ${provider.name}-${project.version}.jar
                                             </INSTRUMENTED_SERVICE_1>
@@ -318,14 +316,14 @@
                                             </INSTRUMENTED_SERVICE_1_OPTS>
                                         </env>
                                         <dependsOn>
-                                            <container>${e2e.container.name.prefix}-elasticsearch</container>
+                                            <container>${e2e.container.name.prefix}-influxdb</container>
                                         </dependsOn>
                                         <ports>
                                             <port>+webapp.host:webapp.port:8081</port>
                                             <port>+service.host:service.port:9090</port>
                                         </ports>
                                         <links>
-                                            <link>${e2e.container.name.prefix}-elasticsearch</link>
+                                            <link>${e2e.container.name.prefix}-influxdb</link>
                                         </links>
                                         <volumes>
                                             <bind>
@@ -375,7 +373,5 @@
             </plugin>
         </plugins>
     </build>
-
-
 
 </project>

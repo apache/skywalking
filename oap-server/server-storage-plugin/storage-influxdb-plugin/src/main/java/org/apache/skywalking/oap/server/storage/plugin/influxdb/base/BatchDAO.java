@@ -37,7 +37,7 @@ public class BatchDAO implements IBatchDAO {
 
     @Override
     public void asynchronous(InsertRequest insertRequest) {
-        client.getInflux().write(((InfluxInsertRequest)insertRequest).getPoint());
+        client.write(((InfluxInsertRequest)insertRequest).getPoint());
     }
 
     @Override
