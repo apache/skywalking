@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -33,16 +33,14 @@ import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.time.TimeInterval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.ti;
 
 /**
  * InfluxDB connection maintainer, provides base data write/query API.
  */
+@Slf4j
 public class InfluxClient implements Client {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private InfluxStorageConfig config;
     private InfluxDB influx;
 
@@ -93,8 +91,8 @@ public class InfluxClient implements Client {
      * @throws IOException
      */
     public List<QueryResult.Result> query(Query query) throws IOException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("SQL Statement: {}", query.getCommand());
+        if (log.isDebugEnabled()) {
+            log.debug("SQL Statement: {}", query.getCommand());
         }
 
         try {

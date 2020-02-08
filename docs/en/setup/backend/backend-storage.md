@@ -228,13 +228,13 @@ All connection related settings including link url, username and password are in
 These settings can refer to the configuration of *MySQL* above.
 
 ## InfluxDB
-InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugin to store `metadata` likes `Inventory` and `ProfileTask`. So, when we set `InfluxDB` as storage provider, we need to configure `InfluxDB`'s properties and `H2/MySQL`.
+InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugin to store `metadata` like `Inventory` and `ProfileTask`. So, when we set `InfluxDB` as storage provider. We need to configure properties of InfluxDB and Metabase.
 
 ```yaml
 storage
   influx:
     # Metadata storage provider configuration
-    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2}
+    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2} # There are 2 options as Metabase provider, H2 or MySQL.
     metabaseDriver: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
     metabaseUrl: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
     metabaseUser: ${SW_STORAGE_METABASE_USER:sa}
@@ -245,6 +245,8 @@ storage
     user: ${SW_STORAGE_USER:root}
     password: ${SW_STORAGE_PASSWORD:}
     database: ${SW_STORAGE_DATABASE:skywalking}
+    actions: ${SW_STORAGE_INFLUX_ACTIONS:1000} # the number of actions to collect
+    duration: ${SW_STORAGR_INFLUX_DURATION:1000} # the time to wait at most (milliseconds)
 ```
 All connection related settings including link url, username and password are in `application.yml`. The Metadata storage provider settings can refer to the configuration of **H2/MySQL** above.
 

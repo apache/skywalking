@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -71,12 +72,9 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLoc
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
-    private static final Logger logger = LoggerFactory.getLogger(InfluxStorageProvider.class);
-
     private InfluxStorageConfig config;
     private JDBCHikariCPClient client;
     private InfluxClient influxClient;
