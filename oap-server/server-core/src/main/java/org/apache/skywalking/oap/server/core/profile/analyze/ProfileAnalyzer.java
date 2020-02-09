@@ -39,13 +39,14 @@ public class ProfileAnalyzer {
 
     private static final ProfileAnalyzeCollector ANALYZE_COLLECTOR = new ProfileAnalyzeCollector();
 
-    private static final int THREAD_SNAPSHOT_ANALYZE_BATCH_SIZE = 100;
+    private final int threadSnapshotAnalyzeBatchSize;
 
     private final ModuleManager moduleManager;
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
 
-    public ProfileAnalyzer(ModuleManager moduleManager) {
+    public ProfileAnalyzer(ModuleManager moduleManager, int snapshotAnalyzeBatchSize) {
         this.moduleManager = moduleManager;
+        this.threadSnapshotAnalyzeBatchSize = snapshotAnalyzeBatchSize;
     }
 
     /**
@@ -62,7 +63,7 @@ public class ProfileAnalyzer {
         int minSequence = 0;
         List<ProfileThreadSnapshotRecord> record = null;
         do {
-            record = getProfileThreadSnapshotQueryDAO().queryRecordsWithPaging(segmentId, start, end, minSequence, THREAD_SNAPSHOT_ANALYZE_BATCH_SIZE);
+            record = getProfileThreadSnapshotQueryDAO().queryRecordsWithPaging(segmentId, start, end, minSequence, threadSnapshotAnalyzeBatchSize);
             if (CollectionUtils.isNotEmpty(record)) {
                 snapshots.addAll(record.stream().map(ProfileStack::deserialize).collect(Collectors.toList()));
                 minSequence = record.get(record.size() - 1).getSequence() + 1;

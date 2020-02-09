@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
@@ -58,9 +59,9 @@ public class ProfileTaskQueryService implements Service {
 
     private final ProfileAnalyzer profileAnalyzer;
 
-    public ProfileTaskQueryService(ModuleManager moduleManager) {
+    public ProfileTaskQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
-        this.profileAnalyzer = new ProfileAnalyzer(moduleManager);
+        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot());
     }
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {
