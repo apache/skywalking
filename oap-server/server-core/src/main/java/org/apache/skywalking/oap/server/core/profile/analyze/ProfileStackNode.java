@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Work for profiling stacks, intermediate state of the {@link ProfileStackElement} and {@link ProfileStack}
