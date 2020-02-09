@@ -15,15 +15,29 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
+package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 
 import java.util.List;
 
-@Data
-public class ProfileStackAnalyzeHolder {
+import static org.junit.Assert.assertEquals;
 
-    private List<ProfileStackAnalyze> list;
+@Data
+public class ProfileStackAnalyze {
+
+    private ProfileStackData data;
+    private List<ProfileStackElementMatcher> expected;
+
+    public void analyzeAndAssert() {
+        List<ProfileStack> stacks = data.transform();
+        ProfileAnalyzation analyze = new ProfileAnalyzer(null).analyze(stacks);
+
+        assertEquals(analyze.getTrees().size(), expected.size());
+        for (int i = 0; i < analyze.getTrees().size(); i++) {
+            expected.get(i).verify(analyze.getTrees().get(i));
+        }
+    }
 
 }

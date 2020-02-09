@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
@@ -31,10 +32,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -96,6 +94,47 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         } catch (SQLException e) {
             throw new IOException(e);
         }
+        return result;
+    }
+
+    @Override
+    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException {
+        // search traces
+        StringBuilder sql = new StringBuilder();
+        sql.append("select * from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
+        sql.append(" 1=1 ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
+        sql.append(" order by ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" ").append(SortOrder.ASC);
+        sql.append(" LIMIT ").append(count);
+
+        Object[] params = new Object[] {segmentId, start, end, minSequence};
+
+        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(count);
+        try (Connection connection = h2Client.getConnection()) {
+
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), params)) {
+                while (resultSet.next()) {
+                    ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+
+                    record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
+                    record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                    record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
+                    record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                    String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
+                    if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                        record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                    }
+
+                    result.add(record);
+                }
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+
         return result;
     }
 }

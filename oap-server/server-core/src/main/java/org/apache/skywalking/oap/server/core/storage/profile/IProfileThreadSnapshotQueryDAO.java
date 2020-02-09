@@ -38,4 +38,17 @@ public interface IProfileThreadSnapshotQueryDAO extends DAO {
      */
     List<BasicTrace> queryProfiledSegments(String taskId) throws IOException;
 
+    /**
+     * search snapshots with paging
+     * sort by sequence
+     * @param segmentId profiled segment id
+     * @param start start dump time
+     * @param end end dump time
+     * @param minSequence search sequence start number
+     * @param count page count
+     * @return snapshots
+     * @throws IOException
+     */
+    List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException;
+
 }

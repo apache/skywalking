@@ -22,9 +22,7 @@ import org.apache.skywalking.e2e.profile.ProfileClient;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResultMatcher;
-import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
-import org.apache.skywalking.e2e.profile.query.ProfileTasks;
-import org.apache.skywalking.e2e.profile.query.ProfilesTasksMatcher;
+import org.apache.skywalking.e2e.profile.query.*;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -50,6 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -148,8 +147,8 @@ public class ProfileVerificationITCase {
                 .endpointName("/e2e/users")
                 .duration(1)
                 .startTime(-1)
-                .minDurationThreshold(1000)
-                .dumpPeriod(50)
+                .minDurationThreshold(1500)
+                .dumpPeriod(500)
                 .maxSamplingCount(5).build();
 
         // verify create task
@@ -172,9 +171,9 @@ public class ProfileVerificationITCase {
         verifyProfiledSegment(creationResult.getId());
     }
 
-    private void verifyProfiledSegment(String taskId) throws InterruptedException {
-        // found segment id
-        String foundedSegmentId = null;
+    private void verifyProfiledSegment(String taskId) throws InterruptedException, IOException {
+        // found trace
+        Trace foundedTrace = null;
         for (int i = 0; i < 10; i++) {
             try {
                 List<Trace> traces = profileClient.getProfiledTraces(taskId);
@@ -183,7 +182,7 @@ public class ProfileVerificationITCase {
                 InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileSegments.yml").getInputStream();
                 final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
                 tracesMatcher.verifyLoosely(traces);
-                foundedSegmentId = traces.get(0).getKey();
+                foundedTrace = traces.get(0);
                 break;
 
             } catch (Exception e) {
@@ -193,6 +192,16 @@ public class ProfileVerificationITCase {
                 TimeUnit.SECONDS.sleep(retryInterval);
             }
         }
+
+        String segmentId = foundedTrace.getKey();
+        long start = Long.parseLong(foundedTrace.getStart());
+        long end = start + foundedTrace.getDuration();
+        ProfileAnalyzation analyzation = profileClient.getProfileAnalyzation(segmentId, start, end);
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileAnayzation.yml").getInputStream();
+        final ProfileStackTreeMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfileStackTreeMatcher.class);
+        servicesMatcher.verify(analyzation.getData().getTrees().get(0));
+
+
     }
 
     private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {

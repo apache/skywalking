@@ -44,6 +44,8 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
     private final int querySegemntMaxSize;
 
+    protected final ProfileThreadSnapshotRecord.Builder builder = new ProfileThreadSnapshotRecord.Builder();
+
     public ProfileThreadSnapshotQueryEsDAO(ElasticSearchClient client, int profileTaskQueryMaxSize) {
         super(client);
         this.querySegemntMaxSize = profileTaskQueryMaxSize;
@@ -104,5 +106,32 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         }
 
         return result;
+    }
+
+    @Override
+    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException {
+        // search traces
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(boolQueryBuilder);
+        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
+
+        mustQueryList.add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
+        mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
+        mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.SEQUENCE).gte(minSequence));
+
+        sourceBuilder.size(count);
+        sourceBuilder.sort(ProfileThreadSnapshotRecord.SEQUENCE, SortOrder.ASC);
+
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(count);
+        for (SearchHit searchHit : response.getHits().getHits()) {
+            ProfileThreadSnapshotRecord record = builder.map2Data(searchHit.getSourceAsMap());
+
+            result.add(record);
+        }
+        return null;
     }
 }
