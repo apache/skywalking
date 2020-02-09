@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.Point;
+import org.joda.time.DateTime;
 
 import static org.apache.skywalking.oap.server.core.analysis.TimeBucket.getTimestamp;
 
@@ -85,7 +87,6 @@ public class PointBuilder {
         long timeBucket = (long)fields.remove(Record.TIME_BUCKET);
         return builder.addField("id", storageData.id())
             .addField(Record.TIME_BUCKET, timeBucket)
-            .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
             .build();
     }
 
