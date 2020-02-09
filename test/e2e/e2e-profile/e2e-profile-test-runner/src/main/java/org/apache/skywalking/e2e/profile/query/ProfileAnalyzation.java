@@ -29,11 +29,25 @@ public class ProfileAnalyzation {
     @Data
     public static class ProfileStackTrees {
         private List<ProfileStackTree> trees;
+
+        @Override
+        public String toString() {
+            return "ProfileStackTrees{" +
+                    "trees=" + trees +
+                    '}';
+        }
     }
 
     @Data
     public static class ProfileStackTree {
         private List<ProfileStackElement> elements;
+
+        @Override
+        public String toString() {
+            return "ProfileStackTree{" +
+                    "elements=" + elements +
+                    '}';
+        }
     }
 
     @Data
@@ -44,5 +58,24 @@ public class ProfileAnalyzation {
         private String duration;
         private String durationChildExcluded;
         private String count;
+
+        @Override
+        public String toString() {
+            return "ProfileStackElement{" +
+                    "id='" + id + '\'' +
+                    ", parentId='" + parentId + '\'' +
+                    ", codeSignature='" + codeSignature + '\'' +
+                    ", duration='" + duration + '\'' +
+                    ", durationChildExcluded='" + durationChildExcluded + '\'' +
+                    ", count='" + count + '\'' +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileAnalyzation{" +
+                "data=" + data +
+                '}';
     }
 }

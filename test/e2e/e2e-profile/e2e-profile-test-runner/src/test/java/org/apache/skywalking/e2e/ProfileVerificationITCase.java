@@ -197,6 +197,7 @@ public class ProfileVerificationITCase {
         long start = Long.parseLong(foundedTrace.getStart());
         long end = start + foundedTrace.getDuration();
         ProfileAnalyzation analyzation = profileClient.getProfileAnalyzation(segmentId, start, end);
+        LOGGER.info("get profile analyzation : {}", analyzation);
         InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileAnayzation.yml").getInputStream();
         final ProfileStackTreeMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ProfileStackTreeMatcher.class);
         servicesMatcher.verify(analyzation.getData().getTrees().get(0));
