@@ -90,67 +90,67 @@ Refer to [Build docker image](../../../docker) for more details.
 
 1. Import the project as a maven project
 2. For supporting multiple source directories, you need to add the following configuration in `skywalking/pom.xml` file:
-```xml
-<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>build-helper-maven-plugin</artifactId>
-    <version>1.8</version>
-    <executions>
-        <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-                <goal>add-source</goal>
-            </goals>
-            <configuration>
-                <sources>
-                    <source>src/java/main</source>
-                    <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
-                    <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
-               </sources>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
-```
+    ```xml
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+            <execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>add-source</goal>
+                </goals>
+                <configuration>
+                    <sources>
+                        <source>src/java/main</source>
+                        <source>apm-protocol/apm-network/target/generated-sources/protobuf</source>
+                        <source>apm-collector/apm-collector-remote/collector-remote-grpc-provider/target/generated-sources/protobuf</source>
+                   </sources>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+    ```
 3. Add the following configuration under to let eclipse's M2e plug-in supports execution's solution configuration
-```xml
-<pluginManagement>
-    <plugins>
-    <!--This plugin's configuration is used to store Eclipse m2e settings 
-    only. It has no influence on the Maven build itself. -->
-        <plugin>
-            <groupId>org.eclipse.m2e</groupId>
-            <artifactId>lifecycle-mapping</artifactId>
-            <version>1.0.0</version>
-            <configuration>
-                <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                        <pluginExecution>
-                            <pluginExecutionFilter>
-                                <groupId>org.codehaus.mojo</groupId>
-                                <artifactId>build-helper-maven-plugin</artifactId>
-                                <versionRange>[1.8,)</versionRange>
-                                <goals>
-                                    <goal>add-source</goal>
-                                </goals>
-                            </pluginExecutionFilter>
-                        </pluginExecution>
-                    </pluginExecutions>
-                </lifecycleMappingMetadata>
-            </configuration>
-        </plugin>
-    </plugins>
-</pluginManagement>
-```
+    ```xml
+    <pluginManagement>
+        <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+        only. It has no influence on the Maven build itself. -->
+            <plugin>
+                <groupId>org.eclipse.m2e</groupId>
+                <artifactId>lifecycle-mapping</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <lifecycleMappingMetadata>
+                        <pluginExecutions>
+                            <pluginExecution>
+                                <pluginExecutionFilter>
+                                    <groupId>org.codehaus.mojo</groupId>
+                                    <artifactId>build-helper-maven-plugin</artifactId>
+                                    <versionRange>[1.8,)</versionRange>
+                                    <goals>
+                                        <goal>add-source</goal>
+                                    </goals>
+                                </pluginExecutionFilter>
+                            </pluginExecution>
+                        </pluginExecutions>
+                    </lifecycleMappingMetadata>
+                </configuration>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+    ```
 4. Adding Google guava dependency to apm-collector-remote/collector-remote-grpc-provider/pom.xml files
-```xml
-<dependency>
-   <groupId>com.google.guava</groupId>
-   <artifactId>guava</artifactId>
-   <version>24.0-jre</version>
-</dependency>
-```
+    ```xml
+    <dependency>
+       <groupId>com.google.guava</groupId>
+       <artifactId>guava</artifactId>
+       <version>24.0-jre</version>
+    </dependency>
+    ```
 5. Run `./mvnw compile -Dmaven.test.skip=true`
 6. Run `maven update`. Must remove the clean projects item before maven update(This will be clear the proto conversion Java file generated by the compiling)
 7. Run `./mvnw compile` compile collector-remote-grpc-provider and apm-protocol
