@@ -17,11 +17,19 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and pu
 
 ### Build from GitHub
 1. Prepare git, JDK8 and maven3
-1. `git clone https://github.com/apache/skywalking.git`
-1. `cd skywalking/`
+1. Clone project
+    ```bash
+    git clone --recurse-submodules https://github.com/apache/skywalking.git
+    cd skywalking/
+    
+    OR
+    
+    git clone https://github.com/apache/skywalking.git
+    cd skywalking/
+    git submodule init
+    git submodule update
+    ```
 1. Switch to the tag by using `git checkout [tagname]` (Optional, switch if want to build a release from source codes)
-1. `git submodule init`
-1. `git submodule update`
 1. Run `./mvnw clean package -DskipTests`
 1. All packages are in `/dist` (.tar.gz for Linux and .zip for Windows).
 
