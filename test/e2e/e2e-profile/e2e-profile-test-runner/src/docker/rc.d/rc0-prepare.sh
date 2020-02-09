@@ -21,7 +21,7 @@ original_wd=$(pwd)
 
 
 if test "${STORAGE}" = "mysql"; then
-  MYSQL_URL="https://central.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+  MYSQL_URL="https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
   MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
 
   echo "MySQL database is storage provider..."
