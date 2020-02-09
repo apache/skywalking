@@ -32,7 +32,7 @@ public class ProfileStackAnalyze {
 
     public void analyzeAndAssert() {
         List<ProfileStack> stacks = data.transform();
-        ProfileAnalyzation analyze = new ProfileAnalyzer(null).analyze(stacks);
+        ProfileAnalyzation analyze = new ProfileAnalyzer(null, 100).analyze(stacks);
 
         assertEquals(analyze.getTrees().size(), expected.size());
         for (int i = 0; i < analyze.getTrees().size(); i++) {
