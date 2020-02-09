@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Work for profiling stacks, intermediate state of the {@link ProfileStackElement} and {@link ProfileStack}
@@ -149,10 +149,12 @@ public class ProfileStackNode {
      * build GraphQL result, calculate duration and count data using parallels
      * @return
      */
-    public ProfileStackElement buildAnalyzeResult() {
+    public ProfileStackTree buildAnalyzeResult() {
         // all nodes add to single-level list (such as flat), work for parallel calculating
         LinkedList<Pair<ProfileStackElement, ProfileStackNode>> nodeMapping = new LinkedList<>();
-        ProfileStackElement root = buildElement();
+        int idGenerator = 1;
+
+        ProfileStackElement root = buildElement(idGenerator++);
         nodeMapping.add(new Pair<>(root, this));
 
         // same with combine logic
@@ -163,21 +165,24 @@ public class ProfileStackNode {
             ProfileStackElement respElement = mergingPair.key;
 
             // generate children node and add to stack and all node mapping
-            respElement.setChildren(mergingPair.value.children.stream().map(c -> {
-                ProfileStackElement element = c.buildElement();
-                Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, c);
+            for (ProfileStackNode children : mergingPair.value.children) {
+                ProfileStackElement element = children.buildElement(idGenerator++);
+                element.setParentId(respElement.getId());
+
+                Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, children);
                 stack.add(pair);
                 nodeMapping.add(pair);
-
-                return element;
-            }).collect(Collectors.toList()));
+            }
         }
 
         // calculate durations
         nodeMapping.parallelStream().forEach(t -> t.value.calculateDuration(t.key));
         nodeMapping.parallelStream().forEach(t -> t.value.calculateDurationExcludeChild(t.key));
 
-        return root;
+        ProfileStackTree tree = new ProfileStackTree();
+        nodeMapping.forEach(n -> tree.getElements().add(n.key));
+
+        return tree;
     }
 
     private void detectedBy(ProfileStack stack) {
@@ -188,10 +193,10 @@ public class ProfileStackNode {
         this.detectedStacks.addAll(node.detectedStacks);
     }
 
-    private ProfileStackElement buildElement() {
+    private ProfileStackElement buildElement(int id) {
         ProfileStackElement element = new ProfileStackElement();
+        element.setId(id);
         element.setCodeSignature(this.codeSignature);
-        element.setChildren(new LinkedList<>());
         element.setCount(this.detectedStacks.size());
         return element;
     }
