@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.context.util;
+package org.apache.skywalking.apm.toolkit.activation.util;
 
 import java.util.Map;
 
 import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
 
 public class TagUtil {
     public static void tagParamsSpan(final AbstractSpan span, final Map<String, Object> context,
-                                     String key, String value) {
-        new StringTag(key).set(span, CustomizeExpression.parseExpression(value, context));
+                                     final Tag tag) {
+        new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
     }
 
     public static void tagReturnSpanSpan(final AbstractSpan span, final Map<String, Object> context,
-                                         String key, String value) {
-        new StringTag(key).set(span, CustomizeExpression.parseReturnExpression(value, context));
+                                         final Tag tag) {
+        new StringTag(tag.key()).set(span, CustomizeExpression.parseReturnExpression(tag.value(), context));
     }
 
     public static Boolean isReturnTag(String expression) {

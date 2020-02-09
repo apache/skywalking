@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.util.TagUtil;
+import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
 import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Tags;
@@ -60,13 +60,13 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
                 if (!TagUtil.isReturnTag(tag.value())) {
-                    TagUtil.tagParamsSpan(localSpan, context, tag.key(), tag.value());
+                    TagUtil.tagParamsSpan(localSpan, context, tag);
                 }
             }
         }
         final Tag tag = method.getAnnotation(Tag.class);
         if (tag != null && !TagUtil.isReturnTag(tag.value())) {
-            TagUtil.tagParamsSpan(localSpan, context, tag.key(), tag.value());
+            TagUtil.tagParamsSpan(localSpan, context, tag);
         }
     }
 
@@ -83,13 +83,13 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
                 if (TagUtil.isReturnTag(tag.value())) {
-                    TagUtil.tagReturnSpanSpan(localSpan, context, tag.key(), tag.value());
+                    TagUtil.tagReturnSpanSpan(localSpan, context, tag);
                 }
             }
         }
         final Tag tag = method.getAnnotation(Tag.class);
         if (tag != null && TagUtil.isReturnTag(tag.value())) {
-            TagUtil.tagReturnSpanSpan(localSpan, context, tag.key(), tag.value());
+            TagUtil.tagReturnSpanSpan(localSpan, context, tag);
         }
         ContextManager.stopSpan();
         return ret;
