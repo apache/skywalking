@@ -181,7 +181,11 @@ public class ProfileStackNode {
         nodeMapping.parallelStream().forEach(t -> t.value.calculateDurationExcludeChild(t.key));
 
         ProfileStackTree tree = new ProfileStackTree();
-        tree.setElements(nodeMapping.stream().map(p -> p.key).collect(Collectors.toList()));
+        ArrayList<ProfileStackElement> elements = new ArrayList<>(nodeMapping.size());
+        for (Pair<ProfileStackElement, ProfileStackNode> pair : nodeMapping) {
+            elements.add(pair.key);
+        }
+        tree.setElements(elements);
 
         return tree;
     }
