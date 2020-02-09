@@ -109,7 +109,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int pageSize) throws IOException {
         // search traces
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -121,12 +121,12 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.DUMP_TIME).gte(start).lte(end));
         mustQueryList.add(QueryBuilders.rangeQuery(ProfileThreadSnapshotRecord.SEQUENCE).gte(minSequence));
 
-        sourceBuilder.size(count);
+        sourceBuilder.size(pageSize);
         sourceBuilder.sort(ProfileThreadSnapshotRecord.SEQUENCE, SortOrder.ASC);
 
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
 
-        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(count);
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(pageSize);
         for (SearchHit searchHit : response.getHits().getHits()) {
             ProfileThreadSnapshotRecord record = builder.map2Data(searchHit.getSourceAsMap());
 

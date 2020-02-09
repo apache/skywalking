@@ -98,7 +98,7 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int pageSize) throws IOException {
         // search traces
         StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
@@ -108,11 +108,11 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
         sql.append(" order by ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" ").append(SortOrder.ASC);
-        sql.append(" LIMIT ").append(count);
+        sql.append(" LIMIT ").append(pageSize);
 
         Object[] params = new Object[] {segmentId, start, end, minSequence};
 
-        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(count);
+        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(pageSize);
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), params)) {

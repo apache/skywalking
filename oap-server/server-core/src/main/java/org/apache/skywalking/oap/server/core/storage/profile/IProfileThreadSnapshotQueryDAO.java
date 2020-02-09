@@ -45,10 +45,10 @@ public interface IProfileThreadSnapshotQueryDAO extends DAO {
      * @param start start dump time
      * @param end end dump time
      * @param minSequence search sequence start number
-     * @param count page count
+     * @param pageSize page size
      * @return snapshots
      * @throws IOException
      */
-    List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int count) throws IOException;
+    List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int pageSize) throws IOException;
 
 }

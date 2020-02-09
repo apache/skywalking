@@ -45,7 +45,7 @@ public class TestController {
         if (!createUser.getEnableProfiling()) {
             return user;
         } else {
-            // sleep 200 milliseconds
+            // sleep 6200 milliseconds
             TimeUnit.MILLISECONDS.sleep(6200);
             return user;
         }
