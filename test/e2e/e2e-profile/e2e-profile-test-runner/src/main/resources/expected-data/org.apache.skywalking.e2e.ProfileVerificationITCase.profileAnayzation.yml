@@ -17,25 +17,25 @@
 elements:
   - id: 1
     parentId: 0
-    codeSignature: java.lang.Thread.run:745
+    codeSignature: not null
     duration: gt 0
     durationChildExcluded: 0
     count: gt 0
   - id: 2
     parentId: 1
-    codeSignature: org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run:61
+    codeSignature: not null
     duration: gt 0
     durationChildExcluded: 0
     count: gt 0
   - id: 3
     parentId: 2
-    codeSignature: java.util.concurrent.ThreadPoolExecutor$Worker.run:617
+    codeSignature: not null
     duration: gt 0
     durationChildExcluded: 0
     count: gt 0
   - id: 4
     parentId: 3
-    codeSignature: java.util.concurrent.ThreadPoolExecutor.runWorker:1142
+    codeSignature: not null
     duration: gt 0
     durationChildExcluded: 0
     count: gt 0
@@ -341,7 +341,7 @@ elements:
     count: gt 0
   - id: 55
     parentId: 54
-    codeSignature: java.lang.reflect.Method.invoke:497
+    codeSignature: not null
     duration: gt 0
     durationChildExcluded: 0
     count: gt 0
