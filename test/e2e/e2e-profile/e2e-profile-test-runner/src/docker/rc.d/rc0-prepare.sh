@@ -21,12 +21,13 @@ original_wd=$(pwd)
 
 
 if test "${STORAGE}" = "mysql"; then
-  MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+  MYSQL_URL="https://github.com/SkyAPM/ci-assist/blob/master/jars/mysql-connector-java-8.0.13.jar"
   MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
 
   echo "MySQL database is storage provider..."
   # Download MySQL connector.
-  curl ${MYSQL_URL} > "${SW_HOME}/oap-libs/${MYSQL_DRIVER}"
+#  curl ${MYSQL_URL} > "${SW_HOME}/oap-libs/${MYSQL_DRIVER}"
+  curl -L -o "${SW_HOME}/oap-libs/${MYSQL_DRIVER}" ${MYSQL_URL}
   [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
 fi
 
