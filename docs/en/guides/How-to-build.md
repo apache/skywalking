@@ -6,7 +6,7 @@ This document helps people to compile and build the project in your maven and se
 
 ### Maven behind Proxy
 If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and put the follow properties:
-```
+```properties
 -Dhttp.proxyHost=proxy_ip
 -Dhttp.proxyPort=proxy_port
 -Dhttps.proxyHost=proxy_ip
@@ -90,7 +90,7 @@ Refer to [Build docker image](../../../docker) for more details.
 
 1. Import the project as a maven project
 2. For supporting multiple source directories, you need to add the following configuration in `skywalking/pom.xml` file:
-```
+```xml
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>build-helper-maven-plugin</artifactId>
@@ -114,7 +114,7 @@ Refer to [Build docker image](../../../docker) for more details.
 </plugin>
 ```
 3. Add the following configuration under to let eclipse's M2e plug-in supports execution's solution configuration
-```
+```xml
 <pluginManagement>
     <plugins>
     <!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -144,7 +144,7 @@ Refer to [Build docker image](../../../docker) for more details.
 </pluginManagement>
 ```
 4. Adding Google guava dependency to apm-collector-remote/collector-remote-grpc-provider/pom.xml files
-```
+```xml
 <dependency>
    <groupId>com.google.guava</groupId>
    <artifactId>guava</artifactId>
