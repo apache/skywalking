@@ -61,7 +61,7 @@ public class ProfileQuery implements GraphQLQueryResolver {
 
     public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
-        analyzation.setStack(Collections.emptyList());
+        analyzation.setTrees(Collections.emptyList());
         return analyzation;
     }
 

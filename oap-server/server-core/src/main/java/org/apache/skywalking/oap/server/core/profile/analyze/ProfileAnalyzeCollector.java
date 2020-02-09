@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -32,7 +32,7 @@ import java.util.stream.Collector;
 /**
  * Work for {@link ProfileAnalyzer} to analyze.
  */
-public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileStackNode, ProfileStackElement> {
+public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileStackNode, ProfileStackTree> {
     @Override
     public Supplier<ProfileStackNode> supplier() {
         return ProfileStackNode::newNode;
@@ -49,7 +49,7 @@ public class ProfileAnalyzeCollector implements Collector<ProfileStack, ProfileS
     }
 
     @Override
-    public Function<ProfileStackNode, ProfileStackElement> finisher() {
+    public Function<ProfileStackNode, ProfileStackTree> finisher() {
         return ProfileStackNode::buildAnalyzeResult;
     }
 
