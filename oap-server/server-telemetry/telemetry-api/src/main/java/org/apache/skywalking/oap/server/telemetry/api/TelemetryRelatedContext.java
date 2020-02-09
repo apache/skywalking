@@ -26,7 +26,7 @@ public enum TelemetryRelatedContext {
     INSTANCE;
 
     private volatile String id = null;
-    TelemetryRelatedContext(){}
+    TelemetryRelatedContext() { }
 
     /**
      * Set a global ID to represent the current oap instance

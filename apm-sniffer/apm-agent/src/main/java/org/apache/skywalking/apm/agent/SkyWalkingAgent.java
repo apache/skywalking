@@ -184,6 +184,14 @@ public class SkyWalkingAgent {
             logger.error("Enhance class " + typeName + " error.", throwable);
         }
 
+        /**
+         * TODO: just to test reviewdog
+         *
+         * @param typeName
+         * @param classLoader
+         * @param module
+         * @param loaded
+         */
         @Override
         public void onComplete(String typeName, ClassLoader classLoader, JavaModule module, boolean loaded) {
         }
