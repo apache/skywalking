@@ -27,6 +27,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author wusheng
@@ -36,6 +37,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
+@ToString
 public class AlarmRule {
     private String alarmRuleName;
 
