@@ -31,11 +31,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
-import org.elasticsearch.search.aggregations.metrics.max.MaxAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.min.MinAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -115,16 +113,12 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
     @Override
     public int queryMinSequence(String segmentId, long start, long end) throws IOException {
-        MinAggregationBuilder min = AggregationBuilders.min(ProfileThreadSnapshotRecord.SEQUENCE);
-        min.field(ProfileThreadSnapshotRecord.SEQUENCE);
-        return querySequenceWithAgg(min, segmentId, start, end);
+        return querySequenceWithAgg(AggregationBuilders.min(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE), segmentId, start, end);
     }
 
     @Override
     public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
-        MaxAggregationBuilder max = AggregationBuilders.max(ProfileThreadSnapshotRecord.SEQUENCE);
-        max.field(ProfileThreadSnapshotRecord.SEQUENCE);
-        return querySequenceWithAgg(max, segmentId, start, end);
+        return querySequenceWithAgg(AggregationBuilders.max(ProfileThreadSnapshotRecord.SEQUENCE).field(ProfileThreadSnapshotRecord.SEQUENCE), segmentId, start, end);
     }
 
     @Override
@@ -151,7 +145,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         return result;
     }
 
-    private int querySequenceWithAgg(AggregationBuilder aggregationBuilder, String segmentId, long start, long end) throws IOException {
+    protected int querySequenceWithAgg(AbstractAggregationBuilder aggregationBuilder, String segmentId, long start, long end) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
