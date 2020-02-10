@@ -52,8 +52,8 @@ public interface IProfileThreadSnapshotQueryDAO extends DAO {
 
     /**
      * search snapshots with sequence range
-     * @param minSequence min sequence, include self, such as >=
-     * @param maxSequence max sequence, exclude self, such as <
+     * @param minSequence min sequence, include self
+     * @param maxSequence max sequence, exclude self
      * @return snapshots
      */
     List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException;
