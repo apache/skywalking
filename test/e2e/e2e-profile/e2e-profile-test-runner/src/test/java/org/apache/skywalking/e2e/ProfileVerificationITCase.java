@@ -98,6 +98,7 @@ public class ProfileVerificationITCase {
                                 .end(LocalDateTime.now())
                                 .orderByDuration()
                 );
+                LOGGER.info("query traces: {}", traces);
                 if (!traces.isEmpty()) {
                     break;
                 }
@@ -111,7 +112,7 @@ public class ProfileVerificationITCase {
         for (int i = 1; i <= verifyServiceCount; i++) {
             try {
                 verifyServices(minutesAgo);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 if (i == verifyServiceCount) {
                     throw new IllegalStateException("match services fail!", e);
                 }
