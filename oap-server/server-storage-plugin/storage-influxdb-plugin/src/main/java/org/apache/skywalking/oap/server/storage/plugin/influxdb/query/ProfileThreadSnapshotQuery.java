@@ -80,7 +80,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
                 BasicTrace basicTrace = new BasicTrace();
 
                 basicTrace.setSegmentId((String)values.get(2));
-                basicTrace.setStart((String)values.get(3));
+                basicTrace.setStart(String.valueOf(values.get(3)));
                 basicTrace.getEndpointNames().add((String)values.get(4));
                 basicTrace.setDuration((int)values.get(5));
                 basicTrace.setError(BooleanUtils.valueToBoolean((int)values.get(6)));
