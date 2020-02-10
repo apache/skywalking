@@ -18,8 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -74,9 +79,23 @@ public class RulesReader {
             List webhooks = (List)yamlData.get("webhooks");
             if (webhooks != null) {
                 rules.setWebhooks(new ArrayList<>());
-                webhooks.forEach(url -> {
-                    rules.getWebhooks().add((String)url);
-                });
+                webhooks.forEach(url -> rules.getWebhooks().add((String)url));
+            }
+
+            Map grpchooks = (Map)yamlData.get("gRPCHook");
+            if (grpchooks != null) {
+                GRPCAlarmSetting grpcAlarmSetting = new GRPCAlarmSetting();
+                Object targetHost = grpchooks.get("target_host");
+                if (targetHost != null) {
+                    grpcAlarmSetting.setTargetHost((String)targetHost);
+                }
+
+                Object targetPort = grpchooks.get("target_port");
+                if (targetPort != null) {
+                    grpcAlarmSetting.setTargetPort((Integer)targetPort);
+                }
+
+                rules.setGrpchookSetting(grpcAlarmSetting);
             }
         }
 

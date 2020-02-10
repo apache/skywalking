@@ -3,6 +3,7 @@ Alarm core is driven by a collection of rules, which are defined in `config/alar
 There are two parts in alarm rule definition.
 1. [Alarm rules](#rules). They define how metrics alarm should be triggered, what conditions should be considered.
 1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
+1. [gRPCHook](#gRPCHook). The host and port of remote gRPC method, which should be called after the alarm is triggered.
 
 ## Rules
 Alarm rule is constituted by following keys
@@ -111,6 +112,24 @@ Example as following
 	"alarmMessage": "alarmMessage yyy",
 	"startTime": 1560524171000
 }]
+```
+
+## gRPCHook
+The alarm message will send through remote gRPC method by `Protobuf` content type. 
+The message format with following key information which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
+
+Example as following
+```text
+message AlarmMessage {
+    int64 scopeId = 1;
+    string scope = 2;
+    string name = 3;
+    int64 id0 = 4;
+    int64 id1 = 5;
+    string ruleName = 6;
+    string alarmMessage = 7;
+    int64 startTime = 8;
+}
 ```
 
 ## Update the settings dynamically

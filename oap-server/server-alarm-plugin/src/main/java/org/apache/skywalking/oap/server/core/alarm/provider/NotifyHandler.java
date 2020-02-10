@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import java.util.*;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.*;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
 import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.register.*;
@@ -97,6 +98,7 @@ public class NotifyHandler implements MetricsNotify {
     public void init(AlarmCallback... callbacks) {
         List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
+        allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
         core.start(allCallbacks);
     }
 
