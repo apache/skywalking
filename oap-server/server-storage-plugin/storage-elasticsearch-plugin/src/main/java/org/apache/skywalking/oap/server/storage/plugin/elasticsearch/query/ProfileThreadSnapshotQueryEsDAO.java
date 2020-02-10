@@ -124,7 +124,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         sourceBuilder.size(pageSize);
         sourceBuilder.sort(ProfileThreadSnapshotRecord.SEQUENCE, SortOrder.ASC);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(pageSize);
         for (SearchHit searchHit : response.getHits().getHits()) {
