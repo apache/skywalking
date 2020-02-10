@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ContentType;
 import org.apache.skywalking.oap.server.core.query.entity.Log;
 import org.apache.skywalking.oap.server.core.query.entity.LogState;
@@ -92,8 +93,12 @@ public class LogQuery implements ILogQueryDAO {
         if (!Strings.isNullOrEmpty(stateCode)) {
             recallQuery.and(eq(STATUS_CODE, stateCode));
         }
-        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+//        TODO: have to recheck
+//        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+//            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+        recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
+            .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
+
         if (from > Const.NONE) {
             limit += from;
             recallQuery.limit(limit, from);

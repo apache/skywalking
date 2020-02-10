@@ -79,8 +79,10 @@ public class TraceQuery implements ITraceQueryDAO {
             .where();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-            recallQuery.and(gte(InfluxClient.TIME, timeInterval(startSecondTB, Downsampling.Second)))
-                .and(lte(InfluxClient.TIME, timeInterval(endSecondTB, Downsampling.Second)));
+//            recallQuery.and(gte(InfluxClient.TIME, timeInterval(startSecondTB, Downsampling.Second)))
+//                .and(lte(InfluxClient.TIME, timeInterval(endSecondTB, Downsampling.Second)));
+            recallQuery.and(gte(SegmentRecord.TIME_BUCKET, startSecondTB))
+                .and(lte(SegmentRecord.TIME_BUCKET, endSecondTB));
         }
         if (minDuration != 0) {
             recallQuery.and(gte(SegmentRecord.LATENCY, minDuration));

@@ -65,8 +65,12 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             .column(TopN.TRACE_ID)
             .from(client.getDatabase(), metricName)
             .where()
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startSecondTB, Downsampling.Second)))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endSecondTB, Downsampling.Second)));
+            .and(gte(TopN.TIME_BUCKET, startSecondTB))
+            .and(lte(TopN.TIME_BUCKET, endSecondTB));
+//        TODO: mark, have to recheck
+//            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startSecondTB, Downsampling.Second)))
+//            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endSecondTB, Downsampling.Second)));
+
         if (serviceId != Const.NONE) {
             query.and(eq(TopN.SERVICE_ID, serviceId));
         }

@@ -20,12 +20,23 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -36,11 +47,20 @@ import org.influxdb.dto.Point;
 import org.joda.time.DateTime;
 
 import static org.apache.skywalking.oap.server.core.analysis.TimeBucket.getTimestamp;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
 
 /**
  * A helper help to build a InfluxDB Point from StorageData.
  */
 public class PointBuilder {
+    private static final int PADDING_SIZE = 1_000_000;
+    private static final AtomicRangeInteger COUNTER = new AtomicRangeInteger(0, PADDING_SIZE);
 
     public static Point fromMetrics(Model model, Metrics metrics, Map<String, Object> objectMap) throws IOException {
         Point.Builder builder = Point.measurement(model.getName());
@@ -65,11 +85,11 @@ public class PointBuilder {
             .build();
     }
 
-    public static Point fromRecord(Model model, Map<String, Object> objectMap,
-        StorageData storageData) throws IOException {
-        Map<String, Object> fields = Maps.newHashMap();
-        Object entityId = objectMap.get(Metrics.ENTITY_ID);
+    private static AtomicInteger counter = new AtomicInteger(0);
 
+    public static Point fromRecord(Model model, Map<String, Object> objectMap,
+        StorageData record) throws IOException {
+        Map<String, Object> fields = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
             final ColumnName name = column.getColumnName();
             Object value = objectMap.get(name.getName());
@@ -80,13 +100,38 @@ public class PointBuilder {
                 fields.put(name.getStorageName(), value);
             }
         }
-        Point.Builder builder = Point.measurement(model.getName()).fields(fields);
-        if (Objects.nonNull(entityId)) {
-            builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(entityId));
+
+        final Point.Builder builder = Point.measurement(model.getName()).fields(fields)
+            .tag(Record.TIME_BUCKET, String.valueOf(fields.get(Record.TIME_BUCKET)));
+        switch (model.getScopeId()) {
+            case SEGMENT:
+            case HTTP_ACCESS_LOG: {
+                builder.tag(SegmentRecord.SERVICE_ID, String.valueOf(fields.get(SegmentRecord.SERVICE_ID)))
+                    .tag(SegmentRecord.ENDPOINT_ID, String.valueOf(fields.get(SegmentRecord.ENDPOINT_ID)));
+                break;
+            }
+            case ALARM: {
+                builder.tag(AlarmRecord.SCOPE, String.valueOf(fields.get(AlarmRecord.SCOPE)));
+                break;
+            }
+            case DATABASE_SLOW_STATEMENT: {
+                builder.tag(TopN.SERVICE_ID, String.valueOf(fields.get(TopN.SERVICE_ID)));
+                break;
+            }
+            case PROFILE_TASK_LOG: {
+                builder.tag(ProfileTaskLogRecord.OPERATION_TYPE, String.valueOf(fields.get(ProfileTaskLogRecord.OPERATION_TYPE)))
+                    .tag(ProfileTaskLogRecord.INSTANCE_ID, String.valueOf(fields.get(ProfileTaskLogRecord.INSTANCE_ID)));
+                break;
+            }
+            case PROFILE_TASK_SEGMENT_SNAPSHOT: {
+                builder.tag(ProfileThreadSnapshotRecord.TASK_ID, String.valueOf(ProfileThreadSnapshotRecord.TASK_ID));
+                break;
+            }
         }
-        long timeBucket = (long)fields.remove(Record.TIME_BUCKET);
-        return builder.addField("id", storageData.id())
-            .addField(Record.TIME_BUCKET, timeBucket)
+
+        return builder.fields(fields)
+            .addField("id", record.id())
+            .time(System.currentTimeMillis() * PADDING_SIZE + COUNTER.get(), TimeUnit.NANOSECONDS)
             .build();
     }
 
