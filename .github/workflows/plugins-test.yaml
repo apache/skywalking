@@ -459,7 +459,7 @@ jobs:
         run: ./mvnw --batch-mode clean package -DskipTests -Pagent >/dev/null
       - name: Build the Docker image
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
-      - name: Run elasticsearch-7.x-scenario 7.0.0-7.5.1 (13)
+      - name: Run elasticsearch-7.x-scenario 7.0.0-7.5.2 (14)
         run: bash test/plugin/run.sh elasticsearch-7.x-scenario
       - name: Run elasticsearch-6.x-scenario 6.7.1-6.8.4 (7)
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
