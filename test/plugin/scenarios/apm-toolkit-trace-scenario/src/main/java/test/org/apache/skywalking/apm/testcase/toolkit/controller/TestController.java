@@ -51,6 +51,7 @@ public class TestController {
         testService.testErrorMsg();
         testService.testErrorThrowable();
         testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
+        testService.testTagAnnotationReturnInfo("zhangsan", 15);
         testService.asyncCallable(() -> {
             visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable");
             return true;
