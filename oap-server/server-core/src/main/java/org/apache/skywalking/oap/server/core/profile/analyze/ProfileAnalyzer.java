@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Analyze {@link ProfileStack} data to {@link ProfileAnalyzation}
  *
- * See: https://github.com/apache/skywalking/blob/docs/en/guides/backend-profile.md#thread-analyst
+ * See: https://github.com/apache/skywalking/blob/421ba88dbfba48cdc5845547381aa4763775b4b1/docs/en/guides/backend-profile.md#thread-analyst
  */
 public class ProfileAnalyzer {
 
@@ -45,13 +45,13 @@ public class ProfileAnalyzer {
         }
 
         // using parallel stream
-        Map<String, ProfileStackElement> stackTrees = stacks.parallelStream()
+        Map<String, ProfileStackTree> stackTrees = stacks.parallelStream()
                 // stack list cannot be empty
                 .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
                 .collect(Collectors.groupingBy(s -> s.getStack().get(0), ANALYZE_COLLECTOR));
 
         ProfileAnalyzation analyzer = new ProfileAnalyzation();
-        analyzer.setStack(new ArrayList<>(stackTrees.values()));
+        analyzer.setTrees(new ArrayList<>(stackTrees.values()));
         return analyzer;
     }
 

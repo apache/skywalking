@@ -15,17 +15,18 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.query.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 
-package org.apache.skywalking.apm.agent.core.context;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * @author wusheng
- */
-public class TraceContextCarrierItem extends CarrierItem {
-    private static final String HEAD_NAME = "Trace-Context";
+@Getter
+@Setter
+public class ProfileStackTree {
 
-    public TraceContextCarrierItem(String headValue, CarrierItem next) {
-        super(HEAD_NAME, headValue, next);
-    }
+    private List<ProfileStackElement> elements = new ArrayList<>();
+
 }

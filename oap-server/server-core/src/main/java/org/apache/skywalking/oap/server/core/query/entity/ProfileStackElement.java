@@ -21,14 +21,13 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
-/**
- * @author MrPro
- */
 @Getter
 @Setter
 public class ProfileStackElement {
+
+    // work for tree building, id matches multiple parentId
+    private int id;
+    private int parentId;
 
     // stack code signature
     private String codeSignature;
@@ -41,8 +40,5 @@ public class ProfileStackElement {
 
     // continuous dump count
     private int count;
-
-    // children of this stack code sign
-    private List<ProfileStackElement> children;
 
 }
