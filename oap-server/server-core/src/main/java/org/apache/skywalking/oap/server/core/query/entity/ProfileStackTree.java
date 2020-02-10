@@ -15,30 +15,18 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
-public class ProfileStackElement {
+public class ProfileStackTree {
 
-    // work for tree building, id matches multiple parentId
-    private int id;
-    private int parentId;
-
-    // stack code signature
-    private String codeSignature;
-
-    // include the execution time of children(millisecond)
-    private int duration;
-
-    // exclude the execution time of children(millisecond)
-    private int durationChildExcluded;
-
-    // continuous dump count
-    private int count;
+    private List<ProfileStackElement> elements = new ArrayList<>();
 
 }
