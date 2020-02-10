@@ -108,22 +108,16 @@ public class ProfileVerificationITCase {
         }
 
         // verify basic info
-        int verifyServiceCount = 3;
-        for (int i = 1; i <= verifyServiceCount; i++) {
+        doRetryableVerification(() -> {
             try {
                 verifyServices(minutesAgo);
-            } catch (Throwable e) {
-                if (i == verifyServiceCount) {
-                    throw new IllegalStateException("match services fail!", e);
-                }
-
-                Thread.sleep(retryInterval);
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
             }
-        }
+        });
 
         // create profile task
         verifyCreateProfileTask(minutesAgo);
-
     }
 
     private ResponseEntity<String> sendRequest(boolean needProfiling) {
@@ -289,6 +283,17 @@ public class ProfileVerificationITCase {
         final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
         endpointsMatcher.verify(instances);
         return instances;
+    }
+
+    private void doRetryableVerification(Runnable runnable) throws InterruptedException {
+        while (true) {
+            try {
+                runnable.run();
+                break;
+            } catch (Throwable ignored) {
+                Thread.sleep(retryInterval);
+            }
+        }
     }
 
 }
