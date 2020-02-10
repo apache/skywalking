@@ -132,6 +132,6 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
 
             result.add(record);
         }
-        return null;
+        return result;
     }
 }

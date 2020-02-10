@@ -26,7 +26,6 @@ if test "${STORAGE}" = "mysql"; then
 
   echo "MySQL database is storage provider..."
   # Download MySQL connector.
-#  curl ${MYSQL_URL} > "${SW_HOME}/oap-libs/${MYSQL_DRIVER}"
   curl -L -o "${SW_HOME}/oap-libs/${MYSQL_DRIVER}" ${MYSQL_URL}
   [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
 fi
