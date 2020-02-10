@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
@@ -58,8 +57,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             comparator = (a, b) -> Long.compare(b.getLatency(), a.getLatency());
         }
 
-        WhereQueryImpl<SelectQueryImpl> query =
-            select()
+        WhereQueryImpl<SelectQueryImpl> query = select()
             .function(function, TopN.LATENCY, topN)
             .column(TopN.STATEMENT)
             .column(TopN.TRACE_ID)
@@ -67,9 +65,6 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             .where()
             .and(gte(TopN.TIME_BUCKET, startSecondTB))
             .and(lte(TopN.TIME_BUCKET, endSecondTB));
-//        TODO: mark, have to recheck
-//            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startSecondTB, Downsampling.Second)))
-//            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endSecondTB, Downsampling.Second)));
 
         if (serviceId != Const.NONE) {
             query.and(eq(TopN.SERVICE_ID, serviceId));

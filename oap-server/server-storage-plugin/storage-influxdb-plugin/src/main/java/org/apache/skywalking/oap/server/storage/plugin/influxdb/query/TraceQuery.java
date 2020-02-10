@@ -24,7 +24,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -41,7 +40,6 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
 
-import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient.timeInterval;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
@@ -79,8 +77,6 @@ public class TraceQuery implements ITraceQueryDAO {
             .where();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-//            recallQuery.and(gte(InfluxClient.TIME, timeInterval(startSecondTB, Downsampling.Second)))
-//                .and(lte(InfluxClient.TIME, timeInterval(endSecondTB, Downsampling.Second)));
             recallQuery.and(gte(SegmentRecord.TIME_BUCKET, startSecondTB))
                 .and(lte(SegmentRecord.TIME_BUCKET, endSecondTB));
         }

@@ -20,23 +20,16 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import com.google.common.collect.Maps;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -44,11 +37,9 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.Point;
-import org.joda.time.DateTime;
 
 import static org.apache.skywalking.oap.server.core.analysis.TimeBucket.getTimestamp;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_SLOW_STATEMENT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
@@ -84,8 +75,6 @@ public class PointBuilder {
             .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
             .build();
     }
-
-    private static AtomicInteger counter = new AtomicInteger(0);
 
     public static Point fromRecord(Model model, Map<String, Object> objectMap,
         StorageData record) throws IOException {

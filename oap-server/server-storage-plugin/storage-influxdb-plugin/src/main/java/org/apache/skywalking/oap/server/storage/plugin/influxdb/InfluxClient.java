@@ -80,7 +80,7 @@ public class InfluxClient implements Client {
      *
      * @return InfluxDB's connection
      */
-    public InfluxDB getInflux() {
+    private InfluxDB getInflux() {
         return influx;
     }
 
