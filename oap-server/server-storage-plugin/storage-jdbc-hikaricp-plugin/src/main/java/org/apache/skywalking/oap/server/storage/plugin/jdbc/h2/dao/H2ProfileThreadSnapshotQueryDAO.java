@@ -98,21 +98,27 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecordsWithPaging(String segmentId, long start, long end, int minSequence, int pageSize) throws IOException {
-        // search traces
+    public int queryMinSequence(String segmentId, long start, long end) throws IOException {
+        return querySequenceWithAgg("min", segmentId, start, end);
+    }
+
+    @Override
+    public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
+        return querySequenceWithAgg("max", segmentId, start, end);
+    }
+
+    @Override
+    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
-        sql.append(" order by ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" ").append(SortOrder.ASC);
-        sql.append(" LIMIT ").append(pageSize);
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" < ? ");
 
-        Object[] params = new Object[] {segmentId, start, end, minSequence};
+        Object[] params = new Object[] {segmentId, minSequence, maxSequence};
 
-        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(pageSize);
+        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         try (Connection connection = h2Client.getConnection()) {
 
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), params)) {
@@ -137,4 +143,28 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
 
         return result;
     }
+
+    private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select ").append(aggType).append("(").append(ProfileThreadSnapshotRecord.SEQUENCE).append(") from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
+        sql.append(" 1=1 ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
+        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
+
+        Object[] params = new Object[] {segmentId, start, end};
+
+        try (Connection connection = h2Client.getConnection()) {
+
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), params)) {
+                while (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        return -1;
+    }
+
 }

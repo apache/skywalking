@@ -61,7 +61,7 @@ public class ProfileTaskQueryService implements Service {
 
     public ProfileTaskQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
-        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot());
+        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot(), moduleConfig.getMaxSizeOfAnalyzeProfileSnapshot());
     }
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {

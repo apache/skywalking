@@ -18,11 +18,11 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 @Data
 public class ProfileStackAnalyze {
@@ -32,11 +32,12 @@ public class ProfileStackAnalyze {
 
     public void analyzeAndAssert() {
         List<ProfileStack> stacks = data.transform();
-        ProfileAnalyzation analyze = new ProfileAnalyzer(null, 100).analyze(stacks);
+        List<ProfileStackTree> trees = new ProfileAnalyzer(null, 100, 500).analyze(stacks);
 
-        assertEquals(analyze.getTrees().size(), expected.size());
-        for (int i = 0; i < analyze.getTrees().size(); i++) {
-            expected.get(i).verify(analyze.getTrees().get(i));
+        assertNotNull(trees);
+        assertEquals(trees.size(), expected.size());
+        for (int i = 0; i < trees.size(); i++) {
+            expected.get(i).verify(trees.get(i));
         }
     }
 
