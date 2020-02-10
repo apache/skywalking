@@ -72,13 +72,13 @@ public class ProfileAnalyzer {
             return analyzation;
         }
         if (sequenceSearch.totalSequenceCount > analyzeSnapshotMaxSize) {
-            analyzation.setTip("Out of snapshot analyze limit, current size:" + sequenceSearch.totalSequenceCount + ", only analyze snapshot count: " + analyzeSnapshotMaxSize);
+            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.totalSequenceCount + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
         }
 
         // query snapshots
-        List<ProfileStack> stacks = sequenceSearch.ranges.parallelStream().map(r -> {
+        List<ProfileStack> stacks = sequenceSearch.getRanges().parallelStream().map(r -> {
             try {
-                return getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, r.minSequence, r.maxSequence);
+                return getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, r.getMinSequence(), r.getMaxSequence());
             } catch (IOException e) {
                 LOGGER.warn(e.getMessage(), e);
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
@@ -101,18 +101,17 @@ public class ProfileAnalyzer {
             return null;
         }
 
-        SequenceSearch sequenceSearch = new SequenceSearch();
-        sequenceSearch.totalSequenceCount = maxSequence - minSequence;
+        SequenceSearch sequenceSearch = new SequenceSearch(maxSequence - minSequence);
         maxSequence = Math.min(maxSequence, minSequence + analyzeSnapshotMaxSize);
 
         do {
             int batchMax = Math.min(minSequence + threadSnapshotAnalyzeBatchSize, maxSequence);
-            sequenceSearch.ranges.add(new SequenceRange(minSequence, batchMax));
+            sequenceSearch.getRanges().add(new SequenceRange(minSequence, batchMax));
             minSequence = batchMax + 1;
         } while (minSequence < maxSequence);
 
         // increase last range max sequence, need to include last sequence data
-        sequenceSearch.ranges.getLast().maxSequence++;
+        sequenceSearch.getRanges().getLast().increaseMaxSequence();
 
         return sequenceSearch;
     }
@@ -144,17 +143,41 @@ public class ProfileAnalyzer {
     }
 
     private static class SequenceSearch {
-        LinkedList<SequenceRange> ranges = new LinkedList<>();
-        int totalSequenceCount;
+        private LinkedList<SequenceRange> ranges = new LinkedList<>();
+        private int totalSequenceCount;
+
+        public SequenceSearch(int totalSequenceCount) {
+            this.totalSequenceCount = totalSequenceCount;
+        }
+
+        public LinkedList<SequenceRange> getRanges() {
+            return ranges;
+        }
+
+        public int getTotalSequenceCount() {
+            return totalSequenceCount;
+        }
     }
 
     private static class SequenceRange {
-        int minSequence;
-        int maxSequence;
+        private int minSequence;
+        private int maxSequence;
 
         public SequenceRange(int minSequence, int maxSequence) {
             this.minSequence = minSequence;
             this.maxSequence = maxSequence;
+        }
+
+        public int getMinSequence() {
+            return minSequence;
+        }
+
+        public int getMaxSequence() {
+            return maxSequence;
+        }
+
+        public void increaseMaxSequence() {
+            this.maxSequence++;
         }
     }
 }
