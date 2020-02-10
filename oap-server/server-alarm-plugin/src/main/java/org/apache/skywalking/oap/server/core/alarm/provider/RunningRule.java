@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
