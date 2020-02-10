@@ -16,16 +16,26 @@
  *
  */
 
+package org.apache.skywalking.oap.server.core.storage.profile;
 
-package org.apache.skywalking.apm.agent.core.context;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.storage.DAO;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
- * @author wusheng
+ * {@link ProfileThreadSnapshotRecord} database queries
  */
-public class TraceContextCarrierItem extends CarrierItem {
-    private static final String HEAD_NAME = "Trace-Context";
+public interface IProfileThreadSnapshotQueryDAO extends DAO {
 
-    public TraceContextCarrierItem(String headValue, CarrierItem next) {
-        super(HEAD_NAME, headValue, next);
-    }
+    /**
+     * search all profiled segments, need appoint taskId and snapshot sequence equals 0
+     * sort by segment start time
+     * @param taskId
+     * @return it represents the segments having profile snapshot data.
+     */
+    List<BasicTrace> queryProfiledSegments(String taskId) throws IOException;
+
 }

@@ -16,17 +16,20 @@
  *
  */
 
+package org.apache.skywalking.e2e.profile.query;
 
-package org.apache.skywalking.apm.agent.core.plugin.interceptor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.apache.skywalking.e2e.trace.Trace;
 
-public class InterceptorException extends RuntimeException {
-    private static final long serialVersionUID = 7846035239994885019L;
+import java.util.List;
 
-    public InterceptorException(String message) {
-        super(message);
-    }
+@Setter
+@Getter
+@ToString
+public class Traces {
 
-    public InterceptorException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    private List<Trace> traces;
+
 }

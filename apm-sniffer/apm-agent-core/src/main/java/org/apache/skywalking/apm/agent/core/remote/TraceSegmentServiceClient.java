@@ -45,7 +45,6 @@ import static org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus.CONN
 @DefaultImplementor
 public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSegment>, TracingContextListener, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(TraceSegmentServiceClient.class);
-    private static final int TIMEOUT = 30 * 1000;
 
     private long lastLogTime;
     private long segmentUplinkedCounter;
@@ -55,27 +54,27 @@ public class TraceSegmentServiceClient implements BootService, IConsumer<TraceSe
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
         lastLogTime = System.currentTimeMillis();
         segmentUplinkedCounter = 0;
         segmentAbandonedCounter = 0;
-        carrier = new DataCarrier<TraceSegment>(CHANNEL_SIZE, BUFFER_SIZE);
+        carrier = new DataCarrier<>(CHANNEL_SIZE, BUFFER_SIZE);
         carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
         carrier.consume(this, 1);
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
         TracingContext.ListenerManager.add(this);
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         TracingContext.ListenerManager.remove(this);
         carrier.shutdownConsumers();
     }

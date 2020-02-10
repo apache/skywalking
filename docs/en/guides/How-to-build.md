@@ -4,6 +4,17 @@ This document helps people to compile and build the project in your maven and se
 ## Build Project
 **Because we are using Git submodule, we recommend don't use `GitHub` tag or release page to download source codes for compiling.**
 
+### Maven behind Proxy
+If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and put the follow properties:
+```
+-Dhttp.proxyHost=proxy_ip
+-Dhttp.proxyPort=proxy_port
+-Dhttps.proxyHost=proxy_ip
+-Dhttps.proxyPort=proxy_port 
+-Dhttp.proxyUser=username
+-Dhttp.proxyPassword=password
+```
+
 ### Build from GitHub
 1. Prepare git, JDK8 and maven3
 1. `git clone https://github.com/apache/skywalking.git`

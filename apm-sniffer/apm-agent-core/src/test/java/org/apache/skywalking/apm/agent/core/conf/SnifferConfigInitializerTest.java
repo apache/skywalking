@@ -66,12 +66,16 @@ public class SnifferConfigInitializerTest {
     @Test
     public void testConfigOverriding() throws AgentPackageNotFoundException, ConfigNotFoundException {
         System.setProperty("skywalking.agent.service_name", "testAppFromSystem");
+        System.setProperty("skywalking.agent.instance_properties[key1]", "value1");
+        System.setProperty("skywalking.agent.instance_properties[key2]", "value2");
         System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
         String agentOptions = "agent.service_name=testAppFromAgentOptions,logging.level=debug";
         SnifferConfigInitializer.initialize(agentOptions);
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromAgentOptions"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("127.0.0.1:8090"));
         assertThat(Config.Logging.LEVEL, is(LogLevel.DEBUG));
+        assertThat(Config.Agent.INSTANCE_PROPERTIES.get("key1"), is("value1"));
+        assertThat(Config.Agent.INSTANCE_PROPERTIES.get("key2"), is("value2"));
     }
 
     @Test

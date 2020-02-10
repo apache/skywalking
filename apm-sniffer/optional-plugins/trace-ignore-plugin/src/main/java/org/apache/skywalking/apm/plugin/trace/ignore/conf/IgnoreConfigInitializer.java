@@ -30,8 +30,8 @@ import org.apache.skywalking.apm.util.*;
  */
 public class IgnoreConfigInitializer {
     private static final ILog LOGGER = LogManager.getLogger(IgnoreConfigInitializer.class);
-    private static String CONFIG_FILE_NAME = "/config/apm-trace-ignore-plugin.config";
-    private static String ENV_KEY_PREFIX = "skywalking.";
+    private static final String CONFIG_FILE_NAME = "/config/apm-trace-ignore-plugin.config";
+    private static final String ENV_KEY_PREFIX = "skywalking.";
 
     /**
      * Try to locate `apm-trace-ignore-plugin.config`, which should be in the /optional-plugins/apm-trace-ignore-plugin/
@@ -42,16 +42,12 @@ public class IgnoreConfigInitializer {
      * `trace.ignore_path` in apm-trace-ignore-plugin.config file.
      * <p>
      */
-    public static void initialize() throws ConfigNotFoundException, AgentPackageNotFoundException {
-        InputStream configFileStream;
-        try {
-            configFileStream = loadConfigFromAgentFolder();
+    public static void initialize() {
+        try (final InputStream configFileStream = loadConfigFromAgentFolder()) {
             Properties properties = new Properties();
             properties.load(configFileStream);
-            PropertyPlaceholderHelper helper = PropertyPlaceholderHelper.INSTANCE;
             for (String key : properties.stringPropertyNames()) {
                 String value = (String)properties.get(key);
-                //replace the key's value. properties.replace(key,value) in jdk8+
                 properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
             }
             ConfigInitializer.initialize(properties, IgnoreConfig.class);
@@ -69,9 +65,7 @@ public class IgnoreConfigInitializer {
     private static void overrideConfigBySystemProp() throws IllegalAccessException {
         Properties properties = new Properties();
         Properties systemProperties = System.getProperties();
-        Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry<Object, Object> prop = entryIterator.next();
+        for (final Map.Entry<Object, Object> prop : systemProperties.entrySet()) {
             if (prop.getKey().toString().startsWith(ENV_KEY_PREFIX)) {
                 String realKey = prop.getKey().toString().substring(ENV_KEY_PREFIX.length());
                 properties.put(realKey, prop.getValue());

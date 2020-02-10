@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.agent;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import net.bytebuddy.ByteBuddy;
@@ -33,7 +32,6 @@ import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -60,21 +58,14 @@ public class SkyWalkingAgent {
 
     /**
      * Main entrance. Use byte-buddy transform to enhance all classes, which define in plugins.
-     *
-     * @param agentArgs
-     * @param instrumentation
-     * @throws PluginException
      */
-    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException, IOException {
+    public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
             SnifferConfigInitializer.initialize(agentArgs);
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
-        } catch (ConfigNotFoundException ce) {
-            logger.error(ce, "SkyWalking agent could not find config. Shutting down.");
-            return;
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
@@ -96,7 +87,7 @@ public class SkyWalkingAgent {
                     .or(nameContains(".reflectasm."))
                     .or(nameStartsWith("sun.reflect"))
                     .or(allSkyWalkingAgentExcludeToolkit())
-                    .or(ElementMatchers.<TypeDescription>isSynthetic()));
+                    .or(ElementMatchers.isSynthetic()));
 
         JDK9ModuleExporter.EdgeClasses edgeClasses = new JDK9ModuleExporter.EdgeClasses();
         try {
@@ -126,11 +117,7 @@ public class SkyWalkingAgent {
             logger.error(e, "Skywalking agent boot failure.");
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override public void run() {
-                ServiceManager.INSTANCE.shutdown();
-            }
-        }, "skywalking service shutdown thread"));
+        Runtime.getRuntime().addShutdownHook(new Thread(ServiceManager.INSTANCE::shutdown, "skywalking service shutdown thread"));
     }
 
     private static class Transformer implements AgentBuilder.Transformer {

@@ -42,9 +42,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
  */
 @Getter
 @Setter
-@ScopeDeclaration(id = PROFILE_TASK_SEGMENT_SNAPSHOT, name = "ProfileTaskSegmentSnapshot")
-@Stream(name = ProfileTaskSegmentSnapshotRecord.INDEX_NAME, scopeId = PROFILE_TASK_SEGMENT_SNAPSHOT, builder = ProfileTaskSegmentSnapshotRecord.Builder.class, processor = RecordStreamProcessor.class)
-public class ProfileTaskSegmentSnapshotRecord extends Record {
+@ScopeDeclaration(id = PROFILE_TASK_SEGMENT_SNAPSHOT, name = "ProfileThreadSnapshot")
+@Stream(name = ProfileThreadSnapshotRecord.INDEX_NAME, scopeId = PROFILE_TASK_SEGMENT_SNAPSHOT, builder = ProfileThreadSnapshotRecord.Builder.class, processor = RecordStreamProcessor.class)
+public class ProfileThreadSnapshotRecord extends Record {
 
     public static final String INDEX_NAME = "profile_task_segment_snapshot";
     public static final String TASK_ID = "task_id";
@@ -64,11 +64,11 @@ public class ProfileTaskSegmentSnapshotRecord extends Record {
         return getTaskId() + Const.ID_SPLIT + getSegmentId() + Const.ID_SPLIT + getSequence() + Const.ID_SPLIT;
     }
 
-    public static class Builder implements StorageBuilder<ProfileTaskSegmentSnapshotRecord> {
+    public static class Builder implements StorageBuilder<ProfileThreadSnapshotRecord> {
 
         @Override
-        public ProfileTaskSegmentSnapshotRecord map2Data(Map<String, Object> dbMap) {
-            final ProfileTaskSegmentSnapshotRecord snapshot = new ProfileTaskSegmentSnapshotRecord();
+        public ProfileThreadSnapshotRecord map2Data(Map<String, Object> dbMap) {
+            final ProfileThreadSnapshotRecord snapshot = new ProfileThreadSnapshotRecord();
             snapshot.setTaskId((String)dbMap.get(TASK_ID));
             snapshot.setSegmentId((String)dbMap.get(SEGMENT_ID));
             snapshot.setDumpTime(((Number)dbMap.get(DUMP_TIME)).longValue());
@@ -83,7 +83,7 @@ public class ProfileTaskSegmentSnapshotRecord extends Record {
         }
 
         @Override
-        public Map<String, Object> data2Map(ProfileTaskSegmentSnapshotRecord storageData) {
+        public Map<String, Object> data2Map(ProfileThreadSnapshotRecord storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(TASK_ID, storageData.getTaskId());
             map.put(SEGMENT_ID, storageData.getSegmentId());
