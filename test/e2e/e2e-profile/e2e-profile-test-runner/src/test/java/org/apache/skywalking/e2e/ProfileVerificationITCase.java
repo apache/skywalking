@@ -116,6 +116,8 @@ public class ProfileVerificationITCase {
                 if (i == verifyServiceCount) {
                     throw new IllegalStateException("match services fail!", e);
                 }
+
+                Thread.sleep(retryInterval);
             }
         }
 
