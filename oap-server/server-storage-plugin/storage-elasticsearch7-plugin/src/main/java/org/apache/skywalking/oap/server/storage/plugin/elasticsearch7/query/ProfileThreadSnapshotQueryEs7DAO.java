@@ -24,6 +24,12 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 
 import java.io.IOException;
 
+/**
+ * Following aggregations APIs of ElasticsSearch 6 and 7 have different return type, need to re-compile based on different client jars.
+ *
+ * @see org.elasticsearch.search.aggregations.AggregationBuilders#min(java.lang.String)
+ * @see org.elasticsearch.search.aggregations.AggregationBuilders#max(java.lang.String)
+ */
 public class ProfileThreadSnapshotQueryEs7DAO extends ProfileThreadSnapshotQueryEsDAO {
     public ProfileThreadSnapshotQueryEs7DAO(ElasticSearchClient client, int profileTaskQueryMaxSize) {
         super(client, profileTaskQueryMaxSize);
