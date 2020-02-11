@@ -73,7 +73,7 @@ public class MetricsDAO implements IMetricsDAO {
             for (int i = 1; i < columns.size(); i++) {
                 Object value = values.get(i);
                 if (value instanceof StorageDataType) {
-                    value = ((StorageDataType)value).toStorageData();
+                    value = ((StorageDataType) value).toStorageData();
                 }
 
                 data.put(storageAndColumnNames.get(columns.get(i)), value);
@@ -91,6 +91,6 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
-        return (UpdateRequest)this.prepareBatchInsert(model, metrics);
+        return (UpdateRequest) this.prepareBatchInsert(model, metrics);
     }
 }

@@ -55,9 +55,19 @@ public class TraceQuery implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder)
+    public TraceBrief queryBasicTraces(long startSecondTB,
+                                       long endSecondTB,
+                                       long minDuration,
+                                       long maxDuration,
+                                       String endpointName,
+                                       int serviceId,
+                                       int serviceInstanceId,
+                                       int endpointId,
+                                       String traceId,
+                                       int limit,
+                                       int from,
+                                       TraceState traceState,
+                                       QueryOrder queryOrder)
         throws IOException {
 
         String orderBy = SegmentRecord.START_TIME;
@@ -78,7 +88,7 @@ public class TraceQuery implements ITraceQueryDAO {
 
         if (startSecondTB != 0 && endSecondTB != 0) {
             recallQuery.and(gte(SegmentRecord.TIME_BUCKET, startSecondTB))
-                .and(lte(SegmentRecord.TIME_BUCKET, endSecondTB));
+                       .and(lte(SegmentRecord.TIME_BUCKET, endSecondTB));
         }
         if (minDuration != 0) {
             recallQuery.and(gte(SegmentRecord.LATENCY, minDuration));
@@ -133,19 +143,19 @@ public class TraceQuery implements ITraceQueryDAO {
         }
 
         TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(((Number)counter.get(0).getValues().get(0).get(1)).intValue());
+        traceBrief.setTotal(((Number) counter.get(0).getValues().get(0).get(1)).intValue());
 
         result.get(0).getValues().stream().sorted((a, b) -> {
-            return Long.compare(((Number)b.get(1)).longValue(), ((Number)a.get(1)).longValue());
+            return Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue());
         }).skip(from).forEach(values -> {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setSegmentId((String)values.get(2));
-            basicTrace.setStart(String.valueOf((long)values.get(3)));
-            basicTrace.getEndpointNames().add((String)values.get(4));
-            basicTrace.setDuration((int)values.get(5));
-            basicTrace.setError(BooleanUtils.valueToBoolean((int)values.get(6)));
-            basicTrace.getTraceIds().add((String)values.get(7));
+            basicTrace.setSegmentId((String) values.get(2));
+            basicTrace.setStart(String.valueOf((long) values.get(3)));
+            basicTrace.getEndpointNames().add((String) values.get(4));
+            basicTrace.setDuration((int) values.get(5));
+            basicTrace.setError(BooleanUtils.valueToBoolean((int) values.get(6)));
+            basicTrace.getTraceIds().add((String) values.get(7));
 
             traceBrief.getTraces().add(basicTrace);
         });
@@ -155,18 +165,18 @@ public class TraceQuery implements ITraceQueryDAO {
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         WhereQueryImpl query = select().column(SegmentRecord.SEGMENT_ID)
-            .column(SegmentRecord.TRACE_ID)
-            .column(SegmentRecord.SERVICE_ID)
-            .column(SegmentRecord.ENDPOINT_NAME)
-            .column(SegmentRecord.START_TIME)
-            .column(SegmentRecord.END_TIME)
-            .column(SegmentRecord.LATENCY)
-            .column(SegmentRecord.IS_ERROR)
-            .column(SegmentRecord.DATA_BINARY)
-            .column(SegmentRecord.VERSION)
-            .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
-            .where()
-            .and(eq(SegmentRecord.TRACE_ID, traceId));
+                                       .column(SegmentRecord.TRACE_ID)
+                                       .column(SegmentRecord.SERVICE_ID)
+                                       .column(SegmentRecord.ENDPOINT_NAME)
+                                       .column(SegmentRecord.START_TIME)
+                                       .column(SegmentRecord.END_TIME)
+                                       .column(SegmentRecord.LATENCY)
+                                       .column(SegmentRecord.IS_ERROR)
+                                       .column(SegmentRecord.DATA_BINARY)
+                                       .column(SegmentRecord.VERSION)
+                                       .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
+                                       .where()
+                                       .and(eq(SegmentRecord.TRACE_ID, traceId));
         List<QueryResult.Series> series = client.queryForSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
@@ -178,17 +188,17 @@ public class TraceQuery implements ITraceQueryDAO {
         series.get(0).getValues().forEach(values -> {
             SegmentRecord segmentRecord = new SegmentRecord();
 
-            segmentRecord.setSegmentId((String)values.get(1));
-            segmentRecord.setTraceId((String)values.get(2));
-            segmentRecord.setServiceId((int)values.get(3));
-            segmentRecord.setEndpointName((String)values.get(4));
-            segmentRecord.setStartTime((long)values.get(5));
-            segmentRecord.setEndTime((long)values.get(6));
-            segmentRecord.setLatency((int)values.get(7));
-            segmentRecord.setIsError((int)values.get(8));
-            segmentRecord.setVersion((int)values.get(10));
+            segmentRecord.setSegmentId((String) values.get(1));
+            segmentRecord.setTraceId((String) values.get(2));
+            segmentRecord.setServiceId((int) values.get(3));
+            segmentRecord.setEndpointName((String) values.get(4));
+            segmentRecord.setStartTime((long) values.get(5));
+            segmentRecord.setEndTime((long) values.get(6));
+            segmentRecord.setLatency((int) values.get(7));
+            segmentRecord.setIsError((int) values.get(8));
+            segmentRecord.setVersion((int) values.get(10));
 
-            String base64 = (String)values.get(9);
+            String base64 = (String) values.get(9);
             if (!Strings.isNullOrEmpty(base64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
             }

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
 import org.apache.skywalking.oap.server.core.storage.StorageException;

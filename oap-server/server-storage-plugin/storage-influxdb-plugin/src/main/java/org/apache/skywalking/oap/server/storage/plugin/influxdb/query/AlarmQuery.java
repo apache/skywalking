@@ -50,7 +50,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
 
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
-        long endTB) throws IOException {
+                           long endTB) throws IOException {
 
         WhereQueryImpl<SelectQueryImpl> recallQuery = select()
             .function("top", AlarmRecord.START_TIME, limit + from).as(AlarmRecord.START_TIME)
@@ -61,7 +61,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
             .where();
         if (startTB > 0 && endTB > 0) {
             recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-                .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+                       .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         }
         if (!Strings.isNullOrEmpty(keyword)) {
             recallQuery.and(regex(AlarmRecord.ALARM_MESSAGE, keyword));
@@ -70,7 +70,9 @@ public class AlarmQuery implements IAlarmQueryDAO {
             recallQuery.and(eq(AlarmRecord.SCOPE, scopeId));
         }
 
-        WhereQueryImpl<SelectQueryImpl> countQuery = select().count(AlarmRecord.ID0).from(client.getDatabase(), AlarmRecord.INDEX_NAME).where();
+        WhereQueryImpl<SelectQueryImpl> countQuery = select().count(AlarmRecord.ID0)
+                                                             .from(client.getDatabase(), AlarmRecord.INDEX_NAME)
+                                                             .where();
         recallQuery.getClauses().forEach(clause -> {
             countQuery.where(clause);
         });
@@ -89,25 +91,25 @@ public class AlarmQuery implements IAlarmQueryDAO {
         }
         List<QueryResult.Series> counter = results.get(0).getSeries();
         Alarms alarms = new Alarms();
-        alarms.setTotal(((Number)counter.get(0).getValues().get(0).get(1)).intValue());
+        alarms.setTotal(((Number) counter.get(0).getValues().get(0).get(1)).intValue());
 
         series.get(0).getValues()
-            .stream()
-            .sorted((a, b) -> Long.compare((long)b.get(1), (long)a.get(1)))
-            .skip(from)
-            .forEach(values -> {
-                final int sid = (int)values.get(4);
-                Scope scope = Scope.Finder.valueOf(sid);
+              .stream()
+              .sorted((a, b) -> Long.compare((long) b.get(1), (long) a.get(1)))
+              .skip(from)
+              .forEach(values -> {
+                  final int sid = (int) values.get(4);
+                  Scope scope = Scope.Finder.valueOf(sid);
 
-                AlarmMessage message = new AlarmMessage();
-                message.setStartTime((long)values.get(1));
-                message.setId((String)values.get(2));
-                message.setMessage((String)values.get(3));
-                message.setScope(scope);
-                message.setScopeId(sid);
+                  AlarmMessage message = new AlarmMessage();
+                  message.setStartTime((long) values.get(1));
+                  message.setId((String) values.get(2));
+                  message.setMessage((String) values.get(3));
+                  message.setScope(scope);
+                  message.setScopeId(sid);
 
-                alarms.getMsgs().add(message);
-            });
+                  alarms.getMsgs().add(message);
+              });
         return alarms;
     }
 }

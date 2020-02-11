@@ -17,9 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-
 import java.util.Calendar;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public class TimeBucket {
 
@@ -44,7 +43,9 @@ public class TimeBucket {
     }
 
     /**
-     * @param timeBucket
+     * Convert TimeBucket to Timestamp in millisecond.
+     *
+     * @param timeBucket long
      * @return timestamp in millisecond unit
      */
     public static long getTimestamp(long timeBucket) {
@@ -64,40 +65,40 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in minute Unit is "yyyyMMddHHmmss",
-     * so which means the TimeBucket mush between 10000000000000 and 99999999999999.
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmmss", so which means the TimeBucket mush between
+     * 10000000000000 and 99999999999999.
      */
     public static boolean isSecondBucket(long timeBucket) {
         return timeBucket < 99999999999999L && timeBucket > 10000000000000L;
     }
 
     /**
-     * The format of timeBucket in minute Unit is "yyyyMMddHHmm",
-     * so which means the TimeBucket mush between 100000000000 and 999999999999.
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmm", so which means the TimeBucket mush between
+     * 100000000000 and 999999999999.
      */
     public static boolean isMinuteBucket(long timeBucket) {
         return timeBucket < 999999999999L && timeBucket > 100000000000L;
     }
 
     /**
-     * The format of timeBucket in hour Unit is "yyyyMMddHH",
-     * so which means the TimeBucket mush between 1000000000 and 9999999999.
+     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket mush between 1000000000 and
+     * 9999999999.
      */
     public static boolean isHourBucket(long timeBucket) {
         return timeBucket < 9999999999L && timeBucket > 1000000000L;
     }
 
     /**
-     * The format of timeBucket in day Unit is "yyyyMMdd",
-     * so which means the TimeBucket mush between 10000000 and 99999999.
+     * The format of timeBucket in day Unit is "yyyyMMdd", so which means the TimeBucket mush between 10000000 and
+     * 99999999.
      */
     public static boolean isDayBucket(long timeBucket) {
         return timeBucket < 99999999L && timeBucket > 10000000L;
     }
 
     /**
-     * The format of timeBucket in month Unit is "yyyyMM",
-     * so which means the TimeBucket mush between 100000 and 999999.
+     * The format of timeBucket in month Unit is "yyyyMM", so which means the TimeBucket mush between 100000 and
+     * 999999.
      */
     public static boolean isMonthBucket(long timeBucket) {
         return timeBucket < 999999L && timeBucket > 100000L;
@@ -106,12 +107,11 @@ public class TimeBucket {
     /**
      * Convert TimeBucket to Timestamp in millisecond.
      *
-     * @param timeBucket
-     * @param downsampling
+     * @param timeBucket long
+     * @param downsampling Downsampling
      * @return timestamp in millisecond unit
      */
     public static long getTimestamp(long timeBucket, Downsampling downsampling) {
-        // TODO , We need to find out a more effective approach.
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(0);
         switch (downsampling) {

@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-
-import java.io.IOException;
 
 public class RecordDAO implements IRecordDAO {
     private InfluxClient client;

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.collect.Lists;
@@ -76,16 +77,19 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
 
         List<ProfileTaskLog> taskLogs = Lists.newArrayList();
         series.getValues().stream()
-            .sorted((a, b) -> Long.compare(((Number)b.get(1)).longValue(), ((Number)a.get(1)).longValue()))
-            .forEach(values -> {
-                taskLogs.add(ProfileTaskLog.builder()
-                    .id((String)values.get(columnsMap.get("id")))
-                    .taskId((String)values.get(columnsMap.get(ProfileTaskLogRecord.TASK_ID)))
-                    .instanceId((int)values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
-                    .operationTime((Long)values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TIME)))
-                    .operationType(ProfileTaskLogOperationType.parse((int)values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TYPE))))
-                    .build());
-            });
+              .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
+              .forEach(values -> {
+                  taskLogs.add(ProfileTaskLog.builder()
+                                             .id((String) values.get(columnsMap.get("id")))
+                                             .taskId((String) values.get(columnsMap.get(ProfileTaskLogRecord.TASK_ID)))
+                                             .instanceId(
+                                                 (int) values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
+                                             .operationTime(
+                                                 (Long) values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TIME)))
+                                             .operationType(ProfileTaskLogOperationType.parse(
+                                                 (int) values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TYPE))))
+                                             .build());
+              });
         return taskLogs;
     }
 }

@@ -117,24 +117,29 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO(client));
 
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(client));
-        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
+        this.registerServiceImplementation(
+            IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
         this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(client));
-        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(client));
+        this.registerServiceImplementation(
+            INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
         this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(influxClient));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(
+            IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(influxClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQuery(influxClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQuery(influxClient));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQuery(influxClient));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(client));
-        this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(influxClient));
+        this.registerServiceImplementation(
+            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(influxClient));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient));
 
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteDAO(getManager(), influxClient, new GeneralStorageTTL()));
+        this.registerServiceImplementation(
+            IHistoryDeleteDAO.class, new HistoryDeleteDAO(getManager(), influxClient, new GeneralStorageTTL()));
     }
 
     @Override

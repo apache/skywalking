@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
-import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
@@ -49,7 +48,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
 
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName,
-        int serviceId, int topN, Order order) throws IOException {
+                                           int serviceId, int topN, Order order) throws IOException {
         String function = "bottom";
         Comparator<TopNRecord> comparator = Comparator.comparingLong(TopNRecord::getLatency);
         if (order.equals(Order.DES)) {
@@ -57,7 +56,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             comparator = (a, b) -> Long.compare(b.getLatency(), a.getLatency());
         }
 
-        WhereQueryImpl<SelectQueryImpl> query = select()
+        WhereQueryImpl query = select()
             .function(function, TopN.LATENCY, topN)
             .column(TopN.STATEMENT)
             .column(TopN.TRACE_ID)
@@ -81,9 +80,9 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
         final List<TopNRecord> records = new ArrayList<>();
         series.getValues().forEach(values -> {
             TopNRecord record = new TopNRecord();
-            record.setLatency((long)values.get(1));
-            record.setTraceId((String)values.get(3));
-            record.setStatement((String)values.get(2));
+            record.setLatency((long) values.get(1));
+            record.setTraceId((String) values.get(3));
+            record.setStatement((String) values.get(2));
             records.add(record);
         });
         Collections.sort(records, comparator);

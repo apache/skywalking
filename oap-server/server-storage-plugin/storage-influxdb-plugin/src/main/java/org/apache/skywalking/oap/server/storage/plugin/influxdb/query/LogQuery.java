@@ -63,8 +63,8 @@ public class LogQuery implements ILogQueryDAO {
 
     @Override
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-        LogState state, String stateCode, Pagination paging, int from, int limit,
-        long startTB, long endTB) throws IOException {
+                          LogState state, String stateCode, Pagination paging, int from, int limit,
+                          long startTB, long endTB) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select("*::field")
             .from(client.getDatabase(), metricName)
             .where();
@@ -93,11 +93,11 @@ public class LogQuery implements ILogQueryDAO {
         if (!Strings.isNullOrEmpty(stateCode)) {
             recallQuery.and(eq(STATUS_CODE, stateCode));
         }
-//        TODO: have to recheck
-//        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-//            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
+        //        TODO: have to recheck
+        //        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
+        //            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
-            .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
+                   .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
 
         if (from > Const.NONE) {
             limit += from;
@@ -124,7 +124,7 @@ public class LogQuery implements ILogQueryDAO {
         QueryResult.Result counter = results.get(0);
         QueryResult.Result seriesList = results.get(1);
 
-        logs.setTotal(((Number)counter.getSeries().get(0).getValues().get(0).get(1)).intValue());
+        logs.setTotal(((Number) counter.getSeries().get(0).getValues().get(0).get(1)).intValue());
         seriesList.getSeries().forEach(series -> {
             final List<String> columns = series.getColumns();
 
@@ -135,17 +135,17 @@ public class LogQuery implements ILogQueryDAO {
                 for (int i = 0; i < columns.size(); i++) {
                     data.put(columns.get(i), values.get(i));
                 }
-                log.setContent((String)data.get(CONTENT));
-                log.setContentType(ContentType.instanceOf((int)data.get(CONTENT_TYPE)));
+                log.setContent((String) data.get(CONTENT));
+                log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));
 
-                log.setEndpointId((int)data.get(ENDPOINT_ID));
-                log.setTraceId((String)data.get(TRACE_ID));
-                log.setTimestamp((String)data.get(TIMESTAMP));
+                log.setEndpointId((int) data.get(ENDPOINT_ID));
+                log.setTraceId((String) data.get(TRACE_ID));
+                log.setTimestamp((String) data.get(TIMESTAMP));
 
-                log.setStatusCode((String)data.get(STATUS_CODE));
+                log.setStatusCode((String) data.get(STATUS_CODE));
 
-                log.setServiceId((int)data.get(SERVICE_ID));
-                log.setServiceInstanceId((int)data.get(SERVICE_INSTANCE_ID));
+                log.setServiceId((int) data.get(SERVICE_ID));
+                log.setServiceInstanceId((int) data.get(SERVICE_INSTANCE_ID));
 
                 logs.getLogs().add(log);
             });

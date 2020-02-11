@@ -63,7 +63,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
 
     @Override
     public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB,
-        Where where, String valueCName, Function function) throws IOException {
+                               Where where, String valueCName, Function function) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
         SelectionQueryImpl query = select();
@@ -99,9 +99,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
                     ids.addAll(values);
                     if (type == String.class) {
                         clauseBuilder.append(kv.getKey())
-                            .append(" =~ /")
-                            .append(Joiner.on("|").join(values))
-                            .append("/ OR ");
+                                     .append(" =~ /")
+                                     .append(Joiner.on("|").join(values))
+                                     .append("/ OR ");
                         continue;
                     }
                     for (String value : values) {
@@ -125,7 +125,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             for (QueryResult.Series series : seriesList) {
                 KVInt kv = new KVInt();
                 kv.setId(series.getTags().get(Metrics.ENTITY_ID));
-                Number value = (Number)series.getValues().get(0).get(1);
+                Number value = (Number) series.getValues().get(0).get(1);
                 kv.setValue(value.longValue());
 
                 intValues.addKVInt(kv);
@@ -162,8 +162,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (!(seriesList == null || seriesList.isEmpty())) {
             seriesList.get(0).getValues().forEach(values -> {
                 KVInt kv = new KVInt();
-                kv.setValue((int)values.get(2));
-                kv.setId((String)values.get(1));
+                kv.setValue((int) values.get(2));
+                kv.setId((String) values.get(1));
                 intValues.addKVInt(kv);
             });
         }
@@ -173,8 +173,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
     /**
      * Make sure the order is same as the expected order, and keep default value as 0.
      *
-     * @param origin
-     * @param expectedOrder
+     * @param origin IntValues
+     * @param expectedOrder List
      * @return
      */
     private IntValues orderWithDefault0(IntValues origin, List<String> expectedOrder) {
@@ -190,8 +190,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
         return intValues;
     }
 
-    @Override public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        List<Integer> linearIndex, String valueCName) throws IOException {
+    @Override
+    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
+                                                  List<Integer> linearIndex, String valueCName) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
         WhereQueryImpl<SelectQueryImpl> query = select()
@@ -220,9 +221,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
         series.get(0).getValues().forEach(values -> {
             IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
-            multipleValues.toObject((String)values.get(2));
+            multipleValues.toObject((String) values.get(2));
 
-            final String id = (String)values.get(1);
+            final String id = (String) values.get(1);
             for (int i = 0; i < intValues.length; i++) {
                 Integer index = linearIndex.get(i);
                 KVInt kv = new KVInt();
@@ -237,8 +238,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
     /**
      * Make sure the order is same as the expected order, and keep default value as 0.
      *
-     * @param origin
-     * @param expectedOrder
+     * @param origin IntValues[]
+     * @param expectedOrder List
      * @return
      */
     private IntValues[] orderWithDefault0(IntValues[] origin, List<String> expectedOrder) {
@@ -250,7 +251,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
 
     @Override
     public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName)
+                                          String valueCName)
         throws IOException {
         String measurement = ModelName.build(downsampling, indName);
         WhereQueryImpl<SelectQueryImpl> query = select()
@@ -274,10 +275,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
         List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
         Thermodynamic thermodynamic = new Thermodynamic();
         for (List<Object> values : series.get(0).getValues()) {
-            numOfSteps = (int)values.get(2) + 1;
-            axisYStep = (int)values.get(1);
+            numOfSteps = (int) values.get(2) + 1;
+            axisYStep = (int) values.get(1);
             IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
-            intKeyLongValues.toObject((String)values.get(3));
+            intKeyLongValues.toObject((String) values.get(3));
             List<Long> axisYValues = new ArrayList<>(numOfSteps);
             for (int i = 0; i < numOfSteps; i++) {
                 axisYValues.add(0L);
@@ -285,7 +286,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
                 axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
             }
-            thermodynamicValueMatrix.put((String)values.get(4), axisYValues);
+            thermodynamicValueMatrix.put((String) values.get(4), axisYValues);
         }
         // try to add default values when there is no data in that time bucket.
         ids.forEach(id -> {

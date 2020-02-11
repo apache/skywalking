@@ -37,7 +37,7 @@ public class BatchDAO implements IBatchDAO {
 
     @Override
     public void asynchronous(InsertRequest insertRequest) {
-        client.write(((InfluxInsertRequest)insertRequest).getPoint());
+        client.write(((InfluxInsertRequest) insertRequest).getPoint());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class BatchDAO implements IBatchDAO {
 
         final BatchPoints.Builder builder = BatchPoints.builder();
         prepareRequests.forEach(e -> {
-            builder.point(((InfluxInsertRequest)e).getPoint());
+            builder.point(((InfluxInsertRequest) e).getPoint());
         });
 
         client.write(builder.build());

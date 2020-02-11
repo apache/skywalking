@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.io.IOException;
@@ -41,12 +42,15 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
         this.client = client;
     }
 
-    @Override public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
+    @Override
+    public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug("TTL execution log, model: {}", model.getName());
         }
         try {
-            ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
+            ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+                                                            .provider()
+                                                            .getService(ConfigService.class);
 
             TTLCalculator ttlCalculator;
             if (model.isRecord()) {
@@ -55,7 +59,8 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
                 ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
             }
 
-            client.dropSeries(model.getName(), ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig()));
+            client.dropSeries(
+                model.getName(), ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig()));
         } catch (Exception e) {
             log.error("TTL execution log, model: {}, errMsg: {}", model.getName(), e.getMessage());
         }

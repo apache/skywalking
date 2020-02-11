@@ -62,41 +62,43 @@ public class PointBuilder {
             Object value = objectMap.get(column.getColumnName().getName());
 
             if (value instanceof StorageDataType) {
-                fields.put(column.getColumnName().getStorageName(),
-                    ((StorageDataType)value).toStorageData());
+                fields.put(
+                    column.getColumnName().getStorageName(),
+                    ((StorageDataType) value).toStorageData()
+                );
             } else {
                 fields.put(column.getColumnName().getStorageName(), value);
             }
         }
-        long timeBucket = (long)fields.remove(Metrics.TIME_BUCKET);
+        long timeBucket = (long) fields.remove(Metrics.TIME_BUCKET);
         return builder.fields(fields)
-            .addField("id", metrics.id())
-            .tag(Metrics.TIME_BUCKET, String.valueOf(timeBucket))
-            .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
-            .build();
+                      .addField("id", metrics.id())
+                      .tag(Metrics.TIME_BUCKET, String.valueOf(timeBucket))
+                      .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)
+                      .build();
     }
 
     public static Point fromRecord(Model model, Map<String, Object> objectMap,
-        StorageData record) throws IOException {
+                                   StorageData record) throws IOException {
         Map<String, Object> fields = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
             final ColumnName name = column.getColumnName();
             Object value = objectMap.get(name.getName());
 
             if (value instanceof StorageDataType) {
-                fields.put(name.getStorageName(), ((StorageDataType)value).toStorageData());
+                fields.put(name.getStorageName(), ((StorageDataType) value).toStorageData());
             } else {
                 fields.put(name.getStorageName(), value);
             }
         }
 
         final Point.Builder builder = Point.measurement(model.getName()).fields(fields)
-            .tag(Record.TIME_BUCKET, String.valueOf(fields.get(Record.TIME_BUCKET)));
+                                           .tag(Record.TIME_BUCKET, String.valueOf(fields.get(Record.TIME_BUCKET)));
         switch (model.getScopeId()) {
             case SEGMENT:
             case HTTP_ACCESS_LOG: {
                 builder.tag(SegmentRecord.SERVICE_ID, String.valueOf(fields.get(SegmentRecord.SERVICE_ID)))
-                    .tag(SegmentRecord.ENDPOINT_ID, String.valueOf(fields.get(SegmentRecord.ENDPOINT_ID)));
+                       .tag(SegmentRecord.ENDPOINT_ID, String.valueOf(fields.get(SegmentRecord.ENDPOINT_ID)));
                 break;
             }
             case ALARM: {
@@ -108,20 +110,26 @@ public class PointBuilder {
                 break;
             }
             case PROFILE_TASK_LOG: {
-                builder.tag(ProfileTaskLogRecord.OPERATION_TYPE, String.valueOf(fields.get(ProfileTaskLogRecord.OPERATION_TYPE)))
-                    .tag(ProfileTaskLogRecord.INSTANCE_ID, String.valueOf(fields.get(ProfileTaskLogRecord.INSTANCE_ID)));
+                builder.tag(
+                    ProfileTaskLogRecord.OPERATION_TYPE,
+                    String.valueOf(fields.get(ProfileTaskLogRecord.OPERATION_TYPE))
+                )
+                       .tag(
+                           ProfileTaskLogRecord.INSTANCE_ID,
+                           String.valueOf(fields.get(ProfileTaskLogRecord.INSTANCE_ID))
+                       );
                 break;
             }
             case PROFILE_TASK_SEGMENT_SNAPSHOT: {
-                builder.tag(ProfileThreadSnapshotRecord.TASK_ID, String.valueOf(ProfileThreadSnapshotRecord.TASK_ID));
+                builder.tag(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.TASK_ID);
                 break;
             }
         }
 
         return builder.fields(fields)
-            .addField("id", record.id())
-            .time(System.currentTimeMillis() * PADDING_SIZE + COUNTER.get(), TimeUnit.NANOSECONDS)
-            .build();
+                      .addField("id", record.id())
+                      .time(System.currentTimeMillis() * PADDING_SIZE + COUNTER.get(), TimeUnit.NANOSECONDS)
+                      .build();
     }
 
 }

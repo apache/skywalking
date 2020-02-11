@@ -68,7 +68,8 @@ public class InfluxClient implements Client {
     @Override
     public void connect() {
         influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
-            new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK);
+                                         new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK
+        );
         influx.query(new Query("CREATE DATABASE " + database));
 
         influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
@@ -88,9 +89,9 @@ public class InfluxClient implements Client {
      * Execute a query against InfluxDB and return a set of {@link QueryResult.Result}s. Normally, InfluxDB supports
      * combining multiple statements into one query, so that we do get multi-results.
      *
-     * @param query
+     * @param query Query
      * @return a set of {@link QueryResult.Result}s.
-     * @throws IOException
+     * @throws IOException if there is an error on the InfluxDB server or communication error.
      */
     public List<QueryResult.Result> query(Query query) throws IOException {
         if (log.isDebugEnabled()) {
@@ -111,9 +112,9 @@ public class InfluxClient implements Client {
     /**
      * Execute a query against InfluxDB with a single statement.
      *
-     * @param query
+     * @param query Query
      * @return a set of {@link QueryResult.Series}s
-     * @throws IOException
+     * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public List<QueryResult.Series> queryForSeries(Query query) throws IOException {
         List<QueryResult.Result> results = query(query);
@@ -127,9 +128,9 @@ public class InfluxClient implements Client {
     /**
      * Execute a query against InfluxDB with a single statement but return a single {@link QueryResult.Series}.
      *
-     * @param query
+     * @param query Query
      * @return {@link QueryResult.Series}
-     * @throws IOException
+     * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public QueryResult.Series queryForSingleSeries(Query query) throws IOException {
         List<QueryResult.Series> series = queryForSeries(query);
@@ -143,9 +144,9 @@ public class InfluxClient implements Client {
      * Data management, to drop a time-series by measurement and time-series name specified. If an exception isn't
      * thrown, it means execution success.
      *
-     * @param measurement
-     * @param timeBucket
-     * @throws IOException
+     * @param measurement String
+     * @param timeBucket  long
+     * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public void dropSeries(String measurement, long timeBucket) throws IOException {
         Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket<='" + timeBucket + "'");
@@ -160,7 +161,7 @@ public class InfluxClient implements Client {
      * Write a {@link Point} into InfluxDB. Note that, the {@link Point} is written into buffer of InfluxDB Client and
      * wait for buffer flushing.
      *
-     * @param point
+     * @param point Point
      */
     public void write(Point point) {
         getInflux().write(point);
@@ -169,7 +170,7 @@ public class InfluxClient implements Client {
     /**
      * A batch operation of write. {@link Point}s flush directly.
      *
-     * @param points
+     * @param points BatchPoints
      */
     public void write(BatchPoints points) {
         getInflux().write(points);
@@ -183,8 +184,8 @@ public class InfluxClient implements Client {
     /**
      * Convert to InfluxDB {@link TimeInterval}.
      *
-     * @param timeBucket
-     * @param downsampling
+     * @param timeBucket   long
+     * @param downsampling Downsampling
      * @return
      */
     public static TimeInterval timeInterval(long timeBucket, Downsampling downsampling) {
@@ -194,7 +195,7 @@ public class InfluxClient implements Client {
     /**
      * Convert to InfluxDB {@link TimeInterval}.
      *
-     * @param timeBucket
+     * @param timeBucket long
      * @return
      */
     public static TimeInterval timeInterval(long timeBucket) {

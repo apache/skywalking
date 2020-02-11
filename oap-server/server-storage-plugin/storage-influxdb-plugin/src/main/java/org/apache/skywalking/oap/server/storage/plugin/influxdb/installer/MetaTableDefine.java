@@ -15,9 +15,9 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
@@ -36,11 +36,10 @@ public class MetaTableDefine {
     /**
      * Test a {@link Model} is stored in H2/MySQL or not.
      *
-     * @param model
+     * @param model Model
      * @return true if the {@link Model} is stored in H2/MySQL
-     * @throws StorageException
      */
-    public static boolean contains(Model model) throws StorageException {
+    public static boolean contains(Model model) {
         switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
