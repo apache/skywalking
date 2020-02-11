@@ -58,7 +58,8 @@ public class MotanProviderInstrumentation extends ClassInstanceMethodsEnhancePlu
                     return INVOKE_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.ids;
 
-import org.apache.skywalking.apm.network.language.agent.*;
-/**
- * @author wusheng
- */
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+
 public class ID {
     private long part1;
     private long part2;
@@ -65,17 +62,19 @@ public class ID {
         return encoding;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return part1 + "." + part2 + '.' + part3;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
 
-        ID id = (ID)o;
+        ID id = (ID) o;
 
         if (part1 != id.part1)
             return false;
@@ -84,10 +83,11 @@ public class ID {
         return part3 == id.part3;
     }
 
-    @Override public int hashCode() {
-        int result = (int)(part1 ^ (part1 >>> 32));
-        result = 31 * result + (int)(part2 ^ (part2 >>> 32));
-        result = 31 * result + (int)(part3 ^ (part3 >>> 32));
+    @Override
+    public int hashCode() {
+        int result = (int) (part1 ^ (part1 >>> 32));
+        result = 31 * result + (int) (part2 ^ (part2 >>> 32));
+        result = 31 * result + (int) (part3 ^ (part3 >>> 32));
         return result;
     }
 

@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.e2e.metrics;
 
+import java.util.Objects;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.Objects;
-
-/**
- * @author kezhenxu94
- */
 public class MetricsValueMatcher extends AbstractMatcher<MetricsValue> {
     private String value;
 
@@ -45,8 +41,6 @@ public class MetricsValueMatcher extends AbstractMatcher<MetricsValue> {
 
     @Override
     public String toString() {
-        return "MetricsValueMatcher{" +
-            "value='" + value + '\'' +
-            '}';
+        return "MetricsValueMatcher{" + "value='" + value + '\'' + '}';
     }
 }

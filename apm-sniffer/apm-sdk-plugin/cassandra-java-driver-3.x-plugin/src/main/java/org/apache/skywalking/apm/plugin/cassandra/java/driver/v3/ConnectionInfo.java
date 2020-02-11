@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.cassandra.java.driver.v3;
 
-/**
- * @author stone.wlg
- */
 public class ConnectionInfo {
 
     private final String contactPoints;

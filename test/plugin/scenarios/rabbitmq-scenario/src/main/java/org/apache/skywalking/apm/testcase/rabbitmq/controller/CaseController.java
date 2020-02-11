@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.apm.testcase.rabbitmq.controller;
 
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import com.rabbitmq.client.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,16 +34,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/case")
 @PropertySource("classpath:application.properties")
 public class CaseController {
 
     private Logger logger = LogManager.getLogger(CaseController.class);
-
 
     private static final String USERNAME = "admin";
 
@@ -50,17 +50,17 @@ public class CaseController {
 
     private static final int PORT = 5672;
 
-    private static final  String QUEUE_NAME = "test";
+    private static final String QUEUE_NAME = "test";
 
-    private static final  String MESSAGE = "rabbitmq-testcase";
+    private static final String MESSAGE = "rabbitmq-testcase";
 
     @RequestMapping("/rabbitmq")
     @ResponseBody
-    public String rabbitmqCase() throws Exception {
+    public String rabbitmqCase() {
         Channel channel = null;
         Connection connection = null;
 
-        try{
+        try {
             ConnectionFactory factory = new ConnectionFactory();
             logger.info("Using brokerUrl = " + brokerUrl);
             factory.setHost(brokerUrl);
@@ -73,35 +73,35 @@ public class CaseController {
             channel = connection.createChannel();
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-            logger.info("Message being published -------------->"+MESSAGE);
-            channel.basicPublish("", QUEUE_NAME, propsBuilder.build(), MESSAGE.getBytes("UTF-8"));
-            logger.info("Message has been published-------------->"+MESSAGE);
+            logger.info("Message being published -------------->" + MESSAGE);
+            channel.basicPublish("", QUEUE_NAME, propsBuilder.build(), MESSAGE.getBytes(StandardCharsets.UTF_8));
+            logger.info("Message has been published-------------->" + MESSAGE);
 
             final CountDownLatch waitForConsume = new CountDownLatch(1);
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), "UTF-8");
-                logger.info("Message received-------------->"+message);
+                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                logger.info("Message received-------------->" + message);
                 waitForConsume.countDown();
             };
-            channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+            channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+            });
             waitForConsume.await(5000L, TimeUnit.MILLISECONDS);
             logger.info("Message Consumed-------------->");
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex.toString());
-        }
-        finally {
+        } finally {
             if (channel != null) {
                 try {
                     channel.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     // ignore
                 }
             }
             if (connection != null) {
                 try {
                     connection.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     // ignore
                 }
             }
@@ -114,7 +114,7 @@ public class CaseController {
         Channel channel = null;
         Connection connection = null;
 
-        try{
+        try {
             ConnectionFactory factory = new ConnectionFactory();
             logger.info("Using brokerUrl = " + brokerUrl);
             factory.setHost(brokerUrl);
@@ -127,22 +127,21 @@ public class CaseController {
             channel = connection.createChannel();
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
             logger.info("Completed Health Check. Able to connect to RabbitMQ and create queue-------------->");
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex.toString());
             throw ex;
-        }
-        finally {
+        } finally {
             if (channel != null) {
                 try {
                     channel.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     // ignore
                 }
             }
             if (connection != null) {
                 try {
                     connection.close();
-                }catch (Exception e){
+                } catch (Exception e) {
                     // ignore
                 }
             }

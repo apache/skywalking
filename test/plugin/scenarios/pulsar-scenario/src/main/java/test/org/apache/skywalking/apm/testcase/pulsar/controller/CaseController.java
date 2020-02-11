@@ -20,7 +20,6 @@ package test.org.apache.skywalking.apm.testcase.pulsar.controller;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pulsar.client.api.Consumer;
@@ -28,7 +27,6 @@ import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
@@ -53,24 +51,13 @@ public class CaseController {
 
         String topic = "test";
 
-        PulsarClient pulsarClient = PulsarClient.builder()
-                .serviceUrl(PULSAR_DOMAIN + serviceUrl)
-                .build();
+        PulsarClient pulsarClient = PulsarClient.builder().serviceUrl(PULSAR_DOMAIN + serviceUrl).build();
 
-        Producer<byte[]> producer = pulsarClient.newProducer()
-                .topic(topic)
-                .create();
+        Producer<byte[]> producer = pulsarClient.newProducer().topic(topic).create();
 
-        Consumer<byte[]> consumer = pulsarClient.newConsumer()
-                .topic(topic)
-                .subscriptionName("test")
-                .subscribe();
+        Consumer<byte[]> consumer = pulsarClient.newConsumer().topic(topic).subscriptionName("test").subscribe();
 
-        producer.newMessage()
-                .key("testKey")
-                .value(Integer.toString(1).getBytes())
-                .property("TEST", "TEST")
-                .send();
+        producer.newMessage().key("testKey").value(Integer.toString(1).getBytes()).property("TEST", "TEST").send();
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -80,9 +67,10 @@ public class CaseController {
                 if (msg != null) {
                     String propertiesFormat = "key = %s, value = %s";
                     StringBuilder builder = new StringBuilder();
-                    msg.getProperties().forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v)).append(", "));
-                    logger.info("Received message with messageId = {}, key = {}, value = {}, properties = {}",
-                            msg.getMessageId(), msg.getKey(), new String(msg.getValue()), builder.toString());
+                    msg.getProperties()
+                       .forEach((k, v) -> builder.append(String.format(propertiesFormat, k, v)).append(", "));
+                    logger.info("Received message with messageId = {}, key = {}, value = {}, properties = {}", msg.getMessageId(), msg
+                        .getKey(), new String(msg.getValue()), builder.toString());
 
                 }
                 consumer.acknowledge(msg);
@@ -112,12 +100,11 @@ public class CaseController {
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() throws InterruptedException {
-        try(PulsarClient pulsarClient = PulsarClient.builder()
-                .serviceUrl(PULSAR_DOMAIN + serviceUrl)
-                .build();
-            Producer<byte[]> producer = pulsarClient.newProducer()
-                .topic("healthCheck")
-                .create()) {
+        try (PulsarClient pulsarClient = PulsarClient.builder()
+                                                     .serviceUrl(PULSAR_DOMAIN + serviceUrl)
+                                                     .build(); Producer<byte[]> producer = pulsarClient.newProducer()
+                                                                                                       .topic("healthCheck")
+                                                                                                       .create()) {
             if (producer.isConnected()) {
                 return "Success";
             } else {

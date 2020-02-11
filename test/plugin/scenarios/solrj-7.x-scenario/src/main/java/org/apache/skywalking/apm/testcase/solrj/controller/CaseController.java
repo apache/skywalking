@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.testcase.solrj.controller;
 
-
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -31,11 +33,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/solrj-scenario/case")
@@ -65,7 +62,6 @@ public class CaseController {
         }
     }
 
-
     @GetMapping("/solrj")
     public String solrj() throws SolrServerException, IOException {
         HttpSolrClient client = getClient();
@@ -89,7 +85,7 @@ public class CaseController {
 
     public String add(HttpSolrClient client) throws SolrServerException, IOException {
         List<SolrInputDocument> docs = new ArrayList<>();
-        for (int i=0; i<100; i++) {
+        for (int i = 0; i < 100; i++) {
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField("id", i);
             docs.add(doc);
@@ -107,6 +103,7 @@ public class CaseController {
         client.optimize(collection);
         return "Success";
     }
+
     public String search(HttpSolrClient client) throws IOException, SolrServerException {
         ModifiableSolrParams params = new ModifiableSolrParams();
         params.set(CommonParams.Q, "*:*");

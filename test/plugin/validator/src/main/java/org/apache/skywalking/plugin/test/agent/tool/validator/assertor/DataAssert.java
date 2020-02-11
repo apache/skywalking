@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import com.google.gson.GsonBuilder;

@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 
-/**
- * @author peng-yongsheng
- */
 public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements SWCollection<STORAGE_DATA> {
 
     private final List<STORAGE_DATA> data;
@@ -36,51 +35,63 @@ public class NonMergeDataCollection<STORAGE_DATA extends StorageData> implements
         this.reading = false;
     }
 
-    @Override public void finishWriting() {
+    @Override
+    public void finishWriting() {
         writing = false;
     }
 
-    @Override public void writing() {
+    @Override
+    public void writing() {
         writing = true;
     }
 
-    @Override public boolean isWriting() {
+    @Override
+    public boolean isWriting() {
         return writing;
     }
 
-    @Override public void finishReading() {
+    @Override
+    public void finishReading() {
         reading = false;
     }
 
-    @Override public void reading() {
+    @Override
+    public void reading() {
         reading = true;
     }
 
-    @Override public boolean isReading() {
+    @Override
+    public boolean isReading() {
         return reading;
     }
 
-    @Override public int size() {
+    @Override
+    public int size() {
         return data.size();
     }
 
-    @Override public void clear() {
+    @Override
+    public void clear() {
         data.clear();
     }
 
-    @Override public boolean containsKey(STORAGE_DATA key) {
+    @Override
+    public boolean containsKey(STORAGE_DATA key) {
         throw new UnsupportedOperationException("Non merge data collection doesn't support containsKey operation.");
     }
 
-    @Override public STORAGE_DATA get(STORAGE_DATA key) {
+    @Override
+    public STORAGE_DATA get(STORAGE_DATA key) {
         throw new UnsupportedOperationException("Non merge data collection doesn't support get operation.");
     }
 
-    @Override public void put(STORAGE_DATA value) {
+    @Override
+    public void put(STORAGE_DATA value) {
         data.add(value);
     }
 
-    @Override public Collection<STORAGE_DATA> collection() {
+    @Override
+    public Collection<STORAGE_DATA> collection() {
         return data;
     }
 }

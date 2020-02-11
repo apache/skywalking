@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore.matcher;
 
-/**
- * @author kanro
- */
 public class FastPathMatcher implements TracePathMatcher {
     @Override
     public boolean match(String pattern, String path) {

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.cluster;
 
-/**
- * @author kezhenxu94
- */
 public class User {
     public User() {
     }

@@ -46,7 +46,8 @@ public class HystrixPluginsInterceptorTest {
                 return cache;
             }
 
-            @Override public void setSkyWalkingDynamicField(Object cache) {
+            @Override
+            public void setSkyWalkingDynamicField(Object cache) {
                 this.cache = (SWHystrixPluginsWrapperCache) cache;
             }
         };
@@ -59,7 +60,6 @@ public class HystrixPluginsInterceptorTest {
         assertTrue(wrapperResult instanceof SWExecutionHookWrapper);
         assertSame(wrapperResult, HystrixPlugins.getInstance().getCommandExecutionHook());
     }
-
 
     @Test
     public void testInterceptorWithCustomHystrixCommandExecutionHook() throws Throwable {
@@ -80,7 +80,9 @@ public class HystrixPluginsInterceptorTest {
     }
 
     private HystrixCommandExecutionHook getCommandExecutionHookByInterceptor() throws Throwable {
-        return (HystrixCommandExecutionHook) hystrixPluginsInterceptor.afterMethod(enhancedInstance, null, null, null, HystrixPlugins.getInstance().getCommandExecutionHook());
+        return (HystrixCommandExecutionHook) hystrixPluginsInterceptor.afterMethod(enhancedInstance, null, null, null, HystrixPlugins
+            .getInstance()
+            .getCommandExecutionHook());
     }
 
     static class CustomHystrixCommandExecutionHook extends HystrixCommandExecutionHook {

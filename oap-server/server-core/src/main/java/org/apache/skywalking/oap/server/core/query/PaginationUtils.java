@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 
-/**
- * @author peng-yongsheng
- */
 public enum PaginationUtils {
     INSTANCE;
 

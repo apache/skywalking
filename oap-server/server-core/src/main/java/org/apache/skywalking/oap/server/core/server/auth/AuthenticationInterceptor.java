@@ -26,8 +26,6 @@ import io.grpc.Status;
 
 /**
  * Active the authentication between agent and oap receiver. token checker if expected token exists in application.yml
- *
- * @author jian.tan
  */
 public class AuthenticationInterceptor implements ServerInterceptor {
 
@@ -58,8 +56,7 @@ public class AuthenticationInterceptor implements ServerInterceptor {
      */
     @Override
     public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> serverCall,
-        Metadata metadata,
-        ServerCallHandler<REQUEST, RESPONSE> serverCallHandler) {
+        Metadata metadata, ServerCallHandler<REQUEST, RESPONSE> serverCallHandler) {
         String token = metadata.get(AUTH_HEAD_HEADER_NAME);
         if (expectedToken.equals(token)) {
             return serverCallHandler.startCall(serverCall, metadata);

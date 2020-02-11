@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x;
 
 import io.undertow.server.HttpHandler;
@@ -53,10 +54,6 @@ import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertCompon
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @author AI
- * 2019-07-29
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class TracingHandlerTest {
@@ -71,7 +68,6 @@ public class TracingHandlerTest {
 
     private String template = "/projects/{projectId}/users";
     private String uri = "/projects/{projectId}/users";
-
 
     @Test
     public void testStatusCodeIsOk() throws Throwable {
@@ -103,7 +99,8 @@ public class TracingHandlerTest {
     public void testWithSerializedContextData() throws Throwable {
         TracingHandler handler = new TracingHandler(httpHandler);
         HttpServerExchange exchange = buildExchange();
-        exchange.getRequestHeaders().put(HttpString.tryFromString(SW6CarrierItem.HEADER_NAME), "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        exchange.getRequestHeaders()
+                .put(HttpString.tryFromString(SW6CarrierItem.HEADER_NAME), "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
         handler.handleRequest(exchange);
         exchange.endExchange();
 

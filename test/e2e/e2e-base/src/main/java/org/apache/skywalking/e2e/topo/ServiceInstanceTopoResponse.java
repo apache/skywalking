@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.topo;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 public class ServiceInstanceTopoResponse {

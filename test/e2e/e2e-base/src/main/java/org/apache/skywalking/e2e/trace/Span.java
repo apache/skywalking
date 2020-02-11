@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.e2e.trace;
 
+import java.util.List;
 import lombok.Data;
 
-import java.util.List;
-
-/**
- * @author kezhenxu94
- */
 @Data
 public class Span {
     private String traceId;

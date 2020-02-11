@@ -47,20 +47,18 @@ public class CaseController {
     @RequestMapping("/okhttp-case")
     @ResponseBody
     public String okHttpScenario() {
-        Request request = new Request.Builder()
-            .url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-0")
-            .build();
+        Request request = new Request.Builder().url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-0").build();
 
         new OkHttpClient().newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
+            @Override
+            public void onFailure(Call call, IOException e) {
                 //Never do this
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Request request = new Request.Builder()
-                    .url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-1")
-                    .build();
+                Request request = new Request.Builder().url("http://127.0.0.1:8080/okhttp-case/case/receiveContext-1")
+                                                       .build();
                 new OkHttpClient().newCall(request).execute();
             }
         });

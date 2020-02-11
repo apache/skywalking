@@ -22,31 +22,36 @@ import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.NoneStreamEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.NoneStreamEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RecordEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RegisterEsDAO;
 
-/**
- * @author peng-yongsheng
- */
 public class StorageEs7DAO extends EsDAO implements StorageDAO {
 
     public StorageEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+    @Override
+    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new MetricsEs7DAO(getClient(), storageBuilder);
     }
 
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
+    @Override
+    public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
         return new RegisterEsDAO(getClient(), storageBuilder);
     }
 
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
+    @Override
+    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
         return new RecordEsDAO(getClient(), storageBuilder);
     }
 

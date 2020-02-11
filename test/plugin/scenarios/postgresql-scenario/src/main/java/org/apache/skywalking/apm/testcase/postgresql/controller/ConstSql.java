@@ -15,13 +15,12 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.postgresql.controller;
 
 public class ConstSql {
     public static final String TEST_SQL = "SELECT 1";
-    public static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
-        "id VARCHAR(1) PRIMARY KEY, \n" +
-        "value VARCHAR(1) NOT NULL)";
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
     public static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
     public static final String DROP_TABLE_SQL = "DROP table test_007";
 }

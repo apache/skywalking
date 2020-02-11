@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 
 /**
  * The instance of customize instrumentation.
- *
- * @author zhaoyuguang
  */
 
 public class CustomizeInstanceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
@@ -52,7 +50,7 @@ public class CustomizeInstanceInstrumentation extends ClassInstanceMethodsEnhanc
         if (matcher == null) {
             return new InstanceMethodsInterceptPoint[0];
         } else {
-            return new InstanceMethodsInterceptPoint[]{
+            return new InstanceMethodsInterceptPoint[] {
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {

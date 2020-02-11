@@ -28,8 +28,8 @@ public class RegistryOperationNameNotFoundException extends AssertFailedExceptio
         this.operationName = operationName;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("RegistryOperationNameNotFoundException %s\nexpected: %s\nactual: %s\n", applicationCode
-            , operationName, "NOT FOUND");
+    @Override
+    public String getCauseMessage() {
+        return String.format("RegistryOperationNameNotFoundException %s\nexpected: %s\nactual: %s\n", applicationCode, operationName, "NOT FOUND");
     }
 }

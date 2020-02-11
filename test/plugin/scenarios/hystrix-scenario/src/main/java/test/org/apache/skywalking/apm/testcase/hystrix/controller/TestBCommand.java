@@ -31,14 +31,10 @@ public class TestBCommand extends HystrixCommand<String> {
 
     protected TestBCommand(String name) {
         super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("TestBCommand"))
-            .andCommandPropertiesDefaults(
-                HystrixCommandProperties.Setter()
-                    .withExecutionTimeoutInMilliseconds(1000)
-            ).andCommandPropertiesDefaults(
-                HystrixCommandProperties.Setter()
-                    .withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)
-            )
-        );
+                    .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                                                                          .withExecutionTimeoutInMilliseconds(1000))
+                    .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                                                                          .withExecutionIsolationStrategy(ExecutionIsolationStrategy.SEMAPHORE)));
         this.name = name;
     }
 

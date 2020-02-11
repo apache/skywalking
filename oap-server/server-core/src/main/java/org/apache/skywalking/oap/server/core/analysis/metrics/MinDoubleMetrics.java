@@ -25,16 +25,15 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author jian.tan
- */
-
 @MetricsFunction(functionName = "minDouble")
 public abstract class MinDoubleMetrics extends Metrics implements DoubleValueHolder {
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private double value = Double.MAX_VALUE;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, isValue = true)
+    private double value = Double.MAX_VALUE;
 
     @Entrance
     public final void combine(@SourceFrom double count) {
@@ -43,11 +42,13 @@ public abstract class MinDoubleMetrics extends Metrics implements DoubleValueHol
         }
     }
 
-    @Override public final void combine(Metrics metrics) {
-        MinDoubleMetrics minDoubleMetrics = (MinDoubleMetrics)metrics;
+    @Override
+    public final void combine(Metrics metrics) {
+        MinDoubleMetrics minDoubleMetrics = (MinDoubleMetrics) metrics;
         combine(minDoubleMetrics.value);
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
     }
 }

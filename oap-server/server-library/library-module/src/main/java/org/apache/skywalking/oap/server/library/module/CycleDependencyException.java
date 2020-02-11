@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class CycleDependencyException extends RuntimeException {
     public CycleDependencyException(String message) {
         super(message);

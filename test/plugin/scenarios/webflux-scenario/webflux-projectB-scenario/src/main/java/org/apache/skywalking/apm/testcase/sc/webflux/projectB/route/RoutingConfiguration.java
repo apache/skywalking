@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.skywalking.apm.testcase.sc.webflux.projectB.route;
 
 import org.springframework.context.annotation.Bean;
@@ -24,9 +25,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 
-/**
- * @author zhaoyuguang
- */
 @Configuration
 public class RoutingConfiguration {
     @Bean

@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 import org.assertj.core.api.Assertions;
 
-import java.util.List;
-
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {

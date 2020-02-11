@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-/**
- * @author wusheng
- */
 public class SW6CarrierItem extends CarrierItem {
     public static final String HEADER_NAME = "sw6";
     private ContextCarrier carrier;

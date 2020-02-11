@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
@@ -25,16 +24,14 @@ import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>ExitSpan</code> represents a service consumer point, such as Feign, Okhttp client for an Http service.
- *
+ * <p>
  * It is an exit point or a leaf span(our old name) of trace tree. In a single rpc call, because of a combination of
  * discovery libs, there maybe contain multi-layer exit point:
- *
+ * <p>
  * The <code>ExitSpan</code> only presents the first one.
- *
+ * <p>
  * Such as: Dubbox - Apache Httpcomponent - ...(Remote) The <code>ExitSpan</code> represents the Dubbox span, and ignore
  * the httpcomponent span's info.
- *
- * @author wusheng
  */
 public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
 
@@ -73,7 +70,8 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
         return this;
     }
 
-    @Override public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
+    @Override
+    public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
         if (stackDepth == 1 || tag.isCanOverwrite()) {
             super.tag(tag, value);
         }
@@ -143,11 +141,13 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
         return peer;
     }
 
-    @Override public boolean isEntry() {
+    @Override
+    public boolean isEntry() {
         return false;
     }
 
-    @Override public boolean isExit() {
+    @Override
+    public boolean isExit() {
         return true;
     }
 }

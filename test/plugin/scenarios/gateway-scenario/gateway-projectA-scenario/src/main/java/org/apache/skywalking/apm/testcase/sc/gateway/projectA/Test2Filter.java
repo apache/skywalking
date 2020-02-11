@@ -28,7 +28,7 @@ public class Test2Filter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest buildRequest =  exchange.getRequest().mutate().build();
+        ServerHttpRequest buildRequest = exchange.getRequest().mutate().build();
         return chain.filter(exchange.mutate().request(buildRequest).build());
     }
 

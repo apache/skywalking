@@ -22,6 +22,10 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
@@ -38,17 +42,9 @@ import org.apache.skywalking.e2e.service.ServicesQuery;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.SERVICE_RESP_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 @Slf4j
 public class StorageTTLITCase {
 
@@ -73,11 +69,10 @@ public class StorageTTLITCase {
         final String oapPort = System.getProperty("oap.port", "32788");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
 
-        final ManagedChannelBuilder builder =
-            NettyChannelBuilder.forAddress("127.0.0.1", Integer.parseInt(oapPort))
-                .nameResolverFactory(new DnsNameResolverProvider())
-                .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
-                .usePlaintext(USE_PLAIN_TEXT);
+        final ManagedChannelBuilder builder = NettyChannelBuilder.forAddress("127.0.0.1", Integer.parseInt(oapPort))
+                                                                 .nameResolverFactory(new DnsNameResolverProvider())
+                                                                 .maxInboundMessageSize(MAX_INBOUND_MESSAGE_SIZE)
+                                                                 .usePlaintext(USE_PLAIN_TEXT);
 
         final ManagedChannel channel = builder.build();
 
@@ -87,18 +82,17 @@ public class StorageTTLITCase {
     @Test(timeout = 360000)
     public void dayMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
-        final ServiceMeshMetric.Builder builder = ServiceMeshMetric
-            .newBuilder()
-            .setSourceServiceName("e2e-test-source-service")
-            .setSourceServiceInstance("e2e-test-source-service-instance")
-            .setDestServiceName("e2e-test-dest-service")
-            .setDestServiceInstance("e2e-test-dest-service-instance")
-            .setEndpoint("e2e/test")
-            .setLatency(2000)
-            .setResponseCode(200)
-            .setStatus(SUCCESS)
-            .setProtocol(Protocol.HTTP)
-            .setDetectPoint(DetectPoint.server);
+        final ServiceMeshMetric.Builder builder = ServiceMeshMetric.newBuilder()
+                                                                   .setSourceServiceName("e2e-test-source-service")
+                                                                   .setSourceServiceInstance("e2e-test-source-service-instance")
+                                                                   .setDestServiceName("e2e-test-dest-service")
+                                                                   .setDestServiceInstance("e2e-test-dest-service-instance")
+                                                                   .setEndpoint("e2e/test")
+                                                                   .setLatency(2000)
+                                                                   .setResponseCode(200)
+                                                                   .setStatus(SUCCESS)
+                                                                   .setProtocol(Protocol.HTTP)
+                                                                   .setDetectPoint(DetectPoint.server);
 
         final LocalDateTime now = LocalDateTime.now();
         final LocalDateTime startTime = now.minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL + 1);
@@ -107,14 +101,7 @@ public class StorageTTLITCase {
         final LocalDateTime queryStart = startTime;
         final LocalDateTime queryEnd = now.minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL);
 
-        ensureSendingMetricsWorks(
-            builder,
-            startTime.toEpochSecond(ZoneOffset.UTC) * 1000,
-            endTime.toEpochSecond(ZoneOffset.UTC) * 1000,
-            queryStart,
-            queryEnd,
-            "DAY"
-        );
+        ensureSendingMetricsWorks(builder, startTime.toEpochSecond(ZoneOffset.UTC) * 1000, endTime.toEpochSecond(ZoneOffset.UTC) * 1000, queryStart, queryEnd, "DAY");
 
         shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "DAY");
     }
@@ -122,18 +109,17 @@ public class StorageTTLITCase {
     @Test(timeout = 360000)
     public void monthMetricsDataShouldBeRemovedAfterTTL() throws Exception {
 
-        final ServiceMeshMetric.Builder builder = ServiceMeshMetric
-            .newBuilder()
-            .setSourceServiceName("e2e-test-source-service")
-            .setSourceServiceInstance("e2e-test-source-service-instance")
-            .setDestServiceName("e2e-test-dest-service")
-            .setDestServiceInstance("e2e-test-dest-service-instance")
-            .setEndpoint("e2e/test")
-            .setLatency(2000)
-            .setResponseCode(200)
-            .setStatus(SUCCESS)
-            .setProtocol(Protocol.HTTP)
-            .setDetectPoint(DetectPoint.server);
+        final ServiceMeshMetric.Builder builder = ServiceMeshMetric.newBuilder()
+                                                                   .setSourceServiceName("e2e-test-source-service")
+                                                                   .setSourceServiceInstance("e2e-test-source-service-instance")
+                                                                   .setDestServiceName("e2e-test-dest-service")
+                                                                   .setDestServiceInstance("e2e-test-dest-service-instance")
+                                                                   .setEndpoint("e2e/test")
+                                                                   .setLatency(2000)
+                                                                   .setResponseCode(200)
+                                                                   .setStatus(SUCCESS)
+                                                                   .setProtocol(Protocol.HTTP)
+                                                                   .setDetectPoint(DetectPoint.server);
 
         final LocalDateTime now = LocalDateTime.now();
         final LocalDateTime startTime = now.minusMonths(SW_STORAGE_ES_MONTH_METRIC_DATA_TTL + 1);
@@ -142,23 +128,13 @@ public class StorageTTLITCase {
         final LocalDateTime queryStart = startTime;
         final LocalDateTime queryEnd = now.minusMonths(SW_STORAGE_ES_MONTH_METRIC_DATA_TTL);
 
-        ensureSendingMetricsWorks(
-            builder,
-            startTime.toEpochSecond(ZoneOffset.UTC) * 1000,
-            endTime.toEpochSecond(ZoneOffset.UTC) * 1000,
-            queryStart,
-            queryEnd,
-            "MONTH"
-        );
+        ensureSendingMetricsWorks(builder, startTime.toEpochSecond(ZoneOffset.UTC) * 1000, endTime.toEpochSecond(ZoneOffset.UTC) * 1000, queryStart, queryEnd, "MONTH");
 
         shouldBeEmptyBetweenTimeRange(queryStart, queryEnd, "MONTH");
     }
 
-    private void shouldBeEmptyBetweenTimeRange(
-        final LocalDateTime queryStart,
-        final LocalDateTime queryEnd,
-        final String step
-    ) throws InterruptedException {
+    private void shouldBeEmptyBetweenTimeRange(final LocalDateTime queryStart, final LocalDateTime queryEnd,
+        final String step) throws InterruptedException {
 
         boolean valid = false;
         for (int i = 0; i < 10 && !valid; i++) {
@@ -185,22 +161,12 @@ public class StorageTTLITCase {
         }
     }
 
-    private void ensureSendingMetricsWorks(
-        final ServiceMeshMetric.Builder builder,
-        final long startTime,
-        final long endTime,
-        final LocalDateTime queryStart,
-        final LocalDateTime queryEnd,
-        final String step
-    ) throws Exception {
+    private void ensureSendingMetricsWorks(final ServiceMeshMetric.Builder builder, final long startTime,
+        final long endTime, final LocalDateTime queryStart, final LocalDateTime queryEnd,
+        final String step) throws Exception {
         boolean prepared = false;
         while (!prepared) {
-            sendMetrics(
-                builder
-                    .setStartTime(startTime)
-                    .setEndTime(endTime)
-                    .build()
-            );
+            sendMetrics(builder.setStartTime(startTime).setEndTime(endTime).build());
             final Metrics serviceMetrics = queryMetrics(queryStart, queryEnd, step);
             final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
@@ -210,44 +176,35 @@ public class StorageTTLITCase {
                 instanceRespTimeMatcher.verify(serviceMetrics);
                 prepared = true;
             } catch (Throwable ignored) {
-                sendMetrics(
-                    builder
-                        .setStartTime(startTime)
-                        .setEndTime(endTime)
-                        .build()
-                );
+                sendMetrics(builder.setStartTime(startTime).setEndTime(endTime).build());
                 Thread.sleep(10000);
             }
         }
     }
 
-    private Metrics queryMetrics(
-        final LocalDateTime queryStart,
-        final LocalDateTime queryEnd,
-        final String step
-    ) throws Exception {
+    private Metrics queryMetrics(final LocalDateTime queryStart, final LocalDateTime queryEnd,
+        final String step) throws Exception {
         for (int i = 0; i < 10; i++) {
             try {
-                final List<Service> services = queryClient.services(
-                    new ServicesQuery()
-                        .start(LocalDateTime.now().minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL))
-                        .end(LocalDateTime.now())
-                );
+                final List<Service> services = queryClient.services(new ServicesQuery().start(LocalDateTime.now()
+                                                                                                           .minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL))
+                                                                                       .end(LocalDateTime.now()));
 
                 log.info("Services: {}", services);
 
                 assertThat(services).isNotEmpty();
 
-                String serviceId = services.stream().filter(it -> "e2e-test-dest-service".equals(it.getLabel())).findFirst().get().getKey();
+                String serviceId = services.stream()
+                                           .filter(it -> "e2e-test-dest-service".equals(it.getLabel()))
+                                           .findFirst()
+                                           .get()
+                                           .getKey();
 
-                return queryClient.metrics(
-                    new MetricsQuery()
-                        .id(serviceId)
-                        .metricsName(SERVICE_RESP_TIME)
-                        .step(step)
-                        .start(queryStart)
-                        .end(queryEnd)
-                );
+                return queryClient.metrics(new MetricsQuery().id(serviceId)
+                                                             .metricsName(SERVICE_RESP_TIME)
+                                                             .step(step)
+                                                             .start(queryStart)
+                                                             .end(queryEnd));
             } catch (Throwable ignored) {
                 Thread.sleep(10000);
             }

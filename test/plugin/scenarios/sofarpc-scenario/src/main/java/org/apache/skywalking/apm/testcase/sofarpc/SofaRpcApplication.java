@@ -28,9 +28,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author zhangwei
- */
 @SpringBootApplication
 public class SofaRpcApplication {
 
@@ -38,32 +35,25 @@ public class SofaRpcApplication {
         SpringApplication.run(SofaRpcApplication.class, args);
     }
 
-
     @Configuration
     public static class SofaRpcConfiguration {
 
         @Bean(destroyMethod = "unExport")
         public ProviderConfig provider() {
-            ServerConfig config = new ServerConfig()
-                .setProtocol("bolt")
-                .setPort(12200)
-                .setDaemon(true);
+            ServerConfig config = new ServerConfig().setProtocol("bolt").setPort(12200).setDaemon(true);
 
-            ProviderConfig<SofaRpcDemoService> providerConfig = new ProviderConfig<SofaRpcDemoService>()
-                .setInterfaceId(SofaRpcDemoService.class.getName())
-                .setRef(new SofaRpcDemoServiceImpl())
-                .setServer(config);
+            ProviderConfig<SofaRpcDemoService> providerConfig = new ProviderConfig<SofaRpcDemoService>().setInterfaceId(SofaRpcDemoService.class
+                .getName()).setRef(new SofaRpcDemoServiceImpl()).setServer(config);
 
             providerConfig.export();
             return providerConfig;
         }
 
         @Bean
-        public ConsumerConfig consumer(){
-            return new ConsumerConfig<SofaRpcDemoService>()
-                .setInterfaceId(SofaRpcDemoService.class.getName())
-                .setProtocol("bolt")
-                .setDirectUrl("bolt://127.0.0.1:12200");
+        public ConsumerConfig consumer() {
+            return new ConsumerConfig<SofaRpcDemoService>().setInterfaceId(SofaRpcDemoService.class.getName())
+                                                           .setProtocol("bolt")
+                                                           .setDirectUrl("bolt://127.0.0.1:12200");
         }
     }
 }

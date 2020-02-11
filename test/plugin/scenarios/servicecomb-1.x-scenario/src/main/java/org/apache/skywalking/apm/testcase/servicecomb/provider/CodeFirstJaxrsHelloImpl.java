@@ -18,15 +18,13 @@
 
 package org.apache.skywalking.apm.testcase.servicecomb.provider;
 
-
-import org.apache.servicecomb.provider.pojo.RpcSchema;
-import org.apache.skywalking.apm.testcase.servicecomb.schema.Hello;
-import org.apache.skywalking.apm.testcase.servicecomb.schema.models.Person;
-
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.servicecomb.provider.pojo.RpcSchema;
+import org.apache.skywalking.apm.testcase.servicecomb.schema.Hello;
+import org.apache.skywalking.apm.testcase.servicecomb.schema.models.Person;
 
 @RpcSchema(schemaId = "codeFirstJaxrsHello")
 @Path("/codefirstjaxrshello")

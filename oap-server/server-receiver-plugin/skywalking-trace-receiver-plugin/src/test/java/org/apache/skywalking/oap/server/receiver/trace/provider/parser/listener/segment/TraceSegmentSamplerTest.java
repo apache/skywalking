@@ -26,14 +26,46 @@ public class TraceSegmentSamplerTest {
     @Test
     public void sample() {
         TraceSegmentSampler sampler = new TraceSegmentSampler(100);
-        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(0).build()));
-        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(50).build()));
-        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(99).build()));
-        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(100).build()));
-        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(101).build()));
-        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(10000).build()));
-        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(10001).build()));
-        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(1019903).build()));
+        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder()
+                                                       .addIdParts(123)
+                                                       .addIdParts(2)
+                                                       .addIdParts(0)
+                                                       .build()));
+        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder()
+                                                       .addIdParts(123)
+                                                       .addIdParts(2)
+                                                       .addIdParts(50)
+                                                       .build()));
+        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder()
+                                                       .addIdParts(123)
+                                                       .addIdParts(2)
+                                                       .addIdParts(99)
+                                                       .build()));
+        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder()
+                                                        .addIdParts(123)
+                                                        .addIdParts(2)
+                                                        .addIdParts(100)
+                                                        .build()));
+        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder()
+                                                        .addIdParts(123)
+                                                        .addIdParts(2)
+                                                        .addIdParts(101)
+                                                        .build()));
+        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder()
+                                                       .addIdParts(123)
+                                                       .addIdParts(2)
+                                                       .addIdParts(10000)
+                                                       .build()));
+        Assert.assertTrue(sampler.shouldSample(UniqueId.newBuilder()
+                                                       .addIdParts(123)
+                                                       .addIdParts(2)
+                                                       .addIdParts(10001)
+                                                       .build()));
+        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder()
+                                                        .addIdParts(123)
+                                                        .addIdParts(2)
+                                                        .addIdParts(1019903)
+                                                        .build()));
     }
 
     @Test
@@ -41,7 +73,11 @@ public class TraceSegmentSamplerTest {
         TraceSegmentSampler sampler = new TraceSegmentSampler(100);
         Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).build()));
 
-        Assert.assertFalse(
-            sampler.shouldSample(UniqueId.newBuilder().addIdParts(123).addIdParts(2).addIdParts(23).addIdParts(3).build()));
+        Assert.assertFalse(sampler.shouldSample(UniqueId.newBuilder()
+                                                        .addIdParts(123)
+                                                        .addIdParts(2)
+                                                        .addIdParts(23)
+                                                        .addIdParts(3)
+                                                        .build()));
     }
 }

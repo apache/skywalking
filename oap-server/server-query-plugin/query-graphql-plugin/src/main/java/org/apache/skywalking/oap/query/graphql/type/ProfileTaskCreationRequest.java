@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.query.graphql.type;
 
 import lombok.Getter;
@@ -23,8 +24,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 /**
  * Profile task create need data
- *
- * @author MrPro
  */
 @Setter
 @Getter

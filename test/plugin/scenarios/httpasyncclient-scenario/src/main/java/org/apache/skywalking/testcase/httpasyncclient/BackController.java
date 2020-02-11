@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.testcase.httpasyncclient;
 
 import org.springframework.web.bind.annotation.GetMapping;

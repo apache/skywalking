@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.define.v37;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -31,13 +30,12 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37.MongoDBOperationExecutorInterceptor;
 
 /**
- * {@code com.mongodb.client.internal.OperationExecutor} which is unified entrance of execute mongo command.
- * so we can intercept {@code com.mongodb.client.internal.OperationExecutor#execute(...)} method
- * to known which command will be execute.
+ * {@code com.mongodb.client.internal.OperationExecutor} which is unified entrance of execute mongo command. so we can
+ * intercept {@code com.mongodb.client.internal.OperationExecutor#execute(...)} method to known which command will be
+ * execute.
  * <p>
  * support: 3.7.x
  *
- * @author scolia
  * @see MongoDBOperationExecutorInterceptor
  */
 @SuppressWarnings({"Duplicates"})
@@ -55,7 +53,7 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{WITNESS_CLASS};
+        return new String[] {WITNESS_CLASS};
     }
 
     @Override
@@ -70,27 +68,27 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return ElementMatchers
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers
                         // 3.7.x
-                        .named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(1, ARGUMENT_TYPE))
-                        .or(ElementMatchers.<MethodDescription>named(METHOD_NAME)
-                                .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
-                        );
-            }
+                        .named(METHOD_NAME)
+                        .and(ArgumentTypeNameMatch.takesArgumentWithType(1, ARGUMENT_TYPE))
+                        .or(ElementMatchers.<MethodDescription>named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE)));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 }

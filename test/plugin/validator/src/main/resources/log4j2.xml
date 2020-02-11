@@ -20,18 +20,18 @@
     <Appenders>
         <Console name="console_out" target="SYSTEM_OUT">
             <ThresholdFilter level="INFO"/>
-            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
         </Console>
 
         <Console name="console_err" target="SYSTEM_ERR">
             <ThresholdFilter level="ERROR"/>
-            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n" />
+            <PatternLayout charset="UTF-8" pattern="[%d{yyyy-MM-dd HH:mm:ss:SSS}] [%p] - %l - %m%n"/>
         </Console>
     </Appenders>
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="console_err" />
-            <AppenderRef ref="console_out" />
+            <AppenderRef ref="console_err"/>
+            <AppenderRef ref="console_out"/>
         </Root>
     </Loggers>
 </Configuration>

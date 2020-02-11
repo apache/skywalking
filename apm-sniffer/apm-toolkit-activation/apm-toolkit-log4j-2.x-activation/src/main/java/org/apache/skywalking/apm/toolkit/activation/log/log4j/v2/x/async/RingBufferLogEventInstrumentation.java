@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,14 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-
-/**
- * @author songxiaoyue
- */
 public class RingBufferLogEventInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async.RingBufferLogEventMethodInterceptor";
     private static final String ENHANCE_CLASS = "org.apache.logging.log4j.core.async.RingBufferLogEvent";
     private static final String ENHANCE_METHOD = "setMessage";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -44,7 +40,7 @@ public class RingBufferLogEventInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

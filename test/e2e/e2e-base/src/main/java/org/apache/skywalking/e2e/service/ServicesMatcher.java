@@ -24,9 +24,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-/**
- * @author kezhenxu94
- */
 public class ServicesMatcher {
     private List<ServiceMatcher> services;
 
@@ -62,8 +59,6 @@ public class ServicesMatcher {
 
     @Override
     public String toString() {
-        return "ServicesMatcher{" +
-            "services=" + services +
-            '}';
+        return "ServicesMatcher{" + "services=" + services + '}';
     }
 }

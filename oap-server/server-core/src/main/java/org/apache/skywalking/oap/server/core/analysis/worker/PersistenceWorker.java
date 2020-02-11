@@ -18,17 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import java.util.Collection;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.data.SWCollection;
+import org.apache.skywalking.oap.server.core.analysis.data.Window;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends Window<INPUT>> extends AbstractWorker<INPUT> {
 
     private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);

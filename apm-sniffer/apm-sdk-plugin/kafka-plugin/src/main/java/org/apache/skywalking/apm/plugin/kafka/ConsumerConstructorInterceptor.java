@@ -23,12 +23,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 /**
- * @author zhang xin, stalary
+ *
  **/
 public class ConsumerConstructorInterceptor implements InstanceConstructorInterceptor {
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        ConsumerConfig config = (ConsumerConfig)allArguments[0];
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        ConsumerConfig config = (ConsumerConfig) allArguments[0];
         // set the bootstrap server address
         ConsumerEnhanceRequiredInfo requiredInfo = new ConsumerEnhanceRequiredInfo();
         requiredInfo.setBrokerServers(config.getList("bootstrap.servers"));

@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 
-/**
- * @author peng-yongsheng
- */
 public interface SpanListenerFactory {
     SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);
 }

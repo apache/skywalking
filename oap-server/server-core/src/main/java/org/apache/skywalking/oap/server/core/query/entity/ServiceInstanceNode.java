@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.query.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 public class ServiceInstanceNode {

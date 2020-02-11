@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
 import io.netty.buffer.ByteBuf;
@@ -39,16 +40,13 @@ import org.redisson.client.protocol.CommandsData;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-/**
- * @author zhaoyuguang
- */
 public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final ILog logger = LogManager.getLogger(RedisConnectionMethodInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         String peer = (String) objInst.getSkyWalkingDynamicField();
 
         RedisConnection connection = (RedisConnection) objInst;
@@ -91,15 +89,15 @@ public class RedisConnectionMethodInterceptor implements InstanceMethodsAroundIn
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);

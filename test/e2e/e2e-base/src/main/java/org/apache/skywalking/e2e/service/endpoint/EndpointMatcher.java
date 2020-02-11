@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.e2e.service.endpoint;
 
+import java.util.Objects;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.Objects;
-
-/**
- * @author kezhenxu94
- */
 public class EndpointMatcher extends AbstractMatcher<Endpoint> {
     private String key;
     private String label;

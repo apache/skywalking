@@ -20,8 +20,5 @@ package org.apache.skywalking.e2e.topo;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
-/**
- * @author kezhenxu94
- */
 public class TopoQuery extends AbstractQuery<TopoQuery> {
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.http.sync;
 
 import java.lang.reflect.Method;
@@ -39,9 +38,8 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) throws Throwable {
-        Request req = (Request)objInst.getSkyWalkingDynamicField();
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
+        Request req = (Request) objInst.getSkyWalkingDynamicField();
         final URI requestURL = req.getUrl().toURI();
         final METHOD httpMethod = req.getMethod();
         final ContextCarrier contextCarrier = new ContextCarrier();
@@ -49,7 +47,8 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createExitSpan(requestURL.getPath(), contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.NUTZ_HTTP);
-        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL.getPath());
+        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL
+            .getPath());
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
 
@@ -62,9 +61,8 @@ public class SenderSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        Response response = (Response)ret;
+        final Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        Response response = (Response) ret;
         int statusCode = response.getStatus();
         AbstractSpan span = ContextManager.activeSpan();
         if (statusCode >= 400) {

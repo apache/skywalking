@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
@@ -27,8 +26,6 @@ import java.util.Date;
 
 /**
  * The Converter is used to return a now date with format.
- *
- * @author alvin
  */
 public class DateConverter implements Converter {
 

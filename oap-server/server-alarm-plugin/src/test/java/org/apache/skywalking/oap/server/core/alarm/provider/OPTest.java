@@ -22,9 +22,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author kezhenxu94
- */
 public class OPTest {
     @Test
     public void test() {

@@ -29,10 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
-
-/**
- * @author zhangwei
- */
 public class HttpServerExchangeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_METHOD = "dispatch";
@@ -57,9 +53,8 @@ public class HttpServerExchangeInstrumentation extends ClassInstanceMethodsEnhan
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD)
-                        .and(takesArgumentWithType(0, "java.util.concurrent.Executor"))
-                        .and(takesArgumentWithType(1, "java.lang.Runnable"));
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "java.util.concurrent.Executor"))
+                                                .and(takesArgumentWithType(1, "java.lang.Runnable"));
                 }
 
                 @Override

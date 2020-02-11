@@ -102,14 +102,15 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <SW_JDBC_URL>jdbc:mysql://${e2e.container.name.prefix}-mysql:3306/swtest</SW_JDBC_URL>
+                                    <SW_JDBC_URL>jdbc:mysql://${e2e.container.name.prefix}-mysql:3306/swtest
+                                    </SW_JDBC_URL>
                                 </env>
                                 <dependsOn>
-                                     <container>${e2e.container.name.prefix}-mysql</container>
-                                 </dependsOn>
-                                 <links>
-                                     <link>${e2e.container.name.prefix}-mysql</link>
-                                 </links>
+                                    <container>${e2e.container.name.prefix}-mysql</container>
+                                </dependsOn>
+                                <links>
+                                    <link>${e2e.container.name.prefix}-mysql</link>
+                                </links>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8081</port>
                                     <port>+client.host:client.port:9090</port>

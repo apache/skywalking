@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.library.server.grpc;
 
 import org.apache.skywalking.oap.server.library.server.ServerException;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCServerException extends ServerException {
 
     public GRPCServerException(String message) {

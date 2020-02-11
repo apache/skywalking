@@ -38,9 +38,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
 @Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INVENTORY, builder = ServiceInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class ServiceInventory extends RegisterSource {
@@ -55,18 +52,38 @@ public class ServiceInventory extends RegisterSource {
     public static final String PROPERTIES = "properties";
     private static final Gson GSON = new Gson();
 
-    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = IS_ADDRESS) private int isAddress;
-    @Setter @Getter @Column(columnName = ADDRESS_ID) private int addressId;
+    @Setter
+    @Getter
+    @Column(columnName = NAME, matchQuery = true)
+    private String name = Const.EMPTY_STRING;
+    @Setter
+    @Getter
+    @Column(columnName = IS_ADDRESS)
+    private int isAddress;
+    @Setter
+    @Getter
+    @Column(columnName = ADDRESS_ID)
+    private int addressId;
     /**
      * Node type of the service, default {@link NodeType#Normal}
      */
-    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType = 0;
-    @Setter @Getter @Column(columnName = MAPPING_SERVICE_ID) private int mappingServiceId;
-    @Getter(AccessLevel.PRIVATE) @Column(columnName = PROPERTIES) private String prop = Const.EMPTY_JSON_OBJECT_STRING;
-    @Getter private JsonObject properties;
+    @Setter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PRIVATE)
+    @Column(columnName = NODE_TYPE)
+    private int nodeType = 0;
+    @Setter
+    @Getter
+    @Column(columnName = MAPPING_SERVICE_ID)
+    private int mappingServiceId;
+    @Getter(AccessLevel.PRIVATE)
+    @Column(columnName = PROPERTIES)
+    private String prop = Const.EMPTY_JSON_OBJECT_STRING;
+    @Getter
+    private JsonObject properties;
 
-    @Getter @Setter private boolean resetServiceMapping = false;
+    @Getter
+    @Setter
+    private boolean resetServiceMapping = false;
 
     public NodeType getServiceNodeType() {
         return NodeType.get(this.nodeType);
@@ -84,7 +101,8 @@ public class ServiceInventory extends RegisterSource {
         this.nodeType = nodeType.value();
     }
 
-    @Override public String id() {
+    @Override
+    public String id() {
         if (BooleanUtils.TRUE == isAddress) {
             return buildId(addressId);
         } else {
@@ -92,7 +110,8 @@ public class ServiceInventory extends RegisterSource {
         }
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = 17;
         result = 31 * result + name.hashCode();
         result = 31 * result + isAddress;
@@ -135,7 +154,8 @@ public class ServiceInventory extends RegisterSource {
         return inventory;
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -143,7 +163,7 @@ public class ServiceInventory extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceInventory source = (ServiceInventory)obj;
+        ServiceInventory source = (ServiceInventory) obj;
         if (!name.equals(source.getName()))
             return false;
         if (isAddress != source.getIsAddress())
@@ -154,7 +174,8 @@ public class ServiceInventory extends RegisterSource {
         return true;
     }
 
-    @Override public RemoteData.Builder serialize() {
+    @Override
+    public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(isAddress);
@@ -172,7 +193,8 @@ public class ServiceInventory extends RegisterSource {
         return remoteBuilder;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
+    @Override
+    public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setIsAddress(remoteData.getDataIntegers(1));
         setAddressId(remoteData.getDataIntegers(2));
@@ -189,13 +211,15 @@ public class ServiceInventory extends RegisterSource {
 
     }
 
-    @Override public int remoteHashCode() {
+    @Override
+    public int remoteHashCode() {
         return 0;
     }
 
-    @Override public boolean combine(RegisterSource registerSource) {
+    @Override
+    public boolean combine(RegisterSource registerSource) {
         boolean isChanged = super.combine(registerSource);
-        ServiceInventory serviceInventory = (ServiceInventory)registerSource;
+        ServiceInventory serviceInventory = (ServiceInventory) registerSource;
 
         if (serviceInventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             this.nodeType = serviceInventory.getNodeType();
@@ -218,22 +242,24 @@ public class ServiceInventory extends RegisterSource {
 
     public static class Builder implements StorageBuilder<ServiceInventory> {
 
-        @Override public ServiceInventory map2Data(Map<String, Object> dbMap) {
+        @Override
+        public ServiceInventory map2Data(Map<String, Object> dbMap) {
             ServiceInventory inventory = new ServiceInventory();
-            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
-            inventory.setIsAddress(((Number)dbMap.get(IS_ADDRESS)).intValue());
-            inventory.setMappingServiceId(((Number)dbMap.get(MAPPING_SERVICE_ID)).intValue());
-            inventory.setName((String)dbMap.get(NAME));
-            inventory.setAddressId(((Number)dbMap.get(ADDRESS_ID)).intValue());
-            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
-            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
-            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
-            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
-            inventory.setProp((String)dbMap.get(PROPERTIES));
+            inventory.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
+            inventory.setIsAddress(((Number) dbMap.get(IS_ADDRESS)).intValue());
+            inventory.setMappingServiceId(((Number) dbMap.get(MAPPING_SERVICE_ID)).intValue());
+            inventory.setName((String) dbMap.get(NAME));
+            inventory.setAddressId(((Number) dbMap.get(ADDRESS_ID)).intValue());
+            inventory.setNodeType(((Number) dbMap.get(NODE_TYPE)).intValue());
+            inventory.setRegisterTime(((Number) dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number) dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number) dbMap.get(LAST_UPDATE_TIME)).longValue());
+            inventory.setProp((String) dbMap.get(PROPERTIES));
             return inventory;
         }
 
-        @Override public Map<String, Object> data2Map(ServiceInventory storageData) {
+        @Override
+        public Map<String, Object> data2Map(ServiceInventory storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(IS_ADDRESS, storageData.getIsAddress());

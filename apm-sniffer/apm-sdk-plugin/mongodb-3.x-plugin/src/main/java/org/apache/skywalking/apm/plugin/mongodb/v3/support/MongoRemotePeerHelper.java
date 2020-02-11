@@ -16,22 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
 import com.mongodb.ServerAddress;
 import com.mongodb.connection.Cluster;
 import com.mongodb.connection.ServerDescription;
 
-/**
- * @author scolia
- */
 @SuppressWarnings("deprecation")
 public class MongoRemotePeerHelper {
 
     private MongoRemotePeerHelper() {
     }
-
 
     public static String getRemotePeer(Cluster cluster) {
         StringBuilder peersBuilder = new StringBuilder();

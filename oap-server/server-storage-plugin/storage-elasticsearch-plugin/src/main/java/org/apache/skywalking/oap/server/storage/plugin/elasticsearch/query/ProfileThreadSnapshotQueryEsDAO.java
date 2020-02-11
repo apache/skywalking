@@ -98,12 +98,13 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
-            basicTrace.setSegmentId((String)searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
+            basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
             basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add((String)searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
-            basicTrace.setDuration(((Number)searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
-            basicTrace.getTraceIds().add((String)searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
+            basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
+            basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
+            basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
+                                                                               .get(SegmentRecord.IS_ERROR)).intValue()));
+            basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
 
             result.add(basicTrace);
         }

@@ -26,19 +26,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 import java.net.URI;
 
-/**
- * @author kezhenxu94
- */
 @SuppressWarnings("rawtypes")
 public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
 
     @Override
-    public void beforeMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
 
         final UserClient userClient = (UserClient) objInst;
         final URI uri = userClient.uri();
@@ -54,12 +47,8 @@ public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
     }
 
     @Override
-    public Object afterMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Object ret) {
+    public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Object ret) {
 
         Object req = allArguments[5];
 

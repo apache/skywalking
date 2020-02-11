@@ -29,12 +29,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import java.lang.reflect.Method;
 
 /**
- * The <code>RestMappingMethodInterceptor</code> only use the first mapping value.
- * it will interceptor with
+ * The <code>RestMappingMethodInterceptor</code> only use the first mapping value. it will interceptor with
  * <code>@GetMapping</code>, <code>@PostMapping</code>, <code>@PutMapping</code>
  * <code>@DeleteMapping</code>, <code>@PatchMapping</code>
- *
- * @author clevertension
  */
 public class RestMappingMethodInterceptor extends AbstractMethodInterceptor {
     @Override

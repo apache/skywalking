@@ -23,6 +23,8 @@ import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -34,16 +36,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author zhangwei
- */
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;
@@ -73,8 +69,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
     @Test
     public void registerRemoteOfInternal() throws Exception {
         final String serviceName = "register_remote_internal";
-        ModuleProvider provider =
-            createProvider(serviceName, "127.0.1.2", 1001);
+        ModuleProvider provider = createProvider(serviceName, "127.0.1.2", 1001);
 
         Address selfAddress = new Address("127.0.0.2", 1002, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
@@ -169,7 +164,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         return createProvider(serviceName, null, 0);
     }
 
-    private ClusterModuleConsulProvider createProvider(String serviceName, String internalComHost, int internalComPort) throws Exception {
+    private ClusterModuleConsulProvider createProvider(String serviceName, String internalComHost,
+        int internalComPort) throws Exception {
         ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
 
         ClusterModuleConsulConfig config = (ClusterModuleConsulConfig) provider.createConfigBeanIfAbsent();
@@ -202,11 +198,11 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             Whitebox.setInternalState(consulCoordinator, "selfAddress", remoteInstance.getAddress());
             TelemetryRelatedContext.INSTANCE.setId(remoteInstance.getAddress().toString());
             Registration registration = ImmutableRegistration.builder()
-                .id(remoteInstance.getAddress().toString())
-                .name(serviceName)
-                .address(remoteInstance.getAddress().getHost())
-                .port(remoteInstance.getAddress().getPort())
-                .build();
+                                                             .id(remoteInstance.getAddress().toString())
+                                                             .name(serviceName)
+                                                             .address(remoteInstance.getAddress().getHost())
+                                                             .port(remoteInstance.getAddress().getPort())
+                                                             .build();
 
             agentClient.register(registration);
         };
@@ -231,7 +227,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         return queryRemoteNodes(provider, goals, 20);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals, int cyclic) throws InterruptedException {
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
+        int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
             if (instances.size() == goals) {
@@ -239,7 +236,8 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             } else {
                 Thread.sleep(1000);
             }
-        } while (--cyclic > 0);
+        }
+        while (--cyclic > 0);
         return Collections.EMPTY_LIST;
     }
 

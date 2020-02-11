@@ -37,9 +37,6 @@ import java.util.Properties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @author liujc [liujunc1993@163.com]
- */
 public class TraceIgnoreTest {
 
     @Rule
@@ -70,7 +67,7 @@ public class TraceIgnoreTest {
     public void testTraceIgnoreConfigOverridingFromSystemEnv() throws IllegalAccessException {
         Properties properties = new Properties();
         properties.put("trace.ignore_path", "${SW_AGENT_TRACE_IGNORE_PATH:/path/eureka/**}");
-        properties.put("trace.ignore_path", PropertyPlaceholderHelper.INSTANCE.replacePlaceholders((String)properties.get("trace.ignore_path"), properties));
+        properties.put("trace.ignore_path", PropertyPlaceholderHelper.INSTANCE.replacePlaceholders((String) properties.get("trace.ignore_path"), properties));
         ConfigInitializer.initialize(properties, IgnoreConfig.class);
         assertThat(IgnoreConfig.Trace.IGNORE_PATH, is("path_test"));
     }

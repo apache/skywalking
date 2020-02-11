@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import org.apache.skywalking.oap.server.core.server.*;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author peng-yongsheng
- */
 public class SharingServerModule extends ModuleDefine {
 
     public static final String NAME = "receiver-sharing-server";
@@ -32,7 +30,11 @@ public class SharingServerModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
-        return new Class[] {GRPCHandlerRegister.class, JettyHandlerRegister.class};
+    @Override
+    public Class[] services() {
+        return new Class[] {
+            GRPCHandlerRegister.class,
+            JettyHandlerRegister.class
+        };
     }
 }

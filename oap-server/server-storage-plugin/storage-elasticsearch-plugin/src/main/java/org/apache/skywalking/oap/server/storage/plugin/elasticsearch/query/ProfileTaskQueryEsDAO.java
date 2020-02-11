@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO {
 
     private final int queryMaxSize;
@@ -48,7 +45,8 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+        Long endTimeBucket, Integer limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -63,7 +61,8 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         }
 
         if (startTimeBucket != null) {
-            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).gte(startTimeBucket));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.rangeQuery(ProfileTaskNoneStream.TIME_BUCKET).gte(startTimeBucket));
         }
 
         if (endTimeBucket != null) {
@@ -109,14 +108,19 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
 
     private ProfileTask parseTask(SearchHit data) {
         return ProfileTask.builder()
-                .id(data.getId())
-                .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.SERVICE_ID)).intValue())
-                .endpointName((String) data.getSourceAsMap().get(ProfileTaskNoneStream.ENDPOINT_NAME))
-                .startTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.START_TIME)).longValue())
-                .createTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.CREATE_TIME)).longValue())
-                .duration(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DURATION)).intValue())
-                .minDurationThreshold(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD)).intValue())
-                .dumpPeriod(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DUMP_PERIOD)).intValue())
-                .maxSamplingCount(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.MAX_SAMPLING_COUNT)).intValue()).build();
+                          .id(data.getId())
+                          .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.SERVICE_ID)).intValue())
+                          .endpointName((String) data.getSourceAsMap().get(ProfileTaskNoneStream.ENDPOINT_NAME))
+                          .startTime(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.START_TIME)).longValue())
+                          .createTime(((Number) data.getSourceAsMap()
+                                                    .get(ProfileTaskNoneStream.CREATE_TIME)).longValue())
+                          .duration(((Number) data.getSourceAsMap().get(ProfileTaskNoneStream.DURATION)).intValue())
+                          .minDurationThreshold(((Number) data.getSourceAsMap()
+                                                              .get(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD)).intValue())
+                          .dumpPeriod(((Number) data.getSourceAsMap()
+                                                    .get(ProfileTaskNoneStream.DUMP_PERIOD)).intValue())
+                          .maxSamplingCount(((Number) data.getSourceAsMap()
+                                                          .get(ProfileTaskNoneStream.MAX_SAMPLING_COUNT)).intValue())
+                          .build();
     }
 }

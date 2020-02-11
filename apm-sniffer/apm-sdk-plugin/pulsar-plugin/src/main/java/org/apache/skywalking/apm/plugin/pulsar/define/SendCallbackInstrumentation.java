@@ -31,15 +31,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.b
 
 /**
  * Pulsar producer send callback instrumentation.
- *
+ * <p>
  * The send callback enhanced object will use {@link org.apache.skywalking.apm.plugin.pulsar.SendCallbackEnhanceRequiredInfo}
  * which {@link org.apache.skywalking.apm.plugin.pulsar.PulsarProducerInterceptor} set by skywalking dynamic field of
  * enhanced object.
- *
+ * <p>
  * When a callback is complete, {@link org.apache.skywalking.apm.plugin.pulsar.SendCallbackInterceptor} will continue
  * the {@link SendCallbackEnhanceRequiredInfo#getContextSnapshot()}.
- *
- * @author penghui
  */
 public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -47,29 +45,35 @@ public class SendCallbackInstrumentation extends ClassInstanceMethodsEnhancePlug
     public static final String ENHANCE_METHOD = "sendComplete";
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.pulsar.SendCallbackInterceptor";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byHierarchyMatch(new String[] {ENHANCE_CLASS});
     }
 }

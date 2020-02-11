@@ -20,25 +20,63 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.cache.*;
+import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.*;
+import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.ttl.GeneralStorageTTL;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AlarmQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * H2 Storage provider is for demonstration and preview only. I will find that haven't implemented several interfaces,
  * because not necessary, and don't consider about performance very much.
- *
+ * <p>
  * If someone wants to implement SQL-style database as storage, please just refer the logic.
- *
- * @author wusheng, peng-yongsheng
  */
 public class H2StorageProvider extends ModuleProvider {
 
@@ -52,19 +90,23 @@ public class H2StorageProvider extends ModuleProvider {
         config = new H2StorageConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "h2";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return StorageModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         Properties settings = new Properties();
         settings.setProperty("dataSourceClassName", config.getDriver());
         settings.setProperty("dataSource.url", config.getUrl());
@@ -98,7 +140,8 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
             h2Client.connect();
 
@@ -111,11 +154,13 @@ public class H2StorageProvider extends ModuleProvider {
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
 }

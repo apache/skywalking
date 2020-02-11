@@ -15,11 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 /**
  * class for {@link PathVarInterceptor} intercept feign url resolved params in url .
- * @author qiyang
  */
 public class FeignResolvedURL {
     /**

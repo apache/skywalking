@@ -51,7 +51,7 @@ public class CaseController {
 
     @RequestMapping("/mongodb")
     public String mongoDBCase() {
-        try ( MongoClient mongoClient = new MongoClient(host, port)) {
+        try (MongoClient mongoClient = new MongoClient(host, port)) {
             MongoDatabase db = mongoClient.getDatabase("test-database");
             // CreateCollectionOperation
             db.createCollection("testCollection");

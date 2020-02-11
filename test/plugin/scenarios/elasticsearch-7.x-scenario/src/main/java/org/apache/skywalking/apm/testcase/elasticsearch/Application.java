@@ -21,9 +21,6 @@ package org.apache.skywalking.apm.testcase.elasticsearch;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author aderm
- */
 @SpringBootApplication
 public class Application {
 

@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.activemq;
 
+import java.io.IOException;
+import java.util.List;
+import javax.jms.JMSException;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
@@ -29,19 +32,15 @@ import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import javax.jms.JMSException;
-import java.io.IOException;
-
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-
-import org.junit.Before;
-import org.junit.Test;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)

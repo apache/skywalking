@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3;
 
 import java.lang.reflect.Field;
@@ -65,7 +64,7 @@ public class ControllerConstructorInterceptorTest {
     private String getBasePath(PathMappingCache mappingCache) throws NoSuchFieldException, IllegalAccessException {
         Field classPath = mappingCache.getClass().getDeclaredField("classPath");
         classPath.setAccessible(true);
-        return (String)classPath.get(mappingCache);
+        return (String) classPath.get(mappingCache);
     }
 
     @RequestMapping("/test")
@@ -77,12 +76,14 @@ public class ControllerConstructorInterceptorTest {
 
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return requireObjectCache;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            this.requireObjectCache = (EnhanceRequireObjectCache)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.requireObjectCache = (EnhanceRequireObjectCache) value;
         }
     }
 
@@ -93,12 +94,14 @@ public class ControllerConstructorInterceptorTest {
 
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return requireObjectCache;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            this.requireObjectCache = (EnhanceRequireObjectCache)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.requireObjectCache = (EnhanceRequireObjectCache) value;
         }
     }
 }

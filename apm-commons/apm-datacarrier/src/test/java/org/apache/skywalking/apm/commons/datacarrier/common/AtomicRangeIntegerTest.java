@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.common;
 
 import org.junit.Assert;
@@ -27,9 +26,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-/**
- * Created by xin on 2017/7/14.
- */
 public class AtomicRangeIntegerTest {
 
     private static AtomicRangeInteger ATOMIC_V3 = new AtomicRangeInteger(0, 100);
@@ -46,8 +42,8 @@ public class AtomicRangeIntegerTest {
         Assert.assertEquals(1, atomicI.get());
         Assert.assertEquals(1, atomicI.intValue());
         Assert.assertEquals(1, atomicI.longValue());
-        Assert.assertEquals(1, (int)atomicI.floatValue());
-        Assert.assertEquals(1, (int)atomicI.doubleValue());
+        Assert.assertEquals(1, (int) atomicI.floatValue());
+        Assert.assertEquals(1, (int) atomicI.doubleValue());
     }
 
     @Test
@@ -69,15 +65,14 @@ public class AtomicRangeIntegerTest {
     }
 
     public static void main(String[] args) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(AtomicRangeIntegerTest.class.getSimpleName())
-                .forks(1)
-                .warmupIterations(3)
-                .threads(128)
-                .syncIterations(false)
-                .output("/tmp/jmh.log")
-                .measurementIterations(5)
-                .build();
+        Options opt = new OptionsBuilder().include(AtomicRangeIntegerTest.class.getSimpleName())
+                                          .forks(1)
+                                          .warmupIterations(3)
+                                          .threads(128)
+                                          .syncIterations(false)
+                                          .output("/tmp/jmh.log")
+                                          .measurementIterations(5)
+                                          .build();
 
         new Runner(opt).run();
     }

@@ -28,18 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author kezhenxu94
- */
 public class ThreadingMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) {
+    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
         AbstractSpan span = ContextManager.createLocalSpan(generateOperationName(objInst, method));
         span.setComponent(ComponentsDefine.JDK_THREADING);
@@ -53,12 +46,8 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Object ret) {
+    public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Object ret) {
 
         final Object storedField = objInst.getSkyWalkingDynamicField();
         if (storedField != null) {
@@ -69,12 +58,8 @@ public class ThreadingMethodInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Throwable t) {
 
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);

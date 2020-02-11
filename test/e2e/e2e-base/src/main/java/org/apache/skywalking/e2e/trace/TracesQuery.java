@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.trace;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
-/**
- * @author kezhenxu94
- */
 public class TracesQuery extends AbstractQuery<TracesQuery> {
     private String traceState = "ALL";
     private String pageNum = "1";

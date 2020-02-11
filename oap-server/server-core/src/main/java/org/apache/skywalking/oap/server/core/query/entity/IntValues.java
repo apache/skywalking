@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.LinkedList;
 
-/**
- * @author peng-yongsheng, wusheng
- */
 public class IntValues {
 
     private LinkedList<KVInt> values = new LinkedList<>();

@@ -22,9 +22,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-/**
- * @author kezhenxu94
- */
 public class InstancesQuery {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmmss");
 
@@ -76,5 +73,6 @@ public class InstancesQuery {
 
     public InstancesQuery step(String step) {
         this.step = step;
-        return this; }
+        return this;
+    }
 }
