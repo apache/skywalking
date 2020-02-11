@@ -41,9 +41,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author zhangwei
- */
 public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceMappingSpanListener.class);
@@ -57,10 +54,18 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
     private final List<Integer> serviceInstancesToResetMapping = new ArrayList<>();
 
     public ServiceInstanceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
-        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(IServiceInstanceInventoryRegister.class);
+        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(NetworkAddressInventoryCache.class);
         this.config = config;
     }
 
@@ -81,7 +86,8 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
                             logger.debug("{} is configured as gateway, will reset its mapping service instance id", serviceInstanceId);
                         }
                         ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
-                        if (instanceInventory.getMappingServiceInstanceId() != Const.NONE && !serviceInstancesToResetMapping.contains(serviceInstanceId)) {
+                        if (instanceInventory.getMappingServiceInstanceId() != Const.NONE && !serviceInstancesToResetMapping
+                            .contains(serviceInstanceId)) {
                             serviceInstancesToResetMapping.add(serviceInstanceId);
                         }
                     } else {
@@ -99,7 +105,8 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
     public void build() {
         serviceInstanceMappings.forEach(instanceMapping -> {
             if (logger.isDebugEnabled()) {
-                logger.debug("service instance mapping listener build, service id: {}, mapping service id: {}", instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
+                logger.debug("service instance mapping listener build, service id: {}, mapping service id: {}", instanceMapping
+                    .getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
             }
             serviceInstanceInventoryRegister.updateMapping(instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
         });

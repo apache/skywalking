@@ -33,16 +33,17 @@ public class RemoveTransportAddressInterceptor implements InstanceMethodsAroundI
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        TransportAddressCache transportAddressCache = (TransportAddressCache)objInst.getSkyWalkingDynamicField();
+        TransportAddressCache transportAddressCache = (TransportAddressCache) objInst.getSkyWalkingDynamicField();
         if (transportAddressCache == null) {
             transportAddressCache = new TransportAddressCache();
         }
-        transportAddressCache.removeDiscoveryNode((TransportAddress)allArguments[0]);
+        transportAddressCache.removeDiscoveryNode((TransportAddress) allArguments[0]);
         objInst.setSkyWalkingDynamicField(transportAddressCache);
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

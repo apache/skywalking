@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author liuhaoyang
+ *
  **/
 public class CLRSourceDispatcher {
 
@@ -46,7 +46,9 @@ public class CLRSourceDispatcher {
 
     public CLRSourceDispatcher(ModuleManager moduleManager) {
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        instanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(ServiceInstanceInventoryCache.class);
     }
 
     void sendMetric(int serviceInstanceId, long minuteTimeBucket, CLRMetric metrics) {

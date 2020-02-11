@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.config;
 
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.apache.shardingsphere.api.config.sharding.KeyGeneratorConfiguration;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.api.config.sharding.TableRuleConfiguration;
@@ -27,16 +32,11 @@ import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm.PreciseModuloShardingTableAlgorithm;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.ExampleConfiguration;
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public final class ShardingDatabasesAndTablesConfigurationPrecise implements ExampleConfiguration {
-    
+
     private static DataSource dataSource;
-    
+
     @Override
     public DataSource createDataSource() throws SQLException {
         ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
@@ -47,26 +47,26 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         shardingRuleConfig.setDefaultTableShardingStrategyConfig(new StandardShardingStrategyConfiguration("order_id", new PreciseModuloShardingTableAlgorithm()));
         Properties properties = new Properties();
         properties.setProperty("max.connections.size.per.query", "16");
-        dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig,  properties);
+        dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, properties);
         return dataSource;
     }
-    
+
     @Override
     public DataSource getDataSource() {
         return dataSource;
     }
-    
+
     private static TableRuleConfiguration getOrderTableRuleConfiguration() {
         TableRuleConfiguration result = new TableRuleConfiguration("t_order", "demo_ds_${0..1}.t_order_${[0, 1]}");
         result.setKeyGeneratorConfig(new KeyGeneratorConfiguration("SNOWFLAKE", "order_id"));
         return result;
     }
-    
+
     private static TableRuleConfiguration getOrderItemTableRuleConfiguration() {
         TableRuleConfiguration result = new TableRuleConfiguration("t_order_item", "demo_ds_${0..1}.t_order_item_${[0, 1]}");
         return result;
     }
-    
+
     private static Map<String, DataSource> createDataSourceMap() {
         Map<String, DataSource> result = new HashMap<>();
         result.put("demo_ds_0", DataSourceUtil.getDataSource("demo_ds_0"));

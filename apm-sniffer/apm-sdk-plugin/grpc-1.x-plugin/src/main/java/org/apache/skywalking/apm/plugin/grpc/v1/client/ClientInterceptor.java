@@ -23,14 +23,11 @@ import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.MethodDescriptor;
 
-/**
- * @author zhang xin, kanro
- */
 public class ClientInterceptor implements io.grpc.ClientInterceptor {
 
     @Override
     public <REQUEST, RESPONSE> ClientCall<REQUEST, RESPONSE> interceptCall(MethodDescriptor<REQUEST, RESPONSE> method,
-                                                                           CallOptions callOptions, Channel channel) {
+        CallOptions callOptions, Channel channel) {
         return new TracingClientCall<>(channel.newCall(method, callOptions), method, channel);
     }
 }

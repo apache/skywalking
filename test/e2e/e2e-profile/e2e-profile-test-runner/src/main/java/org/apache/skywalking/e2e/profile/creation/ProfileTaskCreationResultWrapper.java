@@ -23,8 +23,6 @@ import lombok.Setter;
 
 /**
  * wrap profile task create result, for profileTaskCreation.gql
- *
- * @author MrPro
  */
 @Setter
 @Getter

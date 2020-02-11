@@ -18,26 +18,30 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class StorageModels implements IModelGetter, IModelSetter, IModelOverride {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageModels.class);
 
-    @Getter private final List<Model> models;
+    @Getter
+    private final List<Model> models;
 
     public StorageModels() {
         this.models = new LinkedList<>();
     }
 
-    @Override public Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record) {
+    @Override
+    public Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -50,7 +54,8 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, storage.getModelName(), modelColumns);
 
-        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage.getDownsampling(), record);
+        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage
+            .getDownsampling(), record);
         models.add(model);
 
         return model;
@@ -62,7 +67,8 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                modelColumns.add(new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery(), column.content()));
+                modelColumns.add(new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery(), column
+                    .content()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
@@ -77,7 +83,8 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         }
     }
 
-    @Override public void overrideColumnName(String columnName, String newName) {
+    @Override
+    public void overrideColumnName(String columnName, String newName) {
         models.forEach(model -> model.getColumns().forEach(column -> {
             ColumnName existColumnName = column.getColumnName();
             String name = existColumnName.getName();

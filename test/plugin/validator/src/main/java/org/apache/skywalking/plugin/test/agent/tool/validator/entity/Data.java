@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public interface Data {
             Data result = yaml.loadAs(inputStream, DataForRead.class);
             if (result == null) {
                 throw new RuntimeException();
-            } else{
+            } else {
                 return result;
             }
         }

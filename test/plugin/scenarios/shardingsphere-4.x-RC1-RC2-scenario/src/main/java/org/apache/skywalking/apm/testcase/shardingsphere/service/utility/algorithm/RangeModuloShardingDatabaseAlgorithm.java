@@ -19,17 +19,17 @@
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm;
 
 import com.google.common.collect.Range;
-import org.apache.shardingsphere.api.sharding.standard.RangeShardingAlgorithm;
-import org.apache.shardingsphere.api.sharding.standard.RangeShardingValue;
-
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.apache.shardingsphere.api.sharding.standard.RangeShardingAlgorithm;
+import org.apache.shardingsphere.api.sharding.standard.RangeShardingValue;
 
 public class RangeModuloShardingDatabaseAlgorithm implements RangeShardingAlgorithm<Integer> {
-    
+
     @Override
-    public Collection<String> doSharding(final Collection<String> databaseNames, final RangeShardingValue<Integer> shardingValue) {
+    public Collection<String> doSharding(final Collection<String> databaseNames,
+        final RangeShardingValue<Integer> shardingValue) {
         Set<String> result = new LinkedHashSet<>();
         if (Range.closed(1, 5).encloses(shardingValue.getValueRange())) {
             for (String each : databaseNames) {

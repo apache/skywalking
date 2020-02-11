@@ -28,14 +28,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 /**
  * {@link OnResponseInterceptor} validate the response code if it is great equal than 400. if so. the transaction status
  * chang to `error`, or do nothing.
- *
- * @author zhangxin
  */
 public class OnResponseInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        Response response = (Response)allArguments[1];
+        Response response = (Response) allArguments[1];
 
         if (response.code() >= 400) {
             ContextManager.activeSpan().errorOccurred();
@@ -48,7 +46,8 @@ public class OnResponseInterceptor implements InstanceMethodsAroundInterceptor {
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

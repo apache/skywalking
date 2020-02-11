@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,12 +31,11 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Active the toolkit class "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter".
- * Should not dependency or import any class in "skywalking-toolkit-logback-1.x" module.
- * Activation's classloader is diff from "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter",
- * using direct will trigger classloader issue.
+ * Active the toolkit class "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter". Should not
+ * dependency or import any class in "skywalking-toolkit-logback-1.x" module. Activation's classloader is diff from
+ * "org.apache.skywalking.apm.toolkit.log.logback.v1.x.LogbackPatternConverter", using direct will trigger classloader
+ * issue.
  * <p>
- * Created by wusheng on 2016/12/7.
  */
 public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -71,7 +69,7 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0,"ch.qos.logback.classic.spi.ILoggingEvent"));
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
                 }
 
                 @Override
@@ -79,7 +77,8 @@ public class LogbackPatternConverterActivation extends ClassInstanceMethodsEnhan
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

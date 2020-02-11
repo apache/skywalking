@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.starter;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class OAPServerStartUp {
 
     public static void main(String[] args) {

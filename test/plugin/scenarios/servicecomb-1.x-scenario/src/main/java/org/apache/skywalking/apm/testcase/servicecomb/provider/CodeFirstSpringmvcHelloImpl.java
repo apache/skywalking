@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.testcase.servicecomb.provider;
 
-
+import javax.ws.rs.core.MediaType;
 import org.apache.servicecomb.provider.pojo.RpcSchema;
 import org.apache.skywalking.apm.testcase.servicecomb.schema.Hello;
 import org.apache.skywalking.apm.testcase.servicecomb.schema.models.Person;
@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.ws.rs.core.MediaType;
 
 @RpcSchema(schemaId = "codeFirstSpringmvcHello")
 @RequestMapping(path = "/springmvchello", produces = MediaType.APPLICATION_JSON)

@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.apm.toolkit.trace;
 
-/**
- * @author lican
- */
 @TraceCrossThread
 public class RunnableWrapper implements Runnable {
     final Runnable runnable;
@@ -30,7 +28,6 @@ public class RunnableWrapper implements Runnable {
     public static RunnableWrapper of(Runnable r) {
         return new RunnableWrapper(r);
     }
-
 
     @Override
     public void run() {

@@ -28,7 +28,8 @@ public class ActualSegmentItemEmptyException extends AssertFailedException {
         this.expected = expected;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("ActualSegmentItemEmptyException\nexpected: %s\nactual: %s", expected, "Empty");
     }
 }

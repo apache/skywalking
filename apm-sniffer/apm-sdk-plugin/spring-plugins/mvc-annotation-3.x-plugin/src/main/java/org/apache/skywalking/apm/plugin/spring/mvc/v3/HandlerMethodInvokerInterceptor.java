@@ -30,8 +30,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 /**
  * {@link HandlerMethodInvokerInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
- *
- * @author zhangxin
  */
 public class HandlerMethodInvokerInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -39,7 +37,8 @@ public class HandlerMethodInvokerInterceptor implements InstanceMethodsAroundInt
         MethodInterceptResult result) throws Throwable {
         Object handler = allArguments[1];
         if (handler instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest)allArguments[2]).getNativeResponse());
+            ContextManager.getRuntimeContext()
+                          .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((NativeWebRequest) allArguments[2]).getNativeResponse());
         }
     }
 
@@ -49,7 +48,8 @@ public class HandlerMethodInvokerInterceptor implements InstanceMethodsAroundInt
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

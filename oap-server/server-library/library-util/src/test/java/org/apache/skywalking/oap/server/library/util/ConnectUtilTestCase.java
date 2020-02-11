@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.server.library.util;
 
 import java.util.List;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class ConnectUtilTestCase {
 
     @Test

@@ -18,15 +18,9 @@
 package org.apache.skywalking.e2e.metrics;
 
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Condition;
-
-import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 public class AllOfMetricsMatcher extends AbstractMatcher<Metrics> {
     private MetricsValueMatcher value;
 
@@ -53,8 +47,6 @@ public class AllOfMetricsMatcher extends AbstractMatcher<Metrics> {
 
     @Override
     public String toString() {
-        return "AllOfMetricsMatcher{" +
-            "value=" + value +
-            '}';
+        return "AllOfMetricsMatcher{" + "value=" + value + '}';
     }
 }

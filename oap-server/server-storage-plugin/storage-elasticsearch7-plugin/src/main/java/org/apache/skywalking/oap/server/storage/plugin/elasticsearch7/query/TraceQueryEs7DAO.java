@@ -40,9 +40,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- */
 public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
     public TraceQueryEs7DAO(ElasticSearchClient client, int segmentQueryMaxSize) {
@@ -50,19 +47,9 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB,
-                                       long endSecondTB,
-                                       long minDuration,
-                                       long maxDuration,
-                                       String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
-                                       int endpointId,
-                                       String traceId,
-                                       int limit,
-                                       int from,
-                                       TraceState traceState,
-                                       QueryOrder queryOrder) throws IOException {
+    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
+        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
+        TraceState traceState, QueryOrder queryOrder) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -130,7 +117,8 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
             basicTrace.setStart(String.valueOf(searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)));
             basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue()));
+            basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
+                                                                               .get(SegmentRecord.IS_ERROR)).intValue()));
             basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             traceBrief.getTraces().add(basicTrace);
         }

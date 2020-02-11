@@ -19,6 +19,6 @@
 package org.apache.skywalking.apm.plugin.shardingsphere;
 
 public final class Constant {
-    
+
     public static final String CONTEXT_SNAPSHOT = "CONTEXT_SNAPSHOT";
 }

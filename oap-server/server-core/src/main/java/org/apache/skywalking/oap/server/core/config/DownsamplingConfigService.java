@@ -22,9 +22,6 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public class DownsamplingConfigService implements Service {
 
     private boolean shouldToHour = false;

@@ -36,9 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * @author kezhenxu94
- */
 @WebMvcTest
 @RunWith(SpringRunner.class)
 public class WebAppTest {
@@ -52,9 +49,9 @@ public class WebAppTest {
         when(notFoundHandler.renderDefaultPage()).thenCallRealMethod();
 
         mvc.perform(get("/index.html"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().string(containsString("<title>SkyWalking</title>")));
+           .andDo(print())
+           .andExpect(status().isOk())
+           .andExpect(content().string(containsString("<title>SkyWalking</title>")));
 
         verify(notFoundHandler, never()).renderDefaultPage();
     }
@@ -63,9 +60,7 @@ public class WebAppTest {
     public void shouldRedirectToIndexWhenResourcesIsAbsent() throws Exception {
         when(notFoundHandler.renderDefaultPage()).thenCallRealMethod();
 
-        mvc.perform(get("/absent.html"))
-            .andDo(print())
-            .andExpect(status().isOk());
+        mvc.perform(get("/absent.html")).andDo(print()).andExpect(status().isOk());
 
         verify(notFoundHandler, only()).renderDefaultPage();
     }

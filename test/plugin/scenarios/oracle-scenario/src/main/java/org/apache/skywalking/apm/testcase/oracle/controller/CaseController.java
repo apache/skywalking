@@ -28,9 +28,9 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/case")
@@ -49,9 +49,7 @@ public class CaseController {
 
     private String connectURL;
     private static final String TEST_EXIST_SQL = "SELECT * FROM dual";
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
-        "id VARCHAR(1) PRIMARY KEY, \n" +
-        "value VARCHAR(1) NOT NULL)";
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
     private static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
     private static final String QUERY_DATA_SQL = "SELECT id, value FROM test_007 WHERE id=?";
     private static final String DROP_TABLE_SQL = "DROP table test_007";

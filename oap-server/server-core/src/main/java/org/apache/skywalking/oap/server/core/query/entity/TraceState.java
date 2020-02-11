@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * @author peng-yongsheng
- */
 public enum TraceState {
-    ALL,
-    SUCCESS,
-    ERROR,
+    ALL, SUCCESS, ERROR,
 }

@@ -32,9 +32,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class RemoteSenderService implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteSenderService.class);
 
@@ -51,7 +48,9 @@ public class RemoteSenderService implements Service {
     }
 
     public void send(String nextWorkName, StreamData streamData, Selector selector) {
-        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME).provider().getService(RemoteClientManager.class);
+        RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(RemoteClientManager.class);
         RemoteClient remoteClient = null;
 
         List<RemoteClient> clientList = clientManager.getRemoteClient();

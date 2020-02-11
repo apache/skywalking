@@ -31,9 +31,6 @@ import static net.bytebuddy.matcher.ElementMatchers.none;
 import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PS_IGNORABLE_SETTERS;
 import static org.apache.skywalking.apm.plugin.jdbc.define.Constants.PS_SETTERS;
 
-/**
- * @author kezhenxu94
- */
 public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsInterceptPoint {
     private final boolean ignorable;
 
@@ -57,9 +54,7 @@ public class PSSetterDefinitionOfJDBCInstrumentation implements InstanceMethodsI
 
     @Override
     public String getMethodsInterceptor() {
-        return ignorable
-            ? Constants.PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR
-            : Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
+        return ignorable ? Constants.PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR : Constants.PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR;
     }
 
     @Override

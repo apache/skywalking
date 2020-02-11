@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.oal.rt;
 
-/**
- * @author wusheng
- */
 public class OALCompileException extends Exception {
     public OALCompileException(String message) {
         super(message);

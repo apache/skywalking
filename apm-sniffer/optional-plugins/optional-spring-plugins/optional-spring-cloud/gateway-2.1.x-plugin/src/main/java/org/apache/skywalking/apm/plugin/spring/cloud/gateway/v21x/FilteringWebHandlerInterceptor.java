@@ -36,17 +36,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-
-/**
- * @author songxiaoyue
- */
 public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final String SPRING_CLOUD_GATEWAY_ROUTE_PREFIX = "GATEWAY/";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance == null) {
             return;
@@ -65,8 +61,8 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance == null) {
             return ret;
@@ -81,7 +77,7 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
             HttpStatus statusCode = exchange.getResponse().getStatusCode();
             if (statusCode == HttpStatus.TOO_MANY_REQUESTS) {
                 AbstractSpan localSpan = ContextManager.createLocalSpan(swTransmitter.getOperationName());
-                Tags.STATUS_CODE.set(localSpan,statusCode.toString());
+                Tags.STATUS_CODE.set(localSpan, statusCode.toString());
                 SpanLayer.asHttp(localSpan);
                 localSpan.setComponent(ComponentsDefine.SPRING_CLOUD_GATEWAY);
                 ContextManager.continued(swTransmitter.getSnapshot());
@@ -90,10 +86,9 @@ public class FilteringWebHandlerInterceptor implements InstanceMethodsAroundInte
         });
     }
 
-
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 
 }

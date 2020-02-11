@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import java.util.*;
-import org.junit.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class BufferFileUtilsTestCase {
 
     @Test

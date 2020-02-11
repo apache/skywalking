@@ -100,7 +100,7 @@ public class TransportClientHandlerInterceptorTest {
         when(invocation.getInvocationType()).thenReturn(InvocationType.CONSUMER);
         Config.Agent.SERVICE_NAME = "serviceComnTestCases-APP";
 
-        allArguments = new Object[] {invocation,};
+        allArguments = new Object[] {invocation};
         argumentsType = new Class[] {};
         swaggerArguments = new Class[] {};
     }

@@ -28,9 +28,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author kezhenxu94
- */
 public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.linecorp.armeria.server.HttpServerHandler";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.armeria.Armeria085ServerInterceptor";
@@ -47,13 +44,12 @@ public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handleRequest")
-                        .and(takesArgument(0, named("io.netty.channel.ChannelHandlerContext")))
-                        .and(takesArgument(1, named("com.linecorp.armeria.server.DecodedHttpRequest")));
+                    return named("handleRequest").and(takesArgument(0, named("io.netty.channel.ChannelHandlerContext")))
+                                                 .and(takesArgument(1, named("com.linecorp.armeria.server.DecodedHttpRequest")));
                 }
 
                 @Override
@@ -76,7 +72,7 @@ public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhance
      */
     @Override
     protected String[] witnessClasses() {
-        return new String[]{
+        return new String[] {
             "com.linecorp.armeria.common.AbstractHttpHeadersBuilder"
         };
     }

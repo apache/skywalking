@@ -17,21 +17,20 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.e2e.assertor.exception.VariableNotFoundException;
-import org.apache.skywalking.e2e.topo.*;
+import org.apache.skywalking.e2e.topo.Call;
+import org.apache.skywalking.e2e.topo.ServiceInstanceNode;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoData;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoMatcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author zhangwei
- */
 public class TestServiceInstanceTopoMatcher {
 
     private ServiceInstanceTopoMatcher topoMatcher;
@@ -46,10 +45,23 @@ public class TestServiceInstanceTopoMatcher {
     @Test
     public void shouldSuccess() {
         final List<ServiceInstanceNode> nodes = new ArrayList<>();
-        nodes.add(new ServiceInstanceNode().setId("2").setName("e2e-cluster-provider-pid:1582@2ffd0ee4eeb1").setServiceId("2").setServiceName("e2e-cluster-provider").setType("Tomcat").setIsReal("true"));
-        nodes.add(new ServiceInstanceNode().setId("3").setName("e2e-cluster-provider-pid:1583@2ffd0ee4eeb1").setServiceId("2").setServiceName("e2e-cluster-provider").setType("Tomcat").setIsReal("true"));
-        nodes.add(new ServiceInstanceNode().setId("4").setName("e2e-cluster-consumer-pid:1591@2ffd0ee4eeb1").setServiceId("3").setServiceName("e2e-cluster-consumer").setIsReal("true"));
-
+        nodes.add(new ServiceInstanceNode().setId("2")
+                                           .setName("e2e-cluster-provider-pid:1582@2ffd0ee4eeb1")
+                                           .setServiceId("2")
+                                           .setServiceName("e2e-cluster-provider")
+                                           .setType("Tomcat")
+                                           .setIsReal("true"));
+        nodes.add(new ServiceInstanceNode().setId("3")
+                                           .setName("e2e-cluster-provider-pid:1583@2ffd0ee4eeb1")
+                                           .setServiceId("2")
+                                           .setServiceName("e2e-cluster-provider")
+                                           .setType("Tomcat")
+                                           .setIsReal("true"));
+        nodes.add(new ServiceInstanceNode().setId("4")
+                                           .setName("e2e-cluster-consumer-pid:1591@2ffd0ee4eeb1")
+                                           .setServiceId("3")
+                                           .setServiceName("e2e-cluster-consumer")
+                                           .setIsReal("true"));
 
         final List<Call> calls = new ArrayList<>();
         calls.add(new Call().setId("4_3").setSource("4").setTarget("3"));
@@ -63,10 +75,23 @@ public class TestServiceInstanceTopoMatcher {
     @Test(expected = VariableNotFoundException.class)
     public void shouldVariableNotFound() {
         final List<ServiceInstanceNode> nodes = new ArrayList<>();
-        nodes.add(new ServiceInstanceNode().setId("2").setName("e2e-cluster-provider-pid:1582@2ffd0ee4eeb1").setServiceId("2").setServiceName("e2e-cluster-provider").setType("Tomcat").setIsReal("true"));
-        nodes.add(new ServiceInstanceNode().setId("3").setName("e2e-cluster-Aprovider-pid:1583@2ffd0ee4eeb1").setServiceId("2").setServiceName("e2e-cluster-provider").setType("Tomcat").setIsReal("true"));
-        nodes.add(new ServiceInstanceNode().setId("4").setName("e2e-cluster-consumer-pid:1591@2ffd0ee4eeb1").setServiceId("3").setServiceName("e2e-cluster-consumer").setIsReal("true"));
-
+        nodes.add(new ServiceInstanceNode().setId("2")
+                                           .setName("e2e-cluster-provider-pid:1582@2ffd0ee4eeb1")
+                                           .setServiceId("2")
+                                           .setServiceName("e2e-cluster-provider")
+                                           .setType("Tomcat")
+                                           .setIsReal("true"));
+        nodes.add(new ServiceInstanceNode().setId("3")
+                                           .setName("e2e-cluster-Aprovider-pid:1583@2ffd0ee4eeb1")
+                                           .setServiceId("2")
+                                           .setServiceName("e2e-cluster-provider")
+                                           .setType("Tomcat")
+                                           .setIsReal("true"));
+        nodes.add(new ServiceInstanceNode().setId("4")
+                                           .setName("e2e-cluster-consumer-pid:1591@2ffd0ee4eeb1")
+                                           .setServiceId("3")
+                                           .setServiceName("e2e-cluster-consumer")
+                                           .setIsReal("true"));
 
         final List<Call> calls = new ArrayList<>();
         calls.add(new Call().setId("4_3").setSource("4").setTarget("3"));

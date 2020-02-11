@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oal.rt.output;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

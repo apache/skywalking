@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
@@ -33,19 +40,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.verification.AtLeast;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
-
-/**
- * @author peng-yongsheng
- */
 @Slf4j
 public class RemoteClientManagerTestCase {
 
@@ -64,26 +64,30 @@ public class RemoteClientManagerTestCase {
         this.clusterNodesQuery = mock(ClusterNodesQuery.class);
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
-
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
         when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
-            @Override public void inc() {
+            @Override
+            public void inc() {
 
             }
 
-            @Override public void inc(double value) {
+            @Override
+            public void inc(double value) {
 
             }
 
-            @Override public void dec() {
+            @Override
+            public void dec() {
 
             }
 
-            @Override public void dec(double value) {
+            @Override
+            public void dec(double value) {
 
             }
 
-            @Override public void setValue(double value) {
+            @Override
+            public void setValue(double value) {
 
             }
         });
@@ -207,7 +211,6 @@ public class RemoteClientManagerTestCase {
 
         List<RemoteClient> groupOneRemoteClients = clientManager.getRemoteClient();
 
-
         when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
         clientManager.refresh();
 
@@ -229,7 +232,6 @@ public class RemoteClientManagerTestCase {
         clientManager.refresh();
 
         List<RemoteClient> newGroupOneRemoteClients = clientManager.getRemoteClient();
-
 
         Assert.assertEquals(groupOneRemoteClients.get(0).getAddress(), newGroupOneRemoteClients.get(0).getAddress());
         Assert.assertEquals(newGroupOneRemoteClients.get(3).getAddress().getHost(), "host4");

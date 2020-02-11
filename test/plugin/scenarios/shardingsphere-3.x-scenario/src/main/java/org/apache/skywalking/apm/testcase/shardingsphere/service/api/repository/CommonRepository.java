@@ -21,18 +21,18 @@ package org.apache.skywalking.apm.testcase.shardingsphere.service.api.repository
 import java.util.List;
 
 public interface CommonRepository<T> {
-    
+
     void createTableIfNotExists();
-    
+
     void dropTable();
-    
+
     void truncateTable();
-    
+
     Long insert(T entity);
-    
+
     void delete(Long id);
-    
+
     List<T> selectAll();
-    
+
     List<T> selectRange();
 }

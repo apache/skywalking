@@ -30,9 +30,6 @@ import org.apache.skywalking.apm.plugin.trace.ignore.matcher.FastPathMatcher;
 import org.apache.skywalking.apm.plugin.trace.ignore.matcher.TracePathMatcher;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * @author liujc [liujunc1993@163.com], kanro
- */
 @OverrideImplementor(ContextManagerExtendService.class)
 public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
@@ -42,7 +39,7 @@ public class TraceIgnoreExtendService extends ContextManagerExtendService {
 
     private TracePathMatcher pathMatcher = new FastPathMatcher();
 
-    private String[] patterns = new String[]{};
+    private String[] patterns = new String[] {};
 
     @Override
     public void boot() {

@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
 @Getter(AccessLevel.PUBLIC)

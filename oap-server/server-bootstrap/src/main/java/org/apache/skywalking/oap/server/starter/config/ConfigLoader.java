@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.starter.config;
 
-/**
- * @author peng-yongsheng
- */
 public interface ConfigLoader<T> {
     T load() throws ConfigFileNotFoundException;
 }

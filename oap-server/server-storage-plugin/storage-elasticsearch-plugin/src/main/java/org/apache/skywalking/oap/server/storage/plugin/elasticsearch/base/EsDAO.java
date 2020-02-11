@@ -25,13 +25,13 @@ import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.elasticsearch.common.xcontent.*;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
     public EsDAO(ElasticSearchClient client) {
@@ -63,7 +63,7 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         for (String key : objectMap.keySet()) {
             Object value = objectMap.get(key);
             if (value instanceof StorageDataType) {
-                builder.field(key, ((StorageDataType)value).toStorageData());
+                builder.field(key, ((StorageDataType) value).toStorageData());
             } else {
                 builder.field(key, value);
             }

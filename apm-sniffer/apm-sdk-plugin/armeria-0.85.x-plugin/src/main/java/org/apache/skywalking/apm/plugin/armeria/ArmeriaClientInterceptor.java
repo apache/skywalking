@@ -36,9 +36,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author kezhenxu94
- */
 public abstract class ArmeriaClientInterceptor implements InstanceMethodsAroundInterceptor {
     private static final String KEY_SAFE_CLOSEABLE = "SAFE_CLOSEABLE";
 
@@ -74,12 +71,8 @@ public abstract class ArmeriaClientInterceptor implements InstanceMethodsAroundI
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Throwable t) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

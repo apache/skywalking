@@ -36,10 +36,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMet
  * instrumentation.</p>
  * <p>Date, 24th July 2019</p>
  * -------------------------------
- *
+ * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
- *
- * @author wusheng
  */
 public class StaticMethodInterWithOverrideArgsTemplate {
     /**
@@ -53,13 +51,13 @@ public class StaticMethodInterWithOverrideArgsTemplate {
     /**
      * Intercept the target static method.
      *
-     * @param clazz target class
+     * @param clazz        target class
      * @param allArguments all method arguments
-     * @param method method description.
-     * @param zuper the origin call ref.
+     * @param method       method description.
+     * @param zuper        the origin call ref.
      * @return the return value of target static method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     * bug, if anything triggers this condition ).
+     *                   bug, if anything triggers this condition ).
      */
     @RuntimeType
     public static Object intercept(@Origin Class<?> clazz, @AllArguments Object[] allArguments, @Origin Method method,

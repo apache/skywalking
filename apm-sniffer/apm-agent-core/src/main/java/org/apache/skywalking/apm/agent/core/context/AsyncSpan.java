@@ -22,23 +22,20 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * Span could use these APIs to active and extend its lift cycle across thread.
- *
+ * <p>
  * This is typical used in async plugin, especially RPC plugins.
- *
- * @author wusheng
  */
 public interface AsyncSpan {
     /**
      * The span finish at current tracing context, but the current span is still alive, until {@link #asyncFinish}
      * called.
-     *
+     * <p>
      * This method must be called
-     *
-     * 1. In original thread(tracing context).
-     * 2. Current span is active span.
-     *
+     * <p>
+     * 1. In original thread(tracing context). 2. Current span is active span.
+     * <p>
      * During alive, tags, logs and attributes of the span could be changed, in any thread.
-     *
+     * <p>
      * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
      *
      * @return the current span
@@ -47,7 +44,7 @@ public interface AsyncSpan {
 
     /**
      * Notify the span, it could be finished.
-     *
+     * <p>
      * The execution times of {@link #prepareForAsync} and {@link #asyncFinish()} must match.
      *
      * @return the current span

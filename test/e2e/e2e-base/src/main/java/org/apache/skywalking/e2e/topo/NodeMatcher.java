@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.e2e.topo;
 
+import java.util.Objects;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.Objects;
-
-/**
- * @author kezhenxu94
- */
 public class NodeMatcher extends AbstractMatcher<Node> {
     private String id;
     private String name;
@@ -96,11 +92,6 @@ public class NodeMatcher extends AbstractMatcher<Node> {
 
     @Override
     public String toString() {
-        return "NodeMatcher{" +
-            "id='" + id + '\'' +
-            ", name='" + name + '\'' +
-            ", type='" + type + '\'' +
-            ", isReal='" + isReal + '\'' +
-            '}';
+        return "NodeMatcher{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", type='" + type + '\'' + ", isReal='" + isReal + '\'' + '}';
     }
 }

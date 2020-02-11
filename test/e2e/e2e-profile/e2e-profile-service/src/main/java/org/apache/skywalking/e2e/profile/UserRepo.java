@@ -20,8 +20,5 @@ package org.apache.skywalking.e2e.profile;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-/**
- * @author MrPro
- */
 public interface UserRepo extends JpaRepository<User, Long> {
 }

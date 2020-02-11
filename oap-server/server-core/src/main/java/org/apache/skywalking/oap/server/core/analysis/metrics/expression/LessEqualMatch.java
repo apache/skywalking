@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
-/**
- * @author peng-yongsheng
- */
 public class LessEqualMatch {
     public boolean match(int left, int right) {
         return left <= right;

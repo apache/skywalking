@@ -24,9 +24,6 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-/**
- * @author zhaoyuguang
- */
 @ComponentScan(basePackages = "org.apache.skywalking.apm.testcase.spring.async")
 @EnableAsync
 @Configuration

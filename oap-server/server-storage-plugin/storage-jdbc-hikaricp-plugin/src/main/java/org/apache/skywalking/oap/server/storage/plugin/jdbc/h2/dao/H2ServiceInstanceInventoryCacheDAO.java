@@ -32,9 +32,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements IServiceInstanceInventoryCacheDAO {
     private static final Logger logger = LoggerFactory.getLogger(H2ServiceInstanceInventoryCacheDAO.class);
     private JDBCHikariCPClient h2Client;
@@ -43,21 +40,24 @@ public class H2ServiceInstanceInventoryCacheDAO extends H2SQLExecutor implements
         this.h2Client = h2Client;
     }
 
-    @Override public ServiceInstanceInventory get(int serviceInstanceId) {
+    @Override
+    public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
-            return (ServiceInstanceInventory)getByColumn(h2Client, ServiceInstanceInventory.INDEX_NAME, ServiceInstanceInventory.SEQUENCE, serviceInstanceId, new ServiceInstanceInventory.Builder());
+            return (ServiceInstanceInventory) getByColumn(h2Client, ServiceInstanceInventory.INDEX_NAME, ServiceInstanceInventory.SEQUENCE, serviceInstanceId, new ServiceInstanceInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
         }
     }
 
-    @Override public int getServiceInstanceId(int serviceId, String uuid) {
+    @Override
+    public int getServiceInstanceId(int serviceId, String uuid) {
         String id = ServiceInstanceInventory.buildId(serviceId, uuid);
         return getByID(id);
     }
 
-    @Override public int getServiceInstanceId(int serviceId, int addressId) {
+    @Override
+    public int getServiceInstanceId(int serviceId, int addressId) {
         String id = ServiceInstanceInventory.buildId(serviceId, addressId);
         return getByID(id);
     }

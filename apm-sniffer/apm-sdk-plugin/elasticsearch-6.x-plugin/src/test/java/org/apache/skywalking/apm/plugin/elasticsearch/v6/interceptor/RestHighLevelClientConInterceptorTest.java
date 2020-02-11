@@ -17,10 +17,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpHost;
@@ -38,12 +34,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-/**
- * @author aderm
- */
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest(value = {RestClientBuilder.class, HttpHost.class})
+@PrepareForTest(value = {
+    RestClientBuilder.class,
+    HttpHost.class
+})
 public class RestHighLevelClientConInterceptorTest {
 
     @Mock
@@ -64,7 +64,7 @@ public class RestHighLevelClientConInterceptorTest {
         restHighLevelClientConInterceptor = new RestHighLevelClientConInterceptor();
         when(restClientBuilder.build()).thenReturn(restClient);
         when(restClient.getNodes()).thenReturn(nodeList);
-        allArguments = new Object[]{restClientBuilder};
+        allArguments = new Object[] {restClientBuilder};
     }
 
     @Test
@@ -72,6 +72,7 @@ public class RestHighLevelClientConInterceptorTest {
 
         final EnhancedInstance objInst = new EnhancedInstance() {
             private Object object = null;
+
             @Override
             public Object getSkyWalkingDynamicField() {
                 return object;
@@ -86,6 +87,6 @@ public class RestHighLevelClientConInterceptorTest {
         restHighLevelClientConInterceptor.onConstruct(objInst, allArguments);
 
         assertThat(objInst.getSkyWalkingDynamicField() instanceof RestClientEnhanceInfo, is(true));
-        assertThat(((RestClientEnhanceInfo)objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200,127.0.0.1:9300"));
+        assertThat(((RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200,127.0.0.1:9300"));
     }
 }

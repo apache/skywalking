@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -22,10 +23,6 @@ import net.bytebuddy.matcher.ElementMatcher;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author AI
- * 2019-08-15
- */
 public class AnnotationTypeNameMatchTest {
 
     @Test

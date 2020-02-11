@@ -15,17 +15,14 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 @ToString

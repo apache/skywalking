@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author kezhenxu94
- */
 public class NacosConfigurationTestModule extends ModuleDefine {
     public static final String NAME = "test-module";
 

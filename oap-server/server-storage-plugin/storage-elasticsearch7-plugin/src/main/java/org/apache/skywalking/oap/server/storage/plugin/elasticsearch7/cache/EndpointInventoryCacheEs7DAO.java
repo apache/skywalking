@@ -28,10 +28,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class EndpointInventoryCacheEs7DAO extends EndpointInventoryCacheEsDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEs7DAO.class);

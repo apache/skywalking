@@ -28,15 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link AopExpressionMatchInstrumentation} indicates that exclude enhanced method in @{link EnhancedInstance} to prevent
- * side effect when use intercept all method in controller to complete their business code
- *
- * @author lican
+ * {@link AopExpressionMatchInstrumentation} indicates that exclude enhanced method in @{link EnhancedInstance} to
+ * prevent side effect when use intercept all method in controller to complete their business code
  */
 public class AopExpressionMatchInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
 
-    private  static final String ENHANCE_CLASS = "org.springframework.aop.support.MethodMatchers";
-    private  static final String ENHANCE_METHOD = "matches";
+    private static final String ENHANCE_CLASS = "org.springframework.aop.support.MethodMatchers";
+    private static final String ENHANCE_METHOD = "matches";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.spring.patch.AopExpressionMatchInterceptor";
 
     @Override
@@ -46,22 +44,23 @@ public class AopExpressionMatchInstrumentation extends ClassStaticMethodsEnhance
 
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[]{new StaticMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(ENHANCE_METHOD);
-            }
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD);
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPT_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 

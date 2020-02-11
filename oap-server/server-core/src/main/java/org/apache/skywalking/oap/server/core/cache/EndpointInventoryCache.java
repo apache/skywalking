@@ -18,21 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
-import com.google.common.cache.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
-/**
- * @author peng-yongsheng
- */
 public class EndpointInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCache.class);
@@ -53,10 +54,16 @@ public class EndpointInventoryCache implements Service {
         this.userEndpoint.setServiceId(Const.USER_SERVICE_ID);
 
         long initialSize = moduleConfig.getMaxSizeOfEndpointInventory() / 10L;
-        int initialCapacitySize = (int)(initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
+        int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
-        endpointNameCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfEndpointInventory()).build();
-        endpointIdCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfEndpointInventory()).build();
+        endpointNameCache = CacheBuilder.newBuilder()
+                                        .initialCapacity(initialCapacitySize)
+                                        .maximumSize(moduleConfig.getMaxSizeOfEndpointInventory())
+                                        .build();
+        endpointIdCache = CacheBuilder.newBuilder()
+                                      .initialCapacity(initialCapacitySize)
+                                      .maximumSize(moduleConfig.getMaxSizeOfEndpointInventory())
+                                      .build();
     }
 
     private IEndpointInventoryCacheDAO getCacheDAO() {

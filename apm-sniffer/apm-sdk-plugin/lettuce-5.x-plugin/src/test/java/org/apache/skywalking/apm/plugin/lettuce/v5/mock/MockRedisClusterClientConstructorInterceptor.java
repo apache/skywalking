@@ -23,16 +23,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 
-/**
- * @author zhaoyuguang
- */
-
 public class MockRedisClusterClientConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        @SuppressWarnings("unchecked")
-        Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
+        @SuppressWarnings("unchecked") Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
         MockRedisClusterClient redisClusterClient = (MockRedisClusterClient) objInst;
         StringBuilder peer = new StringBuilder();
         for (RedisURI redisURI : redisURIs) {

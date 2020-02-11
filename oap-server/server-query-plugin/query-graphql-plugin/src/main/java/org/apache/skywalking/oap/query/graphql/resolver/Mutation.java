@@ -22,8 +22,6 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 
 /**
  * Root mutation resolver.
- *
- * @author gaohongtao
  */
 public class Mutation implements GraphQLMutationResolver {
     private String version;

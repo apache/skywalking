@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profile;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -28,15 +30,10 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
 
 /**
  * profile task database bean, use none stream
- *
- * @author MrPro
  */
 @Getter
 @Setter
@@ -59,29 +56,37 @@ public class ProfileTaskNoneStream extends NoneStream {
         return getCreateTime() + Const.ID_SPLIT + getServiceId();
     }
 
-    @Column(columnName = SERVICE_ID) private int serviceId;
-    @Column(columnName = ENDPOINT_NAME) private String endpointName;
-    @Column(columnName = START_TIME) private long startTime;
-    @Column(columnName = DURATION) private int duration;
-    @Column(columnName = MIN_DURATION_THRESHOLD) private int minDurationThreshold;
-    @Column(columnName = DUMP_PERIOD) private int dumpPeriod;
-    @Column(columnName = CREATE_TIME) private long createTime;
-    @Column(columnName = MAX_SAMPLING_COUNT) private int maxSamplingCount;
+    @Column(columnName = SERVICE_ID)
+    private int serviceId;
+    @Column(columnName = ENDPOINT_NAME)
+    private String endpointName;
+    @Column(columnName = START_TIME)
+    private long startTime;
+    @Column(columnName = DURATION)
+    private int duration;
+    @Column(columnName = MIN_DURATION_THRESHOLD)
+    private int minDurationThreshold;
+    @Column(columnName = DUMP_PERIOD)
+    private int dumpPeriod;
+    @Column(columnName = CREATE_TIME)
+    private long createTime;
+    @Column(columnName = MAX_SAMPLING_COUNT)
+    private int maxSamplingCount;
 
     public static class Builder implements StorageBuilder<ProfileTaskNoneStream> {
 
         @Override
         public ProfileTaskNoneStream map2Data(Map<String, Object> dbMap) {
             final ProfileTaskNoneStream record = new ProfileTaskNoneStream();
-            record.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
-            record.setEndpointName((String)dbMap.get(ENDPOINT_NAME));
-            record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
-            record.setDuration(((Number)dbMap.get(DURATION)).intValue());
-            record.setMinDurationThreshold(((Number)dbMap.get(MIN_DURATION_THRESHOLD)).intValue());
-            record.setDumpPeriod(((Number)dbMap.get(DUMP_PERIOD)).intValue());
-            record.setCreateTime(((Number)dbMap.get(CREATE_TIME)).longValue());
-            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
-            record.setMaxSamplingCount(((Number)dbMap.get(MAX_SAMPLING_COUNT)).intValue());
+            record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
+            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
+            record.setDuration(((Number) dbMap.get(DURATION)).intValue());
+            record.setMinDurationThreshold(((Number) dbMap.get(MIN_DURATION_THRESHOLD)).intValue());
+            record.setDumpPeriod(((Number) dbMap.get(DUMP_PERIOD)).intValue());
+            record.setCreateTime(((Number) dbMap.get(CREATE_TIME)).longValue());
+            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            record.setMaxSamplingCount(((Number) dbMap.get(MAX_SAMPLING_COUNT)).intValue());
             return record;
         }
 

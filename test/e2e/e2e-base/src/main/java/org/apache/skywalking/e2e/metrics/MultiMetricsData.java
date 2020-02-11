@@ -18,14 +18,10 @@
 
 package org.apache.skywalking.e2e.metrics;
 
+import java.util.List;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.List;
-
-/**
- * @author kezhenxu94
- */
 @Data
 @ToString
 public class MultiMetricsData {

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache;
 
 import zipkin2.Span;
 
-/**
- * @author wusheng
- */
 public interface ISpanCache {
     void addSpan(Span span);
 }

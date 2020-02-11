@@ -16,20 +16,17 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.log.logback.v1.x.mdc;
 
 import ch.qos.logback.classic.pattern.MDCConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.util.OptionHelper;
 
-/**
- * @author zhangkewei
- */
 public class LogbackMDCPatternConverter extends MDCConverter {
-    private static final  String CONVERT_KEY = "tid";
+    private static final String CONVERT_KEY = "tid";
 
     private boolean convert4TID = false;
+
     @Override
     public void start() {
         super.start();
@@ -38,6 +35,7 @@ public class LogbackMDCPatternConverter extends MDCConverter {
             convert4TID = true;
         }
     }
+
     @Override
     public String convert(ILoggingEvent iLoggingEvent) {
         return convert4TID ? convertTID(iLoggingEvent) : super.convert(iLoggingEvent);

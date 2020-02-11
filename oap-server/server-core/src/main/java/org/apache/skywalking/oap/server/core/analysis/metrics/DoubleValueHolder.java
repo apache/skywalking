@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
  * DoubleValueHolder always holds a value of double.
- *
- * @author wusheng
  */
 public interface DoubleValueHolder {
     double getValue();

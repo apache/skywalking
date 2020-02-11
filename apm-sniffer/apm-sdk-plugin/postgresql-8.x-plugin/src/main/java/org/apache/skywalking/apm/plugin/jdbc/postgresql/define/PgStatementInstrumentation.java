@@ -30,39 +30,42 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 import static org.apache.skywalking.apm.plugin.jdbc.postgresql.Variables.PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
 
-/**
- * @author zhang xin
- */
 public class PgStatementInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute").and(takesArgumentWithType(0, "java.lang.String"))
-                        .or(named("execute").and(takesArgumentWithType(0, "java.lang.String[]")))
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate").and(takesArgumentWithType(0, "java.lang.String[]")))
-                        .or(named("executeUpdate").and(takesArgumentWithType(0, "java.lang.String")))
-                        .or(named("executeLargeUpdate"));
+                                           .or(named("execute").and(takesArgumentWithType(0, "java.lang.String[]")))
+                                           .or(named("executeQuery"))
+                                           .or(named("executeUpdate").and(takesArgumentWithType(0, "java.lang.String[]")))
+                                           .or(named("executeUpdate").and(takesArgumentWithType(0, "java.lang.String")))
+                                           .or(named("executeLargeUpdate"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName("org.postgresql.jdbc.PgStatement");
     }
 }

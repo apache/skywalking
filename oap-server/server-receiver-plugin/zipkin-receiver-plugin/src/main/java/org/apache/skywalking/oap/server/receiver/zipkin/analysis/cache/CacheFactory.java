@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.caffeine.CaffeineSpanCache;
 
-/**
- * @author wusheng
- */
 public class CacheFactory {
     public static final CacheFactory INSTANCE = new CacheFactory();
 

@@ -22,20 +22,20 @@ import io.shardingsphere.api.config.ShardingRuleConfiguration;
 import io.shardingsphere.api.config.TableRuleConfiguration;
 import io.shardingsphere.api.config.strategy.InlineShardingStrategyConfiguration;
 import io.shardingsphere.api.config.strategy.StandardShardingStrategyConfiguration;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm.PreciseModuloShardingTableAlgorithm;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.ExampleConfiguration;
 import io.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
-import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import javax.sql.DataSource;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algorithm.PreciseModuloShardingTableAlgorithm;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.ExampleConfiguration;
 
 public final class ShardingDatabasesAndTablesConfigurationPrecise implements ExampleConfiguration {
-    
+
     private static DataSource dataSource;
-    
+
     @Override
     public DataSource createDataSource() throws SQLException {
         ShardingRuleConfiguration shardingRuleConfig = new ShardingRuleConfiguration();
@@ -49,12 +49,12 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         dataSource = ShardingDataSourceFactory.createDataSource(createDataSourceMap(), shardingRuleConfig, new HashMap<String, Object>(), properties);
         return dataSource;
     }
-    
+
     @Override
     public DataSource getDataSource() {
         return dataSource;
     }
-    
+
     private static TableRuleConfiguration getOrderTableRuleConfiguration() {
         TableRuleConfiguration result = new TableRuleConfiguration();
         result.setLogicTable("t_order");
@@ -62,14 +62,14 @@ public final class ShardingDatabasesAndTablesConfigurationPrecise implements Exa
         result.setKeyGeneratorColumnName("order_id");
         return result;
     }
-    
+
     private static TableRuleConfiguration getOrderItemTableRuleConfiguration() {
         TableRuleConfiguration result = new TableRuleConfiguration();
         result.setLogicTable("t_order_item");
         result.setActualDataNodes("demo_ds_${0..1}.t_order_item_${[0, 1]}");
         return result;
     }
-    
+
     private static Map<String, DataSource> createDataSourceMap() {
         Map<String, DataSource> result = new HashMap<>();
         result.put("demo_ds_0", DataSourceUtil.getDataSource("demo_ds_0"));

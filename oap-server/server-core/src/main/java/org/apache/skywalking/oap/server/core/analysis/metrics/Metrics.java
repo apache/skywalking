@@ -18,22 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.joda.time.format.*;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
 
-    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
-    @Getter @Setter private long survivalTime = 0L;
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    private long timeBucket;
+    @Getter
+    @Setter
+    private long survivalTime = 0L;
 
     public abstract String id();
 
@@ -79,8 +83,6 @@ public abstract class Metrics extends StreamData implements StorageData {
 
     /**
      * Always get the duration for this time bucket in minute.
-     *
-     * @return minutes.
      */
     protected long getDurationInMinute() {
         if (isMinuteBucket()) {

@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.elasticsearch.controller;
 
-import static java.util.Collections.singletonMap;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -53,12 +51,11 @@ import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author aderm
- */
+import static java.util.Collections.singletonMap;
+
 @RestController
 @RequestMapping("/case")
 public class CaseController {
@@ -134,10 +131,7 @@ public class CaseController {
         builder.endObject();
         request.mapping(builder);
 
-        request.settings(Settings.builder()
-            .put("index.number_of_shards", 1)
-            .put("index.number_of_replicas", 0)
-        );
+        request.settings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0));
 
         CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
         if (createIndexResponse.isAcknowledged() == false) {
@@ -219,5 +213,4 @@ public class CaseController {
         }
     }
 }
-
 

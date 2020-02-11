@@ -19,17 +19,21 @@
 package org.apache.skywalking.oap.server.library.server.jetty;
 
 import com.google.gson.JsonElement;
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Enumeration;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import org.slf4j.*;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.nonNull;
 
-/**
- * @author wusheng
- */
 public abstract class JettyJsonHandler extends JettyHandler {
     private static final Logger logger = LoggerFactory.getLogger(JettyJsonHandler.class);
 
@@ -68,7 +72,8 @@ public abstract class JettyJsonHandler extends JettyHandler {
         super.doHead(req, resp);
     }
 
-    @Override protected final long getLastModified(HttpServletRequest req) {
+    @Override
+    protected final long getLastModified(HttpServletRequest req) {
         return super.getLastModified(req);
     }
 
@@ -101,51 +106,63 @@ public abstract class JettyJsonHandler extends JettyHandler {
         super.service(req, resp);
     }
 
-    @Override public final void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+    @Override
+    public final void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         super.service(req, res);
     }
 
-    @Override public final void destroy() {
+    @Override
+    public final void destroy() {
         super.destroy();
     }
 
-    @Override public final String getInitParameter(String name) {
+    @Override
+    public final String getInitParameter(String name) {
         return super.getInitParameter(name);
     }
 
-    @Override public final Enumeration<String> getInitParameterNames() {
+    @Override
+    public final Enumeration<String> getInitParameterNames() {
         return super.getInitParameterNames();
     }
 
-    @Override public final ServletConfig getServletConfig() {
+    @Override
+    public final ServletConfig getServletConfig() {
         return super.getServletConfig();
     }
 
-    @Override public final ServletContext getServletContext() {
+    @Override
+    public final ServletContext getServletContext() {
         return super.getServletContext();
     }
 
-    @Override public final String getServletInfo() {
+    @Override
+    public final String getServletInfo() {
         return super.getServletInfo();
     }
 
-    @Override public final void init(ServletConfig config) throws ServletException {
+    @Override
+    public final void init(ServletConfig config) throws ServletException {
         super.init(config);
     }
 
-    @Override public final void init() throws ServletException {
+    @Override
+    public final void init() throws ServletException {
         super.init();
     }
 
-    @Override public final void log(String msg) {
+    @Override
+    public final void log(String msg) {
         super.log(msg);
     }
 
-    @Override public final void log(String message, Throwable t) {
+    @Override
+    public final void log(String message, Throwable t) {
         super.log(message, t);
     }
 
-    @Override public final String getServletName() {
+    @Override
+    public final String getServletName() {
         return super.getServletName();
     }
 

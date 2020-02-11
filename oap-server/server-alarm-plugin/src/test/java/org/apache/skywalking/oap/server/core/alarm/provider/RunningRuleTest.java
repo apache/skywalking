@@ -19,22 +19,29 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.*;
-import org.junit.*;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.junit.Assert;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 /**
  * Running rule is the core of how does alarm work.
- *
+ * <p>
  * So in this test, we need to simulate a lot of scenario to see the reactions.
- *
- * @author wusheng
  */
 public class RunningRuleTest {
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
@@ -99,7 +106,8 @@ public class RunningRuleTest {
         // check at 201808301442
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals("Successful rate of endpoint Service_123 is lower than 75%", alarmMessages.get(0).getAlarmMessage());
+        Assert.assertEquals("Successful rate of endpoint Service_123 is lower than 75%", alarmMessages.get(0)
+                                                                                                      .getAlarmMessage());
     }
 
     @Test
@@ -135,7 +143,8 @@ public class RunningRuleTest {
         // check at 201808301442
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals("response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0).getAlarmMessage());
+        Assert.assertEquals("response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0)
+                                                                                                                      .getAlarmMessage());
     }
 
     @Test
@@ -154,7 +163,8 @@ public class RunningRuleTest {
 
         final boolean[] isAlarm = {false};
         AlarmCallback assertCallback = new AlarmCallback() {
-            @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
+            @Override
+            public void doAlarm(List<AlarmMessage> alarmMessage) {
                 isAlarm[0] = true;
             }
         };
@@ -252,36 +262,44 @@ public class RunningRuleTest {
 
     private MetaInAlarm getMetaInAlarm(int id) {
         return new MetaInAlarm() {
-            @Override public String getScope() {
+            @Override
+            public String getScope() {
                 return "SERVICE";
             }
 
-            @Override public int getScopeId() {
+            @Override
+            public int getScopeId() {
                 return DefaultScopeDefine.SERVICE;
             }
 
-            @Override public String getName() {
+            @Override
+            public String getName() {
                 return "Service_" + id;
             }
 
-            @Override public String getMetricsName() {
+            @Override
+            public String getMetricsName() {
                 return "endpoint_percent";
             }
 
-            @Override public int getId0() {
+            @Override
+            public int getId0() {
                 return id;
             }
 
-            @Override public int getId1() {
+            @Override
+            public int getId1() {
                 return 0;
             }
 
-            @Override public boolean equals(Object o) {
-                MetaInAlarm target = (MetaInAlarm)o;
+            @Override
+            public boolean equals(Object o) {
+                MetaInAlarm target = (MetaInAlarm) o;
                 return id == target.getId0();
             }
 
-            @Override public int hashCode() {
+            @Override
+            public int hashCode() {
                 return Objects.hash(id);
             }
         };
@@ -305,39 +323,48 @@ public class RunningRuleTest {
     private class MockMetrics extends Metrics implements IntValueHolder {
         private int value;
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public void combine(Metrics metrics) {
+        @Override
+        public void combine(Metrics metrics) {
 
         }
 
-        @Override public void calculate() {
+        @Override
+        public void calculate() {
 
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public int getValue() {
+        @Override
+        public int getValue() {
             return value;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
 
@@ -345,7 +372,8 @@ public class RunningRuleTest {
             this.value = value;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
     }
@@ -357,43 +385,53 @@ public class RunningRuleTest {
             this.values = values;
         }
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public void combine(Metrics metrics) {
+        @Override
+        public void combine(Metrics metrics) {
 
         }
 
-        @Override public void calculate() {
+        @Override
+        public void calculate() {
 
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public int[] getValues() {
+        @Override
+        public int[] getValues() {
             return values;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
     }

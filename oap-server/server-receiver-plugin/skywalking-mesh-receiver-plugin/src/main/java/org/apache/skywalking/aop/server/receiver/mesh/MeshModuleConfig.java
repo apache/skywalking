@@ -22,12 +22,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author peng-yongsheng
- */
 public class MeshModuleConfig extends ModuleConfig {
-    @Setter @Getter private String bufferPath;
-    @Setter @Getter private int bufferOffsetMaxFileSize;
-    @Setter @Getter private int bufferDataMaxFileSize;
-    @Setter @Getter private boolean bufferFileCleanWhenRestart;
+    @Setter
+    @Getter
+    private String bufferPath;
+    @Setter
+    @Getter
+    private int bufferOffsetMaxFileSize;
+    @Setter
+    @Getter
+    private int bufferDataMaxFileSize;
+    @Setter
+    @Getter
+    private boolean bufferFileCleanWhenRestart;
 }

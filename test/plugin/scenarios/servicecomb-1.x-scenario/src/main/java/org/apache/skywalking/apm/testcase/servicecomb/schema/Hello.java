@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.servicecomb.schema;
 
-
 import org.apache.skywalking.apm.testcase.servicecomb.schema.models.Person;
 
 public interface Hello {

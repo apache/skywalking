@@ -17,25 +17,21 @@
 
 package org.apache.skywalking.apm.testcase.spring.async;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-/**
- * @author zhangwei
- */
 public class CaseServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5173829093752900411L;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AsyncConfig.class);
         AsyncBean async = applicationContext.getBean(AsyncBean.class);
 

@@ -23,13 +23,10 @@ import org.apache.skywalking.oap.server.core.Const;
 
 public class RelationDefineUtil {
     public static String buildEntityId(RelationDefine define) {
-        return String.valueOf(define.source)
-            + Const.ID_SPLIT + String.valueOf(define.dest)
-            + Const.ID_SPLIT + String.valueOf(define.componentId);
+        return String.valueOf(define.source) + Const.ID_SPLIT + String.valueOf(define.dest) + Const.ID_SPLIT + String.valueOf(define.componentId);
     }
 
     /**
-     * @param entityId
      * @return 1. sourceId 2. destId 3. componentId
      */
     public static RelationDefine splitEntityId(String entityId) {
