@@ -41,15 +41,17 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 @Slf4j
 public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
     private InfluxClient client;
+    private int fetchTaskLogMaxSize;
 
-    public ProfileTaskLogQuery(InfluxClient client) {
+    public ProfileTaskLogQuery(InfluxClient client, int fetchTaskLogMaxSize) {
         this.client = client;
+        this.fetchTaskLogMaxSize = fetchTaskLogMaxSize;
     }
 
     @Override
     public List<ProfileTaskLog> getTaskLogList(String taskId) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .function("top", ProfileTaskLogRecord.OPERATION_TIME, 100) // FIXME how much size by default?
+            .function("top", ProfileTaskLogRecord.OPERATION_TIME, fetchTaskLogMaxSize)
             .column("id")
             .column(ProfileTaskLogRecord.TASK_ID)
             .column(ProfileTaskLogRecord.INSTANCE_ID)

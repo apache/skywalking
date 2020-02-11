@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.influxdb.dto.QueryResult;
-import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereNested;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
@@ -59,7 +58,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                          long endTB,
                                                                          List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+        WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
@@ -75,7 +74,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                          long endTB,
                                                                          List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+        WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
@@ -90,7 +89,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
                                                                 long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+        WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
@@ -105,7 +104,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
                                                                 long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+        WhereQueryImpl query = buildServiceCallsQuery(
             tableName,
             startTB,
             endTB,
@@ -123,12 +122,12 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                         long startTB,
                                                                         long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceInstanceCallsQuery(measurement,
-                                                                               startTB,
-                                                                               endTB,
-                                                                               ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                                                                               ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
-                                                                               clientServiceId, serverServiceId
+        WhereQueryImpl query = buildServiceInstanceCallsQuery(measurement,
+                                                              startTB,
+                                                              endTB,
+                                                              ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                                                              ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
+                                                              clientServiceId, serverServiceId
         );
         return buildCalls(query, DetectPoint.SERVER);
     }
@@ -140,12 +139,12 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                         long startTB,
                                                                         long endTB) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceInstanceCallsQuery(measurement,
-                                                                               startTB,
-                                                                               endTB,
-                                                                               ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-                                                                               ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
-                                                                               clientServiceId, serverServiceId
+        WhereQueryImpl query = buildServiceInstanceCallsQuery(measurement,
+                                                              startTB,
+                                                              endTB,
+                                                              ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+                                                              ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID,
+                                                              clientServiceId, serverServiceId
         );
         return buildCalls(query, DetectPoint.CLIENT);
     }
@@ -157,7 +156,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                                 int destEndpointId) throws IOException {
         String measurement = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
-        WhereQueryImpl<SelectQueryImpl> query = buildServiceCallsQuery(
+        WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
@@ -167,7 +166,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         );
         query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
 
-        WhereQueryImpl<SelectQueryImpl> query2 = buildServiceCallsQuery(
+        WhereQueryImpl query2 = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
@@ -184,7 +183,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
 
     private WhereQueryImpl buildServiceCallsQuery(String measurement, long startTB, long endTB, String sourceCName,
                                                   String destCName, List<Integer> serviceIds) {
-        WhereQueryImpl<SelectQueryImpl> query = select()
+        WhereQueryImpl query = select()
             .function("distinct", Metrics.ENTITY_ID)
             .from(client.getDatabase(), measurement)
             .where()
@@ -202,14 +201,14 @@ public class TopologyQuery implements ITopologyQueryDAO {
         return query;
     }
 
-    private WhereQueryImpl<SelectQueryImpl> buildServiceInstanceCallsQuery(String measurement,
-                                                                           long startTB,
-                                                                           long endTB,
-                                                                           String sourceCName,
-                                                                           String destCName,
-                                                                           int sourceServiceId,
-                                                                           int destServiceId) {
-        WhereQueryImpl<SelectQueryImpl> query = select()
+    private WhereQueryImpl buildServiceInstanceCallsQuery(String measurement,
+                                                          long startTB,
+                                                          long endTB,
+                                                          String sourceCName,
+                                                          String destCName,
+                                                          int sourceServiceId,
+                                                          int destServiceId) {
+        WhereQueryImpl query = select()
             .function("distinct", Metrics.ENTITY_ID)
             .from(client.getDatabase(), measurement)
             .where()
@@ -229,7 +228,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         return query;
     }
 
-    public List<Call.CallDetail> buildCalls(WhereQueryImpl<SelectQueryImpl> query,
+    private List<Call.CallDetail> buildCalls(WhereQueryImpl query,
                                             DetectPoint detectPoint) throws IOException {
         QueryResult.Series series = client.queryForSingleSeries(query);
 

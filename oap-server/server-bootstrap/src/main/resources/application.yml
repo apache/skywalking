@@ -150,6 +150,7 @@ storage:
 #    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
 #    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
 #    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
+#    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 receiver-sharing-server:
   default:
     authentication: ${SW_AUTHENTICATION:""}

@@ -93,9 +93,6 @@ public class LogQuery implements ILogQueryDAO {
         if (!Strings.isNullOrEmpty(stateCode)) {
             recallQuery.and(eq(STATUS_CODE, stateCode));
         }
-        //        TODO: have to recheck
-        //        recallQuery.and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
-        //            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         recallQuery.and(gte(AbstractLogRecord.TIME_BUCKET, startTB))
                    .and(lte(AbstractLogRecord.TIME_BUCKET, endTB));
 

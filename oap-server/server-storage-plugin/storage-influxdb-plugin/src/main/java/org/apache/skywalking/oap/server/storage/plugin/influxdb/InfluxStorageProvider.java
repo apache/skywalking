@@ -136,7 +136,8 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(client));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(influxClient));
-        this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient));
+        this.registerServiceImplementation(
+            IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient, config.getFetchTaskLogMaxSize()));
 
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteDAO(getManager(), influxClient, new GeneralStorageTTL()));
