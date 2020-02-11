@@ -29,11 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpClientRequestImplHandleResponseInstrumentation} enhance the <code>handleResponse</code> method
- * in <code>io.vertx.core.http.impl.HttpClientRequestImpl</code> class by
+ * {@link HttpClientRequestImplHandleResponseInstrumentation} enhance the <code>handleResponse</code> method in
+ * <code>io.vertx.core.http.impl.HttpClientRequestImpl</code> class by
  * <code>HttpClientRequestImplHandleResponseInterceptor</code> class
- *
- * @author brandon.fergerson
  */
 public class HttpClientRequestImplHandleResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -41,29 +39,35 @@ public class HttpClientRequestImplHandleResponseInstrumentation extends ClassIns
     private static final String ENHANCE_METHOD = "handleResponse";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplHandleResponseInterceptor";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 }

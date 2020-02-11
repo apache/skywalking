@@ -18,12 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -40,14 +53,14 @@ public class NotifyHandler implements MetricsNotify {
         core = new AlarmCore(alarmRulesWatcher);
     }
 
-    @Override public void notify(Metrics metrics) {
-        WithMetadata withMetadata = (WithMetadata)metrics;
+    @Override
+    public void notify(Metrics metrics) {
+        WithMetadata withMetadata = (WithMetadata) metrics;
         MetricsMetaInfo meta = withMetadata.getMeta();
         int scope = meta.getScope();
 
-        if (!DefaultScopeDefine.inServiceCatalog(scope)
-            && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
-            && !DefaultScopeDefine.inEndpointCatalog(scope)) {
+        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(scope) && !DefaultScopeDefine
+            .inEndpointCatalog(scope)) {
             return;
         }
 
@@ -102,7 +115,11 @@ public class NotifyHandler implements MetricsNotify {
 
     public void initCache(ModuleManager moduleManager) {
         serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+        serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(ServiceInstanceInventoryCache.class);
+        endpointInventoryCache = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(EndpointInventoryCache.class);
     }
 }

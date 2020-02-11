@@ -21,9 +21,6 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 import java.util.Calendar;
 
-/**
- * @author peng-yongsheng
- */
 public class TimeBucket {
 
     /**

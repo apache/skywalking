@@ -23,13 +23,12 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-/**
- * @author wusheng
- */
 public class TopNRecordsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private TopNRecordsQueryService topNRecordsQueryService;
@@ -40,14 +39,20 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
 
     private TopNRecordsQueryService getTopNRecordsQueryService() {
         if (topNRecordsQueryService == null) {
-            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TopNRecordsQueryService.class);
+            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(TopNRecordsQueryService.class);
         }
         return topNRecordsQueryService;
     }
 
     public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException {
-        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getStart());
-        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getEnd());
+        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration()
+                                                                                                 .getStep(), condition.getDuration()
+                                                                                                                      .getStart());
+        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration()
+                                                                                             .getStep(), condition.getDuration()
+                                                                                                                  .getEnd());
 
         String metricName = condition.getMetricName();
         Order order = condition.getOrder();

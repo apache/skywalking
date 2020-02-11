@@ -18,16 +18,20 @@
 
 package org.apache.skywalking.apm.plugin.trace.ignore.conf;
 
-import java.io.*;
-import java.util.*;
-import org.apache.skywalking.apm.agent.core.boot.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.conf.ConfigNotFoundException;
-import org.apache.skywalking.apm.agent.core.logging.api.*;
-import org.apache.skywalking.apm.util.*;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.ConfigInitializer;
+import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 
-/**
- * @author liujc [liujunc1993@163.com]
- */
 public class IgnoreConfigInitializer {
     private static final ILog LOGGER = LogManager.getLogger(IgnoreConfigInitializer.class);
     private static final String CONFIG_FILE_NAME = "/config/apm-trace-ignore-plugin.config";
@@ -47,7 +51,7 @@ public class IgnoreConfigInitializer {
             Properties properties = new Properties();
             properties.load(configFileStream);
             for (String key : properties.stringPropertyNames()) {
-                String value = (String)properties.get(key);
+                String value = (String) properties.get(key);
                 properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
             }
             ConfigInitializer.initialize(properties, IgnoreConfig.class);

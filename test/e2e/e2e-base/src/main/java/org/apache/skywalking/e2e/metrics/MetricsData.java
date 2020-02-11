@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.metrics;
 import lombok.Data;
 import lombok.ToString;
 
-/**
- * @author kezhenxu94
- */
 @Data
 @ToString
 public class MetricsData {

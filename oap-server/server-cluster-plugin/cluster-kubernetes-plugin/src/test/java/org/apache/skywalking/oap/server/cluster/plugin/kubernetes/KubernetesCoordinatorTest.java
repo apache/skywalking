@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import org.apache.skywalking.oap.server.cluster.plugin.kubernetes.fixture.PlainWatch;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.testing.module.*;
+import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
+import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -44,7 +46,13 @@ public class KubernetesCoordinatorTest {
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.1"));
     }
 
     @Test
@@ -55,7 +63,13 @@ public class KubernetesCoordinatorTest {
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.3"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.3"));
     }
 
     @Test
@@ -66,7 +80,13 @@ public class KubernetesCoordinatorTest {
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(1));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.1"));
     }
 
     @Test
@@ -77,7 +97,13 @@ public class KubernetesCoordinatorTest {
         coordinator.registerRemote(new RemoteInstance(new Address("0.0.0.0", 8454, true)));
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.1"));
     }
 
     @Test
@@ -87,7 +113,13 @@ public class KubernetesCoordinatorTest {
         coordinator.start();
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.3"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.3"));
     }
 
     @Test
@@ -97,7 +129,13 @@ public class KubernetesCoordinatorTest {
         coordinator.start();
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(1));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.1"));
     }
 
     @Test
@@ -107,7 +145,13 @@ public class KubernetesCoordinatorTest {
         coordinator.start();
         watch.await();
         assertThat(coordinator.queryRemoteNodes().size(), is(2));
-        assertThat(coordinator.queryRemoteNodes().stream().filter(instance -> instance.getAddress().isSelf()).findFirst().get().getAddress().getHost(), is("10.0.0.1"));
+        assertThat(coordinator.queryRemoteNodes()
+                              .stream()
+                              .filter(instance -> instance.getAddress().isSelf())
+                              .findFirst()
+                              .get()
+                              .getAddress()
+                              .getHost(), is("10.0.0.1"));
     }
 
     public ModuleDefineHolder getManager() {

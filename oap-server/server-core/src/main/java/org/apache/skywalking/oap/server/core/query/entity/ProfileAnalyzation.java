@@ -18,14 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
-/**
- * @author MrPro
- */
 @Getter
 @Setter
 public class ProfileAnalyzation {

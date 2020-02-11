@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.util.function.Consumer;
 
-/**
- * @author zhaoyuguang
- */
 public class SWConsumer<T> implements Consumer<T> {
 
     private Consumer<T> consumer;

@@ -18,20 +18,23 @@
 
 package org.apache.skywalking.apm.plugin.rabbitmq;
 
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.List;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.RABBITMQ_PRODUCER;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,20 +61,26 @@ public class RabbitMQProducerInterceptorTest {
         }
     };
 
-    private  RabbitMQProducerInterceptor rabbitMQProducerInterceptor;
+    private RabbitMQProducerInterceptor rabbitMQProducerInterceptor;
 
     private Object[] arguments;
 
     @Before
     public void setUp() throws Exception {
         rabbitMQProducerInterceptor = new RabbitMQProducerInterceptor();
-        arguments = new Object[]  {"","rabbitmq-test",0,0,null};
+        arguments = new Object[] {
+            "",
+            "rabbitmq-test",
+            0,
+            0,
+            null
+        };
     }
 
     @Test
     public void TestRabbitMQProducerInterceptor() throws Throwable {
-        rabbitMQProducerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
-        rabbitMQProducerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
+        rabbitMQProducerInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        rabbitMQProducerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
 
         List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
         assertThat(traceSegmentList.size(), is(1));

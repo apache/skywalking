@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.avro;
 
 import example.proto.Greeter;
@@ -32,7 +33,8 @@ public class Application {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static class GreeterImpl implements Greeter {
-        @Override public CharSequence hello(Message message) throws AvroRemoteException {
+        @Override
+        public CharSequence hello(Message message) throws AvroRemoteException {
             return new Utf8("success");
         }
     }

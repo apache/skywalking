@@ -31,8 +31,6 @@ import java.util.List;
 
 /**
  * profile query GraphQL resolver
- *
- * @author MrPro
  */
 public class ProfileQuery implements GraphQLQueryResolver {
 
@@ -45,7 +43,9 @@ public class ProfileQuery implements GraphQLQueryResolver {
 
     private ProfileTaskQueryService getProfileTaskQueryService() {
         if (profileTaskQueryService == null) {
-            this.profileTaskQueryService = moduleManager.find(CoreModule.NAME).provider().getService(ProfileTaskQueryService.class);
+            this.profileTaskQueryService = moduleManager.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(ProfileTaskQueryService.class);
         }
         return profileTaskQueryService;
     }
@@ -58,7 +58,8 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return getProfileTaskQueryService().getTaskTraces(taskID);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start,
+        final long end) throws IOException {
         return getProfileTaskQueryService().getProfileAnalyze(segmentId, start, end);
     }
 

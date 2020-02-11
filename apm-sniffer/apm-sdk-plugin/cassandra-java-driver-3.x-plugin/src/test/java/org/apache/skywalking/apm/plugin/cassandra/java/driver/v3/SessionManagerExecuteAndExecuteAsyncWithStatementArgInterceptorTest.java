@@ -19,12 +19,17 @@
 package org.apache.skywalking.apm.plugin.cassandra.java.driver.v3;
 
 import com.datastax.driver.core.SimpleStatement;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,15 +38,10 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.lang.reflect.Method;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-/**
- * @author stone.wlg
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptorTest {
@@ -72,8 +72,8 @@ public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptorTest
 
     @Test
     public void testCreateExitSpan() throws Throwable {
-        interceptor.beforeMethod(objectInstance, method, new Object[]{new SimpleStatement("SELECT * FROM test")}, null, null);
-        interceptor.afterMethod(objectInstance, method, new Object[]{new SimpleStatement("SELECT * FROM test")}, null, null);
+        interceptor.beforeMethod(objectInstance, method, new Object[] {new SimpleStatement("SELECT * FROM test")}, null, null);
+        interceptor.afterMethod(objectInstance, method, new Object[] {new SimpleStatement("SELECT * FROM test")}, null, null);
 
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);

@@ -38,14 +38,15 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                       Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             // illegal args, can't trace. ignore.
             return;
         }
-        final HttpHost httpHost = (HttpHost)allArguments[0];
-        HttpRequest httpRequest = (HttpRequest)allArguments[1];
+        final HttpHost httpHost = (HttpHost) allArguments[0];
+        HttpRequest httpRequest = (HttpRequest) allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         String remotePeer = httpHost.getHostName() + ":" + port(httpHost);
@@ -56,7 +57,7 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan span = ContextManager.createExitSpan(operationName, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.HTTPCLIENT);
-        Tags.URL.set(span, buildSpanValue(httpHost,uri));
+        Tags.URL.set(span, buildSpanValue(httpHost, uri));
         Tags.HTTP.METHOD.set(span, httpRequest.getRequestLine().getMethod());
         SpanLayer.asHttp(span);
 
@@ -67,14 +68,15 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         }
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (allArguments[0] == null || allArguments[1] == null) {
             return ret;
         }
 
         if (ret != null) {
-            HttpResponse response = (HttpResponse)ret;
+            HttpResponse response = (HttpResponse) ret;
             StatusLine responseStatusLine = response.getStatusLine();
             if (responseStatusLine != null) {
                 int statusCode = responseStatusLine.getStatusCode();
@@ -90,8 +92,9 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);

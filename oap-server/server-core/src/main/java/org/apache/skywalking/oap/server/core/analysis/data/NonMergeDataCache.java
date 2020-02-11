@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 
-/**
- * @author peng-yongsheng
- */
 public class NonMergeDataCache<STORAGE_DATA extends StorageData> extends Window<STORAGE_DATA> implements DataCache {
 
     private SWCollection<STORAGE_DATA> lockedMergeDataCollection;
 
-    @Override public SWCollection<STORAGE_DATA> collectionInstance() {
+    @Override
+    public SWCollection<STORAGE_DATA> collectionInstance() {
         return new NonMergeDataCollection<>();
     }
 
@@ -35,11 +33,13 @@ public class NonMergeDataCache<STORAGE_DATA extends StorageData> extends Window<
         lockedMergeDataCollection.put(data);
     }
 
-    @Override public void writing() {
+    @Override
+    public void writing() {
         lockedMergeDataCollection = getCurrentAndWriting();
     }
 
-    @Override public void finishWriting() {
+    @Override
+    public void finishWriting() {
         lockedMergeDataCollection.finishWriting();
         lockedMergeDataCollection = null;
     }

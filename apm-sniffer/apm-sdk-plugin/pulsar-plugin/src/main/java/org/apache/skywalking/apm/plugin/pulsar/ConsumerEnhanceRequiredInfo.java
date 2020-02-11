@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.pulsar;
 
 /**
  * Pulsar consumer enhance required info is required by consumer enhanced object method interceptor
- *
- * @author penghui
  */
 public class ConsumerEnhanceRequiredInfo {
 

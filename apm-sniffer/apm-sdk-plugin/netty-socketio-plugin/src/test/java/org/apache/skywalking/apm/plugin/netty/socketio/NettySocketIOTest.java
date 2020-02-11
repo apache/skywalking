@@ -46,9 +46,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-/**
- * @author MrPro
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class NettySocketIOTest {
@@ -115,11 +112,11 @@ public class NettySocketIOTest {
 
     @Test
     public void assertConnection() throws Throwable {
-        connectionInterceptor.beforeMethod(null, connectOnConnectMethod, new Object[]{socketIOClient}, null, null);
-        connectionInterceptor.afterMethod(null, connectOnConnectMethod, new Object[]{socketIOClient}, null, null);
+        connectionInterceptor.beforeMethod(null, connectOnConnectMethod, new Object[] {socketIOClient}, null, null);
+        connectionInterceptor.afterMethod(null, connectOnConnectMethod, new Object[] {socketIOClient}, null, null);
 
-        connectionInterceptor.beforeMethod(null, connectOnDisConnectMethod, new Object[]{socketIOClient}, null, null);
-        connectionInterceptor.afterMethod(null, connectOnDisConnectMethod, new Object[]{socketIOClient}, null, null);
+        connectionInterceptor.beforeMethod(null, connectOnDisConnectMethod, new Object[] {socketIOClient}, null, null);
+        connectionInterceptor.afterMethod(null, connectOnDisConnectMethod, new Object[] {socketIOClient}, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(2));
@@ -127,8 +124,14 @@ public class NettySocketIOTest {
 
     @Test
     public void assertOnEvent() throws Throwable {
-        onEventInterceptor.beforeMethod(null, null, new Object[]{null, "test"}, null, null);
-        onEventInterceptor.afterMethod(null, null, new Object[]{null, "test"}, null, null);
+        onEventInterceptor.beforeMethod(null, null, new Object[] {
+            null,
+            "test"
+        }, null, null);
+        onEventInterceptor.afterMethod(null, null, new Object[] {
+            null,
+            "test"
+        }, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
@@ -136,16 +139,19 @@ public class NettySocketIOTest {
 
     @Test
     public void assertConstructor() throws Throwable {
-        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {clientHead, namespace});
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {
+            clientHead,
+            namespace
+        });
     }
 
     @Test
     public void assertRoom() throws Throwable {
-        roomInterceptor.beforeMethod(null, roomJoinMethod, new Object[] {"test_room"}, null,null);
-        roomInterceptor.afterMethod(null, roomJoinMethod, new Object[] {"test_room"}, null,null);
+        roomInterceptor.beforeMethod(null, roomJoinMethod, new Object[] {"test_room"}, null, null);
+        roomInterceptor.afterMethod(null, roomJoinMethod, new Object[] {"test_room"}, null, null);
 
-        roomInterceptor.beforeMethod(null, roomLeaveMethod, new Object[] {"test_room"}, null,null);
-        roomInterceptor.afterMethod(null, roomLeaveMethod, new Object[] {"test_room"}, null,null);
+        roomInterceptor.beforeMethod(null, roomLeaveMethod, new Object[] {"test_room"}, null, null);
+        roomInterceptor.afterMethod(null, roomLeaveMethod, new Object[] {"test_room"}, null, null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(2));

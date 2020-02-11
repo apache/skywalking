@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.server.library.module;
 
 import java.util.Properties;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author wu-sheng
- */
 public class ModuleManagerTest {
     @Test
     public void testInit() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException, ModuleConfigException, ModuleStartException {
@@ -35,7 +33,9 @@ public class ModuleManagerTest {
         ModuleManager manager = new ModuleManager();
         manager.init(configuration);
 
-        BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA").provider().getService(BaseModuleA.ServiceABusiness1.class);
+        BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA")
+                                                                 .provider()
+                                                                 .getService(BaseModuleA.ServiceABusiness1.class);
         Assert.assertTrue(serviceABusiness1 != null);
     }
 }

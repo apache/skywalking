@@ -52,7 +52,6 @@ public class PulsarProducerInterceptorTest {
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
 
-
     private PulsarProducerInterceptor producerInterceptor;
 
     private Object[] arguments;
@@ -60,15 +59,16 @@ public class PulsarProducerInterceptorTest {
 
     private EnhancedInstance pulsarProducerInstance = new EnhancedInstance() {
 
-
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             ProducerEnhanceRequiredInfo requiredInfo = new ProducerEnhanceRequiredInfo();
             requiredInfo.setTopic("persistent://my-tenant/my-ns/my-topic");
             requiredInfo.setServiceUrl("pulsar://localhost:6650");
             return requiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
         }
     };
 
@@ -77,7 +77,10 @@ public class PulsarProducerInterceptorTest {
     @Before
     public void setUp() {
         producerInterceptor = new PulsarProducerInterceptor();
-        arguments = new Object[] {msg, null};
+        arguments = new Object[] {
+            msg,
+            null
+        };
         argumentType = new Class[] {MessageImpl.class};
     }
 
@@ -98,8 +101,8 @@ public class PulsarProducerInterceptorTest {
 
     @Test
     public void testSendWithNullMessage() throws Throwable {
-        producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);
-        producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[]{null}, argumentType, null);
+        producerInterceptor.beforeMethod(pulsarProducerInstance, null, new Object[] {null}, argumentType, null);
+        producerInterceptor.afterMethod(pulsarProducerInstance, null, new Object[] {null}, argumentType, null);
         List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
         assertThat(traceSegmentList.size(), is(0));
     }

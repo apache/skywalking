@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 public class NoopExitSpan extends NoopSpan implements WithPeerInfo {

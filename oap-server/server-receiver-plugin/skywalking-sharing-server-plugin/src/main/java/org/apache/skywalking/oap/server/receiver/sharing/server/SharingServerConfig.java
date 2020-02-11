@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author peng-yongsheng,yantaowu,jian.tan
- */
 @Getter
 @Setter
 public class SharingServerConfig extends ModuleConfig {

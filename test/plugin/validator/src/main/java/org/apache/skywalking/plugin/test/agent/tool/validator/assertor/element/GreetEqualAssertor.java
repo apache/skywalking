@@ -25,7 +25,8 @@ public class GreetEqualAssertor extends ElementAssertor {
         super(exceptedValue);
     }
 
-    @Override public void assertValue(String desc, String actualValue) {
+    @Override
+    public void assertValue(String desc, String actualValue) {
         if (Long.parseLong(actualValue) < Long.parseLong(exceptedValue)) {
             throw new ValueAssertFailedException(desc, " ge " + exceptedValue, actualValue);
         }

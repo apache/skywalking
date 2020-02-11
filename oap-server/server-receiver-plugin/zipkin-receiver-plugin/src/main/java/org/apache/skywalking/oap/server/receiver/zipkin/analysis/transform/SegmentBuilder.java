@@ -19,21 +19,29 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import com.google.common.base.Strings;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.*;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.v2.Log;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.ZipkinTraceOSInfoBuilder;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 import org.eclipse.jetty.util.StringUtil;
-import zipkin2.*;
+import zipkin2.Endpoint;
+import zipkin2.Span;
 
-/**
- * @author wusheng
- */
 public class SegmentBuilder {
     private Context context;
     private LinkedList<Segment> segments;
@@ -93,8 +101,10 @@ public class SegmentBuilder {
         builder.segments.forEach(segment -> {
             SegmentObject.Builder traceSegmentBuilder = segment.freeze();
             segmentBuilders.add(traceSegmentBuilder);
-            CoreRegisterLinker.getServiceInventoryRegister().heartbeat(traceSegmentBuilder.getServiceId(), finalTimestamp);
-            CoreRegisterLinker.getServiceInstanceInventoryRegister().heartbeat(traceSegmentBuilder.getServiceInstanceId(), finalTimestamp);
+            CoreRegisterLinker.getServiceInventoryRegister()
+                              .heartbeat(traceSegmentBuilder.getServiceId(), finalTimestamp);
+            CoreRegisterLinker.getServiceInstanceInventoryRegister()
+                              .heartbeat(traceSegmentBuilder.getServiceInstanceId(), finalTimestamp);
         });
         return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
     }
@@ -188,15 +198,19 @@ public class SegmentBuilder {
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(startTime + duration);
 
-        span.tags().forEach((tagKey, tagValue) -> spanBuilder.addTags(
-            KeyStringValuePair.newBuilder().setKey(tagKey).setValue(tagValue).build())
-        );
+        span.tags()
+            .forEach((tagKey, tagValue) -> spanBuilder.addTags(KeyStringValuePair.newBuilder()
+                                                                                 .setKey(tagKey)
+                                                                                 .setValue(tagValue)
+                                                                                 .build()));
 
-        span.annotations().forEach(annotation ->
-            spanBuilder.addLogs(Log.newBuilder().setTime(annotation.timestamp() / 1000).addData(
-                KeyStringValuePair.newBuilder().setKey("zipkin.annotation").setValue(annotation.value()).build()
-            ))
-        );
+        span.annotations()
+            .forEach(annotation -> spanBuilder.addLogs(Log.newBuilder()
+                                                          .setTime(annotation.timestamp() / 1000)
+                                                          .addData(KeyStringValuePair.newBuilder()
+                                                                                     .setKey("zipkin.annotation")
+                                                                                     .setValue(annotation.value())
+                                                                                     .build())));
 
         return spanBuilder;
     }
@@ -301,16 +315,12 @@ public class SegmentBuilder {
         }
 
         private Segment addApp(String serviceCode, long registerTime) throws Exception {
-            int serviceId = waitForExchange(() ->
-                    CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(serviceCode, null),
-                10
-            );
+            int serviceId = waitForExchange(() -> CoreRegisterLinker.getServiceInventoryRegister()
+                                                                    .getOrCreate(serviceCode, null), 10);
 
-            int serviceInstanceId = waitForExchange(() ->
-                    CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(serviceId, serviceCode, serviceCode,
-                        registerTime, ZipkinTraceOSInfoBuilder.getOSInfoForZipkin(serviceCode)),
-                10
-            );
+            int serviceInstanceId = waitForExchange(() -> CoreRegisterLinker.getServiceInstanceInventoryRegister()
+                                                                            .getOrCreate(serviceId, serviceCode, serviceCode, registerTime, ZipkinTraceOSInfoBuilder
+                                                                                .getOSInfoForZipkin(serviceCode)), 10);
 
             Segment segment = new Segment(serviceCode, serviceId, serviceInstanceId);
             segmentsStack.add(segment);
@@ -451,10 +461,10 @@ public class SegmentBuilder {
 
     private UniqueId generateTraceOrSegmentId() {
         return UniqueId.newBuilder()
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .build();
+                       .addIdParts(ThreadLocalRandom.current().nextLong())
+                       .addIdParts(ThreadLocalRandom.current().nextLong())
+                       .addIdParts(ThreadLocalRandom.current().nextLong())
+                       .build();
     }
 
     private class ClientSideSpan {

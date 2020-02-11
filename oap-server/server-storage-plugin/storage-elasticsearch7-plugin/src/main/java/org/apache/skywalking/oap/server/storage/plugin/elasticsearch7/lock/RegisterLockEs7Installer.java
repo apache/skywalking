@@ -25,10 +25,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class RegisterLockEs7Installer extends RegisterLockInstaller {
 
     public RegisterLockEs7Installer(final ElasticSearchClient client) {

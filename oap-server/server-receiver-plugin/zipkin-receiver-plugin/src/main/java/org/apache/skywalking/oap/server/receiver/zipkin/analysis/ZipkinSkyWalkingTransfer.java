@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 
 import java.util.List;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.cache.CacheFactory;
 import zipkin2.Span;
 
@@ -32,9 +32,9 @@ public class ZipkinSkyWalkingTransfer {
             if (applicationCode != null) {
                 int applicationId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(applicationCode, null);
                 if (applicationId != 0) {
-                    CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(applicationId, applicationCode, applicationCode,
-                        span.timestampAsLong(),
-                        ZipkinTraceOSInfoBuilder.getOSInfoForZipkin(applicationCode));
+                    CoreRegisterLinker.getServiceInstanceInventoryRegister()
+                                      .getOrCreate(applicationId, applicationCode, applicationCode, span.timestampAsLong(), ZipkinTraceOSInfoBuilder
+                                          .getOSInfoForZipkin(applicationCode));
                 }
             }
 

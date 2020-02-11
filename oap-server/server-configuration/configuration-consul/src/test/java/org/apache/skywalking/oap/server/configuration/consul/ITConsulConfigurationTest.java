@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.configuration.consul;
 
+import com.google.common.net.HostAndPort;
+import com.orbitz.consul.Consul;
+import com.orbitz.consul.KeyValueClient;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
-
-import com.google.common.net.HostAndPort;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.KeyValueClient;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -40,9 +39,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author kezhenxu94
- */
 public class ITConsulConfigurationTest {
     private final Yaml yaml = new Yaml();
 
@@ -56,10 +52,7 @@ public class ITConsulConfigurationTest {
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        provider =
-                (ConsulConfigurationTestProvider) moduleManager
-                        .find(ConsulConfigurationTestModule.NAME)
-                        .provider();
+        provider = (ConsulConfigurationTestProvider) moduleManager.find(ConsulConfigurationTestModule.NAME).provider();
 
         assertNotNull(provider);
     }
@@ -69,7 +62,10 @@ public class ITConsulConfigurationTest {
         assertNull(provider.watcher.value());
 
         String hostAndPort = System.getProperty("consul.address", "127.0.0.1:8500");
-        Consul consul = Consul.builder().withHostAndPort(HostAndPort.fromString(hostAndPort)).withConnectTimeoutMillis(5000).build();
+        Consul consul = Consul.builder()
+                              .withHostAndPort(HostAndPort.fromString(hostAndPort))
+                              .withConnectTimeoutMillis(5000)
+                              .build();
         KeyValueClient client = consul.keyValueClient();
 
         assertTrue(client.putValue("test-module.default.testKey", "1000"));
@@ -100,9 +96,7 @@ public class ITConsulConfigurationTest {
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(
-                                        PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties)
-                                );
+                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }

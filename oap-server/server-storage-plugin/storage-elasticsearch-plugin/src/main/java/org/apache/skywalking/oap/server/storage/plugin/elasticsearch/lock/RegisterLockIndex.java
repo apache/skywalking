@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.lock;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterLockIndex {
 
     public static final String NAME = "register_lock";

@@ -22,9 +22,6 @@ import java.io.IOException;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
 
-/**
- * @author peng-yongsheng
- */
 public class SourceReceiverImpl implements SourceReceiver {
     @Getter
     private final DispatcherManager dispatcherManager;
@@ -33,7 +30,8 @@ public class SourceReceiverImpl implements SourceReceiver {
         this.dispatcherManager = new DispatcherManager();
     }
 
-    @Override public void receive(Source source) {
+    @Override
+    public void receive(Source source) {
         dispatcherManager.forward(source);
     }
 

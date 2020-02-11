@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
-/**
- * @author peng-yongsheng
- */
 public interface StorageDataType {
 
     String toStorageData();

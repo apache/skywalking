@@ -31,7 +31,8 @@ public class SegmentRefAssertFailedException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return e.getCauseMessage();
     }
 }

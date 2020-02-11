@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 
-/**
- * Created by dengming, 2019.04.20
- */
 public class MockIntValueMetrics extends MockMetrics implements IntValueHolder {
     @Override
     public int getValue() {

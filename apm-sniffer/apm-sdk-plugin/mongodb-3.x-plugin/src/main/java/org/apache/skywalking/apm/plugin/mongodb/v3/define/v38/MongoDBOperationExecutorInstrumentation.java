@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.define.v38;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -33,8 +32,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
  * same whit {@link org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation}
  * <p>
  * support: 3.8.x or higher
- *
- * @author scolia
  */
 public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -50,7 +47,7 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{WITNESS_CLASS};
+        return new String[] {WITNESS_CLASS};
     }
 
     @Override
@@ -65,27 +62,27 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return ElementMatchers
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers
                         // 3.8.x~3.11.x
-                        .named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
-                        .or(ElementMatchers.<MethodDescription>named(METHOD_NAME)
-                                .and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE))
-                        );
-            }
+                        .named(METHOD_NAME)
+                        .and(ArgumentTypeNameMatch.takesArgumentWithType(2, ARGUMENT_TYPE))
+                        .or(ElementMatchers.<MethodDescription>named(METHOD_NAME).and(ArgumentTypeNameMatch.takesArgumentWithType(3, ARGUMENT_TYPE)));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 }

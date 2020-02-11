@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.struts2;
 
 import com.opensymphony.xwork2.ActionContext;
@@ -103,11 +102,25 @@ public class Struts2InterceptorTest {
         when(actionContext.get(StrutsStatics.HTTP_REQUEST)).thenReturn(request);
         when(ActionContext.getContext()).thenReturn(actionContext);
 
-        arguments = new Object[] {request, response};
-        argumentType = new Class[] {request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
 
-        exceptionArguments = new Object[] {request, response, new RuntimeException()};
-        exceptionArgumentType = new Class[] {request.getClass(), response.getClass(), new RuntimeException().getClass()};
+        exceptionArguments = new Object[] {
+            request,
+            response,
+            new RuntimeException()
+        };
+        exceptionArgumentType = new Class[] {
+            request.getClass(),
+            response.getClass(),
+            new RuntimeException().getClass()
+        };
     }
 
     @Test

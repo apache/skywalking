@@ -19,15 +19,15 @@
 package org.apache.skywalking.oap.server.configuration.grpc;
 
 import io.grpc.netty.NettyChannelBuilder;
-import org.apache.skywalking.oap.server.configuration.api.*;
-import org.apache.skywalking.oap.server.configuration.service.*;
-import org.slf4j.*;
-
 import java.util.Set;
+import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
+import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.service.ConfigurationRequest;
+import org.apache.skywalking.oap.server.configuration.service.ConfigurationResponse;
+import org.apache.skywalking.oap.server.configuration.service.ConfigurationServiceGrpc;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
     private static final Logger logger = LoggerFactory.getLogger(GRPCConfigWatcherRegister.class);
 
@@ -37,13 +37,18 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
     public GRPCConfigWatcherRegister(RemoteEndpointSettings settings) {
         super(settings.getPeriod());
         this.settings = settings;
-        stub = ConfigurationServiceGrpc.newBlockingStub(NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort()).usePlaintext().build());
+        stub = ConfigurationServiceGrpc.newBlockingStub(NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort())
+                                                                           .usePlaintext()
+                                                                           .build());
     }
 
-    @Override public ConfigTable readConfig(Set<String> keys) {
+    @Override
+    public ConfigTable readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
         try {
-            ConfigurationResponse response = stub.call(ConfigurationRequest.newBuilder().setClusterName(settings.getClusterName()).build());
+            ConfigurationResponse response = stub.call(ConfigurationRequest.newBuilder()
+                                                                           .setClusterName(settings.getClusterName())
+                                                                           .build());
             response.getConfigTableList().forEach(config -> {
                 final String name = config.getName();
                 if (keys.contains(name)) {

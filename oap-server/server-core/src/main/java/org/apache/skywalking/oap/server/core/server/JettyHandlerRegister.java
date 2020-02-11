@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.server;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 
-/**
- * @author peng-yongsheng
- */
 public interface JettyHandlerRegister extends Service {
     void addHandler(JettyHandler serverHandler);
 }

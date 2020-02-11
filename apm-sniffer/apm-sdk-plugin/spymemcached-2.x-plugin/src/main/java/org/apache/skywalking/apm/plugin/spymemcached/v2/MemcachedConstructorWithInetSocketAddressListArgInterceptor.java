@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spymemcached.v2;
 
 import java.net.InetSocketAddress;
@@ -29,8 +28,7 @@ public class MemcachedConstructorWithInetSocketAddressListArgInterceptor impleme
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         StringBuilder memcachConnInfo = new StringBuilder();
-        @SuppressWarnings("unchecked")
-        List<InetSocketAddress> inetSocketAddressList = (List<InetSocketAddress>)allArguments[1];
+        @SuppressWarnings("unchecked") List<InetSocketAddress> inetSocketAddressList = (List<InetSocketAddress>) allArguments[1];
         for (InetSocketAddress inetSocketAddress : inetSocketAddressList) {
             String host = inetSocketAddress.getAddress().getHostAddress();
             int port = inetSocketAddress.getPort();

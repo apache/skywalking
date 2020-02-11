@@ -20,11 +20,13 @@ package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricCollection;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricReportServiceGrpc;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JVMMetricReportServiceImplBase implements GRPCHandler {
 
@@ -36,7 +38,8 @@ public class JVMMetricReportServiceHandler extends JVMMetricReportServiceGrpc.JV
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
     }
 
-    @Override public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
+    @Override
+    public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
         int serviceInstanceId = request.getServiceInstanceId();
 
         if (logger.isDebugEnabled()) {

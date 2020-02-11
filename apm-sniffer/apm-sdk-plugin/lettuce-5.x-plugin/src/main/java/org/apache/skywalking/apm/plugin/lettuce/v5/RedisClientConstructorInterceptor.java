@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.lettuce.v5;
 
 import io.lettuce.core.RedisClient;
@@ -24,9 +23,6 @@ import io.lettuce.core.RedisURI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- * @author zhaoyuguang
- */
 public class RedisClientConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override

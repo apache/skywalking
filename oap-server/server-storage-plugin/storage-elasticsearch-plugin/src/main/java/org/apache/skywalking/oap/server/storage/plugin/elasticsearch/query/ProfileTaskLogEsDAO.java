@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDAO {
     private final int queryMaxSize;
 
@@ -73,10 +70,15 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
 
     private ProfileTaskLog parseTaskLog(SearchHit data) {
         return ProfileTaskLog.builder()
-                .id(data.getId())
-                .taskId((String) data.getSourceAsMap().get(ProfileTaskLogRecord.TASK_ID))
-                .instanceId(((Number) data.getSourceAsMap().get(ProfileTaskLogRecord.INSTANCE_ID)).intValue())
-                .operationType(ProfileTaskLogOperationType.parse(((Number) data.getSourceAsMap().get(ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
-                .operationTime(((Number) data.getSourceAsMap().get(ProfileTaskLogRecord.OPERATION_TIME)).longValue()).build();
+                             .id(data.getId())
+                             .taskId((String) data.getSourceAsMap().get(ProfileTaskLogRecord.TASK_ID))
+                             .instanceId(((Number) data.getSourceAsMap()
+                                                       .get(ProfileTaskLogRecord.INSTANCE_ID)).intValue())
+                             .operationType(ProfileTaskLogOperationType.parse(((Number) data.getSourceAsMap()
+                                                                                            .get(ProfileTaskLogRecord.OPERATION_TYPE))
+                                 .intValue()))
+                             .operationTime(((Number) data.getSourceAsMap()
+                                                          .get(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
+                             .build();
     }
 }

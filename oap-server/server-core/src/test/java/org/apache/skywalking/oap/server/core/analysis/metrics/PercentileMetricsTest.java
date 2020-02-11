@@ -22,11 +22,8 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class PercentileMetricsTest {
-    private int precision = 10;//ms
+    private int precision = 10; //ms
 
     @Test
     public void percentileTest() {
@@ -46,7 +43,13 @@ public class PercentileMetricsTest {
 
         metricsMocker.calculate();
 
-        Assert.assertArrayEquals(new int[] {70, 90, 90, 90, 110}, metricsMocker.getValues());
+        Assert.assertArrayEquals(new int[] {
+            70,
+            90,
+            90,
+            90,
+            110
+        }, metricsMocker.getValues());
     }
 
     @Test
@@ -67,7 +70,13 @@ public class PercentileMetricsTest {
 
         metricsMocker.calculate();
 
-        Assert.assertArrayEquals(new int[] {90, 90, 90, 90, 90}, metricsMocker.getValues());
+        Assert.assertArrayEquals(new int[] {
+            90,
+            90,
+            90,
+            90,
+            90
+        }, metricsMocker.getValues());
     }
 
     @Test
@@ -79,7 +88,13 @@ public class PercentileMetricsTest {
 
         metricsMocker.calculate();
 
-        Assert.assertArrayEquals(new int[] {90, 110, 110, 110, 110}, metricsMocker.getValues());
+        Assert.assertArrayEquals(new int[] {
+            90,
+            110,
+            110,
+            110,
+            110
+        }, metricsMocker.getValues());
     }
 
     @Test
@@ -91,36 +106,49 @@ public class PercentileMetricsTest {
 
         metricsMocker.calculate();
 
-        Assert.assertArrayEquals(new int[] {0, 0, 0, 0, 0}, metricsMocker.getValues());
+        Assert.assertArrayEquals(new int[] {
+            0,
+            0,
+            0,
+            0,
+            0
+        }, metricsMocker.getValues());
     }
 
     public class PercentileMetricsMocker extends PercentileMetrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
     }

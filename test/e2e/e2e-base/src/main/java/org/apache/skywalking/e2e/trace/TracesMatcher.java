@@ -24,9 +24,6 @@ import lombok.Data;
 
 import static org.assertj.core.api.Assertions.fail;
 
-/**
- * @author kezhenxu94
- */
 @Data
 public class TracesMatcher {
     private List<TraceMatcher> traces;

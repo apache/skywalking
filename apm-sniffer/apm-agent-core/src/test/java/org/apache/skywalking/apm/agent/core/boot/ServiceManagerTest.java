@@ -16,17 +16,19 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
-
-import org.apache.skywalking.apm.agent.core.context.*;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
+import org.apache.skywalking.apm.agent.core.context.TracingThreadListener;
 import org.apache.skywalking.apm.agent.core.jvm.JVMService;
-import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
@@ -121,13 +123,13 @@ public class ServiceManagerTest {
     private <T> T getFieldValue(Object instance, String fieldName) throws Exception {
         Field field = instance.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(instance);
+        return (T) field.get(instance);
     }
 
     private <T> T getFieldValue(Class clazz, String fieldName) throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(clazz);
+        return (T) field.get(clazz);
     }
 
 }

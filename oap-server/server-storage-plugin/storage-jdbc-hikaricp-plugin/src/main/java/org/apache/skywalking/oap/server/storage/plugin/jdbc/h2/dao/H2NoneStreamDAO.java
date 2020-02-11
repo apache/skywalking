@@ -31,8 +31,6 @@ import java.sql.SQLException;
 
 /**
  * Synchronize storage H2 implements
- *
- * @author MrPro
  */
 public class H2NoneStreamDAO extends H2SQLExecutor implements INoneStreamDAO {
 

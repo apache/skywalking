@@ -16,14 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.List;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public interface IConsumer<T> {
     void init();
 

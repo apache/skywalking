@@ -19,10 +19,15 @@
 package org.apache.skywalking.oal.rt.parser;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.List;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 public class DeepAnalysis {
@@ -30,7 +35,8 @@ public class DeepAnalysis {
         // 1. Set sub package name by source.metrics
         result.setPackageName(result.getSourceName().toLowerCase());
 
-        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = MetricsHolder.find(result.getAggregationFunctionName());
+        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = MetricsHolder.find(result
+            .getAggregationFunctionName());
         String metricsClassSimpleName = metricsClass.getSimpleName();
 
         result.setMetricsClassName(metricsClassSimpleName);

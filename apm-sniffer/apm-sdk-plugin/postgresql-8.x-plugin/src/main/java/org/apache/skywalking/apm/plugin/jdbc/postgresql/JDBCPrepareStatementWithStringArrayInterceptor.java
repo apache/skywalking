@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
@@ -32,8 +31,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
  * {@link JDBCPrepareStatementWithStringArrayInterceptor} return {@link SWPreparedStatement} instance that wrapper the
  * real preparedStatement instance when the client call <code>org.postgresql.jdbc.PgConnection#prepareStatement(String,
  * String[]) </code> method. method.
- *
- * @author zhangxin
  */
 public class JDBCPrepareStatementWithStringArrayInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -52,14 +49,15 @@ public class JDBCPrepareStatementWithStringArrayInterceptor implements InstanceM
          *
          * @see org.postgresql.jdbc.PgConnection#prepareStatement(String, String[])
          **/
-        String[] columnNames = (String[])allArguments[1];
+        String[] columnNames = (String[]) allArguments[1];
         if (columnNames != null && columnNames.length == 0) {
             return ret;
         }
-        return new SWPreparedStatement((Connection)objInst, (PreparedStatement)ret, (ConnectionInfo)objInst.getSkyWalkingDynamicField(), (String)allArguments[0]);
+        return new SWPreparedStatement((Connection) objInst, (PreparedStatement) ret, (ConnectionInfo) objInst.getSkyWalkingDynamicField(), (String) allArguments[0]);
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

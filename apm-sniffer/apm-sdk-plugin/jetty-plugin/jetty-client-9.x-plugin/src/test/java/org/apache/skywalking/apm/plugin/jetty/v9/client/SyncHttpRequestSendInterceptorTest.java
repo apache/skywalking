@@ -67,8 +67,14 @@ public class SyncHttpRequestSendInterceptorTest {
     @Before
     public void setUp() throws Exception {
         enhancedInstance = new MockHttpRequest(httpClient, uri);
-        allArguments = new Object[] {"OperationKey", "OperationValue"};
-        argumentTypes = new Class[] {String.class, String.class};
+        allArguments = new Object[] {
+            "OperationKey",
+            "OperationValue"
+        };
+        argumentTypes = new Class[] {
+            String.class,
+            String.class
+        };
 
         interceptor = new SyncHttpRequestSendInterceptor();
         allArguments = new Object[] {callBackEnhanceInstance};
@@ -120,19 +126,23 @@ public class SyncHttpRequestSendInterceptorTest {
             super(httpClient, uri);
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return null;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
 
-        @Override public String getMethod() {
+        @Override
+        public String getMethod() {
             return "GET";
         }
 
-        @Override public URI getURI() {
+        @Override
+        public URI getURI() {
             return uri;
         }
     }

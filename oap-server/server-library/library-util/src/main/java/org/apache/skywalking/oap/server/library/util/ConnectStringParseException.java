@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.library.util;
 
 /**
  * Thrown if the given string which build with hosts and ports is incorrect.
- *
- * @author peng-yongsheng
  */
 public class ConnectStringParseException extends Exception {
 

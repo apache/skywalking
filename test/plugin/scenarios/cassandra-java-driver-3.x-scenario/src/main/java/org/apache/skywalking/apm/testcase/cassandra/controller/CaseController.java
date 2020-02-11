@@ -42,8 +42,7 @@ public class CaseController {
     private int port;
 
     private static final String TEST_EXIST_SQL = "SELECT now() FROM system.local";
-    private static final String CREATE_KEYSPACE_SQL = "CREATE KEYSPACE IF NOT EXISTS demo WITH replication = " +
-        "{'class': 'SimpleStrategy', 'replication_factor': 1}";
+    private static final String CREATE_KEYSPACE_SQL = "CREATE KEYSPACE IF NOT EXISTS demo WITH replication = " + "{'class': 'SimpleStrategy', 'replication_factor': 1}";
     private static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS demo.test(id TEXT PRIMARY KEY, value TEXT)";
     private static final String INSERT_DATA_SQL = "INSERT INTO demo.test(id, value) VALUES(?,?)";
     private static final String SELECT_DATA_SQL = "SELECT * FROM demo.test WHERE id = ?";

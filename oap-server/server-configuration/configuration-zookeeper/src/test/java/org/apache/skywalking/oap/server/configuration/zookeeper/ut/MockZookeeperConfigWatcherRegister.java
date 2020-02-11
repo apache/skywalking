@@ -18,17 +18,12 @@
 
 package org.apache.skywalking.oap.server.configuration.zookeeper.ut;
 
+import java.util.Set;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
-
-import java.util.Set;
-
-/**
- * @author zhaoyuguang
- */
 
 public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     private PathChildrenCache childrenCache;

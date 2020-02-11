@@ -19,15 +19,15 @@
 package org.apache.skywalking.oap.server.configuration.grpc;
 
 import com.google.common.base.Strings;
-import org.apache.skywalking.oap.server.configuration.api.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationProvider;
+import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
  * Get configuration from remote through gRPC protocol.
- *
+ * <p>
  * Read configuration-service.proto for more details.
- *
- * @author wusheng
  */
 public class GRPCConfigurationProvider extends AbstractConfigurationProvider {
     private RemoteEndpointSettings settings;
@@ -36,15 +36,18 @@ public class GRPCConfigurationProvider extends AbstractConfigurationProvider {
         settings = new RemoteEndpointSettings();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "grpc";
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return settings;
     }
 
-    @Override protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
+    @Override
+    protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
         if (Strings.isNullOrEmpty(settings.getHost())) {
             throw new ModuleStartException("No host setting.");
         }

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.Map;
 
-/**
- * @author peng-yongsheng
- */
 public interface StorageBuilder<T extends StorageData> {
 
     T map2Data(Map<String, Object> dbMap);

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.service.endpoint;
 
-/**
- * @author kezhenxu94
- */
 public class EndpointQuery {
     private String serviceId;
     private String keyword;
@@ -45,9 +42,6 @@ public class EndpointQuery {
 
     @Override
     public String toString() {
-        return "EndpointQuery{" +
-            "serviceId='" + serviceId + '\'' +
-            ", keyword='" + keyword + '\'' +
-            '}';
+        return "EndpointQuery{" + "serviceId='" + serviceId + '\'' + ", keyword='" + keyword + '\'' + '}';
     }
 }

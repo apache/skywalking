@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
  * {@link MysqlURLParser} parse connection url of mysql.
- *
- * @author zhangxin
  */
 public class MysqlURLParser extends AbstractURLParser {
 
@@ -93,9 +91,11 @@ public class MysqlURLParser extends AbstractURLParser {
         } else {
             String[] hostAndPort = hostSegment[0].split(":");
             if (hostAndPort.length != 1) {
-                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL(location.endIndex()));
+                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], Integer.valueOf(hostAndPort[1]), fetchDatabaseNameFromURL(location
+                    .endIndex()));
             } else {
-                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL(location.endIndex()));
+                return new ConnectionInfo(ComponentsDefine.MYSQL_JDBC_DRIVER, DB_TYPE, hostAndPort[0], DEFAULT_PORT, fetchDatabaseNameFromURL(location
+                    .endIndex()));
             }
         }
     }

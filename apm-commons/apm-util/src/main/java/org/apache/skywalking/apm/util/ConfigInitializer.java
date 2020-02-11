@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.util;
 
 import java.lang.reflect.Field;
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
 /**
  * Init a class's static fields by a {@link Properties}, including static fields and static inner classes.
  * <p>
- * Created by wusheng on 2017/1/9.
  */
 public class ConfigInitializer {
     private static final Logger logger = Logger.getLogger(ConfigInitializer.class.getName());
@@ -56,7 +54,7 @@ public class ConfigInitializer {
                      * Such as plugin.opgroup.resttemplate.rule[abc]=/url/path
                      */
                     // Deduct two generic types of the map
-                    ParameterizedType genericType = (ParameterizedType)field.getGenericType();
+                    ParameterizedType genericType = (ParameterizedType) field.getGenericType();
                     Type[] argumentTypes = genericType.getActualTypeArguments();
 
                     Type keyType = null;
@@ -66,7 +64,7 @@ public class ConfigInitializer {
                         keyType = argumentTypes[0];
                         valueType = argumentTypes[1];
                     }
-                    Map map = (Map)field.get(null);
+                    Map map = (Map) field.get(null);
                     // Set the map from config key and properties
                     setForMapType(configKey, map, properties, keyType, valueType);
                 } else {
@@ -91,7 +89,8 @@ public class ConfigInitializer {
 
     /**
      * Convert string value to typical type.
-     * @param type type to convert
+     *
+     * @param type  type to convert
      * @param value string value to be converted
      * @return converted value or null
      */
@@ -116,9 +115,9 @@ public class ConfigInitializer {
         } else if (List.class.equals(type)) {
             result = convert2List(value);
         } else if (type instanceof Class) {
-            Class<?> clazz = (Class<?>)type;
+            Class<?> clazz = (Class<?>) type;
             if (clazz.isEnum()) {
-                result = Enum.valueOf((Class<Enum>)type, value.toUpperCase());
+                result = Enum.valueOf((Class<Enum>) type, value.toUpperCase());
             }
         }
         return result;
@@ -126,15 +125,15 @@ public class ConfigInitializer {
 
     /**
      * Set map items.
-     * @param configKey config key must not be null
-     * @param map map to set must not be null
+     *
+     * @param configKey  config key must not be null
+     * @param map        map to set must not be null
      * @param properties properties must not be null
-     * @param keyType  key type of the map
-     * @param valueType value type of the map
+     * @param keyType    key type of the map
+     * @param valueType  value type of the map
      */
     private static void setForMapType(String configKey, Map<Object, Object> map, Properties properties,
-        final Type keyType,
-        final Type valueType) {
+        final Type keyType, final Type valueType) {
 
         Objects.requireNonNull(configKey);
         Objects.requireNonNull(map);

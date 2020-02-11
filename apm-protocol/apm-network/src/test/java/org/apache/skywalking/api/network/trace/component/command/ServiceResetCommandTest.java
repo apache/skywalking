@@ -24,9 +24,6 @@ import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCom
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author jsbxyyx
- */
 public class ServiceResetCommandTest {
 
     @Test
@@ -43,8 +40,8 @@ public class ServiceResetCommandTest {
         ServiceResetCommand command = new ServiceResetCommand("aa");
 
         Command command1 = Command.newBuilder()
-                .addArgs(KeyStringValuePair.newBuilder().setKey("aa").setValue("aa").build())
-                .build();
+                                  .addArgs(KeyStringValuePair.newBuilder().setKey("aa").setValue("aa").build())
+                                  .build();
         boolean exception = false;
         try {
             command.deserialize(command1);
@@ -59,8 +56,11 @@ public class ServiceResetCommandTest {
         ServiceResetCommand command = new ServiceResetCommand("aa");
 
         Command command2 = Command.newBuilder()
-                .addArgs(KeyStringValuePair.newBuilder().setKey("SerialNumber").setValue("aa").build())
-                .build();
+                                  .addArgs(KeyStringValuePair.newBuilder()
+                                                             .setKey("SerialNumber")
+                                                             .setValue("aa")
+                                                             .build())
+                                  .build();
         ServiceResetCommand deserialize2 = command.deserialize(command2);
         Assert.assertEquals("aa", deserialize2.getSerialNumber());
     }

@@ -24,15 +24,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 /**
  * {@link EnhanceRequiredInfo} storage the `ContextSnapshot` and `RealCall` instances for support the async function of
  * okhttp client.
- *
- * @author zhangxin
  */
 public class EnhanceRequiredInfo {
     private ContextSnapshot contextSnapshot;
     private EnhancedInstance realCallEnhance;
 
-    public EnhanceRequiredInfo(EnhancedInstance realCallEnhance,
-        ContextSnapshot contextSnapshot) {
+    public EnhanceRequiredInfo(EnhancedInstance realCallEnhance, ContextSnapshot contextSnapshot) {
         this.contextSnapshot = contextSnapshot;
         this.realCallEnhance = realCallEnhance;
     }

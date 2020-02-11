@@ -49,8 +49,6 @@ import org.slf4j.LoggerFactory;
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
  * server list from the cluster module. Such as Zookeeper cluster module or Kubernetes cluster module.
- *
- * @author peng-yongsheng
  */
 public class RemoteClientManager implements Service {
 
@@ -84,15 +82,18 @@ public class RemoteClientManager implements Service {
      */
     void refresh() {
         if (gauge == null) {
-            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-                .createGauge("cluster_size", "Cluster size of current oap node",
-                    MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            gauge = moduleDefineHolder.find(TelemetryModule.NAME)
+                                      .provider()
+                                      .getService(MetricsCreator.class)
+                                      .createGauge("cluster_size", "Cluster size of current oap node", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
         try {
             if (Objects.isNull(clusterNodesQuery)) {
                 synchronized (RemoteClientManager.class) {
                     if (Objects.isNull(clusterNodesQuery)) {
-                        this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
+                        this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME)
+                                                                   .provider()
+                                                                   .getService(ClusterNodesQuery.class);
                     }
                 }
             }
@@ -169,16 +170,17 @@ public class RemoteClientManager implements Service {
      */
     private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
         final Map<Address, RemoteClientAction> remoteClientCollection = this.usingClients.stream()
-            .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
+                                                                                         .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
 
         final Map<Address, RemoteClientAction> latestRemoteClients = remoteInstances.stream()
-            .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
+                                                                                    .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
 
         final Set<Address> unChangeAddresses = Sets.intersection(remoteClientCollection.keySet(), latestRemoteClients.keySet());
 
         unChangeAddresses.stream()
-            .filter(remoteClientCollection::containsKey)
-            .forEach(unChangeAddress -> remoteClientCollection.get(unChangeAddress).setAction(Action.Unchanged));
+                         .filter(remoteClientCollection::containsKey)
+                         .forEach(unChangeAddress -> remoteClientCollection.get(unChangeAddress)
+                                                                           .setAction(Action.Unchanged));
 
         // make the latestRemoteClients including the new clients only
         unChangeAddresses.forEach(latestRemoteClients::remove);
@@ -208,9 +210,9 @@ public class RemoteClientManager implements Service {
         this.usingClients = ImmutableList.copyOf(newRemoteClients);
 
         remoteClientCollection.values()
-            .stream()
-            .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
-            .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
+                              .stream()
+                              .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
+                              .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
     }
 
     private boolean compare(List<RemoteInstance> remoteInstances) {

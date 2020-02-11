@@ -23,18 +23,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Some utility methods for collections.
- * Reinvent the wheels because importing third-party libs just for some methods is not worthwhile in agent side
+ * Some utility methods for collections. Reinvent the wheels because importing third-party libs just for some methods is
+ * not worthwhile in agent side
  *
- * @author kezhenxu94
  * @since 7.0.0
  */
 public final class CollectionUtil {
     public static String toString(final Map<String, String[]> map) {
-        return map
-            .entrySet()
-            .stream()
-            .map(entry -> entry.getKey() + "=" + Arrays.toString(entry.getValue()))
-            .collect(Collectors.joining("\n"));
+        return map.entrySet()
+                  .stream()
+                  .map(entry -> entry.getKey() + "=" + Arrays.toString(entry.getValue()))
+                  .collect(Collectors.joining("\n"));
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import java.util.Comparator;
@@ -31,8 +30,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * Percentile is a better implementation than {@link PxxMetrics}. It is introduced since 7.0.0, it could calculate the
  * multiple P50/75/90/95/99 values once for all.
- *
- * @author wusheng
  */
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends GroupMetrics implements MultiIntValuesHolder {
@@ -40,11 +37,26 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    private static final int[] RANKS = {50, 75, 90, 95, 99};
+    private static final int[] RANKS = {
+        50,
+        75,
+        90,
+        95,
+        99
+    };
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private IntKeyLongValueHashMap percentileValues;
-    @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DATASET) private IntKeyLongValueHashMap dataset;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, isValue = true)
+    private IntKeyLongValueHashMap percentileValues;
+    @Getter
+    @Setter
+    @Column(columnName = PRECISION)
+    private int precision;
+    @Getter
+    @Setter
+    @Column(columnName = DATASET)
+    private IntKeyLongValueHashMap dataset;
 
     private boolean isCalculated;
 
@@ -72,7 +84,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     public void combine(Metrics metrics) {
         this.isCalculated = false;
 
-        PercentileMetrics percentileMetrics = (PercentileMetrics)metrics;
+        PercentileMetrics percentileMetrics = (PercentileMetrics) metrics;
         combine(percentileMetrics.getDataset(), this.dataset);
     }
 
@@ -80,7 +92,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     public final void calculate() {
 
         if (!isCalculated) {
-            int total = dataset.values().stream().mapToInt(element -> (int)element.getValue()).sum();
+            int total = dataset.values().stream().mapToInt(element -> (int) element.getValue()).sum();
 
             int index = 0;
             int[] roofs = new int[RANKS.length];
@@ -112,7 +124,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     public int[] getValues() {
         int[] values = new int[percentileValues.size()];
         for (int i = 0; i < values.length; i++) {
-            values[i] = (int)percentileValues.get(i).getValue();
+            values[i] = (int) percentileValues.get(i).getValue();
         }
         return values;
     }

@@ -34,9 +34,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
-        "id VARCHAR(1) PRIMARY KEY, \n" +
-        "value VARCHAR(1) NOT NULL)";
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
     private static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
     private static final String QUERY_DATA_SQL = "SELECT id, value FROM test_007 WHERE id=?";
     private static final String DELETE_DATA_SQL = "DELETE FROM test_007 WHERE id=?";

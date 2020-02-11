@@ -24,8 +24,6 @@ import java.util.List;
 
 /**
  * the spi of the InstrumentationLoader.
- *
- * @author : zhaoyuguang
  */
 
 public interface InstrumentationLoader {

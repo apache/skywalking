@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.test.helper;
 
 import java.lang.reflect.Field;
@@ -26,20 +25,20 @@ public class FieldGetter {
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(instance);
+        return (T) field.get(instance);
     }
 
     public static <T> T getParentFieldValue(Object instance,
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getSuperclass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(instance);
+        return (T) field.get(instance);
     }
 
     public static <T> T get2LevelParentFieldValue(Object instance,
         String fieldName) throws IllegalAccessException, NoSuchFieldException {
         Field field = instance.getClass().getSuperclass().getSuperclass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(instance);
+        return (T) field.get(instance);
     }
 }

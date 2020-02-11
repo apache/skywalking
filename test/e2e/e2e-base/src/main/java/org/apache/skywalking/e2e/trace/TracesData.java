@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.trace;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class TracesData {
     public static class Traces {
         private List<Trace> data;

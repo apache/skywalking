@@ -15,13 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
 import org.apache.http.HttpHost;
 
-/**
- * @author aderm
- */
 public class RestClientEnhanceInfo {
 
     private RemotePeerCache remotePeerCache = new RemotePeerCache();

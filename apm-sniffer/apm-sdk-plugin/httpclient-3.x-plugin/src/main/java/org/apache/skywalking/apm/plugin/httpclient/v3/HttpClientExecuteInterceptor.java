@@ -36,18 +36,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author kezhenxu94
- */
 public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
 
         final HttpClient client = (HttpClient) objInst;
 
@@ -77,12 +70,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public Object afterMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Object ret) {
+    public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Object ret) {
 
         if (ret != null) {
             final int statusCode = (Integer) ret;
@@ -98,12 +87,8 @@ public class HttpClientExecuteInterceptor implements InstanceMethodsAroundInterc
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 

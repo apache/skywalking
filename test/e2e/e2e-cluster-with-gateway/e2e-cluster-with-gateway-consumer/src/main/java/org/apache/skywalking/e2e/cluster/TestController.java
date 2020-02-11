@@ -26,9 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * @author kezhenxu94
- */
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
@@ -44,9 +41,7 @@ public class TestController {
         Thread.sleep(1000L);
         ResponseEntity<User> response = null;
         for (int i = 0; i < 2; i++) {
-            response = restTemplate.postForEntity(
-                    "http://127.0.0.1:9099/e2e/users", user, User.class
-            );
+            response = restTemplate.postForEntity("http://127.0.0.1:9099/e2e/users", user, User.class);
         }
         return response.getBody();
     }

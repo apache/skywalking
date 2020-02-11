@@ -32,9 +32,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
-/**
- * @author lican
- */
 public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     private static final String ENHANCE_HTTP_CLASS = "sun.net.www.http.HttpClient";
@@ -58,62 +55,62 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new DeclaredInstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(AFTER_METHOD);
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new DeclaredInstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(AFTER_METHOD);
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPT_PARSE_HTTP_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_PARSE_HTTP_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
-            }
-        }, new DeclaredInstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(BEFORE_METHOD).and(takesArguments(2).or(takesArguments(1)));
-            }
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new DeclaredInstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(BEFORE_METHOD).and(takesArguments(2).or(takesArguments(1)));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPT_WRITE_REQUEST_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_WRITE_REQUEST_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[]{new StaticMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(NEW_INSTANCE_METHOD)
-                        .and(takesArguments(5)
-                                .and(takesArgumentWithType(0, "java.net.URL"))
-                                .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection"))
-                        );
-            }
+        return new StaticMethodsInterceptPoint[] {
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(NEW_INSTANCE_METHOD).and(takesArguments(5).and(takesArgumentWithType(0, "java.net.URL"))
+                                                                           .and(takesArgumentWithType(4, "sun.net.www.protocol.http.HttpURLConnection")));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPT_HTTP_NEW_INSTANCE_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_HTTP_NEW_INSTANCE_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 
@@ -121,7 +118,6 @@ public class HttpClientInstrumentation extends ClassEnhancePluginDefine {
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_HTTP_CLASS);
     }
-
 
     @Override
     public boolean isBootstrapInstrumentation() {

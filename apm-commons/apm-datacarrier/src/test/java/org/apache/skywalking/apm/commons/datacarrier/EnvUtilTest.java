@@ -28,10 +28,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-/**
- * @author dengming
- * 2019-04-20
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(EnvUtil.class)
 public class EnvUtilTest {

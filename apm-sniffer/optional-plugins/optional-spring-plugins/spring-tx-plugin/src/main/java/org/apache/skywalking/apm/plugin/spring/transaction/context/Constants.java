@@ -15,14 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.spring.transaction.context;
 
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-
-/**
- * @author zhaoyuguang
- */
 
 public interface Constants {
     String OPERATION_NAME_SPRING_TRANSACTION_PREFIX = "TX/";

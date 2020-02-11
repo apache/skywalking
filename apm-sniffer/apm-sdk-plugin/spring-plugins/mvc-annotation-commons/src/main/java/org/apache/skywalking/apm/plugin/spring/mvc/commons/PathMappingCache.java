@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import org.apache.skywalking.apm.util.StringUtil;
@@ -26,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link PathMappingCache} cache all request urls of {@link org.springframework.stereotype.Controller} .
- *
- * @author zhangxin
  */
 public class PathMappingCache {
 
@@ -49,10 +46,9 @@ public class PathMappingCache {
     }
 
     public void addPathMapping(Method method, String methodPath) {
-        if (!StringUtil.isEmpty(methodPath) && !methodPath.startsWith(PATH_SEPARATOR)
-                && !classPath.endsWith(PATH_SEPARATOR)) {
+        if (!StringUtil.isEmpty(methodPath) && !methodPath.startsWith(PATH_SEPARATOR) && !classPath.endsWith(PATH_SEPARATOR)) {
             methodPath = PATH_SEPARATOR + methodPath;
         }
-        methodPathMapping.put(method, (classPath + methodPath).replace("//","/"));
+        methodPathMapping.put(method, (classPath + methodPath).replace("//", "/"));
     }
 }

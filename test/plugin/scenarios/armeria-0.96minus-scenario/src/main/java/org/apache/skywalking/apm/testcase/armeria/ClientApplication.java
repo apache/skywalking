@@ -17,16 +17,12 @@
 
 package org.apache.skywalking.apm.testcase.armeria;
 
-import java.nio.charset.StandardCharsets;
-
 import com.linecorp.armeria.client.HttpClient;
+import java.nio.charset.StandardCharsets;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author kezhenxu94
- */
 @RestController
 public class ClientApplication {
 

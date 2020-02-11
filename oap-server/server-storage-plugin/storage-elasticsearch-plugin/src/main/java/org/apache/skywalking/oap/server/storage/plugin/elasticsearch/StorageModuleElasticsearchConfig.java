@@ -22,36 +22,60 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 @Getter
 public class StorageModuleElasticsearchConfig extends ModuleConfig {
-    @Setter private String nameSpace;
-    @Setter private String clusterNodes;
-    @Getter @Setter String protocol = "http";
-    @Setter private int indexShardsNumber = 2;
-    @Setter private int indexReplicasNumber = 0;
-    @Setter private int indexRefreshInterval = 2;
-    @Setter private int bulkActions = 2000;
-    @Setter private int flushInterval = 10;
-    @Setter private int concurrentRequests = 2;
-    @Setter private int syncBulkActions = 3;
-    @Setter private String user;
-    @Setter private String password;
-    @Getter @Setter String trustStorePath;
-    @Getter @Setter String trustStorePass;
-    @Setter private int resultWindowMaxSize = 10000;
-    @Setter private int metadataQueryMaxSize = 5000;
-    @Setter private int segmentQueryMaxSize = 200;
-    @Setter private int profileTaskQueryMaxSize = 200;
-    @Setter private int recordDataTTL = 7;
-    @Setter private int minuteMetricsDataTTL = 2;
-    @Setter private int hourMetricsDataTTL = 2;
-    @Setter private int dayMetricsDataTTL = 2;
+    @Setter
+    private String nameSpace;
+    @Setter
+    private String clusterNodes;
+    @Getter
+    @Setter
+    String protocol = "http";
+    @Setter
+    private int indexShardsNumber = 2;
+    @Setter
+    private int indexReplicasNumber = 0;
+    @Setter
+    private int indexRefreshInterval = 2;
+    @Setter
+    private int bulkActions = 2000;
+    @Setter
+    private int flushInterval = 10;
+    @Setter
+    private int concurrentRequests = 2;
+    @Setter
+    private int syncBulkActions = 3;
+    @Setter
+    private String user;
+    @Setter
+    private String password;
+    @Getter
+    @Setter
+    String trustStorePath;
+    @Getter
+    @Setter
+    String trustStorePass;
+    @Setter
+    private int resultWindowMaxSize = 10000;
+    @Setter
+    private int metadataQueryMaxSize = 5000;
+    @Setter
+    private int segmentQueryMaxSize = 200;
+    @Setter
+    private int profileTaskQueryMaxSize = 200;
+    @Setter
+    private int recordDataTTL = 7;
+    @Setter
+    private int minuteMetricsDataTTL = 2;
+    @Setter
+    private int hourMetricsDataTTL = 2;
+    @Setter
+    private int dayMetricsDataTTL = 2;
     private int otherMetricsDataTTL = 0;
-    @Setter private int monthMetricsDataTTL = 18;
-    @Setter private String advanced;
+    @Setter
+    private int monthMetricsDataTTL = 18;
+    @Setter
+    private String advanced;
 
     public int getMinuteMetricsDataTTL() {
         if (otherMetricsDataTTL > 0) {

@@ -22,6 +22,12 @@ import io.grpc.Channel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -32,7 +38,10 @@ import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.remote.*;
+import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
+import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
+import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
+import org.apache.skywalking.apm.agent.core.remote.GRPCStreamServiceStatus;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
 import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
@@ -40,21 +49,13 @@ import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
 import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
 /**
- * Sniffer and backend, about the communication service of profile task protocol.
- * 1. Sniffer will check has new profile task list every {@link Config.Collector#GET_PROFILE_TASK_INTERVAL} second.
- * 2. When there is a new profile task snapshot, the data is transferred to the back end. use {@link LinkedBlockingQueue}
- * 3. When profiling task finish, it will send task finish status to backend
- *
- * @author MrPro
+ * Sniffer and backend, about the communication service of profile task protocol. 1. Sniffer will check has new profile
+ * task list every {@link Config.Collector#GET_PROFILE_TASK_INTERVAL} second. 2. When there is a new profile task
+ * snapshot, the data is transferred to the back end. use {@link LinkedBlockingQueue} 3. When profiling task finish, it
+ * will send task finish status to backend
  */
 @DefaultImplementor
 public class ProfileTaskChannelService implements BootService, Runnable, GRPCChannelListener {
@@ -68,7 +69,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     private volatile ProfileTaskGrpc.ProfileTaskStub profileTaskStub;
 
     // segment snapshot sender
-    private final LinkedBlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+    private final BlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(
+        Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
     private volatile ScheduledFuture<?> sendSnapshotFuture;
 
     // query task list schedule
@@ -77,19 +79,22 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     @Override
     public void run() {
         if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
-                && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
-        ) {
+            && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()) {
             if (status == GRPCChannelStatus.CONNECTED) {
                 try {
                     ProfileTaskCommandQuery.Builder builder = ProfileTaskCommandQuery.newBuilder();
 
                     // sniffer info
-                    builder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID).setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+                    builder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
+                           .setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
 
                     // last command create time
-                    builder.setLastCommandTime(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class).getLastCommandCreateTime());
+                    builder.setLastCommandTime(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class)
+                                                                      .getLastCommandCreateTime());
 
-                    Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).getProfileTaskCommands(builder.build());
+                    Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
+                                                               .getProfileTaskCommands(builder.build());
+
                     ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                 } catch (Throwable t) {
                     if (!(t instanceof StatusRuntimeException)) {
@@ -115,37 +120,40 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     }
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
         if (Config.Profile.ACTIVE) {
             // query task list
-            getTaskListFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileGetTaskService"))
-                    .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                        @Override
-                        public void handle(Throwable t) {
-                            logger.error("Query profile task list failure.", t);
-                        }
-                    }), 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS);
+            getTaskListFuture = Executors.newSingleThreadScheduledExecutor(
+                new DefaultNamedThreadFactory("ProfileGetTaskService")
+            ).scheduleWithFixedDelay(
+                new RunnableWithExceptionProtection(
+                    this,
+                    t -> logger.error("Query profile task list failure.", t)
+                ), 0, Config.Collector.GET_PROFILE_TASK_INTERVAL, TimeUnit.SECONDS
+            );
 
-            sendSnapshotFuture = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ProfileSendSnapshotService"))
-                    .scheduleWithFixedDelay(new RunnableWithExceptionProtection(new SnapshotSender(), new RunnableWithExceptionProtection.CallbackWhenException() {
-                        @Override public void handle(Throwable t) {
-                            logger.error("Profile segment snapshot upload failure.", t);
-                        }
-                    }), 0, 500, TimeUnit.MILLISECONDS);
+            sendSnapshotFuture = Executors.newSingleThreadScheduledExecutor(
+                new DefaultNamedThreadFactory("ProfileSendSnapshotService")
+            ).scheduleWithFixedDelay(
+                new RunnableWithExceptionProtection(
+                    new SnapshotSender(),
+                    t -> logger.error("Profile segment snapshot upload failure.", t)
+                ), 0, 500, TimeUnit.MILLISECONDS
+            );
         }
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         if (getTaskListFuture != null) {
             getTaskListFuture.cancel(true);
         }
@@ -182,12 +190,14 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
         try {
             final ProfileTaskFinishReport.Builder reportBuilder = ProfileTaskFinishReport.newBuilder();
             // sniffer info
-            reportBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID).setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+            reportBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
+                         .setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
             // task info
             reportBuilder.setTaskId(task.getTaskId());
 
             // send data
-            profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).reportTaskFinish(reportBuilder.build());
+            profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
+                                   .reportTaskFinish(reportBuilder.build());
         } catch (Throwable e) {
             logger.error(e, "Notify profile task finish to backend fail.");
         }
@@ -206,25 +216,35 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
                     snapshotQueue.drainTo(buffer);
                     if (buffer.size() > 0) {
                         final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-                        StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).collectSnapshot(new StreamObserver<Commands>() {
-                            @Override
-                            public void onNext(Commands commands) {
-                            }
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                status.finished();
-                                if (logger.isErrorEnable()) {
-                                    logger.error(throwable, "Send profile segment snapshot to collector fail with a grpc internal exception.");
+                        StreamObserver<ThreadSnapshot> snapshotStreamObserver = profileTaskStub.withDeadlineAfter(
+                            GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                        ).collectSnapshot(
+                            new StreamObserver<Commands>() {
+                                @Override
+                                public void onNext(
+                                    Commands commands) {
                                 }
-                                ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(throwable);
-                            }
 
-                            @Override
-                            public void onCompleted() {
-                                status.finished();
+                                @Override
+                                public void onError(
+                                    Throwable throwable) {
+                                    status.finished();
+                                    if (logger.isErrorEnable()) {
+                                        logger.error(
+                                            throwable,
+                                            "Send profile segment snapshot to collector fail with a grpc internal exception."
+                                        );
+                                    }
+                                    ServiceManager.INSTANCE.findService(GRPCChannelManager.class)
+                                                           .reportError(throwable);
+                                }
+
+                                @Override
+                                public void onCompleted() {
+                                    status.finished();
+                                }
                             }
-                        });
+                        );
                         for (TracingThreadSnapshot snapshot : buffer) {
                             final ThreadSnapshot transformSnapshot = snapshot.transform();
                             snapshotStreamObserver.onNext(transformSnapshot);

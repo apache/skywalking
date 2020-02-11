@@ -24,22 +24,26 @@ import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface ITopologyQueryDAO extends Service {
 
-    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
+    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+        List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
+    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+        List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB) throws IOException;
 
-    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB) throws IOException;
 
-    List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
+        Downsampling downsampling, long startTB, long endTB) throws IOException;
 
-    List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException;
+    List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
+        Downsampling downsampling, long startTB, long endTB) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException;
+    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB,
+        long endTB, int destEndpointId) throws IOException;
 }
