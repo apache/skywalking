@@ -36,41 +36,46 @@ import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 @Slf4j
 public class GRPCCallback implements AlarmCallback {
 
-    GRPCAlarmSetting alarmSetting;
+    private GRPCAlarmSetting alarmSetting;
 
     private AlarmServiceGrpc.AlarmServiceStub alarmServiceStub;
 
+    private GRPCClient grpcClient;
+
     public GRPCCallback(AlarmRulesWatcher alarmRulesWatcher) {
         alarmSetting = alarmRulesWatcher.getGrpchookSetting();
-        if (alarmSetting != null) {
-            GRPCClient client = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
-            client.connect();
-            alarmServiceStub = AlarmServiceGrpc.newStub(client.getChannel());
-        }
     }
 
-    @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
+    @Override
+    public void doAlarm(List<AlarmMessage> alarmMessage) {
 
-        if (alarmServiceStub == null) {
+        if (alarmSetting == null) {
             return;
         }
+
+        grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+        grpcClient.connect();
+        alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
 
         ExportStatus status = new ExportStatus();
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
             alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
-                @Override public void onNext(Response response) {
+                @Override
+                public void onNext(Response response) {
                     // ignore empty response
                 }
 
-                @Override public void onError(Throwable throwable) {
+                @Override
+                public void onError(Throwable throwable) {
                     status.done();
                     if (log.isDebugEnabled()) {
                         log.debug("Send alarm message failed: {}", throwable.getMessage());
                     }
                 }
 
-                @Override public void onCompleted() {
+                @Override
+                public void onCompleted() {
                     status.done();
                     if (log.isDebugEnabled()) {
                         log.debug("Send alarm message successful.");
@@ -110,12 +115,14 @@ public class GRPCCallback implements AlarmCallback {
 
             if (log.isDebugEnabled()) {
                 log.debug("Send {} alarm message to {}:{}.", alarmMessage.size(),
-                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+                          alarmSetting.getTargetHost(), alarmSetting.getTargetPort()
+                );
             }
 
             if (sleepTime > 2000L) {
                 log.debug("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessage.size(),
-                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime);
+                          alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
+                );
                 cycle = 2000L;
             }
         }
