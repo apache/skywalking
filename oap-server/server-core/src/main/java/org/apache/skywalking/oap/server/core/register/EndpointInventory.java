@@ -80,10 +80,7 @@ public class EndpointInventory extends RegisterSource {
             return false;
         if (!name.equals(source.getName()))
             return false;
-        if (detectPoint != source.getDetectPoint())
-            return false;
-
-        return true;
+        return detectPoint == source.getDetectPoint();
     }
 
     @Override public RemoteData.Builder serialize() {

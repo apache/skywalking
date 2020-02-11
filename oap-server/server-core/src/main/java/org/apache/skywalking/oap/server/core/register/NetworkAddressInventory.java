@@ -81,10 +81,7 @@ public class NetworkAddressInventory extends RegisterSource {
             return false;
 
         NetworkAddressInventory source = (NetworkAddressInventory)obj;
-        if (!name.equals(source.getName()))
-            return false;
-
-        return true;
+        return name.equals(source.getName());
     }
 
     public NetworkAddressInventory getClone() {

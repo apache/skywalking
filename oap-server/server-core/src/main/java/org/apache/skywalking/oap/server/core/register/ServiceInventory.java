@@ -145,10 +145,7 @@ public class ServiceInventory extends RegisterSource {
             return false;
         if (isAddress != source.getIsAddress())
             return false;
-        if (addressId != source.getAddressId())
-            return false;
-
-        return true;
+        return addressId == source.getAddressId();
     }
 
     @Override public RemoteData.Builder serialize() {

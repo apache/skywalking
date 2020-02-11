@@ -92,10 +92,7 @@ public class TransportClientHandlerInterceptor implements InstanceMethodsAroundI
      * registered then return false.
      */
     private Boolean checkRegisterStatus(Invocation invocation) {
-        if (null == invocation.getOperationMeta() || null == invocation.getEndpoint()) {
-            return false;
-        }
-        return true;
+        return null != invocation.getOperationMeta() && null != invocation.getEndpoint();
     }
 
 }

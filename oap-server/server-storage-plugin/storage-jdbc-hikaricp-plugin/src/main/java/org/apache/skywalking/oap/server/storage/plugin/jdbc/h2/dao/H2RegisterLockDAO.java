@@ -44,7 +44,7 @@ public class H2RegisterLockDAO implements IRegisterLockDAO {
     @Override public int getId(int scopeId, RegisterSource registerSource) {
         try (Connection connection = h2Client.getTransactionConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scopeId + " for update");
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 int sequence = resultSet.getInt("sequence");
                 sequence++;
                 h2Client.execute(connection, "update " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " set sequence = " + sequence + " where id = " + scopeId);

@@ -75,7 +75,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     return resultSet.getInt("num");
                 }
             }
@@ -95,7 +95,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
 
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     return resultSet.getInt("num");
                 }
             }
@@ -115,7 +115,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     return resultSet.getInt("num");
                 }
             }
@@ -212,7 +212,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
 
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     Service service = new Service();
                     service.setId(resultSet.getInt(ServiceInventory.SEQUENCE));
                     service.setName(resultSet.getString(ServiceInventory.NAME));

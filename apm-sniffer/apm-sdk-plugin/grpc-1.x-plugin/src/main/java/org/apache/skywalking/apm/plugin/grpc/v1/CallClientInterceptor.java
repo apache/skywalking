@@ -27,8 +27,8 @@ import io.grpc.MethodDescriptor;
  */
 public interface CallClientInterceptor {
 
-    public Channel getChannel();
+    Channel getChannel();
 
-    public MethodDescriptor getMethodDescriptor();
+    MethodDescriptor getMethodDescriptor();
 
 }

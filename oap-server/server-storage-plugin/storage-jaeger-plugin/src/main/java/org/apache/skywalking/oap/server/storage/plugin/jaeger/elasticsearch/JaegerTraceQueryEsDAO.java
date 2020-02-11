@@ -44,7 +44,6 @@ import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.*;
 
 public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {

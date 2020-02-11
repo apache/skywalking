@@ -103,7 +103,7 @@ public class H2SQLExecutor {
     protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet rs = h2Client.executeQuery(connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", id)) {
-                while (rs.next()) {
+                if (rs.next()) {
                     return rs.getInt(ServiceInstanceInventory.SEQUENCE);
                 }
             }
