@@ -63,9 +63,6 @@ public class GRPCCallback implements AlarmCallback {
         // recreate gRPC client if host and port configuration changed.
         onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
 
-        grpcClient.connect();
-        alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
-
         ExportStatus status = new ExportStatus();
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
@@ -129,8 +126,8 @@ public class GRPCCallback implements AlarmCallback {
             }
 
             if (sleepTime > 2000L) {
-                log.debug("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessage.size(),
-                          alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
+                log.warn("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessage.size(),
+                         alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
                 );
                 cycle = 2000L;
             }
@@ -139,7 +136,10 @@ public class GRPCCallback implements AlarmCallback {
 
     private void onGRPCAlarmSettingUpdated(GRPCAlarmSetting grpcAlarmSetting) {
         if (!grpcAlarmSetting.equals(alarmSetting)) {
+            grpcClient.shutdown();
             grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
+            grpcClient.connect();
+            alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
         }
     }
 }
