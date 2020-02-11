@@ -19,9 +19,12 @@ package org.apache.skywalking.oap.server.core.query;
 
 import com.google.common.base.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -54,8 +57,11 @@ public class ProfileTaskQueryService implements Service {
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
-    public ProfileTaskQueryService(ModuleManager moduleManager) {
+    private final ProfileAnalyzer profileAnalyzer;
+
+    public ProfileTaskQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
+        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot(), moduleConfig.getMaxSizeOfAnalyzeProfileSnapshot());
     }
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {
@@ -138,6 +144,10 @@ public class ProfileTaskQueryService implements Service {
      */
     public List<BasicTrace> getTaskTraces(String taskId) throws IOException {
         return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
+    }
+
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
+        return profileAnalyzer.analyze(segmentId, start, end);
     }
 
 }
