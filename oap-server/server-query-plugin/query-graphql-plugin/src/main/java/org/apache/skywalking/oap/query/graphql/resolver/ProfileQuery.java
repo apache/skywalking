@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,10 +58,8 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return getProfileTaskQueryService().getTaskTraces(taskID);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) {
-        ProfileAnalyzation analyzation = new ProfileAnalyzation();
-        analyzation.setTrees(Collections.emptyList());
-        return analyzation;
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
+        return getProfileTaskQueryService().getProfileAnalyze(segmentId, start, end);
     }
 
 }

@@ -72,6 +72,16 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private long maxSizeOfProfileTask = 10_000L;
 
+    /**
+     * Analyze profile snapshots paging size.
+     */
+    private int maxPageSizeOfQueryProfileSnapshot = 500;
+
+    /**
+     * Analyze profile snapshots max size.
+     */
+    private int maxSizeOfAnalyzeProfileSnapshot = 12000;
+
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
