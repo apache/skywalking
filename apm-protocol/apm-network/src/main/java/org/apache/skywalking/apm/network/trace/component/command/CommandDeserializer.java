@@ -19,9 +19,6 @@ package org.apache.skywalking.apm.network.trace.component.command;
 
 import org.apache.skywalking.apm.network.common.Command;
 
-/**
- * @author kezhenxu94
- */
 public class CommandDeserializer {
 
     public static BaseCommand deserialize(final Command command) {

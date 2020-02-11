@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 
 /**
  * Entity register and ID generator.
- *
- * @author peng-yongsheng, wusheng
  */
 public interface IRegisterLockDAO extends DAO {
     /**

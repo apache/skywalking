@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.customize.constants;
 
 /**
  * The constant of customize enhance.
- *
- * @author zhaoyuguang
  */
 
 public class Constants {

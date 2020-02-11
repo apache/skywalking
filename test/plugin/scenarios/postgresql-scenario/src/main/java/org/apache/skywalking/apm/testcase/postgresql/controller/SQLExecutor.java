@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.postgresql.controller;
 
 import java.sql.CallableStatement;
@@ -34,7 +35,8 @@ public class SQLExecutor {
         } catch (ClassNotFoundException e) {
             //
         }
-        connection = DriverManager.getConnection(postgresqlConfig.getUrl(), postgresqlConfig.getUserName(), postgresqlConfig.getPassword());
+        connection = DriverManager.getConnection(postgresqlConfig.getUrl(), postgresqlConfig.getUserName(), postgresqlConfig
+            .getPassword());
     }
 
     public void checkPG(String sql) throws SQLException {

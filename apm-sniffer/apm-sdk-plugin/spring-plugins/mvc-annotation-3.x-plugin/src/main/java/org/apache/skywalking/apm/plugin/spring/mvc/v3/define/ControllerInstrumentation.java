@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -27,7 +26,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanceAnnotationMatcher.byMethodInheritanceAnnotationMatcher;
 import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQUEST_MAPPING_METHOD_INTERCEPTOR;
 
@@ -35,8 +35,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.REQU
  * {@link ControllerInstrumentation} intercept the constructor and the methods annotated with {@link
  * org.springframework.web.bind.annotation.RequestMapping} in the class annotated with {@link
  * org.springframework.stereotype.Controller}.
- *
- * @author zhangxin
  */
 public class ControllerInstrumentation extends AbstractSpring3Instrumentation {
     public static final String CONTROLLER_ENHANCE_ANNOTATION = "org.springframework.stereotype.Controller";

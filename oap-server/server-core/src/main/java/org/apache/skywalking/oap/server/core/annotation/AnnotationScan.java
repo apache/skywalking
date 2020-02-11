@@ -22,12 +22,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Scan the annotation, and notify the listener(s)
- *
- * @author peng-yongsheng, wusheng
  */
 public class AnnotationScan {
 
@@ -39,6 +39,7 @@ public class AnnotationScan {
 
     /**
      * Register the callback listener
+     *
      * @param listener to be called after class found w/ annotation
      */
     public void registerListener(AnnotationListener listener) {
@@ -47,8 +48,6 @@ public class AnnotationScan {
 
     /**
      * Begin to scan classes.
-     *
-     * @throws IOException
      */
     public void scan() throws IOException {
         ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());

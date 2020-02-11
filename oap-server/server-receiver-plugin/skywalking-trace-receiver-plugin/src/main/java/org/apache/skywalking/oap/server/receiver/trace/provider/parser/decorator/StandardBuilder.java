@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-/**
- * @author peng-yongsheng
- */
 public interface StandardBuilder {
     void toBuilder();
 }

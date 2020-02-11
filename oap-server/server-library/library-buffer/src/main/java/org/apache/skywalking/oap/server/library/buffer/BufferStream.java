@@ -18,15 +18,17 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import com.google.protobuf.*;
-import java.io.*;
+import com.google.protobuf.AbstractMessageLite;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Parser;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.channels.FileLock;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(BufferStream.class);
@@ -78,7 +80,8 @@ public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
 
         if (lock == null) {
-            throw new RuntimeException("The buffer directory is reading or writing by another thread, directory is: " + directory.getAbsolutePath());
+            throw new RuntimeException("The buffer directory is reading or writing by another thread, directory is: " + directory
+                .getAbsolutePath());
         }
 
         logger.info("Lock buffer directory successfully, directory is: " + directory.getAbsolutePath());
@@ -121,8 +124,7 @@ public class BufferStream<MESSAGE_TYPE extends GeneratedMessageV3> {
             return this;
         }
 
-        public Builder<MESSAGE_TYPE> callBack(
-            DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
+        public Builder<MESSAGE_TYPE> callBack(DataStreamReader.CallBack<MESSAGE_TYPE> callBack) {
             this.callBack = callBack;
             return this;
         }

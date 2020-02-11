@@ -54,12 +54,14 @@ public class ConsumerConstructorInterceptorTest {
 
         private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
 
@@ -73,7 +75,11 @@ public class ConsumerConstructorInterceptorTest {
 
     @Test
     public void testOnConsumer() {
-        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {pulsarClient, TOPIC_NAME, consumerConfigurationData});
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {
+            pulsarClient,
+            TOPIC_NAME,
+            consumerConfigurationData
+        });
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         assertThat(requiredInfo.getServiceUrl(), is(SERVICE_URL));
         assertThat(requiredInfo.getTopic(), is(TOPIC_NAME));

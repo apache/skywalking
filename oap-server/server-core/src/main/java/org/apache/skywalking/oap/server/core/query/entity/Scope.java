@@ -23,16 +23,8 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-/**
- * @author wusheng
- */
 public enum Scope {
-    Service(DefaultScopeDefine.SERVICE),
-    ServiceInstance(DefaultScopeDefine.SERVICE_INSTANCE),
-    Endpoint(DefaultScopeDefine.ENDPOINT),
-    ServiceRelation(DefaultScopeDefine.SERVICE_RELATION),
-    ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION),
-    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION);
+    Service(DefaultScopeDefine.SERVICE), ServiceInstance(DefaultScopeDefine.SERVICE_INSTANCE), Endpoint(DefaultScopeDefine.ENDPOINT), ServiceRelation(DefaultScopeDefine.SERVICE_RELATION), ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION), EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION);
 
     @Getter
     private int scopeId;

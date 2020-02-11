@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.trace;
 
-/**
- * @author kezhenxu94
- */
 public class Tag {
     private String key;
     private String value;

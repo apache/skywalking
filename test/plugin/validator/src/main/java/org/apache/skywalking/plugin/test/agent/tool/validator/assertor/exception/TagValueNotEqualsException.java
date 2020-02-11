@@ -30,8 +30,8 @@ public class TagValueNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("[tag(%s) value]: expected=>{}, actual=>{%s}\n", tagKey, expected,
-            actual);
+    @Override
+    public String getCauseMessage() {
+        return String.format("[tag(%s) value]: expected=>{}, actual=>{%s}\n", tagKey, expected, actual);
     }
 }

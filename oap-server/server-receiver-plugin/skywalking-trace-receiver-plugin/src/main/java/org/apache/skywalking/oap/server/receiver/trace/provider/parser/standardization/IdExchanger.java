@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.StandardBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public interface IdExchanger<T extends StandardBuilder> {
     boolean exchange(T standardBuilder, int serviceId);
 }

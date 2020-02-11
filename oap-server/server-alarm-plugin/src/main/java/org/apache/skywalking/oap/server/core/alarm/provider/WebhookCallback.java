@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import com.google.gson.Gson;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import com.google.gson.Gson;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -41,8 +40,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Use SkyWalking alarm webhook API call a remote endpoints.
- *
- * @author wusheng
  */
 public class WebhookCallback implements AlarmCallback {
     private static final Logger logger = LoggerFactory.getLogger(WebhookCallback.class);
@@ -57,9 +54,10 @@ public class WebhookCallback implements AlarmCallback {
     public WebhookCallback(AlarmRulesWatcher alarmRulesWatcher) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         requestConfig = RequestConfig.custom()
-            .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
-            .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
-            .setSocketTimeout(HTTP_SOCKET_TIMEOUT).build();
+                                     .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
+                                     .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
+                                     .setSocketTimeout(HTTP_SOCKET_TIMEOUT)
+                                     .build();
     }
 
     @Override

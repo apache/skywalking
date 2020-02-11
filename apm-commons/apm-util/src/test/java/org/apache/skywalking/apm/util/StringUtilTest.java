@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.util;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by wusheng on 2017/2/27.
- */
 public class StringUtilTest {
     @Test
     public void testIsEmpty() {

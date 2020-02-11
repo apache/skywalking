@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
-/**
- * @author wusheng
- */
 class InitialComponentCatalogException extends RuntimeException {
     InitialComponentCatalogException(String message) {
         super(message);

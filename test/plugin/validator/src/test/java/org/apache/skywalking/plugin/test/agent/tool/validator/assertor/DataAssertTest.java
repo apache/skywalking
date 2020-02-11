@@ -18,10 +18,9 @@
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import java.io.File;
-
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Data;
-import org.junit.Test;
 import org.apache.skywalking.plugin.test.agent.tool.validator.exception.AssertFailedException;
+import org.junit.Test;
 
 public class DataAssertTest {
 

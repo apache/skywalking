@@ -18,10 +18,6 @@
 
 package test.org.apache.skywalking.apm.testcase.customize.model;
 
-/**
- * @author zhaoyuguang
- */
-
 public class Model1 {
 
     public Model1(int id, String name) {

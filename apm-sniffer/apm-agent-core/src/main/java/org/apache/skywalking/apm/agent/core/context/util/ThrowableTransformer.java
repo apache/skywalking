@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.util;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.CAUSE_EXCEPTION_DEPTH;

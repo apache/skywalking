@@ -23,12 +23,12 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricsTransWorker extends AbstractWorker<Metrics> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsTransWorker.class);
@@ -42,24 +42,23 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     private final CounterMetrics aggregationMonthCounter;
 
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-        MetricsPersistentWorker hourPersistenceWorker,
-        MetricsPersistentWorker dayPersistenceWorker,
+        MetricsPersistentWorker hourPersistenceWorker, MetricsPersistentWorker dayPersistenceWorker,
         MetricsPersistentWorker monthPersistenceWorker) {
         super(moduleDefineHolder);
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
         this.monthPersistenceWorker = monthPersistenceWorker;
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        aggregationHourCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "hour"));
-        aggregationDayCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "day"));
-        aggregationMonthCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "month"));
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        aggregationHourCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "hour"));
+        aggregationDayCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "day"));
+        aggregationMonthCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "2", "month"));
     }
 
-    @Override public void in(Metrics metrics) {
+    @Override
+    public void in(Metrics metrics) {
         if (Objects.nonNull(hourPersistenceWorker)) {
             aggregationMonthCounter.inc();
             hourPersistenceWorker.in(metrics.toHour());

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.shardingsphere;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -48,21 +47,21 @@ import static org.junit.Assert.assertThat;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class InterceptorTest {
-    
+
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
-    
+
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
-    
+
     private ProxyRootInvokeInterceptor proxyRootInvokeInterceptor;
-    
+
     private JDBCRootInvokeInterceptor jdbcRootInvokeInterceptor;
-    
+
     private ParseInterceptor parseInterceptor;
-    
+
     private ExecuteInterceptor executeInterceptor;
-    
+
     @Before
     public void setUp() {
         proxyRootInvokeInterceptor = new ProxyRootInvokeInterceptor();
@@ -70,7 +69,7 @@ public class InterceptorTest {
         parseInterceptor = new ParseInterceptor();
         executeInterceptor = new ExecuteInterceptor();
     }
-    
+
     @Test
     public void assertProxyRootInvoke() {
         proxyRootInvokeInterceptor.beforeMethod(null, null, null, null, null);
@@ -82,7 +81,7 @@ public class InterceptorTest {
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/ProxyRootInvoke/"));
     }
-    
+
     @Test
     public void assertJDBCRootInvoke() {
         jdbcRootInvokeInterceptor.beforeMethod(null, null, null, null, null);
@@ -94,10 +93,13 @@ public class InterceptorTest {
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/JDBCRootInvoke/"));
     }
-    
+
     @Test
     public void assertParse() {
-        Object[] allArguments = new Object[] {"SELECT * FROM t_order", false};
+        Object[] allArguments = new Object[] {
+            "SELECT * FROM t_order",
+            false
+        };
         parseInterceptor.beforeMethod(null, null, allArguments, null, null);
         parseInterceptor.afterMethod(null, null, allArguments, null, null);
         assertThat(segmentStorage.getTraceSegments().size(), is(1));
@@ -108,10 +110,14 @@ public class InterceptorTest {
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/parseSQL/"));
         SpanAssert.assertTag(spans.get(0), 0, "SELECT * FROM t_order");
     }
-    
+
     @Test
     public void assertExecute() {
-        Object[] allArguments = new Object[] {null, null, new HashMap<Object, Object>()};
+        Object[] allArguments = new Object[] {
+            null,
+            null,
+            new HashMap<Object, Object>()
+        };
         executeInterceptor.beforeMethod(null, null, allArguments, null, null);
         executeInterceptor.afterMethod(null, null, allArguments, null, null);
         assertThat(segmentStorage.getTraceSegments().size(), is(1));

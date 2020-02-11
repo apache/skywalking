@@ -18,16 +18,19 @@
 
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Create metrics instance for Prometheus exporter.
- *
- * @author wusheng
  */
 public class PrometheusMetricsCreator implements MetricsCreator {
     @Override
-    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
+    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues) {
         return new PrometheusCounterMetrics(name, tips, tagKeys, tagValues);
     }
 

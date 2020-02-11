@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.junit.AfterClass;
@@ -28,9 +27,6 @@ import java.io.PrintStream;
 
 import static org.mockito.Matchers.anyString;
 
-/**
- * Created by wusheng on 2017/2/28.
- */
 public class SystemOutWriterTest {
     private static PrintStream OUT_REF;
 

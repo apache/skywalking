@@ -15,13 +15,13 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

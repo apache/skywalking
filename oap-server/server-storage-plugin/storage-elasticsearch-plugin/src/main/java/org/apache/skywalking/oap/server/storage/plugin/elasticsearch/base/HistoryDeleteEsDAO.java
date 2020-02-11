@@ -19,7 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -29,11 +30,9 @@ import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.joda.time.DateTime;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(HistoryDeleteEsDAO.class);
@@ -41,7 +40,8 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
     private final StorageTTL storageTTL;
     private final ModuleDefineHolder moduleDefineHolder;
 
-    public HistoryDeleteEsDAO(ModuleDefineHolder moduleDefineHolder, ElasticSearchClient client, StorageTTL storageTTL) {
+    public HistoryDeleteEsDAO(ModuleDefineHolder moduleDefineHolder, ElasticSearchClient client,
+        StorageTTL storageTTL) {
         super(client);
         this.moduleDefineHolder = moduleDefineHolder;
         this.storageTTL = storageTTL;
@@ -49,7 +49,9 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
-        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
+        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(ConfigService.class);
 
         ElasticSearchClient client = getClient();
         TTLCalculator ttlCalculator;

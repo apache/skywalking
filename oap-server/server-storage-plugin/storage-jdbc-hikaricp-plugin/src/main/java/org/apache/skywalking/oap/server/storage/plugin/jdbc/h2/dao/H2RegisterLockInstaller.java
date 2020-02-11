@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -27,11 +30,9 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng, peng-yongsheng
- */
 public class H2RegisterLockInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(H2RegisterLockInstaller.class);
@@ -40,12 +41,9 @@ public class H2RegisterLockInstaller {
 
     /**
      * In MySQL lock storage, lock table created. The row lock is used in {@link H2RegisterLockDAO}
-     *
-     * @param client
-     * @throws StorageException
      */
     public void install(Client client, H2RegisterLockDAO dao) throws StorageException {
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
+        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
         SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + LOCK_TABLE_NAME + " (");
         tableCreateSQL.appendLine("id int PRIMARY KEY, ");
         tableCreateSQL.appendLine("sequence int, ");
@@ -60,7 +58,7 @@ public class H2RegisterLockInstaller {
             h2Client.execute(connection, tableCreateSQL.toString());
 
             for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
-                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                int scopeId = ((Stream) registerSource.getAnnotation(Stream.class)).scopeId();
                 putIfAbsent(h2Client, connection, scopeId, DefaultScopeDefine.nameOf(scopeId));
             }
         } catch (JDBCClientException | SQLException e) {

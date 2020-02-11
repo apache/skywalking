@@ -29,19 +29,16 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
-
 public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -57,7 +54,8 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
                 public boolean isOverrideArgs() {
                     return false;
                 }
-            },new InstanceMethodsInterceptPoint() {
+            },
+            new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("send").and(takesArgumentWithType(0, "org.reactivestreams.Publisher"));
@@ -89,7 +87,7 @@ public class HttpClientOperationsInstrumentation extends ClassInstanceMethodsEnh
                     return false;
                 }
             },
-        };
+            };
     }
 
     @Override

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -31,7 +30,7 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptor implements
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         StringBuilder redisConnInfo = new StringBuilder();
-        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>)allArguments[0];
+        Set<HostAndPort> hostAndPorts = (Set<HostAndPort>) allArguments[0];
         for (HostAndPort hostAndPort : hostAndPorts) {
             redisConnInfo.append(hostAndPort.toString()).append(";");
         }

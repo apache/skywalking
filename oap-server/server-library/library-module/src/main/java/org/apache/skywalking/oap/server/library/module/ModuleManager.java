@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * The <code>ModuleManager</code> takes charge of all {@link ModuleDefine}s in collector.
- *
- * @author wu-sheng, peng-yongsheng
  */
 public class ModuleManager implements ModuleDefineHolder {
 
@@ -68,11 +70,13 @@ public class ModuleManager implements ModuleDefineHolder {
         bootstrapFlow.notifyAfterCompleted();
     }
 
-    @Override public boolean has(String moduleName) {
+    @Override
+    public boolean has(String moduleName) {
         return loadedModules.get(moduleName) != null;
     }
 
-    @Override public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
+    @Override
+    public ModuleProviderHolder find(String moduleName) throws ModuleNotFoundRuntimeException {
         assertPreparedStage();
         ModuleDefine module = loadedModules.get(moduleName);
         if (module != null)

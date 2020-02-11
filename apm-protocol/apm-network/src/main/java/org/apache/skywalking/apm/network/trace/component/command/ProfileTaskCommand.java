@@ -23,9 +23,6 @@ import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class ProfileTaskCommand extends BaseCommand implements Serializable, Deserializable<ProfileTaskCommand> {
     public static final Deserializable<ProfileTaskCommand> DESERIALIZER = new ProfileTaskCommand("", "", "", 0, 0, 0, 0, 0, 0);
     public static final String NAME = "ProfileTaskQuery";
@@ -40,7 +37,8 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
     private long startTime;
     private long createTime;
 
-    public ProfileTaskCommand(String serialNumber, String taskId, String endpointName, int duration, int minDurationThreshold, int dumpPeriod, int maxSamplingCount, long startTime, long createTime) {
+    public ProfileTaskCommand(String serialNumber, String taskId, String endpointName, int duration,
+        int minDurationThreshold, int dumpPeriod, int maxSamplingCount, long startTime, long createTime) {
         super(NAME, serialNumber);
         this.taskId = taskId;
         this.endpointName = endpointName;
@@ -94,13 +92,17 @@ public class ProfileTaskCommand extends BaseCommand implements Serializable, Des
     public Command.Builder serialize() {
         final Command.Builder builder = commandBuilder();
         builder.addArgs(KeyStringValuePair.newBuilder().setKey("TaskId").setValue(taskId))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("EndpointName").setValue(endpointName))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("Duration").setValue(String.valueOf(duration)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("MinDurationThreshold").setValue(String.valueOf(minDurationThreshold)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("DumpPeriod").setValue(String.valueOf(dumpPeriod)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("MaxSamplingCount").setValue(String.valueOf(maxSamplingCount)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("StartTime").setValue(String.valueOf(startTime)))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("CreateTime").setValue(String.valueOf(createTime)));
+               .addArgs(KeyStringValuePair.newBuilder().setKey("EndpointName").setValue(endpointName))
+               .addArgs(KeyStringValuePair.newBuilder().setKey("Duration").setValue(String.valueOf(duration)))
+               .addArgs(KeyStringValuePair.newBuilder()
+                                          .setKey("MinDurationThreshold")
+                                          .setValue(String.valueOf(minDurationThreshold)))
+               .addArgs(KeyStringValuePair.newBuilder().setKey("DumpPeriod").setValue(String.valueOf(dumpPeriod)))
+               .addArgs(KeyStringValuePair.newBuilder()
+                                          .setKey("MaxSamplingCount")
+                                          .setValue(String.valueOf(maxSamplingCount)))
+               .addArgs(KeyStringValuePair.newBuilder().setKey("StartTime").setValue(String.valueOf(startTime)))
+               .addArgs(KeyStringValuePair.newBuilder().setKey("CreateTime").setValue(String.valueOf(createTime)));
         return builder;
     }
 

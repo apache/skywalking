@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.xmemcached.v2;
 
 import java.net.InetSocketAddress;
@@ -25,16 +24,12 @@ import java.util.List;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- * @author IluckySi
- */
 public class XMemcachedConstructorWithInetSocketAddressListArgInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         StringBuilder memcachConnInfo = new StringBuilder();
-        @SuppressWarnings("unchecked")
-        List<InetSocketAddress> inetSocketAddressList = (List<InetSocketAddress>)allArguments[0];
+        @SuppressWarnings("unchecked") List<InetSocketAddress> inetSocketAddressList = (List<InetSocketAddress>) allArguments[0];
         for (InetSocketAddress inetSocketAddress : inetSocketAddressList) {
             String host = inetSocketAddress.getAddress().getHostAddress();
             int port = inetSocketAddress.getPort();

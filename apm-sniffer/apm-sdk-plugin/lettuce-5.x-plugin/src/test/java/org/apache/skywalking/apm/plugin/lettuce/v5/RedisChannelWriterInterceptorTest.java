@@ -52,9 +52,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @author zhaoyuguang
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RedisChannelWriterInterceptorTest {
@@ -86,7 +83,10 @@ public class RedisChannelWriterInterceptorTest {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({
+        "rawtypes",
+        "unchecked"
+    })
     @Before
     public void setUp() throws Exception {
         mockRedisChannelWriterInstance = new MockInstance();
@@ -95,12 +95,11 @@ public class RedisChannelWriterInterceptorTest {
         interceptor = new RedisChannelWriterInterceptor();
     }
 
-
     @Test
     public void testInterceptor() throws Throwable {
-        interceptor.onConstruct(mockRedisChannelWriterInstance, new Object[]{mockClientOptionsInstance});
+        interceptor.onConstruct(mockRedisChannelWriterInstance, new Object[] {mockClientOptionsInstance});
         RedisCommand redisCommand = new Command(CommandType.SET, null);
-        interceptor.beforeMethod(mockRedisChannelWriterInstance, null, new Object[]{redisCommand}, null, null);
+        interceptor.beforeMethod(mockRedisChannelWriterInstance, null, new Object[] {redisCommand}, null, null);
         interceptor.afterMethod(mockRedisChannelWriterInstance, null, null, null, null);
         MatcherAssert.assertThat((String) mockRedisChannelWriterInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
@@ -114,7 +113,6 @@ public class RedisChannelWriterInterceptorTest {
         assertThat(SpanHelper.getLayer(spans.get(0)), CoreMatchers.is(SpanLayer.CACHE));
     }
 
-
     @Test
     public void testOnHugeClusterConsumerConfig() {
         List<RedisURI> redisURIs = new ArrayList<>(100);
@@ -123,7 +121,10 @@ public class RedisChannelWriterInterceptorTest {
         }
         MockRedisClusterClient mockRedisClusterClient = new MockRedisClusterClient();
         MockRedisClusterClientConstructorInterceptor constructorInterceptor = new MockRedisClusterClientConstructorInterceptor();
-        constructorInterceptor.onConstruct(mockRedisClusterClient, new Object[]{null, redisURIs});
+        constructorInterceptor.onConstruct(mockRedisClusterClient, new Object[] {
+            null,
+            redisURIs
+        });
         assertThat(mockRedisClusterClient.getOptions().getSkyWalkingDynamicField().toString().length(), Is.is(200));
     }
 }

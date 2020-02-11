@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.spring.transaction.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import test.org.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
 import test.org.apache.skywalking.apm.testcase.spring.transaction.service.DemoService;
 
-/**
- * @author zhaoyuguang
- */
 @Service
 public class DemoServiceImpl implements DemoService {
 

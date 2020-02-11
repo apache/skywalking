@@ -22,9 +22,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-/**
- * @author kezhenxu94, jian.tan
- */
 @EnableJpaRepositories
 @SpringBootApplication
 public class SampleClientApplication {

@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.exporter.provider;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-/**
- * @author wusheng
- */
 @Setter
 public class MetricFormatter {
     private ServiceInventoryCache serviceInventoryCache;

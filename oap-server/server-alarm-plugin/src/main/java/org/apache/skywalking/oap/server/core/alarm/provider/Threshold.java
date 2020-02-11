@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class Threshold {
     private static final Logger logger = LoggerFactory.getLogger(Threshold.class);
     private static final String NONE_THRESHOLD = "-";

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.trace;
 
 import java.io.InputStream;
@@ -45,23 +44,11 @@ import java.util.Map;
 
 /**
  * {@link SWCallableStatement} wrapper the {@link CallableStatement} created by client. and it will interceptor the
- * following methods for trace.
- * 1. {@link #execute()}
- * 2. {@link #execute(String)}
- * 3. {@link #execute(String, int[])}
- * 4. {@link #execute(String, String[])}
- * 5. {@link #execute(String, int)}
- * 6. {@link #executeQuery()}
- * 7. {@link #executeQuery(String)}
- * 8. {@link #executeUpdate()}
- * 9. {@link #executeUpdate(String)}
- * 10. {@link #executeUpdate(String, int[])}
- * 11. {@link #executeUpdate(String, String[])}
- * 12. {@link #executeUpdate(String, int)}
- * 13. {@link #addBatch()}
- * 14. {@link #addBatch(String)} ()}
- *
- * @author zhangxin
+ * following methods for trace. 1. {@link #execute()} 2. {@link #execute(String)} 3. {@link #execute(String, int[])} 4.
+ * {@link #execute(String, String[])} 5. {@link #execute(String, int)} 6. {@link #executeQuery()} 7. {@link
+ * #executeQuery(String)} 8. {@link #executeUpdate()} 9. {@link #executeUpdate(String)} 10. {@link
+ * #executeUpdate(String, int[])} 11. {@link #executeUpdate(String, String[])} 12. {@link #executeUpdate(String, int)}
+ * 13. {@link #addBatch()} 14. {@link #addBatch(String)} ()}
  */
 public class SWCallableStatement implements CallableStatement {
     private Connection realConnection;
@@ -69,8 +56,7 @@ public class SWCallableStatement implements CallableStatement {
     private ConnectionInfo connectInfo;
     private String sql;
 
-    public SWCallableStatement(Connection realConnection,
-        CallableStatement realStatement, ConnectionInfo connectInfo,
+    public SWCallableStatement(Connection realConnection, CallableStatement realStatement, ConnectionInfo connectInfo,
         String sql) {
         this.realConnection = realConnection;
         this.realStatement = realStatement;
@@ -79,25 +65,19 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     public ResultSet executeQuery() throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeQuery", sql, new CallableStatementTracing.Executable<ResultSet>() {
-                public ResultSet exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeQuery();
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeQuery", sql, new CallableStatementTracing.Executable<ResultSet>() {
+            public ResultSet exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeQuery();
+            }
+        });
     }
 
     public int executeUpdate() throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
-                public Integer exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeUpdate();
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
+            public Integer exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeUpdate();
+            }
+        });
     }
 
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
@@ -132,8 +112,7 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setDouble(parameterIndex, x);
     }
 
-    public void setBigDecimal(int parameterIndex, BigDecimal x)
-        throws SQLException {
+    public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         realStatement.setBigDecimal(parameterIndex, x);
     }
 
@@ -153,24 +132,20 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setTime(parameterIndex, x);
     }
 
-    public void setTimestamp(int parameterIndex, Timestamp x)
-        throws SQLException {
+    public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         realStatement.setTimestamp(parameterIndex, x);
     }
 
-    public void setAsciiStream(int parameterIndex, InputStream x, int length)
-        throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
         realStatement.setAsciiStream(parameterIndex, x, length);
     }
 
     @Deprecated
-    public void setUnicodeStream(int parameterIndex, InputStream x, int length)
-        throws SQLException {
+    public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
         realStatement.setUnicodeStream(parameterIndex, x, length);
     }
 
-    public void setBinaryStream(int parameterIndex, InputStream x, int length)
-        throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
         realStatement.setBinaryStream(parameterIndex, x, length);
     }
 
@@ -178,8 +153,7 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.clearParameters();
     }
 
-    public void setObject(int parameterIndex, Object x, int targetSqlType)
-        throws SQLException {
+    public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
         realStatement.setObject(parameterIndex, x, targetSqlType);
     }
 
@@ -188,22 +162,18 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     public boolean execute() throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
-                public Boolean exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.execute();
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
+            public Boolean exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.execute();
+            }
+        });
     }
 
     public void addBatch() throws SQLException {
         realStatement.addBatch();
     }
 
-    public void setCharacterStream(int parameterIndex, Reader reader, int length)
-        throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
         realStatement.setCharacterStream(parameterIndex, reader, length);
     }
 
@@ -227,23 +197,19 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getMetaData();
     }
 
-    public void setDate(int parameterIndex, Date x, Calendar cal)
-        throws SQLException {
+    public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         realStatement.setDate(parameterIndex, x, cal);
     }
 
-    public void setTime(int parameterIndex, Time x, Calendar cal)
-        throws SQLException {
+    public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
         realStatement.setTime(parameterIndex, x, cal);
     }
 
-    public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
-        throws SQLException {
+    public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         realStatement.setTimestamp(parameterIndex, x, cal);
     }
 
-    public void setNull(int parameterIndex, int sqlType, String typeName)
-        throws SQLException {
+    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         realStatement.setNull(parameterIndex, sqlType, typeName);
     }
 
@@ -259,13 +225,11 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setRowId(parameterIndex, x);
     }
 
-    public void setNString(int parameterIndex, String value)
-        throws SQLException {
+    public void setNString(int parameterIndex, String value) throws SQLException {
         realStatement.setNString(parameterIndex, value);
     }
 
-    public void setNCharacterStream(int parameterIndex, Reader value,
-        long length) throws SQLException {
+    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
         realStatement.setNCharacterStream(parameterIndex, value, length);
     }
 
@@ -273,64 +237,51 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setNClob(parameterIndex, value);
     }
 
-    public void setClob(int parameterIndex, Reader reader, long length)
-        throws SQLException {
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
         realStatement.setClob(parameterIndex, reader, length);
     }
 
-    public void setBlob(int parameterIndex, InputStream inputStream, long length)
-        throws SQLException {
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
         realStatement.setBlob(parameterIndex, inputStream, length);
     }
 
-    public void setNClob(int parameterIndex, Reader reader, long length)
-        throws SQLException {
+    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
         realStatement.setNClob(parameterIndex, reader, length);
     }
 
-    public void setSQLXML(int parameterIndex, SQLXML xmlObject)
-        throws SQLException {
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
         realStatement.setSQLXML(parameterIndex, xmlObject);
     }
 
-    public void setObject(int parameterIndex, Object x, int targetSqlType,
-        int scaleOrLength) throws SQLException {
-        realStatement
-            .setObject(parameterIndex, x, targetSqlType, scaleOrLength);
+    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
+        realStatement.setObject(parameterIndex, x, targetSqlType, scaleOrLength);
     }
 
-    public void setAsciiStream(int parameterIndex, InputStream x, long length)
-        throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
         realStatement.setAsciiStream(parameterIndex, x, length);
     }
 
-    public void setBinaryStream(int parameterIndex, InputStream x, long length)
-        throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
         realStatement.setBinaryStream(parameterIndex, x, length);
     }
 
-    public void setCharacterStream(int parameterIndex, Reader reader,
-        long length) throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
         realStatement.setCharacterStream(parameterIndex, reader, length);
     }
 
-    public void setAsciiStream(int parameterIndex, InputStream x)
-        throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
         realStatement.setAsciiStream(parameterIndex, x);
     }
 
-    public void setBinaryStream(int parameterIndex, InputStream x)
-        throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
         realStatement.setBinaryStream(parameterIndex, x);
     }
 
-    public void setCharacterStream(int parameterIndex, Reader reader)
-        throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
         realStatement.setCharacterStream(parameterIndex, reader);
     }
 
-    public void setNCharacterStream(int parameterIndex, Reader value)
-        throws SQLException {
+    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
         realStatement.setNCharacterStream(parameterIndex, value);
     }
 
@@ -338,8 +289,7 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setClob(parameterIndex, reader);
     }
 
-    public void setBlob(int parameterIndex, InputStream inputStream)
-        throws SQLException {
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
         realStatement.setBlob(parameterIndex, inputStream);
     }
 
@@ -348,25 +298,19 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     public ResultSet executeQuery(String sql) throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeQuery", sql, new CallableStatementTracing.Executable<ResultSet>() {
-                public ResultSet exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeQuery(sql);
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeQuery", sql, new CallableStatementTracing.Executable<ResultSet>() {
+            public ResultSet exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeQuery(sql);
+            }
+        });
     }
 
     public int executeUpdate(String sql) throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
-                public Integer exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeUpdate(sql);
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
+            public Integer exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeUpdate(sql);
+            }
+        });
     }
 
     public void close() throws SQLException {
@@ -418,14 +362,11 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     public boolean execute(String sql) throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
-                public Boolean exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.execute(sql);
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
+            public Boolean exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.execute(sql);
+            }
+        });
     }
 
     public ResultSet getResultSet() throws SQLException {
@@ -473,14 +414,11 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     public int[] executeBatch() throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeBatch", "", new CallableStatementTracing.Executable<int[]>() {
-                public int[] exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeBatch();
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeBatch", "", new CallableStatementTracing.Executable<int[]>() {
+            public int[] exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeBatch();
+            }
+        });
     }
 
     public Connection getConnection() throws SQLException {
@@ -495,75 +433,52 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getGeneratedKeys();
     }
 
-    public int executeUpdate(String sql, final int autoGeneratedKeys)
-        throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
-                public Integer exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeUpdate(sql, autoGeneratedKeys);
-                }
-            });
+    public int executeUpdate(String sql, final int autoGeneratedKeys) throws SQLException {
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
+            public Integer exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeUpdate(sql, autoGeneratedKeys);
+            }
+        });
     }
 
-    public int executeUpdate(String sql, final int[] columnIndexes)
-        throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
-                public Integer exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeUpdate(sql, columnIndexes);
-                }
-            });
+    public int executeUpdate(String sql, final int[] columnIndexes) throws SQLException {
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
+            public Integer exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeUpdate(sql, columnIndexes);
+            }
+        });
     }
 
-    public int executeUpdate(String sql, final String[] columnNames)
-        throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
-                public Integer exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.executeUpdate(sql, columnNames);
-                }
-            });
+    public int executeUpdate(String sql, final String[] columnNames) throws SQLException {
+        return CallableStatementTracing.execute(realStatement, connectInfo, "executeUpdate", sql, new CallableStatementTracing.Executable<Integer>() {
+            public Integer exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.executeUpdate(sql, columnNames);
+            }
+        });
     }
 
-    public boolean execute(String sql, final int autoGeneratedKeys)
-        throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
-                public Boolean exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.execute(sql, autoGeneratedKeys);
-                }
-            });
+    public boolean execute(String sql, final int autoGeneratedKeys) throws SQLException {
+        return CallableStatementTracing.execute(realStatement, connectInfo, "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
+            public Boolean exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.execute(sql, autoGeneratedKeys);
+            }
+        });
     }
 
     public boolean execute(String sql, final int[] columnIndexes) throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
-                public Boolean exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.execute(sql, columnIndexes);
-                }
-            });
+        return CallableStatementTracing.execute(realStatement, connectInfo, "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
+            public Boolean exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.execute(sql, columnIndexes);
+            }
+        });
     }
 
-    public boolean execute(String sql, final String[] columnNames)
-        throws SQLException {
-        return CallableStatementTracing.execute(realStatement, connectInfo,
-            "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
-                public Boolean exe(
-                    CallableStatement realStatement, String sql)
-                    throws SQLException {
-                    return realStatement.execute(sql, columnNames);
-                }
-            });
+    public boolean execute(String sql, final String[] columnNames) throws SQLException {
+        return CallableStatementTracing.execute(realStatement, connectInfo, "execute", sql, new CallableStatementTracing.Executable<Boolean>() {
+            public Boolean exe(CallableStatement realStatement, String sql) throws SQLException {
+                return realStatement.execute(sql, columnNames);
+            }
+        });
     }
 
     public int getResultSetHoldability() throws SQLException {
@@ -598,13 +513,11 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.isWrapperFor(iface);
     }
 
-    public void registerOutParameter(int parameterIndex, int sqlType)
-        throws SQLException {
+    public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
         realStatement.registerOutParameter(parameterIndex, sqlType);
     }
 
-    public void registerOutParameter(int parameterIndex, int sqlType, int scale)
-        throws SQLException {
+    public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
         realStatement.registerOutParameter(parameterIndex, sqlType, scale);
     }
 
@@ -645,8 +558,7 @@ public class SWCallableStatement implements CallableStatement {
     }
 
     @Deprecated
-    public BigDecimal getBigDecimal(int parameterIndex, int scale)
-        throws SQLException {
+    public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
         return realStatement.getBigDecimal(parameterIndex, scale);
     }
 
@@ -674,8 +586,7 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getBigDecimal(parameterIndex);
     }
 
-    public Object getObject(int parameterIndex, Map<String, Class<?>> map)
-        throws SQLException {
+    public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
         return realStatement.getObject(parameterIndex, map);
     }
 
@@ -703,28 +614,23 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getTime(parameterIndex, cal);
     }
 
-    public Timestamp getTimestamp(int parameterIndex, Calendar cal)
-        throws SQLException {
+    public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
         return realStatement.getTimestamp(parameterIndex, cal);
     }
 
-    public void registerOutParameter(int parameterIndex, int sqlType,
-        String typeName) throws SQLException {
+    public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
         realStatement.registerOutParameter(parameterIndex, sqlType, typeName);
     }
 
-    public void registerOutParameter(String parameterName, int sqlType)
-        throws SQLException {
+    public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
         realStatement.registerOutParameter(parameterName, sqlType);
     }
 
-    public void registerOutParameter(String parameterName, int sqlType,
-        int scale) throws SQLException {
+    public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
         realStatement.registerOutParameter(parameterName, sqlType, scale);
     }
 
-    public void registerOutParameter(String parameterName, int sqlType,
-        String typeName) throws SQLException {
+    public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
         realStatement.registerOutParameter(parameterName, sqlType, typeName);
     }
 
@@ -768,8 +674,7 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setDouble(parameterName, x);
     }
 
-    public void setBigDecimal(String parameterName, BigDecimal x)
-        throws SQLException {
+    public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
         realStatement.setBigDecimal(parameterName, x);
     }
 
@@ -789,28 +694,23 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setTime(parameterName, x);
     }
 
-    public void setTimestamp(String parameterName, Timestamp x)
-        throws SQLException {
+    public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
         realStatement.setTimestamp(parameterName, x);
     }
 
-    public void setAsciiStream(String parameterName, InputStream x, int length)
-        throws SQLException {
+    public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
         realStatement.setAsciiStream(parameterName, x, length);
     }
 
-    public void setBinaryStream(String parameterName, InputStream x, int length)
-        throws SQLException {
+    public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
         realStatement.setBinaryStream(parameterName, x, length);
     }
 
-    public void setObject(String parameterName, Object x, int targetSqlType,
-        int scale) throws SQLException {
+    public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
         realStatement.setObject(parameterName, x, targetSqlType, scale);
     }
 
-    public void setObject(String parameterName, Object x, int targetSqlType)
-        throws SQLException {
+    public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
         realStatement.setObject(parameterName, x, targetSqlType);
     }
 
@@ -818,28 +718,23 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setObject(parameterName, x);
     }
 
-    public void setCharacterStream(String parameterName, Reader reader,
-        int length) throws SQLException {
+    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
         realStatement.setCharacterStream(parameterName, reader, length);
     }
 
-    public void setDate(String parameterName, Date x, Calendar cal)
-        throws SQLException {
+    public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
         realStatement.setDate(parameterName, x, cal);
     }
 
-    public void setTime(String parameterName, Time x, Calendar cal)
-        throws SQLException {
+    public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
         realStatement.setTime(parameterName, x, cal);
     }
 
-    public void setTimestamp(String parameterName, Timestamp x, Calendar cal)
-        throws SQLException {
+    public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
         realStatement.setTimestamp(parameterName, x, cal);
     }
 
-    public void setNull(String parameterName, int sqlType, String typeName)
-        throws SQLException {
+    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
         realStatement.setNull(parameterName, sqlType, typeName);
     }
 
@@ -899,8 +794,7 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getBigDecimal(parameterName);
     }
 
-    public Object getObject(String parameterName, Map<String, Class<?>> map)
-        throws SQLException {
+    public Object getObject(String parameterName, Map<String, Class<?>> map) throws SQLException {
         return realStatement.getObject(parameterName, map);
     }
 
@@ -928,8 +822,7 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getTime(parameterName, cal);
     }
 
-    public Timestamp getTimestamp(String parameterName, Calendar cal)
-        throws SQLException {
+    public Timestamp getTimestamp(String parameterName, Calendar cal) throws SQLException {
         return realStatement.getTimestamp(parameterName, cal);
     }
 
@@ -949,13 +842,11 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setRowId(parameterName, x);
     }
 
-    public void setNString(String parameterName, String value)
-        throws SQLException {
+    public void setNString(String parameterName, String value) throws SQLException {
         realStatement.setNString(parameterName, value);
     }
 
-    public void setNCharacterStream(String parameterName, Reader value,
-        long length) throws SQLException {
+    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
         realStatement.setNCharacterStream(parameterName, value, length);
     }
 
@@ -963,18 +854,15 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setNClob(parameterName, value);
     }
 
-    public void setClob(String parameterName, Reader reader, long length)
-        throws SQLException {
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
         realStatement.setClob(parameterName, reader, length);
     }
 
-    public void setBlob(String parameterName, InputStream inputStream,
-        long length) throws SQLException {
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
         realStatement.setBlob(parameterName, inputStream, length);
     }
 
-    public void setNClob(String parameterName, Reader reader, long length)
-        throws SQLException {
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
         realStatement.setNClob(parameterName, reader, length);
     }
 
@@ -986,8 +874,7 @@ public class SWCallableStatement implements CallableStatement {
         return realStatement.getNClob(parameterName);
     }
 
-    public void setSQLXML(String parameterName, SQLXML xmlObject)
-        throws SQLException {
+    public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
         realStatement.setSQLXML(parameterName, xmlObject);
     }
 
@@ -1031,63 +918,51 @@ public class SWCallableStatement implements CallableStatement {
         realStatement.setClob(parameterName, x);
     }
 
-    public void setAsciiStream(String parameterName, InputStream x, long length)
-        throws SQLException {
+    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
         realStatement.setAsciiStream(parameterName, x, length);
     }
 
-    public void setBinaryStream(String parameterName, InputStream x, long length)
-        throws SQLException {
+    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
         realStatement.setBinaryStream(parameterName, x, length);
     }
 
-    public void setCharacterStream(String parameterName, Reader reader,
-        long length) throws SQLException {
+    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
         realStatement.setCharacterStream(parameterName, reader, length);
     }
 
-    public void setAsciiStream(String parameterName, InputStream x)
-        throws SQLException {
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
         realStatement.setAsciiStream(parameterName, x);
     }
 
-    public void setBinaryStream(String parameterName, InputStream x)
-        throws SQLException {
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
         realStatement.setBinaryStream(parameterName, x);
     }
 
-    public void setCharacterStream(String parameterName, Reader reader)
-        throws SQLException {
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
         realStatement.setCharacterStream(parameterName, reader);
     }
 
-    public void setNCharacterStream(String parameterName, Reader value)
-        throws SQLException {
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
         realStatement.setNCharacterStream(parameterName, value);
     }
 
-    public void setClob(String parameterName, Reader reader)
-        throws SQLException {
+    public void setClob(String parameterName, Reader reader) throws SQLException {
         realStatement.setClob(parameterName, reader);
     }
 
-    public void setBlob(String parameterName, InputStream inputStream)
-        throws SQLException {
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
         realStatement.setBlob(parameterName, inputStream);
     }
 
-    public void setNClob(String parameterName, Reader reader)
-        throws SQLException {
+    public void setNClob(String parameterName, Reader reader) throws SQLException {
         realStatement.setNClob(parameterName, reader);
     }
 
-    public <T> T getObject(int parameterIndex, Class<T> type)
-        throws SQLException {
+    public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
         return realStatement.getObject(parameterIndex, type);
     }
 
-    public <T> T getObject(String parameterName, Class<T> type)
-        throws SQLException {
+    public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
         return realStatement.getObject(parameterName, type);
     }
 

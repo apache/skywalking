@@ -24,9 +24,6 @@ import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalking
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.ZipkinTrace;
 import zipkin2.Span;
 
-/**
- * @author wusheng
- */
 public class Zipkin2SkyWalkingTransfer {
     public static Zipkin2SkyWalkingTransfer INSTANCE = new Zipkin2SkyWalkingTransfer();
     private List<SegmentListener> listeners = new LinkedList<>();
@@ -44,9 +41,7 @@ public class Zipkin2SkyWalkingTransfer {
         if (traceSpans.size() > 0) {
             SkyWalkingTrace skyWalkingTrace = SegmentBuilder.build(traceSpans);
 
-            listeners.forEach(listener ->
-                listener.notify(skyWalkingTrace)
-            );
+            listeners.forEach(listener -> listener.notify(skyWalkingTrace));
 
         }
     }

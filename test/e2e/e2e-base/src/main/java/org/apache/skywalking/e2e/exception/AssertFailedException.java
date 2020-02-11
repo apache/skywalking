@@ -16,9 +16,7 @@
  */
 
 package org.apache.skywalking.e2e.exception;
-/**
- * Created by xin on 2017/7/15.
- */
+
 public abstract class AssertFailedException extends RuntimeException {
 
     private static final long serialVersionUID = 8870675340514007954L;
@@ -27,7 +25,7 @@ public abstract class AssertFailedException extends RuntimeException {
         super(message);
     }
 
-    protected AssertFailedException(){
+    protected AssertFailedException() {
     }
 
     public abstract String getCauseMessage();

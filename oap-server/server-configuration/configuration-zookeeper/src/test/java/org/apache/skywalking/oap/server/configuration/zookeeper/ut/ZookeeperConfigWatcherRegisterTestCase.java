@@ -27,11 +27,10 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
-/**
- * @author zhaoyuguang
- */
 public class ZookeeperConfigWatcherRegisterTestCase {
     @Test
     public void TestCase() throws Exception {
@@ -44,7 +43,8 @@ public class ZookeeperConfigWatcherRegisterTestCase {
 
         final MockZookeeperConfigWatcherRegister mockRegister = spy(new MockZookeeperConfigWatcherRegister(mockSettings));
         final PathChildrenCache mockPathChildrenCache = mock(PathChildrenCache.class);
-        when(mockPathChildrenCache.getCurrentData(nameSpace + "/" + key)).thenReturn(new ChildData(nameSpace + "/" + key, null, value.getBytes()));
+        when(mockPathChildrenCache.getCurrentData(nameSpace + "/" + key)).thenReturn(new ChildData(nameSpace + "/" + key, null, value
+            .getBytes()));
 
         Whitebox.setInternalState(mockRegister, "childrenCache", mockPathChildrenCache);
 

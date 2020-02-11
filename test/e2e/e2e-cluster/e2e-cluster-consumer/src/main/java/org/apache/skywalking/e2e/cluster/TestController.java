@@ -26,15 +26,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * @author kezhenxu94
- */
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String[] URL = {"http://127.0.0.1:9090/e2e/users", "http://127.0.0.1:9091/e2e/users"};
+    private static final String[] URL = {
+        "http://127.0.0.1:9090/e2e/users",
+        "http://127.0.0.1:9091/e2e/users"
+    };
 
     @GetMapping("/health-check")
     public String hello() {
@@ -46,9 +46,7 @@ public class TestController {
         Thread.sleep(1000L);
         ResponseEntity<User> response = null;
         for (String url : URL) {
-            response = restTemplate.postForEntity(
-                    url, user, User.class
-            );
+            response = restTemplate.postForEntity(url, user, User.class);
         }
         return response.getBody();
     }

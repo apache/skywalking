@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
 
 /**
  * IDColumn is the plus annotation for {@link Column}, declares this column is ID for the entity, besides time(bucket).
- *
- * @author wusheng
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

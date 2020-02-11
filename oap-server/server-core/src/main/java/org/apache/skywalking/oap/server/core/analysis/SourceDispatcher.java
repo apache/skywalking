@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import org.apache.skywalking.oap.server.core.source.Source;
 
-/**
- * @author peng-yongsheng
- */
 public interface SourceDispatcher<SOURCE extends Source> {
     void dispatch(SOURCE source);
 }

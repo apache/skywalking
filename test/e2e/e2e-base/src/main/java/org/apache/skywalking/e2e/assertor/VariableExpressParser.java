@@ -17,19 +17,14 @@
 
 package org.apache.skywalking.e2e.assertor;
 
-import org.apache.skywalking.e2e.assertor.exception.VariableNotFoundException;
-
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import org.apache.skywalking.e2e.assertor.exception.VariableNotFoundException;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author zhangwei
- */
 public class VariableExpressParser {
-
 
     public static <T> T parse(final String express, List<T> actual, Function<T, String> getFiled) {
         String variable = express.trim();

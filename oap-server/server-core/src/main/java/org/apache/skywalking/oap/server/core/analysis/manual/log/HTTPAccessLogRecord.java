@@ -31,7 +31,8 @@ public class HTTPAccessLogRecord extends AbstractLogRecord {
     public static final String INDEX_NAME = "http_access_log";
 
     public static class Builder extends AbstractLogRecord.Builder<HTTPAccessLogRecord> {
-        @Override public HTTPAccessLogRecord map2Data(Map<String, Object> dbMap) {
+        @Override
+        public HTTPAccessLogRecord map2Data(Map<String, Object> dbMap) {
             HTTPAccessLogRecord record = new HTTPAccessLogRecord();
             super.map2Data(record, dbMap);
             return record;

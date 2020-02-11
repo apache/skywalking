@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.metrics;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
-/**
- * @author kezhenxu94
- */
 public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     public static String SERVICE_SLA = "service_sla";
     public static String SERVICE_CPM = "service_cpm";
@@ -46,7 +43,7 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         ENDPOINT_CPM,
         ENDPOINT_AVG,
         ENDPOINT_SLA,
-    };
+        };
     public static String ENDPOINT_PERCENTILE = "endpoint_percentile";
     public static String[] ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS = {
         ENDPOINT_PERCENTILE
@@ -116,9 +113,6 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
 
     @Override
     public String toString() {
-        return "MetricsQuery{" +
-            "id='" + id + '\'' +
-            ", metricsName='" + metricsName + '\'' +
-            '}';
+        return "MetricsQuery{" + "id='" + id + '\'' + ", metricsName='" + metricsName + '\'' + '}';
     }
 }

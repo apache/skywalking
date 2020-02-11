@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
@@ -27,7 +26,8 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class ActiveSpanTagInterceptor implements StaticMethodsAroundInterceptor {
-    @Override public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+    @Override
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         MethodInterceptResult result) {
         try {
             AbstractSpan activeSpan = ContextManager.activeSpan();
@@ -36,7 +36,8 @@ public class ActiveSpanTagInterceptor implements StaticMethodsAroundInterceptor 
         }
     }
 
-    @Override public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+    @Override
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Object ret) {
         return ret;
     }

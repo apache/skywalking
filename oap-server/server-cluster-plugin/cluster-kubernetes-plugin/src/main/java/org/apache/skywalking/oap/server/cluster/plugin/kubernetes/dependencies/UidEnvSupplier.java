@@ -22,8 +22,6 @@ import java.util.function.Supplier;
 
 /**
  * Supply uid from environment variable.
- *
- * @author gaohongtao
  */
 public class UidEnvSupplier implements Supplier<String> {
 
@@ -32,7 +30,9 @@ public class UidEnvSupplier implements Supplier<String> {
     public UidEnvSupplier(final String uidEnvName) {
         this.uidEnvName = uidEnvName == null ? "" : uidEnvName;
     }
-    @Override public String get() {
+
+    @Override
+    public String get() {
         return System.getenv(uidEnvName);
     }
 }

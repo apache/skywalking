@@ -37,9 +37,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- */
 public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceInstanceInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCacheDAO.class);
@@ -52,7 +49,8 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         this.resultWindowMaxSize = resultWindowMaxSize;
     }
 
-    @Override public ServiceInstanceInventory get(int serviceInstanceId) {
+    @Override
+    public ServiceInstanceInventory get(int serviceInstanceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInstanceInventory.SEQUENCE, serviceInstanceId));
@@ -71,17 +69,20 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         }
     }
 
-    @Override public int getServiceInstanceId(int serviceId, String uuid) {
+    @Override
+    public int getServiceInstanceId(int serviceId, String uuid) {
         String id = ServiceInstanceInventory.buildId(serviceId, uuid);
         return get(id);
     }
 
-    @Override public int getServiceInstanceId(int serviceId, int addressId) {
+    @Override
+    public int getServiceInstanceId(int serviceId, int addressId) {
         String id = ServiceInstanceInventory.buildId(serviceId, addressId);
         return get(id);
     }
 
-    @Override public List<ServiceInstanceInventory> loadLastUpdate(long lastUpdateTime) {
+    @Override
+    public List<ServiceInstanceInventory> loadLastUpdate(long lastUpdateTime) {
         List<ServiceInstanceInventory> instanceInventories = new ArrayList<>();
 
         try {
@@ -89,7 +90,8 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
 
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             boolQuery.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.IS_ADDRESS, BooleanUtils.TRUE));
-            boolQuery.must().add(QueryBuilders.rangeQuery(ServiceInstanceInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
+            boolQuery.must()
+                     .add(QueryBuilders.rangeQuery(ServiceInstanceInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
 
             searchSourceBuilder.query(boolQuery);
             searchSourceBuilder.size(resultWindowMaxSize);
@@ -109,7 +111,7 @@ public class ServiceInstanceInventoryCacheDAO extends EsDAO implements IServiceI
         try {
             GetResponse response = getClient().get(ServiceInstanceInventory.INDEX_NAME, id);
             if (response.isExists()) {
-                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
+                return (int) response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }

@@ -30,9 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author kezhenxu94
- */
 public class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.commons.httpclient.HttpClient";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.httpclient.v3.HttpClientExecuteInterceptor";
@@ -49,15 +46,14 @@ public class HttpClientInstrumentation extends ClassInstanceMethodsEnhancePlugin
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("executeMethod")
-                        .and(takesArguments(3))
-                        .and(takesArgument(0, named("org.apache.commons.httpclient.HostConfiguration")))
-                        .and(takesArgument(1, named("org.apache.commons.httpclient.HttpMethod")))
-                        .and(takesArgument(2, named("org.apache.commons.httpclient.HttpState")));
+                    return named("executeMethod").and(takesArguments(3))
+                                                 .and(takesArgument(0, named("org.apache.commons.httpclient.HostConfiguration")))
+                                                 .and(takesArgument(1, named("org.apache.commons.httpclient.HttpMethod")))
+                                                 .and(takesArgument(2, named("org.apache.commons.httpclient.HttpState")));
                 }
 
                 @Override

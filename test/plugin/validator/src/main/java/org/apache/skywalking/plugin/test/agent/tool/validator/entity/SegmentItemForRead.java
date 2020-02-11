@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 import java.util.ArrayList;
@@ -66,7 +67,8 @@ public class SegmentItemForRead implements SegmentItem {
         return new ArrayList<>(segments);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         StringBuilder message = new StringBuilder(String.format("\nSegment Item[%s]", applicationCode));
         message.append(String.format(" - segment size:\t\t%s\n", segmentSize));
         return message.toString();

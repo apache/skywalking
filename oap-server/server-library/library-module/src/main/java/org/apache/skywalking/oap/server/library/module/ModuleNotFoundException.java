@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
 public class ModuleNotFoundException extends Exception {

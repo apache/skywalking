@@ -20,9 +20,6 @@ package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
 
-/**
- * @author zhang xin
- */
 public interface ChannelDecorator {
     Channel build(Channel channel);
 }

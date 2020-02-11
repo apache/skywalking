@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 
-/**
- * @author peng-yongsheng
- */
 public interface GlobalTraceIdsListener extends SpanListener {
     void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo);
 }

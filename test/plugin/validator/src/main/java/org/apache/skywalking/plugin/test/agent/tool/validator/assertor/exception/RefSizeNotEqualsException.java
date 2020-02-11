@@ -29,7 +29,8 @@ public class RefSizeNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("[segment ref size]: expected=>{%s}, actual=>{%s}", expected, actual);
     }
 }

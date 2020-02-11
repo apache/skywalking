@@ -18,6 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
@@ -27,10 +35,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Analyze {@link ProfileStack} data to {@link ProfileAnalyzation}
@@ -57,10 +61,6 @@ public class ProfileAnalyzer {
 
     /**
      * search snapshots and analyze
-     * @param segmentId
-     * @param start
-     * @param end
-     * @return
      */
     public ProfileAnalyzation analyze(String segmentId, long start, long end) throws IOException {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
@@ -83,7 +83,7 @@ public class ProfileAnalyzer {
                 LOGGER.warn(e.getMessage(), e);
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
             }
-        }).flatMap(t -> t.stream()).map(ProfileStack::deserialize).collect(Collectors.toList());
+        }).flatMap(Collection::stream).map(ProfileStack::deserialize).collect(Collectors.toList());
 
         // analyze
         analyzation.setTrees(analyze(stacks));
@@ -108,7 +108,8 @@ public class ProfileAnalyzer {
             int batchMax = Math.min(minSequence + threadSnapshotAnalyzeBatchSize, maxSequence);
             sequenceSearch.getRanges().add(new SequenceRange(minSequence, batchMax));
             minSequence = batchMax + 1;
-        } while (minSequence < maxSequence);
+        }
+        while (minSequence < maxSequence);
 
         // increase last range max sequence, need to include last sequence data
         sequenceSearch.getRanges().getLast().increaseMaxSequence();
@@ -118,8 +119,6 @@ public class ProfileAnalyzer {
 
     /**
      * Analyze records
-     * @param stacks
-     * @return
      */
     protected List<ProfileStackTree> analyze(List<ProfileStack> stacks) {
         if (CollectionUtils.isEmpty(stacks)) {
@@ -128,16 +127,19 @@ public class ProfileAnalyzer {
 
         // using parallel stream
         Map<String, ProfileStackTree> stackTrees = stacks.parallelStream()
-                // stack list cannot be empty
-                .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
-                .collect(Collectors.groupingBy(s -> s.getStack().get(0), ANALYZE_COLLECTOR));
+                                                         // stack list cannot be empty
+                                                         .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
+                                                         .collect(Collectors.groupingBy(s -> s.getStack()
+                                                                                              .get(0), ANALYZE_COLLECTOR));
 
         return new ArrayList<>(stackTrees.values());
     }
 
     private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
         if (profileThreadSnapshotQueryDAO == null) {
-            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
+            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(IProfileThreadSnapshotQueryDAO.class);
         }
         return profileThreadSnapshotQueryDAO;
     }

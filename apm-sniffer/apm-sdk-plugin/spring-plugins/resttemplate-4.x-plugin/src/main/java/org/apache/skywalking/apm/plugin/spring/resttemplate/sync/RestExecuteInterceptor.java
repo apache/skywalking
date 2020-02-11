@@ -35,16 +35,18 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        final URI requestURL = (URI)allArguments[0];
-        final HttpMethod httpMethod = (HttpMethod)allArguments[1];
+        final URI requestURL = (URI) allArguments[0];
+        final HttpMethod httpMethod = (HttpMethod) allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
 
-        String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL.getScheme()) ? 443 : 80);
+        String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL
+            .getScheme()) ? 443 : 80);
         String formatURIPath = requestURL.getPath();
         AbstractSpan span = ContextManager.createExitSpan(formatURIPath, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE);
-        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL.getPath());
+        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL
+            .getPath());
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
 
@@ -58,7 +60,8 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

@@ -20,17 +20,14 @@ package org.apache.skywalking.e2e.service;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class ServicesData {
     private List<Service> services;
 
     public List<Service> getServices() {
-      return services;
+        return services;
     }
 
     public void setServices(List<Service> services) {
-      this.services = services;
+        this.services = services;
     }
 }

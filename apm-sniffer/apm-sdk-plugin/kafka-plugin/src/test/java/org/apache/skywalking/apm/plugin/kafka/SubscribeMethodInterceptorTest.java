@@ -43,12 +43,14 @@ public class SubscribeMethodInterceptorTest {
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo = new ConsumerEnhanceRequiredInfo();
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            this.consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
 
@@ -62,7 +64,7 @@ public class SubscribeMethodInterceptorTest {
     @Test
     public void testOnConsumer() throws Throwable {
         constructorInterceptor.beforeMethod(enhancedInstance, null, new Object[] {mockTopics}, new Class[] {Collection.class}, null);
-        ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo)enhancedInstance.getSkyWalkingDynamicField();
+        ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         assertThat(requiredInfo.getTopics(), is("test;test-1"));
     }
 }

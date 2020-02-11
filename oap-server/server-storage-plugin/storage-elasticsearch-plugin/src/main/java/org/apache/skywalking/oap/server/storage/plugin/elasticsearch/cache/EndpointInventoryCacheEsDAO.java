@@ -19,7 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -28,11 +29,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
@@ -43,12 +42,13 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
         super(client);
     }
 
-    @Override public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
+    @Override
+    public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
         try {
             String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
             GetResponse response = getClient().get(EndpointInventory.INDEX_NAME, id);
             if (response.isExists()) {
-                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
+                return (int) response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }
@@ -58,7 +58,8 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
         }
     }
 
-    @Override public EndpointInventory get(int endpointId) {
+    @Override
+    public EndpointInventory get(int endpointId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));

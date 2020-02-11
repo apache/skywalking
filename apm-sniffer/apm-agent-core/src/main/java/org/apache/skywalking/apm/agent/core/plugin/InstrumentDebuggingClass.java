@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.io.File;
@@ -31,8 +30,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 /**
  * The manipulated class output. Write the dynamic classes to the `debugging` folder, when we need to do some debug and
  * recheck.
- *
- * @author wu-sheng
  */
 public enum InstrumentDebuggingClass {
     INSTANCE;

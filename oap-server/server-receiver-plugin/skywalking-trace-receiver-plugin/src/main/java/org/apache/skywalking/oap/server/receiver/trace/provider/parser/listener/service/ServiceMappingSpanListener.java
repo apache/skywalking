@@ -40,9 +40,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- */
 public class ServiceMappingSpanListener implements EntrySpanListener {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMappingSpanListener.class);
@@ -55,17 +52,25 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     private final List<Integer> servicesToResetMapping = new ArrayList<>();
 
     private ServiceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(NetworkAddressInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(IServiceInventoryRegister.class);
         this.config = config;
     }
 
-    @Override public boolean containsPoint(Point point) {
+    @Override
+    public boolean containsPoint(Point point) {
         return Point.Entry.equals(point);
     }
 
-    @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+    @Override
+    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         if (logger.isDebugEnabled()) {
             logger.debug("service mapping listener parse reference");
         }
@@ -96,10 +101,12 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
         }
     }
 
-    @Override public void build() {
+    @Override
+    public void build() {
         serviceMappings.forEach(serviceMapping -> {
             if (logger.isDebugEnabled()) {
-                logger.debug("service mapping listener build, service id: {}, mapping service id: {}", serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
+                logger.debug("service mapping listener build, service id: {}, mapping service id: {}", serviceMapping.getServiceId(), serviceMapping
+                    .getMappingServiceId());
             }
             serviceInventoryRegister.updateMapping(serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
         });
@@ -113,7 +120,8 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
 
     public static class Factory implements SpanListenerFactory {
 
-        @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+        @Override
+        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new ServiceMappingSpanListener(moduleManager, config);
         }
     }

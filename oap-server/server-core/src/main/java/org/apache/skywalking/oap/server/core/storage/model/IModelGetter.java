@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import java.util.List;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface IModelGetter extends Service {
     List<Model> getModels();
 }

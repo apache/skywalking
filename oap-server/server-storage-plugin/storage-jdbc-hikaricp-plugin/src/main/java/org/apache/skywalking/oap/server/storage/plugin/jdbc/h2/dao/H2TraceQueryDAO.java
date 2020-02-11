@@ -39,10 +39,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author wusheng
- * @author panjuan
- */
 public class H2TraceQueryDAO implements ITraceQueryDAO {
     private JDBCHikariCPClient h2Client;
 
@@ -114,7 +110,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         TraceBrief traceBrief = new TraceBrief();
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters
+                .toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     traceBrief.setTotal(resultSet.getInt("total"));
                 }
@@ -152,7 +149,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         sql.append(" OFFSET ").append(from);
     }
 
-    @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    @Override
+    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
 
@@ -181,7 +179,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
         return segmentRecords;
     }
 
-    @Override public List<Span> doFlexibleTraceQuery(String traceId) {
+    @Override
+    public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
     }
 }

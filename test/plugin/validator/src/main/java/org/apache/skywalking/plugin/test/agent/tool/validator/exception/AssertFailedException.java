@@ -17,15 +17,12 @@
 
 package org.apache.skywalking.plugin.test.agent.tool.validator.exception;
 
-/**
- * Created by xin on 2017/7/15.
- */
 public abstract class AssertFailedException extends RuntimeException {
     protected AssertFailedException(String message) {
         super(message);
     }
 
-    protected AssertFailedException(){
+    protected AssertFailedException() {
     }
 
     public abstract String getCauseMessage();

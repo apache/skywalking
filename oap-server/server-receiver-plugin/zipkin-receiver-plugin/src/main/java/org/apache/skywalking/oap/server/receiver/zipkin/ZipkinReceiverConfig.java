@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author wusheng
- */
 @Setter
 @Getter
 public class ZipkinReceiverConfig extends ModuleConfig {

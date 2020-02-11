@@ -27,10 +27,6 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
-/**
- * @author peng-yongsheng, wusheng
- */
-
 public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
@@ -38,7 +34,7 @@ public class DefaultScopeDefine {
 
     /**
      * All metrics IDs in [0, 10,000) are reserved in Apache SkyWalking.
-     *
+     * <p>
      * If you want to extend the scope, recommend to start with 10,000.
      */
     public static final int ALL = 0;
@@ -83,12 +79,14 @@ public class DefaultScopeDefine {
     private static final Map<Integer, Boolean> ENDPOINT_CATALOG = new HashMap<>();
 
     public static class Listener implements AnnotationListener {
-        @Override public Class<? extends Annotation> annotation() {
+        @Override
+        public Class<? extends Annotation> annotation() {
             return ScopeDeclaration.class;
         }
 
-        @Override public void notify(Class originalClass) {
-            ScopeDeclaration declaration = (ScopeDeclaration)originalClass.getAnnotation(ScopeDeclaration.class);
+        @Override
+        public void notify(Class originalClass) {
+            ScopeDeclaration declaration = (ScopeDeclaration) originalClass.getAnnotation(ScopeDeclaration.class);
             if (declaration != null) {
                 addNewScope(declaration, originalClass);
             }
@@ -98,29 +96,32 @@ public class DefaultScopeDefine {
     public static final void addNewScope(ScopeDeclaration declaration, Class originalClass) {
         int id = declaration.id();
         if (ID_2_NAME.containsKey(id)) {
-            throw new UnexpectedException("ScopeDeclaration id=" + id + " at " + originalClass.getName() + " has conflict with another named " + ID_2_NAME.get(id));
+            throw new UnexpectedException("ScopeDeclaration id=" + id + " at " + originalClass.getName() + " has conflict with another named " + ID_2_NAME
+                .get(id));
         }
         String name = declaration.name();
         if (NAME_2_ID.containsKey(name)) {
-            throw new UnexpectedException("ScopeDeclaration fieldName=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID.get(name));
+            throw new UnexpectedException("ScopeDeclaration fieldName=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID
+                .get(name));
         }
         ID_2_NAME.put(id, name);
         NAME_2_ID.put(name, id);
 
         List<ScopeDefaultColumn> scopeDefaultColumns = new ArrayList<>();
 
-        ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = (ScopeDefaultColumn.VirtualColumnDefinition)originalClass.getAnnotation(ScopeDefaultColumn.VirtualColumnDefinition.class);
+        ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = (ScopeDefaultColumn.VirtualColumnDefinition) originalClass
+            .getAnnotation(ScopeDefaultColumn.VirtualColumnDefinition.class);
         if (virtualColumn != null) {
-            scopeDefaultColumns.add(new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(),
-                virtualColumn.type(), virtualColumn.isID()));
+            scopeDefaultColumns.add(new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
+                .type(), virtualColumn.isID()));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
             for (Field field : scopeClassField) {
                 ScopeDefaultColumn.DefinedByField definedByField = field.getAnnotation(ScopeDefaultColumn.DefinedByField.class);
                 if (definedByField != null) {
-                    scopeDefaultColumns.add(new ScopeDefaultColumn(field.getName(), definedByField.columnName(),
-                        field.getType(), definedByField.isID()));
+                    scopeDefaultColumns.add(new ScopeDefaultColumn(field.getName(), definedByField.columnName(), field.getType(), definedByField
+                        .isID()));
                 }
             }
         }
@@ -179,7 +180,6 @@ public class DefaultScopeDefine {
      * Get the default columns defined in Scope. All those columns will forward to persistent entity.
      *
      * @param scopeName of the default columns
-     * @return
      */
     public static List<ScopeDefaultColumn> getDefaultColumns(String scopeName) {
         List<ScopeDefaultColumn> scopeDefaultColumns = SCOPE_COLUMNS.get(scopeName);

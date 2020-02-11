@@ -18,15 +18,11 @@
 
 package org.apache.skywalking.e2e.service.instance;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 import org.assertj.core.api.Assertions;
 
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * @author kezhenxu94
- */
 public class InstancesMatcher extends AbstractMatcher<Instances> {
     private List<InstanceMatcher> instances;
 

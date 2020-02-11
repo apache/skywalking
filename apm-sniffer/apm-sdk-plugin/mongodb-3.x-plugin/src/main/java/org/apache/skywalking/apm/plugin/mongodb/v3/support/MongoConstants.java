@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
-/**
- * @author scolia
- */
 public class MongoConstants {
 
     private MongoConstants() {

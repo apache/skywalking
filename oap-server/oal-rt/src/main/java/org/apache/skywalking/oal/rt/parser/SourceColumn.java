@@ -19,7 +19,9 @@
 package org.apache.skywalking.oal.rt.parser;
 
 import java.util.Objects;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
 @Getter(AccessLevel.PUBLIC)
@@ -74,31 +76,25 @@ public class SourceColumn {
         this.typeName = typeName;
     }
 
-    @Override public String toString() {
-        return "SourceColumn{" +
-            "fieldName='" + fieldName + '\'' +
-            ", columnName='" + columnName + '\'' +
-            ", type=" + type +
-            ", isID=" + isID +
-            '}';
+    @Override
+    public String toString() {
+        return "SourceColumn{" + "fieldName='" + fieldName + '\'' + ", columnName='" + columnName + '\'' + ", type=" + type + ", isID=" + isID + '}';
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        SourceColumn column = (SourceColumn)o;
-        return isID == column.isID &&
-            Objects.equals(fieldName, column.fieldName) &&
-            Objects.equals(columnName, column.columnName) &&
-            Objects.equals(type, column.type) &&
-            Objects.equals(typeName, column.typeName) &&
-            Objects.equals(fieldSetter, column.fieldSetter) &&
-            Objects.equals(fieldGetter, column.fieldGetter);
+        SourceColumn column = (SourceColumn) o;
+        return isID == column.isID && Objects.equals(fieldName, column.fieldName) && Objects.equals(columnName, column.columnName) && Objects
+            .equals(type, column.type) && Objects.equals(typeName, column.typeName) && Objects.equals(fieldSetter, column.fieldSetter) && Objects
+            .equals(fieldGetter, column.fieldGetter);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(fieldName, columnName, type, typeName, isID, fieldSetter, fieldGetter);
     }
 }

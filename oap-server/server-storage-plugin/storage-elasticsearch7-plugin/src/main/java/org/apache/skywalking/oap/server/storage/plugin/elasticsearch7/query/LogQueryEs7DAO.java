@@ -43,28 +43,15 @@ import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 
-/**
- * @author wusheng
- * @author kezhenxu94
- */
 public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
     public LogQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public Logs queryLogs(String metricName,
-                          int serviceId,
-                          int serviceInstanceId,
-                          int endpointId,
-                          String traceId,
-                          LogState state,
-                          String stateCode,
-                          Pagination paging,
-                          int from,
-                          int limit,
-                          long startSecondTB,
-                          long endSecondTB) throws IOException {
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+        LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
+        long endSecondTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -79,7 +66,8 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
         }
         if (serviceInstanceId != Const.NONE) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (endpointId != Const.NONE) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
@@ -91,9 +79,11 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(TRACE_ID, traceId));
         }
         if (LogState.ERROR.equals(state)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
         } else if (LogState.SUCCESS.equals(state)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
         }
 
         sourceBuilder.size(limit);
@@ -107,11 +97,14 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
         for (SearchHit searchHit : response.getHits().getHits()) {
             Log log = new Log();
             log.setServiceId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID)).intValue());
-            log.setServiceInstanceId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
+            log.setServiceInstanceId(((Number) searchHit.getSourceAsMap()
+                                                        .get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
             log.setEndpointId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID)).intValue());
-            log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.IS_ERROR)).intValue()));
+            log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
+                                                                        .get(AbstractLogRecord.IS_ERROR)).intValue()));
             log.setStatusCode((String) searchHit.getSourceAsMap().get(AbstractLogRecord.STATUS_CODE));
-            log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap()
+                                                                         .get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
             log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
 
             logs.getLogs().add(log);

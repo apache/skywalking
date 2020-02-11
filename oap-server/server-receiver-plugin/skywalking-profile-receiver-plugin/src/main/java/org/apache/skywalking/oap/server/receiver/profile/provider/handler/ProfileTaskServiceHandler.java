@@ -43,9 +43,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author MrPro
- */
 public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBase implements GRPCHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileTaskServiceHandler.class);

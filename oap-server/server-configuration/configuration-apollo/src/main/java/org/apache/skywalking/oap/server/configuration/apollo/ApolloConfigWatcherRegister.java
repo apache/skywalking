@@ -21,16 +21,12 @@ package org.apache.skywalking.oap.server.configuration.apollo;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.google.common.base.Strings;
+import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
-/**
- * @author kezhenxu94
- */
 public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApolloConfigWatcherRegister.class);
 

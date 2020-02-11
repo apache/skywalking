@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -34,34 +33,39 @@ public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentati
     private static final String PREPARED_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.ClientPreparedStatement";
     private static final String PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME = "com.mysql.cj.jdbc.ServerPreparedStatement";
 
-    private static final String SERVICE_METHOD_INTERCEPTOR =  Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
+    private static final String SERVICE_METHOD_INTERCEPTOR = Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
 
-    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate"))
-                        .or(named("executeLargeUpdate"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute").or(named("executeQuery"))
+                                           .or(named("executeUpdate"))
+                                           .or(named("executeLargeUpdate"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SERVICE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byMultiClassMatch(PREPARED_STATEMENT_CLASS_NAME, PREPARED_STATEMENT_SERVER_SIDE_CLASS_NAME);
     }
 }

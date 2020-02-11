@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.service.instance;
 
-/**
- * @author kezhenxu94
- */
 public class Attribute {
     private String name;
     private String value;
@@ -43,9 +40,6 @@ public class Attribute {
 
     @Override
     public String toString() {
-        return "Attribute{" +
-            "name='" + name + '\'' +
-            ", value='" + value + '\'' +
-            '}';
+        return "Attribute{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
     }
 }

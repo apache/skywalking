@@ -18,20 +18,28 @@
 
 package org.apache.skywalking.apm.plugin.zookeeper;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.jute.Record;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.proto.*;
+import org.apache.zookeeper.proto.CheckVersionRequest;
+import org.apache.zookeeper.proto.CreateRequest;
+import org.apache.zookeeper.proto.DeleteRequest;
+import org.apache.zookeeper.proto.ExistsRequest;
+import org.apache.zookeeper.proto.GetACLRequest;
+import org.apache.zookeeper.proto.GetChildren2Request;
+import org.apache.zookeeper.proto.GetChildrenRequest;
+import org.apache.zookeeper.proto.GetDataRequest;
+import org.apache.zookeeper.proto.GetMaxChildrenRequest;
+import org.apache.zookeeper.proto.SetACLRequest;
+import org.apache.zookeeper.proto.SetDataRequest;
+import org.apache.zookeeper.proto.SetMaxChildrenRequest;
+import org.apache.zookeeper.proto.SyncRequest;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * @author zhaoyuguang
- */
 class ZooOpt {
 
     private static final Map<Integer, String> OPTS = new HashMap<>();
@@ -70,10 +78,9 @@ class ZooOpt {
     }
 
     /**
-     * Add the tag attribute only for the implementation of the Request suffix
-     * except ConnectRequest.class because no very important attributes
-     * except GetSASLRequest.class because no very important attributes
-     * except SetSASLRequest.class because no very important attributes
+     * Add the tag attribute only for the implementation of the Request suffix except ConnectRequest.class because no
+     * very important attributes except GetSASLRequest.class because no very important attributes except
+     * SetSASLRequest.class because no very important attributes
      *
      * @param span   SkyWalking AbstractSpan.class
      * @param record Zookeeper Record.class

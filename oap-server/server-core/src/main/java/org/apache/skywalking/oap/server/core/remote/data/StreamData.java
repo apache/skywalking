@@ -19,24 +19,25 @@
 package org.apache.skywalking.oap.server.core.remote.data;
 
 import org.apache.skywalking.oap.server.core.analysis.data.QueueData;
-import org.apache.skywalking.oap.server.core.remote.*;
+import org.apache.skywalking.oap.server.core.remote.Deserializable;
+import org.apache.skywalking.oap.server.core.remote.Serializable;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class StreamData implements QueueData, Serializable, Deserializable {
 
     private boolean endOfBatch = false;
 
-    @Override public void resetEndOfBatch() {
+    @Override
+    public void resetEndOfBatch() {
         this.endOfBatch = false;
     }
 
-    @Override public void asEndOfBatch() {
+    @Override
+    public void asEndOfBatch() {
         this.endOfBatch = true;
     }
 
-    @Override public boolean isEndOfBatch() {
+    @Override
+    public boolean isEndOfBatch() {
         return this.endOfBatch;
     }
 

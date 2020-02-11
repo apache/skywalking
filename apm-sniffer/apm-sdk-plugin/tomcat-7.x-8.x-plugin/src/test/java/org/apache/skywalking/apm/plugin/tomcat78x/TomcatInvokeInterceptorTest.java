@@ -87,11 +87,25 @@ public class TomcatInvokeInterceptorTest {
         when(request.getRequestURI()).thenReturn("/test/testRequestURL");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
-        arguments = new Object[] {request, response};
-        argumentType = new Class[] {request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
 
-        exceptionArguments = new Object[] {request, response, new RuntimeException()};
-        exceptionArgumentType = new Class[] {request.getClass(), response.getClass(), new RuntimeException().getClass()};
+        exceptionArguments = new Object[] {
+            request,
+            response,
+            new RuntimeException()
+        };
+        exceptionArgumentType = new Class[] {
+            request.getClass(),
+            response.getClass(),
+            new RuntimeException().getClass()
+        };
     }
 
     @Test

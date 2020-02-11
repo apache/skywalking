@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.ArrayList;
@@ -34,8 +33,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
  * Match the class by the given super class or interfaces.
- *
- * @author wusheng
  */
 public class HierarchyMatch implements IndirectMatch {
     private String[] parentTypes;

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.library.client.grpc;
 
 import org.apache.skywalking.oap.server.library.client.ClientException;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCClientException extends ClientException {
 
     public GRPCClientException(String message) {
