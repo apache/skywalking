@@ -15,31 +15,32 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
+package org.apache.skywalking.oap.server.core.profile.analyze;
 
+import com.google.common.base.Splitter;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 @Data
-public class ProfileStackAnalyze {
+public class ProfileStackData {
 
-    private ProfileStackData data;
-    private List<ProfileStackElementMatcher> expected;
+    private int limit;
+    private List<String> snapshots;
 
-    public void analyzeAndAssert() {
-        List<ProfileStack> stacks = data.transform();
-        ProfileAnalyzation analyze = ProfileAnalyzer.analyze(stacks);
+    public List<ProfileStack> transform() {
+        ArrayList<ProfileStack> result = new ArrayList<>(snapshots.size());
 
-        assertEquals(analyze.getTrees().size(), expected.size());
-        for (int i = 0; i < analyze.getTrees().size(); i++) {
-            expected.get(i).verify(analyze.getTrees().get(i));
+        for (int i = 0; i < snapshots.size(); i++) {
+            ProfileStack stack = new ProfileStack();
+            stack.setSequence(i);
+            stack.setDumpTime(i * limit);
+            stack.setStack(Splitter.on("-").splitToList(snapshots.get(i)));
+            result.add(stack);
         }
+
+        return result;
     }
 
 }
