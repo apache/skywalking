@@ -18,6 +18,14 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -30,16 +38,8 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * Profile task executor, use {@link #addProfileTask(ProfileTask)} to add a new profile task.
- *
- * @author MrPro
  */
 @DefaultImplementor
 public class ProfileTaskExecutionService implements BootService, TracingThreadListener {
@@ -47,7 +47,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     private static final ILog logger = LogManager.getLogger(ProfileTaskExecutionService.class);
 
     // add a schedule while waiting for the task to start or finish
-    private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
+    private final static ScheduledExecutorService PROFILE_TASK_SCHEDULE = Executors.newSingleThreadScheduledExecutor(
+        new DefaultNamedThreadFactory("PROFILE-TASK-SCHEDULE"));
 
     // last command create time, use to next query task list
     private volatile long lastCommandCreateTime = -1;
@@ -56,7 +57,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     private final AtomicReference<ProfileTaskExecutionContext> taskExecutionContext = new AtomicReference<>();
 
     // profile executor thread pool, only running one thread
-    private final static ExecutorService PROFILE_EXECUTOR = Executors.newSingleThreadExecutor(new DefaultNamedThreadFactory("PROFILING-TASK"));
+    private final static ExecutorService PROFILE_EXECUTOR = Executors.newSingleThreadExecutor(
+        new DefaultNamedThreadFactory("PROFILING-TASK"));
 
     // profile task list, include running and waiting running tasks
     private final List<ProfileTask> profileTaskList = Collections.synchronizedList(new LinkedList<>());
@@ -73,7 +75,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         // check profile task limit
         final CheckResult dataError = checkProfileTaskSuccess(task);
         if (!dataError.isSuccess()) {
-            logger.warn("check command error, cannot process this profile task. reason: {}", dataError.getErrorReason());
+            logger.warn(
+                "check command error, cannot process this profile task. reason: {}", dataError.getErrorReason());
             return;
         }
 
@@ -82,12 +85,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
         // schedule to start task
         long timeToProcessMills = task.getStartTime() - System.currentTimeMillis();
-        PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
-            @Override
-            public void run() {
-                processProfileTask(task);
-            }
-        }, timeToProcessMills, TimeUnit.MILLISECONDS);
+        PROFILE_TASK_SCHEDULE.schedule(() -> processProfileTask(task), timeToProcessMills, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -130,12 +128,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         // start profiling this task
         currentStartedTaskContext.startProfiling(PROFILE_EXECUTOR);
 
-        PROFILE_TASK_SCHEDULE.schedule(new Runnable() {
-            @Override
-            public void run() {
-                stopCurrentProfileTask(currentStartedTaskContext);
-            }
-        }, task.getDuration(), TimeUnit.MINUTES);
+        PROFILE_TASK_SCHEDULE.schedule(
+            () -> stopCurrentProfileTask(currentStartedTaskContext), task.getDuration(), TimeUnit.MINUTES);
     }
 
     /**
@@ -154,25 +148,26 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         profileTaskList.remove(needToStop.getTask());
 
         // notify profiling task has finished
-        ServiceManager.INSTANCE.findService(ProfileTaskChannelService.class).notifyProfileTaskFinish(needToStop.getTask());
+        ServiceManager.INSTANCE.findService(ProfileTaskChannelService.class)
+                               .notifyProfileTaskFinish(needToStop.getTask());
     }
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
         // add trace finish notification
         TracingContext.TracingThreadListenerManager.add(this);
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         // remove trace listener
         TracingContext.TracingThreadListenerManager.remove(this);
 
@@ -196,10 +191,14 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
         // duration
         if (task.getDuration() < ProfileConstants.TASK_DURATION_MIN_MINUTE) {
-            return new CheckResult(false, "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes");
+            return new CheckResult(
+                false, "monitor duration must greater than " + ProfileConstants.TASK_DURATION_MIN_MINUTE + " minutes");
         }
         if (task.getDuration() > ProfileConstants.TASK_DURATION_MAX_MINUTE) {
-            return new CheckResult(false, "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes");
+            return new CheckResult(
+                false,
+                "The duration of the monitoring task cannot be greater than " + ProfileConstants.TASK_DURATION_MAX_MINUTE + " minutes"
+            );
         }
 
         // min duration threshold
@@ -209,7 +208,10 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
         // dump period
         if (task.getThreadDumpPeriod() < ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS) {
-            return new CheckResult(false, "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds");
+            return new CheckResult(
+                false,
+                "dump period must be greater than or equals " + ProfileConstants.TASK_DUMP_PERIOD_MIN_MILLIS + " milliseconds"
+            );
         }
 
         // max sampling count
@@ -217,7 +219,8 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
             return new CheckResult(false, "max sampling count must greater than zero");
         }
         if (task.getMaxSamplingCount() >= ProfileConstants.TASK_MAX_SAMPLING_COUNT) {
-            return new CheckResult(false, "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT);
+            return new CheckResult(
+                false, "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT);
         }
 
         // check task queue, check only one task in a certain time
@@ -225,8 +228,13 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
         for (ProfileTask profileTask : profileTaskList) {
 
             // if the end time of the task to be added is during the execution of any data, means is a error data
-            if (taskProcessFinishTime >= profileTask.getStartTime() && taskProcessFinishTime <= calcProfileTaskFinishTime(profileTask)) {
-                return new CheckResult(false, "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: " + profileTask.getFistSpanOPName());
+            if (taskProcessFinishTime >= profileTask.getStartTime() && taskProcessFinishTime <= calcProfileTaskFinishTime(
+                profileTask)) {
+                return new CheckResult(
+                    false,
+                    "there already have processing task in time range, could not add a new task again. processing task monitor endpoint name: "
+                        + profileTask.getFistSpanOPName()
+                );
             }
         }
 

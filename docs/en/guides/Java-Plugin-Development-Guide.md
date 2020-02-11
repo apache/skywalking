@@ -279,9 +279,7 @@ As an interceptor for an instance method, the interceptor implements
 /**
  * A interceptor, which intercept method's invocation. The target methods will be defined in {@link
  * ClassEnhancePluginDefine}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
- *
- * @author wusheng
- */
+*/
 public interface InstanceMethodsAroundInterceptor {
     /**
      * called before target method invocation.

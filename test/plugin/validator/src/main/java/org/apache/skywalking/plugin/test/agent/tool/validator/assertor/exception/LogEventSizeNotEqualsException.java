@@ -28,7 +28,8 @@ public class LogEventSizeNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("[log event size]: expected=>{%d}, actual=>{%d}\n", expected, actual);
     }
 }

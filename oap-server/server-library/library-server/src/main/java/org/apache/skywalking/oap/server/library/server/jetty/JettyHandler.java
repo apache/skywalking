@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.library.server.jetty;
 import javax.servlet.http.HttpServlet;
 import org.apache.skywalking.oap.server.library.server.ServerHandler;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class JettyHandler extends HttpServlet implements ServerHandler {
     public abstract String pathSpec();
 }

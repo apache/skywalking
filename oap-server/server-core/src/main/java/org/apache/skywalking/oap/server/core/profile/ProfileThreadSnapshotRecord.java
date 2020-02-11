@@ -15,8 +15,12 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.profile;
 
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -29,16 +33,10 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
 /**
  * Profiling segment snapshot database bean, use record
- *
- * @author MrPro
  */
 @Getter
 @Setter
@@ -53,11 +51,16 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String SEQUENCE = "sequence";
     public static final String STACK_BINARY = "stack_binary";
 
-    @Column(columnName = TASK_ID) private String taskId;
-    @Column(columnName = SEGMENT_ID) private String segmentId;
-    @Column(columnName = DUMP_TIME) private long dumpTime;
-    @Column(columnName = SEQUENCE) private int sequence;
-    @Column(columnName = STACK_BINARY) private byte[] stackBinary;
+    @Column(columnName = TASK_ID)
+    private String taskId;
+    @Column(columnName = SEGMENT_ID)
+    private String segmentId;
+    @Column(columnName = DUMP_TIME)
+    private long dumpTime;
+    @Column(columnName = SEQUENCE)
+    private int sequence;
+    @Column(columnName = STACK_BINARY)
+    private byte[] stackBinary;
 
     @Override
     public String id() {
@@ -69,15 +72,15 @@ public class ProfileThreadSnapshotRecord extends Record {
         @Override
         public ProfileThreadSnapshotRecord map2Data(Map<String, Object> dbMap) {
             final ProfileThreadSnapshotRecord snapshot = new ProfileThreadSnapshotRecord();
-            snapshot.setTaskId((String)dbMap.get(TASK_ID));
-            snapshot.setSegmentId((String)dbMap.get(SEGMENT_ID));
-            snapshot.setDumpTime(((Number)dbMap.get(DUMP_TIME)).longValue());
-            snapshot.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
-            snapshot.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).intValue());
-            if (StringUtil.isEmpty((String)dbMap.get(STACK_BINARY))) {
+            snapshot.setTaskId((String) dbMap.get(TASK_ID));
+            snapshot.setSegmentId((String) dbMap.get(SEGMENT_ID));
+            snapshot.setDumpTime(((Number) dbMap.get(DUMP_TIME)).longValue());
+            snapshot.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
+            snapshot.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).intValue());
+            if (StringUtil.isEmpty((String) dbMap.get(STACK_BINARY))) {
                 snapshot.setStackBinary(new byte[] {});
             } else {
-                snapshot.setStackBinary(Base64.getDecoder().decode((String)dbMap.get(STACK_BINARY)));
+                snapshot.setStackBinary(Base64.getDecoder().decode((String) dbMap.get(STACK_BINARY)));
             }
             return snapshot;
         }

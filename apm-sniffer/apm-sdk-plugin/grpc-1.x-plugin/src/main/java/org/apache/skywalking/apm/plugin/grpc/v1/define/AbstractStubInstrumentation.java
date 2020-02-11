@@ -39,36 +39,43 @@ public class AbstractStubInstrumentation extends ClassInstanceMethodsEnhancePlug
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return takesArguments(2);
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return INTERCEPT_CLASS;
                 }
             }
         };
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

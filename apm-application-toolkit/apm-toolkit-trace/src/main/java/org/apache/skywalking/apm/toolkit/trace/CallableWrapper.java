@@ -15,13 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.toolkit.trace;
 
 import java.util.concurrent.Callable;
 
-/**
- * @author carlvine500
- */
 @TraceCrossThread
 public class CallableWrapper<V> implements Callable<V> {
     final Callable<V> callable;

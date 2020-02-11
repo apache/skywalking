@@ -18,15 +18,16 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import com.google.protobuf.*;
-import java.io.*;
+import com.google.protobuf.AbstractMessageLite;
+import com.google.protobuf.GeneratedMessageV3;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStreamWriter.class);

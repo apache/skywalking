@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import java.util.List;
@@ -28,9 +29,6 @@ import org.apache.skywalking.plugin.test.agent.tool.validator.entity.SegmentItem
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.SegmentRef;
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Span;
 
-/**
- * Created by xin on 2017/7/15.
- */
 public class SegmentItemsAssert {
     private static Logger logger = LogManager.getLogger(SegmentItemsAssert.class);
 

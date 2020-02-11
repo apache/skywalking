@@ -19,16 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(H2RegisterDAO.class);
@@ -41,11 +41,13 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public RegisterSource get(String modelName, String id) throws IOException {
-        return (RegisterSource)getByID(h2Client, modelName, id, storageBuilder);
+    @Override
+    public RegisterSource get(String modelName, String id) throws IOException {
+        return (RegisterSource) getByID(h2Client, modelName, id, storageBuilder);
     }
 
-    @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
+    @Override
+    public void forceInsert(String modelName, RegisterSource source) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             getInsertExecutor(modelName, source, storageBuilder).invoke(connection);
         } catch (SQLException | JDBCClientException e) {
@@ -53,7 +55,8 @@ public class H2RegisterDAO extends H2SQLExecutor implements IRegisterDAO {
         }
     }
 
-    @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
+    @Override
+    public void forceUpdate(String modelName, RegisterSource source) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             getUpdateExecutor(modelName, source, storageBuilder).invoke(connection);
         } catch (SQLException | JDBCClientException e) {

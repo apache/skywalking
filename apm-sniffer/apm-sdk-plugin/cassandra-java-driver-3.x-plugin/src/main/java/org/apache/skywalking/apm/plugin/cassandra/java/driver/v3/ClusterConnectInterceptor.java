@@ -26,17 +26,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-/**
- * @author stone.wlg
- */
 public class ClusterConnectInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
             String keyspace = allArguments.length > 0 ? (String) allArguments[0] : null;
             ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
@@ -47,7 +46,8 @@ public class ClusterConnectInterceptor implements InstanceMethodsAroundIntercept
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         if (ContextManager.isActive()) {
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();

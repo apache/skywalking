@@ -16,9 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.ehcache.v2;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -37,15 +38,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.*;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_ALL_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.PUT_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.READ_LOCK_RELEASE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.READ_LOCK_TRY_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.WRITE_LOCK_RELEASE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.WRITE_LOCK_TRY_ENHANCE_METHOD;
 import static org.hamcrest.CoreMatchers.is;
 
-/**
- * @author MrPro
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class EhcacheInterceptorTest {
@@ -102,7 +103,10 @@ public class EhcacheInterceptorTest {
 
         operateObjectArguments = new Object[] {"dataKey"};
         operateElementArguments = new Element[] {new Element("dataKey", 1)};
-        tryLockArguments = new Object[] {"dataKey", 3000};
+        tryLockArguments = new Object[] {
+            "dataKey",
+            3000
+        };
         releaseLockArguments = new Object[] {"dataKey"};
 
         putCacheMethod = Whitebox.getMethods(Cache.class, PUT_CACHE_ENHANCE_METHOD)[0];
@@ -150,7 +154,6 @@ public class EhcacheInterceptorTest {
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
-
 
     @Test
     public void assertLockSuccess() throws Throwable {

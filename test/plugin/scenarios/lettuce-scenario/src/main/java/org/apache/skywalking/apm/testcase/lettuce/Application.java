@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.testcase.lettuce;
 
 import org.springframework.boot.SpringApplication;
-
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication

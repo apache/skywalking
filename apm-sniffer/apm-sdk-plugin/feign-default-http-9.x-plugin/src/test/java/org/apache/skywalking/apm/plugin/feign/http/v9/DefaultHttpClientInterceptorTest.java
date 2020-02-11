@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.Request;
@@ -58,9 +57,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author peng-yongsheng
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest({Response.class})
@@ -87,12 +83,18 @@ public class DefaultHttpClientInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        PathVarInterceptor.URL_CONTEXT.set(new FeignResolvedURL("/test/{pathVar}","/test/var"));
+        PathVarInterceptor.URL_CONTEXT.set(new FeignResolvedURL("/test/{pathVar}", "/test/var"));
         Map<String, Collection<String>> headers = new LinkedHashMap<String, Collection<String>>();
         request = Request.create("GET", "http://skywalking.org/test/var", headers, "Test".getBytes(), Charset.forName("UTF-8"));
         Request.Options options = new Request.Options();
-        allArguments = new Object[] {request, options};
-        argumentTypes = new Class[] {request.getClass(), options.getClass()};
+        allArguments = new Object[] {
+            request,
+            options
+        };
+        argumentTypes = new Class[] {
+            request.getClass(),
+            options.getClass()
+        };
         defaultHttpClientInterceptor = new DefaultHttpClientInterceptor();
 
     }
@@ -115,7 +117,7 @@ public class DefaultHttpClientInterceptorTest {
         assertThat(tags.size(), is(2));
         assertThat(tags.get(0).getValue(), is("GET"));
         assertThat(tags.get(1).getValue(), is("http://skywalking.org/test/var"));
-        assertThat(finishedSpan.getOperationName(),is("/test/{pathVar}"));
+        assertThat(finishedSpan.getOperationName(), is("/test/{pathVar}"));
 
         Assert.assertEquals(false, SpanHelper.getErrorOccurred(finishedSpan));
     }
@@ -140,7 +142,7 @@ public class DefaultHttpClientInterceptorTest {
         assertThat(tags.get(0).getValue(), is("GET"));
         assertThat(tags.get(1).getValue(), is("http://skywalking.org/test/var"));
         assertThat(tags.get(2).getValue(), is("404"));
-        assertThat(finishedSpan.getOperationName(),is("/test/{pathVar}"));
+        assertThat(finishedSpan.getOperationName(), is("/test/{pathVar}"));
 
         Assert.assertEquals(true, SpanHelper.getErrorOccurred(finishedSpan));
     }
@@ -179,7 +181,9 @@ public class DefaultHttpClientInterceptorTest {
         LogDataEntity logDataEntity = SpanHelper.getLogs(finishedSpan).get(0);
         assertThat(logDataEntity.getLogs().size(), is(4));
         assertThat(logDataEntity.getLogs().get(0).getValue(), CoreMatchers.<Object>is("error"));
-        assertThat(logDataEntity.getLogs().get(1).getValue(), CoreMatchers.<Object>is(NullPointerException.class.getName()));
+        assertThat(logDataEntity.getLogs()
+                                .get(1)
+                                .getValue(), CoreMatchers.<Object>is(NullPointerException.class.getName()));
         assertThat(logDataEntity.getLogs().get(2).getValue(), is("testException"));
         assertNotNull(logDataEntity.getLogs().get(3).getValue());
     }

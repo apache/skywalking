@@ -15,11 +15,8 @@
  * limitations under the License.
  *
  */
-package test.org.apache.skywalking.apm.testcase.spring.transaction.dao;
 
-/**
- * @author zhaoyuguang
- */
+package test.org.apache.skywalking.apm.testcase.spring.transaction.dao;
 
 public interface DemoDao {
 

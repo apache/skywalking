@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.api.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.entity.Order;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.entity.OrderItem;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.repository.OrderItemRepository;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.repository.OrderRepository;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class CommonServiceImpl implements CommonService {
-    
+
     @Override
     public void initEnvironment() {
         getOrderRepository().createTableIfNotExists();
@@ -35,24 +35,24 @@ public abstract class CommonServiceImpl implements CommonService {
         getOrderItemRepository().truncateTable();
         insertData();
     }
-    
+
     @Override
     public void cleanEnvironment() {
         getOrderRepository().dropTable();
         getOrderItemRepository().dropTable();
     }
-    
+
     @Override
     public void processSuccess(final boolean isRangeSharding) {
         printData(isRangeSharding);
     }
-    
+
     @Override
     public void processFailure() {
         insertData();
         throw new RuntimeException("Exception occur for transaction test.");
     }
-    
+
     private List<Long> insertData() {
         List<Long> result = new ArrayList<>(10);
         for (int i = 1; i <= 10; i++) {
@@ -69,14 +69,14 @@ public abstract class CommonServiceImpl implements CommonService {
         }
         return result;
     }
-    
+
     private void deleteData(final List<Long> orderIds) {
         for (Long each : orderIds) {
             getOrderRepository().delete(each);
             getOrderItemRepository().delete(each);
         }
     }
-    
+
     @Override
     public void printData(final boolean isRangeSharding) {
         if (isRangeSharding) {
@@ -85,24 +85,24 @@ public abstract class CommonServiceImpl implements CommonService {
             printDataAll();
         }
     }
-    
+
     private void printDataRange() {
         for (Object each : getOrderRepository().selectRange()) {
         }
         for (Object each : getOrderItemRepository().selectRange()) {
         }
     }
-    
+
     private void printDataAll() {
         for (Object each : getOrderRepository().selectAll()) {
         }
     }
-    
+
     protected abstract OrderRepository getOrderRepository();
-    
+
     protected abstract OrderItemRepository getOrderItemRepository();
-    
+
     protected abstract Order newOrder();
-    
+
     protected abstract OrderItem newOrderItem();
 }

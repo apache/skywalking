@@ -32,14 +32,11 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-/**
- * @author zhaoyuguang
- */
 public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         String peer = (String) objInst.getSkyWalkingDynamicField();
 
         StringBuilder dbStatement = new StringBuilder();
@@ -51,8 +48,7 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
             operationName = operationName + command;
             dbStatement.append(command);
         } else if (allArguments[0] instanceof Collection) {
-            @SuppressWarnings("unchecked")
-            Collection<RedisCommand> redisCommands = (Collection<RedisCommand>) allArguments[0];
+            @SuppressWarnings("unchecked") Collection<RedisCommand> redisCommands = (Collection<RedisCommand>) allArguments[0];
             operationName = operationName + "BATCH_WRITE";
             for (RedisCommand redisCommand : redisCommands) {
                 dbStatement.append(redisCommand.getType().name()).append(";");
@@ -67,15 +63,15 @@ public class RedisChannelWriterInterceptor implements InstanceMethodsAroundInter
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);

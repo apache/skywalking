@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author wusheng
- */
 @Setter
 @Getter
 public class GRPCExporterSetting extends ModuleConfig {

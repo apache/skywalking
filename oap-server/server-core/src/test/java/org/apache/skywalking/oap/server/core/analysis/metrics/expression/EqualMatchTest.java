@@ -20,11 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-/**
- * @author kezhenxu94
- */
 public class EqualMatchTest {
 
     @Test

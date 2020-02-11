@@ -24,15 +24,16 @@ import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.buffer.*;
+import org.apache.skywalking.oap.server.library.buffer.BufferStream;
+import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandardization> {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentStandardizationWorker.class);
@@ -58,10 +59,11 @@ public class SegmentStandardizationWorker extends AbstractWorker<SegmentStandard
         dataCarrier = new DataCarrier<>("SegmentStandardizationWorker", 1, 1024);
         dataCarrier.consume(new Consumer(stream), 1, 200);
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        String metricNamePrefix =  "v6_";
-        traceBufferFileIn = metricsCreator.createCounter(metricNamePrefix + "trace_buffer_file_in", "The number of trace segment into the buffer file",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        String metricNamePrefix = "v6_";
+        traceBufferFileIn = metricsCreator.createCounter(metricNamePrefix + "trace_buffer_file_in", "The number of trace segment into the buffer file", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override

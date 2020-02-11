@@ -24,20 +24,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMet
 import java.lang.reflect.Method;
 
 /**
- * {@link AopExpressionMatchInterceptor} check if the method is match the enhanced method
- * if yes,return false else return true;
- *
- * @author lican
+ * {@link AopExpressionMatchInterceptor} check if the method is match the enhanced method if yes,return false else
+ * return true;
  */
 public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         Method targetAopMethod = (Method) allArguments[1];
         Class<?> targetAopClass = (Class<?>) allArguments[2];
         if (targetAopClass != null && EnhancedInstance.class.isAssignableFrom(targetAopClass) && MatchUtil.isEnhancedMethod(targetAopMethod)) {
@@ -48,7 +48,7 @@ public class AopExpressionMatchInterceptor implements StaticMethodsAroundInterce
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                                      Throwable t) {
+        Throwable t) {
 
     }
 

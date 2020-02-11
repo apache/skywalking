@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
  * MultiIntValuesHolder always holds a set of int(s).
- *
- * @author wusheng
  */
 public interface MultiIntValuesHolder {
     int[] getValues();

@@ -22,9 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 public class ProfileTaskLogMatcher extends AbstractMatcher<ProfileTaskLog> {

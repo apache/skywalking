@@ -33,9 +33,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
 
-/**
- * @author wusheng
- */
 public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
 
     private final JDBCHikariCPClient client;
@@ -50,9 +47,12 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
-        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ConfigService.class);
+        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(ConfigService.class);
 
-        SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ").append(timeBucketColumnName).append("<= ?");
+        SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ").append(timeBucketColumnName)
+                                                                                               .append("<= ?");
 
         try (Connection connection = client.getConnection()) {
             TTLCalculator ttlCalculator;

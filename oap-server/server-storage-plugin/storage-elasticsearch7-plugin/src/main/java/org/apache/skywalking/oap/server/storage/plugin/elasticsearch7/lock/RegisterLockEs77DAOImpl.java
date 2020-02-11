@@ -32,9 +32,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * @author kezhenxu94
- */
 public class RegisterLockEs77DAOImpl extends Es7DAO implements IRegisterLockDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterLockEs77DAOImpl.class);
@@ -75,5 +72,4 @@ public class RegisterLockEs77DAOImpl extends Es7DAO implements IRegisterLockDAO 
         getClient().forceUpdate(RegisterLockIndex.NAME, id, source, seqNo, primaryTerm);
     }
 }
-
 

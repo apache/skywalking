@@ -32,14 +32,11 @@ import java.lang.reflect.Method;
 import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
-/**
- * @author zhang xin, kanro
- */
 public class BlockingCallInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                             MethodInterceptResult result) {
+        MethodInterceptResult result) {
         Channel channel = (Channel) allArguments[0];
         MethodDescriptor<?, ?> methodDescriptor = (MethodDescriptor<?, ?>) allArguments[1];
         final AbstractSpan span = ContextManager.createExitSpan(formatOperationName(methodDescriptor), channel.authority());
@@ -50,14 +47,14 @@ public class BlockingCallInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                              Object ret) {
+        Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
-                                      Throwable t) {
+        Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

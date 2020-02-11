@@ -67,7 +67,8 @@ public class ApdexThresholdConfigTest {
             super(syncPeriod);
         }
 
-        @Override public ConfigTable readConfig(Set<String> keys) {
+        @Override
+        public ConfigTable readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
             table.add(new ConfigTable.ConfigItem("core.default.apdexThreshold", "default: 1000 \nfoo: 200"));
             return table;

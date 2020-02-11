@@ -51,7 +51,7 @@ public class IstioTelemetryHandlerMainTest {
         executor.shutdown();
     }
 
-    private static void send(final HandleMetricServiceGrpc.HandleMetricServiceBlockingStub  stub) throws IOException {
+    private static void send(final HandleMetricServiceGrpc.HandleMetricServiceBlockingStub stub) throws IOException {
         for (String s : readData()) {
             IstioMetricProto.HandleMetricRequest.Builder requestBuilder = IstioMetricProto.HandleMetricRequest.newBuilder();
             try (InputStreamReader isr = new InputStreamReader(getResourceAsStream(String.format("fixture/%s", s)))) {
@@ -63,13 +63,11 @@ public class IstioTelemetryHandlerMainTest {
 
     private static Iterable<String> readData() throws IOException {
         Iterable<String> result = new LinkedList<>();
-        try (
-            InputStream in = getResourceAsStream("fixture");
-            BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+        try (InputStream in = getResourceAsStream("fixture"); BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
             String resource;
 
             while ((resource = br.readLine()) != null) {
-                ((LinkedList<String>)result).add(resource);
+                ((LinkedList<String>) result).add(resource);
             }
         }
         return result;

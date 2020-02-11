@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.source;
 
 import org.apache.skywalking.apm.network.language.agent.SpanType;
 
-/**
- * @author peng-yongsheng
- */
 public enum DetectPoint {
     SERVER, CLIENT, PROXY, UNRECOGNIZED;
 
@@ -39,7 +36,8 @@ public enum DetectPoint {
         }
     }
 
-    public static DetectPoint fromNetworkProtocolDetectPoint(org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
+    public static DetectPoint fromNetworkProtocolDetectPoint(
+        org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
         switch (detectPoint) {
             case client:
                 return CLIENT;

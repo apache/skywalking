@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.redisson.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -27,9 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
 public class ConnectionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.redisson.connection.MasterSlaveConnectionManager";
@@ -43,7 +41,7 @@ public class ConnectionManagerInstrumentation extends ClassInstanceMethodsEnhanc
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

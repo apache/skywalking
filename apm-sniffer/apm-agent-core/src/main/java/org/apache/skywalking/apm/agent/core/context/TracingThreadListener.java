@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-/**
- * @author MrPro
- */
 public interface TracingThreadListener {
 
     void afterMainThreadFinish(TracingContext tracingContext);

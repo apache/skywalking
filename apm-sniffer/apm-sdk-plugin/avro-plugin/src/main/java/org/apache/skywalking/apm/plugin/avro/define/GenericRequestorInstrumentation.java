@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,12 +30,12 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.apache.avro.ipc.generic.GenericRequestor";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.avro.GenericRequestorInterceptor";
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
@@ -43,7 +44,7 @@ public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhance
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return ElementMatchers.any();
                 }
-    
+
                 @Override
                 public String getConstructorInterceptor() {
                     return INTERCEPTOR_CLASS;
@@ -51,7 +52,7 @@ public class GenericRequestorInstrumentation extends ClassInstanceMethodsEnhance
             }
         };
     }
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {

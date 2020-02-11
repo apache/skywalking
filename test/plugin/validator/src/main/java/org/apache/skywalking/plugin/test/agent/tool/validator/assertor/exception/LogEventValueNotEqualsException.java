@@ -30,8 +30,8 @@ public class LogEventValueNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("[log(%s} value]: expected=>{%s}, actual=>{%s}\n", eventKey,
-            expected, actual);
+    @Override
+    public String getCauseMessage() {
+        return String.format("[log(%s} value]: expected=>{%s}, actual=>{%s}\n", eventKey, expected, actual);
     }
 }

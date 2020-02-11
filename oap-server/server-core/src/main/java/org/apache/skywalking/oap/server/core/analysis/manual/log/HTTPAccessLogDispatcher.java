@@ -22,12 +22,10 @@ import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.HTTPAccessLog;
 
-/**
- * @author wusheng
- */
 public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> {
 
-    @Override public void dispatch(HTTPAccessLog source) {
+    @Override
+    public void dispatch(HTTPAccessLog source) {
         HTTPAccessLogRecord record = new HTTPAccessLogRecord();
         record.setTimestamp(source.getTimestamp());
         record.setTimeBucket(source.getTimeBucket());

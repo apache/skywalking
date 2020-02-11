@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -28,6 +26,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 /**
  * Work for {@link ProfileAnalyzer} to analyze.

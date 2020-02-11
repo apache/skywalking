@@ -27,7 +27,9 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +42,17 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
     public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer, ModuleManager moduleManager) {
         this.segmentProducer = segmentProducer;
-        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
-    @Override public StreamObserver<UpstreamSegment> collect(StreamObserver<Commands> responseObserver) {
+    @Override
+    public StreamObserver<UpstreamSegment> collect(StreamObserver<Commands> responseObserver) {
         return new StreamObserver<UpstreamSegment>() {
-            @Override public void onNext(UpstreamSegment segment) {
+            @Override
+            public void onNext(UpstreamSegment segment) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("receive segment");
                 }
@@ -60,12 +65,14 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                 }
             }
 
-            @Override public void onError(Throwable throwable) {
+            @Override
+            public void onError(Throwable throwable) {
                 logger.error(throwable.getMessage(), throwable);
                 responseObserver.onCompleted();
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
             }

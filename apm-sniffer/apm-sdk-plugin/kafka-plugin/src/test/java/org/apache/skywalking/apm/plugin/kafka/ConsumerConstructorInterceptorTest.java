@@ -45,12 +45,14 @@ public class ConsumerConstructorInterceptorTest {
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo;
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
 
@@ -67,7 +69,7 @@ public class ConsumerConstructorInterceptorTest {
     @Test
     public void testOnConsumer() {
         constructorInterceptor.onConstruct(enhancedInstance, new Object[] {consumerConfig});
-        ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)enhancedInstance.getSkyWalkingDynamicField();
+        ConsumerEnhanceRequiredInfo consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         assertThat(consumerEnhanceRequiredInfo.getBrokerServers(), is("localhost:9092;localhost:19092"));
     }
 

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import com.google.common.collect.Lists;
@@ -33,9 +32,6 @@ import java.util.List;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 
-/**
- * @author alvin
- */
 public class PatternLoggerTest {
 
     public static final String PATTERN = "%timestamp+0800 %level [%agent_name,,,] [%thread] %class:-1 %msg %throwable";
@@ -44,7 +40,6 @@ public class PatternLoggerTest {
     public static void initAndHoldOut() {
         Config.Agent.SERVICE_NAME = "testAppFromConfig";
     }
-
 
     @Test
     public void testLog() {
@@ -73,8 +68,7 @@ public class PatternLoggerTest {
         logger.error("hello world", new NullPointerException());
         logger.error(new NullPointerException(), "hello {}", "world");
 
-        Mockito.verify(output, times(9))
-                .write(anyString());
+        Mockito.verify(output, times(9)).write(anyString());
     }
 
     @Test
@@ -103,8 +97,7 @@ public class PatternLoggerTest {
         logger.error("hello ///\\\\", new NullPointerException());
         logger.error(new NullPointerException(), "hello {}", "&&&**%%");
 
-        Mockito.verify(output, times(9))
-                .write(anyString());
+        Mockito.verify(output, times(9)).write(anyString());
     }
 
     @Test
@@ -141,6 +134,5 @@ public class PatternLoggerTest {
         Assert.assertThat(lines[2], StringContains.containsString("PatternLoggerTest.testLogFormat"));
         Assert.assertEquals(strings.get(1).split(Constants.LINE_SEPARATOR).length, 1);
     }
-
 
 }

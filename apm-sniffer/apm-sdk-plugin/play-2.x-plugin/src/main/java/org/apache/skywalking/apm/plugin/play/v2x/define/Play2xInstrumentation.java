@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.play.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,10 +31,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.AnnotationTy
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author AI
- * 2019-08-01
- */
 public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "play.api.http.EnabledFilters";
     private static final String ENHANCE_METHOD = "filters";
@@ -46,7 +43,7 @@ public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -63,7 +60,7 @@ public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -84,15 +81,14 @@ public class Play2xInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     }
 
     public static ElementMatcher<MethodDescription> getInjectConstructorMatcher() {
-        return isAnnotatedWithType("javax.inject.Inject")
-            .and(takesArgumentWithType(2, "play.api.inject.Injector"));
+        return isAnnotatedWithType("javax.inject.Inject").and(takesArgumentWithType(2, "play.api.inject.Injector"));
     }
 
     public static ElementMatcher<MethodDescription> getFiltersMethodMatcher() {
         String scala212Seq = "scala.collection.Seq";
         String scala213Seq = "scala.collection.immutable.Seq";
-        return (named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType(scala212Seq)))
-            .or(named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType(scala213Seq)));
+        return (named(ENHANCE_METHOD).and(ReturnTypeNameMatch.returnsWithType(scala212Seq))).or(named(ENHANCE_METHOD).and(ReturnTypeNameMatch
+            .returnsWithType(scala213Seq)));
     }
 
 }

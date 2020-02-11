@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 
-/**
- * @author peng-yongsheng
- */
 public interface IBatchDAO extends DAO {
 
     void asynchronous(InsertRequest insertRequest);

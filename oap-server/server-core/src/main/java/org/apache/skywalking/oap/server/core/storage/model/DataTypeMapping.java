@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-/**
- * @author peng-yongsheng
- */
 public interface DataTypeMapping {
 
     String transform(Class<?> type);

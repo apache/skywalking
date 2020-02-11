@@ -33,9 +33,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * @author brandon.fergerson
- */
 public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     @Override
@@ -55,11 +52,10 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
-                (String) objInst.getSkyWalkingDynamicField());
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier, (String) objInst.getSkyWalkingDynamicField());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -75,13 +71,14 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 

@@ -19,12 +19,10 @@
 package org.apache.skywalking.oap.server.library.buffer;
 
 import com.google.protobuf.GeneratedMessageV3;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author peng-yongsheng
- */
 public class BufferDataCollection<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private AtomicInteger index = new AtomicInteger(0);

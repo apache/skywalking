@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.service.instance;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Instances {
     private List<Instance> instances;
 

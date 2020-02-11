@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.continuation;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;

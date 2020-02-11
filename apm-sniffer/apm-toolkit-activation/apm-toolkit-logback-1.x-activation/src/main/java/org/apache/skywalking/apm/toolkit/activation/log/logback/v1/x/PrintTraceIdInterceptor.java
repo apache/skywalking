@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -26,18 +25,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-/**
- * Created by wusheng on 2016/12/7.
- */
 public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (!ContextManager.isActive()) {
             if (allArguments[0] instanceof EnhancedInstance) {
                 String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
@@ -49,7 +47,8 @@ public class PrintTraceIdInterceptor implements InstanceMethodsAroundInterceptor
         return "TID:" + ContextManager.getGlobalTraceId();
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

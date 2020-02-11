@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.topo;
 
-/**
- * @author kezhenxu94
- */
 public class TopoResponse {
     private TopoData topo;
 

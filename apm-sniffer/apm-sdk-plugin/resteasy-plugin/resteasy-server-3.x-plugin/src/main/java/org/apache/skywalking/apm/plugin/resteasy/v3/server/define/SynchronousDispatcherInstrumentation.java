@@ -29,9 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-/**
- * @author yan-fucheng
- */
 public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.jboss.resteasy.core.SynchronousDispatcher";

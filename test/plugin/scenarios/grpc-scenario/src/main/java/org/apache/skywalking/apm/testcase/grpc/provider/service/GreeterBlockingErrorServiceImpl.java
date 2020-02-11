@@ -15,11 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.grpc.provider.service;
 
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingErrorGrpc;
-import org.apache.skywalking.apm.testcase.grpc.proto.GreeterBlockingGrpc;
 import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
 import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
 

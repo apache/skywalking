@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.kafka;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -23,7 +24,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 
 /**
  * implements Callback and EnhancedInstance, for transformation kafkaTemplate.buildCallback
- * @author stalary
  */
 public class CallbackAdapter implements Callback, EnhancedInstance {
 

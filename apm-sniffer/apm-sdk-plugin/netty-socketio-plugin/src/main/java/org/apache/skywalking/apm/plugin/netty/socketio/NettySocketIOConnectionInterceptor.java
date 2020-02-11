@@ -32,13 +32,11 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-/**
- * @author MrPro
- */
 public class NettySocketIOConnectionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         SocketIOClient client = (SocketIOClient) allArguments[0];
 
         AbstractSpan span = ContextManager.createEntrySpan("SocketIO/" + method.getName(), new ContextCarrier());
@@ -52,13 +50,15 @@ public class NettySocketIOConnectionInterceptor implements InstanceMethodsAround
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

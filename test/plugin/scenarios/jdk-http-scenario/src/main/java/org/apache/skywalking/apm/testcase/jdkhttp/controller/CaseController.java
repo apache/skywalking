@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.apm.testcase.jdkhttp.controller;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 @RestController
 @RequestMapping("/case")
@@ -41,7 +40,7 @@ public class CaseController {
     public String testcase() throws IOException {
         URL url = new URL("http://localhost:8080/jdk-http-scenario/case/receiveContext-0");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.addRequestProperty("key","value");
+        connection.addRequestProperty("key", "value");
         int responseCode = connection.getResponseCode();
         return "Success:" + responseCode;
     }

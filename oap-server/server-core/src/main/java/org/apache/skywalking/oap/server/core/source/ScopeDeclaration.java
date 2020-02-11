@@ -18,17 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * DefaultScopeDefine id declaration.
- *
- * @author wusheng
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ScopeDeclaration {
     int id();
+
     String name();
+
     String catalog() default "";
 }

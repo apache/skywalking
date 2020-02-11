@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.network;
 
 /**
  * The version of the protocol between agent and backend.
- *
- * @author kezhenxu94
  */
 public enum ProtocolVersion {
     V2(2);

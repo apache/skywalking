@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
@@ -68,8 +67,14 @@ public class TraceAnnotationTest {
     public void setUp() throws Exception {
         methodInterceptor = new TraceAnnotationMethodInterceptor();
         tagInterceptor = new ActiveSpanTagInterceptor();
-        tagParameters = new Object[] {"testTagKey", "testTagValue"};
-        tagParameterTypes = new Class[] {String.class, String.class};
+        tagParameters = new Object[] {
+            "testTagKey",
+            "testTagValue"
+        };
+        tagParameterTypes = new Class[] {
+            String.class,
+            String.class
+        };
     }
 
     @Test
@@ -129,7 +134,6 @@ public class TraceAnnotationTest {
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
-
         AbstractTracingSpan tracingSpan = spans.get(0);
         assertThat(tracingSpan.getOperationName(), is("testMethod"));
         SpanAssert.assertLogSize(tracingSpan, 0);

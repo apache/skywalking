@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -52,21 +58,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AgentRebootITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentRebootITCase.class);
@@ -114,18 +110,11 @@ public class AgentRebootITCase {
             try {
                 final Map<String, String> user = new HashMap<>();
                 user.put("name", "SkyWalking");
-                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
+                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(instrumentedServiceUrl + "/e2e/users", user, String.class);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                final List<Trace> traces = queryClient.traces(
-                    new TracesQuery()
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now())
-                        .orderByDuration()
-                );
+                final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
+                                                                               .end(LocalDateTime.now())
+                                                                               .orderByDuration());
                 if (!traces.isEmpty()) {
                     break;
                 }
@@ -162,15 +151,12 @@ public class AgentRebootITCase {
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final TopoData topoData = queryClient.topo(
-            new TopoQuery()
-                .stepByMinute()
-                .start(minutesAgo.minusDays(1))
-                .end(now)
-        );
+        final TopoData topoData = queryClient.topo(new TopoQuery().stepByMinute()
+                                                                  .start(minutesAgo.minusDays(1))
+                                                                  .end(now));
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml")
+            .getInputStream();
 
         final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
         topoMatcher.verify(topoData);
@@ -179,14 +165,10 @@ public class AgentRebootITCase {
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Service> services = queryClient.services(
-            new ServicesQuery()
-                .start(minutesAgo)
-                .end(now)
-        );
+        final List<Service> services = queryClient.services(new ServicesQuery().start(minutesAgo).end(now));
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml")
+            .getInputStream();
 
         final ServicesMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ServicesMatcher.class);
         servicesMatcher.verify(services);
@@ -206,27 +188,24 @@ public class AgentRebootITCase {
         }
     }
 
-    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
+    private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now,
+        Service service) throws Exception {
         InputStream expectedInputStream;
-        Instances instances = queryClient.instances(
-            new InstancesQuery()
-                .serviceId(service.getKey())
-                .start(minutesAgo)
-                .end(now)
-        );
-        expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml").getInputStream();
+        Instances instances = queryClient.instances(new InstancesQuery().serviceId(service.getKey())
+                                                                        .start(minutesAgo)
+                                                                        .end(now));
+        expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml")
+            .getInputStream();
         final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
         instancesMatcher.verify(instances);
         return instances;
     }
 
-    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now, Service service) throws Exception {
-        Endpoints instances = queryClient.endpoints(
-            new EndpointQuery().serviceId(service.getKey())
-        );
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml").getInputStream();
+    private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now,
+        Service service) throws Exception {
+        Endpoints instances = queryClient.endpoints(new EndpointQuery().serviceId(service.getKey()));
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml")
+            .getInputStream();
         final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
         endpointsMatcher.verify(instances);
         return instances;
@@ -236,12 +215,9 @@ public class AgentRebootITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance {}, metrics {}", instance, metricsName);
-                final Metrics instanceMetrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricsName)
-                        .id(instance.getKey())
-                );
+                final Metrics instanceMetrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                                      .metricsName(metricsName)
+                                                                                      .id(instance.getKey()));
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -259,12 +235,9 @@ public class AgentRebootITCase {
             }
             for (String metricsName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricsName);
-                final Metrics metrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricsName)
-                        .id(endpoint.getKey())
-                );
+                final Metrics metrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                              .metricsName(metricsName)
+                                                                              .id(endpoint.getKey()));
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
                 greaterThanZero.setValue("gt 0");
@@ -278,12 +251,9 @@ public class AgentRebootITCase {
     private void verifyServiceMetrics(Service service) throws Exception {
         for (String metricsName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricsName);
-            final Metrics serviceMetrics = queryClient.metrics(
-                new MetricsQuery()
-                    .stepByMinute()
-                    .metricsName(metricsName)
-                    .id(service.getKey())
-            );
+            final Metrics serviceMetrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                                 .metricsName(metricsName)
+                                                                                 .id(service.getKey()));
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
             greaterThanZero.setValue("gt 0");
@@ -296,15 +266,10 @@ public class AgentRebootITCase {
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Trace> traces = queryClient.traces(
-            new TracesQuery()
-                .start(minutesAgo)
-                .end(now)
-                .orderByDuration()
-        );
+        final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo).end(now).orderByDuration());
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml")
+            .getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verifyLoosely(traces);
@@ -336,12 +301,9 @@ public class AgentRebootITCase {
     private void waitOAPStartUp() {
         for (int i = 0; ; i++) {
             try {
-                queryClient.traces(
-                    new TracesQuery()
-                        .start(LocalDateTime.now())
-                        .end(LocalDateTime.now())
-                        .orderByDuration()
-                );
+                queryClient.traces(new TracesQuery().start(LocalDateTime.now())
+                                                    .end(LocalDateTime.now())
+                                                    .orderByDuration());
                 break;
             } catch (Throwable e) {
                 LOGGER.info("OAP restart not ready, waited {} seconds, {}", i * 10, e.getMessage());
@@ -356,12 +318,9 @@ public class AgentRebootITCase {
     private void assertDataErased() throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Trace> traces = queryClient.traces(
-            new TracesQuery()
-                .start(now.minusMinutes(10))
-                .end(now)
-                .orderByDuration()
-        );
+        final List<Trace> traces = queryClient.traces(new TracesQuery().start(now.minusMinutes(10))
+                                                                       .end(now)
+                                                                       .orderByDuration());
 
         assertThat(traces).isEmpty();
     }

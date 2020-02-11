@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-/**
- * @author wusheng
- */
 public interface WithPeerInfo {
     int getPeerId();
 

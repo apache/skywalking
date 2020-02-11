@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.lang.reflect.Method;
@@ -31,8 +32,8 @@ public class SpecificRequestorInterceptor extends AbstractRequestInterceptor imp
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        AvroInstance instance = (AvroInstance)objInst.getSkyWalkingDynamicField();
-        Method invoke = (Method)allArguments[1];
+        AvroInstance instance = (AvroInstance) objInst.getSkyWalkingDynamicField();
+        Method invoke = (Method) allArguments[1];
 
         AbstractSpan span = ContextManager.createExitSpan(instance.namespace + invoke.getName(), instance.remotePeer);
         SpanLayer.asRPCFramework(span);

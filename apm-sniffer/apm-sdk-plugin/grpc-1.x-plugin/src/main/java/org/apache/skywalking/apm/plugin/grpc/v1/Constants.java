@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.plugin.grpc.v1;
 
 /**
  * Constant variables
- *
- * @author zhang xin, wang zheng, kanro
  */
 public class Constants {
 
@@ -37,14 +35,14 @@ public class Constants {
 
     /**
      * Operation name for request message received on server or sent on client.
-     *
+     * <p>
      * Spans of this operations just be create with request stream calls.
      */
     public static final String REQUEST_ON_MESSAGE_OPERATION_NAME = "/Request/onMessage";
 
     /**
      * Operation name for client has completed request sending, there are no more incoming request.
-     *
+     * <p>
      * It should happen with half close state usually.
      */
     public static final String REQUEST_ON_COMPLETE_OPERATION_NAME = "/Request/onComplete";
@@ -56,14 +54,14 @@ public class Constants {
 
     /**
      * Operation name for response message received on client or sent on server.
-     *
+     * <p>
      * Spans of this operations just be create with response stream calls.
      */
     public static final String RESPONSE_ON_MESSAGE_OPERATION_NAME = "/Response/onMessage";
 
     /**
      * Operation name for call closed with status and trailers.
-     *
+     * <p>
      * Exceptions will be logs here.
      */
     public static final String RESPONSE_ON_CLOSE_OPERATION_NAME = "/Response/onClose";

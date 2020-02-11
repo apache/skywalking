@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 
 /**
  * Interceptor for pulsar producer enhanced instance.
- *
+ * <p>
  * Here is the intercept process steps:
  *
  * <pre>
@@ -48,8 +48,6 @@ import java.lang.reflect.Method;
  *     callback enhanced instance skywalking dynamic field to the created required info.
  *  5. Stop the exit span when <code>sendAsync</code> method finished.
  * </pre>
- *
- * @author penghui
  */
 public class PulsarProducerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -58,13 +56,13 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         if (allArguments[0] != null) {
             ProducerEnhanceRequiredInfo requiredInfo = (ProducerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
             ContextCarrier contextCarrier = new ContextCarrier();
             String topicName = requiredInfo.getTopic();
-            AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName +
-                    PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, requiredInfo.getServiceUrl());
+            AbstractSpan activeSpan = ContextManager.createExitSpan(OPERATE_NAME_PREFIX + topicName + PRODUCER_OPERATE_NAME_SUFFIX, contextCarrier, requiredInfo
+                .getServiceUrl());
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
             Tags.MQ_TOPIC.set(activeSpan, topicName);
             SpanLayer.asMQ(activeSpan);
@@ -73,9 +71,10 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
             MessageImpl msg = (MessageImpl) allArguments[0];
             while (next.hasNext()) {
                 next = next.next();
-                msg.getMessageBuilder().addProperties(PulsarApi.KeyValue.newBuilder()
-                        .setKey(next.getHeadKey())
-                        .setValue(next.getHeadValue()));
+                msg.getMessageBuilder()
+                   .addProperties(PulsarApi.KeyValue.newBuilder()
+                                                    .setKey(next.getHeadKey())
+                                                    .setValue(next.getHeadValue()));
             }
             if (allArguments.length > 1) {
                 EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[1];
@@ -94,7 +93,7 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         if (allArguments[0] != null) {
             ContextManager.stopSpan();
         }
@@ -102,7 +101,8 @@ public class PulsarProducerInterceptor implements InstanceMethodsAroundIntercept
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         if (allArguments[0] != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

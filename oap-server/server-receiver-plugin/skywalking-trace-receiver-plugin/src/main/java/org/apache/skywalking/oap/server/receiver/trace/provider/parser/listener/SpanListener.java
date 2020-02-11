@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-/**
- * @author peng-yongsheng
- */
 public interface SpanListener {
     void build();
 

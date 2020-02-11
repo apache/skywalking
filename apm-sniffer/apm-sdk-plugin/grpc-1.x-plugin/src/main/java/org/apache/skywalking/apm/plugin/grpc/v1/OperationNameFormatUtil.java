@@ -22,8 +22,6 @@ import io.grpc.MethodDescriptor;
 
 /**
  * Operation Name utility
- *
- * @author zhangxin
  */
 public class OperationNameFormatUtil {
 

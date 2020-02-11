@@ -34,9 +34,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
 @Stream(name = EndpointInventory.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_INVENTORY, builder = EndpointInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class EndpointInventory extends RegisterSource {
@@ -47,19 +44,30 @@ public class EndpointInventory extends RegisterSource {
     public static final String NAME = "name";
     public static final String DETECT_POINT = "detect_point";
 
-    @Setter @Getter @Column(columnName = SERVICE_ID) private int serviceId;
-    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter @Getter @Column(columnName = DETECT_POINT) private int detectPoint;
+    @Setter
+    @Getter
+    @Column(columnName = SERVICE_ID)
+    private int serviceId;
+    @Setter
+    @Getter
+    @Column(columnName = NAME, matchQuery = true)
+    private String name = Const.EMPTY_STRING;
+    @Setter
+    @Getter
+    @Column(columnName = DETECT_POINT)
+    private int detectPoint;
 
     public static String buildId(int serviceId, String endpointName, int detectPoint) {
         return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
     }
 
-    @Override public String id() {
+    @Override
+    public String id() {
         return buildId(serviceId, name, detectPoint);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = 17;
         result = 31 * result + serviceId;
         result = 31 * result + name.hashCode();
@@ -67,7 +75,8 @@ public class EndpointInventory extends RegisterSource {
         return result;
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -75,7 +84,7 @@ public class EndpointInventory extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointInventory source = (EndpointInventory)obj;
+        EndpointInventory source = (EndpointInventory) obj;
         if (serviceId != source.getServiceId())
             return false;
         if (!name.equals(source.getName()))
@@ -86,7 +95,8 @@ public class EndpointInventory extends RegisterSource {
         return true;
     }
 
-    @Override public RemoteData.Builder serialize() {
+    @Override
+    public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(serviceId);
@@ -100,7 +110,8 @@ public class EndpointInventory extends RegisterSource {
         return remoteBuilder;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
+    @Override
+    public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setServiceId(remoteData.getDataIntegers(1));
         setDetectPoint(remoteData.getDataIntegers(2));
@@ -112,25 +123,28 @@ public class EndpointInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
     }
 
-    @Override public int remoteHashCode() {
+    @Override
+    public int remoteHashCode() {
         return 0;
     }
 
     public static class Builder implements StorageBuilder<EndpointInventory> {
 
-        @Override public EndpointInventory map2Data(Map<String, Object> dbMap) {
+        @Override
+        public EndpointInventory map2Data(Map<String, Object> dbMap) {
             EndpointInventory inventory = new EndpointInventory();
-            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
-            inventory.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
-            inventory.setName((String)dbMap.get(NAME));
-            inventory.setDetectPoint(((Number)dbMap.get(DETECT_POINT)).intValue());
-            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
-            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
-            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
+            inventory.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
+            inventory.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            inventory.setName((String) dbMap.get(NAME));
+            inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
+            inventory.setRegisterTime(((Number) dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number) dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number) dbMap.get(LAST_UPDATE_TIME)).longValue());
             return inventory;
         }
 
-        @Override public Map<String, Object> data2Map(EndpointInventory storageData) {
+        @Override
+        public Map<String, Object> data2Map(EndpointInventory storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());

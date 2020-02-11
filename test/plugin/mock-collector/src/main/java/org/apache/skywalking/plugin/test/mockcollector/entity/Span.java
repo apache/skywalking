@@ -34,6 +34,8 @@
 
 package org.apache.skywalking.plugin.test.mockcollector.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,9 +45,6 @@ import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
 import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @ToString
@@ -161,7 +160,8 @@ public class Span {
 
         public SegmentRef(SegmentReference ref) {
             UniqueId segmentUniqueId = ref.getParentTraceSegmentId();
-            this.parentTraceSegmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId.getIdParts(1)), Long.toString(segmentUniqueId.getIdParts(2)));
+            this.parentTraceSegmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId
+                .getIdParts(1)), Long.toString(segmentUniqueId.getIdParts(2)));
             this.refType = ref.getRefType().toString();
             this.parentSpanId = ref.getParentSpanId();
             this.entryEndpointId = ref.getEntryEndpointId();
@@ -176,7 +176,8 @@ public class Span {
 
         public SegmentRef(TraceSegmentReference ref) {
             UniqueId segmentUniqueId = ref.getParentTraceSegmentId();
-            this.parentTraceSegmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId.getIdParts(1)), Long.toString(segmentUniqueId.getIdParts(2)));
+            this.parentTraceSegmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId
+                .getIdParts(1)), Long.toString(segmentUniqueId.getIdParts(2)));
             this.refType = ref.getRefType().toString();
             this.parentSpanId = ref.getParentSpanId();
             this.entryEndpointId = ref.getEntryServiceId();

@@ -23,16 +23,17 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class ServiceInstance {
-    @Setter private String id;
-    @Setter private String name;
+    @Setter
+    private String id;
+    @Setter
+    private String name;
     private final List<Attribute> attributes;
-    @Setter private Language language = Language.UNKNOWN;
-    @Setter private String instanceUUID;
+    @Setter
+    private Language language = Language.UNKNOWN;
+    @Setter
+    private String instanceUUID;
 
     public ServiceInstance() {
         this.attributes = new ArrayList<>();

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.configuration.consul;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author kezhenxu94
- */
 public class ConsulConfigurationTestModule extends ModuleDefine {
     public static final String NAME = "test-module";
 

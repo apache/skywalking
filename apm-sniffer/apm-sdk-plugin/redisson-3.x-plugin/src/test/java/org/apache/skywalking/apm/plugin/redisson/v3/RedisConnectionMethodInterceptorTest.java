@@ -33,9 +33,6 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-/**
- * @author zhaoyuguang
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RedisConnectionMethodInterceptorTest {
@@ -67,7 +64,10 @@ public class RedisConnectionMethodInterceptorTest {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({
+        "rawtypes",
+        "unchecked"
+    })
     @Before
     public void setUp() throws Exception {
         mockRedisConnectionInstance = new MockInstance();
@@ -76,10 +76,9 @@ public class RedisConnectionMethodInterceptorTest {
         interceptor = new RedisConnectionMethodInterceptor();
     }
 
-
     @Test
     public void testIntercept() throws Throwable {
-        interceptor.onConstruct(mockRedisConnectionInstance, new Object[]{mockRedisClientInstance});
+        interceptor.onConstruct(mockRedisConnectionInstance, new Object[] {mockRedisClientInstance});
         MatcherAssert.assertThat((String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
     }
 }

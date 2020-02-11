@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
@@ -32,17 +31,10 @@ import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Tags;
 
-/**
- * @author kezhenxu94
- */
 public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) {
+    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
         if (!ContextManager.isActive()) {
             return;
@@ -93,16 +85,11 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
             TagUtil.tagReturnSpanSpan(localSpan, context, tag);
         }
         ContextManager.stopSpan();
-        return ret;
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Throwable t) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

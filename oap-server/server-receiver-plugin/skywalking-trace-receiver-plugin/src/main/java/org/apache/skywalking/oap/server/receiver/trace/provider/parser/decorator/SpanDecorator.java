@@ -26,9 +26,6 @@ import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class SpanDecorator implements StandardBuilder {
     private boolean isOrigin = true;
     private final StandardBuilder standardBuilder;
@@ -222,7 +219,8 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
-    @Override public void toBuilder() {
+    @Override
+    public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
             spanBuilderV2 = spanObjectV2.toBuilder();

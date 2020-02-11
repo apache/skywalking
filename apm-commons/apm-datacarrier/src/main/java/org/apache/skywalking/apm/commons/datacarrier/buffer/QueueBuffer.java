@@ -22,12 +22,11 @@ import java.util.List;
 
 /**
  * Queue buffer interface.
- *
- * @author wusheng
  */
 public interface QueueBuffer<T> {
     /**
      * Save data into the queue;
+     *
      * @param data to add.
      * @return true if saved
      */
@@ -35,13 +34,11 @@ public interface QueueBuffer<T> {
 
     /**
      * Set different strategy when queue is full.
-     * @param strategy
      */
     void setStrategy(BufferStrategy strategy);
 
     /**
      * Obtain the existing data from the queue
-     * @param consumeList
      */
     void obtain(List<T> consumeList);
 

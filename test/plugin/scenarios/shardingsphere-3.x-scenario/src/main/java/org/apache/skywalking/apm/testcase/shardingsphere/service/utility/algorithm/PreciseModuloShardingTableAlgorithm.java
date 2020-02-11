@@ -20,11 +20,10 @@ package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.algori
 
 import io.shardingsphere.api.algorithm.sharding.PreciseShardingValue;
 import io.shardingsphere.api.algorithm.sharding.standard.PreciseShardingAlgorithm;
-
 import java.util.Collection;
 
 public class PreciseModuloShardingTableAlgorithm implements PreciseShardingAlgorithm<Long> {
-    
+
     @Override
     public String doSharding(final Collection<String> tableNames, final PreciseShardingValue<Long> shardingValue) {
         for (String each : tableNames) {

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core;
 
-/**
- * @author peng-yongsheng
- */
 public class Const {
     public static final int NONE = 0;
     public static final String ID_SPLIT = "_";

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * @author wusheng
- */
 public enum LogState {
     ALL, SUCCESS, ERROR
 }

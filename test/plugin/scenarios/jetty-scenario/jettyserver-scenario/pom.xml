@@ -66,7 +66,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.apache.skywalking.apm.testcase.jettyserver.Application</mainClass>
                                 </transformer>
                             </transformers>

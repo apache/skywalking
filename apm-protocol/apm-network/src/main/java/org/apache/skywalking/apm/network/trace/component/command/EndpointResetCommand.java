@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
 /**
- * Remove the specified endpoint names from endpoint metadata cache, and re-register it.
- * If not specified, clear whole endpoint metadata cache.
- *
- * @author peng-yongsheng
+ * Remove the specified endpoint names from endpoint metadata cache, and re-register it. If not specified, clear whole
+ * endpoint metadata cache.
  */
 public class EndpointResetCommand extends BaseCommand implements Serializable {
 
@@ -32,7 +31,8 @@ public class EndpointResetCommand extends BaseCommand implements Serializable {
         super("EndpointMetadataReset", serialNumber);
     }
 
-    @Override public Command.Builder serialize() {
+    @Override
+    public Command.Builder serialize() {
         return commandBuilder();
     }
 

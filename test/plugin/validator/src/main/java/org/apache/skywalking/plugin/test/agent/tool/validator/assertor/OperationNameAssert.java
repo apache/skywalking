@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import java.util.List;
-
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ActualRegistryOperationNameEmptyException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.RegistryOperationNameNotFoundException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.RegistryOperationNamesOfApplicationNotFoundException;
@@ -31,8 +31,8 @@ public class OperationNameAssert {
 
         for (RegistryOperationName operationName : expected) {
             RegistryOperationName actualOperationName = findActualRegistryOperationName(actual, operationName);
-            assertOperationEquals(actualOperationName.applicationCode(),operationName.operationName(),
-                actualOperationName.operationName());
+            assertOperationEquals(actualOperationName.applicationCode(), operationName.operationName(), actualOperationName
+                .operationName());
         }
     }
 
@@ -45,8 +45,8 @@ public class OperationNameAssert {
         }
     }
 
-    private static RegistryOperationName findActualRegistryOperationName(
-        List<RegistryOperationName> actual, RegistryOperationName registryOperationName) {
+    private static RegistryOperationName findActualRegistryOperationName(List<RegistryOperationName> actual,
+        RegistryOperationName registryOperationName) {
         if (actual == null) {
             throw new ActualRegistryOperationNameEmptyException(registryOperationName);
         }

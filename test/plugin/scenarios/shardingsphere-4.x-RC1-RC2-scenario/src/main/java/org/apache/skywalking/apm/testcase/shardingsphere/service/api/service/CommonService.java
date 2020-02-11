@@ -19,14 +19,14 @@
 package org.apache.skywalking.apm.testcase.shardingsphere.service.api.service;
 
 public interface CommonService {
-    
+
     void initEnvironment();
-    
+
     void cleanEnvironment();
-    
+
     void processSuccess(boolean isRangeSharding);
-    
+
     void processFailure();
-    
+
     void printData(boolean isRangeSharding);
 }

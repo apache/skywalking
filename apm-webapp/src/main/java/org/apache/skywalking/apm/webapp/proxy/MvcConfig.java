@@ -24,31 +24,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 /**
  * Additional MVC Configuration.
- *
- * @author gaohongtao
  */
 @Configuration
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-        registry
-                .addResourceHandler("/index.html")
-                .addResourceLocations("classpath:/public/index.html");
-        registry
-                .addResourceHandler("/css/**")
-                .addResourceLocations("classpath:/public/css/");
-        registry
-                .addResourceHandler("/img/**")
-                .addResourceLocations("classpath:/public/img/");
-        registry
-                .addResourceHandler("/js/**")
-                .addResourceLocations("classpath:/public/js/");
-        registry
-                .addResourceHandler("/favicon.ico")
-                .addResourceLocations("classpath:/public/favicon.ico");
-        registry
-                .addResourceHandler("/logo.png")
-                .addResourceLocations("classpath:/public/logo.png");
+        registry.addResourceHandler("/index.html").addResourceLocations("classpath:/public/index.html");
+        registry.addResourceHandler("/css/**").addResourceLocations("classpath:/public/css/");
+        registry.addResourceHandler("/img/**").addResourceLocations("classpath:/public/img/");
+        registry.addResourceHandler("/js/**").addResourceLocations("classpath:/public/js/");
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/public/favicon.ico");
+        registry.addResourceHandler("/logo.png").addResourceLocations("classpath:/public/logo.png");
     }
 }

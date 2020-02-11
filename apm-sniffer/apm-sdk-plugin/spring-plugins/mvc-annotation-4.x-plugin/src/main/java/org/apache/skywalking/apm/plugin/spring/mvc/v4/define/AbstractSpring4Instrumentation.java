@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
@@ -26,6 +25,9 @@ public abstract class AbstractSpring4Instrumentation extends ClassInstanceMethod
 
     @Override
     protected String[] witnessClasses() {
-        return new String[] {WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator"};
+        return new String[] {
+            WITHNESS_CLASSES,
+            "org.springframework.cache.interceptor.DefaultKeyGenerator"
+        };
     }
 }

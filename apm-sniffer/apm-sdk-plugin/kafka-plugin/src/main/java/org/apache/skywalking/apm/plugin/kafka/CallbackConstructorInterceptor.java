@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 /**
  * intercept Callback set cache
- * @author stalary
  **/
 public class CallbackConstructorInterceptor implements InstanceConstructorInterceptor {
 

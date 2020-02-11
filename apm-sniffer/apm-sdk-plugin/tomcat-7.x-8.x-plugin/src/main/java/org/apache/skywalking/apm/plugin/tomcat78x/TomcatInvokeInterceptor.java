@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.tomcat78x;
 
 import javax.servlet.http.HttpServletRequest;
@@ -60,18 +59,14 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
     }
 
     /**
-     * * The {@link TraceSegment#refs} of current trace segment will reference to the
-     * trace segment id of the previous level if the serialized context is not null.
+     * * The {@link TraceSegment#refs} of current trace segment will reference to the trace segment id of the previous
+     * level if the serialized context is not null.
      *
-     * @param objInst
-     * @param method
-     * @param allArguments
-     * @param argumentsTypes
      * @param result change this result, if you want to truncate the method.
-     * @throws Throwable
      */
-    @Override public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    @Override
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
         ContextCarrier contextCarrier = new ContextCarrier();
 
@@ -98,17 +93,16 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
 
             if (!parameterMap.isEmpty()) {
                 String tagValue = CollectionUtil.toString(parameterMap);
-                tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0
-                    ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD)
-                    : tagValue;
+                tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
                 Tags.HTTP.PARAMS.set(span, tagValue);
             }
         }
     }
 
-    @Override public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        HttpServletResponse response = (HttpServletResponse)allArguments[1];
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        HttpServletResponse response = (HttpServletResponse) allArguments[1];
 
         AbstractSpan span = ContextManager.activeSpan();
         if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
@@ -120,7 +114,8 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);

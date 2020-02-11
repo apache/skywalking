@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql;
 
 import java.lang.reflect.Method;
@@ -33,9 +32,8 @@ import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 /**
- * {@link PreparedStatementExecuteMethodsInterceptor} create the exit span when the client call the interceptor methods.
- *
- * @author zhangxin
+ * {@link PreparedStatementExecuteMethodsInterceptor} create the exit span when the client call the interceptor
+ * methods.
  */
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -43,11 +41,11 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
-        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+        AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo
+            .getDatabasePeer());
         Tags.DB_TYPE.set(span, "sql");
         Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
         Tags.DB_STATEMENT.set(span, cacheObject.getSql());
@@ -71,18 +69,18 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.stopSpan();
         }
         return ret;
     }
 
-    @Override public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

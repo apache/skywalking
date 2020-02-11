@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.topo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class TopoData {
     private List<Node> nodes;
     private List<Call> calls;
@@ -53,9 +50,6 @@ public class TopoData {
 
     @Override
     public String toString() {
-        return "TopoData{" +
-                "nodes=" + nodes +
-                ", calls=" + calls +
-                '}';
+        return "TopoData{" + "nodes=" + nodes + ", calls=" + calls + '}';
     }
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.entity;
 
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ public class Segment {
         }
 
         public SegmentBuilder segmentId(UniqueId segmentUniqueId) {
-            segmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId.getIdParts(1)), Long.toString(segmentUniqueId.getIdParts(2)));
+            segmentId = String.join(".", Long.toString(segmentUniqueId.getIdParts(0)), Long.toString(segmentUniqueId.getIdParts(1)), Long
+                .toString(segmentUniqueId.getIdParts(2)));
             return this;
         }
     }

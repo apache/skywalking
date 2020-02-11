@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.entity;
 
 import com.google.gson.Gson;
@@ -24,14 +25,12 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 
-/**
- * Created by xin on 2017/7/14.
- */
 public class ValidateDataSerializer implements JsonSerializer<ValidateData> {
     @Override
     public JsonElement serialize(ValidateData src, Type typeOfSrc, JsonSerializationContext context) {
         Gson gson = new GsonBuilder().registerTypeAdapter(RegistryItem.class, new RegistryItemSerializer())
-            .registerTypeAdapter(SegmentItems.class, new SegmentItemsSerializer()).create();
+                                     .registerTypeAdapter(SegmentItems.class, new SegmentItemsSerializer())
+                                     .create();
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("registryItems", gson.toJsonTree(src.getRegistryItem()));

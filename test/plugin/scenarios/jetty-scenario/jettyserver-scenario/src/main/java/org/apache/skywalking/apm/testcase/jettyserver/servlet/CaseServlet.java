@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.jettyserver.servlet;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class CaseServlet extends HttpServlet{
+public class CaseServlet extends HttpServlet {
     public static String SERVLET_PATH = "/case/receiveContext-0";
 
     @Override

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.io.IOException;
@@ -29,10 +28,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
 
 /**
- * Use the current classloader to read all plugin define file.
- * The file must be named 'skywalking-plugin.def'
- *
- * @author wusheng
+ * Use the current classloader to read all plugin define file. The file must be named 'skywalking-plugin.def'
  */
 public class PluginResourcesResolver {
     private static final ILog logger = LogManager.getLogger(PluginResourcesResolver.class);

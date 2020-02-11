@@ -45,17 +45,14 @@ public class Main {
 
             if (actualData.exists() && expectedData.exists()) {
                 try {
-                    DataAssert.assertEquals(Data.Loader.loadData("expectedData.yaml", expectedData),
-                            Data.Loader.loadData("actualData.yaml", actualData));
+                    DataAssert.assertEquals(Data.Loader.loadData("expectedData.yaml", expectedData), Data.Loader.loadData("actualData.yaml", actualData));
                     return true;
                 } catch (AssertFailedException e) {
                     logger.error("\nassert failed.\n{}\n", e.getCauseMessage());
                 }
             } else {
-                logger.error("assert failed. because actual data {} and expected data {}",
-                        actualData.exists() ? "founded" : "not founded",
-                        expectedData.exists() ? "founded" : "not founded"
-                );
+                logger.error("assert failed. because actual data {} and expected data {}", actualData.exists() ? "founded" : "not founded", expectedData
+                    .exists() ? "founded" : "not founded");
             }
         } catch (Exception e) {
             logger.error("assert test case {} failed.", ConfigHelper.caseName(), e);

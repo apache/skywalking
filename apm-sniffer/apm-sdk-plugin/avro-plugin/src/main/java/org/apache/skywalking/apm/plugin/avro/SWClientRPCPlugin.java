@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import org.apache.avro.ipc.RPCContext;
@@ -26,8 +27,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import java.nio.ByteBuffer;
 
 /**
- * A SkyWalking tracing plugin for Avro Client.
- * Inject CarrierItems into RPC's metadata from cross-process propagation.
+ * A SkyWalking tracing plugin for Avro Client. Inject CarrierItems into RPC's metadata from cross-process propagation.
  */
 public class SWClientRPCPlugin extends RPCPlugin {
 
