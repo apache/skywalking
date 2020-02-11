@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.skywalking.apm.testcase.sc.webflux.projectB.config;
 
 import org.springframework.stereotype.Component;
@@ -22,10 +23,6 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-
-/**
- * @author zhaoyuguang
- */
 
 @Component
 public class CustomFilter implements WebFilter {

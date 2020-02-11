@@ -21,16 +21,14 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class ElasticSearchInsertRequest extends IndexRequest implements InsertRequest {
 
     public ElasticSearchInsertRequest(String index, String type, String id) {
         super(index, type, id);
     }
 
-    @Override public ElasticSearchInsertRequest source(XContentBuilder sourceBuilder) {
+    @Override
+    public ElasticSearchInsertRequest source(XContentBuilder sourceBuilder) {
         super.source(sourceBuilder);
         return this;
     }

@@ -35,9 +35,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 public class StorageEsInstaller extends ModelInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageEsInstaller.class);
@@ -52,8 +49,9 @@ public class StorageEsInstaller extends ModelInstaller {
         this.config = config;
     }
 
-    @Override protected boolean isExists(Client client, Model model) throws StorageException {
-        ElasticSearchClient esClient = (ElasticSearchClient)client;
+    @Override
+    protected boolean isExists(Client client, Model model) throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
             if (model.isCapableOfTimeSeries()) {
                 return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(model.getName());
@@ -65,12 +63,14 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    @Override protected void createTable(Client client, Model model) throws StorageException {
-        ElasticSearchClient esClient = (ElasticSearchClient)client;
+    @Override
+    protected void createTable(Client client, Model model) throws StorageException {
+        ElasticSearchClient esClient = (ElasticSearchClient) client;
 
         Map<String, Object> settings = createSetting(model.isRecord());
         Map<String, Object> mapping = createMapping(model);
-        logger.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping.toString());
+        logger.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
+            .toString());
 
         try {
             if (model.isCapableOfTimeSeries()) {
@@ -105,7 +105,9 @@ public class StorageEsInstaller extends ModelInstaller {
         Map<String, Object> setting = new HashMap<>();
         setting.put("index.number_of_shards", config.getIndexShardsNumber());
         setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
-        setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10).toString() : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
+        setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10)
+                                                                .toString() : TimeValue.timeValueSeconds(config.getFlushInterval())
+                                                                                       .toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);

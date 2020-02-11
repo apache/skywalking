@@ -18,22 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.entity.Node;
+import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 class TopologyBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(TopologyBuilder.class);
@@ -42,8 +46,12 @@ class TopologyBuilder {
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     TopologyBuilder(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                           .provider()
+                                                           .getService(IComponentLibraryCatalogService.class);
     }
 
     Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
@@ -73,7 +81,8 @@ class TopologyBuilder {
             if (!nodes.containsKey(target.getSequence())) {
                 nodes.put(target.getSequence(), buildNode(target));
                 if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
-                    nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+                    nodes.get(target.getSequence())
+                         .setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
@@ -154,7 +163,8 @@ class TopologyBuilder {
             }
 
             if (nodes.containsKey(target.getSequence())) {
-                nodes.get(target.getSequence()).setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+                nodes.get(target.getSequence())
+                     .setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
         }
 

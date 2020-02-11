@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.play.v2x;
 
 import akka.stream.Materializer;
@@ -60,11 +61,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.ok;
 
-
-/**
- * @author AI
- * 2019-08-16
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class TracingFilterTest {
@@ -105,8 +101,7 @@ public class TracingFilterTest {
 
         @Override
         public TypedMap attrs() {
-            HandlerDef def = new HandlerDef(null, null, null, "GET",
-                null, null, "/projects/$projectId<[^/]+>", null, null);
+            HandlerDef def = new HandlerDef(null, null, null, "GET", null, null, "/projects/$projectId<[^/]+>", null, null);
             return TypedMap.empty().put(Router.Attrs.HANDLER_DEF, def);
         }
 

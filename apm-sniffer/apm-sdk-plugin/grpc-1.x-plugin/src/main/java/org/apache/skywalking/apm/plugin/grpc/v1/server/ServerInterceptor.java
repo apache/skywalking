@@ -30,12 +30,10 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * @author zhang xin, wang zheng, kanro
- */
 public class ServerInterceptor implements io.grpc.ServerInterceptor {
     @Override
-    public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> call, Metadata headers, ServerCallHandler<REQUEST, RESPONSE> handler) {
+    public <REQUEST, RESPONSE> ServerCall.Listener<REQUEST> interceptCall(ServerCall<REQUEST, RESPONSE> call,
+        Metadata headers, ServerCallHandler<REQUEST, RESPONSE> handler) {
         final ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -50,7 +48,8 @@ public class ServerInterceptor implements io.grpc.ServerInterceptor {
         span.setComponent(ComponentsDefine.GRPC);
         span.setLayer(SpanLayer.RPC_FRAMEWORK);
         try {
-            return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call, ContextManager.capture()), headers), call.getMethodDescriptor(), ContextManager.capture());
+            return new TracingServerCallListener<>(handler.startCall(new TracingServerCall<>(call, ContextManager.capture()), headers), call
+                .getMethodDescriptor(), ContextManager.capture());
         } finally {
             ContextManager.stopSpan();
         }

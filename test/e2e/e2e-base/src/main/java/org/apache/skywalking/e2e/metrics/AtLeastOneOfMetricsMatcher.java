@@ -23,16 +23,13 @@ import org.assertj.core.api.Condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 public class AtLeastOneOfMetricsMatcher extends AbstractMatcher<Metrics> {
     private MetricsValueMatcher value;
 
     @Override
     public void verify(Metrics metrics) {
         assertThat(metrics.getValues()).isNotEmpty();
-        assertThat(metrics.getValues()).areAtLeastOne(new Condition<MetricsValue>(){
+        assertThat(metrics.getValues()).areAtLeastOne(new Condition<MetricsValue>() {
             @Override
             public boolean matches(MetricsValue value) {
                 try {
@@ -55,8 +52,6 @@ public class AtLeastOneOfMetricsMatcher extends AbstractMatcher<Metrics> {
 
     @Override
     public String toString() {
-        return "OneOfMetricsMatcher{" +
-            "value=" + value +
-            '}';
+        return "OneOfMetricsMatcher{" + "value=" + value + '}';
     }
 }

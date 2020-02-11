@@ -18,12 +18,9 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 
-/**
- * @author peng-yongsheng
- */
 public class StepToDownsampling {
 
     public static Downsampling transform(Step step) {

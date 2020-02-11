@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.kafka.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,7 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * after version 2.1.0 use Map to config
- * @author stalary
  */
 public class KafkaProducerMapInstrumentation extends AbstractKafkaInstrumentation {
 
@@ -38,7 +38,7 @@ public class KafkaProducerMapInstrumentation extends AbstractKafkaInstrumentatio
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {

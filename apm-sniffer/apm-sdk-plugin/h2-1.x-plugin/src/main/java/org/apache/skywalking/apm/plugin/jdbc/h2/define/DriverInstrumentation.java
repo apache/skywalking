@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.h2.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
@@ -26,8 +25,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link DriverInstrumentation} presents that skywalking intercepts {@link org.h2.Driver}.
- *
- * @author zhangxin
  */
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
     private static final String CLASS_OF_INTERCEPT_H2_DRIVER = "org.h2.Driver";

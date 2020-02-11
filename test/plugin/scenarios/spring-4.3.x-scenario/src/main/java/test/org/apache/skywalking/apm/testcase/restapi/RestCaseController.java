@@ -18,6 +18,8 @@
 
 package test.org.apache.skywalking.apm.testcase.restapi;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +33,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import test.org.apache.skywalking.apm.testcase.entity.User;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class RestCaseController {
@@ -50,7 +49,7 @@ public class RestCaseController {
     @PostMapping(value = "/create/")
     @ResponseBody
     public ResponseEntity<Void> createUser(@RequestBody User user,
-                                           UriComponentsBuilder ucBuilder) throws InterruptedException {
+        UriComponentsBuilder ucBuilder) throws InterruptedException {
         users.put(user.getId(), user);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/get/{id}").buildAndExpand(user.getId()).toUri());
@@ -60,7 +59,7 @@ public class RestCaseController {
     @PutMapping(value = "/update/{id}")
     @ResponseBody
     public ResponseEntity<User> updateUser(@PathVariable("id") int id,
-                                           @RequestBody User user) throws InterruptedException {
+        @RequestBody User user) throws InterruptedException {
         User currentUser = new User(id, user.getUserName());
         return ResponseEntity.ok(currentUser);
     }

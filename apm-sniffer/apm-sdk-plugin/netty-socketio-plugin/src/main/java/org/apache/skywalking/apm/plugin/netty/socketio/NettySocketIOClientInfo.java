@@ -23,8 +23,6 @@ import com.corundumstudio.socketio.namespace.Namespace;
 
 /**
  * {@link com.corundumstudio.socketio.transport.NamespaceClient} all data
- *
- * @author MrPro
  */
 public class NettySocketIOClientInfo {
 

@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * @author peng-yongsheng
- */
 public enum Step {
-    MONTH,
-    DAY,
-    HOUR,
-    MINUTE,
-    SECOND
+    MONTH, DAY, HOUR, MINUTE, SECOND
 }

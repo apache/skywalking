@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.undertow.v2x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,15 +29,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-
-/**
- * @author AI
- * 2019-08-10
- */
 public class UndertowAddListenerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "io.undertow.Undertow$Builder";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.RootHandlerInterceptor";
-    private static final String[] ENHANCE_METHODS = new String[]{"addHttpListener", "addHttpsListener", "addAjpListener"};
+    private static final String[] ENHANCE_METHODS = new String[] {
+        "addHttpListener",
+        "addHttpsListener",
+        "addAjpListener"
+    };
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

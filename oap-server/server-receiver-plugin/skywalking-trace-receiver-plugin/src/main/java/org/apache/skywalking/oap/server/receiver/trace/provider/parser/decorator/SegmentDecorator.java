@@ -23,9 +23,6 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class SegmentDecorator implements StandardBuilder {
     private boolean isOrigin = true;
     private final SegmentObject segmentObjectV2;
@@ -68,7 +65,8 @@ public class SegmentDecorator implements StandardBuilder {
         return segmentObjectV2.toByteArray();
     }
 
-    @Override public void toBuilder() {
+    @Override
+    public void toBuilder() {
         if (isOrigin) {
             this.isOrigin = false;
             this.segmentBuilderV2 = segmentObjectV2.toBuilder();

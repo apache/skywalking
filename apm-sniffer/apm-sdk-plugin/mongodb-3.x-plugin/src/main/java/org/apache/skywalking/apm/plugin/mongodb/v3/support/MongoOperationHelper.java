@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
 import com.mongodb.bulk.DeleteRequest;
@@ -45,12 +44,11 @@ import org.bson.BsonDocument;
 
 import java.util.List;
 
-/**
- * @author scolia
- */
-@SuppressWarnings({"deprecation", "Duplicates"})
+@SuppressWarnings({
+    "deprecation",
+    "Duplicates"
+})
 public class MongoOperationHelper {
-
 
     private MongoOperationHelper() {
 

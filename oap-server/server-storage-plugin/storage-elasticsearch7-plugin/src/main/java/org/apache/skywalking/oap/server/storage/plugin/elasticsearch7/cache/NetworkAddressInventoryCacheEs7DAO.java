@@ -28,10 +28,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, jian.tan
- * @author kezhenxu94
- */
 public class NetworkAddressInventoryCacheEs7DAO extends NetworkAddressInventoryCacheEsDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEs7DAO.class);
@@ -40,7 +36,8 @@ public class NetworkAddressInventoryCacheEs7DAO extends NetworkAddressInventoryC
         super(client, resultWindowMaxSize);
     }
 
-    @Override public NetworkAddressInventory get(int addressId) {
+    @Override
+    public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));

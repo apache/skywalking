@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.http.sync.define;
 
 import net.bytebuddy.description.method.MethodDescription;

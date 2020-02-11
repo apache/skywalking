@@ -20,11 +20,7 @@ package test.org.apache.skywalking.apm.testcase.customize.service;
 
 import java.util.List;
 
-/**
- * @author zhaoyuguang
- */
 public class TestService2 {
-
 
     public static void staticMethod(String str0, int count) {
 

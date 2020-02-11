@@ -21,15 +21,14 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyBoolean;
@@ -38,9 +37,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author caoyixiong
- */
 public class NacosCoordinatorTest {
     private NamingService namingService = mock(NamingService.class);
     private ClusterModuleNacosConfig nacosConfig = new ClusterModuleNacosConfig();
@@ -109,7 +105,8 @@ public class NacosCoordinatorTest {
         ArgumentCaptor<String> serviceNameArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> hostArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Integer> portArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(namingService).registerInstance(serviceNameArgumentCaptor.capture(), hostArgumentCaptor.capture(), portArgumentCaptor.capture());
+        verify(namingService).registerInstance(serviceNameArgumentCaptor.capture(), hostArgumentCaptor.capture(), portArgumentCaptor
+            .capture());
 
         assertEquals(SERVICE_NAME, serviceNameArgumentCaptor.getValue());
         assertEquals(address.getHost(), hostArgumentCaptor.getValue());

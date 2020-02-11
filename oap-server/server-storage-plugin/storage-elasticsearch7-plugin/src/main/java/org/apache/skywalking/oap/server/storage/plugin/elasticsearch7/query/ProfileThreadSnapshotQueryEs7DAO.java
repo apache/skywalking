@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;

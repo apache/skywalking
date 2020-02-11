@@ -33,9 +33,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private JDBCHikariCPClient h2Client;
 
@@ -44,7 +41,8 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+        Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
         sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where 1=1 ");
@@ -113,19 +111,18 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
     /**
      * parse profile task data
-     * @param data
-     * @return
      */
     private ProfileTask parseTask(ResultSet data) throws SQLException {
         return ProfileTask.builder()
-                .id(data.getString("id"))
-                .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
-                .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
-                .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
-                .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
-                .duration(data.getInt(ProfileTaskNoneStream.DURATION))
-                .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
-                .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))
-                .maxSamplingCount(data.getInt(ProfileTaskNoneStream.MAX_SAMPLING_COUNT)).build();
+                          .id(data.getString("id"))
+                          .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
+                          .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
+                          .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
+                          .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
+                          .duration(data.getInt(ProfileTaskNoneStream.DURATION))
+                          .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
+                          .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))
+                          .maxSamplingCount(data.getInt(ProfileTaskNoneStream.MAX_SAMPLING_COUNT))
+                          .build();
     }
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
- 
+
 package org.apache.skywalking.apm.plugin.canal;
 
 import com.alibaba.otter.canal.client.impl.ClusterNodeAccessStrategy;
@@ -30,17 +30,13 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * @author withlin
- */
 public class ClusterNodeConstructInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
 
         String clusterPath = ZookeeperPathUtils.getDestinationClusterRoot(allArguments[0].toString());
-        ZkClientx zkClientx =  ((ClusterNodeAccessStrategy) objInst).getZkClient();
-        ContextManager.getRuntimeContext().put("currentAddress",getCurrentAddress(zkClientx.getChildren(clusterPath)));
+        ZkClientx zkClientx = ((ClusterNodeAccessStrategy) objInst).getZkClient();
+        ContextManager.getRuntimeContext().put("currentAddress", getCurrentAddress(zkClientx.getChildren(clusterPath)));
 
     }
 
@@ -53,9 +49,8 @@ public class ClusterNodeConstructInterceptor implements InstanceConstructorInter
             }
         }
 
-        return  addresses;
+        return addresses;
 
     }
 }
-
 

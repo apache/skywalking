@@ -18,10 +18,10 @@
 
 package test.org.apache.skywalking.apm.testcase.spring3.service;
 
-import test.org.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
-import test.org.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import test.org.apache.skywalking.apm.testcase.spring3.component.TestComponentBean;
+import test.org.apache.skywalking.apm.testcase.spring3.dao.TestRepositoryBean;
 
 @Service
 public class TestServiceBean {

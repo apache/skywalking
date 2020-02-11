@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element;
 
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ValueAssertFailedException;
 
-/**
- * Created by xin on 2017/7/15.
- */
 public class NotNullAssertor extends ElementAssertor {
     public NotNullAssertor() {
         super(null);

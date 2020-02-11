@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package test.apache.skywalking.apm.testcase.elasticsearch.controller;
 
 import java.io.IOException;
@@ -47,9 +48,7 @@ public class CaseController {
     @GetMapping("/healthcheck")
     public String healthcheck() throws Exception {
         Client client = initTransportClient();
-        ClusterHealthResponse response = client.admin().cluster().prepareHealth()
-                                            .setWaitForYellowStatus()
-                                            .get();
+        ClusterHealthResponse response = client.admin().cluster().prepareHealth().setWaitForYellowStatus().get();
         if (response.isTimedOut()) {
             String message = "elastic search node start fail!";
             logger.error(message);
@@ -87,13 +86,13 @@ public class CaseController {
     private void index(Client client, String indexName) throws IOException {
         try {
             client.prepareIndex(indexName, "test", "1")
-                .setSource(XContentFactory.jsonBuilder()
-                    .startObject()
-                    .field("name", "mysql innodb")
-                    .field("price", "0")
-                    .field("language", "chinese")
-                    .endObject())
-                .get();
+                  .setSource(XContentFactory.jsonBuilder()
+                                            .startObject()
+                                            .field("name", "mysql innodb")
+                                            .field("price", "0")
+                                            .field("language", "chinese")
+                                            .endObject())
+                  .get();
         } catch (IOException e) {
             logger.error("index document error.", e);
             throw e;
@@ -107,8 +106,8 @@ public class CaseController {
     private void update(Client client, String indexName) throws IOException {
         try {
             client.prepareUpdate(indexName, "test", "1")
-                .setDoc(XContentFactory.jsonBuilder().startObject().field("price", "9.9").endObject())
-                .execute();
+                  .setDoc(XContentFactory.jsonBuilder().startObject().field("price", "9.9").endObject())
+                  .execute();
         } catch (IOException e) {
             logger.error("update document error.", e);
             throw e;
@@ -127,12 +126,12 @@ public class CaseController {
         TransportClient client = null;
         try {
             Settings settings = Settings.builder()
-                .put("cluster.name", "docker-node")
-                .put("client.transport.sniff", false)
-                .build();
+                                        .put("cluster.name", "docker-node")
+                                        .put("client.transport.sniff", false)
+                                        .build();
 
-            client = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), 9300));
+            client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress
+                .getByName(host), 9300));
         } catch (UnknownHostException e) {
             logger.error("create client error", e);
             throw e;

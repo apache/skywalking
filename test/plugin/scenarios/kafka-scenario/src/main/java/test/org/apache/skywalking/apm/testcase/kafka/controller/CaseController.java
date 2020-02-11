@@ -18,6 +18,10 @@
 
 package test.org.apache.skywalking.apm.testcase.kafka.controller;
 
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.function.Consumer;
+import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -33,11 +37,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
 
@@ -132,7 +131,8 @@ public class CaseController {
                         return;
                     }
                     wrapProducer(producer -> {
-                        ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer.toString(1));
+                        ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer
+                            .toString(1));
                         record.headers().add("CHECK", "CHECK".getBytes());
                         producer.send(record, new Callback() {
                             @Override
@@ -179,7 +179,11 @@ public class CaseController {
 
                 if (!records.isEmpty()) {
                     for (ConsumerRecord<String, String> record : records) {
-                        logger.info("header: {}", new String(record.headers().headers("TEST").iterator().next().value()));
+                        logger.info("header: {}", new String(record.headers()
+                                                                   .headers("TEST")
+                                                                   .iterator()
+                                                                   .next()
+                                                                   .value()));
                         logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
                     }
                     break;

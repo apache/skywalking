@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.tag;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;

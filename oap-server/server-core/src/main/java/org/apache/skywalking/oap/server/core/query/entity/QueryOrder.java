@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * @author peng-yongsheng
- */
 public enum QueryOrder {
-    BY_START_TIME,
-    BY_DURATION
+    BY_START_TIME, BY_DURATION
 }

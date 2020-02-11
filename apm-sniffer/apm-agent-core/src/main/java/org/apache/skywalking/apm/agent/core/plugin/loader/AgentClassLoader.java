@@ -39,10 +39,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 
 /**
- * The <code>AgentClassLoader</code> represents a classloader,
- * which is in charge of finding plugins and interceptors.
- *
- * @author wusheng
+ * The <code>AgentClassLoader</code> represents a classloader, which is in charge of finding plugins and interceptors.
  */
 public class AgentClassLoader extends ClassLoader {
 
@@ -102,8 +99,7 @@ public class AgentClassLoader extends ClassLoader {
             try {
                 URL classFileUrl = new URL("jar:file:" + jar.sourceFile.getAbsolutePath() + "!/" + path);
                 byte[] data;
-                try (final BufferedInputStream is = new BufferedInputStream(classFileUrl.openStream());
-                     final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                try (final BufferedInputStream is = new BufferedInputStream(classFileUrl.openStream()); final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     int ch;
                     while ((ch = is.read()) != -1) {
                         baos.write(ch);

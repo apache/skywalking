@@ -27,31 +27,32 @@ import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderRepositoryImpl;
 
 public class RawPojoService extends CommonServiceImpl {
-    
+
     private final OrderRepository orderRepository;
-    
+
     private final OrderItemRepository orderItemRepository;
-    
-    public RawPojoService(final JDBCOrderRepositoryImpl orderRepository, final JDBCOrderItemRepositoryImpl orderItemRepository) {
+
+    public RawPojoService(final JDBCOrderRepositoryImpl orderRepository,
+        final JDBCOrderItemRepositoryImpl orderItemRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
     }
-    
+
     @Override
     protected OrderRepository getOrderRepository() {
         return orderRepository;
     }
-    
+
     @Override
     protected OrderItemRepository getOrderItemRepository() {
         return orderItemRepository;
     }
-    
+
     @Override
     protected Order newOrder() {
         return new Order();
     }
-    
+
     @Override
     protected OrderItem newOrderItem() {
         return new OrderItem();

@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Get configuration from Nacos.
- *
- * @author kezhenxu94
  */
 public class NacosConfigurationProvider extends AbstractConfigurationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(NacosConfigurationProvider.class);

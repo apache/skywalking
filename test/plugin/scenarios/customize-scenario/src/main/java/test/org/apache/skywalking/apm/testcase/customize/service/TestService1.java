@@ -18,14 +18,9 @@
 
 package test.org.apache.skywalking.apm.testcase.customize.service;
 
-import test.org.apache.skywalking.apm.testcase.customize.model.Model0;
-
 import java.util.List;
 import java.util.Map;
-
-/**
- * @author zhaoyuguang
- */
+import test.org.apache.skywalking.apm.testcase.customize.model.Model0;
 
 public class TestService1 {
 

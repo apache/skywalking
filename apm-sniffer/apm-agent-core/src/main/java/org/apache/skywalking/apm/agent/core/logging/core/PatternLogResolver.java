@@ -16,16 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogResolver;
 
-/**
- * @author alvin
- */
 public class PatternLogResolver implements LogResolver {
 
     @Override

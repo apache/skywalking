@@ -38,8 +38,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  *  3. Inject the context to {@link org.apache.kafka.clients.producer.ProducerRecord#headers}
  *  3. Stop the exit span when <code>send</code> method finished.
  * </pre>
- *
- * @author zhang xin, stalary
  */
 public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
@@ -51,7 +49,7 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
@@ -68,7 +66,7 @@ public class KafkaProducerInstrumentation extends AbstractKafkaInstrumentation {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

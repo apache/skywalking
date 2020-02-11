@@ -23,16 +23,13 @@ import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 
-/**
- * Created by dengming, 2019.04.20
- */
 public class MockMetricExportServiceImpl extends MetricExportServiceGrpc.MetricExportServiceImplBase {
     @Override
     public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
         SubscriptionsResp resp = SubscriptionsResp.newBuilder()
-                .addMetricNames("first")
-                .addMetricNames("second")
-                .build();
+                                                  .addMetricNames("first")
+                                                  .addMetricNames("second")
+                                                  .build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
     }

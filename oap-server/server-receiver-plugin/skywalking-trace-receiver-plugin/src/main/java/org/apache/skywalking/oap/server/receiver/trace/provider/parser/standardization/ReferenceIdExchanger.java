@@ -19,17 +19,17 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
 import com.google.common.base.Strings;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
 
     private static final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
@@ -47,17 +47,26 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                      .provider()
+                                                      .getService(IEndpointInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                            .provider()
+                                                            .getService(INetworkAddressInventoryRegister.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
     }
 
-    @Override public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
+    @Override
+    public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         boolean exchanged = true;
 
         if (standardBuilder.getEntryEndpointId() == 0) {
-            String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getEntryEndpointName();
-            int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId()).getServiceId();
+            String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+                .getEntryEndpointName();
+            int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId())
+                                                              .getServiceId();
             int entryEndpointId = getEndpointId(entryServiceId, entryEndpointName);
             if (entryEndpointId == 0) {
                 if (logger.isDebugEnabled()) {
@@ -77,8 +86,10 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentEndpointId() == 0) {
-            String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getParentEndpointName();
-            int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId()).getServiceId();
+            String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+                .getParentEndpointName();
+            int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId())
+                                                               .getServiceId();
             int parentEndpointId = getEndpointId(parentServiceId, parentEndpointName);
 
             if (parentEndpointId == 0) {
@@ -124,7 +135,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * Endpoint in ref could be local or exit span's operation name. Especially if it is local span operation name,
      * exchange may not happen at agent, such as Java agent, then put literal endpoint string in the header, Need to try
      * to get the id by assuming the endpoint name is detected at server, local or client.
-     *
+     * <p>
      * If agent does the exchange, then always use endpoint id.
      */
     private int getEndpointId(int serviceId, String endpointName) {

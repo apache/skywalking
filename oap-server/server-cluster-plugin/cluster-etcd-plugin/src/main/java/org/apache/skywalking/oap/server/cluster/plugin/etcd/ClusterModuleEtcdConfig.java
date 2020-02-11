@@ -22,14 +22,21 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author Alan Lau
- */
 public class ClusterModuleEtcdConfig extends ModuleConfig {
 
-    @Setter @Getter private String serviceName;
-    @Setter @Getter private String hostPort;
-    @Setter @Getter private boolean isSSL;
-    @Setter @Getter private String internalComHost;
-    @Setter @Getter private int internalComPort = -1;
+    @Setter
+    @Getter
+    private String serviceName;
+    @Setter
+    @Getter
+    private String hostPort;
+    @Setter
+    @Getter
+    private boolean isSSL;
+    @Setter
+    @Getter
+    private String internalComHost;
+    @Setter
+    @Getter
+    private int internalComPort = -1;
 }

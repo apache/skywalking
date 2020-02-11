@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor;
 
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;

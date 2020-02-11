@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.annotation;
 
 import java.lang.annotation.Annotation;
 
-/**
- * @author peng-yongsheng
- */
 public interface AnnotationListener {
 
     Class<? extends Annotation> annotation();

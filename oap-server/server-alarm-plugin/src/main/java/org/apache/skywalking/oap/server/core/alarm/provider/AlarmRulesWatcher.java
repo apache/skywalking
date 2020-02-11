@@ -36,7 +36,6 @@ import java.util.Map;
  * this class is responsible for monitoring the configuration and parsing them
  * into {@link Rules} and {@link #runningContext}.
  *
- * @author kezhenxu94
  * @since 6.5.0
  */
 @Slf4j

@@ -28,37 +28,46 @@ import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.gr
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterModuleProvider extends ModuleProvider {
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return RegisterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
     }
 
-    @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+    @Override
+    public void start() {
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
 
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            CoreModule.NAME,
+            SharingServerModule.NAME
+        };
     }
 }

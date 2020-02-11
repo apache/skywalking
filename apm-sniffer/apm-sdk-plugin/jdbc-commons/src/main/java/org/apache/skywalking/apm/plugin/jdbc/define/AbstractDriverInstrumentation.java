@@ -49,7 +49,8 @@ public abstract class AbstractDriverInstrumentation extends ClassInstanceMethods
                     return DRIVER_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

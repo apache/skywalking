@@ -30,29 +30,27 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * ProxyRootInvokeInstrumentation presents that skywalking intercepts io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor.
- *
- * @author zhangyonglun
  */
 public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+
     private static final String ENHANCE_CLASS = "io.shardingsphere.shardingproxy.frontend.mysql.CommandExecutor";
-    
+
     private static final String PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.ProxyRootInvokeInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("run");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return PROXY_ROOT_INVOKE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +58,12 @@ public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhanceP
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

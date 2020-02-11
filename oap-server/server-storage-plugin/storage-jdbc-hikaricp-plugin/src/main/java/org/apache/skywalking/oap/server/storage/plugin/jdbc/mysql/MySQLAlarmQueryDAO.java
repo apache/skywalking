@@ -34,21 +34,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author wusheng
- * @author panjuan
- */
 public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
-    
+
     private JDBCHikariCPClient client;
-    
+
     public MySQLAlarmQueryDAO(JDBCHikariCPClient client) {
         this.client = client;
     }
-    
+
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
-                           long endTB) throws IOException {
+        long endTB) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
@@ -63,23 +59,24 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
             sql.append(" and ").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
-        
+
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like '%").append(keyword).append("%' ");
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
-        
+
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
-            
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters.toArray(new Object[0]))) {
+
+            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total " + sql.toString(), parameters
+                .toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }
             }
-            
+
             this.buildLimit(sql, from, limit);
-            
+
             try (ResultSet resultSet = client.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     AlarmMessage message = new AlarmMessage();
@@ -88,17 +85,17 @@ public class MySQLAlarmQueryDAO implements IAlarmQueryDAO {
                     message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
                     message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
                     message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
-                    
+
                     alarms.getMsgs().add(message);
                 }
             }
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        
+
         return alarms;
     }
-    
+
     private void buildLimit(StringBuilder sql, int from, int limit) {
         sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }

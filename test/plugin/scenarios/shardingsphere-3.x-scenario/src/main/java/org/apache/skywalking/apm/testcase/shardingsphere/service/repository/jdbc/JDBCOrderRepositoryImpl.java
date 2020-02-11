@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc;
 
-import org.apache.skywalking.apm.testcase.shardingsphere.service.api.entity.Order;
-import org.apache.skywalking.apm.testcase.shardingsphere.service.api.repository.OrderRepository;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,50 +25,49 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+import javax.sql.DataSource;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.api.entity.Order;
+import org.apache.skywalking.apm.testcase.shardingsphere.service.api.repository.OrderRepository;
 
 public final class JDBCOrderRepositoryImpl implements OrderRepository {
-    
+
     private final DataSource dataSource;
-    
+
     public JDBCOrderRepositoryImpl(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
-    
+
     @Override
     public void createTableIfNotExists() {
         String sql = "CREATE TABLE IF NOT EXISTS t_order (order_id BIGINT NOT NULL AUTO_INCREMENT, user_id INT NOT NULL, status VARCHAR(50), PRIMARY KEY (order_id))";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
     }
-    
+
     @Override
     public void dropTable() {
         String sql = "DROP TABLE t_order";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
     }
-    
+
     @Override
     public void truncateTable() {
         String sql = "TRUNCATE TABLE t_order";
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.executeUpdate(sql);
         } catch (final SQLException ignored) {
         }
     }
-    
+
     @Override
     public Long insert(final Order order) {
         String sql = "INSERT INTO t_order (user_id, status) VALUES (?, ?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, order.getUserId());
             preparedStatement.setString(2, order.getStatus());
             preparedStatement.executeUpdate();
@@ -84,35 +80,33 @@ public final class JDBCOrderRepositoryImpl implements OrderRepository {
         }
         return order.getOrderId();
     }
-    
+
     @Override
     public void delete(final Long orderId) {
         String sql = "DELETE FROM t_order WHERE order_id=?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, orderId);
             preparedStatement.executeUpdate();
         } catch (final SQLException ignored) {
         }
     }
-    
+
     @Override
     public List<Order> selectAll() {
         String sql = "SELECT * FROM t_order";
         return getOrders(sql);
     }
-    
+
     @Override
     public List<Order> selectRange() {
         String sql = "SELECT * FROM t_order WHERE order_id BETWEEN 200000000000000000 AND 400000000000000000";
         return getOrders(sql);
     }
-    
+
     private List<Order> getOrders(final String sql) {
         List<Order> result = new LinkedList<>();
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (Connection connection = dataSource.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql); ResultSet resultSet = preparedStatement
+            .executeQuery()) {
             while (resultSet.next()) {
                 Order order = new Order();
                 order.setOrderId(resultSet.getLong(1));

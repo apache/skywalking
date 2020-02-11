@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Load the OAL Engine runtime, because runtime module depends on core, so we have to use class::forname to locate it.
- *
- * @author wusheng
  */
 public class OALEngineLoader {
     private static volatile OALEngine ENGINE = null;
@@ -45,6 +43,6 @@ public class OALEngineLoader {
 
     private static void init() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         Class<?> engineRTClass = Class.forName("org.apache.skywalking.oal.rt.OALRuntime");
-        ENGINE = (OALEngine)engineRTClass.newInstance();
+        ENGINE = (OALEngine) engineRTClass.newInstance();
     }
 }

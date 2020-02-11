@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

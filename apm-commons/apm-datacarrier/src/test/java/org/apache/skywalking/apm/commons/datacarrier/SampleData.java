@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public class SampleData {
     private int intValue;
 

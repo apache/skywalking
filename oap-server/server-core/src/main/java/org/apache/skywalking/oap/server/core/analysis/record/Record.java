@@ -18,16 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.analysis.record;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class Record implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
 
-    @Getter @Setter @Column(columnName = TIME_BUCKET) private long timeBucket;
+    @Getter
+    @Setter
+    @Column(columnName = TIME_BUCKET)
+    private long timeBucket;
 }

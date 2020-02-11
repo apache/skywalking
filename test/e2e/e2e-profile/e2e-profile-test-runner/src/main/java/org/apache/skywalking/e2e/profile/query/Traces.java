@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.e2e.trace.Trace;
-
-import java.util.List;
 
 @Setter
 @Getter

@@ -29,7 +29,8 @@ public class SpanSizeNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("[span size]: expected=>{%s}, actual=>{%s}\n", expected, actual);
     }
 }

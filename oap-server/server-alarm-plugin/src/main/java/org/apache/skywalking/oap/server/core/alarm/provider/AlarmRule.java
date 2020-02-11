@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,9 +28,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- * @author wusheng
- */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -63,16 +59,10 @@ public class AlarmRule {
 
         final AlarmRule alarmRule = (AlarmRule) o;
 
-        return period == alarmRule.period
-            && count == alarmRule.count
-            && silencePeriod == alarmRule.silencePeriod
-            && Objects.equals(alarmRuleName, alarmRule.alarmRuleName)
-            && Objects.equals(metricsName, alarmRule.metricsName)
-            && Objects.equals(includeNames, alarmRule.includeNames)
-            && Objects.equals(excludeNames, alarmRule.excludeNames)
-            && Objects.equals(threshold, alarmRule.threshold)
-            && Objects.equals(op, alarmRule.op)
-            && Objects.equals(message, alarmRule.message);
+        return period == alarmRule.period && count == alarmRule.count && silencePeriod == alarmRule.silencePeriod && Objects
+            .equals(alarmRuleName, alarmRule.alarmRuleName) && Objects.equals(metricsName, alarmRule.metricsName) && Objects
+            .equals(includeNames, alarmRule.includeNames) && Objects.equals(excludeNames, alarmRule.excludeNames) && Objects
+            .equals(threshold, alarmRule.threshold) && Objects.equals(op, alarmRule.op) && Objects.equals(message, alarmRule.message);
     }
 
     @Override

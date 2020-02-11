@@ -21,10 +21,6 @@ package org.apache.skywalking.apm.plugin.spring.webflux.v5;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- *
- * @author zhaoyuguang, Born
- */
 public class ServerWebExchangeConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {

@@ -31,7 +31,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 
 /**
  * Support MDC https://logback.qos.ch/manual/mdc.html
- * @author: zhangkewei
  */
 public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -50,7 +49,7 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0,"ch.qos.logback.classic.spi.ILoggingEvent"));
+                    return named(ENHANCE_METHOD).and(takesArgumentWithType(0, "ch.qos.logback.classic.spi.ILoggingEvent"));
                 }
 
                 @Override
@@ -58,7 +57,8 @@ public class MDCConverterActivation extends ClassInstanceMethodsEnhancePluginDef
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

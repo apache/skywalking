@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.feign.http.v9;
 
 import feign.RequestTemplate;
@@ -35,9 +34,6 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * @author qiyang
- */
 @RunWith(PowerMockRunner.class)
 public class PathVarInterceptorTest {
 
@@ -64,19 +60,27 @@ public class PathVarInterceptorTest {
         resolvedTemplate.append("http://skywalking.org/value");
 
         Map<String, Object> variables = new HashMap<String, Object>();
-        variables.put("pathVar","value");
-        allArguments = new Object[] {new Object[]{}, template,variables};
-        argumentTypes = new Class[] {Object[].class, RequestTemplate.class,Map.class};
+        variables.put("pathVar", "value");
+        allArguments = new Object[] {
+            new Object[] {},
+            template,
+            variables
+        };
+        argumentTypes = new Class[] {
+            Object[].class,
+            RequestTemplate.class,
+            Map.class
+        };
         pathVarInterceptor = new PathVarInterceptor();
 
     }
 
     @Test
     public void testMethodsAround() throws Throwable {
-        pathVarInterceptor.beforeMethod(enhancedInstance,null,allArguments,argumentTypes,result);
-        pathVarInterceptor.afterMethod(enhancedInstance,null,allArguments,argumentTypes,resolvedTemplate);
-        assertThat(PathVarInterceptor.URL_CONTEXT.get().getOriginUrl(),is("http://skywalking.org/{pathVar}"));
-        assertThat(PathVarInterceptor.URL_CONTEXT.get().getUrl(),is("http://skywalking.org/value"));
+        pathVarInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, result);
+        pathVarInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, resolvedTemplate);
+        assertThat(PathVarInterceptor.URL_CONTEXT.get().getOriginUrl(), is("http://skywalking.org/{pathVar}"));
+        assertThat(PathVarInterceptor.URL_CONTEXT.get().getUrl(), is("http://skywalking.org/value"));
     }
 
     @After

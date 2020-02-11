@@ -27,7 +27,8 @@ public class SpringServicesInstrumentation extends AbstractSpringBeanInstrumenta
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Service";
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }

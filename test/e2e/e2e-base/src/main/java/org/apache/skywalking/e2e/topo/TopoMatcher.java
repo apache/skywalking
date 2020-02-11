@@ -18,18 +18,15 @@
 
 package org.apache.skywalking.e2e.topo;
 
+import java.util.List;
 import org.apache.skywalking.e2e.assertor.VariableExpressParser;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
-import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
- *
- * @author kezhenxu94
  */
 public class TopoMatcher extends AbstractMatcher<TopoData> {
 
@@ -98,12 +95,8 @@ public class TopoMatcher extends AbstractMatcher<TopoData> {
 
     @Override
     public String toString() {
-        return "TopoMatcher{" +
-            "nodes=" + nodes +
-            ", calls=" + calls +
-            '}';
+        return "TopoMatcher{" + "nodes=" + nodes + ", calls=" + calls + '}';
     }
-
 
     private static void convertNodeId(List<CallMatcher> callMatchers, List<Node> nodes) {
         for (CallMatcher callMatcher : callMatchers) {

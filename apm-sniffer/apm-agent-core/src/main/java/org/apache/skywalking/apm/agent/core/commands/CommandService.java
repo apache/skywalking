@@ -111,8 +111,8 @@ public class CommandService implements BootService, Runnable {
                 boolean success = this.commands.offer(baseCommand);
 
                 if (!success && LOGGER.isWarnEnable()) {
-                    LOGGER.warn("Command[{}, {}] cannot add to command list. because the command list is full.",
-                        baseCommand.getCommand(), baseCommand.getSerialNumber());
+                    LOGGER.warn("Command[{}, {}] cannot add to command list. because the command list is full.", baseCommand
+                        .getCommand(), baseCommand.getSerialNumber());
                 }
             } catch (UnsupportedCommandException e) {
                 if (LOGGER.isWarnEnable()) {

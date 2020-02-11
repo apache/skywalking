@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import java.util.ArrayList;
@@ -35,10 +34,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isInterface;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * Match the class, which has methods with the certain annotations.
- * This is a very complex match.
- *
- * @author wusheng
+ * Match the class, which has methods with the certain annotations. This is a very complex match.
  */
 public class MethodAnnotationMatch implements IndirectMatch {
     private String[] annotations;

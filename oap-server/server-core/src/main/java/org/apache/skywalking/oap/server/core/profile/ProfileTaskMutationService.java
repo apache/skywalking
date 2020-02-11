@@ -15,8 +15,12 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.profile;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
@@ -30,13 +34,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-/**
- * @author MrPro
- */
 public class ProfileTaskMutationService implements Service {
 
     private final ModuleManager moduleManager;
@@ -48,24 +45,28 @@ public class ProfileTaskMutationService implements Service {
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {
         if (profileTaskQueryDAO == null) {
-            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
+            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                    .provider()
+                                                    .getService(IProfileTaskQueryDAO.class);
         }
         return profileTaskQueryDAO;
     }
 
     /**
      * create new profile task
-     * @param serviceId monitor service id
-     * @param endpointName monitor endpoint name
-     * @param monitorStartTime create fix start time task when it's bigger 0
-     * @param monitorDuration monitor task duration(minute)
+     *
+     * @param serviceId            monitor service id
+     * @param endpointName         monitor endpoint name
+     * @param monitorStartTime     create fix start time task when it's bigger 0
+     * @param monitorDuration      monitor task duration(minute)
      * @param minDurationThreshold min duration threshold
-     * @param dumpPeriod dump period
-     * @param maxSamplingCount max trace count on sniffer
+     * @param dumpPeriod           dump period
+     * @param maxSamplingCount     max trace count on sniffer
      * @return task create result
      */
-    public ProfileTaskCreationResult createTask(final int serviceId, final String endpointName, final long monitorStartTime, final int monitorDuration,
-                                                final int minDurationThreshold, final int dumpPeriod, final int maxSamplingCount) throws IOException {
+    public ProfileTaskCreationResult createTask(final int serviceId, final String endpointName,
+        final long monitorStartTime, final int monitorDuration, final int minDurationThreshold, final int dumpPeriod,
+        final int maxSamplingCount) throws IOException {
 
         // calculate task execute range
         long taskStartTime = monitorStartTime > 0 ? monitorStartTime : System.currentTimeMillis();
@@ -94,8 +95,9 @@ public class ProfileTaskMutationService implements Service {
         return ProfileTaskCreationResult.builder().id(task.id()).build();
     }
 
-    private String checkDataSuccess(final Integer serviceId, final String endpointName, final long monitorStartTime, final long monitorEndTime, final int monitorDuration,
-                                    final int minDurationThreshold, final int dumpPeriod, final int maxSamplingCount) throws IOException {
+    private String checkDataSuccess(final Integer serviceId, final String endpointName, final long monitorStartTime,
+        final long monitorEndTime, final int monitorDuration, final int minDurationThreshold, final int dumpPeriod,
+        final int maxSamplingCount) throws IOException {
         // basic check
         if (serviceId == null) {
             return "service cannot be null";

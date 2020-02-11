@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.alarm;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * @author wusheng
- */
 public class AlarmEntrance {
     private ModuleDefineHolder moduleDefineHolder;
     private MetricsNotify metricsNotify;

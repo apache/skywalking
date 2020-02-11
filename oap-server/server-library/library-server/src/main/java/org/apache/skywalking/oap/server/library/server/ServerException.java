@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.server;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class ServerException extends Exception {
 
     public ServerException(String message) {

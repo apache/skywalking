@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.e2e.topo;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 public class CallMatcher extends AbstractMatcher<Call> {
     private String id;
     private String source;
@@ -104,11 +100,6 @@ public class CallMatcher extends AbstractMatcher<Call> {
 
     @Override
     public String toString() {
-        return "CallMatcher{" +
-            "id='" + id + '\'' +
-            ", source='" + source + '\'' +
-            ", detectPoints=" + detectPoints +
-            ", target='" + target + '\'' +
-            '}';
+        return "CallMatcher{" + "id='" + id + '\'' + ", source='" + source + '\'' + ", detectPoints=" + detectPoints + ", target='" + target + '\'' + '}';
     }
 }

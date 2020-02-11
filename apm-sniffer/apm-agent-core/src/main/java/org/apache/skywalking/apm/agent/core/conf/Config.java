@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -29,8 +28,6 @@ import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
- *
- * @author wusheng
  */
 public class Config {
 
@@ -135,7 +132,8 @@ public class Config {
 
     public static class Profile {
         /**
-         * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.
+         * If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable
+         * profile.
          */
         public static boolean ACTIVE = true;
 
@@ -189,9 +187,9 @@ public class Config {
         public static String FILE_NAME = "skywalking-api.log";
 
         /**
-         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs. 
+         * Log files directory. Default is blank string, means, use "{theSkywalkingAgentJarDir}/logs  " to output logs.
          * {theSkywalkingAgentJarDir} is the directory where the skywalking agent jar file is located.
-         *
+         * <p>
          * Ref to {@link WriterFactory#getLogWriter()}
          */
         public static String DIR = "";
@@ -203,8 +201,8 @@ public class Config {
         public static int MAX_FILE_SIZE = 300 * 1024 * 1024;
 
         /**
-         * The max history log files. When rollover happened, if log files exceed this number,
-         * then the oldest file will be delete. Negative or zero means off, by default.
+         * The max history log files. When rollover happened, if log files exceed this number, then the oldest file will
+         * be delete. Negative or zero means off, by default.
          */
         public static int MAX_HISTORY_FILES = -1;
 
@@ -247,7 +245,7 @@ public class Config {
             /**
              * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
              * the first {@code FILTER_LENGTH_LIMIT} characters.
-             *
+             * <p>
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int FILTER_LENGTH_LIMIT = 256;
@@ -275,8 +273,7 @@ public class Config {
 
         public static class Tomcat {
             /**
-             * This config item controls that whether the Tomcat plugin should
-             * collect the parameters of the request.
+             * This config item controls that whether the Tomcat plugin should collect the parameters of the request.
              */
             public static boolean COLLECT_HTTP_PARAMS = false;
         }
@@ -289,8 +286,8 @@ public class Config {
             public static boolean USE_QUALIFIED_NAME_AS_ENDPOINT_NAME = false;
 
             /**
-             * This config item controls that whether the SpringMVC plugin should
-             * collect the parameters of the request.
+             * This config item controls that whether the SpringMVC plugin should collect the parameters of the
+             * request.
              */
             public static boolean COLLECT_HTTP_PARAMS = false;
         }
@@ -312,7 +309,7 @@ public class Config {
             /**
              * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
              * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
-             *
+             * <p>
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
@@ -328,7 +325,7 @@ public class Config {
             /**
              * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
              * the first {@code SQL_PARAMETERS_MAX_LENGTH} characters.
-             *
+             * <p>
              * Set a negative number to save the complete parameter string to the tag.
              */
             public static int SQL_PARAMETERS_MAX_LENGTH = 512;
@@ -357,9 +354,9 @@ public class Config {
              *
              * Keep this commented, just as a reminder that, it will be reused in a RPC server side plugin.
              */
-//            public static class RestTemplate implements OPGroupDefinition {
-//                public static Map<String, String> RULE = new HashMap<String, String>();
-//            }
+            //            public static class RestTemplate implements OPGroupDefinition {
+            //                public static Map<String, String> RULE = new HashMap<String, String>();
+            //            }
         }
 
         public static class Light4J {
@@ -381,20 +378,18 @@ public class Config {
         public static class JdkThreading {
 
             /**
-             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable}
-             * and their subclasses, including anonymous inner classes)
-             * whose name matches any one of the {@code THREADING_CLASS_PREFIXES} (splitted by ,)
-             * will be instrumented
+             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable} and their
+             * subclasses, including anonymous inner classes) whose name matches any one of the {@code
+             * THREADING_CLASS_PREFIXES} (splitted by ,) will be instrumented
              */
             public static String THREADING_CLASS_PREFIXES = "";
         }
 
         public static class Http {
             /**
-             * When either {@link Tomcat#COLLECT_HTTP_PARAMS} or {@link SpringMVC#COLLECT_HTTP_PARAMS}
-             * is enabled, how many characters to keep and send to the OAP backend,
-             * use negative values to keep and send the complete parameters,
-             * NB. this config item is added for the sake of performance
+             * When either {@link Tomcat#COLLECT_HTTP_PARAMS} or {@link SpringMVC#COLLECT_HTTP_PARAMS} is enabled, how
+             * many characters to keep and send to the OAP backend, use negative values to keep and send the complete
+             * parameters, NB. this config item is added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
         }

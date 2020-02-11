@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-/**
- * @author peng-yongsheng
- */
 public class DurationPoint {
     private long point;
     private long secondsBetween;

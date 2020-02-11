@@ -21,9 +21,6 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 
-/**
- * @author oatiz.
- */
 class Constants {
 
     static final String DB_TYPE = "Elasticsearch";

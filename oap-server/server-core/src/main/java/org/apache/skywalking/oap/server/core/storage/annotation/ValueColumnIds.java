@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
-/**
- * @author peng-yongsheng
- */
 public enum ValueColumnIds {
     INSTANCE;
 

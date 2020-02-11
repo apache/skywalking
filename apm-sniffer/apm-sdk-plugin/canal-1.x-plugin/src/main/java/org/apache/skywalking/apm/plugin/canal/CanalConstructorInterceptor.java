@@ -16,26 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.canal;
 
 import java.net.InetSocketAddress;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-
-/**
- * @author withlin
- */
 public class CanalConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         InetSocketAddress address = (InetSocketAddress) allArguments[0];
-        String destination =  allArguments[3].toString();
+        String destination = allArguments[3].toString();
         CanalEnhanceInfo canalEnhanceInfo = new CanalEnhanceInfo();
         if (address != null) {
             String url = address.getAddress().toString() + ":" + address.getPort();
-            canalEnhanceInfo.setUrl(url.replace('/',' '));
+            canalEnhanceInfo.setUrl(url.replace('/', ' '));
         }
         canalEnhanceInfo.setDestination(destination);
         objInst.setSkyWalkingDynamicField(canalEnhanceInfo);
