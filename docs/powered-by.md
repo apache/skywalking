@@ -102,6 +102,7 @@ or providing commercial products including Apache SkyWalking.
 1. Rong Data. 荣数数据 http://www.rong-data.com/
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Safedog. 安全狗. http://www.safedog.cn/
+1. servingcloud.com 盈佳云创科技(深圳)有限公司 http://www.servingcloud.com/
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
 1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
 1. shuyun.com 杭州数云信息技术有限公司 http://www.shuyun.com/
