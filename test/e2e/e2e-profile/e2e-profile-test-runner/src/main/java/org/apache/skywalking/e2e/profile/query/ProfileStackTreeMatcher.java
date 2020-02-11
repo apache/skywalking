@@ -15,15 +15,27 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
+package org.apache.skywalking.e2e.profile.query;
 
 import lombok.Data;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.assertj.core.api.Assertions;
 
 import java.util.List;
 
 @Data
-public class ProfileStackAnalyzeHolder {
+public class ProfileStackTreeMatcher extends AbstractMatcher<ProfileAnalyzation.ProfileStackTree> {
 
-    private List<ProfileStackAnalyze> list;
+    private List<ProfileStackElementMatcher> elements;
 
+    @Override
+    public void verify(ProfileAnalyzation.ProfileStackTree profileStackTree) {
+        Assertions.assertThat(profileStackTree.getElements()).hasSameSizeAs(this.elements);
+
+        int size = this.elements.size();
+
+        for (int i = 0; i < size; i++) {
+            elements.get(i).verify(profileStackTree.getElements().get(i));
+        }
+    }
 }

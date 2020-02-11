@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# Licensed to the SkyAPM under one
+# Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
@@ -15,13 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
-MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
-
-echo "MySQL database is storage provider..."   
-# Download MySQL connector.
-curl -L -o "${SW_HOME}/oap-libs/${MYSQL_DRIVER}" ${MYSQL_URL}
-[[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
-
-# Modify application.yml to set MySQL as storage provider.
-cat /application.yml > "${SW_HOME}/config/application.yml"
+{
+  "query":"query getProfileAnalyze($segmentId: String!, $start: Long!, $end: Long!) {
+    data: getProfileAnalyze(segmentId: $segmentId, start: $start, end: $end) {
+      trees {
+		elements {
+          id
+          parentId
+          codeSignature
+          duration
+          durationChildExcluded
+          count
+		}
+	  }
+    }
+  }",
+  "variables": {
+    "segmentId": "{segmentId}",
+	"start": "{start}",
+	"end": "{end}"
+  }
+}

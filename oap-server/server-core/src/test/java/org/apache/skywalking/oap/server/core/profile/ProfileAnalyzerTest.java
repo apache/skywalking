@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profile;
 
-import org.apache.skywalking.oap.server.core.profile.bean.ProfileStackAnalyze;
-import org.apache.skywalking.oap.server.core.profile.bean.ProfileStackAnalyzeHolder;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStackAnalyze;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStackAnalyzeHolder;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 

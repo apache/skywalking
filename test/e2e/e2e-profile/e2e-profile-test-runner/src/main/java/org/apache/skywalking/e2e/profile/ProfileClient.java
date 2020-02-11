@@ -24,9 +24,7 @@ import org.apache.skywalking.e2e.SimpleQueryClient;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResultWrapper;
-import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
-import org.apache.skywalking.e2e.profile.query.ProfileTasks;
-import org.apache.skywalking.e2e.profile.query.Traces;
+import org.apache.skywalking.e2e.profile.query.*;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -117,6 +115,28 @@ public class ProfileClient extends SimpleQueryClient {
         }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTraces();
+    }
+
+    public ProfileAnalyzation getProfileAnalyzation(final String segmentId, long start, long end) throws IOException {
+        final URL queryFileUrl = Resources.getResource("getProfileAnalyzation.gql");
+        final String queryString = Resources.readLines(queryFileUrl, Charset.forName("UTF8"))
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{segmentId}", segmentId)
+                .replace("{start}", String.valueOf(start))
+                .replace("{end}", String.valueOf(end));
+        final ResponseEntity<GQLResponse<ProfileAnalyzation>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<ProfileAnalyzation>>() {
+                }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData();
     }
 
 
