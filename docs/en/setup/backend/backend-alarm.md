@@ -115,9 +115,11 @@ Example as following
 ```
 
 ## gRPCHook
-This code language could be `Protobuf` which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
-It will result as following:
-```text
+The alarm message will send through remote gRPC method by `Protobuf` content type. 
+The message format with following key information which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
+
+Example as following
+```protobuf
 message AlarmMessage {
     int64 scopeId = 1;
     string scope = 2;

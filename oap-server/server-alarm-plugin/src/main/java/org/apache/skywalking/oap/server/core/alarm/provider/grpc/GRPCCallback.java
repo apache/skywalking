@@ -36,6 +36,8 @@ import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 @Slf4j
 public class GRPCCallback implements AlarmCallback {
 
+    private AlarmRulesWatcher alarmRulesWatcher;
+
     private GRPCAlarmSetting alarmSetting;
 
     private AlarmServiceGrpc.AlarmServiceStub alarmServiceStub;
@@ -43,7 +45,12 @@ public class GRPCCallback implements AlarmCallback {
     private GRPCClient grpcClient;
 
     public GRPCCallback(AlarmRulesWatcher alarmRulesWatcher) {
+        this.alarmRulesWatcher = alarmRulesWatcher;
         alarmSetting = alarmRulesWatcher.getGrpchookSetting();
+
+        if (alarmSetting != null) {
+            grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+        }
     }
 
     @Override
@@ -53,7 +60,9 @@ public class GRPCCallback implements AlarmCallback {
             return;
         }
 
-        grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+        // recreate gRPC client if host and port configuration changed.
+        onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
+
         grpcClient.connect();
         alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
 
@@ -125,6 +134,12 @@ public class GRPCCallback implements AlarmCallback {
                 );
                 cycle = 2000L;
             }
+        }
+    }
+
+    private void onGRPCAlarmSettingUpdated(GRPCAlarmSetting grpcAlarmSetting) {
+        if (!grpcAlarmSetting.equals(alarmSetting)) {
+            grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
         }
     }
 }
