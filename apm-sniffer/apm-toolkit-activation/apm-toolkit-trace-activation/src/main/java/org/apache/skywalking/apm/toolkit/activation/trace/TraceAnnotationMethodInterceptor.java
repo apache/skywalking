@@ -73,25 +73,27 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        if (ret == null) {
-            ContextManager.stopSpan();
-            return ret;
-        }
-        final AbstractSpan localSpan = ContextManager.activeSpan();
-        final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
-        final Tags tags = method.getAnnotation(Tags.class);
-        if (tags != null && tags.value().length > 0) {
-            for (final Tag tag : tags.value()) {
-                if (TagUtil.isReturnTag(tag.value())) {
-                    TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+        try {
+            if (ret == null) {
+                return ret;
+            }
+            final AbstractSpan localSpan = ContextManager.activeSpan();
+            final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
+            final Tags tags = method.getAnnotation(Tags.class);
+            if (tags != null && tags.value().length > 0) {
+                for (final Tag tag : tags.value()) {
+                    if (TagUtil.isReturnTag(tag.value())) {
+                        TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+                    }
                 }
             }
+            final Tag tag = method.getAnnotation(Tag.class);
+            if (tag != null && TagUtil.isReturnTag(tag.value())) {
+                TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+            }
+        } finally {
+            ContextManager.stopSpan();
         }
-        final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null && TagUtil.isReturnTag(tag.value())) {
-            TagUtil.tagReturnSpanSpan(localSpan, context, tag);
-        }
-        ContextManager.stopSpan();
         return ret;
     }
 
