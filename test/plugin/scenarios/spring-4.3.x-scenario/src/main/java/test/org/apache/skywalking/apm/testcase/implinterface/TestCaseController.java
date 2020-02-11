@@ -16,13 +16,11 @@
  *    limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.implinterface;
 
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author jialong
- */
 @RestController
 public class TestCaseController implements TestCaseInterface {
 

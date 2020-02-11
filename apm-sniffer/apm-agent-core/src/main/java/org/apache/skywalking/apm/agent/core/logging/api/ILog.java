@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.api;
 
 /**
- * The Log interface.
- * It's very easy to understand, like any other log-component.
- * Do just like log4j or log4j2 does.
+ * The Log interface. It's very easy to understand, like any other log-component. Do just like log4j or log4j2 does.
  * <p>
- * Created by xin on 2016/11/10.
  */
 public interface ILog {
     void info(String format);

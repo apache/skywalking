@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * Collect all metrics from telemetry.
- *
- * @author gaohongtao
  */
 public interface MetricsCollector extends Service {
 

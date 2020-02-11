@@ -19,9 +19,6 @@ package org.apache.skywalking.e2e.assertor.exception;
 
 import org.apache.skywalking.e2e.exception.AssertFailedException;
 
-/**
- * @author zhangwei
- */
 public class VariableNotFoundException extends AssertFailedException {
 
     private static final long serialVersionUID = 1337142072507388456L;

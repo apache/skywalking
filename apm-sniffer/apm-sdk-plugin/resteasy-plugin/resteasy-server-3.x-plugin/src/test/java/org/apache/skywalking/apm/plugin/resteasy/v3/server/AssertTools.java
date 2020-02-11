@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.resteasy.v3.server;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -28,9 +29,6 @@ import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertCompon
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @author yan-fucheng
- */
 class AssertTools {
 
     static void assertTraceSegmentRef(TraceSegmentRef ref) {

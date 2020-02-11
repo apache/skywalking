@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.profile.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * create profile task result
- *
- * @author MrPro
  */
 @Setter
 @Getter

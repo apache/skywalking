@@ -30,11 +30,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_CLOSE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
 
-/**
- * @author wang zheng, kanro
- */
 public class TracingServerCall<REQUEST, RESPONSE> extends ForwardingServerCall.SimpleForwardingServerCall<REQUEST, RESPONSE> {
 
     private final String operationPrefix;

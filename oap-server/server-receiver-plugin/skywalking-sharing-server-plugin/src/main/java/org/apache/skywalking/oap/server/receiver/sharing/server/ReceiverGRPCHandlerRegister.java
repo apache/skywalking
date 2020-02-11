@@ -27,15 +27,14 @@ import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
 
-    @Setter private GRPCHandlerRegister grpcHandlerRegister;
+    @Setter
+    private GRPCHandlerRegister grpcHandlerRegister;
     private List<ServerInterceptor> interceptors = new LinkedList<>();
 
-    @Override public void addHandler(BindableService handler) {
+    @Override
+    public void addHandler(BindableService handler) {
         if (interceptors.isEmpty()) {
             grpcHandlerRegister.addHandler(handler);
         } else {
@@ -45,17 +44,19 @@ public class ReceiverGRPCHandlerRegister implements GRPCHandlerRegister {
         }
     }
 
-    @Override public void addHandler(ServerServiceDefinition definition) {
+    @Override
+    public void addHandler(ServerServiceDefinition definition) {
         grpcHandlerRegister.addHandler(definition);
     }
 
     /**
-     * If you want to bind @{io.grpc.ServerInterceptor} on a handler,
-     * you must call this method before register a handler.
+     * If you want to bind @{io.grpc.ServerInterceptor} on a handler, you must call this method before register a
+     * handler.
      *
      * @param interceptor of @{io.grpc.ServerInterceptor}
      */
-    @Override public void addFilter(ServerInterceptor interceptor) {
+    @Override
+    public void addFilter(ServerInterceptor interceptor) {
         this.interceptors.add(interceptor);
     }
 

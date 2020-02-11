@@ -42,7 +42,8 @@ public class ValueAssertFailedException extends AssertFailedException {
         return actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("[%s]: expected=>{%s}, actual=>{%s}", desc, expected, actual);
     }
 }

@@ -15,7 +15,8 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
+
+package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import lombok.Data;
 

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.lettuce.v5;
 
 import io.lettuce.core.RedisURI;
@@ -25,15 +24,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 
-/**
- * @author zhaoyuguang
- */
 public class RedisClusterClientConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        @SuppressWarnings("unchecked")
-        Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
+        @SuppressWarnings("unchecked") Iterable<RedisURI> redisURIs = (Iterable<RedisURI>) allArguments[1];
         RedisClusterClient redisClusterClient = (RedisClusterClient) objInst;
         StringBuilder peer = new StringBuilder();
         for (RedisURI redisURI : redisURIs) {

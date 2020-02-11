@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 
 /**
  * Interceptor for pulsar consumer enhanced instance
- *
+ * <p>
  * Here is the intercept process steps:
  *
  * <pre>
@@ -43,8 +43,6 @@ import java.lang.reflect.Method;
  *  3. Extract all the <code>Trace Context</code> when call <code>messageProcessed</code> method
  *  4. Stop the entry span when <code>messageProcessed</code> method finished.
  * </pre>
- *
- * @author penghui
  */
 public class PulsarConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -53,7 +51,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         if (allArguments[0] != null) {
             ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
             Message msg = (Message) allArguments[0];
@@ -63,8 +61,8 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
                 next = next.next();
                 next.setHeadValue(msg.getProperty(next.getHeadKey()));
             }
-            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX +
-                    requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo.getSubscriptionName(), carrier);
+            AbstractSpan activeSpan = ContextManager.createEntrySpan(OPERATE_NAME_PREFIX + requiredInfo.getTopic() + CONSUMER_OPERATE_NAME + requiredInfo
+                .getSubscriptionName(), carrier);
             activeSpan.setComponent(ComponentsDefine.PULSAR_CONSUMER);
             SpanLayer.asMQ(activeSpan);
             Tags.MQ_BROKER.set(activeSpan, requiredInfo.getServiceUrl());
@@ -74,7 +72,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         if (allArguments[0] != null) {
             ContextManager.stopSpan();
         }
@@ -83,7 +81,7 @@ public class PulsarConsumerInterceptor implements InstanceMethodsAroundIntercept
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         if (allArguments[0] != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

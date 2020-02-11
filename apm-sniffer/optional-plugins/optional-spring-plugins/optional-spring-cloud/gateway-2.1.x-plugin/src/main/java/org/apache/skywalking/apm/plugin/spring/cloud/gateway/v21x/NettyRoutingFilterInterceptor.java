@@ -28,17 +28,11 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
 import java.lang.reflect.Method;
 
-
-
-/**
- * @author zhaoyuguang
- */
 public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
-
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = NettyRoutingFilterInterceptor.getInstance(allArguments[0]);
         if (instance != null) {
             SWTransmitter swTransmitter = (SWTransmitter) instance.getSkyWalkingDynamicField();
@@ -47,18 +41,17 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (ContextManager.getRuntimeContext().get(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER) != null) {
             ContextManager.getRuntimeContext().remove(Constants.SPRING_CLOUD_GATEWAY_TRANSMITTER);
         }
         return ret;
     }
 
-
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 
     public static EnhancedInstance getInstance(Object o) {
@@ -70,7 +63,6 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
         }
         return instance;
     }
-
 
     private static EnhancedInstance getEnhancedInstance(ServerWebExchangeDecorator serverWebExchangeDecorator) {
         Object o = serverWebExchangeDecorator.getDelegate();

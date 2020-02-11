@@ -24,15 +24,13 @@ import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
  * The <code>EntrySpan</code> represents a service provider point, such as Tomcat server entrance.
- *
+ * <p>
  * It is a start point of {@link TraceSegment}, even in a complex application, there maybe have multi-layer entry point,
  * the <code>EntrySpan</code> only represents the first one.
- *
+ * <p>
  * But with the last <code>EntrySpan</code>'s tags and logs, which have more details about a service provider.
- *
+ * <p>
  * Such as: Tomcat Embed - Dubbox The <code>EntrySpan</code> represents the Dubbox span.
- *
- * @author wusheng
  */
 public class EntrySpan extends StackBasedTracingSpan {
 
@@ -119,11 +117,13 @@ public class EntrySpan extends StackBasedTracingSpan {
         return this;
     }
 
-    @Override public boolean isEntry() {
+    @Override
+    public boolean isEntry() {
         return true;
     }
 
-    @Override public boolean isExit() {
+    @Override
+    public boolean isExit() {
         return false;
     }
 

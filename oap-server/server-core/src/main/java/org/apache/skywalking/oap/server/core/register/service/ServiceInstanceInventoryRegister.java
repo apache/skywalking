@@ -19,21 +19,20 @@
 package org.apache.skywalking.oap.server.core.register.service;
 
 import com.google.gson.JsonObject;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-/**
- * @author peng-yongsheng
- */
 public class ServiceInstanceInventoryRegister implements IServiceInstanceInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryRegister.class);
@@ -47,12 +46,15 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
 
     private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
         if (isNull(serviceInstanceInventoryCache)) {
-            serviceInstanceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+            serviceInstanceInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                              .provider()
+                                                              .getService(ServiceInstanceInventoryCache.class);
         }
         return serviceInstanceInventoryCache;
     }
 
-    @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
+    @Override
+    public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
         JsonObject properties) {
         if (logger.isDebugEnabled()) {
             logger.debug("Get or create service instance by service instance name, service id: {}, service instance name: {},uuid: {}, registerTime: {}", serviceId, serviceInstanceName, uuid, registerTime);
@@ -79,7 +81,8 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         return serviceInstanceId;
     }
 
-    @Override public int getOrCreate(int serviceId, String serviceInstanceName, int addressId, long registerTime) {
+    @Override
+    public int getOrCreate(int serviceId, String serviceInstanceName, int addressId, long registerTime) {
         if (logger.isDebugEnabled()) {
             logger.debug("get or create service instance by getAddress id, service id: {}, getAddress id: {}, registerTime: {}", serviceId, addressId, registerTime);
         }
@@ -119,7 +122,8 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         }
     }
 
-    @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+    @Override
+    public void heartbeat(int serviceInstanceId, long heartBeatTime) {
         ServiceInstanceInventory serviceInstanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
         if (nonNull(serviceInstanceInventory)) {
             serviceInstanceInventory.setHeartbeatTime(heartBeatTime);
@@ -129,7 +133,8 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         }
     }
 
-    @Override public void updateMapping(int serviceInstanceId, int mappingServiceInstanceId) {
+    @Override
+    public void updateMapping(int serviceInstanceId, int mappingServiceInstanceId) {
         ServiceInstanceInventory instanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
         if (nonNull(instanceInventory)) {
             instanceInventory = instanceInventory.getClone();
@@ -142,7 +147,8 @@ public class ServiceInstanceInventoryRegister implements IServiceInstanceInvento
         }
     }
 
-    @Override public void resetMapping(int serviceInstanceId) {
+    @Override
+    public void resetMapping(int serviceInstanceId) {
         ServiceInstanceInventory instanceInventory = getServiceInstanceInventoryCache().get(serviceInstanceId);
         if (nonNull(instanceInventory) && instanceInventory.getMappingServiceInstanceId() != Const.NONE) {
             instanceInventory = instanceInventory.getClone();

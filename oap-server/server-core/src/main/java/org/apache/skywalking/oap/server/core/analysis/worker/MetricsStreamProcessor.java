@@ -18,28 +18,39 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
     private final static MetricsStreamProcessor PROCESSOR = new MetricsStreamProcessor();
 
     private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
-    @Getter private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
-    @Setter @Getter private boolean enableDatabaseSession;
+    @Getter
+    private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+    @Setter
+    @Getter
+    private boolean enableDatabaseSession;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -67,7 +78,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
+        DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+                                                                    .provider()
+                                                                    .getService(DownsamplingConfigService.class);
 
         MetricsPersistentWorker hourPersistentWorker = null;
         MetricsPersistentWorker dayPersistentWorker = null;
@@ -92,7 +105,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model, transWorker);
 
         String remoteReceiverWorkerName = stream.name() + "_rec";
-        IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IWorkerInstanceSetter.class);
+        IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
+                                                                       .provider()
+                                                                       .getService(IWorkerInstanceSetter.class);
         workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, metricsClass);
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
@@ -101,7 +116,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         entryWorkers.put(metricsClass, aggregateWorker);
     }
 
-    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, Model model, MetricsTransWorker transWorker) {
+    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder,
+        IMetricsDAO metricsDAO, Model model, MetricsTransWorker transWorker) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 

@@ -23,9 +23,6 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
-/**
- * @author peng-yongsheng
- */
 public interface IRecordDAO extends DAO {
 
     InsertRequest prepareBatchInsert(Model model, Record record) throws IOException;

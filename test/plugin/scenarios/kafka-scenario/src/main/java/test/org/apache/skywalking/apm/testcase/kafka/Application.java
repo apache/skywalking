@@ -21,9 +21,6 @@ package test.org.apache.skywalking.apm.testcase.kafka;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author zhangwei
- */
 @SpringBootApplication
 public class Application {
 

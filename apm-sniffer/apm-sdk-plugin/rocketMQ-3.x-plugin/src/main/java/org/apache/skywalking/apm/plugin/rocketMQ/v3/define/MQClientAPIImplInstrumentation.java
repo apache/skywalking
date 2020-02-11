@@ -36,8 +36,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
  * com.alibaba.rocketmq.client.impl.producer.TopicPublishInfo, com.alibaba.rocketmq.client.impl.factory.MQClientInstance,
  * int, com.alibaba.rocketmq.client.hook.SendMessageContext, com.alibaba.rocketmq.client.impl.producer.DefaultMQProducerImpl)}
  * method by using {@link org.apache.skywalking.apm.plugin.rocketMQ.v3.MessageSendInterceptor}.
- *
- * @author carlvine500
  */
 public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -47,42 +45,51 @@ public class MQClientAPIImplInstrumentation extends ClassInstanceMethodsEnhanceP
     private static final String UPDATE_NAME_SERVER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.rocketMQ.v3.UpdateNameServerInterceptor";
     private static final String UPDATE_NAME_SERVER_METHOD_NAME = "updateNameServerAddressList";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(SEND_MESSAGE_METHOD_NAME).and(takesArgumentWithType(6, "com.alibaba.rocketmq.client.producer.SendCallback"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return ASYNC_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(UPDATE_NAME_SERVER_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return UPDATE_NAME_SERVER_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 

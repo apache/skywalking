@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import lombok.Getter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class ModelColumn {
     private final ColumnName columnName;

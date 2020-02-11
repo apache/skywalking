@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.spring.transaction.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import test.org.apache.skywalking.apm.testcase.spring.transaction.service.DemoService;
 
-/**
- * @author zhaoyuguang
- */
 @Controller
 @RequestMapping("/case")
 @PropertySource("classpath:application.properties")
@@ -42,7 +40,6 @@ public class CaseController {
     @Autowired
     private DemoService demoService;
 
-
     @RequestMapping("/spring-tx-case")
     @ResponseBody
     public String springTransactionCase() {
@@ -55,12 +52,7 @@ public class CaseController {
     public String healthCheck() {
         try {
             jdbcTemplate.execute("create database if not exists test default charset = utf8");
-            jdbcTemplate.execute("" +
-                    "CREATE TABLE IF NOT EXISTS `test`.`table_demo` (\n" +
-                    "  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-                    "  `name` varchar(60),\n" +
-                    "  PRIMARY KEY (`id`)\n" +
-                    ") ENGINE=InnoDB");
+            jdbcTemplate.execute("" + "CREATE TABLE IF NOT EXISTS `test`.`table_demo` (\n" + "  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n" + "  `name` varchar(60),\n" + "  PRIMARY KEY (`id`)\n" + ") ENGINE=InnoDB");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

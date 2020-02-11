@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.util.StringFormatGroup;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class EndpointNameFormater {
     private static final Logger logger = LoggerFactory.getLogger(EndpointNameFormater.class);
     private static Map<String, StringFormatGroup> ALL_RULES = new ConcurrentHashMap<>();
@@ -39,7 +39,8 @@ public class EndpointNameFormater {
         StringFormatGroup endpointRule = new StringFormatGroup();
         Properties properties = new Properties();
         try {
-            InputStream stream = ResourceUtils.class.getClassLoader().getResourceAsStream(service + "_endpoint_naming_rules.properties");
+            InputStream stream = ResourceUtils.class.getClassLoader()
+                                                    .getResourceAsStream(service + "_endpoint_naming_rules.properties");
             if (stream == null) {
                 logger.info("{}_endpoint_naming_rules.properties not found. Try to find global endpoint rule file.", service);
                 stream = ResourceUtils.class.getClassLoader().getResourceAsStream("endpoint_naming_rules.properties");
@@ -50,7 +51,7 @@ public class EndpointNameFormater {
             } else {
                 properties.load(stream);
                 properties.forEach((key, value) -> {
-                    endpointRule.addRule((String)key, (String)value);
+                    endpointRule.addRule((String) key, (String) value);
                     logger.debug("endpoint naming rule of service {} found, name[{}] and rule[{}]", service, key, value);
                 });
             }

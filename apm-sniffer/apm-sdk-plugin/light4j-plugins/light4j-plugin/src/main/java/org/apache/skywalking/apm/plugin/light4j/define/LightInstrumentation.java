@@ -28,10 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 /**
- * This instrumentation is applied to the handleRequest method of {@link com.networknt.handler.LightHttpHandler}
- * using {@link org.apache.skywalking.apm.plugin.light4j.HandleRequestInterceptor}.
- *
- * @author tsuilouis
+ * This instrumentation is applied to the handleRequest method of {@link com.networknt.handler.LightHttpHandler} using
+ * {@link org.apache.skywalking.apm.plugin.light4j.HandleRequestInterceptor}.
  */
 public class LightInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

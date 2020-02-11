@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 import java.util.List;
 
-/**
- * Created by xin on 2017/7/15.
- */
 public interface SegmentItem {
     String applicationCode();
 

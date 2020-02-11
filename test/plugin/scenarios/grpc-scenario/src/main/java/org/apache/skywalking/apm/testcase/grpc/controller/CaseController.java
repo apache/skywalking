@@ -23,6 +23,10 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.testcase.grpc.consumr.ConsumerInterceptor;
@@ -30,11 +34,6 @@ import org.apache.skywalking.apm.testcase.grpc.proto.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 @RestController
 @RequestMapping("/case")
@@ -75,11 +74,8 @@ public class CaseController {
         return SUCCESS;
     }
 
-
     private static List<String> names() {
-        return Arrays.asList(
-            "Sophia",
-            "Jackson");
+        return Arrays.asList("Sophia", "Jackson");
     }
 
     private void greetService() {

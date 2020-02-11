@@ -20,12 +20,11 @@ package org.apache.skywalking.oap.server.core.storage.ttl;
 import org.apache.skywalking.oap.server.core.DataTTLConfig;
 import org.joda.time.DateTime;
 
-/**
- * @author peng-yongsheng
- */
 public class MinuteTTLCalculator implements TTLCalculator {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
-        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getMinuteMetricsDataTTL()).toString("yyyyMMddHHmm"));
+    @Override
+    public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+        return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getMinuteMetricsDataTTL())
+                                       .toString("yyyyMMddHHmm"));
     }
 }

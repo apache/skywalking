@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.httpClient.v4;
 
 import java.util.List;
@@ -113,8 +112,14 @@ public class HttpClientExecuteInterceptorTest {
         });
         when(httpHost.getPort()).thenReturn(8080);
 
-        allArguments = new Object[] {httpHost, request};
-        argumentsType = new Class[] {httpHost.getClass(), request.getClass()};
+        allArguments = new Object[] {
+            httpHost,
+            request
+        };
+        argumentsType = new Class[] {
+            httpHost.getClass(),
+            request.getClass()
+        };
     }
 
     @Test
@@ -204,7 +209,9 @@ public class HttpClientExecuteInterceptorTest {
         LogDataEntity logData = logs.get(0);
         Assert.assertThat(logData.getLogs().size(), is(4));
         Assert.assertThat(logData.getLogs().get(0).getValue(), CoreMatchers.<Object>is("error"));
-        Assert.assertThat(logData.getLogs().get(1).getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
+        Assert.assertThat(logData.getLogs()
+                                 .get(1)
+                                 .getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         Assert.assertThat(logData.getLogs().get(2).getValue(), is("testException"));
         assertNotNull(logData.getLogs().get(3).getValue());
     }

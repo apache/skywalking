@@ -29,9 +29,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 
-/**
- * @author peng-yongsheng
- */
 public class StorageInstallerTestCase {
 
     @Test
@@ -44,10 +41,10 @@ public class StorageInstallerTestCase {
 
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleDefine);
 
-//        streamDataMapping.generate();
+        //        streamDataMapping.generate();
 
-//        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
-//        installer.install(null);
+        //        TestStorageInstaller installer = new TestStorageInstaller(moduleManager);
+        //        installer.install(null);
     }
 
     class TestStorageInstaller extends ModelInstaller {
@@ -56,11 +53,13 @@ public class StorageInstallerTestCase {
             super(moduleManager);
         }
 
-        @Override protected boolean isExists(Client client, Model tableDefine) throws StorageException {
+        @Override
+        protected boolean isExists(Client client, Model tableDefine) throws StorageException {
             return false;
         }
 
-        @Override protected void createTable(Client client, Model tableDefine) throws StorageException {
+        @Override
+        protected void createTable(Client client, Model tableDefine) throws StorageException {
 
         }
     }

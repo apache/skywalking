@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * None stream data base on record, support time bucket field to TTL.
- *
- * @author MrPro
  */
 public abstract class NoneStream extends Record {
 }

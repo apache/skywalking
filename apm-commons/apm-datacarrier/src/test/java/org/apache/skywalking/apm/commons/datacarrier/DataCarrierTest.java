@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier;
 
 import java.util.ArrayList;
@@ -31,17 +30,17 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.support.membermodification.MemberModifier;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public class DataCarrierTest {
     @Test
     public void testCreateDataCarrier() throws IllegalAccessException {
         DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(5, 100);
-        Assert.assertEquals(((Integer)(MemberModifier.field(DataCarrier.class, "bufferSize").get(carrier))).intValue(), 100);
-        Assert.assertEquals(((Integer)(MemberModifier.field(DataCarrier.class, "channelSize").get(carrier))).intValue(), 5);
+        Assert.assertEquals(((Integer) (MemberModifier.field(DataCarrier.class, "bufferSize")
+                                                      .get(carrier))).intValue(), 100);
+        Assert.assertEquals(((Integer) (MemberModifier.field(DataCarrier.class, "channelSize")
+                                                      .get(carrier))).intValue(), 5);
 
-        Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
+        Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
+                                                                              .get(carrier));
         Assert.assertEquals(5, channels.getChannelSize());
 
         QueueBuffer<SampleData> buffer = channels.getBuffer(0);
@@ -49,11 +48,16 @@ public class DataCarrierTest {
 
         Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.BLOCKING);
         carrier.setBufferStrategy(BufferStrategy.IF_POSSIBLE);
-        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy").get(buffer), BufferStrategy.IF_POSSIBLE);
+        Assert.assertEquals(MemberModifier.field(buffer.getClass(), "strategy")
+                                          .get(buffer), BufferStrategy.IF_POSSIBLE);
 
-        Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner").get(channels).getClass(), SimpleRollingPartitioner.class);
+        Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner")
+                                          .get(channels)
+                                          .getClass(), SimpleRollingPartitioner.class);
         carrier.setPartitioner(new ProducerThreadPartitioner<SampleData>());
-        Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner").get(channels).getClass(), ProducerThreadPartitioner.class);
+        Assert.assertEquals(MemberModifier.field(Channels.class, "dataPartitioner")
+                                          .get(channels)
+                                          .getClass(), ProducerThreadPartitioner.class);
     }
 
     @Test
@@ -64,7 +68,8 @@ public class DataCarrierTest {
         Assert.assertTrue(carrier.produce(new SampleData().setName("c")));
         Assert.assertTrue(carrier.produce(new SampleData().setName("d")));
 
-        Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
+        Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
+                                                                              .get(carrier));
         QueueBuffer<SampleData> buffer1 = channels.getBuffer(0);
 
         List result = new ArrayList();
@@ -91,7 +96,8 @@ public class DataCarrierTest {
             Assert.assertFalse(carrier.produce(new SampleData().setName("d" + i + "_2")));
         }
 
-        Channels<SampleData> channels = (Channels<SampleData>)(MemberModifier.field(DataCarrier.class, "channels").get(carrier));
+        Channels<SampleData> channels = (Channels<SampleData>) (MemberModifier.field(DataCarrier.class, "channels")
+                                                                              .get(carrier));
         QueueBuffer<SampleData> buffer1 = channels.getBuffer(0);
         List result = new ArrayList();
         buffer1.obtain(result);

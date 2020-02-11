@@ -21,10 +21,6 @@ package org.apache.skywalking.apm.plugin.customize.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author zhaoyuguang
- */
-
 public class CustomizeUtilTest {
 
     @Test

@@ -23,12 +23,11 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 
 /**
  * Dispatch for Zipkin native mode spans.
- *
- * @author wusheng
  */
 public class JaegerSpanRecordDispatcher implements SourceDispatcher<JaegerSpan> {
 
-    @Override public void dispatch(JaegerSpan source) {
+    @Override
+    public void dispatch(JaegerSpan source) {
         JaegerSpanRecord segment = new JaegerSpanRecord();
         segment.setTraceId(source.getTraceId());
         segment.setSpanId(source.getSpanId());

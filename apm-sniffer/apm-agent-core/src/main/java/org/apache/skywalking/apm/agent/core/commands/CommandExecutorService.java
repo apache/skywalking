@@ -30,16 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Command executor service, acts like a routing executor that controls all commands' execution,
- * is responsible for managing all the mappings between commands and their executors,
- * one can simply invoke {@link #execute(BaseCommand)} and it will routes the
- * command to corresponding executor.
- *
- * Registering command executor for new command in {@link #commandExecutorMap}
- * is required to support new command.
- *
- * @author Zhang Xin
- * @author kezhenxu94
+ * Command executor service, acts like a routing executor that controls all commands' execution, is responsible for
+ * managing all the mappings between commands and their executors, one can simply invoke {@link #execute(BaseCommand)}
+ * and it will routes the command to corresponding executor.
+ * <p>
+ * Registering command executor for new command in {@link #commandExecutorMap} is required to support new command.
  */
 @DefaultImplementor
 public class CommandExecutorService implements BootService, CommandExecutor {

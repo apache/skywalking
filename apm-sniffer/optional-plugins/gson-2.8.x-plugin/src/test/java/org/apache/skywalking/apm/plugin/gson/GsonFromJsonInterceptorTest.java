@@ -37,8 +37,6 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
-
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class GsonFromJsonInterceptorTest {
@@ -54,9 +52,6 @@ public class GsonFromJsonInterceptorTest {
     private Object[] arguments;
 
     private Class[] argumentType;
-
-
-
 
     @Before
     public void setUp() {

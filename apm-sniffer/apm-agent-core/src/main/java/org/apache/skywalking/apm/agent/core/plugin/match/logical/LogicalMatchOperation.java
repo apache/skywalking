@@ -25,8 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.IndirectMatch;
 
 /**
  * Util class to help to construct logical operations on {@link org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch}s
- *
- * @author kezhenxu94
  */
 public class LogicalMatchOperation {
     public static IndirectMatch and(final IndirectMatch... matches) {

@@ -25,9 +25,6 @@ import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static java.util.Objects.nonNull;
 
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 @ToString

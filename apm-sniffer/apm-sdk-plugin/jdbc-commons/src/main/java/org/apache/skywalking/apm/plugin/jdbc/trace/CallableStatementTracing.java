@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.trace;
 
 import java.sql.SQLException;
@@ -28,15 +27,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 /**
  * {@link CallableStatementTracing} create an exit span when the client call the method in the class that extend {@link
  * java.sql.CallableStatement}.
- *
- * @author zhangxin
  */
 public class CallableStatementTracing {
 
-    public static <R> R execute(java.sql.CallableStatement realStatement,
-        ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
-        throws SQLException {
-        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, connectInfo.getDatabasePeer());
+    public static <R> R execute(java.sql.CallableStatement realStatement, ConnectionInfo connectInfo, String method,
+        String sql, Executable<R> exec) throws SQLException {
+        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/CallableStatement/" + method, connectInfo
+            .getDatabasePeer());
         try {
             Tags.DB_TYPE.set(span, "sql");
             SpanLayer.asDB(span);
@@ -54,7 +51,6 @@ public class CallableStatementTracing {
     }
 
     public interface Executable<R> {
-        R exe(java.sql.CallableStatement realConnection, String sql)
-            throws SQLException;
+        R exe(java.sql.CallableStatement realConnection, String sql) throws SQLException;
     }
 }

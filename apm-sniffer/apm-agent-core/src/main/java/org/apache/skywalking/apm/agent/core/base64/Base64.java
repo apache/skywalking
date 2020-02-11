@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.base64;
 
 import java.nio.charset.StandardCharsets;

@@ -18,17 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
-import org.apache.commons.dbcp.BasicDataSource;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 
 public class DataSourceUtil {
-    
+
     private static final String DEFAULT_SCHEMA = "";
 
     private static final Map<String, DataSource> datasourceMap = new HashMap<>();
@@ -45,11 +44,10 @@ public class DataSourceUtil {
     public static DataSource getDataSource(final String dataSourceName) {
         return datasourceMap.get(dataSourceName);
     }
-    
+
     public static void createSchema(final String dataSourceName) {
         String sql = "CREATE SCHEMA " + dataSourceName;
-        try (Connection connection = getDataSource(DEFAULT_SCHEMA).getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection connection = getDataSource(DEFAULT_SCHEMA).getConnection(); Statement statement = connection.createStatement()) {
             statement.execute(sql);
         } catch (final SQLException ignored) {
         }

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.profile;
 
-/**
- * @author MrPro
- */
 public class CreateUser {
 
     private String name;

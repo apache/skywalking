@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
@@ -32,40 +33,32 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 
-/**
- * @author aderm
- */
 public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        CreateIndexRequest createIndexRequest = (CreateIndexRequest)(allArguments[0]);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        CreateIndexRequest createIndexRequest = (CreateIndexRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
-            AbstractSpan span = ContextManager
-                .createExitSpan(Constants.CREATE_OPERATOR_NAME,
-                    restClientEnhanceInfo.getPeers());
+            AbstractSpan span = ContextManager.createExitSpan(Constants.CREATE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
             Tags.DB_TYPE.set(span, DB_TYPE);
             Tags.DB_INSTANCE.set(span, createIndexRequest.index());
             if (TRACE_DSL) {
                 //Store es mapping parameters
-                Tags.DB_STATEMENT
-                    .set(span, createIndexRequest.mappings().utf8ToString());
+                Tags.DB_STATEMENT.set(span, createIndexRequest.mappings().utf8ToString());
             }
             SpanLayer.asDB(span);
         }
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
             ContextManager.stopSpan();
         }
@@ -73,10 +66,9 @@ public class IndicesClientCreateMethodsInterceptor implements InstanceMethodsAro
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method,
-        Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

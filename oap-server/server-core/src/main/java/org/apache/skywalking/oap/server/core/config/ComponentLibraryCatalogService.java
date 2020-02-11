@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Load settings from component-libraries.yml
- * this file includes all component defines, and the component mappings, which declare the real server type based on client component.
- *
- * @author wusheng
+ * Load settings from component-libraries.yml this file includes all component defines, and the component mappings,
+ * which declare the real server type based on client component.
  */
 public class ComponentLibraryCatalogService implements IComponentLibraryCatalogService {
     private static final Logger logger = LoggerFactory.getLogger(ComponentLibraryCatalogService.class);
@@ -81,15 +82,15 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
             Map map = yaml.loadAs(applicationReader, Map.class);
 
             map.forEach((componentName, settingCollection) -> {
-                Map settings = (Map)settingCollection;
+                Map settings = (Map) settingCollection;
                 if (COMPONENT_SERVER_MAPPING_SECTION.equals(componentName)) {
                     settings.forEach((name, serverName) -> {
-                        nameMapping.put((String)name, (String)serverName);
+                        nameMapping.put((String) name, (String) serverName);
                     });
                 } else {
-                    Integer componentId = (Integer)settings.get("id");
-                    componentName2Id.put((String)componentName, componentId);
-                    componentId2Name.put(componentId, (String)componentName);
+                    Integer componentId = (Integer) settings.get("id");
+                    componentName2Id.put((String) componentName, componentId);
+                    componentId2Name.put(componentId, (String) componentName);
                 }
             });
 

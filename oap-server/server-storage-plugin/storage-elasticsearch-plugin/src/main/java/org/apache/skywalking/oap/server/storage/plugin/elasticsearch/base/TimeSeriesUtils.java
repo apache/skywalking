@@ -18,12 +18,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
-/**
- * @author peng-yongsheng
- */
 public class TimeSeriesUtils {
 
     public static String timeSeries(Model model) {

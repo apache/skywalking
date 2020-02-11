@@ -23,8 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Function argument.
- *
- * @author hongtaogao
  */
 @Getter
 @RequiredArgsConstructor

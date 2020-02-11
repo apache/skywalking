@@ -23,9 +23,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-/**
- * @author kezhenxu94
- */
 @Entity
 public class User {
     public User() {

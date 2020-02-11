@@ -19,12 +19,11 @@
 package org.apache.skywalking.apm.testcase.grpc.provider.service;
 
 import io.grpc.stub.StreamObserver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.testcase.grpc.proto.GreeterGrpc;
 import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
 import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 
 public class GreeterServiceImpl extends GreeterGrpc.GreeterImplBase {
 

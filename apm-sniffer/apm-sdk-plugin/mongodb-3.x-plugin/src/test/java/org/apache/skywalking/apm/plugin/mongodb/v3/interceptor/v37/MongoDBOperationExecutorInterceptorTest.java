@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37;
 
 import com.mongodb.MongoNamespace;
@@ -24,6 +23,8 @@ import com.mongodb.ReadConcern;
 import com.mongodb.client.internal.OperationExecutor;
 import com.mongodb.operation.FindOperation;
 import com.mongodb.operation.WriteOperation;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
@@ -33,7 +34,11 @@ import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -48,16 +53,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * @author scolia
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class MongoDBOperationExecutorInterceptorTest {
@@ -93,8 +92,8 @@ public class MongoDBOperationExecutorInterceptorTest {
         FindOperation findOperation = new FindOperation(mongoNamespace, decoder);
         findOperation.filter(document);
 
-        arguments = new Object[]{findOperation};
-        argumentTypes = new Class[]{findOperation.getClass()};
+        arguments = new Object[] {findOperation};
+        argumentTypes = new Class[] {findOperation.getClass()};
     }
 
     @Test

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.lang.reflect.Method;
@@ -31,8 +30,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 /**
  * {@link OnExceptionInterceptor} create local span when the method {@link org.apache.rocketmq.client.producer.SendCallback#onException(Throwable)}
  * execute.
- *
- * @author zhang xin
  */
 public class OnExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -41,10 +38,10 @@ public class OnExceptionInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo)objInst.getSkyWalkingDynamicField();
+        SendCallBackEnhanceInfo enhanceInfo = (SendCallBackEnhanceInfo) objInst.getSkyWalkingDynamicField();
         AbstractSpan activeSpan = ContextManager.createLocalSpan(CALLBACK_OPERATION_NAME_PREFIX + enhanceInfo.getTopicId() + "/Producer/Callback");
         activeSpan.setComponent(ComponentsDefine.ROCKET_MQ_PRODUCER);
-        activeSpan.errorOccurred().log((Throwable)allArguments[0]);
+        activeSpan.errorOccurred().log((Throwable) allArguments[0]);
         ContextManager.continued(enhanceInfo.getContextSnapshot());
     }
 
@@ -55,7 +52,8 @@ public class OnExceptionInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().log(t);
     }

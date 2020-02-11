@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.lettuce.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,8 +31,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * The writeAndFlush method is used in versions lower than 5.0.2.RELEASE
- *
- * @author zhaoyuguang
  */
 public class RedisChannelWriterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -60,7 +57,7 @@ public class RedisChannelWriterInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

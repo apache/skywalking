@@ -24,21 +24,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 /**
- * {@link AspectJExpressionPointCutInterceptor} check if the method is match the enhanced method
- * if yes,return false else return true;
- *
- * @author lican
+ * {@link AspectJExpressionPointCutInterceptor} check if the method is match the enhanced method if yes,return false
+ * else return true;
  */
 public class AspectJExpressionPointCutInterceptor implements InstanceMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         Method targetAopMethod = (Method) allArguments[0];
         Class<?> targetAopClass = (Class<?>) allArguments[1];
         if (targetAopClass != null && EnhancedInstance.class.isAssignableFrom(targetAopClass) && MatchUtil.isEnhancedMethod(targetAopMethod)) {
@@ -48,7 +47,8 @@ public class AspectJExpressionPointCutInterceptor implements InstanceMethodsArou
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

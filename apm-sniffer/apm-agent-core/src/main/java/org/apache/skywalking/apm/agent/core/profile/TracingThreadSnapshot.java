@@ -24,9 +24,6 @@ import org.apache.skywalking.apm.network.language.profile.ThreadStack;
 
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class TracingThreadSnapshot {
 
     // thread profiler
@@ -68,6 +65,5 @@ public class TracingThreadSnapshot {
 
         return builder.build();
     }
-
 
 }

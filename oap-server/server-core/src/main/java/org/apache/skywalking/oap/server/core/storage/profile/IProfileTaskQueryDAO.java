@@ -15,36 +15,33 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.storage.profile;
 
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
-import org.apache.skywalking.oap.server.core.storage.DAO;
+package org.apache.skywalking.oap.server.core.storage.profile;
 
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
  * process all profile task query
- *
- * @author MrPro
  */
 public interface IProfileTaskQueryDAO extends DAO {
 
     /**
      * search task list in appoint time bucket
-     * @param serviceId monitor service id, maybe null
-     * @param endpointName endpoint name, maybe empty
+     *
+     * @param serviceId       monitor service id, maybe null
+     * @param endpointName    endpoint name, maybe empty
      * @param startTimeBucket time bucket bigger than or equals, nullable
-     * @param endTimeBucket time bucket small than or equals, nullable
-     * @param limit limit count, if null means query all
-     * @return
+     * @param endTimeBucket   time bucket small than or equals, nullable
+     * @param limit           limit count, if null means query all
      */
-    List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final Long startTimeBucket, final Long endTimeBucket, final Integer limit) throws IOException;
+    List<ProfileTask> getTaskList(final Integer serviceId, final String endpointName, final Long startTimeBucket,
+        final Long endTimeBucket, final Integer limit) throws IOException;
 
     /**
      * query profile task by id
-     * @param id
-     * @return
      */
     ProfileTask getById(final String id) throws IOException;
 

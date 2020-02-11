@@ -16,11 +16,14 @@
   ~ limitations under the License.
   ~
   -->
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
        
-   <diskStore path="java.io.tmpdir/ehcache"/>
+       
+    <diskStore path="java.io.tmpdir/ehcache"/>
 
-   <defaultCache
+       
+    <defaultCache
         maxEntriesLocalHeap="10000"
         eternal="false"
         timeToIdleSeconds="120"
@@ -29,8 +32,10 @@
         diskExpiryThreadIntervalSeconds="120"
         memoryStoreEvictionPolicy="LRU">
 
-       <persistence strategy="localTempSwap"/>
-   </defaultCache>
+               
+        <persistence strategy="localTempSwap"/>
+           
+    </defaultCache>
     ​
     <cache name="testCache" maxElementsInMemory="1000" overflowToDisk="false" memoryStoreEvictionPolicy="LRU"/>
 </ehcache>

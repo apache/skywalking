@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.trace;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Trace {
     private String key;
     private final List<String> endpointNames;
@@ -89,13 +86,6 @@ public class Trace {
 
     @Override
     public String toString() {
-        return "Trace{" +
-            "key='" + key + '\'' +
-            ", endpointNames=" + endpointNames +
-            ", duration=" + duration +
-            ", start='" + start + '\'' +
-            ", isError=" + isError +
-            ", traceIds=" + traceIds +
-            '}';
+        return "Trace{" + "key='" + key + '\'' + ", endpointNames=" + endpointNames + ", duration=" + duration + ", start='" + start + '\'' + ", isError=" + isError + ", traceIds=" + traceIds + '}';
     }
 }

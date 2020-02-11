@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.cluster;
 
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface ClusterRegister extends Service {
 
     void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException;

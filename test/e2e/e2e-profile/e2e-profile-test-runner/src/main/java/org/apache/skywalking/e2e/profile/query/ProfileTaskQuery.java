@@ -22,8 +22,6 @@ import org.apache.skywalking.e2e.AbstractQuery;
 
 /**
  * profile query data
- *
- * @author MrPro
  */
 public class ProfileTaskQuery extends AbstractQuery<ProfileTaskQuery> {
 

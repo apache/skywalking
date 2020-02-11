@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -36,8 +35,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.logical.LogicalM
 
 /**
  * Intercepts all methods annotated with {@link org.apache.skywalking.apm.toolkit.trace.Tag}
- *
- * @author kezhenxu94
  */
 public class TagAnnotationActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -53,7 +50,7 @@ public class TagAnnotationActivation extends ClassInstanceMethodsEnhancePluginDe
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new DeclaredInstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -75,13 +72,8 @@ public class TagAnnotationActivation extends ClassInstanceMethodsEnhancePluginDe
 
     @Override
     protected ClassMatch enhanceClass() {
-        return and(
-            not(byMethodAnnotationMatch(TRACE_ANNOTATION)),
+        return and(not(byMethodAnnotationMatch(TRACE_ANNOTATION)),
 
-            or(
-                byMethodAnnotationMatch(TAGS_ANNOTATION),
-                byMethodAnnotationMatch(TAG_ANNOTATION)
-            )
-        );
+            or(byMethodAnnotationMatch(TAGS_ANNOTATION), byMethodAnnotationMatch(TAG_ANNOTATION)));
     }
 }

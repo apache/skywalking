@@ -19,7 +19,8 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class AlarmMessageFormatterTest {
     @Test
@@ -27,27 +28,33 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc words {sdf");
         String message = formatter.format(new MetaInAlarm() {
 
-            @Override public String getScope() {
+            @Override
+            public String getScope() {
                 return "SERVICE";
             }
 
-            @Override public int getScopeId() {
+            @Override
+            public int getScopeId() {
                 return -1;
             }
 
-            @Override public String getName() {
+            @Override
+            public String getName() {
                 return null;
             }
 
-            @Override public String getMetricsName() {
+            @Override
+            public String getMetricsName() {
                 return null;
             }
 
-            @Override public int getId0() {
+            @Override
+            public int getId0() {
                 return 0;
             }
 
-            @Override public int getId1() {
+            @Override
+            public int getId1() {
                 return 0;
             }
         });
@@ -60,27 +67,33 @@ public class AlarmMessageFormatterTest {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc} words {name} - {id} .. {");
         String message = formatter.format(new MetaInAlarm() {
 
-            @Override public String getScope() {
+            @Override
+            public String getScope() {
                 return "SERVICE";
             }
 
-            @Override public int getScopeId() {
+            @Override
+            public int getScopeId() {
                 return -1;
             }
 
-            @Override public String getName() {
+            @Override
+            public String getName() {
                 return "service";
             }
 
-            @Override public String getMetricsName() {
+            @Override
+            public String getMetricsName() {
                 return null;
             }
 
-            @Override public int getId0() {
+            @Override
+            public int getId0() {
                 return 1290;
             }
 
-            @Override public int getId1() {
+            @Override
+            public int getId1() {
                 return 0;
             }
         });

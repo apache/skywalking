@@ -29,7 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * InterceptorCallback wrapped CallbackAdapter, need intercept
- * @author stalary
  */
 public class KafkaTemplateCallbackInstrumentation extends AbstractKafkaTemplateInstrumentation {
 
@@ -39,7 +38,7 @@ public class KafkaTemplateCallbackInstrumentation extends AbstractKafkaTemplateI
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {

@@ -27,7 +27,8 @@ public class ParentSegmentNotFoundException extends AssertFailedException {
         this.express = express;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("ParentSegmentNotFoundException\nexpected: %s\nactual: %s\n", express, "NOT FOUND");
     }
 }

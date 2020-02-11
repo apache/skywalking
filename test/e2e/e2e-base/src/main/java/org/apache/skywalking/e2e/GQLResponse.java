@@ -20,8 +20,6 @@ package org.apache.skywalking.e2e;
 
 /**
  * GraphQL response for easily test
- *
- * @author kezhenxu94
  */
 public class GQLResponse<T> {
     private T data;
@@ -36,8 +34,6 @@ public class GQLResponse<T> {
 
     @Override
     public String toString() {
-        return "GQLResponse{" +
-            "data=" + data +
-            '}';
+        return "GQLResponse{" + "data=" + data + '}';
     }
 }

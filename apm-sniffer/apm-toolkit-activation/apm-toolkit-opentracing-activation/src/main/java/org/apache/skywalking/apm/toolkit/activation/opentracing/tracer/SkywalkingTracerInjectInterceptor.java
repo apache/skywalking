@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.tracer;
 
 import io.opentracing.propagation.Format;
@@ -31,17 +30,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 public class SkywalkingTracerInjectInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Format format = (Format)allArguments[1];
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        Format format = (Format) allArguments[1];
         if (Format.Builtin.TEXT_MAP.equals(format) || Format.Builtin.HTTP_HEADERS.equals(format)) {
-            TextMap carrier = (TextMap)allArguments[2];
+            TextMap carrier = (TextMap) allArguments[2];
             ContextCarrier contextCarrier = new ContextCarrier();
             ContextManager.inject(contextCarrier);
             CarrierItem next = contextCarrier.items();

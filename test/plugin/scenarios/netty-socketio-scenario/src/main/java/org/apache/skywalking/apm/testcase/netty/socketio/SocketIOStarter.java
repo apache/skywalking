@@ -20,12 +20,8 @@ package org.apache.skywalking.apm.testcase.netty.socketio;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import io.netty.util.concurrent.Future;
-
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author MrPro
- */
 public class SocketIOStarter {
 
     public static final Integer SERVER_PORT = 9092;

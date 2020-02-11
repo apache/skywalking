@@ -31,16 +31,15 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.LOCK_ENHANCE_METHOD_SUFFIX;
 
-/**
- * @author MrPro
- */
 public class EhcacheLockInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         EhcacheEnhanceInfo enhanceInfo = (EhcacheEnhanceInfo) objInst.getSkyWalkingDynamicField();
 
-        String operateName = method.getName().substring(0, method.getName().length() - LOCK_ENHANCE_METHOD_SUFFIX.length());
+        String operateName = method.getName()
+                                   .substring(0, method.getName().length() - LOCK_ENHANCE_METHOD_SUFFIX.length());
 
         AbstractSpan span = ContextManager.createLocalSpan("Ehcache/" + operateName + "/" + enhanceInfo.getCacheName());
         span.setComponent(ComponentsDefine.EHCACHE);
@@ -53,13 +52,15 @@ public class EhcacheLockInterceptor implements InstanceMethodsAroundInterceptor 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

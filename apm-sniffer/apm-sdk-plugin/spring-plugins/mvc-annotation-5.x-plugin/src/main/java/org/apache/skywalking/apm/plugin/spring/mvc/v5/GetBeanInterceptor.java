@@ -32,8 +32,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.RESP
 /**
  * {@link GetBeanInterceptor} pass the {@link NativeWebRequest} object into the {@link
  * org.springframework.stereotype.Controller} object.
- *
- * @author zhangxin
  */
 public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -45,8 +43,12 @@ public class GetBeanInterceptor implements InstanceMethodsAroundInterceptor {
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (ret instanceof EnhancedInstance) {
-            ContextManager.getRuntimeContext().put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest());
-            ContextManager.getRuntimeContext().put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getResponse());
+            ContextManager.getRuntimeContext()
+                          .put(REQUEST_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                              .getRequest());
+            ContextManager.getRuntimeContext()
+                          .put(RESPONSE_KEY_IN_RUNTIME_CONTEXT, ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                              .getResponse());
         }
         return ret;
     }

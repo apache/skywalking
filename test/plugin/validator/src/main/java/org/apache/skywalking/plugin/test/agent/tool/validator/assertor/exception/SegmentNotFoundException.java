@@ -36,8 +36,7 @@ public class SegmentNotFoundException extends AssertFailedException {
     public String getCauseMessage() {
         StringBuilder expectedMessage = new StringBuilder("\n  Segment:\n");
         for (Span span : expectedSegment.spans()) {
-            expectedMessage.append(String.format("  - span[%s, %s] %s\n", span.parentSpanId(), span.spanId(),
-                span.operationName()));
+            expectedMessage.append(String.format("  - span[%s, %s] %s\n", span.parentSpanId(), span.spanId(), span.operationName()));
         }
 
         StringBuilder causeMessage = new StringBuilder();
@@ -46,13 +45,10 @@ public class SegmentNotFoundException extends AssertFailedException {
             Span actualSpan = cause.getSpanAssertFailedCause().getActualSpan();
             Span expectedSpan = cause.getSpanAssertFailedCause().getExceptedSpan();
 
-            causeMessage.append(String.format("\n  Segment[%s] e\n  expected:\tSpan[%s, %s] %s\n  " +
-                    "actual:" +
-                    "\tspan[%s, %s] %s\n  reason:\t%s\n",
-                actualSegment.segmentId(),
-                expectedSpan.parentSpanId(), expectedSpan.spanId(), expectedSpan.operationName(),
-                actualSpan.parentSpanId(), actualSpan.spanId(), actualSpan.operationName(),
-                cause.getSpanAssertFailedCause().getCauseMessage()));
+            causeMessage.append(String.format("\n  Segment[%s] e\n  expected:\tSpan[%s, %s] %s\n  " + "actual:" + "\tspan[%s, %s] %s\n  reason:\t%s\n", actualSegment
+                .segmentId(), expectedSpan.parentSpanId(), expectedSpan.spanId(), expectedSpan.operationName(), actualSpan
+                .parentSpanId(), actualSpan.spanId(), actualSpan.operationName(), cause.getSpanAssertFailedCause()
+                                                                                       .getCauseMessage()));
         }
 
         return String.format("SegmentNotFoundException:\nexpected: %s\nactual: %s\n", expectedMessage, causeMessage);

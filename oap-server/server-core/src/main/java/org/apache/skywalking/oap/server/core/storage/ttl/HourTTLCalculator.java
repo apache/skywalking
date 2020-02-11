@@ -20,12 +20,10 @@ package org.apache.skywalking.oap.server.core.storage.ttl;
 import org.apache.skywalking.oap.server.core.DataTTLConfig;
 import org.joda.time.DateTime;
 
-/**
- * @author peng-yongsheng
- */
 public class HourTTLCalculator implements TTLCalculator {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+    @Override
+    public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
         return Long.valueOf(currentTime.plusHours(0 - dataTTLConfig.getHourMetricsDataTTL()).toString("yyyyMMddHH"));
     }
 }

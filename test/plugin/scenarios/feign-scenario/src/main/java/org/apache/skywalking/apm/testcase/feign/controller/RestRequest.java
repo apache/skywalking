@@ -49,9 +49,9 @@ public interface RestRequest {
     static RestRequest connect() {
         Decoder decoder = new GsonDecoder();
         return Feign.builder()
-            .decoder(decoder)
-            .logger(new Logger.ErrorLogger())
-            .logLevel(Logger.Level.BASIC)
-            .target(RestRequest.class, "http://localhost:8080/feign-scenario");
+                    .decoder(decoder)
+                    .logger(new Logger.ErrorLogger())
+                    .logLevel(Logger.Level.BASIC)
+                    .target(RestRequest.class, "http://localhost:8080/feign-scenario");
     }
 }

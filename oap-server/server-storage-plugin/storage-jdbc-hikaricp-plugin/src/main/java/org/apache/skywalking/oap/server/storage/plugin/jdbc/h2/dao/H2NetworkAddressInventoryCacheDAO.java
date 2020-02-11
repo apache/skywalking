@@ -19,16 +19,17 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements INetworkAddressInventoryCacheDAO {
     private static final Logger logger = LoggerFactory.getLogger(H2NetworkAddressInventoryCacheDAO.class);
     private JDBCHikariCPClient h2Client;
@@ -37,21 +38,24 @@ public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements 
         this.h2Client = h2Client;
     }
 
-    @Override public int getAddressId(String networkAddress) {
+    @Override
+    public int getAddressId(String networkAddress) {
         String id = NetworkAddressInventory.buildId(networkAddress);
         return getEntityIDByID(h2Client, NetworkAddressInventory.SEQUENCE, NetworkAddressInventory.INDEX_NAME, id);
     }
 
-    @Override public NetworkAddressInventory get(int addressId) {
+    @Override
+    public NetworkAddressInventory get(int addressId) {
         try {
-            return (NetworkAddressInventory)getByColumn(h2Client, NetworkAddressInventory.INDEX_NAME, NetworkAddressInventory.SEQUENCE, addressId, new NetworkAddressInventory.Builder());
+            return (NetworkAddressInventory) getByColumn(h2Client, NetworkAddressInventory.INDEX_NAME, NetworkAddressInventory.SEQUENCE, addressId, new NetworkAddressInventory.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;
         }
     }
 
-    @Override public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
+    @Override
+    public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
         List<NetworkAddressInventory> addressInventories = new ArrayList<>();
 
         try {
@@ -63,7 +67,7 @@ public class H2NetworkAddressInventoryCacheDAO extends H2SQLExecutor implements 
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), lastUpdateTime)) {
                     NetworkAddressInventory addressInventory;
                     do {
-                        addressInventory = (NetworkAddressInventory)toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new NetworkAddressInventory.Builder());
+                        addressInventory = (NetworkAddressInventory) toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new NetworkAddressInventory.Builder());
                         if (addressInventory != null) {
                             addressInventories.add(addressInventory);
                         }

@@ -26,8 +26,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * Profile task process thread, dump the executing thread stack.
- *
- * @author MrPro
  */
 public class ProfileThread implements Runnable {
 

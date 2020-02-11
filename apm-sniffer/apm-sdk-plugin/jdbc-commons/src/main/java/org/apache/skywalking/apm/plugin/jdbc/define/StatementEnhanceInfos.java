@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.define;
 
 import java.util.Arrays;
@@ -25,8 +24,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link StatementEnhanceInfos} contain the {@link ConnectionInfo} and
  * <code>sql</code> for trace mysql.
- *
- * @author zhangxin
  */
 public class StatementEnhanceInfos {
     private ConnectionInfo connectionInfo;

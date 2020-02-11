@@ -27,8 +27,6 @@ import java.util.Map;
 
 /**
  * Default custom enhancement configuration.
- *
- * @author zhaoyuguang
  */
 
 public class MethodConfiguration {

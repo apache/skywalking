@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-/**
- * @author wusheng
- */
 public class SpanEncode {
     public static final int PROTO3 = 1;
     public static final int JSON_V2 = 2;

@@ -18,16 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 
-/**
- * @author wusheng
- */
 public class MetricsMetaInfo {
-    @Setter @Getter private String metricsName;
-    @Setter @Getter private int scope;
-    @Setter @Getter private String id;
+    @Setter
+    @Getter
+    private String metricsName;
+    @Setter
+    @Getter
+    private int scope;
+    @Setter
+    @Getter
+    private String id;
 
     public MetricsMetaInfo(String metricsName, int scope) {
         this.metricsName = metricsName;
@@ -41,11 +45,8 @@ public class MetricsMetaInfo {
         this.id = id;
     }
 
-    @Override public String toString() {
-        return "MetricsMetaInfo{" +
-            "metricsName='" + metricsName + '\'' +
-            ", scope=" + scope +
-            ", id='" + id + '\'' +
-            '}';
+    @Override
+    public String toString() {
+        return "MetricsMetaInfo{" + "metricsName='" + metricsName + '\'' + ", scope=" + scope + ", id='" + id + '\'' + '}';
     }
 }

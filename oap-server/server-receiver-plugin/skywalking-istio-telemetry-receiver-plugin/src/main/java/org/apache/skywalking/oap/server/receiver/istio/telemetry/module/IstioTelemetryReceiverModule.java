@@ -27,7 +27,8 @@ public class IstioTelemetryReceiverModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

@@ -28,8 +28,9 @@ public class ActualRegistryOperationNameEmptyException extends AssertFailedExcep
         this.registryOperationName = registryOperationName;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("ActualRegistryOperationNameEmptyException\nexpected:%s\nactual:%s\n",
-            registryOperationName.operationName(), "Empty");
+    @Override
+    public String getCauseMessage() {
+        return String.format("ActualRegistryOperationNameEmptyException\nexpected:%s\nactual:%s\n", registryOperationName
+            .operationName(), "Empty");
     }
 }

@@ -25,14 +25,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- *
  * {@link EhcachePluginInstrumentation} enhance @{@link net.sf.ehcache.Cache}
- *
- * @author MrPro
  */
 public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -61,7 +60,6 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     public static final String OPERATE_ELEMENT_CACHE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateElementInterceptor";
     public static final String OPERATE_OBJECT_CACHE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateObjectInterceptor";
     public static final String OPERATE_ALL_CACHE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheOperateAllInterceptor";
-
 
     // lock and release
     public static final String LOCK_ENHANCE_METHOD_SUFFIX = "LockOnKey";
@@ -94,13 +92,13 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(GET_WITH_LOADER_CACHE_ENHANCE_METHOD)
-                        .or(named(GET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
-                        .or(named(GET_QUIET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
-                        .or(named(REMOVE_CACHE_ENHANCE_METHOD).and(takesArguments(2)).and(takesArgument(0, Object.class)))
-                        .or(named(REMOVE_AND_RETURN_ELEMENT_CACHE_ENHANCE_METHOD))
-                        .or(named(REMOVE_QUIET_CACHE_ENHANCE_METHOD))
-                        .or(named(REMOVE_WITH_WRITE_CACHE_INHANCE_METHOD));
+                    return named(GET_WITH_LOADER_CACHE_ENHANCE_METHOD).or(named(GET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
+                                                                      .or(named(GET_QUIET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
+                                                                      .or(named(REMOVE_CACHE_ENHANCE_METHOD).and(takesArguments(2))
+                                                                                                            .and(takesArgument(0, Object.class)))
+                                                                      .or(named(REMOVE_AND_RETURN_ELEMENT_CACHE_ENHANCE_METHOD))
+                                                                      .or(named(REMOVE_QUIET_CACHE_ENHANCE_METHOD))
+                                                                      .or(named(REMOVE_WITH_WRITE_CACHE_INHANCE_METHOD));
                 }
 
                 @Override
@@ -117,12 +115,11 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(PUT_WITH_WRITE_CACHE_ENHANCE_METHOD)
-                        .or(named(PUT_QUITE_CACHE_ENHANCE_METHOD))
-                        .or(named(REMOVE_ELEMENT_CACHE_ENHANCE_METHOD))
-                        .or(named(REPLACE_CACHE_ENHANCE_METHOD))
-                        .or(named(PUT_IF_ABSENT_CACHE_ENHANCE_METHOD).and(takesArguments(2)))
-                        .or(named(PUT_CACHE_ENHANCE_METHOD).and(takesArguments(2)));
+                    return named(PUT_WITH_WRITE_CACHE_ENHANCE_METHOD).or(named(PUT_QUITE_CACHE_ENHANCE_METHOD))
+                                                                     .or(named(REMOVE_ELEMENT_CACHE_ENHANCE_METHOD))
+                                                                     .or(named(REPLACE_CACHE_ENHANCE_METHOD))
+                                                                     .or(named(PUT_IF_ABSENT_CACHE_ENHANCE_METHOD).and(takesArguments(2)))
+                                                                     .or(named(PUT_CACHE_ENHANCE_METHOD).and(takesArguments(2)));
                 }
 
                 @Override
@@ -139,11 +136,11 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(REMOVE_ALL_CACHE_INHANCE_METHOD).and(takesArguments(1).and(takesArgument(0, Boolean.TYPE)))
-                        .or(named(REMOVE_ALL_CACHE_INHANCE_METHOD).and(takesArguments(2)))
-                        .or(named(PUT_ALL_CACHE_ENHANCE_METHOD).and(takesArguments(2)))
-                        .or(named(GET_ALL_WITH_LOADER_CACHE_ENHANCE_METHOD))
-                        .or(named(GET_ALL_CACHE_ENHANCE_METHOD))
-                        .or(named(LOAD_ALL_CACHE_ENHANCE_METHOD));
+                                                                 .or(named(REMOVE_ALL_CACHE_INHANCE_METHOD).and(takesArguments(2)))
+                                                                 .or(named(PUT_ALL_CACHE_ENHANCE_METHOD).and(takesArguments(2)))
+                                                                 .or(named(GET_ALL_WITH_LOADER_CACHE_ENHANCE_METHOD))
+                                                                 .or(named(GET_ALL_CACHE_ENHANCE_METHOD))
+                                                                 .or(named(LOAD_ALL_CACHE_ENHANCE_METHOD));
                 }
 
                 @Override
@@ -159,10 +156,8 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(READ_LOCK_RELEASE_ENHANCE_METHOD)
-                        .or(named(READ_LOCK_TRY_ENHANCE_METHOD)
-                        .or(named(WRITE_LOCK_RELEASE_ENHANCE_METHOD))
-                        .or(named(WRITE_LOCK_TRY_ENHANCE_METHOD)));
+                    return named(READ_LOCK_RELEASE_ENHANCE_METHOD).or(named(READ_LOCK_TRY_ENHANCE_METHOD).or(named(WRITE_LOCK_RELEASE_ENHANCE_METHOD))
+                                                                                                         .or(named(WRITE_LOCK_TRY_ENHANCE_METHOD)));
                 }
 
                 @Override

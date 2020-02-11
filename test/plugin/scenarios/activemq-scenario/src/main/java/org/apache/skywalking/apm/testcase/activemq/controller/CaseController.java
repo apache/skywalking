@@ -31,9 +31,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/case")
@@ -55,7 +55,7 @@ public class CaseController {
     public String testcase() {
         Session session = null;
         Connection connection = null;
-        try{
+        try {
             ConnectionFactory factory = new ActiveMQConnectionFactory(USER_NAME, PASSWORD, brokenUrl);
             connection = factory.createConnection();
             connection.start();
@@ -67,7 +67,7 @@ public class CaseController {
             session.commit();
             session.close();
             connection.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex);
             try {
                 session.close();
@@ -91,7 +91,7 @@ public class CaseController {
             connection.start();
             connection.getMetaData().getJMSVersion();
             connection.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex);
             try {
                 session.close();
@@ -105,10 +105,11 @@ public class CaseController {
     }
 
     public class ConsumerThread extends Thread {
-        @Override public void run() {
+        @Override
+        public void run() {
             Session session = null;
             Connection connection = null;
-            try{
+            try {
                 ConnectionFactory factory = new ActiveMQConnectionFactory(USER_NAME, PASSWORD, brokenUrl);
                 connection = factory.createConnection();
                 connection.start();
@@ -118,7 +119,7 @@ public class CaseController {
                 messageConsumer.receive();
                 session.close();
                 connection.close();
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
                 try {
                     session.close();

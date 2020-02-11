@@ -28,10 +28,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, jian.tan
- * @author kezhenxu94
- */
 public class ServiceInventoryCacheEs7DAO extends ServiceInventoryCacheEsDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEs7DAO.class);
@@ -40,7 +36,8 @@ public class ServiceInventoryCacheEs7DAO extends ServiceInventoryCacheEsDAO {
         super(client, resultWindowMaxSize);
     }
 
-    @Override public ServiceInventory get(int serviceId) {
+    @Override
+    public ServiceInventory get(int serviceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));

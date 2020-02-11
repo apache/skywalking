@@ -16,14 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class ModuleABusiness1Impl implements BaseModuleA.ServiceABusiness1 {
 
-    @Override public void print() {
+    @Override
+    public void print() {
     }
 }

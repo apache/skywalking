@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.io.IOException;
@@ -98,11 +99,13 @@ public class SpecificRequestorInterceptorTest {
 
     public static class EnhanceInstance implements EnhancedInstance {
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return new AvroInstance("example.proto.Greeter.", "localhost/127.0.0.1:9018");
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     }

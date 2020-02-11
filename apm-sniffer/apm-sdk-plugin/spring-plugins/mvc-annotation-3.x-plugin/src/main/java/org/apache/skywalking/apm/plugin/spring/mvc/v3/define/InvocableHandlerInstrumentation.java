@@ -31,19 +31,19 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.INVO
 /**
  * {@link InvocableHandlerInstrumentation} intercept the <code>invokeForRequest</code> method in the
  * <code>org.springframework.web.method.support.InvocableHandlerMethod</code> class.
- *
- * @author zhangxin
  */
 public class InvocableHandlerInstrumentation extends AbstractSpring3Instrumentation {
 
     public static final String ENHANCE_METHOD = "invokeForRequest";
     public static final String ENHANCE_CLASS = "org.springframework.web.method.support.InvocableHandlerMethod";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -61,10 +61,11 @@ public class InvocableHandlerInstrumentation extends AbstractSpring3Instrumentat
                     return false;
                 }
             },
-        };
+            };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

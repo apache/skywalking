@@ -16,13 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.oap.server.starter.config;
 
-
-/**
- * @author peng-yongsheng
- */
 public class ConfigFileNotFoundException extends Exception {
 
     public ConfigFileNotFoundException(String message) {

@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.metrics;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Metrics {
     private List<MetricsValue> values = new ArrayList<>();
 
@@ -37,8 +34,6 @@ public class Metrics {
 
     @Override
     public String toString() {
-        return "Metrics{" +
-            "values=" + values +
-            '}';
+        return "Metrics{" + "values=" + values + '}';
     }
 }

@@ -15,11 +15,27 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.e2e.profile.query;
 
-package org.apache.skywalking.apm.agent.core.conf;
+import lombok.Data;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.assertj.core.api.Assertions;
 
-public class ConfigReadFailedException extends Exception {
-    public ConfigReadFailedException(String message, Throwable parent) {
-        super(message, parent);
+import java.util.List;
+
+@Data
+public class ProfileStackTreeMatcher extends AbstractMatcher<ProfileAnalyzation.ProfileStackTree> {
+
+    private List<ProfileStackElementMatcher> elements;
+
+    @Override
+    public void verify(ProfileAnalyzation.ProfileStackTree profileStackTree) {
+        Assertions.assertThat(profileStackTree.getElements()).hasSameSizeAs(this.elements);
+
+        int size = this.elements.size();
+
+        for (int i = 0; i < size; i++) {
+            elements.get(i).verify(profileStackTree.getElements().get(i));
+        }
     }
 }

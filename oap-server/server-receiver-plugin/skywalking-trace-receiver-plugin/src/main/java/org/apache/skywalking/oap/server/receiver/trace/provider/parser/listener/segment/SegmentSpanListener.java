@@ -39,9 +39,6 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener, GlobalTraceIdsListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SegmentSpanListener.class);
@@ -58,10 +55,13 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(EndpointInventoryCache.class);
     }
 
-    @Override public boolean containsPoint(Point point) {
+    @Override
+    public boolean containsPoint(Point point) {
         return Point.First.equals(point) || Point.Entry.equals(point) || Point.TraceIds.equals(point);
     }
 
@@ -76,7 +76,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setSegmentId(segmentCoreInfo.getSegmentId());
         segment.setServiceId(segmentCoreInfo.getServiceId());
         segment.setServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
-        segment.setLatency((int)(segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
+        segment.setLatency((int) (segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
         segment.setStartTime(segmentCoreInfo.getStartTime());
         segment.setEndTime(segmentCoreInfo.getEndTime());
         segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
@@ -88,11 +88,13 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         firstEndpointName = spanDecorator.getOperationName();
     }
 
-    @Override public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+    @Override
+    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         entryEndpointId = spanDecorator.getOperationNameId();
     }
 
-    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+    @Override
+    public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
         if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
             if (sampler.shouldSample(uniqueId)) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
@@ -109,7 +111,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setTraceId(traceId);
     }
 
-    @Override public void build() {
+    @Override
+    public void build() {
         if (logger.isDebugEnabled()) {
             logger.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
@@ -150,7 +153,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             this.sampler = new TraceSegmentSampler(segmentSamplingRate);
         }
 
-        @Override public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+        @Override
+        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new SegmentSpanListener(moduleManager, sampler);
         }
     }

@@ -18,27 +18,33 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
- *
- * @author wusheng
  */
 public class MySQLTableInstaller extends H2TableInstaller {
 
@@ -53,9 +59,10 @@ public class MySQLTableInstaller extends H2TableInstaller {
         this.overrideColumnName("match", "match_num");
     }
 
-    @Override protected void createTable(Client client, Model model) throws StorageException {
+    @Override
+    protected void createTable(Client client, Model model) throws StorageException {
         super.createTable(client, model);
-        JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient)client;
+        JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
         this.createIndexes(jdbcHikariCPClient, model);
     }
 
@@ -108,7 +115,11 @@ public class MySQLTableInstaller extends H2TableInstaller {
         try (Connection connection = client.getConnection()) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TIME_BUCKET ");
-            tableIndexSQL.append("ON ").append(model.getName()).append("(").append(SegmentRecord.TIME_BUCKET).append(")");
+            tableIndexSQL.append("ON ")
+                         .append(model.getName())
+                         .append("(")
+                         .append(SegmentRecord.TIME_BUCKET)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
@@ -119,7 +130,11 @@ public class MySQLTableInstaller extends H2TableInstaller {
         try (Connection connection = client.getConnection()) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TIME_BUCKET ");
-            tableIndexSQL.append("ON ").append(model.getName()).append("(").append(SegmentRecord.TIME_BUCKET).append(")");
+            tableIndexSQL.append("ON ")
+                         .append(model.getName())
+                         .append("(")
+                         .append(SegmentRecord.TIME_BUCKET)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
@@ -135,7 +150,11 @@ public class MySQLTableInstaller extends H2TableInstaller {
 
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_ENDPOINT_ID ");
-            tableIndexSQL.append("ON ").append(model.getName()).append("(").append(SegmentRecord.ENDPOINT_ID).append(")");
+            tableIndexSQL.append("ON ")
+                         .append(model.getName())
+                         .append("(")
+                         .append(SegmentRecord.ENDPOINT_ID)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
 
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
@@ -145,7 +164,11 @@ public class MySQLTableInstaller extends H2TableInstaller {
 
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TIME_BUCKET ");
-            tableIndexSQL.append("ON ").append(model.getName()).append("(").append(SegmentRecord.TIME_BUCKET).append(")");
+            tableIndexSQL.append("ON ")
+                         .append(model.getName())
+                         .append("(")
+                         .append(SegmentRecord.TIME_BUCKET)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
@@ -161,7 +184,13 @@ public class MySQLTableInstaller extends H2TableInstaller {
 
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TIME ");
-            tableIndexSQL.append("ON ").append(model.getName()).append("(").append(RegisterSource.HEARTBEAT_TIME).append(", ").append(RegisterSource.REGISTER_TIME).append(")");
+            tableIndexSQL.append("ON ")
+                         .append(model.getName())
+                         .append("(")
+                         .append(RegisterSource.HEARTBEAT_TIME)
+                         .append(", ")
+                         .append(RegisterSource.REGISTER_TIME)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);

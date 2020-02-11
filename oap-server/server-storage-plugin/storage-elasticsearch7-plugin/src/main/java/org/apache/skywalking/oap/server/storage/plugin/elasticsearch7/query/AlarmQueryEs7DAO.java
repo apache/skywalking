@@ -37,22 +37,14 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class AlarmQueryEs7DAO extends EsDAO implements IAlarmQueryDAO {
 
     public AlarmQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
-    public Alarms getAlarm(final Integer scopeId,
-                           final String keyword,
-                           final int limit,
-                           final int from,
-                           final long startTB,
-                           final long endTB) throws IOException {
+    public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
+        final long startTB, final long endTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();

@@ -20,8 +20,5 @@ package org.apache.skywalking.e2e.service;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
-/**
- * @author kezhenxu94
- */
 public class ServicesQuery extends AbstractQuery<ServicesQuery> {
 }

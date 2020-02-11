@@ -21,9 +21,6 @@ package org.apache.skywalking.e2e.cluster;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author kezhenxu94
- */
 @SpringBootApplication
 public class Service1Application {
     public static void main(String[] args) {

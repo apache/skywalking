@@ -24,11 +24,9 @@ import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricsRemoteWorker extends AbstractWorker<Metrics> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsRemoteWorker.class);
@@ -42,7 +40,8 @@ public class MetricsRemoteWorker extends AbstractWorker<Metrics> {
         this.remoteReceiverWorkerName = remoteReceiverWorkerName;
     }
 
-    @Override public final void in(Metrics metrics) {
+    @Override
+    public final void in(Metrics metrics) {
         try {
             remoteSender.send(remoteReceiverWorkerName, metrics, Selector.HashCode);
         } catch (Throwable e) {

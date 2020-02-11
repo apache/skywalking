@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
@@ -37,10 +36,8 @@ import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 
 /**
  * {@link TraceAnnotationMethodInterceptor} create a local span and set the operation name which fetch from
- * <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace.operationName</code>. if the fetch value is blank string, and
- * the operation name will be the method name.
- *
- * @author zhangxin
+ * <code>org.apache.skywalking.apm.toolkit.trace.annotation.Trace.operationName</code>. if the fetch value is blank
+ * string, and the operation name will be the method name.
  */
 public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -97,7 +94,8 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

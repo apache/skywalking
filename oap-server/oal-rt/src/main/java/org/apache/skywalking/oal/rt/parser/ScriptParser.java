@@ -20,14 +20,15 @@ package org.apache.skywalking.oal.rt.parser;
 
 import java.io.IOException;
 import java.io.Reader;
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
-import org.apache.skywalking.oal.rt.grammar.*;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.apache.skywalking.oal.rt.grammar.OALLexer;
+import org.apache.skywalking.oal.rt.grammar.OALParser;
 
 /**
  * Script reader and parser.
- *
- * @author wusheng
  */
 public class ScriptParser {
     private OALLexer lexer;

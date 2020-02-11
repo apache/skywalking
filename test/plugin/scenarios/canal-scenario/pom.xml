@@ -26,7 +26,7 @@
     <version>5.0.0</version>
 
     <name>skywalking-canal-scenario</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <test.framework.version>1.1.2</test.framework.version>
