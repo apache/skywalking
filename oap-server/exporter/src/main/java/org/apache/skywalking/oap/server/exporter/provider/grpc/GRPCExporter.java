@@ -20,23 +20,39 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.*;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.exporter.*;
-import org.apache.skywalking.oap.server.exporter.grpc.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.ExportData;
+import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
+import org.apache.skywalking.oap.server.core.exporter.ExportStatus;
+import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
+import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
+import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author wusheng
  */
-public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<GRPCExporter.ExportData> {
+public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
     private static final Logger logger = LoggerFactory.getLogger(GRPCExporter.class);
 
     private GRPCExporterSetting setting;
@@ -173,28 +189,5 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
     @Override public void onExit() {
 
-    }
-
-    @Getter(AccessLevel.PRIVATE)
-    public class ExportData {
-        private MetricsMetaInfo meta;
-        private Metrics metrics;
-
-        public ExportData(MetricsMetaInfo meta, Metrics metrics) {
-            this.meta = meta;
-            this.metrics = metrics;
-        }
-    }
-
-    private class ExportStatus {
-        private boolean done = false;
-
-        private void done() {
-            done = true;
-        }
-
-        public boolean isDone() {
-            return done;
-        }
     }
 }

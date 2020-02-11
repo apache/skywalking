@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
+import org.apache.skywalking.oap.server.core.exporter.ExportStatus;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 
 /**
@@ -56,20 +57,23 @@ public class GRPCCallback implements AlarmCallback {
             return;
         }
 
+        ExportStatus status = new ExportStatus();
+
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
             alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
                 @Override public void onNext(Response response) {
-
+                    // ignore empty response
                 }
 
                 @Override public void onError(Throwable throwable) {
+                    status.done();
                     if (log.isDebugEnabled()) {
                         log.debug("Send alarm message failed: {}", throwable.getMessage());
                     }
-
                 }
 
                 @Override public void onCompleted() {
+                    status.done();
                     if (log.isDebugEnabled()) {
                         log.debug("Send alarm message successful.");
                     }
@@ -94,9 +98,28 @@ public class GRPCCallback implements AlarmCallback {
 
         streamObserver.onCompleted();
 
-        if (log.isDebugEnabled()) {
-            log.debug("Send {} alarm message to {}:{}.", alarmMessage.size(),
-                alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+        long sleepTime = 0;
+        long cycle = 100L;
+        /**
+         * For memory safe of oap, we must wait for the peer confirmation.
+         */
+        while (!status.isDone()) {
+            try {
+                sleepTime += cycle;
+                Thread.sleep(cycle);
+            } catch (InterruptedException e) {
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("Send {} alarm message to {}:{}.", alarmMessage.size(),
+                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+            }
+
+            if (sleepTime > 2000L) {
+                log.debug("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessage.size(),
+                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime);
+                cycle = 2000L;
+            }
         }
     }
 }

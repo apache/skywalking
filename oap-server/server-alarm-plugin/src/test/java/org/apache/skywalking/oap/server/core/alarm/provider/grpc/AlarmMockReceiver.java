@@ -46,7 +46,6 @@ public class AlarmMockReceiver {
             return new StreamObserver<AlarmMessage>() {
                 @Override
                 public void onNext(AlarmMessage value) {
-                    System.out.println(value.toString());
                     log.info("received alarm message: {}", value.toString());
                 }
 
