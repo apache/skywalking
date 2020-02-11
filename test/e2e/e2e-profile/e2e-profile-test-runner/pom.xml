@@ -47,7 +47,6 @@
     </dependencies>
 
     <properties>
-        <influxdb.version>1.7.9</influxdb.version>
         <provider.name>e2e-profile-service</provider.name>
         <e2e.container.version>1.4</e2e.container.version>
         <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-profile</e2e.container.name.prefix>

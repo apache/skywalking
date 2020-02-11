@@ -31,8 +31,6 @@
     <artifactId>e2e-influxdb</artifactId>
 
     <properties>
-        <influxdb.version>1.7.9</influxdb.version>
-        <influxdb-java.version>2.15</influxdb-java.version>
         <e2e.container.name.prefix>skywalking-e2e-container-${build.id}-single-node-influxdb</e2e.container.name.prefix>
     </properties>
 
