@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
-/**
- * @author jian.tan
- */
 public class ExportStatus {
     private boolean done = false;
 

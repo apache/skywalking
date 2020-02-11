@@ -22,9 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author jian.tan
- */
 @Setter
 @Getter
 public class GRPCAlarmSetting extends ModuleConfig {

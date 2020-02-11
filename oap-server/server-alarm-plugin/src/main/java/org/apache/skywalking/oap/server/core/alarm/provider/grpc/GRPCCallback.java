@@ -32,8 +32,6 @@ import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 
 /**
  * Use SkyWalking alarm grpc API call a remote methods.
- *
- * @author jian.tan
  */
 @Slf4j
 public class GRPCCallback implements AlarmCallback {

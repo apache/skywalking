@@ -27,9 +27,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Scope;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author jian.tan
- */
 public class GRPChookCallbackTest {
 
     private GRPCCallback grpcCallback;

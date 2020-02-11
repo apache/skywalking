@@ -22,9 +22,6 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 
-/**
- * @author jian.tan
- */
 @Getter
 public class ExportData {
     private MetricsMetaInfo meta;
