@@ -118,7 +118,7 @@ Example as following
 The alarm message will send through remote gRPC method by `Protobuf` content type. 
 The message format with following key information which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
 
-Example as following
+Part of protocol looks as following:
 ```protobuf
 message AlarmMessage {
     int64 scopeId = 1;

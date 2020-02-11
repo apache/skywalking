@@ -18,30 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Setter
 @Getter
-public class GRPCAlarmSetting extends ModuleConfig {
+@EqualsAndHashCode
+public class GRPCAlarmSetting {
     private String targetHost;
     private int targetPort;
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        final GRPCAlarmSetting that = (GRPCAlarmSetting) o;
-        return targetPort == that.targetPort &&
-            Objects.equals(targetHost, that.targetHost);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(targetHost, targetPort);
-    }
 }
