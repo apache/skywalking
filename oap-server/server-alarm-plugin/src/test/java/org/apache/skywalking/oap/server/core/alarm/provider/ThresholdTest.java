@@ -23,9 +23,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by dengming, 2019.04.27
- */
 public class ThresholdTest {
 
     @Test
@@ -45,7 +42,12 @@ public class ThresholdTest {
     public void setTypeMultipleValues() {
         Threshold threshold = new Threshold("my-rule", "75,80, 90, -");
         threshold.setType(MetricsValueType.MULTI_INTS);
-        assertArrayEquals(new Object[] {75, 80, 90, null}, threshold.getIntValuesThreshold());
+        assertArrayEquals(new Object[] {
+            75,
+            80,
+            90,
+            null
+        }, threshold.getIntValuesThreshold());
 
     }
 

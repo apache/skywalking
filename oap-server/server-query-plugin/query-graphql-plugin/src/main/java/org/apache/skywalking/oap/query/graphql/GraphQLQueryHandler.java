@@ -59,16 +59,18 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
     private final GraphQL graphQL;
 
-
-    @Override public String pathSpec() {
+    @Override
+    public String pathSpec() {
         return path;
     }
 
-    @Override protected JsonElement doGet(HttpServletRequest req) {
+    @Override
+    protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException("GraphQL only supports POST method");
     }
 
-    @Override protected JsonElement doPost(HttpServletRequest req) throws IOException {
+    @Override
+    protected JsonElement doPost(HttpServletRequest req) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(req.getInputStream()));
         String line;
         StringBuilder request = new StringBuilder();
@@ -78,12 +80,16 @@ public class GraphQLQueryHandler extends JettyJsonHandler {
 
         JsonObject requestJson = gson.fromJson(request.toString(), JsonObject.class);
 
-        return execute(requestJson.get(QUERY).getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
+        return execute(requestJson.get(QUERY)
+                                  .getAsString(), gson.fromJson(requestJson.get(VARIABLES), mapOfStringObjectType));
     }
 
     private JsonObject execute(String request, Map<String, Object> variables) {
         try {
-            ExecutionInput executionInput = ExecutionInput.newExecutionInput().query(request).variables(variables).build();
+            ExecutionInput executionInput = ExecutionInput.newExecutionInput()
+                                                          .query(request)
+                                                          .variables(variables)
+                                                          .build();
             ExecutionResult executionResult = graphQL.execute(executionInput);
             logger.debug("Execution result is {}", executionResult);
             Object data = executionResult.getData();

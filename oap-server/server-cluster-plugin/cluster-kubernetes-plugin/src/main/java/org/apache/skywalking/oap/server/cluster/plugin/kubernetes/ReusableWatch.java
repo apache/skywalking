@@ -22,7 +22,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
  * This watch can init or reset internal state.
  *
  * @param <T> event of watch
- * @author gaohongtao
  */
 public interface ReusableWatch<T> extends Iterable<T> {
 

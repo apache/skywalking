@@ -18,33 +18,40 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class TestModuleProvider extends ModuleProvider {
-    @Override public String name() {
+    @Override
+    public String name() {
         return "TestModule-Provider";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return TestModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {"BaseA", "BaseB"};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            "BaseA",
+            "BaseB"
+        };
     }
 
     class Config {

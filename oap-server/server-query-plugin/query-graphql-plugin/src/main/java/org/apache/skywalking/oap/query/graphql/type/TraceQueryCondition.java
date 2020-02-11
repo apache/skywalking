@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 
 @Getter
 @Setter

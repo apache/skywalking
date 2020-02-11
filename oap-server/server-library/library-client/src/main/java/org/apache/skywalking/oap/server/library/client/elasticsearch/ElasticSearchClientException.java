@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import org.apache.skywalking.oap.server.library.client.ClientException;
 
-/**
- * @author peng-yongsheng
- */
 public class ElasticSearchClientException extends ClientException {
 
     public ElasticSearchClientException(String message) {

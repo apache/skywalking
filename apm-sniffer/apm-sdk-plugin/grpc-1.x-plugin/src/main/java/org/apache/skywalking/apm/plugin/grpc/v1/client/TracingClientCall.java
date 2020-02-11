@@ -18,7 +18,14 @@
 
 package org.apache.skywalking.apm.plugin.grpc.v1.client;
 
-import io.grpc.*;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ForwardingClientCall;
+import io.grpc.ForwardingClientCallListener;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.Status;
+import javax.annotation.Nullable;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -29,15 +36,17 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 
-import javax.annotation.Nullable;
-
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.BLOCKING_CALL_EXIT_SPAN;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.CLIENT;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_CANCEL_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_CLOSE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.RESPONSE_ON_MESSAGE_OPERATION_NAME;
 import static org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil.formatOperationName;
 
 /**
  * Fully client tracing for gRPC servers.
- *
- * @author zhang xin, kanro
  */
 class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleForwardingClientCall<REQUEST, RESPONSE> {
 
@@ -47,7 +56,8 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
     private final MethodDescriptor<REQUEST, RESPONSE> methodDescriptor;
     private ContextSnapshot snapshot;
 
-    TracingClientCall(ClientCall<REQUEST, RESPONSE> delegate, MethodDescriptor<REQUEST, RESPONSE> method, Channel channel) {
+    TracingClientCall(ClientCall<REQUEST, RESPONSE> delegate, MethodDescriptor<REQUEST, RESPONSE> method,
+        Channel channel) {
         super(delegate);
 
         this.methodDescriptor = method;
@@ -58,7 +68,8 @@ class TracingClientCall<REQUEST, RESPONSE> extends ForwardingClientCall.SimpleFo
 
     @Override
     public void start(Listener<RESPONSE> responseListener, Metadata headers) {
-        final AbstractSpan blockingSpan = (AbstractSpan) ContextManager.getRuntimeContext().get(BLOCKING_CALL_EXIT_SPAN);
+        final AbstractSpan blockingSpan = (AbstractSpan) ContextManager.getRuntimeContext()
+                                                                       .get(BLOCKING_CALL_EXIT_SPAN);
         final ContextCarrier contextCarrier = new ContextCarrier();
 
         // Avoid create ExitSpan repeatedly, ExitSpan of blocking calls will create by BlockingCallInterceptor.

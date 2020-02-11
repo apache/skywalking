@@ -33,9 +33,6 @@ import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
@@ -47,7 +44,9 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     private MetricQueryService getMetricQueryService() {
         if (metricQueryService == null) {
-            this.metricQueryService = moduleManager.find(CoreModule.NAME).provider().getService(MetricQueryService.class);
+            this.metricQueryService = moduleManager.find(CoreModule.NAME)
+                                                   .provider()
+                                                   .getService(MetricQueryService.class);
         }
         return metricQueryService;
     }
@@ -56,7 +55,8 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownsampling.transform(duration
+            .getStep()), startTimeBucket, endTimeBucket);
     }
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
@@ -64,7 +64,8 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration
+            .getStep()), startTimeBucket, endTimeBucket);
     }
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear,
@@ -72,7 +73,8 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownsampling
+            .transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public List<IntValues> getSubsetOfMultipleLinearIntValues(final MetricCondition metrics,
@@ -80,7 +82,8 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getSubsetOfMultipleLinearIntValues(metrics.getName(), metrics.getId(), linearIndex, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getSubsetOfMultipleLinearIntValues(metrics.getName(), metrics.getId(), linearIndex, StepToDownsampling
+            .transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics,
@@ -88,6 +91,7 @@ public class MetricQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownsampling.transform(duration
+            .getStep()), startTimeBucket, endTimeBucket);
     }
 }

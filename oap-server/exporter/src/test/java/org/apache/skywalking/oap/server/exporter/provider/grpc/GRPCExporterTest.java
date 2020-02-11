@@ -33,9 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-/**
- * Created by dengming, 2019.04.20
- */
 public class GRPCExporterTest {
 
     private GRPCExporter exporter;
@@ -65,7 +62,8 @@ public class GRPCExporterTest {
     }
 
     public static class MockExporterMetrics extends MockMetrics implements WithMetadata {
-        @Override public MetricsMetaInfo getMeta() {
+        @Override
+        public MetricsMetaInfo getMeta() {
             return new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
         }
     }

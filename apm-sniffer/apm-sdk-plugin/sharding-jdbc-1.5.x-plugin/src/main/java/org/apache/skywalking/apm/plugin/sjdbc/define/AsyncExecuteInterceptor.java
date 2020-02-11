@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc.define;
 
 import com.dangdang.ddframe.rdb.sharding.constant.SQLType;
@@ -33,13 +32,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 /**
- * {@link AsyncExecuteInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine#asyncExecute(SQLType, Collection, List, ExecuteCallback)} 
- * so that the sql executor can get a {@link ContextSnapshot} of main thread when it is executed asynchronously.
- * 
- * @author gaohongtao
+ * {@link AsyncExecuteInterceptor} enhances {@link com.dangdang.ddframe.rdb.sharding.executor.ExecutorEngine#asyncExecute(SQLType,
+ * Collection, List, ExecuteCallback)} so that the sql executor can get a {@link ContextSnapshot} of main thread when it
+ * is executed asynchronously.
  */
 public class AsyncExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-    
+
     public static final String SNAPSHOT_DATA_KEY = "APM_SKYWALKING_SNAPSHOT_DATA";
 
     @Override
@@ -54,7 +52,8 @@ public class AsyncExecuteInterceptor implements InstanceMethodsAroundInterceptor
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
     }
 }

@@ -108,8 +108,14 @@ public class SkywalkingSpanActivationTest {
         spanBuilder = new SkywalkingSpanBuilder("test").withTag(Tags.COMPONENT.getKey(), "test");
         constructorWithSpanBuilderInterceptor = new ConstructorWithSpanBuilderInterceptor();
         spanLogInterceptor = new SpanLogInterceptor();
-        logArgument = new Object[] {111111111L, event};
-        logArgumentType = new Class[] {long.class, HashMap.class};
+        logArgument = new Object[] {
+            111111111L,
+            event
+        };
+        logArgumentType = new Class[] {
+            long.class,
+            HashMap.class
+        };
 
         setOperationNameInterceptor = new SpanSetOperationNameInterceptor();
         setOperationNameArgument = new Object[] {"testOperationName"};
@@ -166,7 +172,8 @@ public class SkywalkingSpanActivationTest {
     @Test
     public void testCreateExitSpanWithPeer() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), "8080");
+                   .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1")
+                   .withTag(Tags.PEER_PORT.getKey(), "8080");
         startSpan();
         stopSpan();
 
@@ -188,7 +195,8 @@ public class SkywalkingSpanActivationTest {
     @Test
     public void testInject() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
+                   .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1")
+                   .withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
 
         final Map<String, String> values = new HashMap<String, String>();
@@ -205,8 +213,11 @@ public class SkywalkingSpanActivationTest {
 
         };
 
-        injectInterceptor.afterMethod(enhancedInstance, null,
-            new Object[] {new TextMapContext(), Format.Builtin.TEXT_MAP, carrier}, null, null);
+        injectInterceptor.afterMethod(enhancedInstance, null, new Object[] {
+            new TextMapContext(),
+            Format.Builtin.TEXT_MAP,
+            carrier
+        }, null, null);
 
         String[] parts = values.get(SW6CarrierItem.HEADER_NAME).split("-", 9);
         Assert.assertEquals("0", parts[3]);
@@ -218,7 +229,8 @@ public class SkywalkingSpanActivationTest {
     @Test
     public void testExtractWithValidateContext() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
+                   .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1")
+                   .withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
         final Map<String, String> values = new HashMap<String, String>();
         TextMap carrier = new TextMap() {
@@ -236,8 +248,10 @@ public class SkywalkingSpanActivationTest {
 
         values.put(SW6CarrierItem.HEADER_NAME, "1-NDM0LjEyLjEyMTIz-MS4zNDMuMjIy-3-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
 
-        extractInterceptor.afterMethod(enhancedInstance, null,
-            new Object[] {Format.Builtin.TEXT_MAP, carrier}, new Class[] {}, null);
+        extractInterceptor.afterMethod(enhancedInstance, null, new Object[] {
+            Format.Builtin.TEXT_MAP,
+            carrier
+        }, new Class[] {}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
@@ -255,7 +269,8 @@ public class SkywalkingSpanActivationTest {
     @Test
     public void testExtractWithInValidateContext() throws Throwable {
         spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1").withTag(Tags.PEER_PORT.getKey(), 8080);
+                   .withTag(Tags.PEER_HOST_IPV4.getKey(), "127.0.0.1")
+                   .withTag(Tags.PEER_PORT.getKey(), 8080);
         startSpan();
 
         final Map<String, String> values = new HashMap<String, String>();
@@ -274,8 +289,10 @@ public class SkywalkingSpanActivationTest {
 
         values.put(SW6CarrierItem.HEADER_NAME, "aaaaaaaa|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|1.234.444");
 
-        extractInterceptor.afterMethod(enhancedInstance, null,
-            new Object[] {Format.Builtin.TEXT_MAP, carrier}, new Class[] {}, null);
+        extractInterceptor.afterMethod(enhancedInstance, null, new Object[] {
+            Format.Builtin.TEXT_MAP,
+            carrier
+        }, new Class[] {}, null);
         stopSpan();
 
         TraceSegment tracingSegment = assertTraceSemgnets();
@@ -342,8 +359,7 @@ public class SkywalkingSpanActivationTest {
         constructorWithSpanBuilderInterceptor.onConstruct(enhancedInstance, new Object[] {spanBuilder});
         spanLogInterceptor.afterMethod(enhancedInstance, null, logArgument, logArgumentType, null);
 
-        setOperationNameInterceptor.afterMethod(enhancedInstance, SkywalkingSpan.class.getMethod("setOperationName", String.class),
-            setOperationNameArgument, setOperationNameArgumentType, null);
+        setOperationNameInterceptor.afterMethod(enhancedInstance, SkywalkingSpan.class.getMethod("setOperationName", String.class), setOperationNameArgument, setOperationNameArgumentType, null);
     }
 
     private class MockEnhancedInstance implements EnhancedInstance {

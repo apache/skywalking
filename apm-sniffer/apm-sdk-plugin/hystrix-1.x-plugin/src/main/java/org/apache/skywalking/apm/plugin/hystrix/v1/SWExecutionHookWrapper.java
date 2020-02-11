@@ -27,8 +27,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 
 /**
  * {@link SWExecutionHookWrapper} wrapper the HystrixCommandExecutionHook object for tracing.
- *
- * @author zhang xin
  */
 public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
     private final HystrixCommandExecutionHook actual;
@@ -44,8 +42,8 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
             return;
         }
 
-        EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
-        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)enhancedInstance.getSkyWalkingDynamicField();
+        EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
+        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
         if (ContextManager.isActive()) {
             enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
         }
@@ -82,11 +80,13 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         actual.onFallbackSuccess(commandInstance);
     }
 
-    @Override public <T> Exception onRunError(HystrixInvokable<T> commandInstance, Exception e) {
+    @Override
+    public <T> Exception onRunError(HystrixInvokable<T> commandInstance, Exception e) {
         return actual.onRunError(commandInstance, e);
     }
 
-    @Override public <T> Exception onRunError(HystrixCommand<T> commandInstance, Exception e) {
+    @Override
+    public <T> Exception onRunError(HystrixCommand<T> commandInstance, Exception e) {
         return actual.onRunError(commandInstance, e);
     }
 
@@ -96,31 +96,38 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         return actual.onError(commandInstance, failureType, e);
     }
 
-    @Override public <T> void onSuccess(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onSuccess(HystrixInvokable<T> commandInstance) {
         actual.onSuccess(commandInstance);
     }
 
-    @Override public <T> T onEmit(HystrixInvokable<T> commandInstance, T value) {
+    @Override
+    public <T> T onEmit(HystrixInvokable<T> commandInstance, T value) {
         return actual.onEmit(commandInstance, value);
     }
 
-    @Override public <T> T onExecutionEmit(HystrixInvokable<T> commandInstance, T value) {
+    @Override
+    public <T> T onExecutionEmit(HystrixInvokable<T> commandInstance, T value) {
         return actual.onExecutionEmit(commandInstance, value);
     }
 
-    @Override public <T> T onFallbackEmit(HystrixInvokable<T> commandInstance, T value) {
+    @Override
+    public <T> T onFallbackEmit(HystrixInvokable<T> commandInstance, T value) {
         return actual.onFallbackEmit(commandInstance, value);
     }
 
-    @Override public <T> void onCacheHit(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onCacheHit(HystrixInvokable<T> commandInstance) {
         actual.onCacheHit(commandInstance);
     }
 
-    @Override public <T> void onThreadComplete(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onThreadComplete(HystrixInvokable<T> commandInstance) {
         actual.onThreadComplete(commandInstance);
     }
 
-    @Override public <T> void onThreadStart(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onThreadStart(HystrixInvokable<T> commandInstance) {
         actual.onThreadStart(commandInstance);
     }
 
@@ -130,65 +137,78 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
         return actual.onError(commandInstance, failureType, e);
     }
 
-    @Override public <T> Exception onFallbackError(HystrixCommand<T> commandInstance, Exception e) {
+    @Override
+    public <T> Exception onFallbackError(HystrixCommand<T> commandInstance, Exception e) {
         return actual.onFallbackError(commandInstance, e);
     }
 
-    @Override public <T> T onComplete(HystrixCommand<T> commandInstance, T response) {
+    @Override
+    public <T> T onComplete(HystrixCommand<T> commandInstance, T response) {
         return actual.onComplete(commandInstance, response);
     }
 
-    @Override public <T> T onComplete(HystrixInvokable<T> commandInstance, T response) {
+    @Override
+    public <T> T onComplete(HystrixInvokable<T> commandInstance, T response) {
         return actual.onComplete(commandInstance, response);
     }
 
-    @Override public <T> T onFallbackSuccess(HystrixCommand<T> commandInstance, T fallbackResponse) {
+    @Override
+    public <T> T onFallbackSuccess(HystrixCommand<T> commandInstance, T fallbackResponse) {
         return actual.onFallbackSuccess(commandInstance, fallbackResponse);
     }
 
-    @Override public <T> T onFallbackSuccess(HystrixInvokable<T> commandInstance, T fallbackResponse) {
+    @Override
+    public <T> T onFallbackSuccess(HystrixInvokable<T> commandInstance, T fallbackResponse) {
         return actual.onFallbackSuccess(commandInstance, fallbackResponse);
     }
 
-    @Override public <T> T onRunSuccess(HystrixCommand<T> commandInstance, T response) {
+    @Override
+    public <T> T onRunSuccess(HystrixCommand<T> commandInstance, T response) {
         return actual.onRunSuccess(commandInstance, response);
     }
 
-    @Override public <T> T onRunSuccess(HystrixInvokable<T> commandInstance, T response) {
+    @Override
+    public <T> T onRunSuccess(HystrixInvokable<T> commandInstance, T response) {
         return actual.onRunSuccess(commandInstance, response);
     }
 
-    @Override public <T> void onFallbackStart(HystrixCommand<T> commandInstance) {
+    @Override
+    public <T> void onFallbackStart(HystrixCommand<T> commandInstance) {
         actual.onFallbackStart(commandInstance);
     }
 
-    @Override public <T> void onRunStart(HystrixCommand<T> commandInstance) {
+    @Override
+    public <T> void onRunStart(HystrixCommand<T> commandInstance) {
         actual.onRunStart(commandInstance);
     }
 
-    @Override public <T> void onRunStart(HystrixInvokable<T> commandInstance) {
+    @Override
+    public <T> void onRunStart(HystrixInvokable<T> commandInstance) {
         actual.onRunStart(commandInstance);
     }
 
-    @Override public <T> void onStart(HystrixCommand<T> commandInstance) {
+    @Override
+    public <T> void onStart(HystrixCommand<T> commandInstance) {
         if (!(commandInstance instanceof EnhancedInstance)) {
             actual.onStart(commandInstance);
             return;
         }
 
-        EnhancedInstance enhancedInstance = (EnhancedInstance)commandInstance;
-        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache)enhancedInstance.getSkyWalkingDynamicField();
+        EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
+        EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
         if (ContextManager.isActive()) {
             enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
         }
         actual.onStart(commandInstance);
     }
 
-    @Override public <T> void onThreadComplete(HystrixCommand<T> commandInstance) {
+    @Override
+    public <T> void onThreadComplete(HystrixCommand<T> commandInstance) {
         actual.onThreadComplete(commandInstance);
     }
 
-    @Override public <T> void onThreadStart(HystrixCommand<T> commandInstance) {
+    @Override
+    public <T> void onThreadStart(HystrixCommand<T> commandInstance) {
         actual.onThreadStart(commandInstance);
     }
 }

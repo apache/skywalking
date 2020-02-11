@@ -20,11 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class LimitedSizeDataCollectionTest {
     @Test
     public void testPut() {
@@ -38,7 +36,13 @@ public class LimitedSizeDataCollectionTest {
         MockStorageData income = new MockStorageData(4);
         collection.put(income);
 
-        int[] expected = new int[] {3, 4, 5, 7, 9};
+        int[] expected = new int[] {
+            3,
+            4,
+            5,
+            7,
+            9
+        };
         int i = 0;
         for (MockStorageData data : collection.collection()) {
             Assert.assertEquals(expected[i++], data.latency);
@@ -52,20 +56,24 @@ public class LimitedSizeDataCollectionTest {
             this.latency = latency;
         }
 
-        @Override public int compareTo(Object o) {
-            MockStorageData target = (MockStorageData)o;
-            return (int)(latency - target.latency);
+        @Override
+        public int compareTo(Object o) {
+            MockStorageData target = (MockStorageData) o;
+            return (int) (latency - target.latency);
         }
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public boolean equals(Object o) {
+        @Override
+        public boolean equals(Object o) {
             return true;
         }
 
-        @Override public int hashCode() {
+        @Override
+        public int hashCode() {
             return Objects.hash(1);
         }
     }

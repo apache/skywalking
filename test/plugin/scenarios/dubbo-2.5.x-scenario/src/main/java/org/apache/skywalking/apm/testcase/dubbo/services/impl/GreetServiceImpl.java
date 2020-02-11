@@ -20,12 +20,10 @@ package org.apache.skywalking.apm.testcase.dubbo.services.impl;
 
 import org.apache.skywalking.apm.testcase.dubbo.services.GreetService;
 
-/**
- * @author ascrutae
- */
 public class GreetServiceImpl implements GreetService {
 
-    @Override public String doBusiness() {
+    @Override
+    public String doBusiness() {
         return "{name:'helloWorld'}";
     }
 }

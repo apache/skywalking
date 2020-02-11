@@ -29,10 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * this is a bridge for main thread and real request thread which mean hold the {@link org.apache.skywalking.apm.agent.core.context.ContextSnapshot} object to be continued
- * in "completed" method.that is mean the request is ready to submit
- *
- * @author lican
+ * this is a bridge for main thread and real request thread which mean hold the {@link
+ * org.apache.skywalking.apm.agent.core.context.ContextSnapshot} object to be continued in "completed" method.that is
+ * mean the request is ready to submit
  */
 public class SessionRequestInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -47,53 +46,56 @@ public class SessionRequestInstrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return any();
-            }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
 
-            @Override
-            public String getConstructorInterceptor() {
-                return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                @Override
+                public String getConstructorInterceptor() {
+                    return CONSTRUCTOR_INTERCEPTOR_CLASS;
+                }
             }
-        }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(COMPLETED_METHOD);
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(COMPLETED_METHOD);
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return SUCCESS_INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return SUCCESS_INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
-            }
-        },new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(TIMEOUT_METHOD).or(named(FAILED_METHOD).or(named(CANCEL_METHOD)));
-            }
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(TIMEOUT_METHOD).or(named(FAILED_METHOD).or(named(CANCEL_METHOD)));
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return FAIL_INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return FAIL_INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 

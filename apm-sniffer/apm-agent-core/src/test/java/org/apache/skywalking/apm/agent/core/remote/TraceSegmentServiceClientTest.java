@@ -105,8 +105,7 @@ public class TraceSegmentServiceClientTest {
         Whitebox.setInternalState(ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect", false);
         spy(serviceClient);
 
-        Whitebox.setInternalState(serviceClient, "serviceStub",
-            TraceSegmentReportServiceGrpc.newStub(grpcServerRule.getChannel()));
+        Whitebox.setInternalState(serviceClient, "serviceStub", TraceSegmentReportServiceGrpc.newStub(grpcServerRule.getChannel()));
         Whitebox.setInternalState(serviceClient, "status", GRPCChannelStatus.CONNECTED);
 
         upstreamSegments = new ArrayList<UpstreamSegment>();

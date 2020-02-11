@@ -21,12 +21,10 @@ package org.apache.skywalking.oap.server.core.worker;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class AbstractWorker<INPUT> {
-    
-    @Getter private final ModuleDefineHolder moduleDefineHolder;
+
+    @Getter
+    private final ModuleDefineHolder moduleDefineHolder;
 
     public AbstractWorker(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc;
 
 import com.dangdang.ddframe.rdb.sharding.executor.event.AbstractExecutionEvent;
@@ -36,10 +35,8 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
- * Sharding-jdbc provides {@link EventBusInstance} to help external systems getDefault events of sql execution.
- * {@link ExecuteEventListener} can getDefault sql statement start and end events, resulting in db span.
- * 
- * @author gaohongtao
+ * Sharding-jdbc provides {@link EventBusInstance} to help external systems getDefault events of sql execution. {@link
+ * ExecuteEventListener} can getDefault sql statement start and end events, resulting in db span.
  */
 public class ExecuteEventListener {
 
@@ -58,13 +55,14 @@ public class ExecuteEventListener {
     public void listenDQL(DQLExecutionEvent event) {
         handle(event, "QUERY");
     }
-    
+
     private void handle(AbstractExecutionEvent event, String operation) {
         switch (event.getEventExecutionType()) {
             case BEFORE_EXECUTE:
                 AbstractSpan span = ContextManager.createExitSpan("/SJDBC/BRANCH/" + operation, event.getDataSource());
                 if (ExecutorDataMap.getDataMap().containsKey(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY)) {
-                    ContextManager.continued((ContextSnapshot)ExecutorDataMap.getDataMap().get(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY));
+                    ContextManager.continued((ContextSnapshot) ExecutorDataMap.getDataMap()
+                                                                              .get(AsyncExecuteInterceptor.SNAPSHOT_DATA_KEY));
                 }
                 Tags.DB_TYPE.set(span, "sql");
                 Tags.DB_INSTANCE.set(span, event.getDataSource());

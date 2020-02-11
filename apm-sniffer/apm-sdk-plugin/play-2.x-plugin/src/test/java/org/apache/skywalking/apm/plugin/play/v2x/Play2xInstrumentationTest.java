@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.play.v2x;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -24,18 +25,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import play.api.http.EnabledFilters;
 
-/**
- * @author AI
- * 2019-08-15
- */
 public class Play2xInstrumentationTest {
 
     @Test
     public void testConstructorMatch() throws Exception {
         final ElementMatcher<MethodDescription> matcher = Play2xInstrumentation.getInjectConstructorMatcher();
-        final MethodDescription method = new MethodDescription.ForLoadedConstructor(
-            EnabledFilters.class.getConstructor(play.api.Environment.class, play.api.Configuration.class, play.api.inject.Injector.class)
-        );
+        final MethodDescription method = new MethodDescription.ForLoadedConstructor(EnabledFilters.class.getConstructor(play.api.Environment.class, play.api.Configuration.class, play.api.inject.Injector.class));
         Assert.assertTrue(matcher.matches(method));
     }
 

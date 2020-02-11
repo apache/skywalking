@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * profile task receiver
- *
- * @author MrPro
  */
 public class ProfileModule extends ModuleDefine {
 

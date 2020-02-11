@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
+import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -34,16 +35,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Properties;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-/**
- * @author caoyixiong
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(NamingFactory.class)
 @PowerMockIgnore("javax.management.*")
@@ -62,7 +58,6 @@ public class ClusterModuleNacosProviderTest {
     public void module() {
         assertEquals(ClusterModule.class, provider.module());
     }
-
 
     @Test
     public void createConfigBeanIfAbsent() {
@@ -109,6 +104,6 @@ public class ClusterModuleNacosProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = provider.requiredModules();
-        assertArrayEquals(new String[]{CoreModule.NAME}, modules);
+        assertArrayEquals(new String[] {CoreModule.NAME}, modules);
     }
 }

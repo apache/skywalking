@@ -20,8 +20,12 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
-import org.junit.*;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TracingContextTest {
     @BeforeClass
@@ -40,7 +44,8 @@ public class TracingContextTest {
     public void testSpanLimit() {
         final boolean[] dataReceived = {false};
         TracingContextListener listener = new TracingContextListener() {
-            @Override public void afterFinished(TraceSegment traceSegment) {
+            @Override
+            public void afterFinished(TraceSegment traceSegment) {
                 dataReceived[0] = true;
             }
         };
@@ -67,6 +72,5 @@ public class TracingContextTest {
             TracingContext.ListenerManager.remove(listener);
         }
     }
-
 
 }

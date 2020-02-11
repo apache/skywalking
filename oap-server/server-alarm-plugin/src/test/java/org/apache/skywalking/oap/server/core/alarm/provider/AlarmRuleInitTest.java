@@ -25,8 +25,9 @@ import org.junit.Test;
 public class AlarmRuleInitTest {
     @Test
     public void testInit() {
-        RulesReader reader = new RulesReader(this.getClass().getClassLoader()
-            .getResourceAsStream("alarm-settings.yml"));
+        RulesReader reader = new RulesReader(this.getClass()
+                                                 .getClassLoader()
+                                                 .getResourceAsStream("alarm-settings.yml"));
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();

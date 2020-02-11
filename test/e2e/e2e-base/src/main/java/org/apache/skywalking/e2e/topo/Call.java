@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.topo;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Call {
     private String id;
     private String source;
@@ -67,11 +64,6 @@ public class Call {
 
     @Override
     public String toString() {
-        return "Call{" +
-            "id='" + id + '\'' +
-            ", source='" + source + '\'' +
-            ", detectPoints=" + detectPoints +
-            ", target='" + target + '\'' +
-            '}';
+        return "Call{" + "id='" + id + '\'' + ", source='" + source + '\'' + ", detectPoints=" + detectPoints + ", target='" + target + '\'' + '}';
     }
 }

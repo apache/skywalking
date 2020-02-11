@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
 import org.apache.skywalking.apm.agent.core.conf.Constants;
@@ -28,7 +27,6 @@ import java.io.IOException;
 
 /**
  * Return the StackTrace of String with logEvent.getThrowable()
- * @author alvin
  */
 public class ThrowableConverter implements Converter {
     @Override

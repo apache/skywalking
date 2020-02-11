@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.service;
 
 import io.grpc.stub.StreamObserver;
@@ -27,7 +28,8 @@ public class MockInstancePingService extends ServiceInstancePingGrpc.ServiceInst
 
     @Override
     public void doPing(ServiceInstancePingPkg request, StreamObserver<Commands> responseObserver) {
-        ValidateData.INSTANCE.getRegistryItem().registryHeartBeat(new RegistryItem.HeartBeat(request.getServiceInstanceId()));
+        ValidateData.INSTANCE.getRegistryItem()
+                             .registryHeartBeat(new RegistryItem.HeartBeat(request.getServiceInstanceId()));
         responseObserver.onNext(Commands.getDefaultInstance());
         responseObserver.onCompleted();
     }

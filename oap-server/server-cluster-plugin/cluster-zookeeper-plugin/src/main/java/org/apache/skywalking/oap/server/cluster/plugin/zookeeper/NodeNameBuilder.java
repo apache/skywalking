@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
-/**
- * @author peng-yongsheng
- */
 public class NodeNameBuilder {
 
     public static String build(String moduleName, String providerName) {

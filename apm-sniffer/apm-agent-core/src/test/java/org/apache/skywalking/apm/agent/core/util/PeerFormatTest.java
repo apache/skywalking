@@ -22,10 +22,6 @@ import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author zhaoyuguang
- */
-
 public class PeerFormatTest {
 
     @Test

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.service.endpoint;
 
-/**
- * @author kezhenxu94
- */
 public class Endpoint {
     private String key;
     private String label;
@@ -43,9 +40,6 @@ public class Endpoint {
 
     @Override
     public String toString() {
-        return "Endpoint{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            '}';
+        return "Endpoint{" + "key='" + key + '\'' + ", label='" + label + '\'' + '}';
     }
 }

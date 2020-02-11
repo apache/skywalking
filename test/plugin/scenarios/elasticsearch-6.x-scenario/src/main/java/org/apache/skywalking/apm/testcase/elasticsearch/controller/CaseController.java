@@ -15,9 +15,8 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.apm.testcase.elasticsearch.controller;
 
-import static java.util.Collections.singletonMap;
+package org.apache.skywalking.apm.testcase.elasticsearch.controller;
 
 import java.io.IOException;
 import java.util.Map;
@@ -55,6 +54,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static java.util.Collections.singletonMap;
+
 @RestController
 @RequestMapping("/elasticsearch-case/case")
 public class CaseController {
@@ -90,7 +91,7 @@ public class CaseController {
 
             client.indices().refresh(new RefreshRequest(indexName), RequestOptions.DEFAULT);
 
-             //get
+            //get
             get(client, indexName);
             // search
             search(client, indexName);
@@ -130,10 +131,7 @@ public class CaseController {
         builder.endObject();
         request.mapping(builder);
 
-        request.settings(Settings.builder()
-            .put("index.number_of_shards", 1)
-            .put("index.number_of_replicas", 0)
-        );
+        request.settings(Settings.builder().put("index.number_of_shards", 1).put("index.number_of_replicas", 0));
 
         CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
         if (createIndexResponse.isAcknowledged() == false) {
@@ -151,7 +149,7 @@ public class CaseController {
             builder.field("title", "Java programing.");
         }
         builder.endObject();
-        IndexRequest indexRequest = new IndexRequest(indexName,"_doc", "1").source(builder);
+        IndexRequest indexRequest = new IndexRequest(indexName, "_doc", "1").source(builder);
 
         IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         if (indexResponse.status().getStatus() >= 400) {

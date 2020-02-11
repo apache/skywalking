@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.ehcache.v2;
 
-/**
- * @author MrPro
- */
 public class EhcacheEnhanceInfo {
 
     private String cacheName;

@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Get configuration from Consul.
- *
- * @author kezhenxu94
  */
 public class ConsulConfigurationProvider extends AbstractConfigurationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsulConfigurationProvider.class);

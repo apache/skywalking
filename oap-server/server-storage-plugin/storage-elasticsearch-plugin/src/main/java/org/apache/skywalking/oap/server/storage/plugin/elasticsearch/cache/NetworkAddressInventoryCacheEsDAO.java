@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
@@ -29,11 +30,9 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetworkAddressInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
@@ -46,12 +45,13 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
         this.resultWindowMaxSize = resultWindowMaxSize;
     }
 
-    @Override public int getAddressId(String networkAddress) {
+    @Override
+    public int getAddressId(String networkAddress) {
         try {
             String id = NetworkAddressInventory.buildId(networkAddress);
             GetResponse response = getClient().get(NetworkAddressInventory.INDEX_NAME, id);
             if (response.isExists()) {
-                return (int)response.getSource().getOrDefault(NetworkAddressInventory.SEQUENCE, 0);
+                return (int) response.getSource().getOrDefault(NetworkAddressInventory.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }
@@ -61,7 +61,8 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
         }
     }
 
-    @Override public NetworkAddressInventory get(int addressId) {
+    @Override
+    public NetworkAddressInventory get(int addressId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
@@ -80,12 +81,14 @@ public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetwork
         }
     }
 
-    @Override public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
+    @Override
+    public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
         List<NetworkAddressInventory> addressInventories = new ArrayList<>();
 
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME).gte(lastUpdateTime));
+            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME)
+                                                   .gte(lastUpdateTime));
             searchSourceBuilder.size(resultWindowMaxSize);
 
             SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);

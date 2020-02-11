@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.lang.reflect.Method;
@@ -30,7 +31,7 @@ public class ResponderInterceptor implements InstanceConstructorInterceptor, Ins
 
     @Override
     public void onConstruct(EnhancedInstance enhancedInstance, Object[] objects) {
-        Responder responder = (Responder)enhancedInstance;
+        Responder responder = (Responder) enhancedInstance;
         Protocol protocol = responder.getLocal();
         String prefix = protocol.getNamespace() + "." + protocol.getName() + ".";
         responder.addRPCPlugin(new SWServerRPCPlugin(prefix));

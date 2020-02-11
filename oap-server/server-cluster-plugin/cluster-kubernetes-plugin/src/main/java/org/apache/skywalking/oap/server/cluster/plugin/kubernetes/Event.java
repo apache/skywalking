@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 /**
  * The event of watch.
- *
- * @author gaohongtao
  */
 public class Event {
     private final String type;

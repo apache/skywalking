@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.sjdbc;
 
 import com.dangdang.ddframe.rdb.sharding.constant.SQLType;
@@ -95,7 +94,10 @@ public class InterceptorTest {
     public void setUp() throws SQLException {
         executeInterceptor = new ExecuteInterceptor();
         asyncExecuteInterceptor = new AsyncExecuteInterceptor();
-        allArguments = new Object[] {SQLType.DQL, null};
+        allArguments = new Object[] {
+            SQLType.DQL,
+            null
+        };
     }
 
     @Test
@@ -118,7 +120,8 @@ public class InterceptorTest {
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
         ES.submit(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 ExecutorDataMap.setDataMap(dataMap);
                 sendEvent("ds_1", "select * from t_order_1");
             }
@@ -148,7 +151,8 @@ public class InterceptorTest {
         asyncExecuteInterceptor.beforeMethod(null, null, null, null, null);
         final Map<String, Object> dataMap = ExecutorDataMap.getDataMap();
         ES.submit(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 ExecutorDataMap.setDataMap(dataMap);
                 sendError();
             }

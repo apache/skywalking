@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.query.entity;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
-/**
- * @author wusheng
- */
 public enum ContentType {
     TEXT(1), JSON(2), NONE(0);
 

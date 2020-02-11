@@ -30,8 +30,6 @@ import java.util.Map;
 
 /**
  * a simple parsing expression
- *
- * @author zhaoyuguang
  */
 
 public class CustomizeExpression {

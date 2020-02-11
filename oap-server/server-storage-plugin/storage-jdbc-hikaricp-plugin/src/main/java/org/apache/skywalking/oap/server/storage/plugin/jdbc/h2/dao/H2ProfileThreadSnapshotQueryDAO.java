@@ -18,6 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -27,12 +36,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.elasticsearch.search.sort.SortOrder;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -45,9 +48,16 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
     public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
         // search segment id list
         StringBuilder sql = new StringBuilder();
-        sql.append("select ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" from ").append(ProfileThreadSnapshotRecord.INDEX_NAME);
+        sql.append("select ")
+           .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+           .append(" from ")
+           .append(ProfileThreadSnapshotRecord.INDEX_NAME);
 
-        sql.append(" where ").append(ProfileThreadSnapshotRecord.TASK_ID).append(" = ? and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" = 0");
+        sql.append(" where ")
+           .append(ProfileThreadSnapshotRecord.TASK_ID)
+           .append(" = ? and ")
+           .append(ProfileThreadSnapshotRecord.SEQUENCE)
+           .append(" = 0");
 
         final LinkedList<String> segments = new LinkedList<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -76,7 +86,8 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), segments.toArray(new String[segments.size()]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), segments.toArray(new String[segments
+                .size()]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 

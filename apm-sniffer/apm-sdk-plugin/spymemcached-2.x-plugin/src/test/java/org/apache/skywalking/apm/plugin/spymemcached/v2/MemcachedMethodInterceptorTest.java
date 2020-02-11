@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spymemcached.v2;
 
 import java.lang.reflect.Method;
@@ -67,8 +66,14 @@ public class MemcachedMethodInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        allArgument = new Object[] {"OperationKey", "OperationValue"};
-        argumentType = new Class[] {String.class, String.class};
+        allArgument = new Object[] {
+            "OperationKey",
+            "OperationValue"
+        };
+        argumentType = new Class[] {
+            String.class,
+            String.class
+        };
 
         interceptor = new MemcachedMethodInterceptor();
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:11211");
@@ -104,7 +109,9 @@ public class MemcachedMethodInterceptorTest {
         LogDataEntity logData = logDataEntities.get(0);
         Assert.assertThat(logData.getLogs().size(), is(4));
         Assert.assertThat(logData.getLogs().get(0).getValue(), CoreMatchers.<Object>is("error"));
-        Assert.assertThat(logData.getLogs().get(1).getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
+        Assert.assertThat(logData.getLogs()
+                                 .get(1)
+                                 .getValue(), CoreMatchers.<Object>is(RuntimeException.class.getName()));
         Assert.assertNull(logData.getLogs().get(2).getValue());
         assertNotNull(logData.getLogs().get(3).getValue());
     }

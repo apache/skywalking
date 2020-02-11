@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.spring.transaction.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import test.org.apache.skywalking.apm.testcase.spring.transaction.dao.DemoDao;
 
-/**
- * @author zhaoyuguang
- */
 @Repository
 public class DemoDaoImpl implements DemoDao {
 

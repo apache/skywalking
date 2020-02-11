@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-/**
- * @author wusheng
- */
 public enum SegmentSource {
     Agent, Buffer
 }

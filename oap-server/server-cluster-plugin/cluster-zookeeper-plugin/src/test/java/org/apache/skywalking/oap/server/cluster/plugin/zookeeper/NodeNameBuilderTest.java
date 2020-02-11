@@ -15,15 +15,13 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-/**
- * Created by dengming, 2019.05.02
- */
 public class NodeNameBuilderTest {
 
     @Test

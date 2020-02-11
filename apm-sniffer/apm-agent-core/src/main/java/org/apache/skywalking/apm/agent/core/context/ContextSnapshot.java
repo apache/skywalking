@@ -26,8 +26,6 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 /**
  * The <code>ContextSnapshot</code> is a snapshot for current context. The snapshot carries the info for building
  * reference between two segments in two thread, but have a causal relationship.
- *
- * @author wusheng
  */
 public class ContextSnapshot {
     /**
@@ -51,8 +49,7 @@ public class ContextSnapshot {
 
     private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
-    ContextSnapshot(ID traceSegmentId, int spanId,
-        List<DistributedTraceId> distributedTraceIds) {
+    ContextSnapshot(ID traceSegmentId, int spanId, List<DistributedTraceId> distributedTraceIds) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
         if (distributedTraceIds != null) {
@@ -93,10 +90,7 @@ public class ContextSnapshot {
     }
 
     public boolean isValid() {
-        return traceSegmentId != null
-            && spanId > -1
-            && entryApplicationInstanceId != DictionaryUtil.nullValue()
-            && primaryDistributedTraceId != null;
+        return traceSegmentId != null && spanId > -1 && entryApplicationInstanceId != DictionaryUtil.nullValue() && primaryDistributedTraceId != null;
     }
 
     public String getEntryOperationName() {

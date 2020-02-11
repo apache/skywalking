@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * profile task execution context, it will create on process this profile task
- *
- * @author MrPro
  */
 public class ProfileTaskExecutionContext {
 
@@ -108,7 +106,6 @@ public class ProfileTaskExecutionContext {
         return true;
     }
 
-
     /**
      * profiling recheck
      */
@@ -155,8 +152,10 @@ public class ProfileTaskExecutionContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ProfileTaskExecutionContext that = (ProfileTaskExecutionContext) o;
         return Objects.equals(task, that.task);
     }

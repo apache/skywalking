@@ -18,8 +18,5 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class ModuleConfig {
 }

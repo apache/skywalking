@@ -21,10 +21,6 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class ElasticSearch7InsertRequest extends IndexRequest implements InsertRequest {
 
     public ElasticSearch7InsertRequest(String index, String id) {

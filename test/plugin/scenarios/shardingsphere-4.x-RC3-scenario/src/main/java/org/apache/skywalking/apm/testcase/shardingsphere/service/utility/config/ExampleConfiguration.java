@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config;
 
-import javax.sql.DataSource;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 public interface ExampleConfiguration {
-    
+
     DataSource createDataSource() throws SQLException;
-    
+
     DataSource getDataSource();
 }

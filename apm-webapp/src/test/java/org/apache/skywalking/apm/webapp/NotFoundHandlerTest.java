@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.apm.webapp;
 
+import java.io.IOException;
 import org.apache.skywalking.apm.webapp.proxy.NotFoundHandler;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,17 +31,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @author kezhenxu94
- */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(value = {NotFoundHandler.class, ClassPathResource.class})
+@PrepareForTest(value = {
+    NotFoundHandler.class,
+    ClassPathResource.class
+})
 public class NotFoundHandlerTest {
     @Mock
     private NotFoundHandler notFoundHandler;
@@ -55,9 +54,7 @@ public class NotFoundHandlerTest {
         ClassPathResource mockIndexResource = mock(ClassPathResource.class);
         when(mockIndexResource.getInputStream()).thenThrow(new IOException());
 
-        PowerMockito.whenNew(ClassPathResource.class)
-            .withArguments("/public/index.html")
-            .thenReturn(mockIndexResource);
+        PowerMockito.whenNew(ClassPathResource.class).withArguments("/public/index.html").thenReturn(mockIndexResource);
 
         when(notFoundHandler.renderDefaultPage()).thenCallRealMethod();
         ResponseEntity<String> response = notFoundHandler.renderDefaultPage();

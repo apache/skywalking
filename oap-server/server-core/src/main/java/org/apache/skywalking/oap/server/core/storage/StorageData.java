@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-/**
- * @author peng-yongsheng
- */
 public interface StorageData {
     String id();
 }

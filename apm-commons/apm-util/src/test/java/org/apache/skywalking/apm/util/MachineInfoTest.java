@@ -21,9 +21,6 @@ package org.apache.skywalking.apm.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author lican
- */
 public class MachineInfoTest {
 
     @Test

@@ -28,13 +28,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch.byMultiClassMatch;
 import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.DRIVER_CONNECT_INTERCEPTOR;
 
-/**
- * @author dingshaocheng lican
- */
 public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String ENHANCE_CLASS_NON_REG = "com.mysql.cj.jdbc.NonRegisteringDriver";
-
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -43,22 +39,23 @@ public class CacheIpsInstrumentation extends AbstractMysqlInstrumentation {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("connect");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("connect");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return DRIVER_CONNECT_INTERCEPTOR;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return DRIVER_CONNECT_INTERCEPTOR;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 

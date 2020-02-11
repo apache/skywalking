@@ -18,19 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.shardingsphere;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.ComponentScan;
+import javax.sql.DataSource;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.api.service.CommonService;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.config.ShardingDatabasesAndTablesConfigurationPrecise;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderItemRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.jdbc.JDBCOrderRepositoryImpl;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.repository.service.RawPojoService;
 import org.apache.skywalking.apm.testcase.shardingsphere.service.utility.config.DataSourceUtil;
-
-import javax.sql.DataSource;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {

@@ -21,10 +21,6 @@ package test.org.apache.skywalking.apm.testcase.customize.model;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author zhaoyuguang
- */
-
 public class Model0 {
 
     public Model0(String id, int num, Model1 model1, Map m, List l, Object[] os) {

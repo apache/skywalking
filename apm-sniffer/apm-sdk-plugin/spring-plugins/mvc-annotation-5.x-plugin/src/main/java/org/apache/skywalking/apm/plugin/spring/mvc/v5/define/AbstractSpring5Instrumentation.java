@@ -15,7 +15,6 @@
  *  limitations under the License.
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v5.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;

@@ -21,10 +21,8 @@ package org.apache.skywalking.oap.server.library.buffer;
 import java.util.Arrays;
 
 /**
- * This class is a util for sort or build file name for the gRPC streaming data.
- * Sort the files by the created time in order to read the data file sequential.
- *
- * @author peng-yongsheng
+ * This class is a util for sort or build file name for the gRPC streaming data. Sort the files by the created time in
+ * order to read the data file sequential.
  */
 class BufferFileUtils {
 
@@ -42,7 +40,7 @@ class BufferFileUtils {
             long t1 = Long.parseLong(f1.substring(0, f1.length() - 3).split(SEPARATOR)[1]);
             long t2 = Long.parseLong(f2.substring(0, f2.length() - 3).split(SEPARATOR)[1]);
 
-            return (int)(t1 - t2);
+            return (int) (t1 - t2);
         });
     }
 

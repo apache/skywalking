@@ -15,15 +15,13 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.spring.transaction;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/**
- * @author zhaoyuguang
- */
 @SpringBootApplication
 @EnableTransactionManagement
 public class Application {

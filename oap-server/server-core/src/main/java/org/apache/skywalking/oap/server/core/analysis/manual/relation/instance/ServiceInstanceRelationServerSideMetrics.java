@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.instance;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,12 +34,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * @author zhangwei
- */
 @Stream(name = ServiceInstanceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_RELATION, builder = ServiceInstanceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ServiceInstanceRelationServerSideMetrics extends Metrics {
 
@@ -48,19 +44,39 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
     public static final String DEST_SERVICE_INSTANCE_ID = "dest_service_instance_id";
     public static final String COMPONENT_ID = "component_id";
 
-    @Setter @Getter @Column(columnName = SOURCE_SERVICE_ID) private int sourceServiceId;
-    @Setter @Getter @Column(columnName = SOURCE_SERVICE_INSTANCE_ID) @IDColumn private int sourceServiceInstanceId;
-    @Setter @Getter @Column(columnName = DEST_SERVICE_ID) private int destServiceId;
-    @Setter @Getter @Column(columnName = DEST_SERVICE_INSTANCE_ID) @IDColumn private int destServiceInstanceId;
-    @Setter @Getter @Column(columnName = COMPONENT_ID) @IDColumn private int componentId;
-    @Setter(AccessLevel.PRIVATE) @Getter @Column(columnName = ENTITY_ID) @IDColumn private String entityId;
+    @Setter
+    @Getter
+    @Column(columnName = SOURCE_SERVICE_ID)
+    private int sourceServiceId;
+    @Setter
+    @Getter
+    @Column(columnName = SOURCE_SERVICE_INSTANCE_ID)
+    @IDColumn
+    private int sourceServiceInstanceId;
+    @Setter
+    @Getter
+    @Column(columnName = DEST_SERVICE_ID)
+    private int destServiceId;
+    @Setter
+    @Getter
+    @Column(columnName = DEST_SERVICE_INSTANCE_ID)
+    @IDColumn
+    private int destServiceInstanceId;
+    @Setter
+    @Getter
+    @Column(columnName = COMPONENT_ID)
+    @IDColumn
+    private int componentId;
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
+    @Column(columnName = ENTITY_ID)
+    @IDColumn
+    private String entityId;
 
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
-                new RelationDefineUtil.RelationDefine(sourceServiceInstanceId, destServiceInstanceId, componentId)
-        );
+        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(new RelationDefineUtil.RelationDefine(sourceServiceInstanceId, destServiceInstanceId, componentId));
         return splitJointId;
     }
 
@@ -159,13 +175,17 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         ServiceInstanceRelationServerSideMetrics that = (ServiceInstanceRelationServerSideMetrics) o;
 
-        if (sourceServiceInstanceId != that.sourceServiceInstanceId) return false;
-        if (destServiceInstanceId != that.destServiceInstanceId) return false;
+        if (sourceServiceInstanceId != that.sourceServiceInstanceId)
+            return false;
+        if (destServiceInstanceId != that.destServiceInstanceId)
+            return false;
         return componentId == that.componentId;
     }
 
@@ -183,9 +203,9 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
         public ServiceInstanceRelationServerSideMetrics map2Data(Map<String, Object> dbMap) {
             ServiceInstanceRelationServerSideMetrics metrics = new ServiceInstanceRelationServerSideMetrics();
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
-            metrics.setSourceServiceId(((Number)dbMap.get(SOURCE_SERVICE_ID)).intValue());
+            metrics.setSourceServiceId(((Number) dbMap.get(SOURCE_SERVICE_ID)).intValue());
             metrics.setSourceServiceInstanceId(((Number) dbMap.get(SOURCE_SERVICE_INSTANCE_ID)).intValue());
-            metrics.setDestServiceId(((Number)dbMap.get(DEST_SERVICE_ID)).intValue());
+            metrics.setDestServiceId(((Number) dbMap.get(DEST_SERVICE_ID)).intValue());
             metrics.setDestServiceInstanceId(((Number) dbMap.get(DEST_SERVICE_INSTANCE_ID)).intValue());
             metrics.setComponentId(((Number) dbMap.get(COMPONENT_ID)).intValue());
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());

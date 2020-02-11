@@ -153,17 +153,18 @@ public class HandleInterceptorTest {
 
     public static class MockService extends HttpChannel implements EnhancedInstance {
 
-        public MockService(Connector connector,
-            HttpConfiguration configuration, EndPoint endPoint,
+        public MockService(Connector connector, HttpConfiguration configuration, EndPoint endPoint,
             HttpTransport transport, HttpInput input) {
             super(connector, configuration, endPoint, transport, input);
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return null;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     }

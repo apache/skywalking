@@ -41,9 +41,6 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author chenpengfei
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class RootHandlerInterceptorTest {
@@ -59,13 +56,11 @@ public class RootHandlerInterceptorTest {
     @Mock
     private HttpHandler httpHandler;
 
-
     @Mock
     private MethodInterceptResult methodInterceptResult;
 
     @Mock
     private EnhancedInstance enhancedInstance;
-
 
     @Before
     public void setUp() throws Exception {
@@ -74,8 +69,8 @@ public class RootHandlerInterceptorTest {
 
     @Test
     public void testBindTracingHandler() throws Throwable {
-        Object[] arguments = new Object[]{httpHandler};
-        Class[] argumentType = new Class[]{HttpHandler.class};
+        Object[] arguments = new Object[] {httpHandler};
+        Class[] argumentType = new Class[] {HttpHandler.class};
         final Method method = Undertow.Builder.class.getMethod("setHandler", argumentType);
         rootHandlerInterceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, methodInterceptResult);
         rootHandlerInterceptor.afterMethod(enhancedInstance, method, arguments, argumentType, null);
@@ -86,8 +81,8 @@ public class RootHandlerInterceptorTest {
     public void testBindRoutingHandler() throws Throwable {
         RoutingHandler handler = new RoutingHandler();
         handler.add(Methods.GET, "/projects/{projectId}", httpHandler);
-        Object[] arguments = new Object[]{handler};
-        Class[] argumentType = new Class[]{HttpHandler.class};
+        Object[] arguments = new Object[] {handler};
+        Class[] argumentType = new Class[] {HttpHandler.class};
         final Method method = Undertow.Builder.class.getMethod("setHandler", argumentType);
         rootHandlerInterceptor.beforeMethod(enhancedInstance, method, arguments, argumentType, methodInterceptResult);
         rootHandlerInterceptor.afterMethod(enhancedInstance, method, arguments, argumentType, null);

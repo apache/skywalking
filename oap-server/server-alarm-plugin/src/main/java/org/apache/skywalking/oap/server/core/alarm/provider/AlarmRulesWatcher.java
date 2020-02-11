@@ -35,7 +35,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
  * Alarm rules' settings can be dynamically updated via configuration center(s), this class is responsible for
  * monitoring the configuration and parsing them into {@link Rules} and {@link #runningContext}.
  *
- * @author kezhenxu94
  * @since 6.5.0
  */
 @Slf4j

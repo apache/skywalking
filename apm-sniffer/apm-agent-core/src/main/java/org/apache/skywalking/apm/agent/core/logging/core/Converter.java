@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
-
 
 /**
  * The Converter, It is used to convert the LogEvent to the String.
- * @author alvin
  */
 public interface Converter {
 

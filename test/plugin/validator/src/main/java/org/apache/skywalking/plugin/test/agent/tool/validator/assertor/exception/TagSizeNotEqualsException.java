@@ -28,7 +28,8 @@ public class TagSizeNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("[tag size]: expected=>{%s}, actual=>{%s}\n", expected, actual);
     }
 }

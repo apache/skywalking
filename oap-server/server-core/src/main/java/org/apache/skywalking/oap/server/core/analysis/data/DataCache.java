@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-/**
- * @author peng-yongsheng
- */
 public interface DataCache {
 
     void writing();

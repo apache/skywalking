@@ -34,9 +34,6 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- * @author Alan Lau
- */
 public class ITClusterEtcdPluginTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ITClusterEtcdPluginTest.class);
@@ -141,7 +138,10 @@ public class ITClusterEtcdPluginTest {
 
     private EtcdEndpoint buildEndpoint(RemoteInstance instance) {
         Address address = instance.getAddress();
-        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost()).port(address.getPort()).serviceName(SERVICE_NAME).build();
+        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().host(address.getHost())
+                                                          .port(address.getPort())
+                                                          .serviceName(SERVICE_NAME)
+                                                          .build();
         return endpoint;
     }
 

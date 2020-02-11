@@ -18,23 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.storage.profile;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
  * process all profile task log query
- *
- * @author MrPro
  */
 public interface IProfileTaskLogQueryDAO extends DAO {
 
     /**
      * search all task log list in appoint profile task id
+     *
      * @param taskId profile task id, maybe null
-     * @return
      */
     List<ProfileTaskLog> getTaskLogList(final String taskId) throws IOException;
 

@@ -27,9 +27,6 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-/**
- * @author peng-yongsheng
- */
 public interface IMetricsQueryDAO extends DAO {
 
     IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,

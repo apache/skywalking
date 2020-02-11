@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.span;
 
 import java.util.Map;
@@ -35,24 +34,20 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 /**
  * {@link SkywalkingSpanActivation} defines five interceptors to enhance the methods and constructor in class
  * <code>SkywalkingSpan</code>.
- *
- * 1. The <code>ConstructorWithSpanBuilderInterceptor</code>
- * interceptor enhance the constructor with <code>SkywalkingSpanBuilder</code>
- * argument.
- *
- * 2. The <code>ConstructorWithTracerInterceptor</code>
- * interceptor enhance the constructor with <code>SkywalkingTracer</code>
- * argument.
- *
- * 3. The <code>SpanFinishInterceptor</code>
- * interceptor enhance the <code>finish</code> method that the first argument type is {@link Long}
- *
- * 4. The <code>SpanLogInterceptor</code>
- * interceptor enhance the <code>log</code> method that the first argument type is {@link Long} and the second
- * argument type is {@link Map}
- *
- * 5. The <code>SpanSetOperationNameInterceptor</code>
- * interceptor enhance the <code>setOperationName</code> method
+ * <p>
+ * 1. The <code>ConstructorWithSpanBuilderInterceptor</code> interceptor enhance the constructor with
+ * <code>SkywalkingSpanBuilder</code> argument.
+ * <p>
+ * 2. The <code>ConstructorWithTracerInterceptor</code> interceptor enhance the constructor with
+ * <code>SkywalkingTracer</code> argument.
+ * <p>
+ * 3. The <code>SpanFinishInterceptor</code> interceptor enhance the <code>finish</code> method that the first argument
+ * type is {@link Long}
+ * <p>
+ * 4. The <code>SpanLogInterceptor</code> interceptor enhance the <code>log</code> method that the first argument type
+ * is {@link Long} and the second argument type is {@link Map}
+ * <p>
+ * 5. The <code>SpanSetOperationNameInterceptor</code> interceptor enhance the <code>setOperationName</code> method
  **/
 public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -154,15 +149,18 @@ public class SkywalkingSpanActivation extends ClassInstanceMethodsEnhancePluginD
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("setTag").and(takesArgument(0, String.class)).and(takesArgument(1, String.class));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SET_TAG_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

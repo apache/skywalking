@@ -24,29 +24,32 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.ContentType;
+import org.apache.skywalking.oap.server.core.query.entity.Log;
+import org.apache.skywalking.oap.server.core.query.entity.LogState;
+import org.apache.skywalking.oap.server.core.query.entity.Logs;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 
-/**
- * @author wusheng
- */
 public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
     public LogQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+        LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
         long endSecondTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -62,7 +65,8 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_ID, serviceId));
         }
         if (serviceInstanceId != Const.NONE) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (endpointId != Const.NONE) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
@@ -74,9 +78,11 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(TRACE_ID, traceId));
         }
         if (LogState.ERROR.equals(state)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
         } else if (LogState.SUCCESS.equals(state)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
+            boolQueryBuilder.must()
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
         }
 
         sourceBuilder.size(limit);
@@ -85,17 +91,20 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         SearchResponse response = getClient().search(metricName, sourceBuilder);
 
         Logs logs = new Logs();
-        logs.setTotal((int)response.getHits().totalHits);
+        logs.setTotal((int) response.getHits().totalHits);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             Log log = new Log();
-            log.setServiceId(((Number)searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID)).intValue());
-            log.setServiceInstanceId(((Number)searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
-            log.setEndpointId(((Number)searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID)).intValue());
-            log.setError(BooleanUtils.valueToBoolean(((Number)searchHit.getSourceAsMap().get(AbstractLogRecord.IS_ERROR)).intValue()));
-            log.setStatusCode((String)searchHit.getSourceAsMap().get(AbstractLogRecord.STATUS_CODE));
-            log.setContentType(ContentType.instanceOf(((Number)searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
-            log.setContent((String)searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
+            log.setServiceId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID)).intValue());
+            log.setServiceInstanceId(((Number) searchHit.getSourceAsMap()
+                                                        .get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
+            log.setEndpointId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID)).intValue());
+            log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
+                                                                        .get(AbstractLogRecord.IS_ERROR)).intValue()));
+            log.setStatusCode((String) searchHit.getSourceAsMap().get(AbstractLogRecord.STATUS_CODE));
+            log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap()
+                                                                         .get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+            log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
 
             logs.getLogs().add(log);
         }

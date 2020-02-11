@@ -22,11 +22,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author caoyixiong
- */
 public class ClusterModuleNacosConfig extends ModuleConfig {
-    @Setter @Getter private String serviceName;
-    @Setter @Getter private String hostPort;
-    @Setter @Getter private String namespace = "public";
+    @Setter
+    @Getter
+    private String serviceName;
+    @Setter
+    @Getter
+    private String hostPort;
+    @Setter
+    @Getter
+    private String namespace = "public";
 }

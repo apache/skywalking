@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.spring.mvc.commons;
 
 import java.lang.reflect.Method;
@@ -25,7 +26,6 @@ import java.util.function.Function;
 
 /**
  * Tools for parsing path from annotation
- * @author jialong
  */
 public class ParsePathUtil {
 
@@ -38,7 +38,8 @@ public class ParsePathUtil {
         return Optional.ofNullable(result).orElse("");
     }
 
-    private static String recursiveMatches(Class claz, String methodName, Parameter[] parameters, Function<Method, String> parseFunc) {
+    private static String recursiveMatches(Class claz, String methodName, Parameter[] parameters,
+        Function<Method, String> parseFunc) {
         Class<?>[] interfaces = claz.getInterfaces();
         for (Class<?> implInterface : interfaces) {
             String path = recursiveMatches(implInterface, methodName, parameters, parseFunc);

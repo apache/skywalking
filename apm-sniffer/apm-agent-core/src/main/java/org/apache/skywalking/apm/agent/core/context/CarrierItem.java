@@ -23,9 +23,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.NAMESPACE;
 
-/**
- * @author wusheng
- */
 public class CarrierItem implements Iterator<CarrierItem> {
     private String headKey;
     private String headValue;

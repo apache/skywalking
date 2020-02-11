@@ -20,23 +20,38 @@ package org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch;
 
 import com.google.common.base.Strings;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
+import org.apache.skywalking.oap.server.core.query.entity.LogEntity;
+import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.entity.Ref;
+import org.apache.skywalking.oap.server.core.query.entity.RefType;
+import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -44,14 +59,21 @@ import org.elasticsearch.search.sort.SortOrder;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
-import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.*;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.ENDPOINT_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.ENDPOINT_NAME;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.IS_ERROR;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.LATENCY;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.SERVICE_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.START_TIME;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.TIME_BUCKET;
+import static org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord.TRACE_ID;
 
 public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Setter
     private ServiceInventoryCache serviceInventoryCache;
 
-    public ZipkinTraceQueryEsDAO(
-        ElasticSearchClient client) {
+    public ZipkinTraceQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
@@ -104,13 +126,13 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 break;
         }
 
-        TermsAggregationBuilder builder = AggregationBuilders.terms(TRACE_ID).field(TRACE_ID).size(limit)
-            .subAggregation(
-                AggregationBuilders.max(LATENCY).field(LATENCY)
-            )
-            .subAggregation(
-                AggregationBuilders.min(START_TIME).field(START_TIME)
-            );
+        TermsAggregationBuilder builder = AggregationBuilders.terms(TRACE_ID)
+                                                             .field(TRACE_ID)
+                                                             .size(limit)
+                                                             .subAggregation(AggregationBuilders.max(LATENCY)
+                                                                                                .field(LATENCY))
+                                                             .subAggregation(AggregationBuilders.min(START_TIME)
+                                                                                                .field(START_TIME));
         switch (queryOrder) {
             case BY_START_TIME:
                 builder.order(BucketOrder.aggregation(START_TIME, false));
@@ -133,9 +155,9 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             basicTrace.setSegmentId(termsBucket.getKeyAsString());
             Min startTime = termsBucket.getAggregations().get(START_TIME);
             Max latency = termsBucket.getAggregations().get(LATENCY);
-            basicTrace.setStart(String.valueOf((long)startTime.getValue()));
+            basicTrace.setStart(String.valueOf((long) startTime.getValue()));
             basicTrace.getEndpointNames().add("");
-            basicTrace.setDuration((int)latency.getValue());
+            basicTrace.setDuration((int) latency.getValue());
             basicTrace.setError(false);
             basicTrace.getTraceIds().add(termsBucket.getKeyAsString());
             traceBrief.getTraces().add(basicTrace);
@@ -144,11 +166,13 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         return traceBrief;
     }
 
-    @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    @Override
+    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         return Collections.emptyList();
     }
 
-    @Override public List<org.apache.skywalking.oap.server.core.query.entity.Span> doFlexibleTraceQuery(
+    @Override
+    public List<org.apache.skywalking.oap.server.core.query.entity.Span> doFlexibleTraceQuery(
         String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(TRACE_ID, traceId));
@@ -160,8 +184,8 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         List<org.apache.skywalking.oap.server.core.query.entity.Span> spanList = new ArrayList<>();
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            int serviceId = ((Number)searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
-            String dataBinaryBase64 = (String)searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
+            int serviceId = ((Number) searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
+            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
             Span span = SpanBytesDecoder.PROTO3.decodeOne(Base64.getDecoder().decode(dataBinaryBase64));
 
             org.apache.skywalking.oap.server.core.query.entity.Span swSpan = new org.apache.skywalking.oap.server.core.query.entity.Span();

@@ -19,9 +19,17 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -31,11 +39,9 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDataCache<Metrics>> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsPersistentWorker.class);
@@ -50,8 +56,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final MetricsTransWorker transWorker;
     private final boolean enableDatabaseSession;
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO, AbstractWorker<Metrics> nextAlarmWorker,
-        AbstractWorker<ExportEvent> nextExportWorker, MetricsTransWorker transWorker, boolean enableDatabaseSession) {
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
+        AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
+        MetricsTransWorker transWorker, boolean enableDatabaseSession) {
         super(moduleDefineHolder);
         this.model = model;
         this.databaseSession = new HashMap<>(100);
@@ -78,19 +85,23 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
     }
 
-    @Override void onWork(Metrics metrics) {
+    @Override
+    void onWork(Metrics metrics) {
         cacheData(metrics);
     }
 
-    @Override public void in(Metrics metrics) {
+    @Override
+    public void in(Metrics metrics) {
         dataCarrier.produce(metrics);
     }
 
-    @Override public MergeDataCache<Metrics> getCache() {
+    @Override
+    public MergeDataCache<Metrics> getCache() {
         return mergeDataCache;
     }
 
-    @Override public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
+    @Override
+    public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
         long start = System.currentTimeMillis();
 
         int i = 0;
@@ -155,7 +166,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
     }
 
-    @Override public void cacheData(Metrics input) {
+    @Override
+    public void cacheData(Metrics input) {
         mergeDataCache.writing();
         if (mergeDataCache.containsKey(input)) {
             Metrics metrics = mergeDataCache.get(input);
@@ -189,7 +201,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
     }
 
-    @Override public void endOfRound(long tookTime) {
+    @Override
+    public void endOfRound(long tookTime) {
         if (enableDatabaseSession) {
             Iterator<Metrics> iterator = databaseSession.values().iterator();
             while (iterator.hasNext()) {
@@ -210,19 +223,23 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             this.persistent = persistent;
         }
 
-        @Override public void init() {
+        @Override
+        public void init() {
 
         }
 
-        @Override public void consume(List<Metrics> data) {
+        @Override
+        public void consume(List<Metrics> data) {
             data.forEach(persistent::onWork);
         }
 
-        @Override public void onError(List<Metrics> data, Throwable t) {
+        @Override
+        public void onError(List<Metrics> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }

@@ -16,16 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.conf;
 
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 
 /**
- * The <code>RemoteDownstreamConfig</code> includes configurations from collector side.
- * All of them initialized null, Null-Value or empty collection.
- *
- * @author wusheng
+ * The <code>RemoteDownstreamConfig</code> includes configurations from collector side. All of them initialized null,
+ * Null-Value or empty collection.
  */
 public class RemoteDownstreamConfig {
     public static class Agent {

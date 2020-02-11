@@ -30,9 +30,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.PrefixMatch;
 
 import static org.apache.skywalking.apm.agent.core.plugin.match.PrefixMatch.nameStartsWith;
 
-/**
- * @author kezhenxu94
- */
 public class ThreadingConfig {
     private static final ILog LOGGER = LogManager.getLogger(ThreadingConfig.class);
 

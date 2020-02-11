@@ -23,9 +23,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author kezhenxu94
- */
 @Getter
 @Setter
 @ToString

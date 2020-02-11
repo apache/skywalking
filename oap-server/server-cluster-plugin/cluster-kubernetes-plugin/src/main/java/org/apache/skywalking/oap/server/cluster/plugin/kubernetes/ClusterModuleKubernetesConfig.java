@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * The configuration of the module of cluster.kubernetes
- *
- * @author gaohongtao
  */
 public class ClusterModuleKubernetesConfig extends ModuleConfig {
     private int watchTimeoutSeconds;

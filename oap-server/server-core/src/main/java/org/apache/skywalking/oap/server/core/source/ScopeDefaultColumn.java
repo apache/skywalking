@@ -29,8 +29,6 @@ import lombok.Setter;
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)
  * automatically.
- *
- * @author wusheng
  */
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)

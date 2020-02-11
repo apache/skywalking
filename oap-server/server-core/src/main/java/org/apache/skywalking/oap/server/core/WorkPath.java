@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Locate the base work path of OAP backend.
- *
- * @author wusheng
  */
 public class WorkPath {
     private static final Logger logger = LoggerFactory.getLogger(WorkPath.class);

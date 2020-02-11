@@ -15,12 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.network.constants;
 
 /**
  * profile task limit constants
- *
- * @author MrPro
  */
 public class ProfileConstants {
 

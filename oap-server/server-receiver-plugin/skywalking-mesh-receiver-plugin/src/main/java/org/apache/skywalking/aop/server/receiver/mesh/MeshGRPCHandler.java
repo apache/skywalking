@@ -19,11 +19,16 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
+import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetricServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMetricServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(MeshGRPCHandler.class);
@@ -31,15 +36,17 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
     private HistogramMetrics histogram;
 
     public MeshGRPCHandler(ModuleManager moduleManager) {
-        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        histogram = metricsCreator.createHistogramMetric("mesh_grpc_in_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     @Override
     public StreamObserver<ServiceMeshMetric> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
         return new StreamObserver<ServiceMeshMetric>() {
-            @Override public void onNext(ServiceMeshMetric metrics) {
+            @Override
+            public void onNext(ServiceMeshMetric metrics) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Received mesh metrics: {}", metrics);
                 }
@@ -51,12 +58,14 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
                 }
             }
 
-            @Override public void onError(Throwable throwable) {
+            @Override
+            public void onError(Throwable throwable) {
                 logger.error(throwable.getMessage(), throwable);
                 responseObserver.onCompleted();
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(MeshProbeDownstream.newBuilder().build());
                 responseObserver.onCompleted();
             }

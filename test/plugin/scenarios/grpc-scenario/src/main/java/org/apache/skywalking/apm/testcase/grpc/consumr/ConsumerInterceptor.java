@@ -27,21 +27,22 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import javax.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.annotation.Nullable;
 
 public class ConsumerInterceptor implements ClientInterceptor {
 
     private Logger logger = LogManager.getLogger(ConsumerInterceptor.class);
 
-    @Override public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> descriptor,
+    @Override
+    public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> descriptor,
         CallOptions options, Channel channel) {
         logger.info("start interceptor!");
         logger.info("method type: {}", descriptor.getType());
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(channel.newCall(descriptor, options)) {
-            @Override public void start(Listener<RespT> responseListener, Metadata headers) {
+            @Override
+            public void start(Listener<RespT> responseListener, Metadata headers) {
                 logger.info("Peer: {}", channel.authority());
                 logger.info("Operation Name : {}", descriptor.getFullMethodName());
                 Interceptor<RespT> tracingResponseListener = new Interceptor(responseListener);
@@ -49,17 +50,20 @@ public class ConsumerInterceptor implements ClientInterceptor {
                 delegate().start(tracingResponseListener, headers);
             }
 
-            @Override public void cancel(@Nullable String message, @Nullable Throwable cause) {
+            @Override
+            public void cancel(@Nullable String message, @Nullable Throwable cause) {
                 logger.info("cancel");
                 super.cancel(message, cause);
             }
 
-            @Override public void halfClose() {
+            @Override
+            public void halfClose() {
                 logger.info("halfClose");
                 super.halfClose();
             }
 
-            @Override public void sendMessage(ReqT message) {
+            @Override
+            public void sendMessage(ReqT message) {
                 logger.info("sendMessage ....");
                 super.sendMessage(message);
             }
@@ -96,7 +100,8 @@ public class ConsumerInterceptor implements ClientInterceptor {
             delegate().onClose(status, trailers);
         }
 
-        @Override public void onReady() {
+        @Override
+        public void onReady() {
             logger.info("on Ready");
             super.onReady();
         }

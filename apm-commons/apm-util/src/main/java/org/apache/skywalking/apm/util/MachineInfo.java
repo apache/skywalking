@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.util;
 
 import java.lang.management.ManagementFactory;

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorato
 
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 
-/**
- * @author peng-yongsheng
- */
 public class ReferenceDecorator implements StandardBuilder {
 
     private boolean isOrigin = true;
@@ -147,7 +144,8 @@ public class ReferenceDecorator implements StandardBuilder {
         referenceBuilderV2.setNetworkAddress(value);
     }
 
-    @Override public void toBuilder() {
+    @Override
+    public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
             referenceBuilderV2 = referenceObjectV2.toBuilder();

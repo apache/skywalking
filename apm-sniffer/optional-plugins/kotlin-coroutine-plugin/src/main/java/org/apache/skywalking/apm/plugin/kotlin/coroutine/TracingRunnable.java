@@ -24,11 +24,10 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * {@link Runnable} wrapper with trace context snapshot, it will create span
- * with context snapshot around {@link Runnable} runs.
+ * {@link Runnable} wrapper with trace context snapshot, it will create span with context snapshot around {@link
+ * Runnable} runs.
  * <p>
- * A class implementation will be cheaper cost than lambda with captured
- * variables implementation.
+ * A class implementation will be cheaper cost than lambda with captured variables implementation.
  */
 class TracingRunnable implements Runnable {
     private static final String COROUTINE = "/Kotlin/Coroutine";
@@ -42,13 +41,10 @@ class TracingRunnable implements Runnable {
     }
 
     /**
-     * Wrap {@link Runnable} by {@link TracingRunnable} if active trace context
-     * existed.
+     * Wrap {@link Runnable} by {@link TracingRunnable} if active trace context existed.
      *
      * @param delegate {@link Runnable} to wrap.
-     *
-     * @return Wrapped {@link TracingRunnable} or original {@link Runnable} if
-     * trace context not existed.
+     * @return Wrapped {@link TracingRunnable} or original {@link Runnable} if trace context not existed.
      */
     public static Runnable wrapOrNot(Runnable delegate) {
         // Just wrap continuation with active trace context

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;

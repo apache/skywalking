@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.metrics;
 
-/**
- * @author kezhenxu94
- */
 public class MetricsValue {
     private String value;
 
@@ -35,8 +32,6 @@ public class MetricsValue {
 
     @Override
     public String toString() {
-        return "MetricsValue{" +
-            "value='" + value + '\'' +
-            '}';
+        return "MetricsValue{" + "value='" + value + '\'' + '}';
     }
 }

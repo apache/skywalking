@@ -24,9 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author kezhenxu94, jian.tan
- */
 @RestController
 @RequestMapping("/e2e")
 public class TestController {

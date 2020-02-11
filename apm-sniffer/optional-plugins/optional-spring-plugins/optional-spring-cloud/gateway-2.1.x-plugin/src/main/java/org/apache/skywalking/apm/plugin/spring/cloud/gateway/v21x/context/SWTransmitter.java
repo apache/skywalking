@@ -21,10 +21,6 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
-/**
- * @author zhaoyuguang
- */
-
 public class SWTransmitter {
 
     private AbstractSpan spanGateway;

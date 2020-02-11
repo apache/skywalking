@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
 import java.util.Objects;
 
-/**
- * @author wusheng
- */
 public class EqualMatch {
     public boolean match(int left, int right) {
         return left == right;

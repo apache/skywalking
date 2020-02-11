@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3;
 
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.PathMappingCache;
@@ -28,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 /**
  * {@link ControllerConstructorInterceptor} cache the value of {@link RequestMapping} annotation with method in class
  * annotation with {@link org.springframework.stereotype.Controller}.
- *
- * @author zhangxin
  */
 public class ControllerConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override

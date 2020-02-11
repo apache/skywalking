@@ -28,10 +28,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class OAPServerBootstrap {
 
     private static final Logger logger = LoggerFactory.getLogger(OAPServerBootstrap.class);
@@ -46,10 +42,12 @@ public class OAPServerBootstrap {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
 
-            manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class).createGauge("uptime",
-                "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
-                // Set uptime to second
-                .setValue(System.currentTimeMillis() / 1000d);
+            manager.find(TelemetryModule.NAME)
+                   .provider()
+                   .getService(MetricsCreator.class)
+                   .createGauge("uptime", "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
+                   // Set uptime to second
+                   .setValue(System.currentTimeMillis() / 1000d);
 
             if (RunningMode.isInitMode()) {
                 logger.info("OAP starts up in init mode successfully, exit now...");

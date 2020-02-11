@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.play.v2x;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -28,10 +29,6 @@ import scala.reflect.ClassTag;
 
 import java.util.Objects;
 
-/**
- * @author AI
- * 2019-08-07
- */
 public class HttpFiltersInterceptorTest {
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
@@ -73,7 +70,11 @@ public class HttpFiltersInterceptorTest {
 
     @Test
     public void testBindingInjector() {
-        Object[] arguments = new Object[]{null, null, injector};
+        Object[] arguments = new Object[] {
+            null,
+            null,
+            injector
+        };
         interceptor.onConstruct(enhancedInstance, arguments);
         Assert.assertTrue(Objects.nonNull(enhancedInstance.getSkyWalkingDynamicField()));
         Assert.assertTrue(enhancedInstance.getSkyWalkingDynamicField() instanceof Injector);

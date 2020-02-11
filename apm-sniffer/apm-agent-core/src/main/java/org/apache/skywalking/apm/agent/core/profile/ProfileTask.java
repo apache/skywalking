@@ -22,8 +22,6 @@ import java.util.Objects;
 
 /**
  * Profile task bean, receive from OAP server
- *
- * @author MrPro
  */
 public class ProfileTask {
 
@@ -117,17 +115,13 @@ public class ProfileTask {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ProfileTask that = (ProfileTask) o;
-        return duration == that.duration &&
-                minDurationThreshold == that.minDurationThreshold &&
-                threadDumpPeriod == that.threadDumpPeriod &&
-                maxSamplingCount == that.maxSamplingCount &&
-                startTime == that.startTime &&
-                createTime == that.createTime &&
-                taskId.equals(that.taskId) &&
-                fistSpanOPName.equals(that.fistSpanOPName);
+        return duration == that.duration && minDurationThreshold == that.minDurationThreshold && threadDumpPeriod == that.threadDumpPeriod && maxSamplingCount == that.maxSamplingCount && startTime == that.startTime && createTime == that.createTime && taskId
+            .equals(that.taskId) && fistSpanOPName.equals(that.fistSpanOPName);
     }
 
     @Override

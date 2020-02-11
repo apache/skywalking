@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.log.log4j.v2.x;
 
 import org.apache.logging.log4j.core.LogEvent;
@@ -25,12 +24,9 @@ import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 
 /**
- * {@link TraceIdConverter} is a log4j2 plugin, by annotation as {@link Plugin}.
- * It convert the pattern key: traceId.
- * Use '%traceId' in log4j2's config.
- * '%traceId' will output as TID:xxxx
+ * {@link TraceIdConverter} is a log4j2 plugin, by annotation as {@link Plugin}. It convert the pattern key: traceId.
+ * Use '%traceId' in log4j2's config. '%traceId' will output as TID:xxxx
  * <p>
- * Created by wusheng on 2016/12/7.
  */
 @Plugin(name = "TraceIdConverter", category = "Converter")
 @ConverterKeys({"traceId"})
@@ -39,7 +35,7 @@ public class TraceIdConverter extends LogEventPatternConverter {
     /**
      * Constructs an instance of LoggingEventPatternConverter.
      *
-     * @param name name of converter.
+     * @param name  name of converter.
      * @param style CSS style for output.
      */
     protected TraceIdConverter(String name, String style) {
