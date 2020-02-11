@@ -15,21 +15,30 @@
  * limitations under the License.
  *
  */
+package org.apache.skywalking.oap.server.core.profile.analyze;
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
-import java.util.*;
-import lombok.*;
+import java.util.List;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-@ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
+import static org.junit.Assert.*;
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
+@Data
+public class ProfileStackAnalyze {
+
+    private ProfileStackData data;
+    private List<ProfileStackElementMatcher> expected;
+
+    public void analyzeAndAssert() {
+        List<ProfileStack> stacks = data.transform();
+        List<ProfileStackTree> trees = new ProfileAnalyzer(null, 100, 500).analyze(stacks);
+
+        assertNotNull(trees);
+        assertEquals(trees.size(), expected.size());
+        for (int i = 0; i < trees.size(); i++) {
+            expected.get(i).verify(trees.get(i));
+        }
     }
+
 }

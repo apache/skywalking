@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
@@ -38,6 +39,7 @@ import java.util.Map;
  * @author kezhenxu94
  * @since 6.5.0
  */
+@Slf4j
 public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
@@ -90,6 +92,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.rules = newRules;
         this.runningContext = newRunningContext;
         this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
+        log.info("Update alarm rules to {}", rules);
     }
 
     @Override
