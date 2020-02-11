@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Watch the api {@literal https://v1-9.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.9/#watch-64}.
- *
- * @author gaohongtao
  */
 public class NamespacedPodListWatch implements ReusableWatch<Event> {
 
@@ -59,7 +57,8 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
         this.watchTimeoutSeconds = watchTimeoutSeconds;
     }
 
-    @Override public void initOrReset() {
+    @Override
+    public void initOrReset() {
         ApiClient client;
         try {
             client = Config.defaultClient();
@@ -70,29 +69,29 @@ public class NamespacedPodListWatch implements ReusableWatch<Event> {
         Configuration.setDefaultApiClient(client);
         CoreV1Api api = new CoreV1Api();
         try {
-            watch = Watch.createWatch(
-                client,
-                api.listNamespacedPodCall(namespace, null, null, null,
-                    null, labelSelector, Integer.MAX_VALUE,null,null, Boolean.TRUE,
-                    null, null),
-                new TypeToken<Watch.Response<V1Pod>>() { }.getType());
+            watch = Watch.createWatch(client, api.listNamespacedPodCall(namespace, null, null, null, null, labelSelector, Integer.MAX_VALUE, null, null, Boolean.TRUE, null, null), new TypeToken<Watch.Response<V1Pod>>() {
+            }.getType());
         } catch (final ApiException e) {
             logger.error("code:{} header:{} body:{}", e.getCode(), e.getResponseHeaders(), e.getResponseBody());
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    @Override public Iterator<Event> iterator() {
+    @Override
+    public Iterator<Event> iterator() {
         final Iterator<Watch.Response<V1Pod>> watchItr = watch.iterator();
         return new Iterator<Event>() {
-            @Override public boolean hasNext() {
+            @Override
+            public boolean hasNext() {
                 return wrap(watchItr::hasNext, false);
             }
 
-            @Override public Event next() {
+            @Override
+            public Event next() {
                 return wrap(() -> {
                     final Watch.Response<V1Pod> response = watchItr.next();
-                    return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus().getPodIP());
+                    return new Event(response.type, response.object.getMetadata().getUid(), response.object.getStatus()
+                                                                                                           .getPodIP());
                 }, null);
             }
 

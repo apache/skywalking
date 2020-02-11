@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37;
 
 import com.mongodb.connection.Cluster;
@@ -30,9 +29,6 @@ import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoRemotePeerHelper
 
 import java.lang.reflect.Method;
 
-/**
- * @author scolia
- */
 @SuppressWarnings("Duplicates")
 public class MongoDBClientDelegateInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
@@ -47,14 +43,14 @@ public class MongoDBClientDelegateInterceptor implements InstanceConstructorInte
     }
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) {
         // do nothing
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) {
         if (ret instanceof EnhancedInstance) {
             // pass remotePeer to OperationExecutor, which will be wrapper as EnhancedInstance
             // @see: org.apache.skywalking.apm.plugin.mongodb.v3.define.v37.MongoDBOperationExecutorInstrumentation
@@ -69,7 +65,8 @@ public class MongoDBClientDelegateInterceptor implements InstanceConstructorInte
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         // do nothing
     }
 }

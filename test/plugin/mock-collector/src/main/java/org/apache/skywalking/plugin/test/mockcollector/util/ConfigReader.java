@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.util;
 
 import java.io.IOException;
@@ -34,10 +35,10 @@ public class ConfigReader {
     }
 
     public static String getGrpcBindHost() {
-        return config.getProperty("grpc_bind_host","127.0.0.1");
+        return config.getProperty("grpc_bind_host", "127.0.0.1");
     }
 
     public static int getGrpcBindPort() {
-        return Integer.parseInt(config.getProperty("grpc_bind_port","19876"));
+        return Integer.parseInt(config.getProperty("grpc_bind_port", "19876"));
     }
 }

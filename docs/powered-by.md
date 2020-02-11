@@ -60,6 +60,7 @@ or providing commercial products including Apache SkyWalking.
 1. GrowingIO 北京易数科技有限公司 https://www.growingio.com/
 1. Haier. 海尔消费金融 https://www.haiercash.com/
 1. Haoyunhu. 上海好运虎供应链管理有限公司 http://www.haoyunhu56.com/
+1. helijia.com 河狸家 http://www.helijia.com/
 1. Huawei
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
@@ -73,6 +74,7 @@ or providing commercial products including Apache SkyWalking.
 1. Lagou.com. 拉勾. https://www.lagou.com/
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lenovo 联想
+1. liaofan168.com 了凡科技 http://www.liaofan168.com
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. lizhi.fm 荔枝FM https://www.lizhi.fm/
@@ -100,6 +102,7 @@ or providing commercial products including Apache SkyWalking.
 1. Rong Data. 荣数数据 http://www.rong-data.com/
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Safedog. 安全狗. http://www.safedog.cn/
+1. servingcloud.com 盈佳云创科技(深圳)有限公司 http://www.servingcloud.com/
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
 1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
 1. shuyun.com 杭州数云信息技术有限公司 http://www.shuyun.com/

@@ -29,14 +29,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class MetricsEs7DAO extends MetricsEsDAO {
 
-    MetricsEs7DAO(final ElasticSearchClient client,
-                  final StorageBuilder<Metrics> storageBuilder) {
+    MetricsEs7DAO(final ElasticSearchClient client, final StorageBuilder<Metrics> storageBuilder) {
         super(client, storageBuilder);
     }
 

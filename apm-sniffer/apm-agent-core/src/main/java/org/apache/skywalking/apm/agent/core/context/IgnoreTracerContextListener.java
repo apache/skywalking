@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
-/**
- * @author wusheng
- */
 public interface IgnoreTracerContextListener {
     void afterFinished(IgnoredTracerContext traceSegment);
 }

@@ -22,8 +22,6 @@ import org.apache.skywalking.apm.network.common.Command;
 
 /**
  * Clear the service instance metadata cache, and re-register it.
- *
- * @author peng-yongsheng
  */
 public class InstanceResetCommand extends BaseCommand implements Serializable {
 
@@ -31,7 +29,8 @@ public class InstanceResetCommand extends BaseCommand implements Serializable {
         super("InstanceMetadataReset", serialNumber);
     }
 
-    @Override public Command.Builder serialize() {
+    @Override
+    public Command.Builder serialize() {
         return commandBuilder();
     }
 }

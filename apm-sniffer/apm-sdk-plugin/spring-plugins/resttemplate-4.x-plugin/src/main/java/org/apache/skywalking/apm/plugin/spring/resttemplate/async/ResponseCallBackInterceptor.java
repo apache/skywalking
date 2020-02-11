@@ -28,11 +28,11 @@ public class ResponseCallBackInterceptor implements InstanceMethodsAroundInterce
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhancedInstance successCallBak = (EnhancedInstance)allArguments[0];
+        EnhancedInstance successCallBak = (EnhancedInstance) allArguments[0];
         successCallBak.setSkyWalkingDynamicField(objInst.getSkyWalkingDynamicField());
 
         if (allArguments.length == 2) {
-            EnhancedInstance failedCallBack = (EnhancedInstance)allArguments[1];
+            EnhancedInstance failedCallBack = (EnhancedInstance) allArguments[1];
             failedCallBack.setSkyWalkingDynamicField(objInst.getSkyWalkingDynamicField());
         }
     }
@@ -43,7 +43,8 @@ public class ResponseCallBackInterceptor implements InstanceMethodsAroundInterce
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

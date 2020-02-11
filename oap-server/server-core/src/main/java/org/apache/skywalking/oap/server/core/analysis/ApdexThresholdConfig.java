@@ -32,10 +32,7 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Apdex threshold configuration dictionary adapter.
- * Looking up a service apdex threshold from dynamic config service.
- *
- * @author hongtaogao
+ * Apdex threshold configuration dictionary adapter. Looking up a service apdex threshold from dynamic config service.
  */
 @Slf4j
 public class ApdexThresholdConfig extends ConfigChangeWatcher implements ConfigurationDictionary {
@@ -57,7 +54,8 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
         }
     }
 
-    @Override public Number lookup(String name) {
+    @Override
+    public Number lookup(String name) {
         int t = dictionary.getOrDefault(name, -1);
         if (t < 0) {
             t = dictionary.getOrDefault("default", -1);
@@ -72,7 +70,8 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
         return t;
     }
 
-    @Override public void notify(ConfigChangeEvent value) {
+    @Override
+    public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
             activeSetting("");
         } else {
@@ -80,7 +79,8 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
         }
     }
 
-    @Override public String value() {
+    @Override
+    public String value() {
         return rawConfig;
     }
 
@@ -94,7 +94,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
 
     @SuppressWarnings("unchecked")
     private void updateConfig(final Reader contentRender) {
-        dictionary = (Map<String, Integer>)new Yaml().load(contentRender);
+        dictionary = (Map<String, Integer>) new Yaml().load(contentRender);
         if (dictionary == null) {
             dictionary = Collections.emptyMap();
         }

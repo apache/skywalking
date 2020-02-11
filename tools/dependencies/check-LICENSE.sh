@@ -21,7 +21,7 @@ tar -zxf dist/apache-skywalking-apm-bin.tar.gz -C dist
 
 # List all modules(jars) that belong to the SkyWalking itself, these will be ignored
 # when checking the dependency licenses
-./mvnw -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
+./mvnw --batch-mode -Pbackend -Dexec.executable='echo' -Dexec.args='${project.artifactId}-${project.version}.jar' exec:exec -q > self-modules.txt
 
 ls dist/apache-skywalking-apm-bin/oap-libs > all-dependencies.txt
 

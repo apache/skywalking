@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TraceMatcher;
 import org.junit.Before;
@@ -25,12 +27,6 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-/**
- * @author kezhenxu94
- */
 public class TestMatcher {
     private InputStream expectedInputStream;
     private TraceMatcher traceMatcher;
@@ -42,11 +38,8 @@ public class TestMatcher {
     }
 
     @Test
-    public void shouldSuccess()  {
-        final Trace trace = new Trace()
-            .setKey("abc")
-            .setStart("1")
-            .setError(false);
+    public void shouldSuccess() {
+        final Trace trace = new Trace().setKey("abc").setStart("1").setError(false);
         trace.getEndpointNames().add("e2e/test");
         trace.getTraceIds().add("id1");
         trace.getTraceIds().add("id2");
@@ -55,9 +48,7 @@ public class TestMatcher {
 
     @Test(expected = AssertionError.class)
     public void shouldVerifyNotNull() {
-        final Trace trace = new Trace()
-            .setStart("1")
-            .setError(false);
+        final Trace trace = new Trace().setStart("1").setError(false);
         trace.getEndpointNames().add("e2e/test");
         trace.getTraceIds().add("id1");
         trace.getTraceIds().add("id2");
@@ -66,11 +57,7 @@ public class TestMatcher {
 
     @Test(expected = AssertionError.class)
     public void shouldVerifyGreaterOrEqualTo() {
-        final Trace trace = new Trace()
-            .setKey("abc")
-            .setDuration(-1)
-            .setStart("1")
-            .setError(false);
+        final Trace trace = new Trace().setKey("abc").setDuration(-1).setStart("1").setError(false);
         trace.getEndpointNames().add("e2e/test");
         trace.getTraceIds().add("id1");
         trace.getTraceIds().add("id2");
@@ -79,11 +66,7 @@ public class TestMatcher {
 
     @Test(expected = AssertionError.class)
     public void shouldVerifyGreaterThan() {
-        final Trace trace = new Trace()
-            .setKey("abc")
-            .setDuration(1)
-            .setStart("0")
-            .setError(false);
+        final Trace trace = new Trace().setKey("abc").setDuration(1).setStart("0").setError(false);
         trace.getEndpointNames().add("e2e/test");
         trace.getTraceIds().add("id1");
         trace.getTraceIds().add("id2");

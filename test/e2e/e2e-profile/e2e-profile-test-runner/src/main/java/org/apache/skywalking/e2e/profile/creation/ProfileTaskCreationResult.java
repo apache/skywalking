@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.e2e.profile.creation;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * e2e profile, create profile task result entity
- *
- * @author MrPro
  */
 @Setter
 @Getter

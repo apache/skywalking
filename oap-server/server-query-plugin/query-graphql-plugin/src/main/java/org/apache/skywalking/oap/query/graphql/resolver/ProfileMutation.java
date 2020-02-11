@@ -15,21 +15,19 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.ProfileTaskCreationRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
-
 /**
  * profile mutation GraphQL resolver
- *
- * @author MrPro
  */
 public class ProfileMutation implements GraphQLMutationResolver {
 
@@ -42,19 +40,17 @@ public class ProfileMutation implements GraphQLMutationResolver {
 
     private ProfileTaskMutationService getProfileTaskService() {
         if (profileTaskService == null) {
-            this.profileTaskService = moduleManager.find(CoreModule.NAME).provider().getService(ProfileTaskMutationService.class);
+            this.profileTaskService = moduleManager.find(CoreModule.NAME)
+                                                   .provider()
+                                                   .getService(ProfileTaskMutationService.class);
         }
         return profileTaskService;
     }
 
     public ProfileTaskCreationResult createProfileTask(ProfileTaskCreationRequest creationRequest) throws IOException {
-        return getProfileTaskService().createTask(
-                creationRequest.getServiceId(),
-                creationRequest.getEndpointName() == null ? null : creationRequest.getEndpointName().trim(),
-                creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(),
-                creationRequest.getDuration(),
-                creationRequest.getMinDurationThreshold(),
-                creationRequest.getDumpPeriod()
-        );
+        return getProfileTaskService().createTask(creationRequest.getServiceId(), creationRequest.getEndpointName() == null ? null : creationRequest
+            .getEndpointName()
+            .trim(), creationRequest.getStartTime() == null ? -1 : creationRequest.getStartTime(), creationRequest.getDuration(), creationRequest
+            .getMinDurationThreshold(), creationRequest.getDumpPeriod(), creationRequest.getMaxSamplingCount());
     }
 }

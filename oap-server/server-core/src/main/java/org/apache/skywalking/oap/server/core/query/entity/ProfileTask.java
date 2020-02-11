@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.*;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 @NoArgsConstructor
@@ -35,8 +37,12 @@ public class ProfileTask {
     private String serviceName;
     private String endpointName;
     private long startTime;
+    private long createTime;
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
+
+    private List<ProfileTaskLog> logs;
 
 }

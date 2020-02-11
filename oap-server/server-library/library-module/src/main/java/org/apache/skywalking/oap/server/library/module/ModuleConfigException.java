@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author peng-yongsheng
- */
 public class ModuleConfigException extends Exception {
 
     public ModuleConfigException(String message, Throwable cause) {

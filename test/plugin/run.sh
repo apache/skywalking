@@ -148,9 +148,9 @@ test -z "$scenario_name" && exitWithMessage "Missing value for the scenario argu
 
 if [[ ! -d ${agent_home} ]]; then
     echo "[WARN] SkyWalking Agent not exists"
-    ${mvnw} -f ${home}/../../pom.xml -Pagent -DskipTests clean package
+    ${mvnw} --batch-mode -f ${home}/../../pom.xml -Pagent -DskipTests clean package
 fi
-[[ "$force_build" == "on" ]] && ${mvnw} -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
+[[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
 task_state_house="${workspace}/.states"
@@ -198,7 +198,7 @@ do
     cp ./config/expectedData.yaml ${case_work_base}/data
 
     # echo "build ${testcase_name}"
-    ${mvnw} clean package -Dtest.framework.version=${version} && \
+    ${mvnw} --batch-mode clean package -Dtest.framework.version=${version} && \
         mv ./target/${scenario_name}.* ${case_work_base}
 
     java -jar \

@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.entity.LogState;
+import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 
-/**
- * @author wusheng
- */
 @Getter
 @Setter
 public class LogQueryCondition {

@@ -25,12 +25,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 /**
  * Interceptor of pulsar consumer constructor.
- *
- * The interceptor create {@link ConsumerEnhanceRequiredInfo} which is required by instance method interceptor,
- * So use it to update the skywalking dynamic field of pulsar consumer enhanced instance.
- * So that the instance methods can get the {@link ConsumerEnhanceRequiredInfo}
- *
- * @author penghui
+ * <p>
+ * The interceptor create {@link ConsumerEnhanceRequiredInfo} which is required by instance method interceptor, So use
+ * it to update the skywalking dynamic field of pulsar consumer enhanced instance. So that the instance methods can get
+ * the {@link ConsumerEnhanceRequiredInfo}
  */
 public class ConsumerConstructorInterceptor implements InstanceConstructorInterceptor {
 

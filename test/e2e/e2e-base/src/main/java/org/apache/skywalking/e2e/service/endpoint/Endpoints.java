@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.service.endpoint;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Endpoints {
     private List<Endpoint> endpoints;
 
@@ -36,8 +33,6 @@ public class Endpoints {
 
     @Override
     public String toString() {
-        return "Endpoints{" +
-            "endpoints=" + endpoints +
-            '}';
+        return "Endpoints{" + "endpoints=" + endpoints + '}';
     }
 }

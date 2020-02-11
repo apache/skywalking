@@ -24,8 +24,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
  * OALEngine defines the main entrance of the oal script engine runtime.
- *
- * @author wusheng
  */
 public interface OALEngine {
     void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException;

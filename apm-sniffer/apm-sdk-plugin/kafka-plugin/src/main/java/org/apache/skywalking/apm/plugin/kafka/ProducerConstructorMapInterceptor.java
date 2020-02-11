@@ -24,9 +24,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import java.util.Map;
 
-/**
- * @author stalary
- */
 public class ProducerConstructorMapInterceptor implements InstanceConstructorInterceptor {
 
     @Override

@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
-/**
- * @author peng-yongsheng
- */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
@@ -43,7 +43,7 @@ public @interface Column {
      * Match query means using analyzer(if storage have) to do key word match query.
      */
     boolean matchQuery() default false;
-    
+
     /**
      * The column is just saved, never used in query.
      */

@@ -22,9 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author zhaoyuguang
- */
 @Getter
 @Setter
 public class ZookeeperServerSettings extends ModuleConfig {
@@ -36,10 +33,7 @@ public class ZookeeperServerSettings extends ModuleConfig {
 
     @Override
     public String toString() {
-        return "ZookeeperServerSettings(nameSpace=" + this.getNameSpace()
-                + ", hostPort=" + this.getHostPort()
-                + ", baseSleepTimeMs=" + this.getBaseSleepTimeMs()
-                + ", maxRetries=" + this.getMaxRetries()
-                + ", period=" + this.getPeriod() + ")";
+        return "ZookeeperServerSettings(nameSpace=" + this.getNameSpace() + ", hostPort=" + this.getHostPort() + ", baseSleepTimeMs=" + this
+            .getBaseSleepTimeMs() + ", maxRetries=" + this.getMaxRetries() + ", period=" + this.getPeriod() + ")";
     }
 }

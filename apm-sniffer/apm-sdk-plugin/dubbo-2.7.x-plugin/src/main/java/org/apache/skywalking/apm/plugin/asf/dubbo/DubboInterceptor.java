@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.asf.dubbo;
 
 import org.apache.dubbo.common.URL;
@@ -40,7 +39,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * {@link DubboInterceptor} define how to enhance class {@link org.apache.dubbo.monitor.support.MonitorFilter#invoke(Invoker,
  * Invocation)}. the trace context transport to the provider side by {@link RpcContext#attachments}.but all the version
  * of dubbo framework below 2.8.3 don't support {@link RpcContext#attachments}, we support another way to support it.
- *
  */
 public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     /**
@@ -51,10 +49,10 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
      * {@link RpcContext#attachments}. current trace segment will ref if the serialize context data is not null.
      */
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        Invoker invoker = (Invoker)allArguments[0];
-        Invocation invocation = (Invocation)allArguments[1];
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        Invoker invoker = (Invoker) allArguments[0];
+        Invocation invocation = (Invocation) allArguments[1];
         RpcContext rpcContext = RpcContext.getContext();
         boolean isConsumer = rpcContext.isConsumerSide();
         URL requestURL = invoker.getUrl();
@@ -72,6 +70,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
             while (next.hasNext()) {
                 next = next.next();
                 rpcContext.getAttachments().put(next.getHeadKey(), next.getHeadValue());
+                if (invocation.getAttachments().containsKey(next.getHeadKey())) {
+                    invocation.getAttachments().remove(next.getHeadKey());
+                }
             }
         } else {
             ContextCarrier contextCarrier = new ContextCarrier();
@@ -90,9 +91,9 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        Result result = (Result)ret;
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        Result result = (Result) ret;
         if (result != null && result.getException() != null) {
             dealException(result.getException());
         }
@@ -139,8 +140,7 @@ public class DubboInterceptor implements InstanceMethodsAroundInterceptor {
     }
 
     /**
-     * Format request url.
-     * e.g. dubbo://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
+     * Format request url. e.g. dubbo://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
      *
      * @return request url.
      */

@@ -38,9 +38,11 @@
         <module>e2e-cluster</module>
         <module>e2e-cluster-with-gateway</module>
         <module>e2e-agent-reboot</module>
+        <module>e2e-agent-auth</module>
         <module>e2e-ttl</module>
         <module>e2e-6.x-agent-7.x-oap-compatibility</module>
         <module>e2e-profile</module>
+        <module>e2e-protocol</module>
     </modules>
 
     <properties>
@@ -62,7 +64,7 @@
         <mysql.version>8.0.13</mysql.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <zookeeper.image.version>3.5</zookeeper.image.version>
-        <lombok.version>1.18.4</lombok.version>
+        <lombok.version>1.18.10</lombok.version>
 
         <!-- build.id is an available environment variable in Jenkins to
              distinguish the different build jobs, once Jenkins job is aborted,

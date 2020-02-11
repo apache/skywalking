@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.loader;
 
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
@@ -32,7 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * This is a very important class in sky-walking's auto-instrumentation mechanism. If you want to fully understand why
  * need this, and how it works, you need have knowledge about Classloader appointment mechanism.
  * <p>
- * Created by wusheng on 16/8/2.
  */
 public class InterceptorInstanceLoader {
 
@@ -41,25 +39,22 @@ public class InterceptorInstanceLoader {
     private static Map<ClassLoader, ClassLoader> EXTEND_PLUGIN_CLASSLOADERS = new HashMap<ClassLoader, ClassLoader>();
 
     /**
-     * Load an instance of interceptor, and keep it singleton.
-     * Create {@link AgentClassLoader} for each targetClassLoader, as an extend classloader.
-     * It can load interceptor classes from plugins, activations folders.
+     * Load an instance of interceptor, and keep it singleton. Create {@link AgentClassLoader} for each
+     * targetClassLoader, as an extend classloader. It can load interceptor classes from plugins, activations folders.
      *
      * @param className         the interceptor class, which is expected to be found
      * @param targetClassLoader the class loader for current application context
      * @param <T>               expected type
      * @return the type reference.
-     * @throws IllegalAccessException
-     * @throws InstantiationException
-     * @throws ClassNotFoundException
-     * @throws AgentPackageNotFoundException
      */
-    public static <T> T load(String className, ClassLoader targetClassLoader)
-            throws IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
+    public static <T> T load(String className,
+        ClassLoader targetClassLoader) throws IllegalAccessException, InstantiationException, ClassNotFoundException, AgentPackageNotFoundException {
         if (targetClassLoader == null) {
             targetClassLoader = InterceptorInstanceLoader.class.getClassLoader();
         }
-        String instanceKey = className + "_OF_" + targetClassLoader.getClass().getName() + "@" + Integer.toHexString(targetClassLoader.hashCode());
+        String instanceKey = className + "_OF_" + targetClassLoader.getClass()
+                                                                   .getName() + "@" + Integer.toHexString(targetClassLoader
+            .hashCode());
         Object inst = INSTANCE_CACHE.get(instanceKey);
         if (inst == null) {
             INSTANCE_LOAD_LOCK.lock();

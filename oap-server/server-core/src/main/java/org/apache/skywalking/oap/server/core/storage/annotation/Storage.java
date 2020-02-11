@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.annotation;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Storage {
 

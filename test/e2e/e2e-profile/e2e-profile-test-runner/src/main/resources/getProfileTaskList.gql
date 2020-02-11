@@ -24,6 +24,13 @@
       duration: duration
       minDurationThreshold: minDurationThreshold
       dumpPeriod: dumpPeriod
+      maxSamplingCount: maxSamplingCount
+      logs {
+        id
+        instanceId
+        operationType
+        operationTime
+      }
     }
   }",
   "variables": {

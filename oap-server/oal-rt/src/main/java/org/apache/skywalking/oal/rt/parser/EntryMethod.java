@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
 @Getter(AccessLevel.PUBLIC)
@@ -38,9 +41,8 @@ public class EntryMethod {
             addArg(parameterType, arg.getType(), arg.getText());
             return;
         }
-        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class)
-            ? "source." + ClassMethodUtil.toIsMethod(arg.getText()) + "()"
-            : "source." + ClassMethodUtil.toGetMethod(arg.getText()) + "()");
+        addArg(parameterType, arg.getType(), parameterType.equals(boolean.class) ? "source." + ClassMethodUtil.toIsMethod(arg
+            .getText()) + "()" : "source." + ClassMethodUtil.toGetMethod(arg.getText()) + "()");
     }
 
     void addArg(Class<?> parameterType, String expression) {

@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-/**
- * @author wu-sheng
- */
 public class BaseModuleA extends ModuleDefine {
 
     public BaseModuleA() {
         super("BaseA");
     }
 
-    @Override public Class<? extends Service>[] services() {
-        return new Class[] {ServiceABusiness1.class, ServiceABusiness2.class};
+    @Override
+    public Class<? extends Service>[] services() {
+        return new Class[] {
+            ServiceABusiness1.class,
+            ServiceABusiness2.class
+        };
     }
 
     public interface ServiceABusiness1 extends Service {

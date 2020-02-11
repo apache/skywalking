@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.zipkin;
 
-import java.util.*;
-import lombok.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -27,7 +30,8 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -46,26 +50,76 @@ public class ZipkinSpanRecord extends Record {
     public static final String DATA_BINARY = "data_binary";
     public static final String ENCODE = "encode";
 
-    @Setter @Getter @Column(columnName = TRACE_ID) @IDColumn private String traceId;
-    @Setter @Getter @Column(columnName = SPAN_ID) @IDColumn private String spanId;
-    @Setter @Getter @Column(columnName = SERVICE_ID) @IDColumn private int serviceId;
-    @Setter @Getter @Column(columnName = SERVICE_INSTANCE_ID) @IDColumn private int serviceInstanceId;
-    @Setter @Getter @Column(columnName = ENDPOINT_NAME, matchQuery = true) @IDColumn private String endpointName;
-    @Setter @Getter @Column(columnName = ENDPOINT_ID) @IDColumn private int endpointId;
-    @Setter @Getter @Column(columnName = START_TIME) @IDColumn private long startTime;
-    @Setter @Getter @Column(columnName = END_TIME) @IDColumn private long endTime;
-    @Setter @Getter @Column(columnName = LATENCY) @IDColumn private int latency;
-    @Setter @Getter @Column(columnName = IS_ERROR) @IDColumn private int isError;
-    @Setter @Getter @Column(columnName = DATA_BINARY) @IDColumn private byte[] dataBinary;
-    @Setter @Getter @Column(columnName = ENCODE) @IDColumn private int encode;
+    @Setter
+    @Getter
+    @Column(columnName = TRACE_ID)
+    @IDColumn
+    private String traceId;
+    @Setter
+    @Getter
+    @Column(columnName = SPAN_ID)
+    @IDColumn
+    private String spanId;
+    @Setter
+    @Getter
+    @Column(columnName = SERVICE_ID)
+    @IDColumn
+    private int serviceId;
+    @Setter
+    @Getter
+    @Column(columnName = SERVICE_INSTANCE_ID)
+    @IDColumn
+    private int serviceInstanceId;
+    @Setter
+    @Getter
+    @Column(columnName = ENDPOINT_NAME, matchQuery = true)
+    @IDColumn
+    private String endpointName;
+    @Setter
+    @Getter
+    @Column(columnName = ENDPOINT_ID)
+    @IDColumn
+    private int endpointId;
+    @Setter
+    @Getter
+    @Column(columnName = START_TIME)
+    @IDColumn
+    private long startTime;
+    @Setter
+    @Getter
+    @Column(columnName = END_TIME)
+    @IDColumn
+    private long endTime;
+    @Setter
+    @Getter
+    @Column(columnName = LATENCY)
+    @IDColumn
+    private int latency;
+    @Setter
+    @Getter
+    @Column(columnName = IS_ERROR)
+    @IDColumn
+    private int isError;
+    @Setter
+    @Getter
+    @Column(columnName = DATA_BINARY)
+    @IDColumn
+    private byte[] dataBinary;
+    @Setter
+    @Getter
+    @Column(columnName = ENCODE)
+    @IDColumn
+    private int encode;
 
-    @Override public String id() {
+    @Override
+    public String id() {
         return traceId + "-" + spanId;
     }
 
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {
 
-        @Override public Map<String, Object> data2Map(ZipkinSpanRecord storageData) {
+        @Override
+        public Map<String, Object> data2Map(ZipkinSpanRecord storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(TRACE_ID, storageData.getTraceId());
             map.put(SPAN_ID, storageData.getSpanId());
@@ -87,25 +141,26 @@ public class ZipkinSpanRecord extends Record {
             return map;
         }
 
-        @Override public ZipkinSpanRecord map2Data(Map<String, Object> dbMap) {
+        @Override
+        public ZipkinSpanRecord map2Data(Map<String, Object> dbMap) {
             ZipkinSpanRecord record = new ZipkinSpanRecord();
-            record.setTraceId((String)dbMap.get(TRACE_ID));
-            record.setSpanId((String)dbMap.get(SPAN_ID));
-            record.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
-            record.setServiceInstanceId(((Number)dbMap.get(SERVICE_INSTANCE_ID)).intValue());
-            record.setEndpointName((String)dbMap.get(ENDPOINT_NAME));
-            record.setEndpointId(((Number)dbMap.get(ENDPOINT_ID)).intValue());
-            record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
-            record.setEndTime(((Number)dbMap.get(END_TIME)).longValue());
-            record.setLatency(((Number)dbMap.get(LATENCY)).intValue());
-            record.setIsError(((Number)dbMap.get(IS_ERROR)).intValue());
-            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
-            if (StringUtil.isEmpty((String)dbMap.get(DATA_BINARY))) {
+            record.setTraceId((String) dbMap.get(TRACE_ID));
+            record.setSpanId((String) dbMap.get(SPAN_ID));
+            record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            record.setServiceInstanceId(((Number) dbMap.get(SERVICE_INSTANCE_ID)).intValue());
+            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
+            record.setEndpointId(((Number) dbMap.get(ENDPOINT_ID)).intValue());
+            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
+            record.setEndTime(((Number) dbMap.get(END_TIME)).longValue());
+            record.setLatency(((Number) dbMap.get(LATENCY)).intValue());
+            record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
+            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            if (StringUtil.isEmpty((String) dbMap.get(DATA_BINARY))) {
                 record.setDataBinary(new byte[] {});
             } else {
-                record.setDataBinary(Base64.getDecoder().decode((String)dbMap.get(DATA_BINARY)));
+                record.setDataBinary(Base64.getDecoder().decode((String) dbMap.get(DATA_BINARY)));
             }
-            record.setEncode(((Number)dbMap.get(ENCODE)).intValue());
+            record.setEncode(((Number) dbMap.get(ENCODE)).intValue());
             return record;
         }
     }

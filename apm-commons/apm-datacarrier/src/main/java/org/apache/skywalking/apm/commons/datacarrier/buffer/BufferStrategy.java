@@ -16,13 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public enum BufferStrategy {
-    BLOCKING,
-    IF_POSSIBLE
+    BLOCKING, IF_POSSIBLE
 }

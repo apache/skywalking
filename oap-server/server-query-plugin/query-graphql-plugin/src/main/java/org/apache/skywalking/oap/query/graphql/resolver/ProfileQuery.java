@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -29,8 +31,6 @@ import java.util.List;
 
 /**
  * profile query GraphQL resolver
- *
- * @author MrPro
  */
 public class ProfileQuery implements GraphQLQueryResolver {
 
@@ -43,7 +43,9 @@ public class ProfileQuery implements GraphQLQueryResolver {
 
     private ProfileTaskQueryService getProfileTaskQueryService() {
         if (profileTaskQueryService == null) {
-            this.profileTaskQueryService = moduleManager.find(CoreModule.NAME).provider().getService(ProfileTaskQueryService.class);
+            this.profileTaskQueryService = moduleManager.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(ProfileTaskQueryService.class);
         }
         return profileTaskQueryService;
     }
@@ -52,5 +54,13 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
     }
 
+    public List<BasicTrace> getProfileTaskSegmentList(final String taskID) throws IOException {
+        return getProfileTaskQueryService().getTaskTraces(taskID);
+    }
+
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start,
+        final long end) throws IOException {
+        return getProfileTaskQueryService().getProfileAnalyze(segmentId, start, end);
+    }
 
 }

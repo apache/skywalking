@@ -16,18 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.mvc;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The <code>PathMappingCache</code> represents a mapping cache.
- * key: {@link Method}
- * value: the url pattern
- *
- * @author wendal
+ * The <code>PathMappingCache</code> represents a mapping cache. key: {@link Method} value: the url pattern
  */
 public class PathMappingCache {
     private String classPath = "";

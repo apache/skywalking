@@ -47,7 +47,8 @@ public class HystrixConcurrencyStrategyInterceptorTest {
                 return cache;
             }
 
-            @Override public void setSkyWalkingDynamicField(Object cache) {
+            @Override
+            public void setSkyWalkingDynamicField(Object cache) {
                 this.cache = (SWHystrixPluginsWrapperCache) cache;
             }
         };
@@ -60,7 +61,6 @@ public class HystrixConcurrencyStrategyInterceptorTest {
         assertTrue(wrapperResult instanceof SWHystrixConcurrencyStrategyWrapper);
         assertSame(wrapperResult, HystrixPlugins.getInstance().getConcurrencyStrategy());
     }
-
 
     @Test
     public void testInterceptorWithCustomHystrixConcurrencyStrategy() throws Throwable {
@@ -81,7 +81,9 @@ public class HystrixConcurrencyStrategyInterceptorTest {
     }
 
     private HystrixConcurrencyStrategy getConcurrencyStrategyByInterceptor() throws Throwable {
-        return (HystrixConcurrencyStrategy) hystrixConcurrencyStrategyInterceptor.afterMethod(enhancedInstance, null, null, null, HystrixPlugins.getInstance().getConcurrencyStrategy());
+        return (HystrixConcurrencyStrategy) hystrixConcurrencyStrategyInterceptor.afterMethod(enhancedInstance, null, null, null, HystrixPlugins
+            .getInstance()
+            .getConcurrencyStrategy());
     }
 
     static class CustomConcurrencyStrategy extends HystrixConcurrencyStrategy {

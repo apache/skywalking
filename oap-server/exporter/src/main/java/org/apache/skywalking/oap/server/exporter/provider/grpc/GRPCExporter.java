@@ -20,22 +20,35 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.exporter.*;
-import org.apache.skywalking.oap.server.exporter.grpc.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
+import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
+import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
+import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng
- */
 public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<GRPCExporter.ExportData> {
     private static final Logger logger = LoggerFactory.getLogger(GRPCExporter.class);
 
@@ -57,11 +70,12 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
         subscriptionSet = new HashSet<>();
     }
 
-    @Override public void export(ExportEvent event) {
+    @Override
+    public void export(ExportEvent event) {
         if (ExportEvent.EventType.TOTAL == event.getType()) {
             Metrics metrics = event.getMetrics();
             if (metrics instanceof WithMetadata) {
-                MetricsMetaInfo meta = ((WithMetadata)metrics).getMeta();
+                MetricsMetaInfo meta = ((WithMetadata) metrics).getMeta();
                 if (subscriptionSet.size() == 0 || subscriptionSet.contains(meta.getMetricsName())) {
                     exportBuffer.produce(new ExportData(meta, metrics));
                 }
@@ -70,53 +84,66 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     }
 
     public void initSubscriptionList() {
-        SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS).subscription(SubscriptionReq.newBuilder().build());
+        SubscriptionsResp subscription = blockingStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                                     .subscription(SubscriptionReq.newBuilder().build());
         subscription.getMetricNamesList().forEach(subscriptionSet::add);
         logger.debug("Get exporter subscription list, {}", subscriptionSet);
     }
 
-    @Override public void init() {
+    @Override
+    public void init() {
 
     }
 
-    @Override public void consume(List<ExportData> data) {
+    @Override
+    public void consume(List<ExportData> data) {
         if (data.size() == 0) {
             return;
         }
 
         ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS).export(
-            new StreamObserver<ExportResponse>() {
-                @Override public void onNext(ExportResponse response) {
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                                                                  .export(new StreamObserver<ExportResponse>() {
+                                                                                      @Override
+                                                                                      public void onNext(
+                                                                                          ExportResponse response) {
 
-                }
+                                                                                      }
 
-                @Override public void onError(Throwable throwable) {
-                    status.done();
-                }
+                                                                                      @Override
+                                                                                      public void onError(
+                                                                                          Throwable throwable) {
+                                                                                          status.done();
+                                                                                      }
 
-                @Override public void onCompleted() {
-                    status.done();
-                }
-            }
-        );
+                                                                                      @Override
+                                                                                      public void onCompleted() {
+                                                                                          status.done();
+                                                                                      }
+                                                                                  });
         AtomicInteger exportNum = new AtomicInteger();
         data.forEach(row -> {
             ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
 
             Metrics metrics = row.getMetrics();
             if (metrics instanceof LongValueHolder) {
-                long value = ((LongValueHolder)metrics).getValue();
+                long value = ((LongValueHolder) metrics).getValue();
                 builder.setLongValue(value);
                 builder.setType(ValueType.LONG);
             } else if (metrics instanceof IntValueHolder) {
-                long value = ((IntValueHolder)metrics).getValue();
+                long value = ((IntValueHolder) metrics).getValue();
                 builder.setLongValue(value);
                 builder.setType(ValueType.LONG);
             } else if (metrics instanceof DoubleValueHolder) {
-                double value = ((DoubleValueHolder)metrics).getValue();
+                double value = ((DoubleValueHolder) metrics).getValue();
                 builder.setDoubleValue(value);
                 builder.setType(ValueType.DOUBLE);
+            } else if (metrics instanceof MultiIntValuesHolder) {
+                int[] values = ((MultiIntValuesHolder) metrics).getValues();
+                for (int value : values) {
+                    builder.addLongValues(value);
+                }
+                builder.setType(ValueType.MULTI_LONG);
             } else {
                 return;
             }
@@ -151,21 +178,23 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
 
             if (sleepTime > 2000L) {
-                logger.warn("Export {} metrics to {}:{}, wait {} milliseconds.",
-                    exportNum.get(), setting.getTargetHost(), setting.getTargetPort(), sleepTime);
+                logger.warn("Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
+                    .getTargetPort(), sleepTime);
                 cycle = 2000L;
             }
         }
 
-        logger.debug("Exported {} metrics to {}:{} in {} milliseconds.",
-            exportNum.get(), setting.getTargetHost(), setting.getTargetPort(), sleepTime);
+        logger.debug("Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
+            .getTargetPort(), sleepTime);
     }
 
-    @Override public void onError(List<ExportData> data, Throwable t) {
+    @Override
+    public void onError(List<ExportData> data, Throwable t) {
         logger.error(t.getMessage(), t);
     }
 
-    @Override public void onExit() {
+    @Override
+    public void onExit() {
 
     }
 

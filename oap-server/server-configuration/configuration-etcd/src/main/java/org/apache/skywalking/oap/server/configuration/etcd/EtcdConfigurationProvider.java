@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Get Configuration from etcd.
- *
- * @author Alan Lau
  */
 public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
 
@@ -41,7 +39,8 @@ public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
         settings = new EtcdServerSettings();
     }
 
-    @Override protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
+    @Override
+    protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
         logger.info("settings: {}", settings);
         if (Strings.isNullOrEmpty(settings.getServerAddr())) {
             throw new ModuleStartException("Etcd serverAddr cannot be null or empty.");
@@ -57,11 +56,13 @@ public class EtcdConfigurationProvider extends AbstractConfigurationProvider {
         }
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "etcd";
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return settings;
     }
 }

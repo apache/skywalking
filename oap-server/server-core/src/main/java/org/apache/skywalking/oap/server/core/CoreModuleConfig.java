@@ -18,46 +18,67 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class CoreModuleConfig extends ModuleConfig {
-    @Setter private String role = "Mixed";
-    @Setter private String nameSpace;
-    @Setter private String restHost;
-    @Setter private int restPort;
-    @Setter private int jettySelectors = 1;
-    @Setter private String restContextPath;
-    @Setter private String gRPCHost;
-    @Setter private int gRPCPort;
-    @Setter private int maxConcurrentCallsPerConnection;
-    @Setter private int maxMessageSize;
-    @Setter private boolean enableDatabaseSession;
-    @Setter private int topNReportPeriod;
+    @Setter
+    private String role = "Mixed";
+    @Setter
+    private String nameSpace;
+    @Setter
+    private String restHost;
+    @Setter
+    private int restPort;
+    @Setter
+    private int jettySelectors = 1;
+    @Setter
+    private String restContextPath;
+    @Setter
+    private String gRPCHost;
+    @Setter
+    private int gRPCPort;
+    @Setter
+    private int maxConcurrentCallsPerConnection;
+    @Setter
+    private int maxMessageSize;
+    @Setter
+    private boolean enableDatabaseSession;
+    @Setter
+    private int topNReportPeriod;
     private final List<String> downsampling;
     /**
-     * The period of doing data persistence.
-     * Unit is second.
+     * The period of doing data persistence. Unit is second.
      */
-    @Setter private long persistentPeriod = 3;
-    @Setter private boolean enableDataKeeperExecutor = true;
-    @Setter private int dataKeeperExecutePeriod = 5;
-    @Setter private int recordDataTTL;
-    @Setter private int minuteMetricsDataTTL;
-    @Setter private int hourMetricsDataTTL;
-    @Setter private int dayMetricsDataTTL;
-    @Setter private int monthMetricsDataTTL;
-    @Setter private int gRPCThreadPoolSize;
-    @Setter private int gRPCThreadPoolQueueSize;
+    @Setter
+    private long persistentPeriod = 3;
+    @Setter
+    private boolean enableDataKeeperExecutor = true;
+    @Setter
+    private int dataKeeperExecutePeriod = 5;
+    @Setter
+    private int recordDataTTL;
+    @Setter
+    private int minuteMetricsDataTTL;
+    @Setter
+    private int hourMetricsDataTTL;
+    @Setter
+    private int dayMetricsDataTTL;
+    @Setter
+    private int monthMetricsDataTTL;
+    @Setter
+    private int gRPCThreadPoolSize;
+    @Setter
+    private int gRPCThreadPoolQueueSize;
     /**
      * Timeout for cluster internal communication, in seconds.
      */
-    @Setter private int remoteTimeout = 20;
+    @Setter
+    private int remoteTimeout = 20;
 
     /**
      * Following are cache settings for inventory(s)
@@ -66,6 +87,21 @@ public class CoreModuleConfig extends ModuleConfig {
     private long maxSizeOfServiceInstanceInventory = 1_000_000L;
     private long maxSizeOfEndpointInventory = 1_000_000L;
     private long maxSizeOfNetworkInventory = 1_000_000L;
+
+    /**
+     * Following are cache setting for none stream(s)
+     */
+    private long maxSizeOfProfileTask = 10_000L;
+
+    /**
+     * Analyze profile snapshots paging size.
+     */
+    private int maxPageSizeOfQueryProfileSnapshot = 500;
+
+    /**
+     * Analyze profile snapshots max size.
+     */
+    private int maxSizeOfAnalyzeProfileSnapshot = 12000;
 
     CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

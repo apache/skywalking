@@ -16,41 +16,44 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-
+import java.util.Objects;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
-import org.apache.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
-import org.apache.skywalking.apm.agent.core.context.util.SegmentHelper;
-import org.apache.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
-import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.hamcrest.MatcherAssert;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
+import org.apache.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
+import org.apache.skywalking.apm.agent.core.context.util.SegmentHelper;
 import org.apache.skywalking.apm.agent.core.context.util.SpanHelper;
+import org.apache.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.network.language.agent.KeyWithStringValue;
-import org.apache.skywalking.apm.network.language.agent.LogMessage;
-import org.apache.skywalking.apm.network.language.agent.SpanObject;
+import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentObject;
-import org.apache.skywalking.apm.network.language.agent.TraceSegmentReference;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.Log;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.hamcrest.MatcherAssert;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -80,7 +83,7 @@ public class ContextManagerTest {
 
     @Test
     public void createSpanWithInvalidateContextCarrier() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("#AQA=#AQA=4WcWe0tQNQA=|1|#127.0.0.1:8080|#/testEntrySpan|#/testEntrySpan|#AQA=#AQA=Et0We0tQNQA=", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier();
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testEntrySpan", contextCarrier);
         firstEntrySpan.setComponent(ComponentsDefine.TOMCAT);
@@ -94,7 +97,7 @@ public class ContextManagerTest {
         assertNull(actualSegment.getRefs());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
-        assertThat(spanList.size(), is(1));
+        assertThat(Objects.requireNonNull(spanList).size(), is(1));
 
         AbstractTracingSpan actualEntrySpan = spanList.get(0);
         assertThat(actualEntrySpan.getOperationName(), is("/testEntrySpan"));
@@ -104,7 +107,7 @@ public class ContextManagerTest {
 
     @Test
     public void createMultipleEntrySpan() {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.2343.234234234|1|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1-MS4yMzQzLjIzNDIzNDIzNA==-MS4yMzQzLjIzNDIzNDIzNA==-1-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu", ContextCarrier.HeaderVersion.v2);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -195,7 +198,7 @@ public class ContextManagerTest {
         assertNull(actualSegment.getRefs());
 
         List<AbstractTracingSpan> spanList = SegmentHelper.getSpan(actualSegment);
-        assertThat(spanList.size(), is(2));
+        assertThat(Objects.requireNonNull(spanList).size(), is(2));
 
         AbstractTracingSpan actualFirstExitSpan = spanList.get(0);
         assertThat(actualFirstExitSpan.getOperationName(), is("/testFirstExit"));
@@ -227,7 +230,7 @@ public class ContextManagerTest {
 
     @Test
     public void testTransform() throws InvalidProtocolBufferException {
-        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1.234.1983829|3|1|1|#127.0.0.1:8080|#/portal/|#/testEntrySpan|1.2343.234234234", ContextCarrier.HeaderVersion.v1);
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("1-MS4yMzQzLjIzNDIzNDIzNA==-MS4yMzQuMTk4MzgyOQ==-3-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu", ContextCarrier.HeaderVersion.v2);
         assertTrue(contextCarrier.isValid());
 
         AbstractSpan firstEntrySpan = ContextManager.createEntrySpan("/testFirstEntry", contextCarrier);
@@ -256,19 +259,18 @@ public class ContextManagerTest {
 
         UpstreamSegment upstreamSegment = actualSegment.transform();
         assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
-        TraceSegmentObject traceSegmentObject = TraceSegmentObject.parseFrom(upstreamSegment.getSegment());
-        TraceSegmentReference reference = traceSegmentObject.getSpans(1).getRefs(0);
+        SegmentObject traceSegmentObject = SegmentObject.parseFrom(upstreamSegment.getSegment());
+        SegmentReference reference = traceSegmentObject.getSpans(1).getRefs(0);
 
-        assertThat(reference.getEntryServiceName(), is("/portal/"));
         assertThat(reference.getNetworkAddress(), is("127.0.0.1:8080"));
         assertThat(reference.getParentSpanId(), is(3));
 
-        assertThat(traceSegmentObject.getApplicationId(), is(1));
+        assertThat(traceSegmentObject.getServiceId(), is(1));
         assertThat(traceSegmentObject.getSpans(1).getRefsCount(), is(1));
 
         assertThat(traceSegmentObject.getSpansCount(), is(2));
 
-        SpanObject actualSpan = traceSegmentObject.getSpans(1);
+        SpanObjectV2 actualSpan = traceSegmentObject.getSpans(1);
         assertThat(actualSpan.getComponentId(), is(3));
         assertThat(actualSpan.getComponent(), is(""));
 
@@ -277,7 +279,7 @@ public class ContextManagerTest {
         assertThat(actualSpan.getSpanId(), is(0));
         assertThat(actualSpan.getSpanType(), is(SpanType.Entry));
 
-        SpanObject exitSpanObject = traceSegmentObject.getSpans(0);
+        SpanObjectV2 exitSpanObject = traceSegmentObject.getSpans(0);
         assertThat(exitSpanObject.getComponentId(), is(2));
         assertThat(exitSpanObject.getComponent(), is(""));
         assertThat(exitSpanObject.getSpanType(), is(SpanType.Exit));
@@ -287,9 +289,9 @@ public class ContextManagerTest {
         assertThat(exitSpanObject.getSpanId(), is(1));
 
         assertThat(exitSpanObject.getLogsCount(), is(1));
-        LogMessage logMessage = exitSpanObject.getLogs(0);
+        Log logMessage = exitSpanObject.getLogs(0);
         assertThat(logMessage.getDataCount(), is(4));
-        List<KeyWithStringValue> values = logMessage.getDataList();
+        List<KeyStringValuePair> values = logMessage.getDataList();
 
         assertThat(values.get(0).getValue(), is("error"));
         assertThat(values.get(1).getValue(), is(RuntimeException.class.getName()));

@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
-/**
- * @author peng-yongsheng
- */
 public enum ValueColumnIds {
     INSTANCE;
 
@@ -33,12 +31,20 @@ public enum ValueColumnIds {
         mapping.putIfAbsent(indName, new ValueColumn(valueCName, function));
     }
 
-    public String getValueCName(String indName) {
-        return mapping.get(indName).valueCName;
+    public String getValueCName(String metricsName) {
+        return findColumn(metricsName).valueCName;
     }
 
-    public Function getValueFunction(String indName) {
-        return mapping.get(indName).function;
+    public Function getValueFunction(String metricsName) {
+        return findColumn(metricsName).function;
+    }
+
+    private ValueColumn findColumn(String metricsName) {
+        ValueColumn column = mapping.get(metricsName);
+        if (column == null) {
+            throw new RuntimeException("Metrics:" + metricsName + " doesn't have value column definition");
+        }
+        return column;
     }
 
     class ValueColumn {

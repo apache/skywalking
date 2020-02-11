@@ -23,38 +23,23 @@ import org.apache.skywalking.oap.server.library.module.Service;
 /**
  * Open API to telemetry module, allow to create metrics instance with different type. Types inherits from prometheus
  * project, and plan to move to openmetrics APIs after it is ready.
- *
- * @author wusheng
  */
 public interface MetricsCreator extends Service {
     /**
      * Create a counter type metrics instance.
-     *
-     * @param name
-     * @param tips
-     * @param tagKeys
-     * @return
      */
     CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues);
 
     /**
      * Create a gauge type metrics instance.
-     *
-     * @param name
-     * @param tips
-     * @param tagKeys
-     * @return
      */
     GaugeMetrics createGauge(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues);
 
     /**
      * Create a Histogram type metrics instance.
      *
-     * @param name
-     * @param tips
-     * @param tagKeys
      * @param buckets Time bucket for duration.
-     * @return
      */
-    HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues, double... buckets);
+    HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues, double... buckets);
 }

@@ -29,8 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
  * {@link MessageOrderlyConsumeInterceptor} set the process status after the {@link
  * com.alibaba.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
  * com.alibaba.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method execute.
- *
- * @author carlvine500
  */
 public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInterceptor {
 
@@ -38,7 +36,7 @@ public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInte
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
 
-        ConsumeOrderlyStatus status = (ConsumeOrderlyStatus)ret;
+        ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) ret;
         if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();

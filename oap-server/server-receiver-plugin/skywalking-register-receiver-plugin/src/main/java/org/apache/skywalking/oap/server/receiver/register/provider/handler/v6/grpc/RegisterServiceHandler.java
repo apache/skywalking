@@ -61,9 +61,6 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
-/**
- * @author wusheng
- */
 public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implements GRPCHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterServiceHandler.class);
@@ -77,15 +74,28 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
     public RegisterServiceHandler(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
-        this.inventoryService = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(IServiceInventoryRegister.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(IServiceInstanceInventoryRegister.class);
+        this.inventoryService = moduleManager.find(CoreModule.NAME)
+                                             .provider()
+                                             .getService(IEndpointInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                            .provider()
+                                                            .getService(INetworkAddressInventoryRegister.class);
     }
 
-    @Override public void doServiceRegister(Services request, StreamObserver<ServiceRegisterMapping> responseObserver) {
+    @Override
+    public void doServiceRegister(Services request, StreamObserver<ServiceRegisterMapping> responseObserver) {
         ServiceRegisterMapping.Builder builder = ServiceRegisterMapping.newBuilder();
         request.getServicesList().forEach(service -> {
             String serviceName = service.getServiceName();
@@ -111,7 +121,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
-    @Override public void doServiceInstanceRegister(ServiceInstances request,
+    @Override
+    public void doServiceInstanceRegister(ServiceInstances request,
         StreamObserver<ServiceInstanceRegisterMapping> responseObserver) {
 
         ServiceInstanceRegisterMapping.Builder builder = ServiceInstanceRegisterMapping.newBuilder();
@@ -165,11 +176,14 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                 }
             }
 
-            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instanceUUID, instance.getTime(), instanceProperties);
+            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instanceUUID, instance
+                .getTime(), instanceProperties);
 
             if (serviceInstanceId != Const.NONE) {
                 logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instanceUUID);
-                builder.addServiceInstances(KeyIntValuePair.newBuilder().setKey(instanceUUID).setValue(serviceInstanceId));
+                builder.addServiceInstances(KeyIntValuePair.newBuilder()
+                                                           .setKey(instanceUUID)
+                                                           .setValue(serviceInstanceId));
             }
         });
 
@@ -177,7 +191,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
-    @Override public void doEndpointRegister(Endpoints request, StreamObserver<EndpointMapping> responseObserver) {
+    @Override
+    public void doEndpointRegister(Endpoints request, StreamObserver<EndpointMapping> responseObserver) {
         EndpointMapping.Builder builder = EndpointMapping.newBuilder();
 
         request.getEndpointsList().forEach(endpoint -> {
@@ -190,10 +205,10 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
 
                 if (endpointId != Const.NONE) {
                     builder.addElements(EndpointMappingElement.newBuilder()
-                        .setServiceId(serviceId)
-                        .setEndpointName(endpointName)
-                        .setEndpointId(endpointId)
-                        .setFrom(endpoint.getFrom()));
+                                                              .setServiceId(serviceId)
+                                                              .setEndpointName(endpointName)
+                                                              .setEndpointId(endpointId)
+                                                              .setFrom(endpoint.getFrom()));
                 }
             } else {
                 logger.warn("Unexpected endpoint register, endpoint isn't detected from server side. {}", request);
@@ -220,7 +235,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
-    @Override public void doServiceAndNetworkAddressMappingRegister(ServiceAndNetworkAddressMappings request,
+    @Override
+    public void doServiceAndNetworkAddressMappingRegister(ServiceAndNetworkAddressMappings request,
         StreamObserver<Commands> responseObserver) {
 
         request.getMappingsList().forEach(mapping -> {

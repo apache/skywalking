@@ -137,6 +137,7 @@ storage:
 #    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
 receiver-sharing-server:
   default:
+    authentication: ${SW_AUTHENTICATION:""}
 receiver-register:
   default:
 receiver-trace:
@@ -162,6 +163,8 @@ service-mesh:
 istio-telemetry:
   default:
 envoy-metric:
+  default:
+receiver-profile:
   default:
 #    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:k8s-mesh}
 #receiver_zipkin:
@@ -232,3 +235,4 @@ configuration:
 #  grpc:
 #    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
 #    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+

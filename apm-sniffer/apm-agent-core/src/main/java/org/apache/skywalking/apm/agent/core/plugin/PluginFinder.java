@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import java.util.ArrayList;
@@ -39,8 +38,6 @@ import static net.bytebuddy.matcher.ElementMatchers.not;
 /**
  * The <code>PluginFinder</code> represents a finder , which assist to find the one from the given {@link
  * AbstractClassEnhancePluginDefine} list.
- *
- * @author wusheng
  */
 public class PluginFinder {
     private final Map<String, LinkedList<AbstractClassEnhancePluginDefine>> nameMatchDefine = new HashMap<String, LinkedList<AbstractClassEnhancePluginDefine>>();
@@ -56,7 +53,7 @@ public class PluginFinder {
             }
 
             if (match instanceof NameMatch) {
-                NameMatch nameMatch = (NameMatch)match;
+                NameMatch nameMatch = (NameMatch) match;
                 LinkedList<AbstractClassEnhancePluginDefine> pluginDefines = nameMatchDefine.get(nameMatch.getClassName());
                 if (pluginDefines == null) {
                     pluginDefines = new LinkedList<AbstractClassEnhancePluginDefine>();
@@ -81,7 +78,7 @@ public class PluginFinder {
         }
 
         for (AbstractClassEnhancePluginDefine pluginDefine : signatureMatchDefine) {
-            IndirectMatch match = (IndirectMatch)pluginDefine.enhanceClass();
+            IndirectMatch match = (IndirectMatch) pluginDefine.enhanceClass();
             if (match.isMatch(typeDescription)) {
                 matchedPlugins.add(pluginDefine);
             }
@@ -101,7 +98,7 @@ public class PluginFinder {
         for (AbstractClassEnhancePluginDefine define : signatureMatchDefine) {
             ClassMatch match = define.enhanceClass();
             if (match instanceof IndirectMatch) {
-                judge = judge.or(((IndirectMatch)match).buildJunction());
+                judge = judge.or(((IndirectMatch) match).buildJunction());
             }
         }
         return new ProtectiveShieldMatcher(judge);

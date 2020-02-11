@@ -18,16 +18,18 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default implementor of Config Watcher register.
- *
- * @author wusheng
  */
 public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
     private static final Logger logger = LoggerFactory.getLogger(ConfigWatcherRegister.class);
@@ -45,7 +47,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         this.syncPeriod = syncPeriod;
     }
 
-    @Override synchronized public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
+    @Override
+    synchronized public void registerConfigChangeWatcher(ConfigChangeWatcher watcher) {
         if (isStarted) {
             throw new IllegalStateException("Config Register has been started. Can't register new watcher.");
         }
@@ -63,9 +66,8 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         configSync();
         logger.info("Current configurations after the bootstrap sync." + LINE_SEPARATOR + register.toString());
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(this::configSync,
-                t -> logger.error("Sync config center error.", t)), syncPeriod, syncPeriod, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleAtFixedRate(new RunnableWithExceptionProtection(this::configSync, t -> logger.error("Sync config center error.", t)), syncPeriod, syncPeriod, TimeUnit.SECONDS);
     }
 
     void configSync() {
@@ -120,17 +122,22 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
             return register.keySet();
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             StringBuilder registerTableDescription = new StringBuilder();
             registerTableDescription.append("Following dynamic config items are available.").append(LINE_SEPARATOR);
             registerTableDescription.append("---------------------------------------------").append(LINE_SEPARATOR);
             register.forEach((key, holder) -> {
                 ConfigChangeWatcher watcher = holder.getWatcher();
-                registerTableDescription.append("key:").append(key)
-                    .append("    module:").append(watcher.getModule())
-                    .append("    provider:").append(watcher.getProvider().name())
-                    .append("    value(current):").append(watcher.value())
-                    .append(LINE_SEPARATOR);
+                registerTableDescription.append("key:")
+                                        .append(key)
+                                        .append("    module:")
+                                        .append(watcher.getModule())
+                                        .append("    provider:")
+                                        .append(watcher.getProvider().name())
+                                        .append("    value(current):")
+                                        .append(watcher.value())
+                                        .append(LINE_SEPARATOR);
             });
             return registerTableDescription.toString();
         }

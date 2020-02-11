@@ -22,11 +22,9 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.request.*;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 
-/**
- * @author peng-yongsheng
- */
 public interface IMetricsDAO extends DAO {
 
     List<Metrics> multiGet(Model model, List<String> ids) throws IOException;

@@ -25,8 +25,6 @@ import java.util.List;
 
 /**
  * Clear the service metadata cache and other metadata caches belong to it, and re-register them.
- *
- * @author peng-yongsheng
  */
 public class ServiceResetCommand extends BaseCommand implements Serializable, Deserializable<ServiceResetCommand> {
     public static final Deserializable<ServiceResetCommand> DESERIALIZER = new ServiceResetCommand("");

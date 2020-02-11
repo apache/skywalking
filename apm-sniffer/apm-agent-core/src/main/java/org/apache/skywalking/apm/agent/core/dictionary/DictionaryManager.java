@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.dictionary;
 
-/**
- * @author wusheng
- */
 public class DictionaryManager {
     /**
      * @return {@link NetworkAddressDictionary} to find application id for application code and network address.

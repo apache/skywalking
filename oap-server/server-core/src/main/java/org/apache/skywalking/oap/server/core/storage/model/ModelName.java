@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
-/**
- * @author peng-yongsheng
- */
 public class ModelName {
 
     public static String build(Downsampling downsampling, String modelName) {
@@ -33,8 +30,8 @@ public class ModelName {
                 return modelName + Const.ID_SPLIT + Downsampling.Day.getName();
             case Hour:
                 return modelName + Const.ID_SPLIT + Downsampling.Hour.getName();
-//            case Second:
-//                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
+            //            case Second:
+            //                return modelName + Const.ID_SPLIT + Downsampling.Second.getName();
             default:
                 return modelName;
         }

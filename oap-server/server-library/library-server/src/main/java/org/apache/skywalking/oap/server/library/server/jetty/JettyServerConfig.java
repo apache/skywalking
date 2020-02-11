@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.server.jetty;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class JettyServerConfig {
 
     private String host;

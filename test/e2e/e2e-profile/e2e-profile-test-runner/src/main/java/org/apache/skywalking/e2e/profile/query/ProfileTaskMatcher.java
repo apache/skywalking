@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.assertj.core.api.Assertions;
 
-/**
- * @author MrPro
- */
 @Setter
 @Getter
 public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {
@@ -36,6 +35,9 @@ public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {
     private String duration;
     private String minDurationThreshold;
     private String dumpPeriod;
+    private String maxSamplingCount;
+
+    private List<ProfileTaskLogMatcher> logs;
 
     @Override
     public void verify(ProfileTask task) {
@@ -46,6 +48,13 @@ public class ProfileTaskMatcher extends AbstractMatcher<ProfileTask> {
         doVerify(duration, task.getDuration());
         doVerify(minDurationThreshold, task.getMinDurationThreshold());
         doVerify(dumpPeriod, task.getDumpPeriod());
+
+        // verify logs
+        Assertions.assertThat(task.getLogs()).hasSameSizeAs(this.logs);
+        int size = this.getLogs().size();
+        for (int i = 0; i < size; i++) {
+            this.getLogs().get(i).verify(task.getLogs().get(i));
+        }
     }
 
 }

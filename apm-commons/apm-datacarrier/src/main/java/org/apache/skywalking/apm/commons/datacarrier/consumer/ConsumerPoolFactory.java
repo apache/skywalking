@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 
 /**
  * Consumer Pool Factory provides global management for all Consumer Pool.
- *
- * @author wusheng
  */
 public enum ConsumerPoolFactory {
     INSTANCE;
@@ -56,7 +55,8 @@ public enum ConsumerPoolFactory {
     public static final ConsumerPool DEFAULT_POOL = new ConsumerPool() {
         private Map<Channels, ConsumeDriver> allDrivers = new HashMap<Channels, ConsumeDriver>();
 
-        @Override synchronized public void add(String name, Channels channels, IConsumer consumer) {
+        @Override
+        synchronized public void add(String name, Channels channels, IConsumer consumer) {
             if (!allDrivers.containsKey(channels)) {
                 ConsumeDriver consumeDriver = new ConsumeDriver(name, channels, consumer, 1, 20);
                 allDrivers.put(channels, consumeDriver);
@@ -65,21 +65,22 @@ public enum ConsumerPoolFactory {
 
         /**
          * Always return true.
-         * @param channels
-         * @return
          */
-        @Override public boolean isRunning(Channels channels) {
+        @Override
+        public boolean isRunning(Channels channels) {
             return true;
         }
 
-        @Override public void close(Channels channels) {
+        @Override
+        public void close(Channels channels) {
             ConsumeDriver driver = allDrivers.get(channels);
             if (driver != null) {
                 driver.close(channels);
             }
         }
 
-        @Override public void begin(Channels channels) {
+        @Override
+        public void begin(Channels channels) {
             ConsumeDriver driver = allDrivers.get(channels);
             if (driver != null) {
                 driver.begin(channels);

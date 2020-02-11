@@ -24,9 +24,6 @@ import org.apache.skywalking.e2e.metrics.MetricsValue;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
 import org.junit.Test;
 
-/**
- * @author kezhenxu94
- */
 public class TestMetricsMatcher {
     @Test
     public void shouldVerifyOneOf() {

@@ -28,18 +28,18 @@ import java.lang.reflect.Method;
 
 /**
  * for mysql connector java 6.0.2,6.0.3
- * @author lican
  */
 public class ConnectionCreateOldInterceptor implements StaticMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
 
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         if (ret instanceof EnhancedInstance) {
             ConnectionInfo connectionInfo = ConnectionCache.get(allArguments[1].toString(), allArguments[2].toString());
             ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
@@ -48,7 +48,8 @@ public class ConnectionCreateOldInterceptor implements StaticMethodsAroundInterc
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
 
     }
 }

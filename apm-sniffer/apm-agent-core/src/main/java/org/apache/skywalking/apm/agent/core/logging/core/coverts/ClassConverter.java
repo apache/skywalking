@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
@@ -24,10 +23,8 @@ import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
  * Just return logEvent.getTargetClass().
- * @author alvin
  */
 public class ClassConverter implements Converter {
-
 
     @Override
     public String convert(LogEvent logEvent) {

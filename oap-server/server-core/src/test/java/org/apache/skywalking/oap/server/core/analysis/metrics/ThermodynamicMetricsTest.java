@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class ThermodynamicMetricsTest {
-    private int step = 10;//ms
-    private int maxNumOfSteps = 10;//count
+    private int step = 10; //ms
+    private int maxNumOfSteps = 10; //count
 
     @Test
     public void testEntrance() {
@@ -90,31 +88,38 @@ public class ThermodynamicMetricsTest {
 
     public class ThermodynamicMetricsMocker extends ThermodynamicMetrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
     }

@@ -18,6 +18,14 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
 import org.apache.skywalking.e2e.service.ServicesQuery;
@@ -29,7 +37,14 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.*;
+import org.apache.skywalking.e2e.topo.Call;
+import org.apache.skywalking.e2e.topo.Node;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoData;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoMatcher;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoQuery;
+import org.apache.skywalking.e2e.topo.TopoData;
+import org.apache.skywalking.e2e.topo.TopoMatcher;
+import org.apache.skywalking.e2e.topo.TopoQuery;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -45,22 +60,19 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
+import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyPercentileMetrics;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_MULTIPLE_LINEAR_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.assertj.core.api.Assertions.fail;
 
-/**
- * @author kezhenxu94
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ClusterVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterVerificationITCase.class);
@@ -98,11 +110,9 @@ public class ClusterVerificationITCase {
         List<Service> services = Collections.emptyList();
         while (services.size() < 2) {
             try {
-                services = queryClient.services(
-                        new ServicesQuery()
-                                .start(startTime)
-                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                );
+                services = queryClient.services(new ServicesQuery().start(startTime)
+                                                                   .end(LocalDateTime.now(ZoneOffset.UTC)
+                                                                                     .plusMinutes(1)));
                 Thread.sleep(500); // take a nap to avoid high payload
             } catch (Throwable ignored) {
             }
@@ -120,16 +130,14 @@ public class ClusterVerificationITCase {
         boolean valid = false;
         while (!valid) {
             try {
-                final TopoData topoData = queryClient.topo(
-                        new TopoQuery()
-                                .stepByMinute()
-                                .start(minutesAgo)
-                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                );
+                final TopoData topoData = queryClient.topo(new TopoQuery().stepByMinute()
+                                                                          .start(minutesAgo)
+                                                                          .end(LocalDateTime.now(ZoneOffset.UTC)
+                                                                                            .plusMinutes(1)));
                 LOGGER.info("Actual topology: {}", topoData);
 
-                InputStream expectedInputStream =
-                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml").getInputStream();
+                InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.topo.yml")
+                    .getInputStream();
 
                 final TopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, TopoMatcher.class);
                 topoMatcher.verify(topoData);
@@ -152,25 +160,26 @@ public class ClusterVerificationITCase {
         verifyServiceInstanceTopo(minutesAgo, clientServiceId, serverServiceId);
     }
 
-    private void verifyServiceInstanceTopo(LocalDateTime minutesAgo, String clientServiceId, String serverServiceId) throws Exception {
+    private void verifyServiceInstanceTopo(LocalDateTime minutesAgo, String clientServiceId,
+        String serverServiceId) throws Exception {
         if (clientServiceId == null || serverServiceId == null) {
             fail("clientService or serverService not found");
         }
         boolean valid = false;
         while (!valid) {
             try {
-                final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(
-                        new ServiceInstanceTopoQuery()
-                                .stepByMinute()
-                                .start(minutesAgo.minusDays(1))
-                                .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-                                .clientServiceId(clientServiceId)
-                                .serverServiceId(serverServiceId)
-                );
+                final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(new ServiceInstanceTopoQuery().stepByMinute()
+                                                                                                                       .start(minutesAgo
+                                                                                                                           .minusDays(1))
+                                                                                                                       .end(LocalDateTime
+                                                                                                                           .now(ZoneOffset.UTC)
+                                                                                                                           .plusMinutes(1))
+                                                                                                                       .clientServiceId(clientServiceId)
+                                                                                                                       .serverServiceId(serverServiceId));
 
                 LOGGER.info("Actual service instance topology: {}", topoData);
-                InputStream expectedInputStream =
-                        new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.serviceInstanceTopo.yml").getInputStream();
+                InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.serviceInstanceTopo.yml")
+                    .getInputStream();
                 final ServiceInstanceTopoMatcher topoMatcher = yaml.loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
                 topoMatcher.verify(topoData);
                 verifyServiceInstanceRelationMetrics(topoData.getCalls(), minutesAgo);
@@ -184,23 +193,18 @@ public class ClusterVerificationITCase {
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
-        List<Service> services = queryClient.services(
-                new ServicesQuery()
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-        );
+        List<Service> services = queryClient.services(new ServicesQuery().start(minutesAgo)
+                                                                         .end(LocalDateTime.now(ZoneOffset.UTC)
+                                                                                           .plusMinutes(1)));
         while (services.isEmpty()) {
             LOGGER.warn("services is null, will retry to query");
-            services = queryClient.services(
-                    new ServicesQuery()
-                            .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC))
-            );
+            services = queryClient.services(new ServicesQuery().start(minutesAgo)
+                                                               .end(LocalDateTime.now(ZoneOffset.UTC)));
             Thread.sleep(retryInterval);
         }
 
-        InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.services.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.services.yml")
+            .getInputStream();
 
         final ServicesMatcher servicesMatcher = yaml.loadAs(expectedInputStream, ServicesMatcher.class);
         servicesMatcher.verify(services);
@@ -221,31 +225,27 @@ public class ClusterVerificationITCase {
     }
 
     private Instances verifyServiceInstances(LocalDateTime minutesAgo, Service service) throws Exception {
-        Instances instances = queryClient.instances(
-                new InstancesQuery()
-                        .serviceId(service.getKey())
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-        );
+        Instances instances = queryClient.instances(new InstancesQuery().serviceId(service.getKey())
+                                                                        .start(minutesAgo)
+                                                                        .end(LocalDateTime.now(ZoneOffset.UTC)
+                                                                                          .plusMinutes(1)));
         while (instances == null) {
             LOGGER.warn("instances is null, will send traffic data and retry to query");
             generateTraffic();
             Thread.sleep(retryInterval);
-            instances = queryClient.instances(
-                    new InstancesQuery()
-                            .serviceId(service.getKey())
-                            .start(minutesAgo)
-                            .end(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(1))
-            );
+            instances = queryClient.instances(new InstancesQuery().serviceId(service.getKey())
+                                                                  .start(minutesAgo)
+                                                                  .end(LocalDateTime.now(ZoneOffset.UTC)
+                                                                                    .plusMinutes(1)));
         }
 
         InputStream expectedInputStream;
         if (providerName.equals(service.getLabel())) {
-            expectedInputStream =
-                    new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.providerInstances.yml").getInputStream();
+            expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.providerInstances.yml")
+                .getInputStream();
         } else {
-            expectedInputStream =
-                    new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml").getInputStream();
+            expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.instances.yml")
+                .getInputStream();
         }
 
         final InstancesMatcher instancesMatcher = yaml.loadAs(expectedInputStream, InstancesMatcher.class);
@@ -254,19 +254,15 @@ public class ClusterVerificationITCase {
     }
 
     private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, Service service) throws Exception {
-        Endpoints endpoints = queryClient.endpoints(
-                new EndpointQuery().serviceId(service.getKey())
-        );
+        Endpoints endpoints = queryClient.endpoints(new EndpointQuery().serviceId(service.getKey()));
         while (endpoints == null) {
             LOGGER.warn("endpoints is null, will send traffic data and retry to query");
             generateTraffic();
             Thread.sleep(retryInterval);
-            endpoints = queryClient.endpoints(
-                    new EndpointQuery().serviceId(service.getKey())
-            );
+            endpoints = queryClient.endpoints(new EndpointQuery().serviceId(service.getKey()));
         }
-        InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.endpoints.yml")
+            .getInputStream();
         final EndpointsMatcher endpointsMatcher = yaml.loadAs(expectedInputStream, EndpointsMatcher.class);
         endpointsMatcher.verify(endpoints);
         return endpoints;
@@ -293,6 +289,10 @@ public class ClusterVerificationITCase {
 
                 verifyMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
             }
+
+            for (String metricName : ALL_ENDPOINT_MULTIPLE_LINEAR_METRICS) {
+                verifyPercentileMetrics(queryClient, metricName, endpoint.getKey(), minutesAgo, retryInterval, this::generateTraffic);
+            }
         }
     }
 
@@ -302,13 +302,13 @@ public class ClusterVerificationITCase {
 
             verifyMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
         }
+        for (String metricName : ALL_SERVICE_MULTIPLE_LINEAR_METRICS) {
+            verifyPercentileMetrics(queryClient, metricName, service.getKey(), minutesAgo, retryInterval, this::generateTraffic);
+        }
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
-        final TracesQuery query = new TracesQuery()
-                .stepBySecond()
-                .start(minutesAgo)
-                .orderByStartTime();
+        final TracesQuery query = new TracesQuery().stepBySecond().start(minutesAgo).orderByStartTime();
 
         List<Trace> traces = queryClient.traces(query.end(LocalDateTime.now(ZoneOffset.UTC)));
         while (traces.isEmpty()) {
@@ -318,14 +318,15 @@ public class ClusterVerificationITCase {
             traces = queryClient.traces(query.end(LocalDateTime.now(ZoneOffset.UTC)));
         }
 
-        InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.traces.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.ClusterVerificationITCase.traces.yml")
+            .getInputStream();
 
         final TracesMatcher tracesMatcher = yaml.loadAs(expectedInputStream, TracesMatcher.class);
         tracesMatcher.verifyLoosely(traces);
     }
 
-    private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
+    private void verifyServiceInstanceRelationMetrics(List<Call> calls,
+        final LocalDateTime minutesAgo) throws Exception {
         verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
     }
 
@@ -333,7 +334,8 @@ public class ClusterVerificationITCase {
         verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
     }
 
-    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
+    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics,
+        String[] relationServerMetrics) throws Exception {
         for (Call call : calls) {
             for (String detectPoint : call.getDetectPoints()) {
                 switch (detectPoint) {
@@ -354,16 +356,11 @@ public class ClusterVerificationITCase {
         }
     }
 
-
     private void generateTraffic() {
         try {
             final Map<String, String> user = new HashMap<>();
             user.put("name", "SkyWalking");
-            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-            );
+            final ResponseEntity<String> responseEntity = restTemplate.postForEntity(instrumentedServiceUrl + "/e2e/users", user, String.class);
             LOGGER.info("responseEntity: {}, {}", responseEntity.getStatusCode(), responseEntity.getBody());
         } catch (Throwable t) {
             LOGGER.warn(t.getMessage(), t);

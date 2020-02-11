@@ -18,22 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
-import com.google.common.cache.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class ServiceInstanceInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCache.class);
@@ -55,16 +55,27 @@ public class ServiceInstanceInventoryCache implements Service {
         this.userServiceInstance.setIsAddress(BooleanUtils.FALSE);
 
         long initialSize = moduleConfig.getMaxSizeOfServiceInstanceInventory() / 10L;
-        int initialCapacitySize = (int)(initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
+        int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
-        serviceInstanceIdCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory()).build();
-        serviceInstanceNameCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory()).build();
-        addressIdCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory()).build();
+        serviceInstanceIdCache = CacheBuilder.newBuilder()
+                                             .initialCapacity(initialCapacitySize)
+                                             .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
+                                             .build();
+        serviceInstanceNameCache = CacheBuilder.newBuilder()
+                                               .initialCapacity(initialCapacitySize)
+                                               .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
+                                               .build();
+        addressIdCache = CacheBuilder.newBuilder()
+                                     .initialCapacity(initialCapacitySize)
+                                     .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
+                                     .build();
     }
 
     private IServiceInstanceInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInstanceInventoryCacheDAO.class);
+            this.cacheDAO = moduleManager.find(StorageModule.NAME)
+                                         .provider()
+                                         .getService(IServiceInstanceInventoryCacheDAO.class);
         }
         return this.cacheDAO;
     }

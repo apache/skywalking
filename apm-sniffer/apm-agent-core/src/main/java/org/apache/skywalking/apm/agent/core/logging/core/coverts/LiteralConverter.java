@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
@@ -24,7 +23,6 @@ import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
 /**
  * This Converter is used to return the literal.
- * @author alvin
  */
 public class LiteralConverter implements Converter {
 

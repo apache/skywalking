@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.e2e.profile.creation;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * e2e profile, create profile task entity
- *
- * @author MrPro
  */
 @Setter
 @Getter
@@ -38,5 +40,6 @@ public class ProfileTaskCreationRequest {
     private int duration;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
 
 }

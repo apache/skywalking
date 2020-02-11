@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 
-/**
- * @author kezhenxu94
- */
 public class Es7DAO extends AbstractDAO<ElasticSearch7Client> {
     public Es7DAO(final ElasticSearch7Client client) {
         super(client);

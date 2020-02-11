@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.define.v37;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,14 +31,13 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Enhance {@code com.mongodb.client.internal.MongoClientDelegate} instance, and intercept
- * {@code com.mongodb.client.internal.MongoClientDelegate#getOperationExecutor()}, this is the only way to
- * get OperationExecutor which is unified entrance of execute mongo command. we can mark OperationExecutor
- * which connection belongs to.
+ * Enhance {@code com.mongodb.client.internal.MongoClientDelegate} instance, and intercept {@code
+ * com.mongodb.client.internal.MongoClientDelegate#getOperationExecutor()}, this is the only way to get
+ * OperationExecutor which is unified entrance of execute mongo command. we can mark OperationExecutor which connection
+ * belongs to.
  * <p>
  * support: 3.7.x or higher
  *
- * @author scolia
  * @see MongoDBOperationExecutorInstrumentation
  * @see MongoDBClientDelegateInterceptor
  */
@@ -51,7 +49,7 @@ public class MongoDBClientDelegateInstrumentation extends ClassInstanceMethodsEn
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{ENHANCE_CLASS};
+        return new String[] {ENHANCE_CLASS};
     }
 
     @Override
@@ -61,40 +59,41 @@ public class MongoDBClientDelegateInstrumentation extends ClassInstanceMethodsEn
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
-            }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
+                }
 
-            @Override
-            public String getConstructorInterceptor() {
-                return INTERCEPTOR_CLASS;
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
             }
-        }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("getOperationExecutor");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("getOperationExecutor");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
-
 
 }

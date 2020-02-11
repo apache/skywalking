@@ -36,7 +36,11 @@ message RemoteData {
     repeated int64 dataLongs = 2;
     repeated double dataDoubles = 3;
     repeated int32 dataIntegers = 4;
-    repeated IntKeyLongValuePair dataIntLongPairList = 5;
+    repeated DataIntLongPairList dataLists = 5;
+}
+
+message DataIntLongPairList {
+    repeated IntKeyLongValuePair value = 1;
 }
 
 message IntKeyLongValuePair {

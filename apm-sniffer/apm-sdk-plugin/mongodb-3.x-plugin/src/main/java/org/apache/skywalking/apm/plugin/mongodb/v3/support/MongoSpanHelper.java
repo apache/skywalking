@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.support;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -27,9 +26,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author scolia
- */
 public class MongoSpanHelper {
 
     private MongoSpanHelper() {

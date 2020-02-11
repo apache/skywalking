@@ -21,12 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
 
-/**
- * @author peng-yongsheng
- */
 public class ColumnTypeEsMapping implements DataTypeMapping {
 
-    @Override public String transform(Class<?> type) {
+    @Override
+    public String transform(Class<?> type) {
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "integer";
         } else if (Long.class.equals(type) || long.class.equals(type)) {

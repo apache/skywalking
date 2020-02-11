@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Thermodynamic {
     private final List<List<Long>> nodes;
-    @Setter private int axisYStep;
+    @Setter
+    private int axisYStep;
 
     public Thermodynamic() {
         this.nodes = new ArrayList<>();
@@ -35,15 +35,14 @@ public class Thermodynamic {
 
     public void fromMatrixData(List<List<Long>> thermodynamicValueMatrix, int numOfSteps) {
         thermodynamicValueMatrix.forEach(columnOfThermodynamic -> {
-                if (columnOfThermodynamic.size() == 0) {
-                    if (numOfSteps > 0) {
-                        for (int i = 0; i < numOfSteps; i++) {
-                            columnOfThermodynamic.add(0L);
-                        }
+            if (columnOfThermodynamic.size() == 0) {
+                if (numOfSteps > 0) {
+                    for (int i = 0; i < numOfSteps; i++) {
+                        columnOfThermodynamic.add(0L);
                     }
                 }
             }
-        );
+        });
 
         for (int colNum = 0; colNum < thermodynamicValueMatrix.size(); colNum++) {
             List<Long> column = thermodynamicValueMatrix.get(colNum);
@@ -56,8 +55,8 @@ public class Thermodynamic {
 
     private void setNodeValue(int columnNum, int rowNum, Long value) {
         List<Long> element = new ArrayList<>(3);
-        element.add((long)columnNum);
-        element.add((long)rowNum);
+        element.add((long) columnNum);
+        element.add((long) rowNum);
         element.add(value);
         nodes.add(element);
     }

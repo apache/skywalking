@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.query.graphql.type;
 
 import lombok.Getter;
@@ -23,8 +24,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 /**
  * Profile task create need data
- *
- * @author MrPro
  */
 @Setter
 @Getter
@@ -37,5 +36,6 @@ public class ProfileTaskCreationRequest {
     private Step durationUnit;
     private int minDurationThreshold;
     private int dumpPeriod;
+    private int maxSamplingCount;
 
 }

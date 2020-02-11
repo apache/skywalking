@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.topo;
 
 import org.apache.skywalking.e2e.AbstractQuery;
 
-/**
- * @author zhangwei
- */
 public class ServiceInstanceTopoQuery extends AbstractQuery<ServiceInstanceTopoQuery> {
 
     private String clientServiceId;

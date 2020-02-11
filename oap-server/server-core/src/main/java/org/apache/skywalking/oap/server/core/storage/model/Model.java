@@ -22,9 +22,6 @@ import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Model {
 
@@ -36,7 +33,8 @@ public class Model {
     private final int scopeId;
     private final boolean record;
 
-    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory, int scopeId, Downsampling downsampling, boolean record) {
+    public Model(String name, List<ModelColumn> columns, boolean capableOfTimeSeries, boolean deleteHistory,
+        int scopeId, Downsampling downsampling, boolean record) {
         this.columns = columns;
         this.capableOfTimeSeries = capableOfTimeSeries;
         this.downsampling = downsampling;

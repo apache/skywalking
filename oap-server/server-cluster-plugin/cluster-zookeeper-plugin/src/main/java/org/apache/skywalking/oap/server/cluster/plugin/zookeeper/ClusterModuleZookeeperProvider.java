@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import com.google.common.collect.Lists;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -42,13 +44,8 @@ import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
 /**
  * Use Zookeeper to manage all instances in SkyWalking cluster.
- *
- * @author peng-yongsheng, Wu Sheng
  */
 public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
@@ -65,24 +62,28 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         this.config = new ClusterModuleZookeeperConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "zookeeper";
     }
 
-    @Override public Class module() {
+    @Override
+    public Class module() {
         return ClusterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(config.getBaseSleepTimeMs(), config.getMaxRetries());
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-            .retryPolicy(retryPolicy)
-            .connectString(config.getHostPort());
+                                                                         .retryPolicy(retryPolicy)
+                                                                         .connectString(config.getHostPort());
 
         if (config.isEnableACL()) {
             String authInfo = config.getExpression();
@@ -117,10 +118,12 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         String path = BASE_PATH + (StringUtil.isEmpty(config.getNameSpace()) ? "" : "/" + config.getNameSpace());
 
-        serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class).client(client)
-            .basePath(path)
-            .watchInstances(true)
-            .serializer(new SWInstanceSerializer()).build();
+        serviceDiscovery = ServiceDiscoveryBuilder.builder(RemoteInstance.class)
+                                                  .client(client)
+                                                  .basePath(path)
+                                                  .watchInstances(true)
+                                                  .serializer(new SWInstanceSerializer())
+                                                  .build();
 
         ZookeeperCoordinator coordinator;
         try {
@@ -137,10 +140,12 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
     }
 
     @Override

@@ -23,11 +23,9 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * Node type describe which kind of node of Service or Network address represents to.
- *
+ * <p>
  * The value comes from 'org.apache.skywalking.apm.network.language.agent.SpanLayer' at first place, but most likely it
  * will extend and be used directly from different sources, such as Mesh.
- *
- * @author wusheng
  */
 public enum NodeType {
     /**
@@ -57,8 +55,7 @@ public enum NodeType {
     /**
      * <code>Browser = 6;</code>
      */
-    Browser(6),
-    UNRECOGNIZED(-1);
+    Browser(6), UNRECOGNIZED(-1);
 
     private final int value;
 
@@ -93,9 +90,6 @@ public enum NodeType {
 
     /**
      * Right now, spanLayerValue is exact same as NodeType value.
-     *
-     * @param spanLayerValue
-     * @return
      */
     public static NodeType fromSpanLayerValue(int spanLayerValue) {
         return get(spanLayerValue);

@@ -47,9 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Alan Lau
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(EtcdKeysResponse.class)
 @PowerMockIgnore("javax.management.*")
@@ -70,7 +67,8 @@ public class EtcdCoordinatorTest {
 
     private static final String SERVICE_NAME = "my-service";
 
-    private EtcdResponsePromise<EtcdKeysResponse> getPromise, putPromise;
+    private EtcdResponsePromise<EtcdKeysResponse> getPromise;
+    private EtcdResponsePromise<EtcdKeysResponse> putPromise;
 
     private EtcdKeysResponse response;
 
@@ -94,9 +92,9 @@ public class EtcdCoordinatorTest {
         client = new EtcdClient("http://10.0.0.1:1000", "http://10.0.0.2:2000");
         coordinator = new EtcdCoordinator(etcdConfig, client);
 
-        putPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
-        getPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
-        putDirPromise = (EtcdResponsePromise<EtcdKeysResponse>)mock(EtcdResponsePromise.class);
+        putPromise = (EtcdResponsePromise<EtcdKeysResponse>) mock(EtcdResponsePromise.class);
+        getPromise = (EtcdResponsePromise<EtcdKeysResponse>) mock(EtcdResponsePromise.class);
+        putDirPromise = (EtcdResponsePromise<EtcdKeysResponse>) mock(EtcdResponsePromise.class);
 
         PowerMockito.when(client.putDir(anyString())).thenReturn(putDirRequest);
         PowerMockito.when(putDirRequest.ttl(anyInt())).thenReturn(putDirRequest);

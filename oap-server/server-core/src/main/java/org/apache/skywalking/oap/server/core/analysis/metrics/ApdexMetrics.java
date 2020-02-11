@@ -31,13 +31,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 /**
  * Apdex dissatisfaction levels of Tolerating (apdex_t) and Frustrated (apdex_f) indicate how slow site performance
  * contributes to poor customer experiences in your app. For example:
- *
- * 10000: All responses are satisfactory.
- * Tolerating responses half satisfy a user. For example, if all responses are Tolerating, then the Apdex value will
- * be 5000.
- * 0: None of the responses are satisfactory.
- *
- * @author gaohongtao
+ * <p>
+ * 10000: All responses are satisfactory. Tolerating responses half satisfy a user. For example, if all responses are
+ * Tolerating, then the Apdex value will be 5000. 0: None of the responses are satisfactory.
  */
 @MetricsFunction(functionName = "apdex")
 public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
@@ -50,10 +46,22 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     protected static final String T_NUM = "t_num";
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = TOTAL_NUM) private int totalNum;
-    @Getter @Setter @Column(columnName = S_NUM) private int sNum;
-    @Getter @Setter @Column(columnName = T_NUM) private int tNum;
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
+    @Getter
+    @Setter
+    @Column(columnName = TOTAL_NUM)
+    private int totalNum;
+    @Getter
+    @Setter
+    @Column(columnName = S_NUM)
+    private int sNum;
+    @Getter
+    @Setter
+    @Column(columnName = T_NUM)
+    private int tNum;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    private int value;
 
     @Entrance
     public final void combine(@SourceFrom int value, @Arg String name, @Arg boolean status) {
@@ -70,17 +78,20 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
         }
     }
 
-    @Override public final void combine(Metrics metrics) {
-        tNum += ((ApdexMetrics)metrics).tNum;
-        sNum += ((ApdexMetrics)metrics).sNum;
-        totalNum += ((ApdexMetrics)metrics).totalNum;
+    @Override
+    public final void combine(Metrics metrics) {
+        tNum += ((ApdexMetrics) metrics).tNum;
+        sNum += ((ApdexMetrics) metrics).sNum;
+        totalNum += ((ApdexMetrics) metrics).totalNum;
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
         value = (sNum * 10000 + tNum * 10000 / 2) / totalNum;
     }
 
-    @Override public int getValue() {
+    @Override
+    public int getValue() {
         return value;
     }
 }

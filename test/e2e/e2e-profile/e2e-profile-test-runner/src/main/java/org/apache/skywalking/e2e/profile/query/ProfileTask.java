@@ -15,16 +15,16 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
  * Profile task bean for e2e GraphQL test result
- *
- * @author MrPro
  */
 @Setter
 @Getter
@@ -38,5 +38,8 @@ public class ProfileTask {
     private String duration;
     private String minDurationThreshold;
     private String dumpPeriod;
+    private String maxSamplingCount;
+
+    private List<ProfileTaskLog> logs;
 
 }

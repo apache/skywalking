@@ -15,72 +15,147 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.query;
 
+import com.google.common.base.Objects;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
+import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-
-import java.io.IOException;
-import java.util.List;
 
 import static java.util.Objects.isNull;
 
 /**
  * handle profile task queries
- *
- * @author MrPro
  */
 public class ProfileTaskQueryService implements Service {
     private final ModuleManager moduleManager;
     private IProfileTaskQueryDAO profileTaskQueryDAO;
+    private IProfileTaskLogQueryDAO profileTaskLogQueryDAO;
+    private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
+    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
-    public ProfileTaskQueryService(ModuleManager moduleManager) {
+    private final ProfileAnalyzer profileAnalyzer;
+
+    public ProfileTaskQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
+        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot(), moduleConfig.getMaxSizeOfAnalyzeProfileSnapshot());
     }
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {
-        if (profileTaskQueryDAO == null) {
-            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
+        if (isNull(profileTaskQueryDAO)) {
+            this.profileTaskQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                    .provider()
+                                                    .getService(IProfileTaskQueryDAO.class);
         }
         return profileTaskQueryDAO;
     }
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                      .provider()
+                                                      .getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }
 
+    private IProfileTaskLogQueryDAO getProfileTaskLogQueryDAO() {
+        if (isNull(profileTaskLogQueryDAO)) {
+            profileTaskLogQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                  .provider()
+                                                  .getService(IProfileTaskLogQueryDAO.class);
+        }
+        return profileTaskLogQueryDAO;
+    }
+
+    private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
+        if (isNull(serviceInstanceInventoryCache)) {
+            serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(ServiceInstanceInventoryCache.class);
+        }
+        return serviceInstanceInventoryCache;
+    }
+
+    private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
+        if (isNull(profileThreadSnapshotQueryDAO)) {
+            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(IProfileThreadSnapshotQueryDAO.class);
+        }
+        return profileThreadSnapshotQueryDAO;
+    }
+
     /**
      * search profile task list
-     * @param serviceId monitor service
+     *
+     * @param serviceId    monitor service
      * @param endpointName endpoint name to monitored
-     * @return
      */
     public List<ProfileTask> getTaskList(Integer serviceId, String endpointName) throws IOException {
         final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, null, null, null);
 
+        // query all and filter on task to match logs
+        List<ProfileTaskLog> taskLogList = getProfileTaskLogQueryDAO().getTaskLogList(null);
+        if (taskLogList == null) {
+            taskLogList = Collections.emptyList();
+        }
+
         // add service name
         if (CollectionUtils.isNotEmpty(tasks)) {
             final ServiceInventoryCache serviceInventoryCache = getServiceInventoryCache();
+            final ServiceInstanceInventoryCache serviceInstanceInventoryCache = getServiceInstanceInventoryCache();
             for (ProfileTask task : tasks) {
                 final ServiceInventory serviceInventory = serviceInventoryCache.get(task.getServiceId());
                 if (serviceInventory != null) {
                     task.setServiceName(serviceInventory.getName());
                 }
+
+                // filter all task logs
+                task.setLogs(taskLogList.stream().filter(l -> Objects.equal(l.getTaskId(), task.getId())).map(l -> {
+                    // get instance name from cache
+                    final ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(l.getInstanceId());
+                    if (instanceInventory != null) {
+                        l.setInstanceName(instanceInventory.getName());
+                    }
+                    return l;
+                }).collect(Collectors.toList()));
             }
         }
 
         return tasks;
+    }
+
+    /**
+     * search profiled traces
+     */
+    public List<BasicTrace> getTaskTraces(String taskId) throws IOException {
+        return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
+    }
+
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
+        return profileAnalyzer.analyze(segmentId, start, end);
     }
 
 }

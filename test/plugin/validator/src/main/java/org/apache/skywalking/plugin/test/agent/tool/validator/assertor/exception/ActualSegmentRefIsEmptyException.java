@@ -26,7 +26,8 @@ public class ActualSegmentRefIsEmptyException extends AssertFailedException {
         this.expectedSize = expectedSize;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("ActualSegmentRefIsEmptyException\nexpected: %d\nactual: %s\n", expectedSize, "Not found");
     }
 }

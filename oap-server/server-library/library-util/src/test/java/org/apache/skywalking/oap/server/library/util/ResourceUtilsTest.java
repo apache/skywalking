@@ -17,13 +17,9 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import java.io.FileNotFoundException;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-
-/**
- * @author kezhenxu94
- */
 public class ResourceUtilsTest {
 
     @Test(expected = FileNotFoundException.class)

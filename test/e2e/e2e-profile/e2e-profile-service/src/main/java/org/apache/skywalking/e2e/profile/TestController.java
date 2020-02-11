@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.e2e.profile;
 
-import org.springframework.web.bind.annotation.*;
+import java.util.concurrent.TimeUnit;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author MrPro
- */
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
@@ -38,8 +40,14 @@ public class TestController {
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) throws InterruptedException {
-        Thread.sleep(1000L);
-        return userRepo.save(user);
+    public User createAuthor(@RequestBody final CreateUser createUser) throws InterruptedException {
+        final User user = userRepo.save(createUser.toUser());
+        if (!createUser.getEnableProfiling()) {
+            return user;
+        } else {
+            // sleep 6200 milliseconds
+            TimeUnit.MILLISECONDS.sleep(6200);
+            return user;
+        }
     }
 }

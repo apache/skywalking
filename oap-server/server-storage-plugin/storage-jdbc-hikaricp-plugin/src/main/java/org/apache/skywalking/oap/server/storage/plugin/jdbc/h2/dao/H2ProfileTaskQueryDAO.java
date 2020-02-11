@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 import java.io.IOException;
@@ -32,9 +33,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author MrPro
- */
 public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private JDBCHikariCPClient h2Client;
 
@@ -43,7 +41,8 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+        Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
         sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where 1=1 ");
@@ -87,19 +86,43 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         }
     }
 
+    @Override
+    public ProfileTask getById(String id) throws IOException {
+        if (StringUtil.isEmpty(id)) {
+            return null;
+        }
+
+        final StringBuilder sql = new StringBuilder();
+        final ArrayList<Object> condition = new ArrayList<>(1);
+        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where id=? LIMIT 1");
+        condition.add(id);
+
+        try (Connection connection = h2Client.getConnection()) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+                if (resultSet.next()) {
+                    return parseTask(resultSet);
+                }
+            }
+        } catch (SQLException | JDBCClientException e) {
+            throw new IOException(e);
+        }
+        return null;
+    }
+
     /**
      * parse profile task data
-     * @param data
-     * @return
      */
     private ProfileTask parseTask(ResultSet data) throws SQLException {
         return ProfileTask.builder()
-                .id(data.getString("id"))
-                .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
-                .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
-                .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
-                .duration(data.getInt(ProfileTaskNoneStream.DURATION))
-                .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
-                .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD)).build();
+                          .id(data.getString("id"))
+                          .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
+                          .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
+                          .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
+                          .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
+                          .duration(data.getInt(ProfileTaskNoneStream.DURATION))
+                          .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
+                          .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))
+                          .maxSamplingCount(data.getInt(ProfileTaskNoneStream.MAX_SAMPLING_COUNT))
+                          .build();
     }
 }

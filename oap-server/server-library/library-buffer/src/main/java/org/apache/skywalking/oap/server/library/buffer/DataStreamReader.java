@@ -18,18 +18,24 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import com.google.protobuf.*;
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
+import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Parser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.apache.skywalking.apm.util.*;
-import org.slf4j.*;
+import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStreamReader.class);
@@ -55,9 +61,8 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     void initialize() {
         preRead();
 
-        Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(
-            new RunnableWithExceptionProtection(this::read,
-                t -> logger.error("Buffer data pre read failure.", t)), 3, 1, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this::read, t -> logger.error("Buffer data pre read failure.", t)), 3, 1, TimeUnit.SECONDS);
     }
 
     private void preRead() {

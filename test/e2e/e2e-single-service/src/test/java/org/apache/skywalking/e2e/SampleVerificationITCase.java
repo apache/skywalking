@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -33,7 +39,13 @@ import org.apache.skywalking.e2e.service.instance.Instance;
 import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
-import org.apache.skywalking.e2e.topo.*;
+import org.apache.skywalking.e2e.topo.Call;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoData;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoMatcher;
+import org.apache.skywalking.e2e.topo.ServiceInstanceTopoQuery;
+import org.apache.skywalking.e2e.topo.TopoData;
+import org.apache.skywalking.e2e.topo.TopoMatcher;
+import org.apache.skywalking.e2e.topo.TopoQuery;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -50,20 +62,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
-import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_ENDPOINT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_INSTANCE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SampleVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleVerificationITCase.class);
@@ -93,19 +101,12 @@ public class SampleVerificationITCase {
             try {
                 final Map<String, String> user = new HashMap<>();
                 user.put("name", "SkyWalking");
-                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    instrumentedServiceUrl + "/e2e/users",
-                    user,
-                    String.class
-                );
+                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(instrumentedServiceUrl + "/e2e/users", user, String.class);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                final List<Trace> traces = queryClient.traces(
-                    new TracesQuery()
-                        .start(minutesAgo)
-                        .end(LocalDateTime.now())
-                        .orderByDuration()
-                );
+                final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
+                                                                               .end(LocalDateTime.now())
+                                                                               .orderByDuration());
                 if (!traces.isEmpty()) {
                     break;
                 }
@@ -139,9 +140,9 @@ public class SampleVerificationITCase {
         });
 
         doRetryableVerification(() -> {
-            try{
+            try {
                 verifyServiceInstanceTopo(minutesAgo);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         });
@@ -150,16 +151,13 @@ public class SampleVerificationITCase {
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final TopoData topoData = queryClient.topo(
-            new TopoQuery()
-                .stepByMinute()
-                .start(minutesAgo.minusDays(1))
-                .end(now)
-        );
+        final TopoData topoData = queryClient.topo(new TopoQuery().stepByMinute()
+                                                                  .start(minutesAgo.minusDays(1))
+                                                                  .end(now));
         LOGGER.info("topoData: {}", topoData);
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.topo.yml")
+            .getInputStream();
 
         final TopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, TopoMatcher.class);
         topoMatcher.verify(topoData);
@@ -169,18 +167,16 @@ public class SampleVerificationITCase {
     private void verifyServiceInstanceTopo(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(
-                new ServiceInstanceTopoQuery()
-                        .stepByMinute()
-                        .start(minutesAgo.minusDays(1))
-                        .end(now)
-                        .clientServiceId("1")
-                        .serverServiceId("2")
-        );
+        final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(new ServiceInstanceTopoQuery().stepByMinute()
+                                                                                                               .start(minutesAgo
+                                                                                                                   .minusDays(1))
+                                                                                                               .end(now)
+                                                                                                               .clientServiceId("1")
+                                                                                                               .serverServiceId("2"));
         LOGGER.info("instanceTopoData: {}", topoData);
 
-        InputStream expectedInputStream =
-                new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.serviceInstanceTopo.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.serviceInstanceTopo.yml")
+            .getInputStream();
 
         final ServiceInstanceTopoMatcher topoMatcher = new Yaml().loadAs(expectedInputStream, ServiceInstanceTopoMatcher.class);
         topoMatcher.verify(topoData);
@@ -190,15 +186,11 @@ public class SampleVerificationITCase {
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Service> services = queryClient.services(
-            new ServicesQuery()
-                .start(minutesAgo)
-                .end(now)
-        );
+        final List<Service> services = queryClient.services(new ServicesQuery().start(minutesAgo).end(now));
         LOGGER.info("services: {}", services);
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.services.yml")
+            .getInputStream();
 
         final ServicesMatcher servicesMatcher = new Yaml().loadAs(expectedInputStream, ServicesMatcher.class);
         servicesMatcher.verify(services);
@@ -221,15 +213,12 @@ public class SampleVerificationITCase {
     private Instances verifyServiceInstances(LocalDateTime minutesAgo, LocalDateTime now,
         Service service) throws Exception {
         InputStream expectedInputStream;
-        Instances instances = queryClient.instances(
-            new InstancesQuery()
-                .serviceId(service.getKey())
-                .start(minutesAgo)
-                .end(now)
-        );
+        Instances instances = queryClient.instances(new InstancesQuery().serviceId(service.getKey())
+                                                                        .start(minutesAgo)
+                                                                        .end(now));
         LOGGER.info("instances: {}", instances);
-        expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml").getInputStream();
+        expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.instances.yml")
+            .getInputStream();
         final InstancesMatcher instancesMatcher = new Yaml().loadAs(expectedInputStream, InstancesMatcher.class);
         instancesMatcher.verify(instances);
         return instances;
@@ -237,12 +226,10 @@ public class SampleVerificationITCase {
 
     private Endpoints verifyServiceEndpoints(LocalDateTime minutesAgo, LocalDateTime now,
         Service service) throws Exception {
-        Endpoints instances = queryClient.endpoints(
-            new EndpointQuery().serviceId(service.getKey())
-        );
+        Endpoints instances = queryClient.endpoints(new EndpointQuery().serviceId(service.getKey()));
         LOGGER.info("instances: {}", instances);
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.endpoints.yml")
+            .getInputStream();
         final EndpointsMatcher endpointsMatcher = new Yaml().loadAs(expectedInputStream, EndpointsMatcher.class);
         endpointsMatcher.verify(instances);
         return instances;
@@ -252,12 +239,9 @@ public class SampleVerificationITCase {
         for (Instance instance : instances.getInstances()) {
             for (String metricsName : ALL_INSTANCE_METRICS) {
                 LOGGER.info("verifying service instance response time: {}", instance);
-                final Metrics instanceMetrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricsName)
-                        .id(instance.getKey())
-                );
+                final Metrics instanceMetrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                                      .metricsName(metricsName)
+                                                                                      .id(instance.getKey()));
                 LOGGER.info("instanceMetrics: {}", instanceMetrics);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
@@ -276,12 +260,9 @@ public class SampleVerificationITCase {
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
                 LOGGER.info("verifying endpoint {}, metrics: {}", endpoint, metricName);
-                final Metrics metrics = queryClient.metrics(
-                    new MetricsQuery()
-                        .stepByMinute()
-                        .metricsName(metricName)
-                        .id(endpoint.getKey())
-                );
+                final Metrics metrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                              .metricsName(metricName)
+                                                                              .id(endpoint.getKey()));
                 LOGGER.info("metrics: {}", metrics);
                 AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
                 MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
@@ -296,12 +277,9 @@ public class SampleVerificationITCase {
     private void verifyServiceMetrics(Service service) throws Exception {
         for (String metricName : ALL_SERVICE_METRICS) {
             LOGGER.info("verifying service {}, metrics: {}", service, metricName);
-            final Metrics serviceMetrics = queryClient.metrics(
-                new MetricsQuery()
-                    .stepByMinute()
-                    .metricsName(metricName)
-                    .id(service.getKey())
-            );
+            final Metrics serviceMetrics = queryClient.metrics(new MetricsQuery().stepByMinute()
+                                                                                 .metricsName(metricName)
+                                                                                 .id(service.getKey()));
             LOGGER.info("serviceMetrics: {}", serviceMetrics);
             AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
             MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
@@ -315,22 +293,18 @@ public class SampleVerificationITCase {
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
         final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Trace> traces = queryClient.traces(
-            new TracesQuery()
-                .start(minutesAgo)
-                .end(now)
-                .orderByDuration()
-        );
+        final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo).end(now).orderByDuration());
         LOGGER.info("traces: {}", traces);
 
-        InputStream expectedInputStream =
-            new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml").getInputStream();
+        InputStream expectedInputStream = new ClassPathResource("expected-data/org.apache.skywalking.e2e.SampleVerificationITCase.traces.yml")
+            .getInputStream();
 
         final TracesMatcher tracesMatcher = new Yaml().loadAs(expectedInputStream, TracesMatcher.class);
-        tracesMatcher.verify(traces);
+        tracesMatcher.verifyLoosely(traces);
     }
 
-    private void verifyServiceInstanceRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo) throws Exception {
+    private void verifyServiceInstanceRelationMetrics(List<Call> calls,
+        final LocalDateTime minutesAgo) throws Exception {
         verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_INSTANCE_RELATION_CLIENT_METRICS, ALL_SERVICE_INSTANCE_RELATION_SERVER_METRICS);
     }
 
@@ -338,7 +312,8 @@ public class SampleVerificationITCase {
         verifyRelationMetrics(calls, minutesAgo, ALL_SERVICE_RELATION_CLIENT_METRICS, ALL_SERVICE_RELATION_SERVER_METRICS);
     }
 
-    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics, String[] relationServerMetrics) throws Exception {
+    private void verifyRelationMetrics(List<Call> calls, final LocalDateTime minutesAgo, String[] relationClientMetrics,
+        String[] relationServerMetrics) throws Exception {
         for (Call call : calls) {
             for (String detectPoint : call.getDetectPoints()) {
                 switch (detectPoint) {

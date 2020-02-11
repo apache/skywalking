@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -26,18 +30,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
  * by default settings in application-default.yml.
- *
+ * <p>
  * At last, override setting by system.properties and system.envs if the key matches moduleName.provideName.settingKey.
- *
- * @author peng-yongsheng, wusheng
  */
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
 
@@ -45,7 +42,8 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
 
     private final Yaml yaml = new Yaml();
 
-    @Override public ApplicationConfiguration load() throws ConfigFileNotFoundException {
+    @Override
+    public ApplicationConfiguration load() throws ConfigFileNotFoundException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         this.loadConfig(configuration);
         this.overrideConfigBySystemEnv(configuration);
@@ -91,8 +89,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             throw new ConfigFileNotFoundException(e.getMessage(), e);
         }
     }
-    
-    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target, final Object providerName) {
+
+    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target,
+        final Object providerName) {
         final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(propertyValue + "", target));
         if (replaceValue != null) {
             target.replace(propertyName, replaceValue);
@@ -144,7 +143,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             return;
         }
 
-        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}",
-            settingKey, value, providerName, moduleName, "System.properties");
+        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}", settingKey, value, providerName, moduleName, "System.properties");
     }
 }

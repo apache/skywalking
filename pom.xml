@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
@@ -28,7 +29,7 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>21</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <modules>
@@ -186,6 +187,7 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-all.version>1.10.19</mockito-all.version>
+        <lombok.version>1.18.10</lombok.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.26.0</grpc.version>
@@ -217,6 +219,7 @@
         <jmh.version>1.21</jmh.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
     </properties>
 
     <dependencies>
@@ -246,6 +249,12 @@
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -400,6 +409,8 @@
                         <exclude>**/skywalking-ui/.editorconfig</exclude>
                         <!-- UI ignore -->
                         <exclude>**/skywalking-ui/.browserslistrc</exclude>
+                        <!-- UI prettier config -->
+                        <exclude>**/skywalking-ui/.prettierrc</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
@@ -449,6 +460,9 @@
                         <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
+
+                        <!-- generated file from test agent plugin scenarios -->
+                        <exclude>**/test/plugin/workspace/**</exclude>
 
                         <exclude>.m2/**</exclude>
                     </excludes>
@@ -519,7 +533,7 @@
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <failsOnError>true</failsOnError>
+                    <failOnViolation>${checkstyle.fails.on.error}</failOnViolation>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
@@ -559,13 +573,13 @@
                 <artifactId>cobertura-maven-plugin</artifactId>
                 <version>${cobertura-maven-plugin.version}</version>
                 <configuration>
-                    <check />
+                    <check/>
                     <aggregate>true</aggregate>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <quiet>true</quiet>
                     <formats>
-                      <format>html</format>
-                      <format>xml</format>
+                        <format>html</format>
+                        <format>xml</format>
                     </formats>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
@@ -24,9 +23,6 @@ import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public class ConsumerThread<T> extends Thread {
     private volatile boolean running;
     private IConsumer<T> consumer;
@@ -43,8 +39,6 @@ public class ConsumerThread<T> extends Thread {
 
     /**
      * add whole buffer to consume
-     *
-     * @param sourceBuffer
      */
     void addDataSource(QueueBuffer<T> sourceBuffer) {
         this.dataSources.add(new DataSource(sourceBuffer));

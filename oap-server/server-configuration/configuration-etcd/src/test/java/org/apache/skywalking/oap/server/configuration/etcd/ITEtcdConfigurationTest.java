@@ -43,9 +43,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author Alan Lau
- */
 public class ITEtcdConfigurationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ITEtcdConfigurationTest.class);
@@ -75,10 +72,7 @@ public class ITEtcdConfigurationTest {
         List<URI> uris = EtcdUtils.parseProp(properties);
         client = new EtcdClient(uris.toArray(new URI[] {}));
 
-        provider =
-            (EtcdConfigurationTestProvider)moduleManager
-                .find(EtcdConfigurationTestModule.NAME)
-                .provider();
+        provider = (EtcdConfigurationTestProvider) moduleManager.find(EtcdConfigurationTestModule.NAME).provider();
 
         assertNotNull(provider);
     }
@@ -116,8 +110,7 @@ public class ITEtcdConfigurationTest {
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE
-                                    .replacePlaceholders(value + "", properties));
+                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }

@@ -19,18 +19,15 @@
 package org.apache.skywalking.e2e.trace;
 
 import com.google.common.base.Strings;
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A simple matcher to verify the given {@code Trace} is expected
- *
- * @author kezhenxu94
  */
 public class TraceMatcher extends AbstractMatcher<Trace> {
     private String key;
@@ -194,14 +191,6 @@ public class TraceMatcher extends AbstractMatcher<Trace> {
 
     @Override
     public String toString() {
-        return "TraceMatcher{" +
-            "key='" + key + '\'' +
-            ", endpointNames=" + endpointNames +
-            ", duration='" + duration + '\'' +
-            ", start='" + start + '\'' +
-            ", isError='" + isError + '\'' +
-            ", traceIds=" + traceIds +
-            ", spans=" + spans +
-            '}';
+        return "TraceMatcher{" + "key='" + key + '\'' + ", endpointNames=" + endpointNames + ", duration='" + duration + '\'' + ", start='" + start + '\'' + ", isError='" + isError + '\'' + ", traceIds=" + traceIds + ", spans=" + spans + '}';
     }
 }

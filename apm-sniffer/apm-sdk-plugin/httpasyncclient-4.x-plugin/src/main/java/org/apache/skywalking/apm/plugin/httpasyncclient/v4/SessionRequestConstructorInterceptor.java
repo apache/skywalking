@@ -26,7 +26,6 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * hold the snapshot in SkyWalkingDynamicField
- * @author lican
  */
 public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
@@ -37,7 +36,10 @@ public class SessionRequestConstructorInterceptor implements InstanceConstructor
                 return;
             }
             ContextSnapshot snapshot = ContextManager.capture();
-            objInst.setSkyWalkingDynamicField(new Object[]{snapshot, CONTEXT_LOCAL.get()});
+            objInst.setSkyWalkingDynamicField(new Object[] {
+                snapshot,
+                CONTEXT_LOCAL.get()
+            });
         }
         CONTEXT_LOCAL.remove();
     }

@@ -35,22 +35,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
     public AggregationQueryEs7DAO(ElasticSearchClient client) {
         super(client);
     }
 
-    protected List<TopNEntity> aggregation(
-        String indexName,
-        String valueCName,
-        SearchSourceBuilder sourceBuilder,
-        int topN,
-        Order order) throws IOException {
+    protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
+        int topN, Order order) throws IOException {
 
         boolean asc = false;
         if (order.equals(Order.ASC)) {
@@ -77,13 +69,10 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
     }
 
     protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
-        return AggregationBuilders
-            .terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .order(BucketOrder.aggregation(valueCName, asc))
-            .size(topN)
-            .subAggregation(
-                AggregationBuilders.avg(valueCName).field(valueCName)
-            );
+        return AggregationBuilders.terms(Metrics.ENTITY_ID)
+                                  .field(Metrics.ENTITY_ID)
+                                  .order(BucketOrder.aggregation(valueCName, asc))
+                                  .size(topN)
+                                  .subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
     }
 }

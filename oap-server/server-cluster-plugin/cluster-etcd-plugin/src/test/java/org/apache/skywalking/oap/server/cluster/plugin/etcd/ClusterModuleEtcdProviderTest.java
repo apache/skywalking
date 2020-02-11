@@ -38,9 +38,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-/**
- * @author Alan Lau
- */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(EtcdUtils.class)
 @PowerMockIgnore("javax.management.*")

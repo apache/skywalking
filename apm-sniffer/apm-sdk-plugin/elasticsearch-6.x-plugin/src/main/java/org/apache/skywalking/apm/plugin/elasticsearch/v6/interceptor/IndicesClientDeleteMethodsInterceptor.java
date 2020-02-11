@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
 import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.DB_TYPE;
@@ -32,22 +33,16 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 
-/**
- * @author aderm
- */
 public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        DeleteIndexRequest deleteIndexRequest = (DeleteIndexRequest)(allArguments[0]);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        DeleteIndexRequest deleteIndexRequest = (DeleteIndexRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
-            AbstractSpan span = ContextManager
-                .createExitSpan(Constants.DELETE_OPERATOR_NAME,
-                    restClientEnhanceInfo.getPeers());
+            AbstractSpan span = ContextManager.createExitSpan(Constants.DELETE_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
             span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
             Tags.DB_TYPE.set(span, DB_TYPE);
@@ -57,10 +52,9 @@ public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAro
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
             ContextManager.stopSpan();
         }
@@ -68,10 +62,9 @@ public class IndicesClientDeleteMethodsInterceptor implements InstanceMethodsAro
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method,
-        Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst
-            .getSkyWalkingDynamicField());
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
         if (restClientEnhanceInfo != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

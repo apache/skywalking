@@ -24,8 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A wrapper annotation for {@link Tag} that allows to
- * apply multiple tags to a single method span,
+ * A wrapper annotation for {@link Tag} that allows to apply multiple tags to a single method span,
  *
  * <pre>
  * &#64;Tag(key = "tag1", value = "arg[0]")
@@ -35,7 +34,6 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  *
- * @author kezhenxu94
  * @see Tag
  */
 @Target(ElementType.METHOD)

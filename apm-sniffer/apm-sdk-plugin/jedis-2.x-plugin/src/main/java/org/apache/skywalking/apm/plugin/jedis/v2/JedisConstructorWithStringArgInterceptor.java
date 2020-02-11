@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -26,7 +25,7 @@ public class JedisConstructorWithStringArgInterceptor implements InstanceConstru
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String host = (String)allArguments[0];
+        String host = (String) allArguments[0];
         String port = "6379";
         if (allArguments.length > 1) {
             port = String.valueOf(allArguments[1]);

@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import zipkin2.Span;
 
-/**
- * @author wusheng
- */
 public class ZipkinTrace {
     private List<Span> spans;
     private ReentrantLock spanWriteLock;
@@ -50,13 +47,10 @@ public class ZipkinTrace {
 
     @Override
     public String toString() {
-        return "ZipkinTrace{" +
-                "spans=" + spans +
-                '}';
+        return "ZipkinTrace{" + "spans=" + spans + '}';
     }
 
     public static class TriggerTrace extends ZipkinTrace {
-
 
     }
 }

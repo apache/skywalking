@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.topo;
 
-/**
- * @author kezhenxu94
- */
 public class Node {
     private String id;
     private String name;
@@ -65,11 +62,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" +
-            "id='" + id + '\'' +
-            ", name='" + name + '\'' +
-            ", type='" + type + '\'' +
-            ", isReal='" + isReal + '\'' +
-            '}';
+        return "Node{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", type='" + type + '\'' + ", isReal='" + isReal + '\'' + '}';
     }
 }

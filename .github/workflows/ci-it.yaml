@@ -41,7 +41,7 @@ jobs:
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
@@ -61,7 +61,7 @@ jobs:
       - name: 'Install & Test'
         run: |
           set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist" clean verify install
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
@@ -79,4 +79,4 @@ jobs:
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist" clean verify install
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install

@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.network.trace.component;
 
 /**
  * The supported list of skywalking java sniffer.
- *
- * @author wusheng
  */
 public class ComponentsDefine {
 
@@ -64,11 +61,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
-    public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
+    public static final OfficialComponent HYSTRIX = new OfficialComponent(29, "Hystrix");
 
-    public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
+    public static final OfficialComponent JEDIS = new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "jdbc-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "jdbc-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 
@@ -90,39 +87,39 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
 
-    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
+    public static final OfficialComponent SOFARPC = new OfficialComponent(43, "SOFARPC");
 
-    public static final  OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45,"activemq-producer");
+    public static final OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45, "activemq-producer");
 
-    public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
+    public static final OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46, "activemq-consumer");
 
-    public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
+    public static final OfficialComponent TRANSPORT_CLIENT = new OfficialComponent(48, "transport-client");
 
-    public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
+    public static final OfficialComponent UNDERTOW = new OfficialComponent(49, "Undertow");
 
-    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52, "rabbitmq-producer");
 
-    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53, "rabbitmq-consumer");
 
-    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
-  
-    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
-  
-    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+    public static final OfficialComponent CANAL = new OfficialComponent(54, "Canal");
 
-    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+    public static final OfficialComponent GSON = new OfficialComponent(55, "Gson");
 
-    public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
+    public static final OfficialComponent REDISSON = new OfficialComponent(56, "Redisson");
 
-    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
+    public static final OfficialComponent LETTUCE = new OfficialComponent(57, "Lettuce");
+
+    public static final OfficialComponent ZOOKEEPER = new OfficialComponent(58, "Zookeeper");
+
+    public static final OfficialComponent VERTX = new OfficialComponent(59, "Vert.x");
 
     public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
 
-    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY = new OfficialComponent(61, "spring-cloud-gateway");
 
-    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
+    public static final OfficialComponent RESTEASY = new OfficialComponent(62, "RESTEasy");
 
-    public static final OfficialComponent SOLRJ =  new OfficialComponent(63, "solrj");
+    public static final OfficialComponent SOLRJ = new OfficialComponent(63, "solrj");
 
     public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
 
@@ -133,7 +130,7 @@ public class ComponentsDefine {
     public static final OfficialComponent PLAY = new OfficialComponent(68, "Play");
 
     public static final OfficialComponent CASSANDRA_JAVA_DRIVER = new OfficialComponent(69, "cassandra-java-driver");
-  
+
     public static final OfficialComponent LIGHT_4J = new OfficialComponent(71, "Light4J");
 
     public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(73, "pulsar-producer");
@@ -153,4 +150,8 @@ public class ComponentsDefine {
     public static final OfficialComponent JDK_THREADING = new OfficialComponent(80, "JdkThreading");
 
     public static final OfficialComponent KT_COROUTINE = new OfficialComponent(81, "KotlinCoroutine");
+
+    public static final OfficialComponent AVRO_SERVER = new OfficialComponent(82, "avro-server");
+
+    public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "avro-client");
 }

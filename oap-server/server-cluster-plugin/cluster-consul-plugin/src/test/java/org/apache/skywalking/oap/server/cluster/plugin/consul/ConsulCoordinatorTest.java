@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.orbitz.consul.AgentClient;
@@ -24,22 +25,23 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.Service;
 import com.orbitz.consul.model.health.ServiceHealth;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-/**
- * Created by dengming, 2019.05.02
- */
 public class ConsulCoordinatorTest {
 
     private Consul consul = mock(Consul.class);
@@ -74,7 +76,6 @@ public class ConsulCoordinatorTest {
         when(consul.healthClient()).thenReturn(healthClient);
         when(consul.agentClient()).thenReturn(agentClient);
     }
-
 
     @Test
     @SuppressWarnings("unchecked")
