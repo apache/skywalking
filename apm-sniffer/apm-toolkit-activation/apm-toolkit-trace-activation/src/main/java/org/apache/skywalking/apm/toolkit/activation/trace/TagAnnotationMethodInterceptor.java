@@ -66,26 +66,22 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         final Object[] allArguments,
         final Class<?>[] argumentsTypes,
         final Object ret) {
-        try {
-            if (ret == null || !ContextManager.isActive()) {
-                return ret;
-            }
-            final AbstractSpan localSpan = ContextManager.activeSpan();
-            final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
-            final Tags tags = method.getAnnotation(Tags.class);
-            if (tags != null && tags.value().length > 0) {
-                for (final Tag tag : tags.value()) {
-                    if (TagUtil.isReturnTag(tag.value())) {
-                        TagUtil.tagReturnSpanSpan(localSpan, context, tag);
-                    }
+        if (ret == null || !ContextManager.isActive()) {
+            return ret;
+        }
+        final AbstractSpan localSpan = ContextManager.activeSpan();
+        final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
+        final Tags tags = method.getAnnotation(Tags.class);
+        if (tags != null && tags.value().length > 0) {
+            for (final Tag tag : tags.value()) {
+                if (TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagReturnSpanSpan(localSpan, context, tag);
                 }
             }
-            final Tag tag = method.getAnnotation(Tag.class);
-            if (tag != null && TagUtil.isReturnTag(tag.value())) {
-                TagUtil.tagReturnSpanSpan(localSpan, context, tag);
-            }
-        } finally {
-            ContextManager.stopSpan();
+        }
+        final Tag tag = method.getAnnotation(Tag.class);
+        if (tag != null && TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagReturnSpanSpan(localSpan, context, tag);
         }
         return ret;
     }
