@@ -58,7 +58,11 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
         final LinkedList<String> segments = new LinkedList<>();
-        client.queryForSingleSeries(query).getValues().forEach(values -> {
+        QueryResult.Series series = client.queryForSingleSeries(query);
+        if (series == null) {
+            return Collections.emptyList();
+        }
+        series.getValues().forEach(values -> {
             segments.add((String) values.get(1));
         });
 
@@ -156,6 +160,6 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         if (series == null) {
             return -1;
         }
-        return ((Number) series.getValues().get(1)).intValue();
+        return ((Number) series.getValues().get(0).get(1)).intValue();
     }
 }

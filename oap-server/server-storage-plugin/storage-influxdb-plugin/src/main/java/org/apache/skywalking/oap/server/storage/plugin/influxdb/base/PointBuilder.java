@@ -121,7 +121,10 @@ public class PointBuilder {
                 break;
             }
             case PROFILE_TASK_SEGMENT_SNAPSHOT: {
-                builder.tag(ProfileThreadSnapshotRecord.TASK_ID, ProfileThreadSnapshotRecord.TASK_ID);
+                builder.tag(
+                    ProfileThreadSnapshotRecord.TASK_ID,
+                    String.valueOf(fields.get(ProfileThreadSnapshotRecord.TASK_ID))
+                );
                 break;
             }
         }

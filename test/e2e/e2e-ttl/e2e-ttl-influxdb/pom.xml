@@ -110,7 +110,7 @@
                                     <bind>
                                         <volume>${sw.home}:/sw</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
-                                        <volume>${project.basedir}/src/docker/application.yml:/application.yml</volume>
+                                        <volume>${project.basedir}/src/docker/influx_storage.awk:/influx_storage.awk:ro</volume>
                                         <volume>${project.basedir}/src/docker/ttl_official_analysis.oal:/ttl_official_analysis.oal</volume>
                                     </bind>
                                 </volumes>

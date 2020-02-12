@@ -43,8 +43,8 @@ BEGIN {
             in_storage_h2_section=$0 ~ /^#?\s{4}/
         }
         if (in_storage_influx_section == 1) {
-            # in the storage.elasticsearch section now
-            # uncomment es config
+            # in the storage.influxdb section now
+            # uncomment influx config
             gsub("^#", "", $0)
             print
         } else if (in_storage_h2_section == 1) {
