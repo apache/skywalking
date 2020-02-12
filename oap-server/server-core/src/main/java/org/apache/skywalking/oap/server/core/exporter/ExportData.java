@@ -16,26 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.exporter;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-@ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
+@Getter
+public class ExportData {
+    private MetricsMetaInfo meta;
+    private Metrics metrics;
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
+    public ExportData(MetricsMetaInfo meta, Metrics metrics) {
+        this.meta = meta;
+        this.metrics = metrics;
     }
 }

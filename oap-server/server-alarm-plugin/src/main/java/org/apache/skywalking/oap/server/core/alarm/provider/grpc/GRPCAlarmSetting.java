@@ -16,26 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
+import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-@ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
+@Setter
+@Getter
+@EqualsAndHashCode
+public class GRPCAlarmSetting {
+    private String targetHost;
+    private int targetPort;
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
+    public boolean isEmptySetting() {
+        return Objects.isNull(targetHost);
     }
 }
