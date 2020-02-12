@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
@@ -62,6 +61,7 @@ public class TagAnnotationTest {
     private ActiveSpanTagInterceptor tagInterceptor;
     private Object[] tagParameters;
     private Class[] tagParameterTypes;
+
     @Before
     public void setUp() throws Exception {
         methodInterceptor = new TagAnnotationMethodInterceptor();
@@ -96,8 +96,8 @@ public class TagAnnotationTest {
     @Test
     public void testTraceWithReturnTag() throws Throwable {
         Method testMethodWithTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnTag", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTag, new Object[]{"lisi",14}, null, null);
-        methodInterceptor.afterMethod(enhancedInstance, testMethodWithTag, null, null, new User("lisi",14));
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTag, new Object[]{"lisi", 14}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithTag, null, null, new User("lisi", 14));
 
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
@@ -118,7 +118,7 @@ public class TagAnnotationTest {
     @Test
     public void testTraceWithTags() throws Throwable {
         Method testMethodWithTags = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithTags", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTags, new Object[]{"lisi",14}, null, null);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTags, new Object[]{"lisi", 14}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithTags, null, null, new User("lisi", 14));
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
@@ -140,16 +140,16 @@ public class TagAnnotationTest {
 
     private class TestAnnotationMethodClass {
 
-        @Tag(key = "username",value = "arg[0]")
+        @Tag(key = "username", value = "arg[0]")
         public void testMethodWithTag(String username) {
         }
 
-        @Tag(key = "username",value = "returnedObj.username")
+        @Tag(key = "username", value = "returnedObj.username")
         public User testMethodWithReturnTag(String username, Integer age) {
             return new User(username, age);
         }
 
-        @Tags({@Tag(key = "username",value = "arg[0]"),@Tag(key = "info",value = "returnedObj.info")})
+        @Tags({@Tag(key = "username", value = "arg[0]"), @Tag(key = "info", value = "returnedObj.info")})
         public User testMethodWithTags(String username, Integer age) {
             return new User(username, age);
         }

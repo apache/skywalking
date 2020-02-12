@@ -98,6 +98,7 @@ public class TraceAnnotationTest {
         assertThat(tags.get(0).getKey().key(), is("testTagKey"));
         assertThat(tags.get(0).getValue(), is("testTagValue"));
     }
+
     @Test
     public void testTraceWithTag() throws Throwable {
         Method testMethodWithTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithTag", String.class);
@@ -125,10 +126,10 @@ public class TraceAnnotationTest {
     @Test
     public void testTraceWithReturnTag() throws Throwable {
         Method testMethodWithReturnTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnTag", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnTag, new Object[]{"lisi",14}, null, null);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnTag, new Object[]{"lisi", 14}, null, null);
         tagInterceptor.beforeMethod(TestAnnotationMethodClass.class, testMethodWithReturnTag, tagParameters, tagParameterTypes, null);
         tagInterceptor.afterMethod(TestAnnotationMethodClass.class, testMethodWithReturnTag, tagParameters, tagParameterTypes, null);
-        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnTag, null, null, new User("lisi",14));
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnTag, null, null, new User("lisi", 14));
 
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
@@ -167,12 +168,12 @@ public class TraceAnnotationTest {
         }
 
         @Trace(operationName = "testMethod")
-        @Tag(key = "username",value = "arg[0]")
+        @Tag(key = "username", value = "arg[0]")
         public void testMethodWithTag(String username) {
         }
 
         @Trace(operationName = "testMethod")
-        @Tag(key = "username",value = "returnedObj.username")
+        @Tag(key = "username", value = "returnedObj.username")
         public User testMethodWithReturnTag(String username, Integer age) {
             return new User(username, age);
         }

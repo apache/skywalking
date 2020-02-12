@@ -46,13 +46,14 @@ public class CustomizeExpression {
         }
         return context;
     }
+
     public static Map<String, Object> evaluationReturnContext(Object ret)  {
         Map<String, Object> context = new HashMap<>();
         Field[] fields = ret.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             try {
-                context.put(field.getName(),field.get(ret));
+                context.put(field.getName(), field.get(ret));
             } catch (Exception e) {
                 logger.debug("evaluationReturnContext error, ret is {}, exception is {}", ret, e.getMessage());
             }

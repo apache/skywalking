@@ -58,7 +58,6 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         }
     }
 
-
     @Override
     public Object afterMethod(
         final EnhancedInstance objInst,
