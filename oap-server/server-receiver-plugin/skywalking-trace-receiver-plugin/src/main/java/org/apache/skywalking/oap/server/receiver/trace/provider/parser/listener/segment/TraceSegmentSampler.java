@@ -46,9 +46,7 @@ public class TraceSegmentSampler {
         if (idPartsList.size() == 3) {
             Long lastLong = idPartsList.get(2);
             long sampleValue = lastLong % 10000;
-            if (sampleValue < sampleRate) {
-                return true;
-            }
+            return sampleValue < sampleRate;
         }
         return false;
     }

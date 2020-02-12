@@ -182,10 +182,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
         if (componentId != metrics.componentId)
             return false;
 
-        if (getTimeBucket() != metrics.getTimeBucket())
-            return false;
-
-        return true;
+        return getTimeBucket() == metrics.getTimeBucket();
     }
 
     public static class Builder implements StorageBuilder<EndpointRelationServerSideMetrics> {
