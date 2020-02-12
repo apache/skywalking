@@ -43,3 +43,7 @@ webhooks:
 #  - http://127.0.0.1/notify/
 #  - http://127.0.0.1/go-wechat/
 
+gRPCHook:
+#  target_host: 127.0.0.1
+#  target_port: 9888
+

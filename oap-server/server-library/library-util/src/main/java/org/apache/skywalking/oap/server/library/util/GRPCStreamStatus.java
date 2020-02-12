@@ -16,26 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.library.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-@ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
+@Getter
+public class GRPCStreamStatus {
 
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
+    private volatile boolean done = false;
+
+    public void done() {
+        done = true;
     }
 }

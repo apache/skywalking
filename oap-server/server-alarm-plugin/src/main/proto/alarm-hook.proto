@@ -16,26 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+syntax = "proto3";
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.core.alarm.grpc";
 
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
-@ToString
-public class Rules {
-    private List<AlarmRule> rules;
-    private List<String> webhooks;
-    private GRPCAlarmSetting grpchookSetting;
-
-    public Rules() {
-        this.rules = new ArrayList<>();
-        this.webhooks = new ArrayList<>();
+service AlarmService {
+    rpc doAlarm (stream AlarmMessage) returns (Response) {
     }
 }
+
+message AlarmMessage {
+    int64 scopeId = 1;
+    string scope = 2;
+    string name = 3;
+    int64 id0 = 4;
+    int64 id1 = 5;
+    string ruleName = 6;
+    string alarmMessage = 7;
+    int64 startTime = 8;
+}
+
+message Response {
+}
+

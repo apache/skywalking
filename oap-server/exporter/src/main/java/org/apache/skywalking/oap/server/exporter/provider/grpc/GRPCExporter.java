@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
@@ -36,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.ExportData;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
@@ -46,10 +45,11 @@ import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<GRPCExporter.ExportData> {
+public class GRPCExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
     private static final Logger logger = LoggerFactory.getLogger(GRPCExporter.class);
 
     private GRPCExporterSetting setting;
@@ -101,26 +101,28 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             return;
         }
 
-        ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS)
-                                                                                  .export(new StreamObserver<ExportResponse>() {
-                                                                                      @Override
-                                                                                      public void onNext(
-                                                                                          ExportResponse response) {
+        GRPCStreamStatus status = new GRPCStreamStatus();
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(
+            10, TimeUnit.SECONDS)
+                                                                                  .export(
+                                                                                      new StreamObserver<ExportResponse>() {
+                                                                                          @Override
+                                                                                          public void onNext(
+                                                                                              ExportResponse response) {
 
-                                                                                      }
+                                                                                          }
 
-                                                                                      @Override
-                                                                                      public void onError(
-                                                                                          Throwable throwable) {
-                                                                                          status.done();
-                                                                                      }
+                                                                                          @Override
+                                                                                          public void onError(
+                                                                                              Throwable throwable) {
+                                                                                              status.done();
+                                                                                          }
 
-                                                                                      @Override
-                                                                                      public void onCompleted() {
-                                                                                          status.done();
-                                                                                      }
-                                                                                  });
+                                                                                          @Override
+                                                                                          public void onCompleted() {
+                                                                                              status.done();
+                                                                                          }
+                                                                                      });
         AtomicInteger exportNum = new AtomicInteger();
         data.forEach(row -> {
             ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
@@ -167,9 +169,8 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
         long sleepTime = 0;
         long cycle = 100L;
-        /**
-         * For memory safe of oap, we must wait for the peer confirmation.
-         */
+
+        //For memory safe of oap, we must wait for the peer confirmation.
         while (!status.isDone()) {
             try {
                 sleepTime += cycle;
@@ -178,14 +179,18 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
 
             if (sleepTime > 2000L) {
-                logger.warn("Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
-                    .getTargetPort(), sleepTime);
+                logger.warn(
+                    "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(),
+                    setting
+                        .getTargetPort(), sleepTime
+                );
                 cycle = 2000L;
             }
         }
 
-        logger.debug("Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
-            .getTargetPort(), sleepTime);
+        logger.debug(
+            "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
+                .getTargetPort(), sleepTime);
     }
 
     @Override
@@ -196,28 +201,5 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
     @Override
     public void onExit() {
 
-    }
-
-    @Getter(AccessLevel.PRIVATE)
-    public class ExportData {
-        private MetricsMetaInfo meta;
-        private Metrics metrics;
-
-        public ExportData(MetricsMetaInfo meta, Metrics metrics) {
-            this.meta = meta;
-            this.metrics = metrics;
-        }
-    }
-
-    private class ExportStatus {
-        private boolean done = false;
-
-        private void done() {
-            done = true;
-        }
-
-        public boolean isDone() {
-            return done;
-        }
     }
 }

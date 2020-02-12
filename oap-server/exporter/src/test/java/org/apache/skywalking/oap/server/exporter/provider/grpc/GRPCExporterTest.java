@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.ExportData;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
@@ -97,12 +98,12 @@ public class GRPCExporterTest {
         exporter.onExit();
     }
 
-    private List<GRPCExporter.ExportData> dataList() {
-        List<GRPCExporter.ExportData> dataList = new LinkedList<>();
-        dataList.add(exporter.new ExportData(metaInfo, new MockMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockLongValueMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockDoubleValueMetrics()));
+    private List<ExportData> dataList() {
+        List<ExportData> dataList = new LinkedList<>();
+        dataList.add(new ExportData(metaInfo, new MockMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockIntValueMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockLongValueMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockDoubleValueMetrics()));
         return dataList;
     }
 }
