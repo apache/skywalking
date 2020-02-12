@@ -48,6 +48,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
  * @author peng-yongsheng
+ * @author aderm
  */
 public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
@@ -59,7 +60,13 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
         String valueCName,
         Function function) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        IntValues intValues = new IntValues();
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+
+        if (filterIndexNames.length == 0) {
+            return intValues;
+        }
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
@@ -69,9 +76,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        SearchResponse response = getClient().search(filterIndexNames, sourceBuilder);
 
-        IntValues intValues = new IntValues();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {
             long value;

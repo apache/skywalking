@@ -32,6 +32,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -88,6 +89,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author peng-yongsheng
+ * @author aderm
  */
 public class ElasticSearchClient implements Client {
 
@@ -288,6 +290,30 @@ public class ElasticSearchClient implements Client {
         return client.search(searchRequest);
     }
 
+    public SearchResponse search(String[] indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        String[] fullIndexNames = formatIndexNames(indexNames);
+        SearchRequest searchRequest = new SearchRequest(fullIndexNames);
+        searchRequest.types(TYPE);
+        searchRequest.source(searchSourceBuilder);
+        return client.search(searchRequest);
+    }
+
+    public String[] filterNotExistIndex(String[] fullIndexNames, String indName) throws IOException {
+        // if no wrap, it is impossible to remove elements
+        List<String> indexNameList = new ArrayList<>(Arrays.asList(fullIndexNames));
+        if (fullIndexNames.length > 0) {
+            List<String> existIndex = retrievalIndexByAliases(indName);
+            indexNameList.removeIf(indexName -> {
+                //only filter index name with xxxx-xxxx
+                if (indexName.contains("-")) {
+                    return !(existIndex.contains(indexName));
+                }
+                return false;
+            });
+        }
+        return indexNameList.toArray(new String[0]);
+    }
+
     public GetResponse get(String indexName, String id) throws IOException {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, TYPE, id);
@@ -403,5 +429,12 @@ public class ElasticSearchClient implements Client {
             return namespace + "_" + indexName;
         }
         return indexName;
+    }
+
+    public String[] formatIndexNames(String[] indexNames) {
+        if (StringUtil.isNotEmpty(namespace)) {
+            Arrays.stream(indexNames).map(indexName -> namespace + "_" + indexName);
+        }
+        return indexNames;
     }
 }

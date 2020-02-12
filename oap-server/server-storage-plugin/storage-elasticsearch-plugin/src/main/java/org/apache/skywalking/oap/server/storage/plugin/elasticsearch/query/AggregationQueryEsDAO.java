@@ -37,6 +37,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 /**
  * @author peng-yongsheng
+ * @author aderm
  */
 public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO {
 
@@ -47,51 +48,55 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
     }
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
     }
 
     @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
         Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
     public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
         long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
+        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
+        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -101,7 +106,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
 
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+        return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
     }
 
     protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
@@ -118,6 +123,36 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         SearchResponse response = getClient().search(indexName, sourceBuilder);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            TopNEntity topNEntity = new TopNEntity();
+            topNEntity.setId(termsBucket.getKeyAsString());
+            Avg value = termsBucket.getAggregations().get(valueCName);
+            topNEntity.setValue((long)value.getValue());
+            topNEntities.add(topNEntity);
+        }
+
+        return topNEntities;
+    }
+
+    protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
+        int topN, Order order) throws IOException {
+        List<TopNEntity> topNEntities = new ArrayList<>();
+        if (indexNames.length == 0 ) {
+            return topNEntities;
+        }
+
+        boolean asc = false;
+        if (order.equals(Order.ASC)) {
+            asc = true;
+        }
+
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
+        sourceBuilder.aggregation(aggregationBuilder);
+
+        SearchResponse response = getClient().search(indexNames, sourceBuilder);
+
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
             TopNEntity topNEntity = new TopNEntity();

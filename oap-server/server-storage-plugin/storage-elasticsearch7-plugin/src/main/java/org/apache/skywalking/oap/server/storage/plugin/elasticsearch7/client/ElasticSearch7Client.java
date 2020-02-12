@@ -68,6 +68,7 @@ import java.util.Map;
 /**
  * @author peng-yongsheng
  * @author kezhenxu94
+ * @author aderm
  */
 public class ElasticSearch7Client extends ElasticSearchClient {
 
@@ -177,6 +178,15 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         SearchSourceBuilder searchSourceBuilder) throws IOException {
         indexName = formatIndexName(indexName);
         SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.source(searchSourceBuilder);
+        return client.search(searchRequest, RequestOptions.DEFAULT);
+    }
+
+    public SearchResponse search(
+        String[] indexNames,
+        SearchSourceBuilder searchSourceBuilder) throws IOException {
+        String[] fullIndexNames = formatIndexNames(indexNames);
+        SearchRequest searchRequest = new SearchRequest(fullIndexNames);
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }

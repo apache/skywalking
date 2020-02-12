@@ -30,6 +30,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 /**
  * @author peng-yongsheng
+ * @author aderm
  */
 public enum DurationUtils {
     INSTANCE;
@@ -214,6 +215,38 @@ public enum DurationUtils {
                 return YYYYMMDDHHMM.parseDateTime(String.valueOf(time));
             case Second:
                 return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(time));
+        }
+        throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
+    }
+
+    public DateTime startTimeBucket2DateTime(Downsampling downsampling, long startTB) {
+        switch (downsampling) {
+            case Month:
+                return YYYYMM.parseDateTime(String.valueOf(startTB));
+            case Day:
+                return YYYYMMDD.parseDateTime(String.valueOf(startTB));
+            case Hour:
+                return YYYYMMDDHH.parseDateTime(String.valueOf(startTB));
+            case Minute:
+                return YYYYMMDDHHMM.parseDateTime(String.valueOf(startTB));
+            case Second:
+                return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(startTB));
+        }
+        throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
+    }
+
+    public DateTime endTimeBucket2DateTime(Downsampling downsampling, long endTB) {
+        switch (downsampling) {
+            case Month:
+                return YYYYMM.parseDateTime(String.valueOf(endTB));
+            case Day:
+                return YYYYMMDD.parseDateTime(String.valueOf(endTB));
+            case Hour:
+                return YYYYMMDDHH.parseDateTime(String.valueOf(endTB));
+            case Minute:
+                return YYYYMMDDHHMM.parseDateTime(String.valueOf(endTB));
+            case Second:
+                return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(endTB));
         }
         throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
     }

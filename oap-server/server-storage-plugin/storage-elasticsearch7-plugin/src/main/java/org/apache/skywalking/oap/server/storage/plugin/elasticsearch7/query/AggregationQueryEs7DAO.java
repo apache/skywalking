@@ -38,11 +38,42 @@ import java.util.List;
 /**
  * @author peng-yongsheng
  * @author kezhenxu94
+ * @author aderm
  */
 public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
     public AggregationQueryEs7DAO(ElasticSearchClient client) {
         super(client);
+    }
+
+    protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
+        int topN, Order order) throws IOException {
+        List<TopNEntity> topNEntities = new ArrayList<>();
+        if (indexNames.length == 0 ) {
+            return topNEntities;
+        }
+
+        boolean asc = false;
+        if (order.equals(Order.ASC)) {
+            asc = true;
+        }
+
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
+        sourceBuilder.aggregation(aggregationBuilder);
+
+        SearchResponse response = getClient().search(indexNames, sourceBuilder);
+
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+            TopNEntity topNEntity = new TopNEntity();
+            topNEntity.setId(termsBucket.getKeyAsString());
+            Avg value = termsBucket.getAggregations().get(valueCName);
+            topNEntity.setValue((long)value.getValue());
+            topNEntities.add(topNEntity);
+        }
+
+        return topNEntities;
     }
 
     protected List<TopNEntity> aggregation(
