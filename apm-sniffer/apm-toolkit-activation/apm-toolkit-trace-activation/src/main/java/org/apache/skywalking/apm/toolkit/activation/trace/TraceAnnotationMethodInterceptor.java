@@ -22,8 +22,8 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
 import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Tags;
@@ -56,24 +56,41 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
         final Tags tags = method.getAnnotation(Tags.class);
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
-                tagSpan(localSpan, tag, context);
+                if (!TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagParamsSpan(localSpan, context, tag);
+                }
             }
         }
-
         final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null) {
-            tagSpan(localSpan, tag, context);
+        if (tag != null && !TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagParamsSpan(localSpan, context, tag);
         }
-    }
-
-    private void tagSpan(final AbstractSpan span, final Tag tag, final Map<String, Object> context) {
-        new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        try {
+            if (ret == null) {
+                return ret;
+            }
+            final AbstractSpan localSpan = ContextManager.activeSpan();
+            final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
+            final Tags tags = method.getAnnotation(Tags.class);
+            if (tags != null && tags.value().length > 0) {
+                for (final Tag tag : tags.value()) {
+                    if (TagUtil.isReturnTag(tag.value())) {
+                        TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+                    }
+                }
+            }
+            final Tag tag = method.getAnnotation(Tag.class);
+            if (tag != null && TagUtil.isReturnTag(tag.value())) {
+                TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+            }
+        } finally {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
