@@ -131,7 +131,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) value.getValue());
+            topNEntity.setValue((long) (value.getValue()));
             topNEntities.add(topNEntity);
         }
 
@@ -141,7 +141,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         List<TopNEntity> topNEntities = new ArrayList<>();
-        if (indexNames.length == 0 ) {
+        if (indexNames.length == 0) {
             return topNEntities;
         }
 
@@ -161,7 +161,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long)value.getValue());
+            topNEntity.setValue((long) (value.getValue()));
             topNEntities.add(topNEntity);
         }
 

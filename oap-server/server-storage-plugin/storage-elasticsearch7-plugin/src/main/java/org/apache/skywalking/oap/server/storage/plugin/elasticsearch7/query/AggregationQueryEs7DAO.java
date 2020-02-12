@@ -44,7 +44,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
     protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         List<TopNEntity> topNEntities = new ArrayList<>();
-        if (indexNames.length == 0 ) {
+        if (indexNames.length == 0) {
             return topNEntities;
         }
 
@@ -64,7 +64,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long)value.getValue());
+            topNEntity.setValue((long) (value.getValue()));
             topNEntities.add(topNEntity);
         }
 
@@ -95,7 +95,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) value.getValue());
+            topNEntity.setValue((long) (value.getValue()));
             topNEntities.add(topNEntity);
         }
 
