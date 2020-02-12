@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.profile.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -41,33 +40,33 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+    public List<org.apache.skywalking.oap.server.core.query.entity.ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
         Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where 1=1 ");
+        sql.append("select * from ").append(ProfileTask.INDEX_NAME).append(" where 1=1 ");
 
         if (startTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" >= ? ");
+            sql.append(" and ").append(ProfileTask.TIME_BUCKET).append(" >= ? ");
             condition.add(startTimeBucket);
         }
 
         if (endTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" <= ? ");
+            sql.append(" and ").append(ProfileTask.TIME_BUCKET).append(" <= ? ");
             condition.add(endTimeBucket);
         }
 
         if (serviceId != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.SERVICE_ID).append("=? ");
+            sql.append(" and ").append(ProfileTask.SERVICE_ID).append("=? ");
             condition.add(serviceId);
         }
 
         if (StringUtil.isNotEmpty(endpointName)) {
-            sql.append(" and ").append(ProfileTaskNoneStream.ENDPOINT_NAME).append("=?");
+            sql.append(" and ").append(ProfileTask.ENDPOINT_NAME).append("=?");
             condition.add(endpointName);
         }
 
-        sql.append(" ORDER BY ").append(ProfileTaskNoneStream.START_TIME).append(" DESC ");
+        sql.append(" ORDER BY ").append(ProfileTask.START_TIME).append(" DESC ");
 
         if (limit != null) {
             sql.append(" LIMIT ").append(limit);
@@ -75,7 +74,7 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final LinkedList<ProfileTask> tasks = new LinkedList<>();
+                final LinkedList<org.apache.skywalking.oap.server.core.query.entity.ProfileTask> tasks = new LinkedList<>();
                 while (resultSet.next()) {
                     tasks.add(parseTask(resultSet));
                 }
@@ -87,14 +86,14 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public ProfileTask getById(String id) throws IOException {
+    public org.apache.skywalking.oap.server.core.query.entity.ProfileTask getById(String id) throws IOException {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
 
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where id=? LIMIT 1");
+        sql.append("select * from ").append(ProfileTask.INDEX_NAME).append(" where id=? LIMIT 1");
         condition.add(id);
 
         try (Connection connection = h2Client.getConnection()) {
@@ -112,17 +111,17 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     /**
      * parse profile task data
      */
-    private ProfileTask parseTask(ResultSet data) throws SQLException {
-        return ProfileTask.builder()
+    private org.apache.skywalking.oap.server.core.query.entity.ProfileTask parseTask(ResultSet data) throws SQLException {
+        return org.apache.skywalking.oap.server.core.query.entity.ProfileTask.builder()
                           .id(data.getString("id"))
-                          .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
-                          .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
-                          .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
-                          .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
-                          .duration(data.getInt(ProfileTaskNoneStream.DURATION))
-                          .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
-                          .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))
-                          .maxSamplingCount(data.getInt(ProfileTaskNoneStream.MAX_SAMPLING_COUNT))
+                          .serviceId(data.getInt(ProfileTask.SERVICE_ID))
+                          .endpointName(data.getString(ProfileTask.ENDPOINT_NAME))
+                          .startTime(data.getLong(ProfileTask.START_TIME))
+                          .createTime(data.getLong(ProfileTask.CREATE_TIME))
+                          .duration(data.getInt(ProfileTask.DURATION))
+                          .minDurationThreshold(data.getInt(ProfileTask.MIN_DURATION_THRESHOLD))
+                          .dumpPeriod(data.getInt(ProfileTask.DUMP_PERIOD))
+                          .maxSamplingCount(data.getInt(ProfileTask.MAX_SAMPLING_COUNT))
                           .build();
     }
 }

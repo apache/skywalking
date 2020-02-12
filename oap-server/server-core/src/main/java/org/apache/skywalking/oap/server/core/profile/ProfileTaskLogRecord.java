@@ -37,7 +37,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
  */
 @Getter
 @Setter
-@ScopeDeclaration(id = PROFILE_TASK_LOG, name = "ProfileTaskLog")
+@ScopeDeclaration(id = PROFILE_TASK_LOG, name = ProfileTaskLogRecord.INDEX_NAME)
 @Stream(name = ProfileTaskLogRecord.INDEX_NAME, scopeId = PROFILE_TASK_LOG, builder = ProfileTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class ProfileTaskLogRecord extends Record {
 

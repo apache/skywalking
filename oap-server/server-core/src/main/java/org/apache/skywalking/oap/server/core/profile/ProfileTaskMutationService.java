@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -80,7 +79,7 @@ public class ProfileTaskMutationService implements Service {
 
         // create task
         final long createTime = System.currentTimeMillis();
-        final ProfileTaskNoneStream task = new ProfileTaskNoneStream();
+        final ProfileTask task = new ProfileTask();
         task.setServiceId(serviceId);
         task.setEndpointName(endpointName.trim());
         task.setStartTime(taskStartTime);
@@ -131,7 +130,7 @@ public class ProfileTaskMutationService implements Service {
         // Each service can monitor up to 1 endpoints during the execution of tasks
         long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
         long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
-        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket, 1);
+        final List<org.apache.skywalking.oap.server.core.query.entity.ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             // if any task time bucket in this range, means already have task, because time bucket is base on task end time
             return "current service already has monitor task execute at this time";
