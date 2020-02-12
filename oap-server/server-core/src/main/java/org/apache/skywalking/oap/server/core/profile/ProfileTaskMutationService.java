@@ -64,23 +64,30 @@ public class ProfileTaskMutationService implements Service {
      * @param maxSamplingCount     max trace count on sniffer
      * @return task create result
      */
-    public ProfileTaskCreationResult createTask(final int serviceId, final String endpointName,
-        final long monitorStartTime, final int monitorDuration, final int minDurationThreshold, final int dumpPeriod,
-        final int maxSamplingCount) throws IOException {
+    public ProfileTaskCreationResult createTask(final int serviceId,
+                                                final String endpointName,
+                                                final long monitorStartTime,
+                                                final int monitorDuration,
+                                                final int minDurationThreshold,
+                                                final int dumpPeriod,
+                                                final int maxSamplingCount) throws IOException {
 
         // calculate task execute range
         long taskStartTime = monitorStartTime > 0 ? monitorStartTime : System.currentTimeMillis();
         long taskEndTime = taskStartTime + TimeUnit.MINUTES.toMillis(monitorDuration);
 
         // check data
-        final String errorMessage = checkDataSuccess(serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod, maxSamplingCount);
+        final String errorMessage = checkDataSuccess(
+            serviceId, endpointName, taskStartTime, taskEndTime, monitorDuration, minDurationThreshold, dumpPeriod,
+            maxSamplingCount
+        );
         if (errorMessage != null) {
             return ProfileTaskCreationResult.builder().errorReason(errorMessage).build();
         }
 
         // create task
         final long createTime = System.currentTimeMillis();
-        final ProfileTaskNoneStream task = new ProfileTaskNoneStream();
+        final ProfileTaskRecord task = new ProfileTaskRecord();
         task.setServiceId(serviceId);
         task.setEndpointName(endpointName.trim());
         task.setStartTime(taskStartTime);
@@ -95,9 +102,14 @@ public class ProfileTaskMutationService implements Service {
         return ProfileTaskCreationResult.builder().id(task.id()).build();
     }
 
-    private String checkDataSuccess(final Integer serviceId, final String endpointName, final long monitorStartTime,
-        final long monitorEndTime, final int monitorDuration, final int minDurationThreshold, final int dumpPeriod,
-        final int maxSamplingCount) throws IOException {
+    private String checkDataSuccess(final Integer serviceId,
+                                    final String endpointName,
+                                    final long monitorStartTime,
+                                    final long monitorEndTime,
+                                    final int monitorDuration,
+                                    final int minDurationThreshold,
+                                    final int dumpPeriod,
+                                    final int maxSamplingCount) throws IOException {
         // basic check
         if (serviceId == null) {
             return "service cannot be null";
@@ -131,7 +143,8 @@ public class ProfileTaskMutationService implements Service {
         // Each service can monitor up to 1 endpoints during the execution of tasks
         long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
         long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
-        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(serviceId, null, startTimeBucket, endTimeBucket, 1);
+        final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
+            serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             // if any task time bucket in this range, means already have task, because time bucket is base on task end time
             return "current service already has monitor task execute at this time";
