@@ -71,6 +71,14 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=" + BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=" + NodeType.Normal.value());
 
+        Integer resultSet = getNum(sql, condition);
+        if (resultSet != null) {
+            return resultSet;
+        }
+        return 0;
+    }
+
+    private Integer getNum(StringBuilder sql, List<Object> condition) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
                 while (resultSet.next()) {
@@ -80,7 +88,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return 0;
+        return null;
     }
 
     @Override
@@ -90,16 +98,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select count(*) num from ").append(EndpointInventory.INDEX_NAME).append(" where ");
         sql.append(EndpointInventory.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
 
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-
-                while (resultSet.next()) {
-                    return resultSet.getInt("num");
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        ResultSet resultSet = getNum(sql, condition);
+        if (resultSet != null)
+            return resultSet;
         return 0;
     }
 
@@ -111,15 +112,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(ServiceInventory.NODE_TYPE).append("=?");
         condition.add(nodeTypeValue);
 
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    return resultSet.getInt("num");
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        ResultSet resultSet = getNum(sql, condition);
+        if (resultSet != null)
+            return resultSet;
         return 0;
     }
 
