@@ -18,6 +18,7 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
+import org.apache.skywalking.apm.toolkit.model.User;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -72,6 +73,11 @@ public class TestService {
         ActiveSpan.debug("TestDebugMsg");
     }
 
+    @Trace
+    @Tag(key = "username", value = "returnedObj.username")
+    public User testTagAnnotationReturnInfo(final String username, final Integer age) {
+        return new User(username, age);
+    }
     @Trace
     @Tag(key = "testTag", value = "arg[0]")
     public void testInfo(final String testInfoParam) {
