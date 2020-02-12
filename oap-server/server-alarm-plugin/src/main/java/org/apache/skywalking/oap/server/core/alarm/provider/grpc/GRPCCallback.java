@@ -48,22 +48,28 @@ public class GRPCCallback implements AlarmCallback {
         this.alarmRulesWatcher = alarmRulesWatcher;
         alarmSetting = alarmRulesWatcher.getGrpchookSetting();
 
-        if (alarmSetting != null) {
+        if (!alarmSetting.isEmptySetting()) {
             grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+            grpcClient.connect();
+            alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
         }
     }
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
 
-        if (alarmSetting == null) {
+        if (alarmSetting.isEmptySetting()) {
             return;
         }
 
-        // recreate gRPC client if host and port configuration changed.
+        // recreate gRPC client and stub if host and port configuration changed.
         onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
 
         GRPCStreamStatus status = new GRPCStreamStatus();
+
+        if (alarmServiceStub == null) {
+            return;
+        }
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
             alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
@@ -134,8 +140,21 @@ public class GRPCCallback implements AlarmCallback {
     }
 
     private void onGRPCAlarmSettingUpdated(GRPCAlarmSetting grpcAlarmSetting) {
+        if (grpcAlarmSetting == null) {
+            if (grpcClient != null) {
+                grpcClient.shutdown();
+            }
+            alarmServiceStub = null;
+            alarmSetting = null;
+
+            log.warn("gRPC alarm hook settings about host is empty, shutdown the old gRPC client.");
+            return;
+        }
+
         if (!grpcAlarmSetting.equals(alarmSetting)) {
-            grpcClient.shutdown();
+            if (grpcClient != null) {
+                grpcClient.shutdown();
+            }
             grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
             grpcClient.connect();
             alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());

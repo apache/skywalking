@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,4 +29,8 @@ import lombok.Setter;
 public class GRPCAlarmSetting {
     private String targetHost;
     private int targetPort;
+
+    public boolean isEmptySetting() {
+        return Objects.isNull(targetHost);
+    }
 }

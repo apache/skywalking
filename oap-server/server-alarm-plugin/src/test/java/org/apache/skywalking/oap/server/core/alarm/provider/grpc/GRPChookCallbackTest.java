@@ -54,6 +54,16 @@ public class GRPChookCallbackTest {
         grpcCallback.doAlarm(alarmMessageList);
     }
 
+    @Test
+    public void testGauchoSettingClean() {
+        GRPCAlarmSetting grpcAlarmSetting = new GRPCAlarmSetting();
+        Rules rules = new Rules();
+        rules.setGrpchookSetting(grpcAlarmSetting);
+        alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        grpcCallback = new GRPCCallback(alarmRulesWatcher);
+        grpcCallback.doAlarm(alarmMessageList);
+    }
+
     private void mockAlarmMessage() {
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setId0(1);
