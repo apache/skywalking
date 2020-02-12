@@ -102,3 +102,6 @@ envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricNam
 // disable(top_n_database_statement);
 // disable(zipkin_span);
 // disable(jaeger_span);
+// disable(profile_task);
+// disable(profile_task_log);
+// disable(profile_task_segment_snapshot);

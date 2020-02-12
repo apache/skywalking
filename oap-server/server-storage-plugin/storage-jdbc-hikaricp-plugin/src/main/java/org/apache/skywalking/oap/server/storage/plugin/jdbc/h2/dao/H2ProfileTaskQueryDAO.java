@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskNoneStream;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
-import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -32,6 +25,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private JDBCHikariCPClient h2Client;
@@ -42,39 +41,40 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
     @Override
     public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
-        Long endTimeBucket, Integer limit) throws IOException {
+                                         Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where 1=1 ");
+        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
 
         if (startTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" >= ? ");
+            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");
             condition.add(startTimeBucket);
         }
 
         if (endTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.TIME_BUCKET).append(" <= ? ");
+            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ? ");
             condition.add(endTimeBucket);
         }
 
         if (serviceId != null) {
-            sql.append(" and ").append(ProfileTaskNoneStream.SERVICE_ID).append("=? ");
+            sql.append(" and ").append(ProfileTaskRecord.SERVICE_ID).append("=? ");
             condition.add(serviceId);
         }
 
         if (StringUtil.isNotEmpty(endpointName)) {
-            sql.append(" and ").append(ProfileTaskNoneStream.ENDPOINT_NAME).append("=?");
+            sql.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append("=?");
             condition.add(endpointName);
         }
 
-        sql.append(" ORDER BY ").append(ProfileTaskNoneStream.START_TIME).append(" DESC ");
+        sql.append(" ORDER BY ").append(ProfileTaskRecord.START_TIME).append(" DESC ");
 
         if (limit != null) {
             sql.append(" LIMIT ").append(limit);
         }
 
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
                 final LinkedList<ProfileTask> tasks = new LinkedList<>();
                 while (resultSet.next()) {
                     tasks.add(parseTask(resultSet));
@@ -94,11 +94,12 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ProfileTaskNoneStream.INDEX_NAME).append(" where id=? LIMIT 1");
+        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where id=? LIMIT 1");
         condition.add(id);
 
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
                 if (resultSet.next()) {
                     return parseTask(resultSet);
                 }
@@ -115,14 +116,14 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private ProfileTask parseTask(ResultSet data) throws SQLException {
         return ProfileTask.builder()
                           .id(data.getString("id"))
-                          .serviceId(data.getInt(ProfileTaskNoneStream.SERVICE_ID))
-                          .endpointName(data.getString(ProfileTaskNoneStream.ENDPOINT_NAME))
-                          .startTime(data.getLong(ProfileTaskNoneStream.START_TIME))
-                          .createTime(data.getLong(ProfileTaskNoneStream.CREATE_TIME))
-                          .duration(data.getInt(ProfileTaskNoneStream.DURATION))
-                          .minDurationThreshold(data.getInt(ProfileTaskNoneStream.MIN_DURATION_THRESHOLD))
-                          .dumpPeriod(data.getInt(ProfileTaskNoneStream.DUMP_PERIOD))
-                          .maxSamplingCount(data.getInt(ProfileTaskNoneStream.MAX_SAMPLING_COUNT))
+                          .serviceId(data.getInt(ProfileTaskRecord.SERVICE_ID))
+                          .endpointName(data.getString(ProfileTaskRecord.ENDPOINT_NAME))
+                          .startTime(data.getLong(ProfileTaskRecord.START_TIME))
+                          .createTime(data.getLong(ProfileTaskRecord.CREATE_TIME))
+                          .duration(data.getInt(ProfileTaskRecord.DURATION))
+                          .minDurationThreshold(data.getInt(ProfileTaskRecord.MIN_DURATION_THRESHOLD))
+                          .dumpPeriod(data.getInt(ProfileTaskRecord.DUMP_PERIOD))
+                          .maxSamplingCount(data.getInt(ProfileTaskRecord.MAX_SAMPLING_COUNT))
                           .build();
     }
 }
