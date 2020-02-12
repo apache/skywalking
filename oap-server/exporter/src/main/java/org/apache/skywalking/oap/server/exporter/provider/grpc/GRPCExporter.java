@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHold
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.exporter.ExportData;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
-import org.apache.skywalking.oap.server.core.exporter.ExportStatus;
 import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
@@ -46,6 +45,7 @@ import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,26 +101,28 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             return;
         }
 
-        ExportStatus status = new ExportStatus();
-        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS)
-                                                                                  .export(new StreamObserver<ExportResponse>() {
-                                                                                      @Override
-                                                                                      public void onNext(
-                                                                                          ExportResponse response) {
+        GRPCStreamStatus status = new GRPCStreamStatus();
+        StreamObserver<ExportMetricValue> streamObserver = exportServiceFutureStub.withDeadlineAfter(
+            10, TimeUnit.SECONDS)
+                                                                                  .export(
+                                                                                      new StreamObserver<ExportResponse>() {
+                                                                                          @Override
+                                                                                          public void onNext(
+                                                                                              ExportResponse response) {
 
-                                                                                      }
+                                                                                          }
 
-                                                                                      @Override
-                                                                                      public void onError(
-                                                                                          Throwable throwable) {
-                                                                                          status.done();
-                                                                                      }
+                                                                                          @Override
+                                                                                          public void onError(
+                                                                                              Throwable throwable) {
+                                                                                              status.done();
+                                                                                          }
 
-                                                                                      @Override
-                                                                                      public void onCompleted() {
-                                                                                          status.done();
-                                                                                      }
-                                                                                  });
+                                                                                          @Override
+                                                                                          public void onCompleted() {
+                                                                                              status.done();
+                                                                                          }
+                                                                                      });
         AtomicInteger exportNum = new AtomicInteger();
         data.forEach(row -> {
             ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
@@ -167,9 +169,8 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
         long sleepTime = 0;
         long cycle = 100L;
-        /**
-         * For memory safe of oap, we must wait for the peer confirmation.
-         */
+
+        //For memory safe of oap, we must wait for the peer confirmation.
         while (!status.isDone()) {
             try {
                 sleepTime += cycle;
@@ -178,14 +179,18 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
             }
 
             if (sleepTime > 2000L) {
-                logger.warn("Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
-                    .getTargetPort(), sleepTime);
+                logger.warn(
+                    "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getTargetHost(),
+                    setting
+                        .getTargetPort(), sleepTime
+                );
                 cycle = 2000L;
             }
         }
 
-        logger.debug("Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
-            .getTargetPort(), sleepTime);
+        logger.debug(
+            "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getTargetHost(), setting
+                .getTargetPort(), sleepTime);
     }
 
     @Override

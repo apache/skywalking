@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.exporter;
+package org.apache.skywalking.oap.server.library.util;
 
-public class ExportStatus {
-    private boolean done = false;
+import lombok.Getter;
+
+@Getter
+public class GRPCStreamStatus {
+
+    private volatile boolean done = false;
 
     public void done() {
         done = true;
-    }
-
-    public boolean isDone() {
-        return done;
     }
 }

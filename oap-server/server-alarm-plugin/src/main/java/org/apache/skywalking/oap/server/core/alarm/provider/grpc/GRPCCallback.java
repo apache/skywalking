@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
-import org.apache.skywalking.oap.server.core.exporter.ExportStatus;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 /**
  * Use SkyWalking alarm grpc API call a remote methods.
@@ -63,7 +63,7 @@ public class GRPCCallback implements AlarmCallback {
         // recreate gRPC client if host and port configuration changed.
         onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
 
-        ExportStatus status = new ExportStatus();
+        GRPCStreamStatus status = new GRPCStreamStatus();
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
             alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
@@ -109,14 +109,13 @@ public class GRPCCallback implements AlarmCallback {
 
         long sleepTime = 0;
         long cycle = 100L;
-        /**
-         * For memory safe of oap, we must wait for the peer confirmation.
-         */
+
+        // For memory safe of oap, we must wait for the peer confirmation.
         while (!status.isDone()) {
             try {
                 sleepTime += cycle;
                 Thread.sleep(cycle);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
 
             if (log.isDebugEnabled()) {
