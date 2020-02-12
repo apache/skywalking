@@ -21,8 +21,8 @@ BEGIN {
     in_cluster_zk_section=0;
 
     in_storage_section=0;
-    in_storage_es_section=0;
     in_storage_h2_section=0;
+    in_storage_selected=0;
 }
 
 {
@@ -60,22 +60,28 @@ BEGIN {
     } else if (in_storage_section == 1) {
         # in the storage: section now
         # disable h2 module
-        if (in_storage_es_section == 0) {
-            if (ENVIRON["ES_VERSION"] ~ /^6.+/) {
-                in_storage_es_section=$0 ~ /^#?\s+elasticsearch:$/
-            } else if (ENVIRON["ES_VERSION"] ~ /^7.+/) {
-                in_storage_es_section=$0 ~ /^#?\s+elasticsearch7:$/
+        if (in_storage_selected == 0) {
+            if (ENVIRON["STORAGE"] == "elasticsearch") {
+                if (ENVIRON["ES_VERSION"] ~ /^6.+/) {
+                    in_storage_selected=$0 ~ /^#?\s+elasticsearch:$/
+                } else if (ENVIRON["ES_VERSION"] ~ /^7.+/) {
+                    in_storage_selected=$0 ~ /^#?\s+elasticsearch7:$/
+                }
+            } else if (ENVIRON["STORAGE"] == "influxdb") {
+                in_storage_selected=$0 ~ /^#?\s+influx:$/
             }
         } else {
-            in_storage_es_section=$0 ~ /^#?\s{4}/
+            in_storage_selected=$0 ~ /^#?\s{4}/
         }
+
         if (in_storage_h2_section == 0) {
             in_storage_h2_section=$0 ~ /^#?\s+h2:$/
         } else {
             in_storage_h2_section=$0 ~ /^#?\s{4}/
         }
-        if (in_storage_es_section == 1) {
-            # in the storage.elasticsearch section now
+
+        if (in_storage_selected == 1) {
+            # enable selected storage
             # uncomment es config
             gsub("^#", "", $0)
             print
@@ -93,4 +99,3 @@ BEGIN {
         print
     }
 }
-

@@ -150,7 +150,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
     private int querySequenceWithAgg(String function, String segmentId, long start, long end) throws IOException {
         WhereQueryImpl query = select()
-            .max(ProfileThreadSnapshotRecord.SEQUENCE)
+            .function(function, ProfileThreadSnapshotRecord.SEQUENCE)
             .from(client.getDatabase(), ProfileThreadSnapshotRecord.INDEX_NAME)
             .where()
             .and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))

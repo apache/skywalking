@@ -165,6 +165,7 @@ storage:
     database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
     actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000}
     duration: ${SW_STORAGE_INFLUXDB_DURATION:1000}
+    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000}
 EOT
 }
 

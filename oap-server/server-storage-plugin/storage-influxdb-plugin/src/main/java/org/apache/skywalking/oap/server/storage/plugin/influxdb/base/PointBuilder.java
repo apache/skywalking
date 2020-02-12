@@ -131,7 +131,7 @@ public class PointBuilder {
 
         return builder.fields(fields)
                       .addField("id", record.id())
-                      .time(System.currentTimeMillis() * PADDING_SIZE + COUNTER.get(), TimeUnit.NANOSECONDS)
+                      .time(System.currentTimeMillis() * PADDING_SIZE + COUNTER.getAndIncrement(), TimeUnit.NANOSECONDS)
                       .build();
     }
 
