@@ -78,7 +78,7 @@ public class TagAnnotationTest {
         Method testMethodWithTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithTag", String.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTag, new Object[]{"zhangsan"}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithTag, null, null, null);
-
+        ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -98,7 +98,7 @@ public class TagAnnotationTest {
         Method testMethodWithTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnTag", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTag, new Object[]{"lisi", 14}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithTag, null, null, new User("lisi", 14));
-
+        ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
@@ -120,11 +120,11 @@ public class TagAnnotationTest {
         Method testMethodWithTags = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithTags", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTags, new Object[]{"lisi", 14}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithTags, null, null, new User("lisi", 14));
+        ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
-
         AbstractTracingSpan tracingSpan = spans.get(0);
         assertThat(tracingSpan.getOperationName(), is("testMethod"));
         SpanAssert.assertLogSize(tracingSpan, 0);
