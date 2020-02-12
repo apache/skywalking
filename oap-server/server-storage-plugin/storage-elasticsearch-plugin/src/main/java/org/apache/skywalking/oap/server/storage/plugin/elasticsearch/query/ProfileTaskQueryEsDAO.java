@@ -18,8 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.profile.ProfileTask;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -29,10 +33,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO {
 
@@ -44,7 +44,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     }
 
     @Override
-    public List<org.apache.skywalking.oap.server.core.query.entity.ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
         Long endTimeBucket, Integer limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -52,20 +52,20 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         sourceBuilder.query(boolQueryBuilder);
 
         if (serviceId != null) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTask.SERVICE_ID, serviceId));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskRecord.SERVICE_ID, serviceId));
         }
 
         if (StringUtil.isNotEmpty(endpointName)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTask.ENDPOINT_NAME, endpointName));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
         }
 
         if (startTimeBucket != null) {
             boolQueryBuilder.must()
-                            .add(QueryBuilders.rangeQuery(ProfileTask.TIME_BUCKET).gte(startTimeBucket));
+                .add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).gte(startTimeBucket));
         }
 
         if (endTimeBucket != null) {
-            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTask.TIME_BUCKET).lte(endTimeBucket));
+            boolQueryBuilder.must().add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).lte(endTimeBucket));
         }
 
         if (limit != null) {
@@ -74,11 +74,11 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
             sourceBuilder.size(queryMaxSize);
         }
 
-        sourceBuilder.sort(ProfileTask.START_TIME, SortOrder.DESC);
+        sourceBuilder.sort(ProfileTaskRecord.START_TIME, SortOrder.DESC);
 
-        final SearchResponse response = getClient().search(ProfileTask.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient().search(ProfileTaskRecord.INDEX_NAME, sourceBuilder);
 
-        final LinkedList<org.apache.skywalking.oap.server.core.query.entity.ProfileTask> tasks = new LinkedList<>();
+        final LinkedList<ProfileTask> tasks = new LinkedList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             tasks.add(parseTask(searchHit));
         }
@@ -87,7 +87,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     }
 
     @Override
-    public org.apache.skywalking.oap.server.core.query.entity.ProfileTask getById(String id) throws IOException {
+    public ProfileTask getById(String id) throws IOException {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
@@ -96,7 +96,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         sourceBuilder.query(QueryBuilders.idsQuery().addIds(id));
         sourceBuilder.size(1);
 
-        final SearchResponse response = getClient().search(ProfileTask.INDEX_NAME, sourceBuilder);
+        final SearchResponse response = getClient().search(ProfileTaskRecord.INDEX_NAME, sourceBuilder);
 
         if (response.getHits().getHits().length > 0) {
             return parseTask(response.getHits().getHits()[0]);
@@ -105,21 +105,21 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         return null;
     }
 
-    private org.apache.skywalking.oap.server.core.query.entity.ProfileTask parseTask(SearchHit data) {
-        return org.apache.skywalking.oap.server.core.query.entity.ProfileTask.builder()
-                          .id(data.getId())
-                          .serviceId(((Number) data.getSourceAsMap().get(ProfileTask.SERVICE_ID)).intValue())
-                          .endpointName((String) data.getSourceAsMap().get(ProfileTask.ENDPOINT_NAME))
-                          .startTime(((Number) data.getSourceAsMap().get(ProfileTask.START_TIME)).longValue())
-                          .createTime(((Number) data.getSourceAsMap()
-                                                    .get(ProfileTask.CREATE_TIME)).longValue())
-                          .duration(((Number) data.getSourceAsMap().get(ProfileTask.DURATION)).intValue())
-                          .minDurationThreshold(((Number) data.getSourceAsMap()
-                                                              .get(ProfileTask.MIN_DURATION_THRESHOLD)).intValue())
-                          .dumpPeriod(((Number) data.getSourceAsMap()
-                                                    .get(ProfileTask.DUMP_PERIOD)).intValue())
-                          .maxSamplingCount(((Number) data.getSourceAsMap()
-                                                          .get(ProfileTask.MAX_SAMPLING_COUNT)).intValue())
-                          .build();
+    private ProfileTask parseTask(SearchHit data) {
+        return ProfileTask.builder()
+            .id(data.getId())
+            .serviceId(((Number)data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID)).intValue())
+            .endpointName((String)data.getSourceAsMap().get(ProfileTaskRecord.ENDPOINT_NAME))
+            .startTime(((Number)data.getSourceAsMap().get(ProfileTaskRecord.START_TIME)).longValue())
+            .createTime(((Number)data.getSourceAsMap()
+                .get(ProfileTaskRecord.CREATE_TIME)).longValue())
+            .duration(((Number)data.getSourceAsMap().get(ProfileTaskRecord.DURATION)).intValue())
+            .minDurationThreshold(((Number)data.getSourceAsMap()
+                .get(ProfileTaskRecord.MIN_DURATION_THRESHOLD)).intValue())
+            .dumpPeriod(((Number)data.getSourceAsMap()
+                .get(ProfileTaskRecord.DUMP_PERIOD)).intValue())
+            .maxSamplingCount(((Number)data.getSourceAsMap()
+                .get(ProfileTaskRecord.MAX_SAMPLING_COUNT)).intValue())
+            .build();
     }
 }

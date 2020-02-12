@@ -38,8 +38,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Getter
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK, name = "ProfileTask")
-@Stream(name = ProfileTask.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTask.Builder.class, processor = NoneStreamingProcessor.class)
-public class ProfileTask extends NoneStream {
+@Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamingProcessor.class)
+public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";
     public static final String SERVICE_ID = "service_id";
@@ -73,11 +73,11 @@ public class ProfileTask extends NoneStream {
     @Column(columnName = MAX_SAMPLING_COUNT)
     private int maxSamplingCount;
 
-    public static class Builder implements StorageBuilder<ProfileTask> {
+    public static class Builder implements StorageBuilder<ProfileTaskRecord> {
 
         @Override
-        public ProfileTask map2Data(Map<String, Object> dbMap) {
-            final ProfileTask record = new ProfileTask();
+        public ProfileTaskRecord map2Data(Map<String, Object> dbMap) {
+            final ProfileTaskRecord record = new ProfileTaskRecord();
             record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
@@ -91,7 +91,7 @@ public class ProfileTask extends NoneStream {
         }
 
         @Override
-        public Map<String, Object> data2Map(ProfileTask storageData) {
+        public Map<String, Object> data2Map(ProfileTaskRecord storageData) {
             final HashMap<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(ENDPOINT_NAME, storageData.getEndpointName());

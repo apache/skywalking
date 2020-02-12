@@ -37,7 +37,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
  */
 @Getter
 @Setter
-@ScopeDeclaration(id = PROFILE_TASK_LOG, name = ProfileTaskLogRecord.INDEX_NAME)
+@ScopeDeclaration(id = PROFILE_TASK_LOG, name = "ProfileTaskLog")
 @Stream(name = ProfileTaskLogRecord.INDEX_NAME, scopeId = PROFILE_TASK_LOG, builder = ProfileTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 public class ProfileTaskLogRecord extends Record {
 
@@ -66,11 +66,11 @@ public class ProfileTaskLogRecord extends Record {
         @Override
         public ProfileTaskLogRecord map2Data(Map<String, Object> dbMap) {
             final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
-            log.setTaskId((String) dbMap.get(TASK_ID));
-            log.setInstanceId(((Number) dbMap.get(INSTANCE_ID)).intValue());
-            log.setOperationType(((Number) dbMap.get(OPERATION_TYPE)).intValue());
-            log.setOperationTime(((Number) dbMap.get(OPERATION_TIME)).longValue());
-            log.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            log.setTaskId((String)dbMap.get(TASK_ID));
+            log.setInstanceId(((Number)dbMap.get(INSTANCE_ID)).intValue());
+            log.setOperationType(((Number)dbMap.get(OPERATION_TYPE)).intValue());
+            log.setOperationTime(((Number)dbMap.get(OPERATION_TIME)).longValue());
+            log.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
             return log;
         }
 
