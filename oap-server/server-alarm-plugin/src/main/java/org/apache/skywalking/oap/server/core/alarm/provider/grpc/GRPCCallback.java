@@ -48,7 +48,7 @@ public class GRPCCallback implements AlarmCallback {
         this.alarmRulesWatcher = alarmRulesWatcher;
         alarmSetting = alarmRulesWatcher.getGrpchookSetting();
 
-        if (!alarmSetting.isEmptySetting()) {
+        if (alarmSetting != null && !alarmSetting.isEmptySetting()) {
             grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
             grpcClient.connect();
             alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
