@@ -37,9 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-/**
- * @author wusheng
- */
 public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.ServiceInstancePingImplBase implements GRPCHandler {
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstancePingServiceHandler.class);
 
@@ -49,13 +46,20 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
     private final CommandService commandService;
 
     public ServiceInstancePingServiceHandler(ModuleManager moduleManager) {
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(IServiceInventoryRegister.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(IServiceInstanceInventoryRegister.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
     }
 
-    @Override public void doPing(ServiceInstancePingPkg request, StreamObserver<Commands> responseObserver) {
+    @Override
+    public void doPing(ServiceInstancePingPkg request, StreamObserver<Commands> responseObserver) {
         int serviceInstanceId = request.getServiceInstanceId();
         long heartBeatTime = request.getTime();
         serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, heartBeatTime);
@@ -65,10 +69,10 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
             responseObserver.onNext(Commands.getDefaultInstance());
         } else {
-            logger.warn("Can't find service by service instance id from cache," +
-                " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
+            logger.warn("Can't find service by service instance id from cache," + " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
 
-            final ServiceResetCommand resetCommand = commandService.newResetCommand(request.getServiceInstanceId(), request.getTime(), request.getServiceInstanceUUID());
+            final ServiceResetCommand resetCommand = commandService.newResetCommand(request.getServiceInstanceId(), request
+                .getTime(), request.getServiceInstanceUUID());
             final Command command = resetCommand.serialize().build();
             final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
             responseObserver.onNext(nextCommands);

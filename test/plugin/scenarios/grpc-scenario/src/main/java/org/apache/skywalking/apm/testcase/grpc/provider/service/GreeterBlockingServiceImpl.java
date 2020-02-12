@@ -24,7 +24,8 @@ import org.apache.skywalking.apm.testcase.grpc.proto.HelloReply;
 import org.apache.skywalking.apm.testcase.grpc.proto.HelloRequest;
 
 public class GreeterBlockingServiceImpl extends GreeterBlockingGrpc.GreeterBlockingImplBase {
-    @Override public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+    @Override
+    public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
         responseObserver.onNext(HelloReply.newBuilder().setMessage("Hi," + request.getName()).build());
         responseObserver.onCompleted();
     }

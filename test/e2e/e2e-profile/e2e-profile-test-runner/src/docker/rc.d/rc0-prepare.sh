@@ -15,10 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apt-get update && apt-get install -y gawk
-
 original_wd=$(pwd)
-
 
 if test "${STORAGE}" = "mysql"; then
   MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"

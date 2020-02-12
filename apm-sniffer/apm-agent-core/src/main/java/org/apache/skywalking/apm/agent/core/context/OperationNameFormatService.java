@@ -29,17 +29,16 @@ import org.apache.skywalking.apm.util.StringFormatGroup;
 
 /**
  * Support operation name format by config. Every plugin could declare its own rule to avoid performance concerns.
- *
+ * <p>
  * Right now, the rule is REGEX based, it definitely has much space to optimize, because basically, only `*` is required
  * to be supported.
- *
- * @author wusheng
  */
 @DefaultImplementor
 public class OperationNameFormatService implements BootService {
     private static final Map<Class, StringFormatGroup> RULES = new ConcurrentHashMap<Class, StringFormatGroup>();
 
-    @Override public void prepare() throws Throwable {
+    @Override
+    public void prepare() throws Throwable {
         for (Class<?> ruleName : Config.Plugin.OPGroup.class.getClasses()) {
             if (!OPGroupDefinition.class.isAssignableFrom(ruleName)) {
                 continue;
@@ -51,7 +50,7 @@ public class OperationNameFormatService implements BootService {
             }
             for (Field ruleNameField : ruleName.getFields()) {
                 if (ruleNameField.getType().equals(Map.class)) {
-                    Map<String, String> rule = (Map<String, String>)ruleNameField.get(null);
+                    Map<String, String> rule = (Map<String, String>) ruleNameField.get(null);
                     for (Map.Entry<String, String> entry : rule.entrySet()) {
                         formatGroup.addRule(entry.getKey(), entry.getValue());
                     }
@@ -60,15 +59,18 @@ public class OperationNameFormatService implements BootService {
         }
     }
 
-    @Override public void boot() throws Throwable {
+    @Override
+    public void boot() {
 
     }
 
-    @Override public void onComplete() throws Throwable {
+    @Override
+    public void onComplete() {
 
     }
 
-    @Override public void shutdown() throws Throwable {
+    @Override
+    public void shutdown() {
 
     }
 
@@ -76,7 +78,7 @@ public class OperationNameFormatService implements BootService {
      * Format the operation name based on group rules
      *
      * @param definition in the Config
-     * @param opName represents the operation name literal string
+     * @param opName     represents the operation name literal string
      * @return format string if rule matched or the given opName
      */
     public String formatOperationName(Class<? extends OPGroupDefinition> definition, String opName) {

@@ -18,21 +18,24 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
+import java.util.List;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.List;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA_PRODUCER;
 import static org.hamcrest.CoreMatchers.is;
@@ -53,11 +56,13 @@ public class KafkaProducerInterceptorTest {
     private Class[] argumentType;
 
     private EnhancedInstance kafkaProducerInstance = new EnhancedInstance() {
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return "localhost:9092";
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     };
@@ -70,11 +75,13 @@ public class KafkaProducerInterceptorTest {
             super("test", "key1", "");
         }
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return "test";
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     }
@@ -83,7 +90,10 @@ public class KafkaProducerInterceptorTest {
     public void setUp() {
         producerInterceptor = new KafkaProducerInterceptor();
 
-        arguments = new Object[] {messageInstance, null};
+        arguments = new Object[] {
+            messageInstance,
+            null
+        };
         argumentType = new Class[] {ProducerRecord.class};
     }
 

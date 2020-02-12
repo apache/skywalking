@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.solrj;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -74,7 +75,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         SolrRequest<?> request = (SolrRequest<?>) allArguments[0];
         SolrjInstance instance = (SolrjInstance) objInst.getSkyWalkingDynamicField();
 
@@ -148,8 +149,8 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         if (!ContextManager.isActive()) {
             return ret;
         }
@@ -173,7 +174,8 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         if (ContextManager.isActive()) {
             AbstractSpan span = ContextManager.activeSpan();
             int code = 500;
@@ -187,9 +189,9 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
 
     private static final AbstractSpan getSpan(String operatorName, String remotePeer) {
         return ContextManager.createExitSpan(operatorName, remotePeer)
-                .setComponent(ComponentsDefine.SOLRJ)
-                .setLayer(SpanLayer.DB)
-                .tag(Tags.DB_TYPE, DB_TYPE);
+                             .setComponent(ComponentsDefine.SOLRJ)
+                             .setLayer(SpanLayer.DB)
+                             .tag(Tags.DB_TYPE, DB_TYPE);
     }
 
     private static final String getOperatorNameWithAction(String collection, String path, String action) {
@@ -217,7 +219,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
     private static final String toQueryString(SolrParams params) {
         final StringBuilder sb = new StringBuilder(128);
         boolean first = true;
-        for (final Iterator<String> it = params.getParameterNamesIterator(); it.hasNext();) {
+        for (final Iterator<String> it = params.getParameterNamesIterator(); it.hasNext(); ) {
             final String name = it.next();
             for (String val : params.getParams(name)) {
                 sb.append(first ? '?' : '&').append(name).append('=').append(val);

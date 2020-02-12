@@ -23,10 +23,9 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 
 /**
- * a wrapper for {@link FutureCallback} so we can be notified when the hold response
- * (when one or more request fails the pipeline mode may not callback though we haven't support pipeline)
- * received whether it fails or completed or canceled.
- * @author lican
+ * a wrapper for {@link FutureCallback} so we can be notified when the hold response (when one or more request fails the
+ * pipeline mode may not callback though we haven't support pipeline) received whether it fails or completed or
+ * canceled.
  */
 public class FutureCallbackWrapper<T> implements FutureCallback<T> {
 

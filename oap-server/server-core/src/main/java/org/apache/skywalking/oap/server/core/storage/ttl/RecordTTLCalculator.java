@@ -23,12 +23,11 @@ import org.joda.time.DateTime;
 
 /**
  * Calculate TTL for record.
- *
- * @author wusheng
  */
 public class RecordTTLCalculator implements TTLCalculator {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+    @Override
+    public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
         return Long.valueOf(currentTime.plusMinutes(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMddHHmmss"));
     }
 }

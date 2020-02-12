@@ -26,12 +26,11 @@ import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.common.xcontent.*;
-import org.slf4j.*;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterLockDAOImpl.class);
@@ -40,7 +39,8 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         super(client);
     }
 
-    @Override public int getId(int scopeId, RegisterSource registerSource) {
+    @Override
+    public int getId(int scopeId, RegisterSource registerSource) {
         String id = scopeId + "";
 
         int sequence = Const.NONE;
@@ -49,7 +49,7 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
             if (response.isExists()) {
                 Map<String, Object> source = response.getSource();
 
-                sequence = ((Number)source.get(RegisterLockIndex.COLUMN_SEQUENCE)).intValue();
+                sequence = ((Number) source.get(RegisterLockIndex.COLUMN_SEQUENCE)).intValue();
                 long version = response.getVersion();
 
                 sequence++;
@@ -71,5 +71,4 @@ public class RegisterLockDAOImpl extends EsDAO implements IRegisterLockDAO {
         getClient().forceUpdate(RegisterLockIndex.NAME, id, source, version);
     }
 }
-
 

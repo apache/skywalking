@@ -18,30 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
- *
- * @author wusheng
  */
 @Slf4j
 public class RunningRule {
@@ -175,8 +176,6 @@ public class RunningRule {
     /**
      * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent N(period)
      * buckets.
-     *
-     * @author wusheng
      */
     public class Window {
         private LocalDateTime endTime;
@@ -365,16 +364,16 @@ public class RunningRule {
             }
             switch (valueType) {
                 case LONG:
-                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((LongValueHolder)m).getValue()}));
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((LongValueHolder) m).getValue()}));
                     break;
                 case INT:
-                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder)m).getValue()}));
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder) m).getValue()}));
                     break;
                 case DOUBLE:
-                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder)m).getValue()}));
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder) m).getValue()}));
                     break;
                 case MULTI_INTS:
-                    int[] iArr = ((MultiIntValuesHolder)m).getValues();
+                    int[] iArr = ((MultiIntValuesHolder) m).getValues();
                     r.add(new TraceLogMetric(m.getTimeBucket(), Arrays.stream(iArr).boxed().toArray(Number[]::new)));
                     break;
             }

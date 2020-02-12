@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v37;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -29,9 +28,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Mockito.when;
 
-/**
- * @author scolia
- */
 @RunWith(PowerMockRunner.class)
 public class MongoDBClientDelegateInterceptorTest {
 
@@ -71,6 +67,5 @@ public class MongoDBClientDelegateInterceptorTest {
             this.skyWalkingDynamicField = value;
         }
     }
-
 
 }

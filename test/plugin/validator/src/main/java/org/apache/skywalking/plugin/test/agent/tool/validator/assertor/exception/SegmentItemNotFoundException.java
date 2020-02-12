@@ -26,7 +26,8 @@ public class SegmentItemNotFoundException extends AssertFailedException {
         this.applicationCode = applicationCode;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("SegmentItemNotFoundException\nexpected: %s\nactual: %s", applicationCode, "Not Found");
     }
 }

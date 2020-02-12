@@ -18,13 +18,9 @@
 
 package org.apache.skywalking.e2e.service.instance;
 
+import java.util.Objects;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.Objects;
-
-/**
- * @author kezhenxu94
- */
 public class AttributeMatcher extends AbstractMatcher<Attribute> {
     private String name;
     private String value;
@@ -55,9 +51,6 @@ public class AttributeMatcher extends AbstractMatcher<Attribute> {
 
     @Override
     public String toString() {
-        return "Attribute{" +
-            "name='" + name + '\'' +
-            ", value='" + value + '\'' +
-            '}';
+        return "Attribute{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
     }
 }

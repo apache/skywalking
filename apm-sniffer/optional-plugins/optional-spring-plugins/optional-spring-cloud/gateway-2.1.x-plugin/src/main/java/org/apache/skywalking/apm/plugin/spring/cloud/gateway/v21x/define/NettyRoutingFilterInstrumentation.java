@@ -29,10 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
-
 public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
@@ -42,7 +38,7 @@ public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -69,6 +65,9 @@ public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhan
 
     @Override
     protected final String[] witnessClasses() {
-        return new String[]{"org.springframework.cloud.gateway.handler.FilteringWebHandler", "reactor.netty.http.client.HttpClientOperations"};
+        return new String[] {
+            "org.springframework.cloud.gateway.handler.FilteringWebHandler",
+            "reactor.netty.http.client.HttpClientOperations"
+        };
     }
 }

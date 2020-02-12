@@ -30,15 +30,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
  * {@link EnqueueInterceptor} create a local span and the prefix of the span operation name is start with `Async` when
  * the `enqueue` method called and also put the `ContextSnapshot` and `RealCall` instance into the
  * `SkyWalkingDynamicField`.
- *
- * @author zhangxin
  */
 public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhancedInstance callbackInstance = (EnhancedInstance)allArguments[0];
-        Request request = (Request)objInst.getSkyWalkingDynamicField();
+        EnhancedInstance callbackInstance = (EnhancedInstance) allArguments[0];
+        Request request = (Request) objInst.getSkyWalkingDynamicField();
         ContextManager.createLocalSpan("Async" + request.url().uri().getPath());
 
         /**
@@ -61,12 +59,14 @@ public class EnqueueInterceptor implements InstanceMethodsAroundInterceptor, Ins
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
-    @Override public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(allArguments[1]);
     }
 }

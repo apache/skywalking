@@ -19,15 +19,14 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class ModelInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(ModelInstaller.class);
@@ -47,7 +46,8 @@ public abstract class ModelInstaller {
             for (Model model : models) {
                 while (!isExists(client, model)) {
                     try {
-                        logger.info("table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.", model.getName());
+                        logger.info("table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.", model
+                            .getName());
                         Thread.sleep(3000L);
                     } catch (InterruptedException e) {
                         logger.error(e.getMessage());

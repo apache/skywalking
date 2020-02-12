@@ -31,22 +31,23 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * @author stone.wlg
- */
 public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                   Class<?>[] argumentsTypes,
-                                   MethodInterceptResult result) throws Throwable {
+        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
         ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
         if (connectionInfo == null) {
             return;
         }
 
         Statement statement = (Statement) allArguments[0];
-        String remotePeer = statement.getHost() == null ? connectionInfo.getContactPoints() : (statement.getHost().getSocketAddress().getHostName() + ":" + statement.getHost().getSocketAddress().getPort());
+        String remotePeer = statement.getHost() == null ? connectionInfo.getContactPoints() : (statement.getHost()
+                                                                                                        .getSocketAddress()
+                                                                                                        .getHostName() + ":" + statement
+            .getHost()
+            .getSocketAddress()
+            .getPort());
         String keyspace = statement.getKeyspace() == null ? connectionInfo.getKeyspace() : statement.getKeyspace();
         String query = statement.toString();
         if (statement instanceof BoundStatement) {
@@ -63,8 +64,7 @@ public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptor imp
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                    Class<?>[] argumentsTypes,
-                                    Object ret) throws Throwable {
+        Class<?>[] argumentsTypes, Object ret) throws Throwable {
         ConnectionInfo connectionInfo = (ConnectionInfo) objInst.getSkyWalkingDynamicField();
         if (connectionInfo != null && ContextManager.isActive()) {
             ContextManager.stopSpan();
@@ -74,7 +74,7 @@ public class SessionManagerExecuteAndExecuteAsyncWithStatementArgInterceptor imp
 
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                            Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         if (ContextManager.isActive()) {
             AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();

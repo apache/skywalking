@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.service;
 
 import io.grpc.stub.StreamObserver;
@@ -22,8 +23,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v2.CLRMetricReportServiceGrpc;
 
 /**
- * Author Daming
- * Email zteny@foxmail.com
+ * Author Daming Email zteny@foxmail.com
  **/
 public class MockCLRMetricReportService extends CLRMetricReportServiceGrpc.CLRMetricReportServiceImplBase {
 

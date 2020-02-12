@@ -16,16 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.partition;
 
 import org.apache.skywalking.apm.commons.datacarrier.SampleData;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public class SimpleRollingPartitionerTest {
     @Test
     public void testPartition() {

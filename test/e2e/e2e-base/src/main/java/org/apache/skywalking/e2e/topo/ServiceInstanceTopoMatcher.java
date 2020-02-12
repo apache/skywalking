@@ -18,20 +18,16 @@
 
 package org.apache.skywalking.e2e.topo;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.e2e.assertor.VariableExpressParser;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.List;
-
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.fail;
 
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 @ToString

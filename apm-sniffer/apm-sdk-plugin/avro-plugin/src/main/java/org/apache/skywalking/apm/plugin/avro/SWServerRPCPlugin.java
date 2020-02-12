@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.nio.ByteBuffer;
@@ -30,8 +31,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
- * A SkyWalking tracing plugin for Avro Server.
- * Extract the CarrierItems from RPC's metadata and inject them into ContextCarrier.
+ * A SkyWalking tracing plugin for Avro Server. Extract the CarrierItems from RPC's metadata and inject them into
+ * ContextCarrier.
  */
 public class SWServerRPCPlugin extends RPCPlugin {
     private final String prefix;
@@ -48,7 +49,7 @@ public class SWServerRPCPlugin extends RPCPlugin {
         CarrierItem items = carrier.items();
         while (items.hasNext()) {
             items = items.next();
-            ByteBuffer buffer = (ByteBuffer)meta.get(new Utf8(items.getHeadKey()));
+            ByteBuffer buffer = (ByteBuffer) meta.get(new Utf8(items.getHeadKey()));
             items.setHeadValue(new String(buffer.array()));
         }
 

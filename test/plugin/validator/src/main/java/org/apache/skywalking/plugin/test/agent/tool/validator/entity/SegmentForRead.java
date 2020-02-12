@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 import java.util.ArrayList;
@@ -29,7 +30,8 @@ public class SegmentForRead implements Segment {
         return segmentId;
     }
 
-    @Override public List<Span> spans() {
+    @Override
+    public List<Span> spans() {
         if (spans == null) {
             return null;
         }
@@ -63,7 +65,8 @@ public class SegmentForRead implements Segment {
             this.entryEndpointId = ref.get("entryEndpointId") == null ? null : ref.get("entryEndpointId").toString();
             this.parentEndpointId = ref.get("parentEndpointId") == null ? null : ref.get("parentEndpointId").toString();
             this.networkAddressId = ref.get("networkAddressId") == null ? null : ref.get("networkAddressId").toString();
-            this.parentServiceInstanceId = ref.get("parentServiceInstanceId") == null ? null : ref.get("parentServiceInstanceId").toString();
+            this.parentServiceInstanceId = ref.get("parentServiceInstanceId") == null ? null : ref.get("parentServiceInstanceId")
+                                                                                                  .toString();
         }
 
         public void setParentEndpointId(String parentEndpointId) {
@@ -110,62 +113,76 @@ public class SegmentForRead implements Segment {
             this.entryServiceInstanceId = entryServiceInstanceId;
         }
 
-        @Override public String parentEndpointId() {
+        @Override
+        public String parentEndpointId() {
             return parentEndpointId;
         }
 
-        @Override public String parentEndpointName() {
+        @Override
+        public String parentEndpointName() {
             return parentEndpoint;
         }
 
-        @Override public String networkAddressId() {
+        @Override
+        public String networkAddressId() {
             return networkAddressId;
         }
 
-        @Override public String entryEndpointId() {
+        @Override
+        public String entryEndpointId() {
             return entryEndpointId;
         }
 
-        @Override public String refType() {
+        @Override
+        public String refType() {
             return refType;
         }
 
-        @Override public String parentSpanId() {
+        @Override
+        public String parentSpanId() {
             return parentSpanId;
         }
 
-        @Override public String parentTraceSegmentId() {
+        @Override
+        public String parentTraceSegmentId() {
             return parentTraceSegmentId;
         }
 
-        @Override public String parentServiceInstanceId() {
+        @Override
+        public String parentServiceInstanceId() {
             return parentServiceInstanceId;
         }
 
-        @Override public String networkAddress() {
+        @Override
+        public String networkAddress() {
             return networkAddress;
         }
 
-        @Override public String entryEndpointName() {
+        @Override
+        public String entryEndpointName() {
             return entryEndpoint;
         }
 
-        @Override public void parentTraceSegmentId(String parentTraceSegmentId) {
+        @Override
+        public void parentTraceSegmentId(String parentTraceSegmentId) {
             this.parentTraceSegmentId = parentTraceSegmentId;
         }
 
-        @Override public String entryServiceInstanceId() {
+        @Override
+        public String entryServiceInstanceId() {
             return entryServiceInstanceId;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             StringBuilder actualSegmentRef = new StringBuilder("\nSegmentRef:\n");
             return actualSegmentRef.append(String.format(" - entryServiceName:\t\t%s\n", entryEndpointName()))
-                .append(String.format(" - networkAddress:\t\t\t%s\n", networkAddress()))
-                .append(String.format(" - parentServiceName:\t\t%s\n", parentEndpointName()))
-                .append(String.format(" - parentSpanId:\t\t\t%s\n", parentSpanId()))
-                .append(String.format(" - parentTraceSegmentId:\t%s\n", parentTraceSegmentId()))
-                .append(String.format(" - refType:\t\t\t\t\t%s", refType())).toString();
+                                   .append(String.format(" - networkAddress:\t\t\t%s\n", networkAddress()))
+                                   .append(String.format(" - parentServiceName:\t\t%s\n", parentEndpointName()))
+                                   .append(String.format(" - parentSpanId:\t\t\t%s\n", parentSpanId()))
+                                   .append(String.format(" - parentTraceSegmentId:\t%s\n", parentTraceSegmentId()))
+                                   .append(String.format(" - refType:\t\t\t\t\t%s", refType()))
+                                   .toString();
         }
     }
 
@@ -249,32 +266,37 @@ public class SegmentForRead implements Segment {
             this.peerId = peerId;
         }
 
-        public void setRefs(
-            List<Map<String, Object>> refs) {
+        public void setRefs(List<Map<String, Object>> refs) {
             this.refs = refs;
         }
 
-        @Override public String operationName() {
+        @Override
+        public String operationName() {
             return operationName;
         }
 
-        @Override public String operationId() {
+        @Override
+        public String operationId() {
             return operationId;
         }
 
-        @Override public String parentSpanId() {
+        @Override
+        public String parentSpanId() {
             return parentSpanId;
         }
 
-        @Override public String spanId() {
+        @Override
+        public String spanId() {
             return spanId;
         }
 
-        @Override public String spanLayer() {
+        @Override
+        public String spanLayer() {
             return spanLayer;
         }
 
-        @Override public List<KeyValuePair> tags() {
+        @Override
+        public List<KeyValuePair> tags() {
             if (tags == null) {
                 return new ArrayList<>();
             }
@@ -285,7 +307,8 @@ public class SegmentForRead implements Segment {
             return result;
         }
 
-        @Override public List<LogEvent> logs() {
+        @Override
+        public List<LogEvent> logs() {
             if (logs == null) {
                 return new ArrayList<>();
             }
@@ -302,39 +325,48 @@ public class SegmentForRead implements Segment {
             return result;
         }
 
-        @Override public String startTime() {
+        @Override
+        public String startTime() {
             return startTime;
         }
 
-        @Override public String endTime() {
+        @Override
+        public String endTime() {
             return endTime;
         }
 
-        @Override public String componentId() {
+        @Override
+        public String componentId() {
             return componentId;
         }
 
-        @Override public String componentName() {
+        @Override
+        public String componentName() {
             return componentName;
         }
 
-        @Override public String error() {
+        @Override
+        public String error() {
             return isError;
         }
 
-        @Override public String spanType() {
+        @Override
+        public String spanType() {
             return spanType;
         }
 
-        @Override public String peer() {
+        @Override
+        public String peer() {
             return peer;
         }
 
-        @Override public String peerId() {
+        @Override
+        public String peerId() {
             return peerId;
         }
 
-        @Override public List<SegmentRef> refs() {
+        @Override
+        public List<SegmentRef> refs() {
             if (formatedRefs == null && refs != null) {
                 List<SegmentRef> segmentRefs = new ArrayList<>();
                 for (Map<String, Object> ref : refs) {
@@ -346,11 +378,13 @@ public class SegmentForRead implements Segment {
             return formatedRefs;
         }
 
-        @Override public void setActualRefs(List<SegmentRef> refs) {
+        @Override
+        public void setActualRefs(List<SegmentRef> refs) {
             this.actualRefs = refs;
         }
 
-        @Override public List<SegmentRef> actualRefs() {
+        @Override
+        public List<SegmentRef> actualRefs() {
             return actualRefs;
         }
     }
@@ -375,7 +409,8 @@ public class SegmentForRead implements Segment {
         return spans;
     }
 
-    @Override public void setSegmentId(String segmentId) {
+    @Override
+    public void setSegmentId(String segmentId) {
         this.segmentId = segmentId;
     }
 

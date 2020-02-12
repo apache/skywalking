@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * Self observability receiver module.
- *
- * @author gaohongtao
  */
 public class So11yReceiverModule extends ModuleDefine {
     public static final String NAME = "receiver-so11y";

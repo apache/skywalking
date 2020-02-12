@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.testcase.jedis.controller;
 
 import redis.clients.jedis.Jedis;
 
-public class RedisCommandExecutor implements AutoCloseable{
+public class RedisCommandExecutor implements AutoCloseable {
     private Jedis jedis;
 
     public RedisCommandExecutor(String host, Integer port) {

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import net.bytebuddy.description.type.TypeDescription;
@@ -25,8 +24,6 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 /**
  * Match classes by any one of the given {@link #prefixes}
- *
- * @author kezhenxu94
  */
 @SuppressWarnings("rawtypes")
 public class PrefixMatch implements IndirectMatch {

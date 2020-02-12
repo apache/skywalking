@@ -17,10 +17,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
@@ -45,9 +41,10 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-/**
- * @author aderm
- */
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class IndicesClientDeleteMethodsInterceptorTest {
@@ -96,7 +93,7 @@ public class IndicesClientDeleteMethodsInterceptorTest {
     private void assertDeleteSpan(AbstractTracingSpan deleteSpan) {
         assertThat(deleteSpan instanceof ExitSpan, is(true));
 
-        ExitSpan exitSpan = (ExitSpan)deleteSpan;
+        ExitSpan exitSpan = (ExitSpan) deleteSpan;
         assertThat(exitSpan.getOperationName(), is("Elasticsearch/DeleteRequest"));
         assertThat(exitSpan.getPeer(), is("172.0.0.1:9200"));
         assertThat(SpanHelper.getComponentId(exitSpan), is(77));

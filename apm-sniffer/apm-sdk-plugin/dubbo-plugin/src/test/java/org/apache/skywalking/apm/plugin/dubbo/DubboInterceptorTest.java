@@ -103,8 +103,14 @@ public class DubboInterceptorTest {
         when(invocation.getArguments()).thenReturn(new Object[] {"abc"});
         PowerMockito.when(RpcContext.getContext()).thenReturn(rpcContext);
         when(rpcContext.isConsumerSide()).thenReturn(true);
-        allArguments = new Object[] {invoker, invocation};
-        argumentTypes = new Class[] {invoker.getClass(), invocation.getClass()};
+        allArguments = new Object[] {
+            invoker,
+            invocation
+        };
+        argumentTypes = new Class[] {
+            invoker.getClass(),
+            invocation.getClass()
+        };
         Config.Agent.SERVICE_NAME = "DubboTestCases-APP";
     }
 
@@ -166,8 +172,7 @@ public class DubboInterceptorTest {
         assertProvider();
     }
 
-    private void assertConsumerTraceSegmentInErrorCase(
-        TraceSegment traceSegment) {
+    private void assertConsumerTraceSegmentInErrorCase(TraceSegment traceSegment) {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
         assertThat(spans.size(), is(1));
         assertConsumerSpan(spans.get(0));
@@ -211,7 +216,8 @@ public class DubboInterceptorTest {
         assertThat(tags.size(), is(1));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.RPC_FRAMEWORK));
         assertThat(SpanHelper.getComponentId(span), is(3));
-        assertThat(tags.get(0).getValue(), is("dubbo://127.0.0.1:20880/org.apache.skywalking.apm.test.TestDubboService.test(String)"));
+        assertThat(tags.get(0)
+                       .getValue(), is("dubbo://127.0.0.1:20880/org.apache.skywalking.apm.test.TestDubboService.test(String)"));
         assertThat(span.getOperationName(), is("org.apache.skywalking.apm.test.TestDubboService.test(String)"));
     }
 }

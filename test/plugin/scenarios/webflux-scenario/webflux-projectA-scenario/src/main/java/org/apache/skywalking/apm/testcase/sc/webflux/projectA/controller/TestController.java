@@ -17,13 +17,12 @@
 
 package org.apache.skywalking.apm.testcase.sc.webflux.projectA.controller;
 
+import java.io.IOException;
 import org.apache.skywalking.apm.testcase.sc.webflux.projectA.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 
 @RestController
 public class TestController {
@@ -53,7 +52,7 @@ public class TestController {
         return "test";
     }
 
-    private void visit(String path){
+    private void visit(String path) {
         try {
             httpUtils.visit(path);
         } catch (Exception i) {

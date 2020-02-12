@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.define.v30;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,12 +31,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * Enhance {@code com.mongodb.Mongo} instance, and intercept {@code com.mongodb.Mongo#execute(...)} method,
- * this method is a unified entrance of execute mongo command.
+ * Enhance {@code com.mongodb.Mongo} instance, and intercept {@code com.mongodb.Mongo#execute(...)} method, this method
+ * is a unified entrance of execute mongo command.
  * <p>
  * support: 3.0.x~3.5.x
  *
- * @author scolia
  * @see MongoDBInterceptor
  */
 @SuppressWarnings({"Duplicates"})
@@ -52,7 +50,7 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
     @Override
     protected String[] witnessClasses() {
         // this class only exist in version: 3.0.x~3.5.x
-        return new String[]{WITNESS_CLASS};
+        return new String[] {WITNESS_CLASS};
     }
 
     @Override
@@ -60,43 +58,43 @@ public class MongoDBInstrumentation extends ClassInstanceMethodsEnhancePluginDef
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
-
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{new ConstructorInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
-            }
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, "com.mongodb.connection.Cluster");
+                }
 
-            @Override
-            public String getConstructorInterceptor() {
-                return INTERCEPTOR_CLASS;
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
             }
-        }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named("execute");
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute");
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
-
 
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.play.v2x;
 
 import akka.stream.Materializer;
@@ -39,10 +40,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-/**
- * @author AI
- * 2019-08-01
- */
 @Singleton
 public class TracingFilter extends Filter {
 
@@ -54,7 +51,8 @@ public class TracingFilter extends Filter {
     }
 
     @Override
-    public CompletionStage<Result> apply(Function<Http.RequestHeader, CompletionStage<Result>> next, Http.RequestHeader request) {
+    public CompletionStage<Result> apply(Function<Http.RequestHeader, CompletionStage<Result>> next,
+        Http.RequestHeader request) {
         HandlerDef def = null;
         try {
             def = request.attrs().get(Router.Attrs.HANDLER_DEF);

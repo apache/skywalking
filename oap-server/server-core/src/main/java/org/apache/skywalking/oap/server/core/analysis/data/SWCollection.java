@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.Collection;
 
-/**
- * @author peng-yongsheng
- */
 public interface SWCollection<DATA> {
 
     void reading();

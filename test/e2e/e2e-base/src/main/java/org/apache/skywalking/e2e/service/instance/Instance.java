@@ -20,9 +20,6 @@ package org.apache.skywalking.e2e.service.instance;
 
 import java.util.List;
 
-/**
- * @author kezhenxu94
- */
 public class Instance {
     private String key;
     private String label;
@@ -66,11 +63,6 @@ public class Instance {
 
     @Override
     public String toString() {
-        return "Instance{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            ", attributes=" + attributes +
-            ", instanceUUID=" + instanceUUID +
-            '}';
+        return "Instance{" + "key='" + key + '\'' + ", label='" + label + '\'' + ", attributes=" + attributes + ", instanceUUID=" + instanceUUID + '}';
     }
 }

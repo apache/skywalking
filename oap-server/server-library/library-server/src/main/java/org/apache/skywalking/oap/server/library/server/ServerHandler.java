@@ -18,8 +18,5 @@
 
 package org.apache.skywalking.oap.server.library.server;
 
-/**
- * @author peng-yongsheng
- */
 public interface ServerHandler {
 }

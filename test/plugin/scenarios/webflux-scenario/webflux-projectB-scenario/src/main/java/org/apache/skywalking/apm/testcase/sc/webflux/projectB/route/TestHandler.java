@@ -14,6 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.skywalking.apm.testcase.sc.webflux.projectB.route;
 
 import org.springframework.http.MediaType;
@@ -23,9 +24,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-/**
- * @author zhaoyuguang
- */
 @Component
 public class TestHandler {
 

@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author wusheng
- */
 public interface ISegmentParserService extends Service {
     void send(UpstreamSegment segment);
 }

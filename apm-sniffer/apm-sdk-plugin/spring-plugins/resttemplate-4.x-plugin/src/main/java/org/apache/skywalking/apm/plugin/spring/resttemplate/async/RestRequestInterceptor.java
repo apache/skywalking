@@ -37,10 +37,10 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AsyncClientHttpRequest clientHttpRequest = (AsyncClientHttpRequest)ret;
+        AsyncClientHttpRequest clientHttpRequest = (AsyncClientHttpRequest) ret;
         if (ret != null) {
-            Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
-            ContextCarrier contextCarrier = (ContextCarrier)cacheValues[1];
+            Object[] cacheValues = (Object[]) objInst.getSkyWalkingDynamicField();
+            ContextCarrier contextCarrier = (ContextCarrier) cacheValues[1];
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
                 next = next.next();
@@ -50,7 +50,8 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

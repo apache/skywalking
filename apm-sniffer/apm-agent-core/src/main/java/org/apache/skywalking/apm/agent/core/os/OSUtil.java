@@ -30,9 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 
-/**
- * @author wusheng
- */
 public class OSUtil {
     private static volatile String OS_NAME;
     private static volatile String HOST_NAME;

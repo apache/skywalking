@@ -18,13 +18,11 @@
 
 package org.apache.skywalking.oap.server.telemetry.api;
 
-import java.io.*;
+import java.io.Closeable;
 
 /**
  * A histogram samples observations (usually things like request durations or response sizes) and counts them in
  * configurable buckets. It also provides a sum of all observed values.
- *
- * @author wusheng
  */
 public abstract class HistogramMetrics {
     public Timer createTimer() {
@@ -50,7 +48,7 @@ public abstract class HistogramMetrics {
 
         public void finish() {
             long endNanos = System.nanoTime();
-            duration = (double)(endNanos - startNanos) / 1.0E9D;
+            duration = (double) (endNanos - startNanos) / 1.0E9D;
             metrics.observe(duration);
         }
 

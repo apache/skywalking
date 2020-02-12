@@ -45,10 +45,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- * @author aderm
- */
 public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
     public TopologyQueryEsDAO(ElasticSearchClient client) {
@@ -56,7 +52,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB, List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -73,7 +70,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB,
+        long endTB, List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -88,19 +86,26 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
     }
 
-    private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, List<Integer> serviceIds) {
+    private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
+        List<Integer> serviceIds) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        boolQuery.must()
+                 .add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
 
         BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(serviceIdBoolQuery);
 
         if (serviceIds.size() == 1) {
-            serviceIdBoolQuery.should().add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds.get(0)));
-            serviceIdBoolQuery.should().add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds.get(0)));
+            serviceIdBoolQuery.should()
+                              .add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds
+                                  .get(0)));
+            serviceIdBoolQuery.should()
+                              .add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds.get(0)));
         } else {
-            serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds));
-            serviceIdBoolQuery.should().add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
+            serviceIdBoolQuery.should()
+                              .add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds));
+            serviceIdBoolQuery.should()
+                              .add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
         }
         sourceBuilder.query(boolQuery);
     }
@@ -110,7 +115,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
         String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
+                                         .gte(startTB)
+                                         .lte(endTB));
         sourceBuilder.size(0);
 
         return load(sourceBuilder, filterIndexNames, DetectPoint.SERVER);
@@ -121,7 +128,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
         String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
+                                         .gte(startTB)
+                                         .lte(endTB));
         sourceBuilder.size(0);
 
         return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
@@ -151,9 +160,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
     }
 
-    private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB, int clientServiceId, int serverServiceId) {
+    private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
+        int clientServiceId, int serverServiceId) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        boolQuery.must()
+                 .add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
 
         BoolQueryBuilder serviceIdBoolQuery = new BoolQueryBuilder();
         boolQuery.must(serviceIdBoolQuery);
@@ -183,12 +194,15 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.size(0);
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        boolQuery.must().add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
+        boolQuery.must()
+                 .add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
 
         BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(serviceIdBoolQuery);
-        serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
-        serviceIdBoolQuery.should().add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
+        serviceIdBoolQuery.should()
+                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
+        serviceIdBoolQuery.should()
+                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
 
         sourceBuilder.query(boolQuery);
 

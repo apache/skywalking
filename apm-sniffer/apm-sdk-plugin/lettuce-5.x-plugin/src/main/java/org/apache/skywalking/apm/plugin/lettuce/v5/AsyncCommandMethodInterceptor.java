@@ -30,15 +30,12 @@ import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/**
- * @author zhaoyuguang
- */
 public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         AsyncCommand asyncCommand = (AsyncCommand) objInst;
         String operationName = "Lettuce/" + asyncCommand.getType().name();
         AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
@@ -51,15 +48,15 @@ public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInter
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

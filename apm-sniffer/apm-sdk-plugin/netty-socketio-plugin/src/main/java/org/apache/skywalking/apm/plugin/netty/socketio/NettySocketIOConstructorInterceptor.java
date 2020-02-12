@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 import java.net.InetSocketAddress;
 
-/**
- * @author MrPro
- */
 public class NettySocketIOConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {

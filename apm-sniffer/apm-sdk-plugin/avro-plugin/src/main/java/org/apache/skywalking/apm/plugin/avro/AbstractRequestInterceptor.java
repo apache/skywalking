@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.avro;
 
 import java.io.IOException;
@@ -35,16 +36,14 @@ public abstract class AbstractRequestInterceptor implements InstanceConstructorI
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (objInst.getSkyWalkingDynamicField() == null) {
-            Requestor requestor = (Requestor)objInst;
+            Requestor requestor = (Requestor) objInst;
             requestor.addRPCPlugin(new SWClientRPCPlugin());
 
-            Protocol protocol = (Protocol)allArguments[0];
-            Transceiver transceiver = (Transceiver)allArguments[1];
+            Protocol protocol = (Protocol) allArguments[0];
+            Transceiver transceiver = (Transceiver) allArguments[1];
             try {
-                objInst.setSkyWalkingDynamicField(new AvroInstance(
-                    protocol.getNamespace() + "." + protocol.getName() + ".",
-                    transceiver.getRemoteName()
-                ));
+                objInst.setSkyWalkingDynamicField(new AvroInstance(protocol.getNamespace() + "." + protocol.getName() + ".", transceiver
+                    .getRemoteName()));
             } catch (IOException e) {
                 objInst.setSkyWalkingDynamicField(new AvroInstance("Undefined", "Undefined"));
                 logger.error("Failed to get Avro Remote Client Information.", e);

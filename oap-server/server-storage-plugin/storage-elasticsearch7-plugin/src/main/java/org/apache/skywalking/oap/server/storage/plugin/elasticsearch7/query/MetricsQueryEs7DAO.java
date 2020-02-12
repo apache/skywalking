@@ -37,11 +37,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- * @author aderm
- */
 public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
     public MetricsQueryEs7DAO(ElasticSearchClient client) {
@@ -49,14 +44,8 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
     }
 
     @Override
-    public IntValues getValues(
-        String indName,
-        Downsampling downsampling,
-        long startTB,
-        long endTB,
-        Where where,
-        String valueCName,
-        Function function) throws IOException {
+    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
+        String valueCName, Function function) throws IOException {
 
         IntValues intValues = new IntValues();
         String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
@@ -69,7 +58,9 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
 
-        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000);
+        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
+                                                                         .field(Metrics.ENTITY_ID)
+                                                                         .size(1000);
         functionAggregation(function, entityIdAggregation, valueCName);
 
         sourceBuilder.aggregation(entityIdAggregation);

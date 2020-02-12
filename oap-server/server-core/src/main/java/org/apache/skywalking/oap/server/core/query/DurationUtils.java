@@ -28,10 +28,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/**
- * @author peng-yongsheng
- * @author aderm
- */
 public enum DurationUtils {
     INSTANCE;
 
@@ -157,8 +153,7 @@ public enum DurationUtils {
         }
     }
 
-    public List<DurationPoint> getDurationPoints(Downsampling downsampling, long startTimeBucket,
-        long endTimeBucket) {
+    public List<DurationPoint> getDurationPoints(Downsampling downsampling, long startTimeBucket, long endTimeBucket) {
         DateTime dateTime = parseToDateTime(downsampling, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();

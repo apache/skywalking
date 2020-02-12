@@ -39,7 +39,7 @@ public class GetPropertyDescriptorsInterceptor implements InstanceMethodsAroundI
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
 
-        PropertyDescriptor[] propertyDescriptors = (PropertyDescriptor[])ret;
+        PropertyDescriptor[] propertyDescriptors = (PropertyDescriptor[]) ret;
 
         Class<?> rootClass = ((BeanWrapperImpl) objInst).getRootClass();
         if (rootClass != null && EnhancedInstance.class.isAssignableFrom(rootClass)) {
@@ -56,7 +56,8 @@ public class GetPropertyDescriptorsInterceptor implements InstanceMethodsAroundI
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

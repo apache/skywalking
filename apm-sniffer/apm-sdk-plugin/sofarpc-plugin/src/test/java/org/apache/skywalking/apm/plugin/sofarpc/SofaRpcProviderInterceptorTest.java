@@ -58,7 +58,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest({RpcInternalContext.class, SofaRequest.class, SofaResponse.class})
+@PrepareForTest({
+    RpcInternalContext.class,
+    SofaRequest.class,
+    SofaResponse.class
+})
 public class SofaRpcProviderInterceptorTest {
 
     public static final String SKYWALKING_PREFIX = "skywalking.";
@@ -113,8 +117,7 @@ public class SofaRpcProviderInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW6CarrierItem.HEADER_NAME)).thenReturn(
-            "1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW6CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
 
         sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         sofaRpcProviderInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, sofaResponse);

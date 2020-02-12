@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
@@ -33,13 +35,9 @@ import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * none streaming is designed for user operation configuration in UI interface. It uses storage (synchronization) similar to Inventory and supports TTL deletion mode similar to the record.
- *
- * @author MrPro
+ * none streaming is designed for user operation configuration in UI interface. It uses storage (synchronization)
+ * similar to Inventory and supports TTL deletion mode similar to the record.
  */
 public class NoneStreamingProcessor implements StreamProcessor<NoneStream> {
 
@@ -70,7 +68,8 @@ public class NoneStreamingProcessor implements StreamProcessor<NoneStream> {
         try {
             noneStream = storageDAO.newNoneStreamDao(stream.builder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " none stream record DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.builder()
+                                                            .getSimpleName() + " none stream record DAO failure.", e);
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);

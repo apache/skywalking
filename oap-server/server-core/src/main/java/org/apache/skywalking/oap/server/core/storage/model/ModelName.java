@@ -30,10 +30,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-/**
- * @author peng-yongsheng
- * @author aderm
- */
 public class ModelName {
 
     private static final DateTimeFormatter YYYYMM = DateTimeFormat.forPattern("yyyyMM");

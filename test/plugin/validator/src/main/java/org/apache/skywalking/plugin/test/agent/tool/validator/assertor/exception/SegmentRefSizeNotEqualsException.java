@@ -28,7 +28,8 @@ public class SegmentRefSizeNotEqualsException extends AssertFailedException {
         this.actual = actual;
     }
 
-    @Override public String getCauseMessage() {
+    @Override
+    public String getCauseMessage() {
         return String.format("SegmentRefSizeNotEqualsException\nexpected:\t%s\nactual:\t%s\n", expected, actual);
     }
 }

@@ -43,9 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * @author peng-yongsheng
- */
 public class SpanExchanger implements IdExchanger<SpanDecorator> {
 
     private static final Logger logger = LoggerFactory.getLogger(SpanExchanger.class);
@@ -67,16 +64,31 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
     }
 
     private SpanExchanger(ModuleManager moduleManager) {
-        this.serviceInventoryCacheDAO = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
-        this.serviceInstanceInventoryCacheDAO = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
-        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(INetworkAddressInventoryRegister.class);
-        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
+        this.serviceInventoryCacheDAO = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(ServiceInventoryCache.class);
+        this.serviceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(IServiceInventoryRegister.class);
+        this.serviceInstanceInventoryCacheDAO = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(IServiceInstanceInventoryRegister.class);
+        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                      .provider()
+                                                      .getService(IEndpointInventoryRegister.class);
+        this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
+                                                            .provider()
+                                                            .getService(INetworkAddressInventoryRegister.class);
+        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                           .provider()
+                                                           .getService(IComponentLibraryCatalogService.class);
     }
 
-    @Override public boolean exchange(SpanDecorator standardBuilder, int serviceId) {
+    @Override
+    public boolean exchange(SpanDecorator standardBuilder, int serviceId) {
         boolean exchanged = true;
 
         if (standardBuilder.getComponentId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getComponent())) {
@@ -131,7 +143,8 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
             }
             serviceInventoryRegister.update(newServiceInventory.getSequence(), nodeType, properties);
 
-            ServiceInstanceInventory newServiceInstanceInventory = serviceInstanceInventoryCacheDAO.get(serviceInstanceInventoryCacheDAO.getServiceInstanceId(newServiceInventory.getSequence(), peerId));
+            ServiceInstanceInventory newServiceInstanceInventory = serviceInstanceInventoryCacheDAO.get(serviceInstanceInventoryCacheDAO
+                .getServiceInstanceId(newServiceInventory.getSequence(), peerId));
             serviceInstanceInventoryRegister.update(newServiceInstanceInventory.getSequence(), nodeType, properties);
         }
 
@@ -141,8 +154,10 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
              * so, since 6.6.0, only it triggers register.
              */
             if (SpanType.Entry.equals(standardBuilder.getSpanType())) {
-                String endpointName = Strings.isNullOrEmpty(standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder.getOperationName();
-                int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder.getSpanType()));
+                String endpointName = Strings.isNullOrEmpty(standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+                    .getOperationName();
+                int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder
+                    .getSpanType()));
 
                 if (endpointId == 0) {
                     if (logger.isDebugEnabled()) {

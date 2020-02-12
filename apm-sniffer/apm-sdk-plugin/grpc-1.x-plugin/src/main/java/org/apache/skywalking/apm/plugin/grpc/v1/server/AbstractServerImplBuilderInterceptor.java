@@ -28,27 +28,24 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 /**
- * {@link AbstractServerImplBuilderInterceptor} add the {@link ServerInterceptor} interceptor for every
- * ServerService.
- *
- * @author zhang xin
+ * {@link AbstractServerImplBuilderInterceptor} add the {@link ServerInterceptor} interceptor for every ServerService.
  */
 public class AbstractServerImplBuilderInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) {
+        MethodInterceptResult result) {
         allArguments[0] = ServerInterceptors.intercept((ServerServiceDefinition) allArguments[0], new ServerInterceptor());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) {
+        Object ret) {
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

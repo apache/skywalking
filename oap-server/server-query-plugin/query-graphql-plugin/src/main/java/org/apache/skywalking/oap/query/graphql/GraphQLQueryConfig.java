@@ -25,8 +25,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * The config of {@code query.graphql}.
- *
- * @author gaohongtao
  */
 @Getter(AccessLevel.PACKAGE)
 @Setter(AccessLevel.PUBLIC)

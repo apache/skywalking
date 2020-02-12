@@ -36,9 +36,6 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 public class SharingServerModuleProvider extends ModuleProvider {
 
     private final SharingServerConfig config;
@@ -52,21 +49,26 @@ public class SharingServerModuleProvider extends ModuleProvider {
         this.config = new SharingServerConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return SharingServerModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
         if (config.getRestPort() != 0) {
-            jettyServer = new JettyServer(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost(), config.getRestPort(), config.getRestContextPath());
+            jettyServer = new JettyServer(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost(), config
+                .getRestPort(), config.getRestContextPath());
             jettyServer.initialize();
 
             this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
@@ -76,7 +78,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
         }
 
         if (config.getGRPCPort() != 0) {
-            grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(), config.getGRPCPort());
+            grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(), config
+                .getGRPCPort());
             if (config.getMaxMessageSize() > 0) {
                 grpcServer.setMaxMessageSize(config.getMaxMessageSize());
             }
@@ -101,20 +104,26 @@ public class SharingServerModuleProvider extends ModuleProvider {
         }
     }
 
-    @Override public void start() {
+    @Override
+    public void start() {
         if (Objects.nonNull(grpcServer)) {
             grpcServer.addHandler(new HealthCheckServiceHandler());
         }
 
         if (Objects.nonNull(receiverGRPCHandlerRegister)) {
-            receiverGRPCHandlerRegister.setGrpcHandlerRegister(getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class));
+            receiverGRPCHandlerRegister.setGrpcHandlerRegister(getManager().find(CoreModule.NAME)
+                                                                           .provider()
+                                                                           .getService(GRPCHandlerRegister.class));
         }
         if (Objects.nonNull(receiverJettyHandlerRegister)) {
-            receiverJettyHandlerRegister.setJettyHandlerRegister(getManager().find(CoreModule.NAME).provider().getService(JettyHandlerRegister.class));
+            receiverJettyHandlerRegister.setJettyHandlerRegister(getManager().find(CoreModule.NAME)
+                                                                             .provider()
+                                                                             .getService(JettyHandlerRegister.class));
         }
     }
 
-    @Override public void notifyAfterCompleted() throws ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ModuleStartException {
         try {
             if (Objects.nonNull(grpcServer)) {
                 grpcServer.start();
@@ -127,7 +136,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
         }
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
 }

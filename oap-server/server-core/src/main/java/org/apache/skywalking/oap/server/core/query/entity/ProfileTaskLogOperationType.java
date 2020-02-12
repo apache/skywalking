@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.query.entity;
 
 import java.util.HashMap;
@@ -22,29 +23,24 @@ import java.util.Map;
 
 /**
  * Profile task log operation type
- *
- * @author MrPro
  */
 public enum ProfileTaskLogOperationType {
 
     // when sniffer has notified
-    NOTIFIED(1),
-    // when sniffer has execution finished to report
+    NOTIFIED(1), // when sniffer has execution finished to report
     EXECUTION_FINISHED(2);
 
     private int code;
     private static final Map<Integer, ProfileTaskLogOperationType> CACHE = new HashMap<Integer, ProfileTaskLogOperationType>();
 
     static {
-        for (ProfileTaskLogOperationType val :ProfileTaskLogOperationType.values()) {
+        for (ProfileTaskLogOperationType val : ProfileTaskLogOperationType.values()) {
             CACHE.put(val.getCode(), val);
         }
     }
 
     /**
      * Parse opetation type by code
-     * @param code
-     * @return
      */
     public static ProfileTaskLogOperationType parse(int code) {
         return CACHE.get(code);

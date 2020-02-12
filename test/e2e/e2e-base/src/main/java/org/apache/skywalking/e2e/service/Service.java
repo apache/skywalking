@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.e2e.service;
 
-/**
- * @author kezhenxu94
- */
 public class Service {
     private String key;
     private String label;
@@ -45,9 +42,6 @@ public class Service {
 
     @Override
     public String toString() {
-        return "Service{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            '}';
+        return "Service{" + "key='" + key + '\'' + ", label='" + label + '\'' + '}';
     }
 }

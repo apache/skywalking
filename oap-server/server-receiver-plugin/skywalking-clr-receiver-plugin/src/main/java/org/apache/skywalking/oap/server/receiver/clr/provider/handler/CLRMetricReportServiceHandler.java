@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author liuhaoyang
+ *
  **/
 public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CLRMetricReportServiceImplBase implements GRPCHandler {
 
@@ -41,7 +41,8 @@ public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CL
         clrSourceDispatcher = new CLRSourceDispatcher(moduleManager);
     }
 
-    @Override public void collect(CLRMetricCollection request, StreamObserver<Commands> responseObserver) {
+    @Override
+    public void collect(CLRMetricCollection request, StreamObserver<Commands> responseObserver) {
         int serviceInstanceId = request.getServiceInstanceId();
 
         if (logger.isDebugEnabled()) {

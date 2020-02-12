@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
@@ -28,46 +30,50 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
- *
- * @author wusheng
  */
 @Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
 public class TopNDatabaseStatement extends TopN {
 
     public static final String INDEX_NAME = "top_n_database_statement";
 
-    @Setter private String id;
+    @Setter
+    private String id;
 
-    @Override public String id() {
+    @Override
+    public String id() {
         return id;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        TopNDatabaseStatement statement = (TopNDatabaseStatement)o;
+        TopNDatabaseStatement statement = (TopNDatabaseStatement) o;
         return getServiceId() == statement.getServiceId();
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(getServiceId());
     }
 
     public static class Builder implements StorageBuilder<TopNDatabaseStatement> {
 
-        @Override public TopNDatabaseStatement map2Data(Map<String, Object> dbMap) {
+        @Override
+        public TopNDatabaseStatement map2Data(Map<String, Object> dbMap) {
             TopNDatabaseStatement statement = new TopNDatabaseStatement();
-            statement.setStatement((String)dbMap.get(STATEMENT));
-            statement.setTraceId((String)dbMap.get(TRACE_ID));
-            statement.setLatency(((Number)dbMap.get(LATENCY)).longValue());
-            statement.setServiceId(((Number)dbMap.get(SERVICE_ID)).intValue());
-            statement.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            statement.setStatement((String) dbMap.get(STATEMENT));
+            statement.setTraceId((String) dbMap.get(TRACE_ID));
+            statement.setLatency(((Number) dbMap.get(LATENCY)).longValue());
+            statement.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            statement.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return statement;
         }
 
-        @Override public Map<String, Object> data2Map(TopNDatabaseStatement storageData) {
+        @Override
+        public Map<String, Object> data2Map(TopNDatabaseStatement storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(STATEMENT, storageData.getStatement());
             map.put(TRACE_ID, storageData.getTraceId());

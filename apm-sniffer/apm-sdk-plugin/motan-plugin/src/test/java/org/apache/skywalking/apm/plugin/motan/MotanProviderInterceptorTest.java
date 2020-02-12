@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.motan;
 
 import com.weibo.api.motan.rpc.Request;
@@ -91,7 +90,6 @@ public class MotanProviderInterceptorTest {
         when(request.getInterfaceName()).thenReturn("org.apache.skywalking.apm.test.TestService");
         when(request.getParamtersDesc()).thenReturn("java.lang.String, java.lang.Object");
     }
-
 
     @Test
     public void testInvokerWithoutRefSegment() throws Throwable {

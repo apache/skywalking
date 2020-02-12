@@ -47,11 +47,13 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-/**
- * @author Alan Lau
- */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({EtcdKeysResponse.class, EtcdUtils.class, EtcdClient.class, URI.class})
+@PrepareForTest({
+    EtcdKeysResponse.class,
+    EtcdUtils.class,
+    EtcdClient.class,
+    URI.class
+})
 @PowerMockIgnore({"javax.management.*"})
 public class EtcdConfigWatcherRegisterTest {
 

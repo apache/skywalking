@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author wusheng
- */
 @Setter
 @Getter
 public class TopNRecord {

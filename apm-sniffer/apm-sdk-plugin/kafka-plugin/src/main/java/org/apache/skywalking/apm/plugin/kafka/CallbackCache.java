@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.kafka;
 
 import org.apache.kafka.clients.producer.Callback;
@@ -22,7 +23,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
  * cache Callback and ContextSnapshot
- * @author stalary
  */
 public class CallbackCache {
 
@@ -48,9 +48,6 @@ public class CallbackCache {
 
     @Override
     public String toString() {
-        return "CallbackCache{" +
-            "callback=" + callback +
-            ", snapshot=" + snapshot +
-            '}';
+        return "CallbackCache{" + "callback=" + callback + ", snapshot=" + snapshot + '}';
     }
 }

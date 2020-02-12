@@ -16,42 +16,44 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-
 import java.util.Objects;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.context.util.AbstractTracingSpanHelper;
 import org.apache.skywalking.apm.agent.core.context.util.SegmentHelper;
+import org.apache.skywalking.apm.agent.core.context.util.SpanHelper;
 import org.apache.skywalking.apm.agent.core.context.util.TraceSegmentRefHelper;
+import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.Log;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
-import org.hamcrest.MatcherAssert;
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
-import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.context.util.SpanHelper;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
-import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.hamcrest.MatcherAssert;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

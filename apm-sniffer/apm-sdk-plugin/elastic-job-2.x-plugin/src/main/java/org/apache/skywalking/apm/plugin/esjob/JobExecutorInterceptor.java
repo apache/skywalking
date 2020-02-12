@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.esjob;
 
 import com.dangdang.ddframe.job.api.ShardingContext;
@@ -34,15 +33,13 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 /**
  * {@link JobExecutorInterceptor} enhances {@link com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor#process(ShardingContext)}
  * ,creating a local span that records job execution.
- * 
- * @author gaohongtao
  */
 public class JobExecutorInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        ShardingContexts shardingContexts = (ShardingContexts)allArguments[0];
-        Integer item = (Integer)allArguments[1];
+        ShardingContexts shardingContexts = (ShardingContexts) allArguments[0];
+        Integer item = (Integer) allArguments[1];
         ShardingContext shardingContext = new ShardingContext(shardingContexts, item);
         String operateName = shardingContext.getJobName();
         if (!Strings.isNullOrEmpty(shardingContext.getShardingParameter())) {
@@ -60,7 +57,8 @@ public class JobExecutorInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

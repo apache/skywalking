@@ -24,9 +24,6 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface StorageDAO extends Service {
 
     IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder);

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.test.tools;
 
 import java.lang.annotation.ElementType;

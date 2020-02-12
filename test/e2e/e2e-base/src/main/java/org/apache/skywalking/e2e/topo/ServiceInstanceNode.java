@@ -23,9 +23,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 @Accessors(chain = true)

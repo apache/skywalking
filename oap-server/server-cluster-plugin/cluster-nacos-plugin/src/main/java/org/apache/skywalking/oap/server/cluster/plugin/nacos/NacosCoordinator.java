@@ -21,17 +21,17 @@ package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author caoyixiong
- */
 public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final NamingService namingService;

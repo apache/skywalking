@@ -40,8 +40,8 @@ public class SnifferConfigInitializerTest {
      * variables are reverted after the test.
      */
     @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
-        .set("AGENT_SERVICE_NAME", "testAppFromSystemEnv").set("AGENT_COLLECTOR_SERVER", "localhost:11111");
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables().set("AGENT_SERVICE_NAME", "testAppFromSystemEnv")
+                                                                                       .set("AGENT_COLLECTOR_SERVER", "localhost:11111");
 
     @Test
     public void testLoadConfigFromJavaAgentDir() throws AgentPackageNotFoundException, ConfigNotFoundException {
@@ -85,8 +85,8 @@ public class SnifferConfigInitializerTest {
         properties.put("collector.backend_service", "${AGENT_COLLECTOR_SERVER:127.0.0.1:8090}");
         properties.put("logging.level", "INFO");
         PropertyPlaceholderHelper placeholderHelper = PropertyPlaceholderHelper.INSTANCE;
-        properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String)properties.get("agent.service_name"), properties));
-        properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String)properties.get("collector.backend_service"), properties));
+        properties.put("agent.service_name", placeholderHelper.replacePlaceholders((String) properties.get("agent.service_name"), properties));
+        properties.put("collector.backend_service", placeholderHelper.replacePlaceholders((String) properties.get("collector.backend_service"), properties));
         ConfigInitializer.initialize(properties, Config.class);
         assertThat(Config.Agent.SERVICE_NAME, is("testAppFromSystemEnv"));
         assertThat(Config.Collector.BACKEND_SERVICE, is("localhost:11111"));

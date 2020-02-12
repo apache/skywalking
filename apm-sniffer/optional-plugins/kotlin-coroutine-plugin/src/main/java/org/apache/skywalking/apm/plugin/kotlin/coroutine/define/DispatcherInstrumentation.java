@@ -46,13 +46,12 @@ public class DispatcherInstrumentation extends ClassInstanceMethodsEnhancePlugin
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD_DISPATCH)
-                            .and(takesArgumentWithType(0, "kotlin.coroutines.CoroutineContext"))
-                            .and(takesArgumentWithType(1, "java.lang.Runnable"));
+                    return named(ENHANCE_METHOD_DISPATCH).and(takesArgumentWithType(0, "kotlin.coroutines.CoroutineContext"))
+                                                         .and(takesArgumentWithType(1, "java.lang.Runnable"));
                 }
 
                 @Override

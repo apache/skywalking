@@ -58,8 +58,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * SegmentParseV2 is a replication of SegmentParse, but be compatible with v2 trace protocol.
- *
- * @author wusheng
  */
 public class SegmentParseV2 {
 
@@ -71,12 +69,14 @@ public class SegmentParseV2 {
     private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    @Setter private SegmentStandardizationWorker standardizationWorker;
+    @Setter
+    private SegmentStandardizationWorker standardizationWorker;
     private volatile static CounterMetrics TRACE_BUFFER_FILE_RETRY;
     private volatile static CounterMetrics TRACE_BUFFER_FILE_OUT;
     private volatile static CounterMetrics TRACE_PARSE_ERROR;
 
-    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
+    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
+        TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
@@ -87,16 +87,17 @@ public class SegmentParseV2 {
         this.config = config;
 
         if (TRACE_BUFFER_FILE_RETRY == null) {
-            MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            TRACE_PARSE_ERROR = metricsCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                         .provider()
+                                                         .getService(MetricsCreator.class);
+            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            TRACE_PARSE_ERROR = metricsCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
 
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
     }
 
     public boolean parse(BufferData<UpstreamSegment> bufferData, SegmentSource source) {
@@ -157,7 +158,11 @@ public class SegmentParseV2 {
             notifyGlobalsListener(uniqueId);
         }
 
-        final String segmentId = segmentDecorator.getTraceSegmentId().getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
+        final String segmentId = segmentDecorator.getTraceSegmentId()
+                                                 .getIdPartsList()
+                                                 .stream()
+                                                 .map(String::valueOf)
+                                                 .collect(Collectors.joining("."));
         segmentCoreInfo.setSegmentId(segmentId);
         segmentCoreInfo.setServiceId(segmentDecorator.getServiceId());
         segmentCoreInfo.setServiceInstanceId(segmentDecorator.getServiceInstanceId());
@@ -174,7 +179,8 @@ public class SegmentParseV2 {
             } else {
                 for (int j = 0; j < spanDecorator.getRefsCount(); j++) {
                     ReferenceDecorator referenceDecorator = spanDecorator.getRefs(j);
-                    if (!ReferenceIdExchanger.getInstance(moduleManager).exchange(referenceDecorator, segmentCoreInfo.getServiceId())) {
+                    if (!ReferenceIdExchanger.getInstance(moduleManager)
+                                             .exchange(referenceDecorator, segmentCoreInfo.getServiceId())) {
                         exchanged = false;
                     }
                 }
@@ -207,7 +213,8 @@ public class SegmentParseV2 {
                 } else if (SpanType.Local.equals(spanDecorator.getSpanType())) {
                     notifyLocalListener(spanDecorator);
                 } else {
-                    logger.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType().name());
+                    logger.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType()
+                                                                                                    .name());
                 }
             }
         }
@@ -233,7 +240,7 @@ public class SegmentParseV2 {
     private void notifyExitListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Exit)) {
-                ((ExitSpanListener)listener).parseExit(spanDecorator, segmentCoreInfo);
+                ((ExitSpanListener) listener).parseExit(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -241,7 +248,7 @@ public class SegmentParseV2 {
     private void notifyEntryListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Entry)) {
-                ((EntrySpanListener)listener).parseEntry(spanDecorator, segmentCoreInfo);
+                ((EntrySpanListener) listener).parseEntry(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -249,7 +256,7 @@ public class SegmentParseV2 {
     private void notifyLocalListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.Local)) {
-                ((LocalSpanListener)listener).parseLocal(spanDecorator, segmentCoreInfo);
+                ((LocalSpanListener) listener).parseLocal(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -257,7 +264,7 @@ public class SegmentParseV2 {
     private void notifyFirstListener(SpanDecorator spanDecorator) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.First)) {
-                ((FirstSpanListener)listener).parseFirst(spanDecorator, segmentCoreInfo);
+                ((FirstSpanListener) listener).parseFirst(spanDecorator, segmentCoreInfo);
             }
         });
     }
@@ -265,23 +272,26 @@ public class SegmentParseV2 {
     private void notifyGlobalsListener(UniqueId uniqueId) {
         spanListeners.forEach(listener -> {
             if (listener.containsPoint(SpanListener.Point.TraceIds)) {
-                ((GlobalTraceIdsListener)listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
+                ((GlobalTraceIdsListener) listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
             }
         });
     }
 
     private void createSpanListeners() {
-        listenerManager.getSpanListenerFactories().forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
+        listenerManager.getSpanListenerFactories()
+                       .forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
     }
 
     public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
 
-        @Setter private SegmentStandardizationWorker standardizationWorker;
+        @Setter
+        private SegmentStandardizationWorker standardizationWorker;
         private final ModuleManager moduleManager;
         private final SegmentParserListenerManager listenerManager;
         private final TraceServiceModuleConfig config;
 
-        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
+        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
+            TraceServiceModuleConfig config) {
             this.moduleManager = moduleManager;
             this.listenerManager = listenerManager;
             this.config = config;
@@ -293,7 +303,8 @@ public class SegmentParseV2 {
             segmentParse.parse(new BufferData<>(segment), source);
         }
 
-        @Override public boolean call(BufferData<UpstreamSegment> bufferData) {
+        @Override
+        public boolean call(BufferData<UpstreamSegment> bufferData) {
             SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager, config);
             segmentParse.setStandardizationWorker(standardizationWorker);
             boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);

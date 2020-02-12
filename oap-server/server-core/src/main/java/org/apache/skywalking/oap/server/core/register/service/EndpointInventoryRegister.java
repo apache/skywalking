@@ -19,19 +19,18 @@
 package org.apache.skywalking.oap.server.core.register.service;
 
 import java.util.Objects;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class EndpointInventoryRegister implements IEndpointInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryRegister.class);
@@ -50,7 +49,8 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return cacheService;
     }
 
-    @Override public int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint) {
+    @Override
+    public int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint) {
         int endpointId = getCacheService().getEndpointId(serviceId, endpointName, detectPoint.ordinal());
 
         if (endpointId == Const.NONE) {
@@ -68,11 +68,13 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
         return endpointId;
     }
 
-    @Override public int get(int serviceId, String endpointName, int detectPoint) {
+    @Override
+    public int get(int serviceId, String endpointName, int detectPoint) {
         return getCacheService().getEndpointId(serviceId, endpointName, detectPoint);
     }
 
-    @Override public void heartbeat(int endpointId, long heartBeatTime) {
+    @Override
+    public void heartbeat(int endpointId, long heartBeatTime) {
         EndpointInventory endpointInventory = getCacheService().get(endpointId);
         if (Objects.nonNull(endpointInventory)) {
             endpointInventory.setHeartbeatTime(heartBeatTime);

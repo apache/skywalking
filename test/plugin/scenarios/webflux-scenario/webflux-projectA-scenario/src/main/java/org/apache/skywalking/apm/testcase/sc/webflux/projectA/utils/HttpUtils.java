@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.apm.testcase.sc.webflux.projectA.utils;
 
+import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -25,8 +26,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 public class HttpUtils {

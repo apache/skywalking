@@ -15,12 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.jettyclient.controller;
 
 import javax.annotation.PostConstruct;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.Response;
-import org.eclipse.jetty.client.api.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;

@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface IModelSetter extends Service {
 
     Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record);

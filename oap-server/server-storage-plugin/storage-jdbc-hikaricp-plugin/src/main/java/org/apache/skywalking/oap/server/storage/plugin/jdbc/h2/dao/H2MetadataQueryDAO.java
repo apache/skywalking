@@ -51,9 +51,6 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
-/**
- * @author wusheng
- */
 public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
@@ -202,8 +199,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> searchServices(long startTimestamp, long endTimestamp,
-        String keyword) throws IOException {
+    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceInventory.INDEX_NAME).append(" where ");
@@ -254,8 +250,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Endpoint> searchEndpoint(String keyword, String serviceId,
-        int limit) throws IOException {
+    public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(EndpointInventory.INDEX_NAME).append(" where ");
@@ -320,9 +315,11 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                             } else if (key.equals(PROCESS_NO)) {
                                 serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, value));
                             } else if (key.equals(IPV4S)) {
-                                List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
+                                List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S)
+                                                                                                                      .getAsString());
                                 for (String ipv4 : ipv4s) {
-                                    serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                                    serviceInstance.getAttributes()
+                                                   .add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
                                 }
                             } else {
                                 serviceInstance.getAttributes().add(new Attribute(key, value));
@@ -341,12 +338,18 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
     private void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
         long endTimestamp) {
-        sql.append(" ( (").append(RegisterSource.HEARTBEAT_TIME).append(" >= ? and ")
-            .append(RegisterSource.REGISTER_TIME).append(" <= ? )");
+        sql.append(" ( (")
+           .append(RegisterSource.HEARTBEAT_TIME)
+           .append(" >= ? and ")
+           .append(RegisterSource.REGISTER_TIME)
+           .append(" <= ? )");
         conditions.add(endTimestamp);
         conditions.add(endTimestamp);
-        sql.append(" or (").append(RegisterSource.REGISTER_TIME).append(" <= ? and ")
-            .append(RegisterSource.HEARTBEAT_TIME).append(" >= ? ) ) ");
+        sql.append(" or (")
+           .append(RegisterSource.REGISTER_TIME)
+           .append(" <= ? and ")
+           .append(RegisterSource.HEARTBEAT_TIME)
+           .append(" >= ? ) ) ");
         conditions.add(endTimestamp);
         conditions.add(startTimestamp);
     }

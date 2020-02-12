@@ -27,8 +27,9 @@ public class RegistryOperationNamesOfApplicationNotFoundException extends Assert
         this.applicationCode = applicationCode;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("RegistryOperationNamesOfApplicationNotFoundException %s\nexpected: %s\nactual: %s\n",
-            applicationCode.applicationCode(), applicationCode.operationName(), "NOT FOUND");
+    @Override
+    public String getCauseMessage() {
+        return String.format("RegistryOperationNamesOfApplicationNotFoundException %s\nexpected: %s\nactual: %s\n", applicationCode
+            .applicationCode(), applicationCode.operationName(), "NOT FOUND");
     }
 }

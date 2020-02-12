@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class Window<DATA> {
 
     private AtomicInteger windowSwitch = new AtomicInteger(0);

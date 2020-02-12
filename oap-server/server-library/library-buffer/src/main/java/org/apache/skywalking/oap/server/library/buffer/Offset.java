@@ -18,17 +18,17 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 
-/**
- * @author peng-yongsheng
- */
 class Offset {
 
     private static final String SPLIT_CHARACTER = ",";
-    @Getter private final ReadOffset readOffset;
-    @Getter private final WriteOffset writeOffset;
+    @Getter
+    private final ReadOffset readOffset;
+    @Getter
+    private final WriteOffset writeOffset;
 
     Offset() {
         writeOffset = new WriteOffset();
@@ -36,8 +36,8 @@ class Offset {
     }
 
     String serialize() {
-        return readOffset.getFileName() + SPLIT_CHARACTER + String.valueOf(readOffset.getOffset())
-            + SPLIT_CHARACTER + writeOffset.getFileName() + SPLIT_CHARACTER + String.valueOf(writeOffset.getOffset());
+        return readOffset.getFileName() + SPLIT_CHARACTER + String.valueOf(readOffset.getOffset()) + SPLIT_CHARACTER + writeOffset
+            .getFileName() + SPLIT_CHARACTER + String.valueOf(writeOffset.getOffset());
     }
 
     void deserialize(String value) {
@@ -53,8 +53,12 @@ class Offset {
     }
 
     static class ReadOffset {
-        @Getter @Setter private String fileName;
-        @Getter @Setter private long offset = 0;
+        @Getter
+        @Setter
+        private String fileName;
+        @Getter
+        @Setter
+        private long offset = 0;
         private final WriteOffset writeOffset;
 
         private ReadOffset(WriteOffset writeOffset) {
@@ -67,7 +71,11 @@ class Offset {
     }
 
     static class WriteOffset {
-        @Getter @Setter private String fileName;
-        @Getter @Setter private long offset = 0;
+        @Getter
+        @Setter
+        private String fileName;
+        @Getter
+        @Setter
+        private long offset = 0;
     }
 }
