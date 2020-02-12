@@ -41,7 +41,7 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
 
     @Override
     public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
-        Long endTimeBucket, Integer limit) throws IOException {
+                                         Long endTimeBucket, Integer limit) throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(4);
         sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
@@ -73,7 +73,8 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         }
 
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
                 final LinkedList<ProfileTask> tasks = new LinkedList<>();
                 while (resultSet.next()) {
                     tasks.add(parseTask(resultSet));
@@ -97,7 +98,8 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
         condition.add(id);
 
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), condition.toArray(new Object[0]))) {
                 if (resultSet.next()) {
                     return parseTask(resultSet);
                 }
@@ -113,15 +115,15 @@ public class H2ProfileTaskQueryDAO implements IProfileTaskQueryDAO {
      */
     private ProfileTask parseTask(ResultSet data) throws SQLException {
         return ProfileTask.builder()
-            .id(data.getString("id"))
-            .serviceId(data.getInt(ProfileTaskRecord.SERVICE_ID))
-            .endpointName(data.getString(ProfileTaskRecord.ENDPOINT_NAME))
-            .startTime(data.getLong(ProfileTaskRecord.START_TIME))
-            .createTime(data.getLong(ProfileTaskRecord.CREATE_TIME))
-            .duration(data.getInt(ProfileTaskRecord.DURATION))
-            .minDurationThreshold(data.getInt(ProfileTaskRecord.MIN_DURATION_THRESHOLD))
-            .dumpPeriod(data.getInt(ProfileTaskRecord.DUMP_PERIOD))
-            .maxSamplingCount(data.getInt(ProfileTaskRecord.MAX_SAMPLING_COUNT))
-            .build();
+                          .id(data.getString("id"))
+                          .serviceId(data.getInt(ProfileTaskRecord.SERVICE_ID))
+                          .endpointName(data.getString(ProfileTaskRecord.ENDPOINT_NAME))
+                          .startTime(data.getLong(ProfileTaskRecord.START_TIME))
+                          .createTime(data.getLong(ProfileTaskRecord.CREATE_TIME))
+                          .duration(data.getInt(ProfileTaskRecord.DURATION))
+                          .minDurationThreshold(data.getInt(ProfileTaskRecord.MIN_DURATION_THRESHOLD))
+                          .dumpPeriod(data.getInt(ProfileTaskRecord.DUMP_PERIOD))
+                          .maxSamplingCount(data.getInt(ProfileTaskRecord.MAX_SAMPLING_COUNT))
+                          .build();
     }
 }

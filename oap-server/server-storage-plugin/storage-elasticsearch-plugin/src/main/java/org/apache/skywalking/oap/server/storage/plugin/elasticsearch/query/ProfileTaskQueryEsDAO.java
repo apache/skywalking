@@ -45,7 +45,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
 
     @Override
     public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
-        Long endTimeBucket, Integer limit) throws IOException {
+                                         Long endTimeBucket, Integer limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -61,7 +61,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
 
         if (startTimeBucket != null) {
             boolQueryBuilder.must()
-                .add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).gte(startTimeBucket));
+                            .add(QueryBuilders.rangeQuery(ProfileTaskRecord.TIME_BUCKET).gte(startTimeBucket));
         }
 
         if (endTimeBucket != null) {
@@ -107,19 +107,20 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
 
     private ProfileTask parseTask(SearchHit data) {
         return ProfileTask.builder()
-            .id(data.getId())
-            .serviceId(((Number)data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID)).intValue())
-            .endpointName((String)data.getSourceAsMap().get(ProfileTaskRecord.ENDPOINT_NAME))
-            .startTime(((Number)data.getSourceAsMap().get(ProfileTaskRecord.START_TIME)).longValue())
-            .createTime(((Number)data.getSourceAsMap()
-                .get(ProfileTaskRecord.CREATE_TIME)).longValue())
-            .duration(((Number)data.getSourceAsMap().get(ProfileTaskRecord.DURATION)).intValue())
-            .minDurationThreshold(((Number)data.getSourceAsMap()
-                .get(ProfileTaskRecord.MIN_DURATION_THRESHOLD)).intValue())
-            .dumpPeriod(((Number)data.getSourceAsMap()
-                .get(ProfileTaskRecord.DUMP_PERIOD)).intValue())
-            .maxSamplingCount(((Number)data.getSourceAsMap()
-                .get(ProfileTaskRecord.MAX_SAMPLING_COUNT)).intValue())
-            .build();
+                          .id(data.getId())
+                          .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID)).intValue())
+                          .endpointName((String) data.getSourceAsMap().get(ProfileTaskRecord.ENDPOINT_NAME))
+                          .startTime(((Number) data.getSourceAsMap().get(ProfileTaskRecord.START_TIME)).longValue())
+                          .createTime(((Number) data.getSourceAsMap()
+                                                    .get(ProfileTaskRecord.CREATE_TIME)).longValue())
+                          .duration(((Number) data.getSourceAsMap().get(ProfileTaskRecord.DURATION)).intValue())
+                          .minDurationThreshold(((Number) data.getSourceAsMap()
+                                                              .get(
+                                                                  ProfileTaskRecord.MIN_DURATION_THRESHOLD)).intValue())
+                          .dumpPeriod(((Number) data.getSourceAsMap()
+                                                    .get(ProfileTaskRecord.DUMP_PERIOD)).intValue())
+                          .maxSamplingCount(((Number) data.getSourceAsMap()
+                                                          .get(ProfileTaskRecord.MAX_SAMPLING_COUNT)).intValue())
+                          .build();
     }
 }
