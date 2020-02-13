@@ -162,7 +162,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (!(seriesList == null || seriesList.isEmpty())) {
             seriesList.get(0).getValues().forEach(values -> {
                 KVInt kv = new KVInt();
-                kv.setValue((int) values.get(2));
+                kv.setValue(((Number) values.get(2)).longValue());
                 kv.setId((String) values.get(1));
                 intValues.addKVInt(kv);
             });
@@ -173,7 +173,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     /**
      * Make sure the order is same as the expected order, and keep default value as 0.
      *
-     * @param origin IntValues
+     * @param origin        IntValues
      * @param expectedOrder List
      * @return
      */
@@ -238,7 +238,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     /**
      * Make sure the order is same as the expected order, and keep default value as 0.
      *
-     * @param origin IntValues[]
+     * @param origin        IntValues[]
      * @param expectedOrder List
      * @return
      */

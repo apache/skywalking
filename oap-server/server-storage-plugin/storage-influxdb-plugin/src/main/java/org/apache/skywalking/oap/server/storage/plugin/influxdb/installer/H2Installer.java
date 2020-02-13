@@ -32,10 +32,10 @@ public class H2Installer extends H2TableInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        if (!MetaTableDefine.contains(model)) {
-            return true;
+        if (MetaTableDefine.contains(model)) {
+            return super.isExists(client, model);
         }
-        return super.isExists(client, model);
+        return true;
     }
 
 }

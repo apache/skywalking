@@ -55,7 +55,6 @@ public class PointBuilder {
 
     public static Point fromMetrics(Model model, Metrics metrics, Map<String, Object> objectMap) throws IOException {
         Point.Builder builder = Point.measurement(model.getName());
-        builder.tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(objectMap.get(Metrics.ENTITY_ID)));
 
         Map<String, Object> fields = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
@@ -70,8 +69,9 @@ public class PointBuilder {
                 fields.put(column.getColumnName().getStorageName(), value);
             }
         }
-        long timeBucket = (long) fields.remove(Metrics.TIME_BUCKET);
+        long timeBucket = (long) fields.get(Metrics.TIME_BUCKET);
         return builder.fields(fields)
+                      .tag(InfluxClient.TAG_ENTITY_ID, String.valueOf(objectMap.get(Metrics.ENTITY_ID)))
                       .addField("id", metrics.id())
                       .tag(Metrics.TIME_BUCKET, String.valueOf(timeBucket))
                       .time(getTimestamp(timeBucket, model.getDownsampling()), TimeUnit.MILLISECONDS)

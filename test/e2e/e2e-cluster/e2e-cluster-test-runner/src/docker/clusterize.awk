@@ -82,7 +82,7 @@ BEGIN {
 
         if (in_storage_selected == 1) {
             # enable selected storage
-            # uncomment es config
+            # uncomment es/influx config
             gsub("^#", "", $0)
             print
         } else if (in_storage_h2_section == 1) {

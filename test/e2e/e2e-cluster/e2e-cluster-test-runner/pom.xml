@@ -110,6 +110,7 @@
                                     <run>
                                         <env>
                                             <MODE>cluster</MODE>
+                                            <STORAGE>elasticsearch</STORAGE>
                                             <ES_VERSION>${elasticsearch.version}</ES_VERSION>
                                             <SW_STORAGE_ES_CLUSTER_NODES>
                                                 ${e2e.container.name.prefix}-elasticsearch:9200
@@ -197,6 +198,24 @@
                             <containerNamePattern>%a-%t-%i</containerNamePattern>
                             <images>
                                 <image>
+                                    <name>mysql/mysql-server:${mysql.version}</name>
+                                    <alias>${e2e.container.name.prefix}-mysql</alias>
+                                    <run>
+                                        <wait>
+                                            <log>Socket: '/var/run/mysqld/mysqlx.sock' bind-address: '::' port: 3306</log>
+                                            <time>120000</time>
+                                        </wait>
+                                        <env>
+                                            <MYSQL_ROOT_PASSWORD>root@1234</MYSQL_ROOT_PASSWORD>
+                                            <MYSQL_DATABASE>swtest</MYSQL_DATABASE>
+                                            <MYSQL_ROOT_HOST>%</MYSQL_ROOT_HOST>
+                                        </env>
+                                        <ports>
+                                            <port>mysql.port:3306</port>
+                                        </ports>
+                                    </run>
+                                </image>
+                                <image>
                                     <name>influxdb:${influxdb.version}</name>
                                     <alias>${e2e.container.name.prefix}-influxdb</alias>
                                     <run>
@@ -231,9 +250,14 @@
                                     <run>
                                         <env>
                                             <MODE>cluster</MODE>
-                                            <SW_STORAGE_ES_CLUSTER_NODES>
-                                                ${e2e.container.name.prefix}-influxdb:8086
-                                            </SW_STORAGE_ES_CLUSTER_NODES>
+                                            <STORAGE>influxdb</STORAGE>
+                                            <SW_STORAGE_METABASE_TYPE>mysql</SW_STORAGE_METABASE_TYPE>
+                                            <SW_STORAGE_METABASE_URL>
+                                                jdbc:mysql://${e2e.container.name.prefix}-mysql:3306/swtest
+                                            </SW_STORAGE_METABASE_URL>
+                                            <SW_STORAGE_INFLUXDB_URL>
+                                                http://${e2e.container.name.prefix}-influxdb:8086
+                                            </SW_STORAGE_INFLUXDB_URL>
                                             <SW_CLUSTER_ZK_HOST_PORT>
                                                 ${e2e.container.name.prefix}-zookeeper:2181
                                             </SW_CLUSTER_ZK_HOST_PORT>
@@ -268,6 +292,7 @@
                                         <dependsOn>
                                             <container>${e2e.container.name.prefix}-influxdb</container>
                                             <container>${e2e.container.name.prefix}-zookeeper</container>
+                                            <container>${e2e.container.name.prefix}-mysql</container>
                                         </dependsOn>
                                         <ports>
                                             <port>+webapp.host:webapp.port:8081</port>
@@ -276,6 +301,7 @@
                                         <links>
                                             <link>${e2e.container.name.prefix}-influxdb</link>
                                             <link>${e2e.container.name.prefix}-zookeeper</link>
+                                            <link>${e2e.container.name.prefix}-mysql</link>
                                         </links>
                                         <volumes>
                                             <bind>

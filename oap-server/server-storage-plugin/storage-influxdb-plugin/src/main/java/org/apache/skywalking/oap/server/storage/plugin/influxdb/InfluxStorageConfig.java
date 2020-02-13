@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
+import java.util.Properties;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -25,12 +26,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @Getter
 public class InfluxStorageConfig extends ModuleConfig {
-    private String metabaseDriver;
-    private String metabaseUrl;
-    private String metabaseUser;
-    private String metabasePassword;
-
     private String metabaseType;
+    private Properties h2;
+    private Properties mysql;
 
     private int metadataQueryMaxSize = 5000;
 

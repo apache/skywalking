@@ -68,7 +68,9 @@ public class InfluxClient implements Client {
     @Override
     public void connect() {
         influx = InfluxDBFactory.connect(config.getUrl(), config.getUser(), config.getPassword(),
-                                         new OkHttpClient.Builder(), InfluxDB.ResponseFormat.MSGPACK
+                                         new OkHttpClient.Builder().readTimeout(3, TimeUnit.MINUTES)
+                                                                   .writeTimeout(3, TimeUnit.MINUTES),
+                                         InfluxDB.ResponseFormat.MSGPACK
         );
         influx.query(new Query("CREATE DATABASE " + database));
 
@@ -142,19 +144,23 @@ public class InfluxClient implements Client {
 
     /**
      * Data management, to drop a time-series by measurement and time-series name specified. If an exception isn't
-     * thrown, it means execution success.
+     * thrown, it means execution success. Notice, drop series don't support to drop series by range
      *
      * @param measurement String
      * @param timeBucket  long
      * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public void dropSeries(String measurement, long timeBucket) throws IOException {
-        Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket<='" + timeBucket + "'");
+        Query query = new Query("DROP SERIES FROM " + measurement + " WHERE time_bucket='" + timeBucket + "'");
         QueryResult result = getInflux().query(query);
 
         if (result.hasError()) {
             throw new IOException("Statement: " + query.getCommand() + ", ErrorMsg: " + result.getError());
         }
+    }
+
+    public void deleteByQuery(String measurement, long timestamp) throws IOException {
+        this.query(new Query("delete from " + measurement + " where time < '" + timestamp + "ms'"));
     }
 
     /**

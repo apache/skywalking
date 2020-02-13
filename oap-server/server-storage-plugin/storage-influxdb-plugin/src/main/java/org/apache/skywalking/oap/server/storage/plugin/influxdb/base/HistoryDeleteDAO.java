@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -59,8 +60,10 @@ public class HistoryDeleteDAO implements IHistoryDeleteDAO {
                 ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
             }
 
-            client.dropSeries(
-                model.getName(), ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig()));
+            client.deleteByQuery(
+                model.getName(),
+                TimeBucket.getTimestamp(ttlCalculator.timeBefore(DateTime.now(), configService.getDataTTLConfig()) + 1)
+            );
         } catch (Exception e) {
             log.error("TTL execution log, model: {}, errMsg: {}", model.getName(), e.getMessage());
         }
