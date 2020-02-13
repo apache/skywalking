@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 public class InfluxStorageConfig extends ModuleConfig {
     private String metabaseType;
-    private Properties h2;
-    private Properties mysql;
+    private Properties h2Props;
+    private Properties mysqlProps;
 
     private int metadataQueryMaxSize = 5000;
 

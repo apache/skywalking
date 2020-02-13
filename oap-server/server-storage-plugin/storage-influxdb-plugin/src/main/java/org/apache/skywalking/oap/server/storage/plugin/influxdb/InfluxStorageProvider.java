@@ -102,11 +102,11 @@ public class InfluxStorageProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException {
 
-        Properties settings = new Properties();
+        Properties settings;
         if ("mysql".equalsIgnoreCase(config.getMetabaseType())) {
-            settings = config.getMysql();
+            settings = config.getMysqlProps();
         } else {
-            settings = config.getH2();
+            settings = config.getH2Props();
         }
         client = new JDBCHikariCPClient(settings);
         influxClient = new InfluxClient(config);

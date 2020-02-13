@@ -231,16 +231,16 @@ These settings can refer to the configuration of *MySQL* above.
 InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugin to store `metadata` like `Inventory` and `ProfileTask`. So, when we set `InfluxDB` as storage provider. We need to configure properties of InfluxDB and Metabase.
 
 ```yaml
-storage
+storage:
   influx:
     # Metadata storage provider configuration
     metabaseType: ${SW_STORAGE_METABASE_TYPE:H2} # There are 2 options as Metabase provider, H2 or MySQL.
-    h2:
+    h2Props:
       dataSourceClassName: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
       dataSource.url: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
       dataSource.user: ${SW_STORAGE_METABASE_USER:sa}
       dataSource.password: ${SW_STORAGE_METABASE_PASSWORD:}
-    mysql:
+    mysqlProps:
       jdbcUrl: ${SW_STORAGE_METABASE_URL:"jdbc:mysql://localhost:3306/swtest"}
       dataSource.user: ${SW_STORAGE_METABASE_USER:root}
       dataSource.password: ${SW_STORAGE_METABASE_PASSWORD:root@1234}
