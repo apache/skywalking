@@ -36,6 +36,12 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * MetricsAggregateWorker provides an in-memory metrics merging capability. This aggregation is called L1 aggregation,
+ * it merges the data just after the receiver analysis. The metrics belonging to the same entity, metrics type and time
+ * bucket, the L1 aggregation will merge them into one metrics object to reduce the unnecessary memory and network
+ * payload.
+ */
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsAggregateWorker.class);
@@ -46,14 +52,15 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private CounterMetrics aggregationCounter;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
-        String modelName) {
+                           String modelName) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         String name = "METRICS_L1_AGGREGATION";
         this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
+            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
@@ -64,7 +71,10 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
                                                           .getService(MetricsCreator.class);
-        aggregationCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min"));
+        aggregationCounter = metricsCreator.createCounter(
+            "metrics_aggregation", "The number of rows in aggregation",
+            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min")
+        );
     }
 
     @Override
