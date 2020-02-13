@@ -16,27 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.record;
+package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
+import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * Record storage represents the entity have fully and manually entity definition by hard codes. Most of then are
- * original log data or task records. These data needs to persistent without further analysis.
- */
-public abstract class Record implements StorageData {
+@Setter
+@Getter
+@EqualsAndHashCode
+public class GRPCAlarmSetting {
+    private String targetHost;
+    private int targetPort;
 
-    public static final String TIME_BUCKET = "time_bucket";
-
-    /**
-     * Time attribute, all storage data is time sensitive, as same as {@link Metrics}
-     */
-    @Getter
-    @Setter
-    @Column(columnName = TIME_BUCKET)
-    private long timeBucket;
+    public boolean isEmptySetting() {
+        return Objects.isNull(targetHost);
+    }
 }

@@ -16,27 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.record;
+package org.apache.skywalking.oap.server.core.exporter;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 
-/**
- * Record storage represents the entity have fully and manually entity definition by hard codes. Most of then are
- * original log data or task records. These data needs to persistent without further analysis.
- */
-public abstract class Record implements StorageData {
+@Getter
+public class ExportData {
+    private MetricsMetaInfo meta;
+    private Metrics metrics;
 
-    public static final String TIME_BUCKET = "time_bucket";
-
-    /**
-     * Time attribute, all storage data is time sensitive, as same as {@link Metrics}
-     */
-    @Getter
-    @Setter
-    @Column(columnName = TIME_BUCKET)
-    private long timeBucket;
+    public ExportData(MetricsMetaInfo meta, Metrics metrics) {
+        this.meta = meta;
+        this.metrics = metrics;
+    }
 }
