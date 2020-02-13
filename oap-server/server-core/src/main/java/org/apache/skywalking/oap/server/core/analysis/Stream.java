@@ -50,13 +50,13 @@ public @interface Stream {
     int scopeId();
 
     /**
-     * @return the converter type between {@link StorageBuilder} and {@link Map<String, Object>} for persistence.
+     * @return the converter type between {@link StorageBuilder} and {@link Map} for persistence.
      */
     Class<? extends StorageBuilder> builder();
 
     /**
      * @return the stream processor type, see {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link
-     * InventoryStreamProcessor}, {@link * TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
+     * InventoryStreamProcessor}, {@link TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
      */
     Class<? extends StreamProcessor> processor();
 }

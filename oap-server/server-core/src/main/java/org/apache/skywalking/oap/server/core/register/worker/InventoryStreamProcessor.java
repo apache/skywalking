@@ -40,11 +40,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 /**
  * InventoryStreamProcessor represents the entrance and creator of the inventory register work flow.
  *
- * {@link #in(RegisterSource)} provides the major entrance for inventory streaming merge, eventually add or update the
+ * Method #in provides the major entrance for inventory streaming merge, eventually add or update the
  * inventory data in the storage.
  *
- * {@link #create(ModuleDefineHolder, Stream, Class<RegisterSource>)} creates the workers and work flow for every
- * inventory.
+ * Method #create creates the workers and work flow for every inventory.
  */
 public class InventoryStreamProcessor implements StreamProcessor<RegisterSource> {
     /**

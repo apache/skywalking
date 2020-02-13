@@ -94,9 +94,6 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
     /**
      * gRPC handler of {@link RemoteServiceGrpc}. Continue the distributed aggregation at the current OAP node.
-     *
-     * @param responseObserver
-     * @return
      */
     @Override
     public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
