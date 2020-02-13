@@ -94,11 +94,6 @@ public class CoreModuleConfig extends ModuleConfig {
     private long maxSizeOfProfileTask = 10_000L;
 
     /**
-     * Following are cache settings for index name alias(s)
-     */
-    private long maxSizeOfIndexAlias = 10_000L;
-
-    /**
      * Analyze profile snapshots paging size.
      */
     private int maxPageSizeOfQueryProfileSnapshot = 500;
