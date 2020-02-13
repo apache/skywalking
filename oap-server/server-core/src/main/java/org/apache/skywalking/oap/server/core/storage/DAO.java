@@ -20,5 +20,8 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.library.module.Service;
 
+/**
+ * A specific interface for storage layer services.
+ */
 public interface DAO extends Service {
 }

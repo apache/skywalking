@@ -61,6 +61,12 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
+/**
+ * RegisterServiceHandler responses the requests of multiple inventory entities register, including service, instance,
+ * endpoint, network address and address-service mapping. Responses of service, instance and endpoint register include
+ * the IDs to represents these entities. Agent could use them in the header and data report to reduce the network
+ * bandwidth resource costs.
+ */
 public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implements GRPCHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterServiceHandler.class);
@@ -109,7 +115,8 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                 serviceType = ServiceType.normal;
             }
 
-            int serviceId = serviceInventoryRegister.getOrCreate(serviceName, NodeType.fromRegisterServiceType(serviceType), null);
+            int serviceId = serviceInventoryRegister.getOrCreate(
+                serviceName, NodeType.fromRegisterServiceType(serviceType), null);
 
             if (serviceId != Const.NONE) {
                 KeyIntValuePair value = KeyIntValuePair.newBuilder().setKey(serviceName).setValue(serviceId).build();
@@ -123,7 +130,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
 
     @Override
     public void doServiceInstanceRegister(ServiceInstances request,
-        StreamObserver<ServiceInstanceRegisterMapping> responseObserver) {
+                                          StreamObserver<ServiceInstanceRegisterMapping> responseObserver) {
 
         ServiceInstanceRegisterMapping.Builder builder = ServiceInstanceRegisterMapping.newBuilder();
 
@@ -176,8 +183,9 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                 }
             }
 
-            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(instance.getServiceId(), instanceName, instanceUUID, instance
-                .getTime(), instanceProperties);
+            int serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(
+                instance.getServiceId(), instanceName, instanceUUID, instance
+                    .getTime(), instanceProperties);
 
             if (serviceInstanceId != Const.NONE) {
                 logger.info("register service instance id={} [UUID:{}]", serviceInstanceId, instanceUUID);
@@ -237,7 +245,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
 
     @Override
     public void doServiceAndNetworkAddressMappingRegister(ServiceAndNetworkAddressMappings request,
-        StreamObserver<Commands> responseObserver) {
+                                                          StreamObserver<Commands> responseObserver) {
 
         request.getMappingsList().forEach(mapping -> {
             int serviceId = mapping.getServiceId();
