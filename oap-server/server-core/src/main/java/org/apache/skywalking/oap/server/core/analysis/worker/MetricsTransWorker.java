@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.Objects;
-import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
