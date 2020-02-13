@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
@@ -108,7 +107,7 @@ public class TimeBucket {
     /**
      * Convert TimeBucket to Timestamp in millisecond.
      *
-     * @param timeBucket long
+     * @param timeBucket   long
      * @param downsampling Downsampling
      * @return timestamp in millisecond unit
      */
