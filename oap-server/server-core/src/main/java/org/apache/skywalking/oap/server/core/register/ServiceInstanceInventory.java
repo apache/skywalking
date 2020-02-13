@@ -163,10 +163,7 @@ public class ServiceInstanceInventory extends RegisterSource {
             return false;
         if (isAddress != source.getIsAddress())
             return false;
-        if (addressId != source.getAddressId())
-            return false;
-
-        return true;
+        return addressId == source.getAddressId();
     }
 
     public ServiceInstanceInventory getClone() {

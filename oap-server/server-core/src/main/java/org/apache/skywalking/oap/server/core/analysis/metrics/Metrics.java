@@ -26,30 +26,70 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+/**
+ * Metrics represents the statistic data, which analysis by OAL script or hard code. It has the lifecycle controlled by
+ * TTL(time to live).
+ */
 public abstract class Metrics extends StreamData implements StorageData {
 
     public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
 
+    /**
+     * Time attribute
+     */
     @Getter
     @Setter
     @Column(columnName = TIME_BUCKET)
     private long timeBucket;
+
+    /**
+     * Time in the cache, only work when MetricsPersistentWorker#enableDatabaseSession == true.
+     */
     @Getter
-    @Setter
     private long survivalTime = 0L;
 
-    public abstract String id();
-
+    /**
+     * Merge the given metrics instance, these two must be the same metrics type.
+     *
+     * @param metrics to be merged
+     */
     public abstract void combine(Metrics metrics);
 
+    /**
+     * Calculate the metrics final value when required.
+     */
     public abstract void calculate();
 
+    /**
+     * Downsampling the metrics to hour precision.
+     *
+     * @return the metrics in hour precision in the clone mode.
+     */
     public abstract Metrics toHour();
 
+    /**
+     * Downsampling the metrics to day precision.
+     *
+     * @return the metrics in day precision in the clone mode.
+     */
     public abstract Metrics toDay();
 
+    /**
+     * Downsampling the metrics to month precision.
+     *
+     * @return the metrics in month precision in the clone mode.
+     */
     public abstract Metrics toMonth();
+
+    /**
+     * Extend the {@link #survivalTime}
+     *
+     * @param value to extend
+     */
+    public void extendSurvivalTime(long value) {
+        survivalTime += value;
+    }
 
     public long toTimeBucketInHour() {
         if (isMinuteBucket()) {
