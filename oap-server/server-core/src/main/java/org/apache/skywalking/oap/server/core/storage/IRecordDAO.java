@@ -23,7 +23,15 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
+/**
+ * DAO specifically for {@link Record} implementations.
+ */
 public interface IRecordDAO extends DAO {
-
+    /**
+     * Transfer the given metrics to an executable insert statement.
+     *
+     * @return InsertRequest should follow the database client driver datatype, in order to make sure it could be
+     * executed ASAP.
+     */
     InsertRequest prepareBatchInsert(Model model, Record record) throws IOException;
 }

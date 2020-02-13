@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -35,12 +36,13 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * H2 table initialization. Create tables without Indexes. H2 is for the demonstration only, so, keep the logic as
+ * simple as possible.
+ */
+@Slf4j
 public class H2TableInstaller extends ModelInstaller {
-    private static final Logger logger = LoggerFactory.getLogger(H2TableInstaller.class);
-
     public H2TableInstaller(ModuleManager moduleManager) {
         super(moduleManager);
     }
@@ -71,14 +73,15 @@ public class H2TableInstaller extends ModelInstaller {
         for (int i = 0; i < model.getColumns().size(); i++) {
             ModelColumn column = model.getColumns().get(i);
             ColumnName name = column.getColumnName();
-            tableCreateSQL.appendLine(name.getStorageName() + " " + getColumnType(model, name, column.getType()) + (i != model
-                .getColumns()
-                .size() - 1 ? "," : ""));
+            tableCreateSQL.appendLine(
+                name.getStorageName() + " " + getColumnType(model, name, column.getType()) + (i != model
+                    .getColumns()
+                    .size() - 1 ? "," : ""));
         }
         tableCreateSQL.appendLine(")");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("creating table: " + tableCreateSQL.toStringInNewLine());
+        if (log.isDebugEnabled()) {
+            log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
         }
 
         try (Connection connection = h2Client.getConnection()) {
@@ -91,6 +94,9 @@ public class H2TableInstaller extends ModelInstaller {
 
     }
 
+    /**
+     * Set up the data type mapping between Java type and H2 database type
+     */
     protected String getColumnType(Model model, ColumnName name, Class<?> type) {
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";

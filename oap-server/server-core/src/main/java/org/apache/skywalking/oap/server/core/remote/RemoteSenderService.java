@@ -32,6 +32,10 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * RemoteSenderService represents a gRPC client to send metrics from one OAP node to another through network. It
+ * provides several routing mode to select target OAP node.
+ */
 public class RemoteSenderService implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteSenderService.class);
 
@@ -47,6 +51,13 @@ public class RemoteSenderService implements Service {
         this.rollingSelector = new RollingSelector();
     }
 
+    /**
+     * Send data to the target based on the given selector
+     *
+     * @param nextWorkName points to the worker to process the data when {@link RemoteServiceHandler} received.
+     * @param streamData   data to be sent
+     * @param selector     strategy implementation to choose suitable OAP node.
+     */
     public void send(String nextWorkName, StreamData streamData, Selector selector) {
         RemoteClientManager clientManager = moduleManager.find(CoreModule.NAME)
                                                          .provider()
@@ -55,7 +66,8 @@ public class RemoteSenderService implements Service {
 
         List<RemoteClient> clientList = clientManager.getRemoteClient();
         if (clientList.size() == 0) {
-            logger.warn("There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
+            logger.warn(
+                "There is no available remote server for now, ignore the streaming data until the cluster metadata initialized.");
             return;
         }
         switch (selector) {
