@@ -75,11 +75,8 @@ public class HierarchyMatch implements IndirectMatch {
             matchHierarchyClass(typeDescription.getSuperClass(), parentTypes);
         }
 
-        if (parentTypes.size() == 0) {
-            return true;
-        }
+        return parentTypes.size() == 0;
 
-        return false;
     }
 
     private void matchHierarchyClass(TypeDescription.Generic clazz, List<String> parentTypes) {
