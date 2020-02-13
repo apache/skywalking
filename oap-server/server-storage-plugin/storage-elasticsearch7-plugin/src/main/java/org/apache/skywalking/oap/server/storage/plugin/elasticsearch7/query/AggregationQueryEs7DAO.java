@@ -41,10 +41,10 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
         super(client);
     }
 
-    protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
+    protected List<TopNEntity> aggregation(List<String> indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         List<TopNEntity> topNEntities = new ArrayList<>();
-        if (indexNames.length == 0) {
+        if (indexNames.size() == 0) {
             return topNEntities;
         }
 

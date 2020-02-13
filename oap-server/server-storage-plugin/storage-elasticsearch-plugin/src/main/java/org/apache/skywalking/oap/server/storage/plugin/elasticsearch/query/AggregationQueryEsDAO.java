@@ -27,10 +27,10 @@ import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsModelName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -50,9 +50,9 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
         long endTB, Order order) throws IOException {
-      
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
+
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(filterIndexNames, valueCName, sourceBuilder, topN, order);
@@ -60,8 +60,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
@@ -71,8 +71,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
         Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -87,8 +87,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
         long endTB, Order order) throws IOException {
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
@@ -98,8 +98,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -138,10 +138,10 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         return topNEntities;
     }
 
-    protected List<TopNEntity> aggregation(String[] indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
+    protected List<TopNEntity> aggregation(List<String> indexNames, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         List<TopNEntity> topNEntities = new ArrayList<>();
-        if (indexNames.length == 0) {
+        if (indexNames.size() == 0) {
             return topNEntities;
         }
 

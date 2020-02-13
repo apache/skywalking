@@ -17,23 +17,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 public class ModelName {
-
-    private static final DateTimeFormatter YYYYMM = DateTimeFormat.forPattern("yyyyMM");
-    private static final DateTimeFormatter YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
 
     public static String build(Downsampling downsampling, String modelName) {
         switch (downsampling) {
@@ -46,70 +33,5 @@ public class ModelName {
             default:
                 return modelName;
         }
-    }
-
-    public static String[] build(Downsampling downsampling, String modelName, long startTB, long endTB) {
-        List<String> indexNameList = new ArrayList<>();
-
-        List<String> whiteIndexList = new ArrayList<String>() {
-            {
-                add(EndpointInventory.INDEX_NAME);
-                add(NetworkAddressInventory.INDEX_NAME);
-                add(ServiceInventory.INDEX_NAME);
-                add(ServiceInstanceInventory.INDEX_NAME);
-            }
-        };
-
-        if (whiteIndexList.contains(modelName)) {
-            return new String[] { modelName };
-        }
-
-        DateTime startDT = DurationUtils.INSTANCE.startTimeBucket2DateTime(downsampling, startTB);
-        DateTime endDT = DurationUtils.INSTANCE.endTimeBucket2DateTime(downsampling, endTB);
-        if (endDT.isAfter(startDT)) {
-            switch (downsampling) {
-                case Month:
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMM.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusMonths(1);
-                    }
-                    break;
-                case Day:
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Hour:
-                    //current hour index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Minute:
-                    //current minute index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Second:
-                    //current second index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                default:
-                    indexNameList.add(modelName);
-            }
-        }
-        return indexNameList.toArray(new String[0]);
     }
 }

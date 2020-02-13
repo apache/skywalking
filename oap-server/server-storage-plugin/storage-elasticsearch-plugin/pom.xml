@@ -40,6 +40,10 @@
             <artifactId>library-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+      </dependency>
         <dependency>
             <groupId>fr.pilato.elasticsearch.testcontainers</groupId>
             <artifactId>testcontainers-elasticsearch</artifactId>

@@ -170,10 +170,10 @@ public class ElasticSearch7Client extends ElasticSearchClient {
     }
 
     public SearchResponse search(
-        String[] indexNames,
+        List<String> indexNames,
         SearchSourceBuilder searchSourceBuilder) throws IOException {
-        String[] fullIndexNames = formatIndexNames(indexNames);
-        SearchRequest searchRequest = new SearchRequest(fullIndexNames);
+        List<String> fullIndexNames = formatIndexNames(indexNames);
+        SearchRequest searchRequest = new SearchRequest(fullIndexNames.toArray(new String[0]));
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }

@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.AliasIndexNameCache;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -34,8 +37,21 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
+    protected AliasIndexNameCache aliasCache;
+
     public EsDAO(ElasticSearchClient client) {
         super(client);
+        this.aliasCache = new AliasIndexNameCache(client);
+    }
+
+    protected List<String> filterNotExistIndex(List<String> indexName, String indName) throws IOException {
+        ListIterator<String> iter = indexName.listIterator();
+        while (iter.hasNext()) {
+            if (aliasCache.checkIndexExist(iter.next(), indName)) {
+                iter.remove();
+            }
+        }
+        return indexName;
     }
 
     protected final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {

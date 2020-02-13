@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsModelName;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -48,10 +49,10 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
         String valueCName, Function function) throws IOException {
 
         IntValues intValues = new IntValues();
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
-        if (filterIndexNames.length == 0) {
+        if (filterIndexNames.size() == 0) {
             return intValues;
         }
 

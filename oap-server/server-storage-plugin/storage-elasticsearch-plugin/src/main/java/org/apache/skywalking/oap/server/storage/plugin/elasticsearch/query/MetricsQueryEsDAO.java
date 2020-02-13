@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsModelName;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -57,10 +58,10 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         String valueCName,
         Function function) throws IOException {
         IntValues intValues = new IntValues();
-        String[] formatIndexNames = ModelName.build(downsampling, indName, startTB, endTB);
-        String[] filterIndexNames = getClient().filterNotExistIndex(formatIndexNames, indName);
+        List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
+        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
-        if (filterIndexNames.length == 0) {
+        if (filterIndexNames.size() == 0) {
             return intValues;
         }
 
