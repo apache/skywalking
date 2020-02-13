@@ -57,8 +57,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final boolean enableDatabaseSession;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-        AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-        MetricsTransWorker transWorker, boolean enableDatabaseSession) {
+                            AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
+                            MetricsTransWorker transWorker, boolean enableDatabaseSession) {
         super(moduleDefineHolder);
         this.model = model;
         this.databaseSession = new HashMap<>(100);
@@ -152,7 +152,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
 
         if (prepareRequests.size() > 0) {
-            logger.debug("prepare batch requests for model {}, took time: {}", model.getName(), System.currentTimeMillis() - start);
+            logger.debug(
+                "prepare batch requests for model {}, took time: {}", model.getName(),
+                System.currentTimeMillis() - start
+            );
         }
     }
 
@@ -207,7 +210,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             Iterator<Metrics> iterator = databaseSession.values().iterator();
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
-                metrics.setSurvivalTime(tookTime + metrics.getSurvivalTime());
+                metrics.extendSurvivalTime(tookTime);
+                // 70,000ms means more than one minute.
                 if (metrics.getSurvivalTime() > 70000) {
                     iterator.remove();
                 }

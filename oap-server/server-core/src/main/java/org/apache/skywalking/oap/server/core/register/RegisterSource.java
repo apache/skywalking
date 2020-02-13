@@ -24,6 +24,9 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
+/**
+ * RegisterSource represents the metadata entity.
+ */
 public abstract class RegisterSource extends StreamData implements StorageData {
 
     public static final String SEQUENCE = "sequence";
