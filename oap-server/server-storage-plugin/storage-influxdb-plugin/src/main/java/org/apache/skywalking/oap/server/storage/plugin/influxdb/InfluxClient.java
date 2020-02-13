@@ -160,7 +160,7 @@ public class InfluxClient implements Client {
     }
 
     public void deleteByQuery(String measurement, long timestamp) throws IOException {
-        this.query(new Query("delete from " + measurement + " where time < '" + timestamp + "ms'"));
+        this.query(new Query("delete from " + measurement + " where time < " + timestamp + "ms"));
     }
 
     /**
