@@ -26,8 +26,6 @@ import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Starter core. Load the core configuration file, and initialize the startup sequence through {@link ModuleManager}.
