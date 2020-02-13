@@ -47,7 +47,8 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
     protected List<String> filterNotExistIndex(List<String> indexName, String indName) throws IOException {
         ListIterator<String> iter = indexName.listIterator();
         while (iter.hasNext()) {
-            if (aliasCache.checkIndexExist(iter.next(), indName)) {
+            //if alias not exist, then delete
+            if (!aliasCache.checkIndexExist(iter.next(), indName)) {
                 iter.remove();
             }
         }
