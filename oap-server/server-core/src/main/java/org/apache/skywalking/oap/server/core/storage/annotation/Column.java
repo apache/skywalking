@@ -23,10 +23,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 
+/**
+ * Data column of all persistent entity.
+ */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
+    /**
+     * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
+     * could be a keyword, then, the implementation will use {@link IModelOverride} to replace the column name.
+     */
     String columnName();
 
     /**

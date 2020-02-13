@@ -37,10 +37,24 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
+/**
+ * InventoryStreamProcessor represents the entrance and creator of the inventory register work flow.
+ *
+ * {@link #in(RegisterSource)} provides the major entrance for inventory streaming merge, eventually add or update the
+ * inventory data in the storage.
+ *
+ * {@link #create(ModuleDefineHolder, Stream, Class<RegisterSource>)} creates the workers and work flow for every
+ * inventory.
+ */
 public class InventoryStreamProcessor implements StreamProcessor<RegisterSource> {
-
+    /**
+     * Singleton instance.
+     */
     private static final InventoryStreamProcessor PROCESSOR = new InventoryStreamProcessor();
 
+    /**
+     * Worker table hosts all entrance workers.
+     */
     private Map<Class<? extends RegisterSource>, RegisterDistinctWorker> entryWorkers = new HashMap<>();
 
     public static InventoryStreamProcessor getInstance() {
@@ -51,9 +65,16 @@ public class InventoryStreamProcessor implements StreamProcessor<RegisterSource>
         entryWorkers.get(registerSource.getClass()).in(registerSource);
     }
 
+    /**
+     * Create the workers and work flow for every inventory.
+     *
+     * @param moduleDefineHolder pointer of the module define.
+     * @param stream             definition of the inventory class.
+     * @param inventoryClass     data type of the inventory.
+     */
     @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream,
-        Class<? extends RegisterSource> inventoryClass) {
+                       Class<? extends RegisterSource> inventoryClass) {
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IRegisterDAO registerDAO;
         try {
@@ -63,9 +84,11 @@ public class InventoryStreamProcessor implements StreamProcessor<RegisterSource>
         }
 
         IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        Model model = modelSetter.putIfAbsent(inventoryClass, stream.scopeId(), new Storage(stream.name(), false, false, Downsampling.None), false);
+        Model model = modelSetter.putIfAbsent(
+            inventoryClass, stream.scopeId(), new Storage(stream.name(), false, false, Downsampling.None), false);
 
-        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(moduleDefineHolder, model.getName(), registerDAO, stream
+        RegisterPersistentWorker persistentWorker = new RegisterPersistentWorker(
+            moduleDefineHolder, model.getName(), registerDAO, stream
             .scopeId());
 
         String remoteReceiverWorkerName = stream.name() + "_rec";

@@ -61,21 +61,43 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
         remoteInCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                             .provider()
                                             .getService(MetricsCreator.class)
-                                            .createCounter("remote_in_count", "The number(server side) of inside remote inside aggregate rpc.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+                                            .createCounter(
+                                                "remote_in_count",
+                                                "The number(server side) of inside remote inside aggregate rpc.",
+                                                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                            );
         remoteInErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                                  .provider()
                                                  .getService(MetricsCreator.class)
-                                                 .createCounter("remote_in_error_count", "The error number(server side) of inside remote inside aggregate rpc.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+                                                 .createCounter(
+                                                     "remote_in_error_count",
+                                                     "The error number(server side) of inside remote inside aggregate rpc.",
+                                                     MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                                 );
         remoteInTargetNotFoundCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
                                                           .getService(MetricsCreator.class)
-                                                          .createCounter("remote_in_target_not_found_count", "The error number(server side) of inside remote handler target worker not found. May be caused by unmatched OAL scrips.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+                                                          .createCounter(
+                                                              "remote_in_target_not_found_count",
+                                                              "The error number(server side) of inside remote handler target worker not found. May be caused by unmatched OAL scrips.",
+                                                              MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                                          );
         remoteInHistogram = moduleDefineHolder.find(TelemetryModule.NAME)
                                               .provider()
                                               .getService(MetricsCreator.class)
-                                              .createHistogramMetric("remote_in_latency", "The latency(server side) of inside remote inside aggregate rpc.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+                                              .createHistogramMetric(
+                                                  "remote_in_latency",
+                                                  "The latency(server side) of inside remote inside aggregate rpc.",
+                                                  MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+                                              );
     }
 
+    /**
+     * gRPC handler of {@link RemoteServiceGrpc}. Continue the distributed aggregation at the current OAP node.
+     *
+     * @param responseObserver
+     * @return
+     */
     @Override
     public StreamObserver<RemoteMessage> call(StreamObserver<Empty> responseObserver) {
         if (Objects.isNull(workerInstanceGetter)) {
@@ -106,7 +128,10 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                             nextWorker.in(streamData);
                         } else {
                             remoteInTargetNotFoundCounter.inc();
-                            logger.warn("Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.", nextWorkerName);
+                            logger.warn(
+                                "Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.",
+                                nextWorkerName
+                            );
                         }
                     } catch (Throwable t) {
                         remoteInErrorCounter.inc();

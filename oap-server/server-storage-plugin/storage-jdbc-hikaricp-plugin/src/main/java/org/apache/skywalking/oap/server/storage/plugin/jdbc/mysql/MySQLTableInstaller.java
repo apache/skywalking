@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
@@ -33,8 +34,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
@@ -46,10 +45,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
  */
+@Slf4j
 public class MySQLTableInstaller extends H2TableInstaller {
-
-    private static final Logger logger = LoggerFactory.getLogger(MySQLTableInstaller.class);
-
     public MySQLTableInstaller(ModuleManager moduleManager) {
         super(moduleManager);
         /*
@@ -66,6 +63,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
         this.createIndexes(jdbcHikariCPClient, model);
     }
 
+    /**
+     * Based on MySQL features, provide a specific data type mappings.
+     */
     @Override
     protected String getColumnType(Model model, ColumnName name, Class<?> type) {
         if (Integer.class.equals(type) || int.class.equals(type)) {
@@ -92,6 +92,12 @@ public class MySQLTableInstaller extends H2TableInstaller {
         }
     }
 
+    /**
+     * Create indexes of all tables. Due to MySQL storage is suitable for middle size use case and also compatible with
+     * TiDB users, Indexes are required for the UI query.
+     *
+     * Based on different Model, provide different index creation strategy.
+     */
     protected void createIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
         switch (model.getScopeId()) {
             case SERVICE_INVENTORY:
@@ -198,9 +204,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     private void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
-        SQLBuilder indexSQL) throws JDBCClientException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
+                             SQLBuilder indexSQL) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
         }
         client.execute(connection, indexSQL.toString());
     }

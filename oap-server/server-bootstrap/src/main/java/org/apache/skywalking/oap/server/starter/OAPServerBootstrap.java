@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.starter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -28,10 +29,11 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Starter core. Load the core configuration file, and initialize the startup sequence through {@link ModuleManager}.
+ */
+@Slf4j
 public class OAPServerBootstrap {
-
-    private static final Logger logger = LoggerFactory.getLogger(OAPServerBootstrap.class);
-
     public static void start() {
         String mode = System.getProperty("mode");
         RunningMode.setMode(mode);
@@ -50,11 +52,11 @@ public class OAPServerBootstrap {
                    .setValue(System.currentTimeMillis() / 1000d);
 
             if (RunningMode.isInitMode()) {
-                logger.info("OAP starts up in init mode successfully, exit now...");
+                log.info("OAP starts up in init mode successfully, exit now...");
                 System.exit(0);
             }
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
             System.exit(1);
         }
     }
