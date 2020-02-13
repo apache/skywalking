@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
@@ -128,7 +129,7 @@ public class TimeBucket {
                 calendar.set(Calendar.DAY_OF_MONTH, (int) (timeBucket % 100));
                 timeBucket /= 100;
             case Month:
-                calendar.set(Calendar.MONTH, (int) (timeBucket % 100));
+                calendar.set(Calendar.MONTH, (int) (timeBucket % 100) - 1);
                 calendar.set(Calendar.YEAR, (int) (timeBucket / 100));
                 break;
             default:

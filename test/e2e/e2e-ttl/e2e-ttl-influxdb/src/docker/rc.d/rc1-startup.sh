@@ -17,6 +17,11 @@
 
 echo 'starting OAP server...' \
     && SW_CORE_DATA_KEEPER_EXECUTE_PERIOD=1 \
+    SW_CORE_RECORD_DATA_TTL=7 \
+    SW_CORE_MINUTE_METRIC_DATA_TTL=6000 \
+    SW_CORE_HOUR_METRIC_DATA_TTL=100 \
+    SW_CORE_DAY_METRIC_DATA_TTL=5 \
+    SW_CORE_MONTH_METRIC_DATA_TTL=4 \
     SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
     SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
     start_oap 'init'
