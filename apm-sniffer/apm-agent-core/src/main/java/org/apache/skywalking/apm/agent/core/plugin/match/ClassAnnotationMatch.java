@@ -65,10 +65,7 @@ public class ClassAnnotationMatch implements IndirectMatch {
         for (AnnotationDescription annotation : declaredAnnotations) {
             annotationList.remove(annotation.getAnnotationType().getActualName());
         }
-        if (annotationList.isEmpty()) {
-            return true;
-        }
-        return false;
+        return annotationList.isEmpty();
     }
 
     private ElementMatcher.Junction buildEachAnnotation(String annotationName) {
