@@ -71,11 +71,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(" and ").append(ServiceInventory.IS_ADDRESS).append("=" + BooleanUtils.FALSE);
         sql.append(" and ").append(ServiceInventory.NODE_TYPE).append("=" + NodeType.Normal.value());
 
-        Integer resultSet = getNum(sql, condition);
-        if (resultSet != null) {
-            return resultSet;
-        }
-        return 0;
+        return getNum(sql, condition);
     }
 
     private Integer getNum(StringBuilder sql, List<Object> condition) throws IOException {
@@ -88,7 +84,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return null;
+        return 0;
     }
 
     @Override
@@ -98,10 +94,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select count(*) num from ").append(EndpointInventory.INDEX_NAME).append(" where ");
         sql.append(EndpointInventory.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
 
-        ResultSet resultSet = getNum(sql, condition);
-        if (resultSet != null)
-            return resultSet;
-        return 0;
+        return getNum(sql, condition);
     }
 
     @Override
@@ -112,10 +105,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(ServiceInventory.NODE_TYPE).append("=?");
         condition.add(nodeTypeValue);
 
-        ResultSet resultSet = getNum(sql, condition);
-        if (resultSet != null)
-            return resultSet;
-        return 0;
+        return getNum(sql, condition);
     }
 
     @Override
