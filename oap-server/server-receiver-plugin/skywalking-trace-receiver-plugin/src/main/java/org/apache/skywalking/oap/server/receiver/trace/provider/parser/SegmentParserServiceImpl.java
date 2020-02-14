@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 
+/**
+ * The open service to the receivers. Segment parser for v2 trace protocol.
+ */
 public class SegmentParserServiceImpl implements ISegmentParserService {
     private final SegmentParseV2.Producer segmentProducer;
 

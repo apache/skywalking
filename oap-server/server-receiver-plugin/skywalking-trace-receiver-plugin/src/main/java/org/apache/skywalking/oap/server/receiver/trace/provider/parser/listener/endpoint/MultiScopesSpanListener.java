@@ -54,7 +54,9 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import static java.util.Objects.nonNull;
 
 /**
- * Notice, in here, there are following concepts match
+ * MultiScopesSpanListener includes the most segment to source(s) logic.
+ *
+ * This listener traverses the whole segment.
  */
 public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
 
@@ -98,6 +100,16 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
+    /**
+     * All entry spans are transferred as the Service, Instance and Endpoint related sources. Entry spans are treated on
+     * the behalf of the observability status of the service reported these spans.
+     *
+     * Also, when face the MQ and uninstrumented Gateways, there is different logic to generate the relationship between
+     * services/instances rather than the normal RPC direct call. The reason is the same, we aren't expecting the agent
+     * installed in the MQ server, and Gateway may not have suitable agent. Any uninstrumented service if they have the
+     * capability to forward SkyWalking header through themselves, you could consider the uninstrumented configurations
+     * to make the topology works to be a whole.
+     */
     @Override
     public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         this.minuteTimeBucket = segmentCoreInfo.getMinuteTimeBucket();
@@ -118,7 +130,8 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
                 if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ) || config.getUninstrumentedGatewaysConfig()
                                                                                .isAddressConfiguredAsGateway(address)) {
-                    int instanceIdByPeerId = instanceInventoryCache.getServiceInstanceId(serviceIdByPeerId, networkAddressId);
+                    int instanceIdByPeerId = instanceInventoryCache.getServiceInstanceId(
+                        serviceIdByPeerId, networkAddressId);
                     sourceBuilder.setSourceServiceInstanceId(instanceIdByPeerId);
                     sourceBuilder.setSourceServiceId(serviceIdByPeerId);
                 } else {
@@ -151,6 +164,10 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         this.entrySpanDecorator = spanDecorator;
     }
 
+    /**
+     * The exit span should be transferred to the service, instance and relationships from the client side detect
+     * point.
+     */
     @Override
     public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         if (this.minuteTimeBucket == 0) {
@@ -239,8 +256,9 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         }
 
         sourceBuilder.setSourceServiceName(serviceInventoryCache.get(sourceBuilder.getSourceServiceId()).getName());
-        sourceBuilder.setSourceServiceInstanceName(instanceInventoryCache.get(sourceBuilder.getSourceServiceInstanceId())
-                                                                         .getName());
+        sourceBuilder.setSourceServiceInstanceName(
+            instanceInventoryCache.get(sourceBuilder.getSourceServiceInstanceId())
+                                  .getName());
         if (sourceBuilder.getSourceEndpointId() != Const.NONE) {
             sourceBuilder.setSourceEndpointName(endpointInventoryCache.get(sourceBuilder.getSourceEndpointId())
                                                                       .getName());
