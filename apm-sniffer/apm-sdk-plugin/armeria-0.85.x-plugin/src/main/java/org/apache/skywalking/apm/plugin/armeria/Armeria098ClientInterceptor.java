@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
     "rawtypes",
     "unused"
 })
-public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
+public class Armeria098ClientInterceptor extends ArmeriaClientInterceptor {
 
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
@@ -52,7 +52,7 @@ public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
                               final Class<?>[] argumentsTypes, final Object ret) {
 
-        Object req = allArguments[5];
+        final Object req = allArguments[5];
 
         afterMethod(req);
 
