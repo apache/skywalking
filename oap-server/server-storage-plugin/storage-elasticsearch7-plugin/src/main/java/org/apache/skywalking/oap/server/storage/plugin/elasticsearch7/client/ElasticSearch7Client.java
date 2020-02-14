@@ -175,11 +175,13 @@ public class ElasticSearch7Client extends ElasticSearchClient {
      * Note the method is usered for the list of index names is optimized based on
      * the scope of startTimeBucket and endTimeBucket.If the searched index list part index does not exist,
      * `index_not_found` exception will not be reported
+     * <p>
+     * https://github.com/apache/skywalking/pull/4353
      * @param indexNames  full index names list base on timebucket scope.
      * Except for endpoint_inventory network_address_inventory service_inventory service_instance_inventory
      * @param searchSourceBuilder Various search query conditions
      * @return ES search query results
-     * @throws IOException throw IOException
+     * @throws IOException when parse networking data error
      */
     public SearchResponse search(
         List<String> indexNames,

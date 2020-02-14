@@ -125,6 +125,22 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
+    public long timeBucketToTimestamp(Step step, long timeBucket) {
+        switch (step) {
+            case MONTH:
+                return YYYYMM.parseMillis(String.valueOf(timeBucket));
+            case DAY:
+                return YYYYMMDD.parseMillis(String.valueOf(timeBucket));
+            case HOUR:
+                return YYYYMMDDHH.parseMillis(String.valueOf(timeBucket));
+            case MINUTE:
+                return YYYYMMDDHHMM.parseMillis(String.valueOf(timeBucket));
+            case SECOND:
+                return YYYYMMDDHHMMSS.parseMillis(String.valueOf(timeBucket));
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
     public int minutesBetween(Downsampling downsampling, DateTime dateTime) {
         switch (downsampling) {
             case Month:
@@ -198,7 +214,7 @@ public enum DurationUtils {
         return durations;
     }
 
-    private DateTime parseToDateTime(Downsampling downsampling, long time) {
+    public DateTime parseToDateTime(Downsampling downsampling, long time) {
         switch (downsampling) {
             case Month:
                 return YYYYMM.parseDateTime(String.valueOf(time));
@@ -210,38 +226,6 @@ public enum DurationUtils {
                 return YYYYMMDDHHMM.parseDateTime(String.valueOf(time));
             case Second:
                 return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(time));
-        }
-        throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
-    }
-
-    public DateTime startTimeBucket2DateTime(Downsampling downsampling, long startTB) {
-        switch (downsampling) {
-            case Month:
-                return YYYYMM.parseDateTime(String.valueOf(startTB));
-            case Day:
-                return YYYYMMDD.parseDateTime(String.valueOf(startTB));
-            case Hour:
-                return YYYYMMDDHH.parseDateTime(String.valueOf(startTB));
-            case Minute:
-                return YYYYMMDDHHMM.parseDateTime(String.valueOf(startTB));
-            case Second:
-                return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(startTB));
-        }
-        throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
-    }
-
-    public DateTime endTimeBucket2DateTime(Downsampling downsampling, long endTB) {
-        switch (downsampling) {
-            case Month:
-                return YYYYMM.parseDateTime(String.valueOf(endTB));
-            case Day:
-                return YYYYMMDD.parseDateTime(String.valueOf(endTB));
-            case Hour:
-                return YYYYMMDDHH.parseDateTime(String.valueOf(endTB));
-            case Minute:
-                return YYYYMMDDHHMM.parseDateTime(String.valueOf(endTB));
-            case Second:
-                return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(endTB));
         }
         throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
     }

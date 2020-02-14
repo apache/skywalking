@@ -38,6 +38,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
@@ -212,18 +213,22 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.aggregation(AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
         SearchResponse response = getClient().search(indexNames, sourceBuilder);
 
-        Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
-            String entityId = entityBucket.getKeyAsString();
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms entityTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
+                String entityId = entityBucket.getKeyAsString();
 
-            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
-            Call.CallDetail call = new Call.CallDetail();
-            call.setSource(relationDefine.getSource());
-            call.setTarget(relationDefine.getDest());
-            call.setComponentId(relationDefine.getComponentId());
-            call.setDetectPoint(detectPoint);
-            call.generateID();
-            calls.add(call);
+                RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil
+                    .splitEntityId(entityId);
+                Call.CallDetail call = new Call.CallDetail();
+                call.setSource(relationDefine.getSource());
+                call.setTarget(relationDefine.getDest());
+                call.setComponentId(relationDefine.getComponentId());
+                call.setDetectPoint(detectPoint);
+                call.generateID();
+                calls.add(call);
+            }
         }
         return calls;
     }

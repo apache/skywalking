@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.query.DownsamplingToStep;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -37,65 +40,45 @@ public class EsModelName extends ModelName {
     private static final DateTimeFormatter YYYYMM = DateTimeFormat.forPattern("yyyyMM");
     private static final DateTimeFormatter YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
 
-    public static final List<String> WHITE_INDEX_LIST = new ArrayList<String>() {
-        {
-            add(EndpointInventory.INDEX_NAME);
-            add(NetworkAddressInventory.INDEX_NAME);
-            add(ServiceInventory.INDEX_NAME);
-            add(ServiceInstanceInventory.INDEX_NAME);
-        }
-    };
+    public static final ImmutableSet<String> WHITE_INDEX_LIST = ImmutableSet.of(
+            EndpointInventory.INDEX_NAME,
+            NetworkAddressInventory.INDEX_NAME,
+            ServiceInventory.INDEX_NAME,
+            ServiceInstanceInventory.INDEX_NAME
+        );
 
     public static List<String> build(Downsampling downsampling, String modelName, long startTB, long endTB) {
         if (WHITE_INDEX_LIST.contains(modelName)) {
-            return new ArrayList<String>() {
-                {
-                    add(modelName);
-                }
-            };
+            return Arrays.asList(modelName);
+        }
+
+        if (downsampling.equals(Downsampling.None)) {
+            return Arrays.asList(modelName);
         }
 
         List<String> indexNameList = new LinkedList<>();
-        DateTime startDT = DurationUtils.INSTANCE.startTimeBucket2DateTime(downsampling, startTB);
-        DateTime endDT = DurationUtils.INSTANCE.endTimeBucket2DateTime(downsampling, endTB);
-        if (endDT.isAfter(startDT)) {
+        Step step = DownsamplingToStep.transform(downsampling);
+        long startTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, startTB);
+        long endTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, endTB);
+        if (startTS <= endTS) {
             switch (downsampling) {
+                case Second:
+                case Minute:
+                case Hour:
+                case Day:
+                    while (startTS <= endTS) {
+                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startTS);
+                        indexNameList.add(indexName);
+                        startTS = startTS + 24 * 60 * 60 * 1000;
+                    }
+                    break;
                 case Month:
-                    while (endDT.isAfter(startDT)) {
+                    DateTime startDT = DurationUtils.INSTANCE.parseToDateTime(downsampling, startTB);
+                    DateTime endDT = DurationUtils.INSTANCE.parseToDateTime(downsampling, endTB);
+                    while (startDT.isAfter(endDT)) {
                         String indexName = build(downsampling, modelName) + "-" + YYYYMM.print(startDT);
                         indexNameList.add(indexName);
                         startDT = startDT.plusMonths(1);
-                    }
-                    break;
-                case Day:
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Hour:
-                    //current hour index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Minute:
-                    //current minute index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
-                    }
-                    break;
-                case Second:
-                    //current second index is also suffix with YYYYMMDD
-                    while (endDT.isAfter(startDT)) {
-                        String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startDT);
-                        indexNameList.add(indexName);
-                        startDT = startDT.plusDays(1);
                     }
                     break;
                 default:

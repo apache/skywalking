@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsMode
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.Avg;
@@ -76,28 +77,31 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
 
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            long value;
-            switch (function) {
-                case Sum:
-                    Sum sum = idBucket.getAggregations().get(valueCName);
-                    value = (long) sum.getValue();
-                    break;
-                case Avg:
-                    Avg avg = idBucket.getAggregations().get(valueCName);
-                    value = (long) avg.getValue();
-                    break;
-                default:
-                    avg = idBucket.getAggregations().get(valueCName);
-                    value = (long) avg.getValue();
-                    break;
-            }
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms idTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket idBucket : idTerms.getBuckets()) {
+                long value;
+                switch (function) {
+                    case Sum:
+                        Sum sum = idBucket.getAggregations().get(valueCName);
+                        value = (long) sum.getValue();
+                        break;
+                    case Avg:
+                        Avg avg = idBucket.getAggregations().get(valueCName);
+                        value = (long) avg.getValue();
+                        break;
+                    default:
+                        avg = idBucket.getAggregations().get(valueCName);
+                        value = (long) avg.getValue();
+                        break;
+                }
 
-            KVInt kvInt = new KVInt();
-            kvInt.setId(idBucket.getKeyAsString());
-            kvInt.setValue(value);
-            intValues.addKVInt(kvInt);
+                KVInt kvInt = new KVInt();
+                kvInt.setId(idBucket.getKeyAsString());
+                kvInt.setValue(value);
+                intValues.addKVInt(kvInt);
+            }
         }
         return intValues;
     }

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.net.ssl.SSLContext;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -296,11 +297,13 @@ public class ElasticSearchClient implements Client {
      * Note the method is usered for the list of index names is optimized based on
      * the scope of startTimeBucket and endTimeBucket.If the searched index list part index does not exist,
      * `index_not_found` exception will not be reported
+     * <p>
+     * https://github.com/apache/skywalking/pull/4353
      * @param indexNames full index names list base on timebucket scope.
      * Except for endpoint_inventory network_address_inventory service_inventory service_instance_inventory
      * @param searchSourceBuilder Various search query conditions
      * @return ES search query results
-     * @throws IOException throw IOException
+     * @throws IOException when parse networking data error
      */
     public SearchResponse search(List<String> indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
         List<String> formatIndexNames = formatIndexNames(indexNames);
@@ -426,7 +429,7 @@ public class ElasticSearchClient implements Client {
 
     public List<String> formatIndexNames(List<String> indexNameList) {
         if (StringUtil.isNotEmpty(namespace)) {
-            indexNameList.stream().map(indexName -> namespace + "_" + indexName);
+            return indexNameList.stream().map(indexName -> namespace + "_" + indexName).collect(Collectors.toList());
         }
         return indexNameList;
     }

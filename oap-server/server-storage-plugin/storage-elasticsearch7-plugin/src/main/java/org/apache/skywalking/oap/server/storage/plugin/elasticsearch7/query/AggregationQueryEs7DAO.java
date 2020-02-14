@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -90,13 +91,16 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
         SearchResponse response = getClient().search(indexName, sourceBuilder);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) (value.getValue()));
-            topNEntities.add(topNEntity);
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms idTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(termsBucket.getKeyAsString());
+                Avg value = termsBucket.getAggregations().get(valueCName);
+                topNEntity.setValue((long) (value.getValue()));
+                topNEntities.add(topNEntity);
+            }
         }
 
         return topNEntities;

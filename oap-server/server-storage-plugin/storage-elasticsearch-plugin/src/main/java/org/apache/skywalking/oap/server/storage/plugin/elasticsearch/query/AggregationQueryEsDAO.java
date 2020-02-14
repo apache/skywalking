@@ -35,6 +35,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -121,13 +122,16 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         SearchResponse response = getClient().search(indexName, sourceBuilder);
 
         List<TopNEntity> topNEntities = new ArrayList<>();
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) (value.getValue()));
-            topNEntities.add(topNEntity);
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms idTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(termsBucket.getKeyAsString());
+                Avg value = termsBucket.getAggregations().get(valueCName);
+                topNEntity.setValue((long) (value.getValue()));
+                topNEntities.add(topNEntity);
+            }
         }
 
         return topNEntities;
@@ -151,13 +155,16 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
         SearchResponse response = getClient().search(indexNames, sourceBuilder);
 
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) (value.getValue()));
-            topNEntities.add(topNEntity);
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms idTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(termsBucket.getKeyAsString());
+                Avg value = termsBucket.getAggregations().get(valueCName);
+                topNEntity.setValue((long) (value.getValue()));
+                topNEntities.add(topNEntity);
+            }
         }
 
         return topNEntities;
