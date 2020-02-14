@@ -28,8 +28,6 @@ import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInv
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Register the information inside the segment reference. All of them are downstream(caller) service information.

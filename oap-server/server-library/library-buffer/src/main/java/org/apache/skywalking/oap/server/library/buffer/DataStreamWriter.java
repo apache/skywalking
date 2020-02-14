@@ -23,10 +23,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * DataStreamReader represents the writer of the local file based cache provided by {@link DataStream}. It writes the
@@ -34,10 +33,8 @@ import org.slf4j.LoggerFactory;
  *
  * @param <MESSAGE_TYPE> type of data in the cache file.
  */
+@Slf4j
 class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
-
-    private static final Logger logger = LoggerFactory.getLogger(DataStreamWriter.class);
-
     private final File directory;
     private final Offset.WriteOffset writeOffset;
 
@@ -77,9 +74,9 @@ class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
 
         boolean created = writingFile.createNewFile();
         if (!created) {
-            logger.info("The file named {} already exists.", writingFile.getAbsolutePath());
+            log.info("The file named {} already exists.", writingFile.getAbsolutePath());
         } else {
-            logger.info("Create a new buffer data file: {}", writingFile.getAbsolutePath());
+            log.info("Create a new buffer data file: {}", writingFile.getAbsolutePath());
         }
 
         writeOffset.setOffset(0);
@@ -99,7 +96,7 @@ class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
                 outputStream = FileUtils.openOutputStream(writingFile, true);
             }
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }

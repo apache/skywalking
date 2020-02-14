@@ -54,8 +54,6 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * SegmentParseV2 replaced the SegmentParse(V1 is before 6.0.0) to drive the segment analysis. It includes the following
@@ -239,7 +237,7 @@ public class SegmentParseV2 {
                     notifyLocalListener(spanDecorator);
                 } else {
                     log.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType()
-                                                                                                    .name());
+                                                                                                 .name());
                 }
             }
         }
