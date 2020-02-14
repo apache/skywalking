@@ -93,6 +93,14 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
+/**
+ * Core module provider includes the recommended and default implementations of {@link CoreModule#services()}. All
+ * services with these default implementations are widely used including data receiver, data analysis, streaming
+ * process, storage and query.
+ *
+ * NOTICE. In our experiences, no one should re-implement the core module service implementations, unless we are very
+ * familiar with all mechanisms of SkyWalking.
+ */
 public class CoreModuleProvider extends ModuleProvider {
 
     private final CoreModuleConfig moduleConfig;
@@ -169,12 +177,14 @@ public class CoreModuleProvider extends ModuleProvider {
         }
         grpcServer.initialize();
 
-        jettyServer = new JettyServer(moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig
+        jettyServer = new JettyServer(
+            moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig
             .getJettySelectors());
         jettyServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
-        this.registerServiceImplementation(DownsamplingConfigService.class, new DownsamplingConfigService(moduleConfig.getDownsampling()));
+        this.registerServiceImplementation(
+            DownsamplingConfigService.class, new DownsamplingConfigService(moduleConfig.getDownsampling()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
@@ -192,17 +202,24 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IModelGetter.class, storageModels);
         this.registerServiceImplementation(IModelOverride.class, storageModels);
 
-        this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            ServiceInventoryCache.class, new ServiceInventoryCache(getManager(), moduleConfig));
         this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
 
-        this.registerServiceImplementation(ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
+        this.registerServiceImplementation(
+            ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
 
-        this.registerServiceImplementation(EndpointInventoryCache.class, new EndpointInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(IEndpointInventoryRegister.class, new EndpointInventoryRegister(getManager()));
+        this.registerServiceImplementation(
+            EndpointInventoryCache.class, new EndpointInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            IEndpointInventoryRegister.class, new EndpointInventoryRegister(getManager()));
 
-        this.registerServiceImplementation(NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
+        this.registerServiceImplementation(
+            NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
 
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
@@ -214,8 +231,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
 
         // add profile service implementations
-        this.registerServiceImplementation(ProfileTaskMutationService.class, new ProfileTaskMutationService(getManager()));
-        this.registerServiceImplementation(ProfileTaskQueryService.class, new ProfileTaskQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            ProfileTaskMutationService.class, new ProfileTaskMutationService(getManager()));
+        this.registerServiceImplementation(
+            ProfileTaskQueryService.class, new ProfileTaskQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(ProfileTaskCache.class, new ProfileTaskCache(getManager(), moduleConfig));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
@@ -248,10 +267,13 @@ public class CoreModuleProvider extends ModuleProvider {
         }
 
         if (CoreModuleConfig.Role.Mixed.name()
-                                       .equalsIgnoreCase(moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name()
-                                                                                                                    .equalsIgnoreCase(moduleConfig
-                                                                                                                        .getRole())) {
-            RemoteInstance gRPCServerInstance = new RemoteInstance(new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+                                       .equalsIgnoreCase(
+                                           moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name()
+                                                                                                      .equalsIgnoreCase(
+                                                                                                          moduleConfig
+                                                                                                              .getRole())) {
+            RemoteInstance gRPCServerInstance = new RemoteInstance(
+                new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
             this.getManager()
                 .find(ClusterModule.NAME)
                 .provider()
@@ -261,7 +283,8 @@ public class CoreModuleProvider extends ModuleProvider {
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
-                                                                              .getService(DynamicConfigurationService.class);
+                                                                              .getService(
+                                                                                  DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
     }
 

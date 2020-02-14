@@ -28,6 +28,9 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
+/**
+ * Stream annotation listener, process the class with {@link Stream} annotation.
+ */
 public class StreamAnnotationListener implements AnnotationListener {
 
     private final ModuleDefineHolder moduleDefineHolder;

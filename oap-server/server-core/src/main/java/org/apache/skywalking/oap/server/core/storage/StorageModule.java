@@ -35,6 +35,10 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
+/**
+ * StorageModule provides the capabilities(services) to interact with the database. With different databases, this
+ * module could have different providers, such as currently, H2, MySQL, ES, TiDB.
+ */
 public class StorageModule extends ModuleDefine {
 
     public static final String NAME = "storage";

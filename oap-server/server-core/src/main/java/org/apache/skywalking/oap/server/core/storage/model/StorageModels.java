@@ -25,7 +25,7 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +73,7 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.isValue()) {
-                    ValueColumnIds.INSTANCE.putIfAbsent(modelName, column.columnName(), column.function());
+                    ValueColumnMetadata.INSTANCE.putIfAbsent(modelName, column.columnName(), column.function());
                 }
             }
         }
