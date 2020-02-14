@@ -20,6 +20,10 @@ package org.apache.skywalking.oap.server.library.util;
 
 import lombok.Getter;
 
+/**
+ * GRPCStreamStatus is used for gRPC streaming client. It helps to make sure the gRPC client to wait the last streaming
+ * has the onCompleted or onError confirmation.
+ */
 @Getter
 public class GRPCStreamStatus {
 

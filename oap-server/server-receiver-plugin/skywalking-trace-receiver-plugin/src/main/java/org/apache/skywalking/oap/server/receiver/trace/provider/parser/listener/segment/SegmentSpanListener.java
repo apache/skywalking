@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
@@ -36,13 +37,12 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
+ */
+@Slf4j
 public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener, GlobalTraceIdsListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(SegmentSpanListener.class);
-
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
     private final Segment segment = new Segment();
@@ -113,8 +113,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
 
     @Override
     public void build() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("segment listener build, segment id: {}", segment.getSegmentId());
+        if (log.isDebugEnabled()) {
+            log.debug("segment listener build, segment id: {}", segment.getSegmentId());
         }
 
         if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {

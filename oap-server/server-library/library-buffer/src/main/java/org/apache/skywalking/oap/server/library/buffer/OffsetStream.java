@@ -34,6 +34,10 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * OffsetStream is driven by the internal timer. Flush the hold read and write offset into the file. And restore the
+ * data from the same file in the initialization process.o
+ */
 class OffsetStream {
 
     private static final Logger logger = LoggerFactory.getLogger(OffsetStream.class);
@@ -79,7 +83,9 @@ class OffsetStream {
             initialized = true;
 
             Executors.newSingleThreadScheduledExecutor()
-                     .scheduleAtFixedRate(new RunnableWithExceptionProtection(this::flush, t -> logger.error("Flush offset file in background failure.", t)), 2, 1, TimeUnit.SECONDS);
+                     .scheduleAtFixedRate(
+                         new RunnableWithExceptionProtection(this::flush, t -> logger.error(
+                             "Flush offset file in background failure.", t)), 2, 1, TimeUnit.SECONDS);
         }
     }
 
@@ -122,7 +128,8 @@ class OffsetStream {
     }
 
     private String readLastLine() throws IOException {
-        ReversedLinesFileReader reader = new ReversedLinesFileReader(offsetFile, Charset.forName(BufferFileUtils.CHARSET));
+        ReversedLinesFileReader reader = new ReversedLinesFileReader(
+            offsetFile, Charset.forName(BufferFileUtils.CHARSET));
         return reader.readLine();
     }
 }

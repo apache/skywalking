@@ -268,10 +268,10 @@ public class CoreModuleProvider extends ModuleProvider {
 
         if (CoreModuleConfig.Role.Mixed.name()
                                        .equalsIgnoreCase(
-                                           moduleConfig.getRole()) || CoreModuleConfig.Role.Aggregator.name()
-                                                                                                      .equalsIgnoreCase(
-                                                                                                          moduleConfig
-                                                                                                              .getRole())) {
+                                           moduleConfig.getRole())
+            || CoreModuleConfig.Role.Aggregator.name()
+                                               .equalsIgnoreCase(
+                                                   moduleConfig.getRole())) {
             RemoteInstance gRPCServerInstance = new RemoteInstance(
                 new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
             this.getManager()
