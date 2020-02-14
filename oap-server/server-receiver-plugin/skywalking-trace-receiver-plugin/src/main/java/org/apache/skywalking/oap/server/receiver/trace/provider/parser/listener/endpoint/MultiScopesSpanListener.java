@@ -54,7 +54,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import static java.util.Objects.nonNull;
 
 /**
- * MultiScopesSpanListener includes the most segment->source(s) logic.
+ * MultiScopesSpanListener includes the most segment to source(s) logic.
  *
  * This listener traverses the whole segment.
  */

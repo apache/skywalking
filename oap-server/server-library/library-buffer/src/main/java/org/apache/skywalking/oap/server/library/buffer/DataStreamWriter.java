@@ -28,6 +28,12 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DataStreamReader represents the writer of the local file based cache provided by {@link DataStream}. It writes the
+ * given messages into the local files, and create new if necessary or file max size reached.
+ *
+ * @param <MESSAGE_TYPE> type of data in the cache file.
+ */
 class DataStreamWriter<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStreamWriter.class);

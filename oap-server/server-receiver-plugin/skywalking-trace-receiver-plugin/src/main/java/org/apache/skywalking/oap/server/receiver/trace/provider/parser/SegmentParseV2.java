@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * SegmentParseV2 replaced the SegmentParse(V1 is before 6.0.0) to drive the segment analysis. It includes the following
  * steps
  *
- * 1. Register data, name->ID register
+ * 1. Register data, name to ID register
  *
  * 2. If register unfinished, cache in the local buffer file. And back to (1).
  *

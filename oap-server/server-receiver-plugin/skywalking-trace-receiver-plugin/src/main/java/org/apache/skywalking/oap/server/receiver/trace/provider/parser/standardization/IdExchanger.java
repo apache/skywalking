@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.StandardBuilder;
 
 /**
- * The implementation has details to do String->ID(integer) transformation.
+ * The implementation has details to do String to ID(integer) transformation.
  */
 public interface IdExchanger<T extends StandardBuilder> {
     /**

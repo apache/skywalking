@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
@@ -36,10 +37,17 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DataStreamReader represents the reader of the local file based cache provided by {@link DataStream}. It reads the
+ * data in the local cached file, and triggers the registered callback to process, also, provide the retry if the
+ * callback responses the process status is unsuccessful.
+ *
+ * This callback/retry mechanism is used in inventory register for multiple receivers.
+ *
+ * @param <MESSAGE_TYPE> type of data in the cache file.
+ */
+@Slf4j
 public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
-
-    private static final Logger logger = LoggerFactory.getLogger(DataStreamReader.class);
-
     private final File directory;
     private final Offset.ReadOffset readOffset;
     private final Parser<MESSAGE_TYPE> parser;
@@ -50,7 +58,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     private InputStream inputStream;
 
     DataStreamReader(File directory, Offset.ReadOffset readOffset, Parser<MESSAGE_TYPE> parser,
-        CallBack<MESSAGE_TYPE> callBack) {
+                     CallBack<MESSAGE_TYPE> callBack) {
         this.directory = directory;
         this.readOffset = readOffset;
         this.parser = parser;
@@ -62,7 +70,8 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         preRead();
 
         Executors.newSingleThreadScheduledExecutor()
-                 .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this::read, t -> logger.error("Buffer data pre read failure.", t)), 3, 1, TimeUnit.SECONDS);
+                 .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this::read, t -> log.error(
+                     "Buffer data pre read failure.", t)), 3, 1, TimeUnit.SECONDS);
     }
 
     private void preRead() {
@@ -76,7 +85,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                 try {
                     inputStream.skip(readOffset.getOffset());
                 } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
             } else {
                 openInputStream(readEarliestDataFile());
@@ -93,7 +102,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
 
             inputStream = new FileInputStream(readingFile);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -111,8 +120,8 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
     }
 
     private void read() {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Read buffer data");
+        if (log.isDebugEnabled()) {
+            log.debug("Read buffer data");
         }
 
         try {
@@ -137,8 +146,8 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                         bufferDataCollection.add(bufferData);
                     }
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("collection size: {}, max size: {}", bufferDataCollection.size(), collectionSize);
+                    if (log.isDebugEnabled()) {
+                        log.debug("collection size: {}, max size: {}", bufferDataCollection.size(), collectionSize);
                     }
                 } else if (bufferDataCollection.size() > 0) {
                     reCall();
@@ -146,7 +155,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                     try {
                         TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
-                        logger.error(e.getMessage(), e);
+                        log.error(e.getMessage(), e);
                     }
                 }
             }
@@ -155,7 +164,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                 reCall();
             }
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -175,7 +184,7 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
             } else {
                 break;
@@ -183,6 +192,11 @@ public class DataStreamReader<MESSAGE_TYPE extends GeneratedMessageV3> {
         }
     }
 
+    /**
+     * Callback when reader fetched data from the local file.
+     *
+     * @param <MESSAGE_TYPE> type of data in the cache file.
+     */
     public interface CallBack<MESSAGE_TYPE extends GeneratedMessageV3> {
         boolean call(BufferData<MESSAGE_TYPE> bufferData);
     }
