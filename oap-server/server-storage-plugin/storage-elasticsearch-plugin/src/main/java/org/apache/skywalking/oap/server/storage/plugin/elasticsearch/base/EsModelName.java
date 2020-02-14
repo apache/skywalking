@@ -58,14 +58,14 @@ public class EsModelName extends ModelName {
 
         List<String> indexNameList = new LinkedList<>();
         Step step = DownsamplingToStep.transform(downsampling);
-        long startTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, startTB);
-        long endTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, endTB);
-        if (startTS <= endTS) {
+        if (startTB <= endTB) {
             switch (downsampling) {
                 case Second:
                 case Minute:
                 case Hour:
                 case Day:
+                    long startTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, startTB);
+                    long endTS = DurationUtils.INSTANCE.timeBucketToTimestamp(step, endTB);
                     while (startTS <= endTS) {
                         String indexName = build(downsampling, modelName) + "-" + YYYYMMDD.print(startTS);
                         indexNameList.add(indexName);
