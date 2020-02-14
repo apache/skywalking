@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHas
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -79,11 +78,16 @@ public class MySQLTableInstaller extends H2TableInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
+            if (SEGMENT == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
                 if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
                     return "VARCHAR(300)";
                 if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
                     return "MEDIUMTEXT";
+                }
+            }
+            if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
+                if (name.getName().equals(ProfileTaskLogRecord.TASK_ID)) {
+                    return "VARCHAR(300)";
                 }
             }
             return "VARCHAR(2000)";
