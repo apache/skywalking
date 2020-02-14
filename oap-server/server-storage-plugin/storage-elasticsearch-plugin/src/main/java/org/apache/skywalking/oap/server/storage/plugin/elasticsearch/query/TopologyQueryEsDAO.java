@@ -64,9 +64,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         String indName = ServiceRelationServerSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.SERVER);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.SERVER);
     }
 
     @Override
@@ -82,8 +81,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         String indName = ServiceRelationClientSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
-        return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.CLIENT);
     }
 
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
@@ -113,51 +111,47 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     @Override public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indName = ServiceRelationServerSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
                                          .gte(startTB)
                                          .lte(endTB));
         sourceBuilder.size(0);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.SERVER);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.SERVER);
     }
 
     @Override public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indName = ServiceRelationClientSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
                                          .gte(startTB)
                                          .lte(endTB));
         sourceBuilder.size(0);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.CLIENT);
     }
 
     @Override
     public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indName = ServiceInstanceRelationServerSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
         setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.SERVER);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId, Downsampling downsampling, long startTB, long endTB) throws IOException {
         String indName = ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
         setInstanceQueryCondition(sourceBuilder, startTB, endTB, clientServiceId, serverServiceId);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.CLIENT);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.CLIENT);
     }
 
     private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
@@ -188,7 +182,6 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException {
         String indName = EndpointRelationServerSideMetrics.INDEX_NAME;
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
@@ -206,7 +199,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         sourceBuilder.query(boolQuery);
 
-        return load(sourceBuilder, filterIndexNames, DetectPoint.SERVER);
+        return load(sourceBuilder, formatIndexNames, DetectPoint.SERVER);
     }
 
     private List<Call.CallDetail> load(SearchSourceBuilder sourceBuilder, List<String> indexNames,

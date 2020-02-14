@@ -294,16 +294,18 @@ public class ElasticSearchClient implements Client {
     /**
      * Search results from ES search engine according to various search conditions,
      * Note the method is usered for the list of index names is optimized based on
-     * the scope of startTimeBucket and endTimeBucket
-     * @param indexNameList  full index names list base on timebucket scope.
+     * the scope of startTimeBucket and endTimeBucket.If the searched index list part index does not exist,
+     * `index_not_found` exception will not be reported
+     * @param indexNames full index names list base on timebucket scope.
      * Except for endpoint_inventory network_address_inventory service_inventory service_instance_inventory
      * @param searchSourceBuilder Various search query conditions
      * @return ES search query results
      * @throws IOException throw IOException
      */
-    public SearchResponse search(List<String> indexNameList, SearchSourceBuilder searchSourceBuilder) throws IOException {
-        List<String> formatIndexNames = formatIndexNames(indexNameList);
+    public SearchResponse search(List<String> indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        List<String> formatIndexNames = formatIndexNames(indexNames);
         SearchRequest searchRequest = new SearchRequest(formatIndexNames.toArray(new String[0]));
+        searchRequest.indicesOptions(EsIndicesOptions.IGNORE_NOT_EXIST_INDEX);
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest);

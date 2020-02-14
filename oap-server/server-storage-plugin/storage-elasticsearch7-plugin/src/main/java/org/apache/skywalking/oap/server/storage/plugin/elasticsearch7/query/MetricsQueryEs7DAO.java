@@ -50,9 +50,8 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
         IntValues intValues = new IntValues();
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
-        if (filterIndexNames.size() == 0) {
+        if (formatIndexNames.size() == 0) {
             return intValues;
         }
 
@@ -66,7 +65,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(filterIndexNames, sourceBuilder);
+        SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {

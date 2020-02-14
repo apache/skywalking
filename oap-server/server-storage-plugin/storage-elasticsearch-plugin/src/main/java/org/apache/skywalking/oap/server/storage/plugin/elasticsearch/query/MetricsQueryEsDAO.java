@@ -59,9 +59,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         Function function) throws IOException {
         IntValues intValues = new IntValues();
         List<String> formatIndexNames = EsModelName.build(downsampling, indName, startTB, endTB);
-        List<String> filterIndexNames = filterNotExistIndex(formatIndexNames, indName);
 
-        if (filterIndexNames.size() == 0) {
+        if (formatIndexNames.size() == 0) {
             return intValues;
         }
 
@@ -75,7 +74,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         sourceBuilder.aggregation(entityIdAggregation);
 
-        SearchResponse response = getClient().search(filterIndexNames, sourceBuilder);
+        SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
 
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket idBucket : idTerms.getBuckets()) {

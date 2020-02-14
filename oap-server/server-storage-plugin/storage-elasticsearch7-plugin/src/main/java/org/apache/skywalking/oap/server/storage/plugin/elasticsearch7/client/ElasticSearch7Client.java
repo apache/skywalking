@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.EsIndicesOptions;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.alias.Alias;
@@ -169,11 +170,23 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }
 
+    /**
+     * Search results from ES search engine according to various search conditions,
+     * Note the method is usered for the list of index names is optimized based on
+     * the scope of startTimeBucket and endTimeBucket.If the searched index list part index does not exist,
+     * `index_not_found` exception will not be reported
+     * @param indexNames  full index names list base on timebucket scope.
+     * Except for endpoint_inventory network_address_inventory service_inventory service_instance_inventory
+     * @param searchSourceBuilder Various search query conditions
+     * @return ES search query results
+     * @throws IOException throw IOException
+     */
     public SearchResponse search(
         List<String> indexNames,
         SearchSourceBuilder searchSourceBuilder) throws IOException {
         List<String> fullIndexNames = formatIndexNames(indexNames);
         SearchRequest searchRequest = new SearchRequest(fullIndexNames.toArray(new String[0]));
+        searchRequest.indicesOptions(EsIndicesOptions.IGNORE_NOT_EXIST_INDEX);
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }
