@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
@@ -44,15 +45,19 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         this.aliasCache = new AliasIndexNameCache(client);
     }
 
-    protected List<String> filterNotExistIndex(List<String> indexName, String indName) throws IOException {
-        ListIterator<String> iter = indexName.listIterator();
+    protected List<String> filterNotExistIndex(List<String> indexNames, String indName) throws IOException {
+        ListIterator<String> iter = indexNames.listIterator();
         while (iter.hasNext()) {
-            //if alias not exist, then delete
-            if (!aliasCache.checkIndexExist(iter.next(), indName)) {
-                iter.remove();
+            String curName = iter.next();
+            //only filter index name with xxxx-xxxx
+            if (curName.contains(Const.LINE)) {
+                //if alias not exist, then delete
+                if (!aliasCache.checkIndexExist(curName, indName)) {
+                    iter.remove();
+                }
             }
         }
-        return indexName;
+        return indexNames;
     }
 
     protected final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
