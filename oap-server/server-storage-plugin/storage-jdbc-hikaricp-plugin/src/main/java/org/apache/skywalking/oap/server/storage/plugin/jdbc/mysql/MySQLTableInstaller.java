@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -41,6 +43,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -112,8 +116,72 @@ public class MySQLTableInstaller extends H2TableInstaller {
             case ALARM:
                 createAlarmIndexes(client, model);
                 return;
+            case PROFILE_TASK_LOG:
+                createProfileLogIndexes(client, model);
+                return;
+            case PROFILE_TASK_SEGMENT_SNAPSHOT:
+                createProfileThreadSnapshotIndexes(client, model);
+                return;
             default:
                 createIndexesForAllMetrics(client, model);
+        }
+    }
+
+    private void createProfileThreadSnapshotIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
+        try (Connection connection = client.getConnection()) {
+            // query by task id, sequence
+            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_TASK_ID_SEQUENCE ");
+            tableIndexSQL.append("ON ")
+                    .append(model.getName())
+                    .append("(")
+                    .append(ProfileThreadSnapshotRecord.TASK_ID)
+                    .append(", ")
+                    .append(ProfileThreadSnapshotRecord.SEQUENCE)
+                    .append(")");
+            createIndex(client, connection, model, tableIndexSQL);
+
+            // query by segment id, sequence
+            tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_SEGMENT_ID_SEQUENCE ");
+            tableIndexSQL.append("ON ")
+                    .append(model.getName())
+                    .append("(")
+                    .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+                    .append(", ")
+                    .append(ProfileThreadSnapshotRecord.SEQUENCE)
+                    .append(")");
+            createIndex(client, connection, model, tableIndexSQL);
+
+            // query by segment id, dump time
+            tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_SEGMENT_ID_DUMP_TIME ");
+            tableIndexSQL.append("ON ")
+                    .append(model.getName())
+                    .append("(")
+                    .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+                    .append(", ")
+                    .append(ProfileThreadSnapshotRecord.DUMP_TIME)
+                    .append(")");
+            createIndex(client, connection, model, tableIndexSQL);
+        } catch (JDBCClientException | SQLException e) {
+            throw new StorageException(e.getMessage(), e);
+        }
+    }
+
+    private void createProfileLogIndexes(JDBCHikariCPClient client, Model model) throws StorageException {
+        try (Connection connection = client.getConnection()) {
+            // query by task id
+            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_TASK_ID ");
+            tableIndexSQL.append("ON ")
+                    .append(model.getName())
+                    .append("(")
+                    .append(ProfileTaskLogRecord.TASK_ID)
+                    .append(")");
+            createIndex(client, connection, model, tableIndexSQL);
+        } catch (JDBCClientException | SQLException e) {
+            throw new StorageException(e.getMessage(), e);
         }
     }
 
