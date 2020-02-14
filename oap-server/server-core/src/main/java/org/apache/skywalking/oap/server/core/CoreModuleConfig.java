@@ -117,7 +117,25 @@ public class CoreModuleConfig extends ModuleConfig {
         return dataTTLConfig;
     }
 
+    /**
+     * OAP server could work in different roles.
+     */
     public enum Role {
-        Mixed, Receiver, Aggregator
+        /**
+         * Default role. OAP works as the {@link #Receiver} and {@link #Aggregator}
+         */
+        Mixed,
+        /**
+         * Receiver mode OAP open the service to the agents, analysis and aggregate the results and forward the results
+         * to {@link #Mixed} and {@link #Aggregator} roles OAP. The only exception is for {@link
+         * org.apache.skywalking.oap.server.core.analysis.record.Record}, they don't require 2nd round distributed
+         * aggregation, is being pushed into the storage from the receiver OAP directly.
+         */
+        Receiver,
+        /**
+         * Aggregator mode OAP receives data from {@link #Mixed} and {@link #Aggregator} OAP nodes, and do 2nd round
+         * aggregation. Then save the final result to the storage.
+         */
+        Aggregator
     }
 }

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization;
 
 import com.google.common.base.Strings;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -27,13 +28,16 @@ import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInv
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * Register the information inside the segment reference. All of them are downstream(caller) service information.
+ * Reference could include multiple rows, as this span could have multiple downstream, such as batch process, typically
+ * MQ consumer.
+ *
+ * Check the Cross Process Propagation Headers Protocol v2 for the details in the references.
+ */
+@Slf4j
 public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ReferenceIdExchanger.class);
-
     private static ReferenceIdExchanger EXCHANGER;
     private final IEndpointInventoryRegister endpointInventoryRegister;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
@@ -63,14 +67,18 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         boolean exchanged = true;
 
         if (standardBuilder.getEntryEndpointId() == 0) {
-            String entryEndpointName = Strings.isNullOrEmpty(standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+            String entryEndpointName = Strings.isNullOrEmpty(
+                standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
                 .getEntryEndpointName();
             int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId())
                                                               .getServiceId();
             int entryEndpointId = getEndpointId(entryServiceId, entryEndpointName);
             if (entryEndpointId == 0) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("entry endpoint name: {} from service id: {} exchange failed", entryEndpointName, entryServiceId);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "entry endpoint name: {} from service id: {} exchange failed", entryEndpointName,
+                        entryServiceId
+                    );
                 }
 
                 exchanged = false;
@@ -86,15 +94,19 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getParentEndpointId() == 0) {
-            String parentEndpointName = Strings.isNullOrEmpty(standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+            String parentEndpointName = Strings.isNullOrEmpty(
+                standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
                 .getParentEndpointName();
             int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId())
                                                                .getServiceId();
             int parentEndpointId = getEndpointId(parentServiceId, parentEndpointName);
 
             if (parentEndpointId == 0) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("parent endpoint name: {} from service id: {} exchange failed", parentEndpointName, parentServiceId);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "parent endpoint name: {} from service id: {} exchange failed", parentEndpointName,
+                        parentServiceId
+                    );
                 }
 
                 exchanged = false;
@@ -110,11 +122,15 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
         }
 
         if (standardBuilder.getNetworkAddressId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getNetworkAddress())) {
-            int networkAddressId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getNetworkAddress(), null);
+            int networkAddressId = networkAddressInventoryRegister.getOrCreate(
+                standardBuilder.getNetworkAddress(), null);
 
             if (networkAddressId == 0) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("network getAddress: {} from service id: {} exchange failed", standardBuilder.getNetworkAddress(), serviceId);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "network getAddress: {} from service id: {} exchange failed",
+                        standardBuilder.getNetworkAddress(), serviceId
+                    );
                 }
 
                 exchanged = false;

@@ -28,6 +28,11 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DataStream provides the open APIs for the local file based cache system.
+ *
+ * @param <MESSAGE_TYPE> type of data in the cache file.
+ */
 class DataStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataStream.class);
