@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.ProtocolVersion;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
@@ -57,12 +58,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * SegmentParseV2 is a replication of SegmentParse, but be compatible with v2 trace protocol.
+ * SegmentParseV2 replaced the SegmentParse(V1 is before 6.0.0) to drive the segment analysis. It includes the following
+ * steps
+ *
+ * 1. Register data, name->ID register
+ *
+ * 2. If register unfinished, cache in the local buffer file. And back to (1).
+ *
+ * 3. If register finished, traverse the span and analysis by the given {@link SpanListener}s.
+ *
+ * 4. Notify the build event to all {@link SpanListener}s in order to forward all built sources into dispatchers.
+ *
+ * @since 6.0.0 In the 6.x, the V1 and V2 analysis both exist.
+ * @since 7.0.0 SegmentParse(V1) has been removed permanently.
  */
+@Slf4j
 public class SegmentParseV2 {
-
-    private static final Logger logger = LoggerFactory.getLogger(SegmentParseV2.class);
-
     private final ModuleManager moduleManager;
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
@@ -76,7 +87,7 @@ public class SegmentParseV2 {
     private volatile static CounterMetrics TRACE_PARSE_ERROR;
 
     private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
-        TraceServiceModuleConfig config) {
+                           TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
@@ -90,9 +101,19 @@ public class SegmentParseV2 {
             MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                          .provider()
                                                          .getService(MetricsCreator.class);
-            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter("v6_trace_buffer_file_retry", "The number of retry trace segment from the buffer file, but haven't registered successfully.", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter("v6_trace_buffer_file_out", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-            TRACE_PARSE_ERROR = metricsCreator.createCounter("v6_trace_parse_error", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter(
+                "v6_trace_buffer_file_retry",
+                "The number of retry trace segment from the buffer file, but haven't registered successfully.",
+                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+            );
+            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter(
+                "v6_trace_buffer_file_out", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY,
+                MetricsTag.EMPTY_VALUE
+            );
+            TRACE_PARSE_ERROR = metricsCreator.createCounter(
+                "v6_trace_parse_error", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY,
+                MetricsTag.EMPTY_VALUE
+            );
         }
 
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
@@ -116,15 +137,19 @@ public class SegmentParseV2 {
             // Recheck in case that the segment comes from file buffer
             final int serviceInstanceId = segmentObject.getServiceInstanceId();
             if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
-                logger.warn("Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
+                log.warn(
+                    "Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
                 return true; // to mark it "completed" thus won't be retried
             }
 
             SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
 
             if (!preBuild(traceIds, segmentDecorator)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("This segment id exchange not success, write to buffer file, id: {}", segmentCoreInfo.getSegmentId());
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "This segment id exchange not success, write to buffer file, id: {}",
+                        segmentCoreInfo.getSegmentId()
+                    );
                 }
 
                 if (source.equals(SegmentSource.Agent)) {
@@ -135,8 +160,8 @@ public class SegmentParseV2 {
                 }
                 return false;
             } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
+                if (log.isDebugEnabled()) {
+                    log.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
                 }
 
                 notifyListenerToBuild();
@@ -144,7 +169,7 @@ public class SegmentParseV2 {
             }
         } catch (Throwable e) {
             TRACE_PARSE_ERROR.inc();
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return true;
         }
     }
@@ -213,7 +238,7 @@ public class SegmentParseV2 {
                 } else if (SpanType.Local.equals(spanDecorator.getSpanType())) {
                     notifyLocalListener(spanDecorator);
                 } else {
-                    logger.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType()
+                    log.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType()
                                                                                                     .name());
                 }
             }
@@ -223,8 +248,8 @@ public class SegmentParseV2 {
     }
 
     private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("push to segment buffer write worker, id: {}", id);
+        if (log.isDebugEnabled()) {
+            log.debug("push to segment buffer write worker, id: {}", id);
         }
 
         SegmentStandardization standardization = new SegmentStandardization(id);
@@ -279,7 +304,8 @@ public class SegmentParseV2 {
 
     private void createSpanListeners() {
         listenerManager.getSpanListenerFactories()
-                       .forEach(spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
+                       .forEach(
+                           spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
     }
 
     public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
@@ -291,7 +317,7 @@ public class SegmentParseV2 {
         private final TraceServiceModuleConfig config;
 
         public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
-            TraceServiceModuleConfig config) {
+                        TraceServiceModuleConfig config) {
             this.moduleManager = moduleManager;
             this.listenerManager = listenerManager;
             this.config = config;
