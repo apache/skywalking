@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -43,8 +45,13 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
+
+    private static final DateTimeFormatter YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
 
     private int segmentQueryMaxSize;
 
@@ -135,13 +142,24 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+        List<SegmentRecord> segmentRecords = new ArrayList<>();
+
+        String[] idParts = traceId.split("\\.", 3);
+        if (idParts.length != 3) {
+            return segmentRecords;
+        }
+
+        //part3 has two parts, 1) a timestamp measured in milliseconds 2) a seq between 0(included) and 9999(included)
+        String part3 = idParts[2];
+        String strTimestamps = part3.substring(0, part3.length()-4);
+
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        String fullIndexName = SegmentRecord.INDEX_NAME + Const.LINE + YYYYMMDD.print(Long.parseLong(strTimestamps));
+        SearchResponse response = getClient().search(Arrays.asList(fullIndexName), sourceBuilder);
 
-        List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord();
             segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
