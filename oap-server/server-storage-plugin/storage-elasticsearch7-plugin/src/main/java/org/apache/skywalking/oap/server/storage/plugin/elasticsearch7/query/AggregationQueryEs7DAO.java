@@ -60,13 +60,16 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
 
         SearchResponse response = getClient().search(indexNames, sourceBuilder);
 
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long) (value.getValue()));
-            topNEntities.add(topNEntity);
+        Aggregations aggregations = response.getAggregations();
+        if (aggregations != null) {
+            Terms idTerms = aggregations.get(Metrics.ENTITY_ID);
+            for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(termsBucket.getKeyAsString());
+                Avg value = termsBucket.getAggregations().get(valueCName);
+                topNEntity.setValue((long) (value.getValue()));
+                topNEntities.add(topNEntity);
+            }
         }
 
         return topNEntities;

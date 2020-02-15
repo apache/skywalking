@@ -74,8 +74,9 @@ public class EsModelName extends ModelName {
                     break;
                 case Month:
                     DateTime startDT = DurationUtils.INSTANCE.parseToDateTime(downsampling, startTB);
-                    DateTime endDT = DurationUtils.INSTANCE.parseToDateTime(downsampling, endTB);
-                    while (startDT.isAfter(endDT)) {
+                    //Month border issue, need to increase by one
+                    DateTime endDT = DurationUtils.INSTANCE.parseToDateTime(downsampling, endTB).plusMonths(1);
+                    while (endDT.isAfter(startDT)) {
                         String indexName = build(downsampling, modelName) + "-" + YYYYMM.print(startDT);
                         indexNameList.add(indexName);
                         startDT = startDT.plusMonths(1);
