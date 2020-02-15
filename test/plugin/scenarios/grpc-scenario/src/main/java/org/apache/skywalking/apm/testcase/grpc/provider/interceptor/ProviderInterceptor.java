@@ -24,11 +24,10 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ProviderInterceptor implements ServerInterceptor {
     private Logger logger = LogManager.getLogger(ProviderInterceptor.class);
@@ -55,32 +54,38 @@ public class ProviderInterceptor implements ServerInterceptor {
                 delegate().sendHeaders(responseHeaders);
             }
 
-            @Override public void sendMessage(RespT message) {
+            @Override
+            public void sendMessage(RespT message) {
                 delegate().sendMessage(message);
             }
 
         }, metadata)) {
-            @Override public void onReady() {
+            @Override
+            public void onReady() {
                 logger.info("onReady....");
                 delegate().onReady();
             }
 
-            @Override public void onCancel() {
+            @Override
+            public void onCancel() {
                 logger.info("onCancel....");
                 delegate().onCancel();
             }
 
-            @Override public void onComplete() {
+            @Override
+            public void onComplete() {
                 logger.info("onComplete....");
                 delegate().onComplete();
             }
 
-            @Override public void onHalfClose() {
+            @Override
+            public void onHalfClose() {
                 logger.info("onHalfClose....");
                 delegate().onHalfClose();
             }
 
-            @Override public void onMessage(ReqT message) {
+            @Override
+            public void onMessage(ReqT message) {
                 logger.info("onMessage....");
                 delegate().onMessage(message);
             }

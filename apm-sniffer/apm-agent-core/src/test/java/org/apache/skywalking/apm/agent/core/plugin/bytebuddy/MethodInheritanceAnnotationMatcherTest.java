@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 
 import net.bytebuddy.description.annotation.AnnotationSource;
@@ -32,9 +33,6 @@ import java.lang.annotation.Target;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanceAnnotationMatcher.byMethodInheritanceAnnotationMatcher;
 
-/**
- * @author jialong
- */
 public class MethodInheritanceAnnotationMatcherTest {
 
     @Test

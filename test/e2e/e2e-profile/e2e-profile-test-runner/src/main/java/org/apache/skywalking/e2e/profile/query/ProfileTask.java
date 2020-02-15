@@ -15,18 +15,16 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.e2e.profile.query;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 /**
  * Profile task bean for e2e GraphQL test result
- *
- * @author MrPro
  */
 @Setter
 @Getter

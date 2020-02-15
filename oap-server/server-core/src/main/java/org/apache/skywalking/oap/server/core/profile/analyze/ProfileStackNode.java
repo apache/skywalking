@@ -19,11 +19,14 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import com.google.common.base.Objects;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 
 /**
  * Work for profiling stacks, intermediate state of the {@link ProfileStackElement} and {@link ProfileStack}
@@ -37,7 +40,6 @@ public class ProfileStackNode {
 
     /**
      * create new empty, un-init node
-     * @return
      */
     public static ProfileStackNode newNode() {
         ProfileStackNode emptyNode = new ProfileStackNode();
@@ -48,7 +50,6 @@ public class ProfileStackNode {
 
     /**
      * accumulate {@link ProfileStack} to this tree, it will invoke on the tree root node
-     * @param stack
      */
     public void accumulateFrom(ProfileStack stack) {
         List<String> stackList = stack.getStack();
@@ -90,8 +91,6 @@ public class ProfileStackNode {
 
     /**
      * combine from other {@link ProfileStackNode}
-     * @param node
-     * @return
      */
     public ProfileStackNode combine(ProfileStackNode node) {
         // combine this node
@@ -115,18 +114,16 @@ public class ProfileStackNode {
 
     /**
      * merge all children nodes to appoint node
-     * @param targetNode
-     * @param beingMergedNode
-     * @param continueChildrenMerging
      */
-    private void combineChildrenNodes(ProfileStackNode targetNode, ProfileStackNode beingMergedNode, Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
+    private void combineChildrenNodes(ProfileStackNode targetNode, ProfileStackNode beingMergedNode,
+        Consumer<Pair<ProfileStackNode, ProfileStackNode>> continueChildrenMerging) {
         if (beingMergedNode.children.isEmpty()) {
             return;
         }
 
         for (ProfileStackNode childrenNode : targetNode.children) {
             // find node from being merged node children
-            for (ListIterator<ProfileStackNode> it = beingMergedNode.children.listIterator(); it.hasNext();) {
+            for (ListIterator<ProfileStackNode> it = beingMergedNode.children.listIterator(); it.hasNext(); ) {
                 ProfileStackNode node = it.next();
                 if (node != null && node.matches(childrenNode)) {
                     childrenNode.combineDetectedStacks(node);
@@ -147,12 +144,13 @@ public class ProfileStackNode {
 
     /**
      * build GraphQL result, calculate duration and count data using parallels
-     * @return
      */
-    public ProfileStackElement buildAnalyzeResult() {
+    public ProfileStackTree buildAnalyzeResult() {
         // all nodes add to single-level list (such as flat), work for parallel calculating
         LinkedList<Pair<ProfileStackElement, ProfileStackNode>> nodeMapping = new LinkedList<>();
-        ProfileStackElement root = buildElement();
+        int idGenerator = 1;
+
+        ProfileStackElement root = buildElement(idGenerator++);
         nodeMapping.add(new Pair<>(root, this));
 
         // same with combine logic
@@ -163,21 +161,24 @@ public class ProfileStackNode {
             ProfileStackElement respElement = mergingPair.key;
 
             // generate children node and add to stack and all node mapping
-            respElement.setChildren(mergingPair.value.children.stream().map(c -> {
-                ProfileStackElement element = c.buildElement();
-                Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, c);
+            for (ProfileStackNode children : mergingPair.value.children) {
+                ProfileStackElement element = children.buildElement(idGenerator++);
+                element.setParentId(respElement.getId());
+
+                Pair<ProfileStackElement, ProfileStackNode> pair = new Pair<>(element, children);
                 stack.add(pair);
                 nodeMapping.add(pair);
-
-                return element;
-            }).collect(Collectors.toList()));
+            }
         }
 
         // calculate durations
         nodeMapping.parallelStream().forEach(t -> t.value.calculateDuration(t.key));
         nodeMapping.parallelStream().forEach(t -> t.value.calculateDurationExcludeChild(t.key));
 
-        return root;
+        ProfileStackTree tree = new ProfileStackTree();
+        nodeMapping.forEach(n -> tree.getElements().add(n.key));
+
+        return tree;
     }
 
     private void detectedBy(ProfileStack stack) {
@@ -188,10 +189,10 @@ public class ProfileStackNode {
         this.detectedStacks.addAll(node.detectedStacks);
     }
 
-    private ProfileStackElement buildElement() {
+    private ProfileStackElement buildElement(int id) {
         ProfileStackElement element = new ProfileStackElement();
+        element.setId(id);
         element.setCodeSignature(this.codeSignature);
-        element.setChildren(new LinkedList<>());
         element.setCount(this.detectedStacks.size());
         return element;
     }
@@ -231,8 +232,8 @@ public class ProfileStackNode {
     }
 
     /**
-     * calculate duration to {@link ProfileStackElement#getDurationChildExcluded()}, expends on {@link #calculateDuration(ProfileStackElement)}
-     * @param element
+     * calculate duration to {@link ProfileStackElement#getDurationChildExcluded()}, expends on {@link
+     * #calculateDuration(ProfileStackElement)}
      */
     private void calculateDurationExcludeChild(ProfileStackElement element) {
         element.setDurationChildExcluded(element.getDuration() - children.stream().mapToInt(t -> t.duration).sum());

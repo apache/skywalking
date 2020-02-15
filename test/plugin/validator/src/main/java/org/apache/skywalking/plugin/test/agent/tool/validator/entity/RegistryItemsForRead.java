@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 import java.util.ArrayList;
@@ -45,8 +46,7 @@ public class RegistryItemsForRead implements RegistryItems {
         return operationNames;
     }
 
-    public void setOperationNames(
-        List<Map<String, List<String>>> operationNames) {
+    public void setOperationNames(List<Map<String, List<String>>> operationNames) {
         this.operationNames = operationNames;
     }
 

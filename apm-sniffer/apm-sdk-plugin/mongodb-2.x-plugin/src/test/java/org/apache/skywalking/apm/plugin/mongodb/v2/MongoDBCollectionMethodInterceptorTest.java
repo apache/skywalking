@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v2;
 
 import com.mongodb.DBCollection;
@@ -69,7 +68,10 @@ public class MongoDBCollectionMethodInterceptorTest {
     private Object[] arguments = new Object[3];
     private Class[] argumentTypes;
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({
+        "rawtypes",
+        "unchecked"
+    })
     @Before
     public void setUp() throws Exception {
 

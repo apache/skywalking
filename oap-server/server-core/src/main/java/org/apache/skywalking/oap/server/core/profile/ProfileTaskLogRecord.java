@@ -15,8 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.profile;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -27,15 +30,10 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
 
 /**
  * profile task log database bean, use record
- *
- * @author MrPro
  */
 @Getter
 @Setter
@@ -49,10 +47,14 @@ public class ProfileTaskLogRecord extends Record {
     public static final String OPERATION_TYPE = "operation_type";
     public static final String OPERATION_TIME = "operation_time";
 
-    @Column(columnName = TASK_ID) private String taskId;
-    @Column(columnName = INSTANCE_ID) private int instanceId;
-    @Column(columnName = OPERATION_TYPE) private int operationType;
-    @Column(columnName = OPERATION_TIME) private long operationTime;
+    @Column(columnName = TASK_ID)
+    private String taskId;
+    @Column(columnName = INSTANCE_ID)
+    private int instanceId;
+    @Column(columnName = OPERATION_TYPE)
+    private int operationType;
+    @Column(columnName = OPERATION_TIME)
+    private long operationTime;
 
     @Override
     public String id() {
@@ -64,11 +66,11 @@ public class ProfileTaskLogRecord extends Record {
         @Override
         public ProfileTaskLogRecord map2Data(Map<String, Object> dbMap) {
             final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
-            log.setTaskId((String)dbMap.get(TASK_ID));
-            log.setInstanceId(((Number)dbMap.get(INSTANCE_ID)).intValue());
-            log.setOperationType(((Number)dbMap.get(OPERATION_TYPE)).intValue());
-            log.setOperationTime(((Number)dbMap.get(OPERATION_TIME)).longValue());
-            log.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            log.setTaskId((String) dbMap.get(TASK_ID));
+            log.setInstanceId(((Number) dbMap.get(INSTANCE_ID)).intValue());
+            log.setOperationType(((Number) dbMap.get(OPERATION_TYPE)).intValue());
+            log.setOperationTime(((Number) dbMap.get(OPERATION_TIME)).longValue());
+            log.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return log;
         }
 

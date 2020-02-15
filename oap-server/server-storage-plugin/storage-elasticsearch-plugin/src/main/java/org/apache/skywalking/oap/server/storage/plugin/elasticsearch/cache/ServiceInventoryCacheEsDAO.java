@@ -18,23 +18,24 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.RegisterSource;
+import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, jian.tan
- */
 public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInventoryCacheDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryCacheEsDAO.class);
@@ -47,12 +48,14 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
         this.resultWindowMaxSize = resultWindowMaxSize;
     }
 
-    @Override public int getServiceId(String serviceName) {
+    @Override
+    public int getServiceId(String serviceName) {
         String id = ServiceInventory.buildId(serviceName);
         return get(id);
     }
 
-    @Override public int getServiceId(int addressId) {
+    @Override
+    public int getServiceId(int addressId) {
         String id = ServiceInventory.buildId(addressId);
         return get(id);
     }
@@ -61,7 +64,7 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
         try {
             GetResponse response = getClient().get(ServiceInventory.INDEX_NAME, id);
             if (response.isExists()) {
-                return (int)response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
+                return (int) response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
                 return Const.NONE;
             }
@@ -71,7 +74,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
         }
     }
 
-    @Override public ServiceInventory get(int serviceId) {
+    @Override
+    public ServiceInventory get(int serviceId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.SEQUENCE, serviceId));
@@ -90,7 +94,8 @@ public class ServiceInventoryCacheEsDAO extends EsDAO implements IServiceInvento
         }
     }
 
-    @Override public List<ServiceInventory> loadLastUpdate(long lastUpdateTime) {
+    @Override
+    public List<ServiceInventory> loadLastUpdate(long lastUpdateTime) {
         List<ServiceInventory> serviceInventories = new ArrayList<>();
 
         try {

@@ -26,7 +26,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassAnnotationMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.any;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanceAnnotationMatcher.byMethodInheritanceAnnotationMatcher;
 
 /**
@@ -37,12 +38,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MethodInheritanc
  * <code>ControllerConstructorInterceptor</code> set the controller base path to
  * dynamic field before execute constructor.
  *
- * <code>org.apache.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor</code> get the request path from
- * dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
+ * <code>org.apache.skywalking.apm.plugin.spring.mvc.v4.RequestMappingMethodInterceptor</code> get the request path
+ * from dynamic field first, if not found, <code>RequestMappingMethodInterceptor</code> generate request path  that
  * combine the path value of current annotation on current method and the base path and set the new path to the dynamic
  * filed
- *
- * @author zhangxin
  */
 public abstract class AbstractControllerInstrumentation extends AbstractSpring5Instrumentation {
     @Override

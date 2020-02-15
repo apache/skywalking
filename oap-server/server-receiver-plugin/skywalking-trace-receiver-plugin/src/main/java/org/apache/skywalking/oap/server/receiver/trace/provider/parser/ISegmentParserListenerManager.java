@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
-/**
- * @author wusheng
- */
 public interface ISegmentParserListenerManager {
     void add(SpanListenerFactory spanListenerFactory);
 }

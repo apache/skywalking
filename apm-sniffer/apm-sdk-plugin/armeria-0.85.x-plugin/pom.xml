@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>apm-sdk-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
@@ -27,7 +28,7 @@
     <artifactId>apm-armeria-0.85.x-plugin</artifactId>
     <name>armeria-0.85.x-plugin</name>
     <packaging>jar</packaging>
-    <description>SkyWalking Agent Plugin for Armeria 0.85.0 ~ 0.97.0</description>
+    <description>SkyWalking Agent Plugin for Armeria 0.85.0 ~ 0.98.0</description>
     <properties>
         <compiler.version>1.8</compiler.version>
     </properties>

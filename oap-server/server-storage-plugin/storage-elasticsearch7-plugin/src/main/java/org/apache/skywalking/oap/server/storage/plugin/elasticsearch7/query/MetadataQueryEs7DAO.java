@@ -31,9 +31,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
     public MetadataQueryEs7DAO(final ElasticSearchClient client, final int queryMaxSize) {
@@ -54,7 +51,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits().value;
+        return (int) response.getHits().getTotalHits().value;
     }
 
     @Override
@@ -63,13 +60,14 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+        boolQueryBuilder.must()
+                        .add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits().value;
+        return (int) response.getHits().getTotalHits().value;
     }
 
     @Override
@@ -81,7 +79,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
-        return (int)response.getHits().getTotalHits().value;
+        return (int) response.getHits().getTotalHits().value;
     }
 
 }

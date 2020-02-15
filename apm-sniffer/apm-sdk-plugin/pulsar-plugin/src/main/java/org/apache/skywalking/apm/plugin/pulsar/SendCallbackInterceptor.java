@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 
 /**
  * Interceptor for send callback enhanced instance.
- *
+ * <p>
  * Here is the intercept process steps:
  *
  * <pre>
@@ -39,8 +39,6 @@ import java.lang.reflect.Method;
  *  2. Create the local span when the callback invoke <code>sendComplete</code> method
  *  3. Stop the local span when <code>sendComplete</code> method finished.
  * </pre>
- *
- * @author penghui
  */
 public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -48,7 +46,7 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         SendCallbackEnhanceRequiredInfo requiredInfo = (SendCallbackEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
         if (null != requiredInfo.getContextSnapshot()) {
             AbstractSpan activeSpan = ContextManager.createLocalSpan(OPERATION_NAME);
@@ -61,7 +59,7 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         SendCallbackEnhanceRequiredInfo requiredInfo = (SendCallbackEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
         if (null != requiredInfo.getContextSnapshot()) {
             Exception exceptions = (Exception) allArguments[0];
@@ -75,7 +73,7 @@ public class SendCallbackInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         SendCallbackEnhanceRequiredInfo requiredInfo = (SendCallbackEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
         if (null != requiredInfo.getContextSnapshot()) {
             ContextManager.activeSpan().errorOccurred().log(t);

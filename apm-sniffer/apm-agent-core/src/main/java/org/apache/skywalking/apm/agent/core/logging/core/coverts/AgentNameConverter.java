@@ -16,17 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core.coverts;
 
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.core.Converter;
 import org.apache.skywalking.apm.agent.core.logging.core.LogEvent;
 
-/**
- *
- * @author alvin
- */
 public class AgentNameConverter implements Converter {
     @Override
     public String convert(LogEvent logEvent) {

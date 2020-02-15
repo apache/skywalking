@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 
 public class LimitedSizeDataCache<STORAGE_DATA extends ComparableStorageData> extends Window<STORAGE_DATA> implements DataCache {
 
@@ -31,7 +31,8 @@ public class LimitedSizeDataCache<STORAGE_DATA extends ComparableStorageData> ex
         init();
     }
 
-    @Override public SWCollection<STORAGE_DATA> collectionInstance() {
+    @Override
+    public SWCollection<STORAGE_DATA> collectionInstance() {
         return new LimitedSizeDataCollection<>(limitSize);
     }
 
@@ -39,11 +40,13 @@ public class LimitedSizeDataCache<STORAGE_DATA extends ComparableStorageData> ex
         limitedSizeDataCollection.put(data);
     }
 
-    @Override public void writing() {
+    @Override
+    public void writing() {
         limitedSizeDataCollection = getCurrentAndWriting();
     }
 
-    @Override public void finishWriting() {
+    @Override
+    public void finishWriting() {
         limitedSizeDataCollection.finishWriting();
         limitedSizeDataCollection = null;
     }

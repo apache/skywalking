@@ -25,10 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Tag the current active span with key {@link #key()} and value {@link #value()},
- * if there is no active span, this annotation takes no effect.
+ * Tag the current active span with key {@link #key()} and value {@link #value()}, if there is no active span, this
+ * annotation takes no effect.
  *
- * @author kezhenxu94
  * @see Tags
  */
 @Target(ElementType.METHOD)
@@ -41,9 +40,8 @@ public @interface Tag {
     String key();
 
     /**
-     * @return the value of the tag to be injected into the current active span,
-     * in the form of the customized enhancement rules, for more information,
-     * refer to https://github.com/apache/skywalking/blob/master/docs/en/setup/service-agent/java-agent/Customize-enhance-trace.md#how-to-configure
+     * @return the value of the tag to be injected into the current active span, in the form of the customized
+     * enhancement rules, for more information, refer to https://github.com/apache/skywalking/blob/master/docs/en/setup/service-agent/java-agent/Customize-enhance-trace.md#how-to-configure
      */
     String value();
 }

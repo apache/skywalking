@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.e2e.service.endpoint;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 public class EndpointsMatcher extends AbstractMatcher<Endpoints> {
     private List<EndpointMatcher> endpoints;
 
@@ -54,8 +50,6 @@ public class EndpointsMatcher extends AbstractMatcher<Endpoints> {
 
     @Override
     public String toString() {
-        return "EndpointsMatcher{" +
-            "endpoints=" + endpoints +
-            '}';
+        return "EndpointsMatcher{" + "endpoints=" + endpoints + '}';
     }
 }

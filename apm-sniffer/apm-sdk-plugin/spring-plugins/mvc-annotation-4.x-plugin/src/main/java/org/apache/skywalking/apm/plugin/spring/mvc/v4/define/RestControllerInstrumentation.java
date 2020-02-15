@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 public class RestControllerInstrumentation extends AbstractControllerInstrumentation {
@@ -27,11 +26,15 @@ public class RestControllerInstrumentation extends AbstractControllerInstrumenta
 
     @Override
     protected String[] getEnhanceAnnotations() {
-        return new String[]{ENHANCE_ANNOTATION};
+        return new String[] {ENHANCE_ANNOTATION};
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator", WITNESS_CLASSES_HIGH_VERSION};
+        return new String[] {
+            WITHNESS_CLASSES,
+            "org.springframework.cache.interceptor.DefaultKeyGenerator",
+            WITNESS_CLASSES_HIGH_VERSION
+        };
     }
 }

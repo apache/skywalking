@@ -29,7 +29,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @author kezhenxu94
+ * Instruments Armeria server 0.85.x
  */
 public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.linecorp.armeria.server.HttpServerHandler";
@@ -47,7 +47,7 @@ public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
@@ -76,7 +76,7 @@ public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhance
      */
     @Override
     protected String[] witnessClasses() {
-        return new String[]{
+        return new String[] {
             "com.linecorp.armeria.common.AbstractHttpHeadersBuilder"
         };
     }

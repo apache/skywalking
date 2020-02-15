@@ -33,14 +33,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author wusheng
- * @author panjuan
- */
 public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
 
-    public MySQLAggregationQueryDAO(
-        JDBCHikariCPClient client) {
+    public MySQLAggregationQueryDAO(JDBCHikariCPClient client) {
         super(client);
     }
 
@@ -50,15 +45,20 @@ public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
         String tableName = ModelName.build(downsampling, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
-                .append(tableName).append(" where ");
+        sql.append("select avg(")
+           .append(valueCName)
+           .append(") value,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from ")
+           .append(tableName)
+           .append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(" order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
-    
+
         List<TopNEntity> topNEntities = new ArrayList<>();
         try (Connection connection = getH2Client().getConnection()) {
             try (ResultSet resultSet = getH2Client().executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {

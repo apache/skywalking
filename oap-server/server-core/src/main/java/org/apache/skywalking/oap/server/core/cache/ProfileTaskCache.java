@@ -20,6 +20,12 @@ package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
@@ -30,17 +36,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
 /**
  * cache need to execute profile task
- *
- * @author MrPro
  */
 public class ProfileTaskCache implements Service {
 
@@ -56,26 +53,32 @@ public class ProfileTaskCache implements Service {
         this.moduleManager = moduleManager;
 
         long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
-        int initialCapacitySize = (int)(initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
+        int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
-        profileTaskDownstreamCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfProfileTask())
-                // remove old profile task data
-                .expireAfterWrite(Duration.ofMinutes(1)).build();
+        profileTaskDownstreamCache = CacheBuilder.newBuilder()
+                                                 .initialCapacity(initialCapacitySize)
+                                                 .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
+                                                 // remove old profile task data
+                                                 .expireAfterWrite(Duration.ofMinutes(1))
+                                                 .build();
 
-        profileTaskIdCache = CacheBuilder.newBuilder().initialCapacity(initialCapacitySize).maximumSize(moduleConfig.getMaxSizeOfProfileTask()).build();
+        profileTaskIdCache = CacheBuilder.newBuilder()
+                                         .initialCapacity(initialCapacitySize)
+                                         .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
+                                         .build();
     }
 
     private IProfileTaskQueryDAO getProfileTaskQueryDAO() {
         if (Objects.isNull(profileTaskQueryDAO)) {
-            profileTaskQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IProfileTaskQueryDAO.class);
+            profileTaskQueryDAO = moduleManager.find(StorageModule.NAME)
+                                               .provider()
+                                               .getService(IProfileTaskQueryDAO.class);
         }
         return profileTaskQueryDAO;
     }
 
     /**
      * query executable profile task
-     * @param serviceId
-     * @return
      */
     public List<ProfileTask> getProfileTaskList(int serviceId) {
         // read profile task list from cache only, use cache update timer mechanism
@@ -85,8 +88,6 @@ public class ProfileTaskCache implements Service {
 
     /**
      * query profile task by id
-     * @param id
-     * @return
      */
     public ProfileTask getProfileTaskById(String id) {
         ProfileTask profile = profileTaskIdCache.getIfPresent(id);
@@ -107,8 +108,6 @@ public class ProfileTaskCache implements Service {
 
     /**
      * save service task list
-     * @param serviceId
-     * @param taskList
      */
     public void saveTaskList(int serviceId, List<ProfileTask> taskList) {
         if (taskList == null) {
@@ -120,7 +119,6 @@ public class ProfileTaskCache implements Service {
 
     /**
      * use for every db query
-     * @return
      */
     public long getCacheStartTimeBucket() {
         return TimeBucket.getRecordTimeBucket(System.currentTimeMillis());
@@ -128,7 +126,6 @@ public class ProfileTaskCache implements Service {
 
     /**
      * use for every db query, +10 start time and +15 end time(because use task end time to search)
-     * @return
      */
     public long getCacheEndTimeBucket() {
         return TimeBucket.getRecordTimeBucket(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(25));

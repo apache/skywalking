@@ -32,9 +32,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterLockInstaller {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterLockInstaller.class);
@@ -59,7 +56,7 @@ public class RegisterLockInstaller {
             }
 
             for (Class registerSource : InventoryStreamProcessor.getInstance().getAllRegisterSources()) {
-                int scopeId = ((Stream)registerSource.getAnnotation(Stream.class)).scopeId();
+                int scopeId = ((Stream) registerSource.getAnnotation(Stream.class)).scopeId();
                 putIfAbsent(scopeId);
             }
         } catch (IOException e) {

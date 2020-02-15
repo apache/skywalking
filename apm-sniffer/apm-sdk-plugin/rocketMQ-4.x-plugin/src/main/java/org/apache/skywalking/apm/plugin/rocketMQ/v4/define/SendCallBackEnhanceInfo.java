@@ -16,15 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4.define;
 
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 
 /**
  * {@link SendCallBackEnhanceInfo} saves the topic Id and {@link ContextSnapshot} instance for trace.
- *
- * @author zhang xin
  */
 public class SendCallBackEnhanceInfo {
     private String topicId;

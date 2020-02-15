@@ -31,19 +31,16 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * The pulsar consumer instrumentation use {@link org.apache.pulsar.client.impl.ConsumerImpl} as an enhanced class.
- * {@link org.apache.pulsar.client.api.Consumer} is a user-oriented interface and the implementations are
- * {@link org.apache.pulsar.client.impl.ConsumerImpl} and {@link org.apache.pulsar.client.impl.MultiTopicsConsumerImpl}
- *
+ * {@link org.apache.pulsar.client.api.Consumer} is a user-oriented interface and the implementations are {@link
+ * org.apache.pulsar.client.impl.ConsumerImpl} and {@link org.apache.pulsar.client.impl.MultiTopicsConsumerImpl}
+ * <p>
  * The MultiTopicsConsumerImpl is a complex type with multiple ConsumerImpl to support uses receive messages from
- * multiple topics. As each ConsumerImpl has it's own topic name and it is the initial unit of a single topic
- * to receiving messages, so use ConsumerImpl as an enhanced class is an effective way.
- *
- * Use <code>messageProcessed</code> as the enhanced method since pulsar
- * consumer has multiple ways to receiving messages such as sync method, async method and listeners.
- * Method messageProcessed is a basic unit of ConsumerImpl, no matter which way uses uses, messageProcessed will always
- * record the message receiving.
- *
- * @author penghui
+ * multiple topics. As each ConsumerImpl has it's own topic name and it is the initial unit of a single topic to
+ * receiving messages, so use ConsumerImpl as an enhanced class is an effective way.
+ * <p>
+ * Use <code>messageProcessed</code> as the enhanced method since pulsar consumer has multiple ways to receiving
+ * messages such as sync method, async method and listeners. Method messageProcessed is a basic unit of ConsumerImpl, no
+ * matter which way uses uses, messageProcessed will always record the message receiving.
  */
 public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -63,11 +60,13 @@ public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePl
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return takesArgumentWithType(0, CONSTRUCTOR_INTERCEPT_TYPE);
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return CONSTRUCTOR_INTERCEPTOR_CLASS;
                 }
             }
@@ -78,15 +77,18 @@ public class PulsarConsumerInstrumentation extends ClassInstanceMethodsEnhancePl
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD).and(takesArgumentWithType(0, ENHANCE_METHOD_TYPE));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

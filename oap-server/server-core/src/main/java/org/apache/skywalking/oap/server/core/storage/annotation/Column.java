@@ -18,15 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 
 /**
- * @author peng-yongsheng
+ * Data column of all persistent entity.
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
+    /**
+     * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
+     * could be a keyword, then, the implementation will use {@link IModelOverride} to replace the column name.
+     */
     String columnName();
 
     /**
@@ -43,7 +51,7 @@ public @interface Column {
      * Match query means using analyzer(if storage have) to do key word match query.
      */
     boolean matchQuery() default false;
-    
+
     /**
      * The column is just saved, never used in query.
      */

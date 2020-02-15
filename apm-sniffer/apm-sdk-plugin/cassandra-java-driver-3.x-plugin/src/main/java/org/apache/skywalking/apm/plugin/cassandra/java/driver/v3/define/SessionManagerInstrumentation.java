@@ -29,9 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author stone.wlg
- */
 public class SessionManagerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "com.datastax.driver.core.SessionManager";
@@ -49,12 +46,12 @@ public class SessionManagerInstrumentation extends ClassInstanceMethodsEnhancePl
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute").and(takesArgumentWithType(0, "com.datastax.driver.core.Statement"))
-                        .or(named("executeAsync").and(takesArgumentWithType(0, "com.datastax.driver.core.Statement")));
+                                           .or(named("executeAsync").and(takesArgumentWithType(0, "com.datastax.driver.core.Statement")));
                 }
 
                 @Override

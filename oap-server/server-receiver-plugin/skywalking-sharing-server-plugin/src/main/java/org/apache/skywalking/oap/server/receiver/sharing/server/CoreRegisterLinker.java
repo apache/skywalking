@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class CoreRegisterLinker {
@@ -37,35 +40,45 @@ public class CoreRegisterLinker {
 
     public static IServiceInventoryRegister getServiceInventoryRegister() {
         if (SERVICE_INVENTORY_REGISTER == null) {
-            SERVICE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+            SERVICE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(IServiceInventoryRegister.class);
         }
         return SERVICE_INVENTORY_REGISTER;
     }
 
     public static IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
         if (SERVICE_INSTANCE_INVENTORY_REGISTER == null) {
-            SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+            SERVICE_INSTANCE_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME)
+                                                                .provider()
+                                                                .getService(IServiceInstanceInventoryRegister.class);
         }
         return SERVICE_INSTANCE_INVENTORY_REGISTER;
     }
 
     public static IEndpointInventoryRegister getEndpointInventoryRegister() {
         if (ENDPOINT_INVENTORY_REGISTER == null) {
-            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(IEndpointInventoryRegister.class);
+            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(IEndpointInventoryRegister.class);
         }
         return ENDPOINT_INVENTORY_REGISTER;
     }
 
     public static ServiceInventoryCache getServiceInventoryCache() {
         if (SERVICE_INVENTORY_CACHE == null) {
-            SERVICE_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+            SERVICE_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(ServiceInventoryCache.class);
         }
         return SERVICE_INVENTORY_CACHE;
     }
 
     public static EndpointInventoryCache getEndpointInventoryCache() {
         if (ENDPOINT_INVENTORY_CACHE == null) {
-            ENDPOINT_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
+            ENDPOINT_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(EndpointInventoryCache.class);
         }
         return ENDPOINT_INVENTORY_CACHE;
     }

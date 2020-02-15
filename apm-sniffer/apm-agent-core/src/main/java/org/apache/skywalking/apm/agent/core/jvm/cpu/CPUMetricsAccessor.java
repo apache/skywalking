@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.cpu;
 
 import org.apache.skywalking.apm.network.common.CPU;
@@ -24,8 +23,6 @@ import org.apache.skywalking.apm.network.common.CPU;
 /**
  * The unit of CPU usage is 1/10000. The backend is using `avg` func directly, and query for percentage requires this
  * unit.
- *
- * @author wusheng
  */
 public abstract class CPUMetricsAccessor {
     private long lastCPUTimeNs;

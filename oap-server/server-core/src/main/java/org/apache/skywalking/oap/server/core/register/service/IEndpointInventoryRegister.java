@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.register.service;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface IEndpointInventoryRegister extends Service {
 
     int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint);

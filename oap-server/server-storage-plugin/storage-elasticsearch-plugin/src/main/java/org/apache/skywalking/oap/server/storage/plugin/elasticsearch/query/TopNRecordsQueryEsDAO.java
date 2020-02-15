@@ -19,21 +19,21 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-/**
- * @author wusheng
- */
 public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO {
     public TopNRecordsQueryEsDAO(ElasticSearchClient client) {
         super(client);
@@ -55,9 +55,9 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             TopNRecord record = new TopNRecord();
-            record.setStatement((String)searchHit.getSourceAsMap().get(TopN.STATEMENT));
-            record.setTraceId((String)searchHit.getSourceAsMap().get(TopN.TRACE_ID));
-            record.setLatency(((Number)searchHit.getSourceAsMap().get(TopN.LATENCY)).longValue());
+            record.setStatement((String) searchHit.getSourceAsMap().get(TopN.STATEMENT));
+            record.setTraceId((String) searchHit.getSourceAsMap().get(TopN.TRACE_ID));
+            record.setLatency(((Number) searchHit.getSourceAsMap().get(TopN.LATENCY)).longValue());
             results.add(record);
         }
 

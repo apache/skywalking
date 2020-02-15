@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
@@ -32,18 +33,15 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.RestClientEnhanceInfo;
 import org.elasticsearch.action.get.GetRequest;
 
-/**
- * @author aderm
- */
 public class RestHighLevelClientGetMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        GetRequest getRequest = (GetRequest)(allArguments[0]);
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
+        GetRequest getRequest = (GetRequest) (allArguments[0]);
 
-        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo)(objInst.getSkyWalkingDynamicField());
-        AbstractSpan span = ContextManager
-            .createExitSpan(Constants.GET_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
+        RestClientEnhanceInfo restClientEnhanceInfo = (RestClientEnhanceInfo) (objInst.getSkyWalkingDynamicField());
+        AbstractSpan span = ContextManager.createExitSpan(Constants.GET_OPERATOR_NAME, restClientEnhanceInfo.getPeers());
         span.setComponent(ComponentsDefine.REST_HIGH_LEVEL_CLIENT);
 
         Tags.DB_TYPE.set(span, DB_TYPE);
@@ -56,15 +54,15 @@ public class RestHighLevelClientGetMethodsInterceptor implements InstanceMethods
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method,
-        Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

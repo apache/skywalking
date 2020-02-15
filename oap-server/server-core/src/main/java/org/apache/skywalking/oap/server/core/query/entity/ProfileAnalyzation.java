@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
-/**
- * @author MrPro
- */
 @Getter
 @Setter
 public class ProfileAnalyzation {
 
-    private List<ProfileStackElement> stack;
+    // if not empty means backend has information gave to the user
+    // such as: a large number of snapshots, only analyze part of the data
+    private String tip;
+
+    // thread stack dump analyze trees
+    private List<ProfileStackTree> trees;
 
 }

@@ -29,16 +29,13 @@ public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrat
 
     private final HystrixConcurrencyStrategy delegate;
 
-    public SWHystrixConcurrencyStrategyWrapper(
-        HystrixConcurrencyStrategy delegate) {
+    public SWHystrixConcurrencyStrategyWrapper(HystrixConcurrencyStrategy delegate) {
         this.delegate = delegate;
     }
 
     @Override
     public <T> Callable<T> wrapCallable(Callable<T> callable) {
-        Callable<T> delegateCallable = delegate != null
-                ? delegate.wrapCallable(callable)
-                : super.wrapCallable(callable);
+        Callable<T> delegateCallable = delegate != null ? delegate.wrapCallable(callable) : super.wrapCallable(callable);
         return new WrappedCallable<T>(ContextManager.getRuntimeContext().capture(), delegateCallable);
     }
 
@@ -52,7 +49,8 @@ public class SWHystrixConcurrencyStrategyWrapper extends HystrixConcurrencyStrat
             this.target = target;
         }
 
-        @Override public T call() throws Exception {
+        @Override
+        public T call() throws Exception {
             try {
                 ContextManager.getRuntimeContext().accept(contextSnapshot);
                 return target.call();

@@ -24,9 +24,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 import java.net.InetSocketAddress;
 import java.util.List;
 
-/**
- * @author stone.wlg
- */
 public class ClusterConstructorWithStateListenerArgInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -41,8 +38,6 @@ public class ClusterConstructorWithStateListenerArgInterceptor implements Instan
             contactPoints = contactPoints.substring(0, contactPoints.length() - 1);
         }
 
-        objInst.setSkyWalkingDynamicField(
-            new ConnectionInfo(contactPoints)
-        );
+        objInst.setSkyWalkingDynamicField(new ConnectionInfo(contactPoints));
     }
 }

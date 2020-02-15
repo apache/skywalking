@@ -15,14 +15,17 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Profile task execute log
- *
- * @author MrPro
  */
 @Setter
 @Getter

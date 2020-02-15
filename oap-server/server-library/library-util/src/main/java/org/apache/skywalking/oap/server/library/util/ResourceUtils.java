@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 
-/**
- * @author peng-yongsheng
- */
 public class ResourceUtils {
 
     public static Reader read(String fileName) throws FileNotFoundException {

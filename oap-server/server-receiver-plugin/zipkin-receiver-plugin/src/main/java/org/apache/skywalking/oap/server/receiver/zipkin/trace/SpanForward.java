@@ -22,19 +22,18 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.util.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 
-/**
- * @author wusheng
- */
 public class SpanForward {
     private ZipkinReceiverConfig config;
     private SourceReceiver receiver;
@@ -43,8 +42,7 @@ public class SpanForward {
     private int encode;
 
     public SpanForward(ZipkinReceiverConfig config, SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache, int encode) {
+        ServiceInventoryCache serviceInventoryCache, EndpointInventoryCache endpointInventoryCache, int encode) {
         this.config = config;
         this.receiver = receiver;
         this.serviceInventoryCache = serviceInventoryCache;
@@ -78,12 +76,12 @@ public class SpanForward {
                 case SERVER:
                 case CONSUMER:
                     if (!StringUtil.isEmpty(spanName) && serviceId != Const.NONE) {
-                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName,
-                            DetectPoint.SERVER.ordinal());
+                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName, DetectPoint.SERVER.ordinal());
                         if (endpointId != Const.NONE) {
                             zipkinSpan.setEndpointId(endpointId);
                         } else if (config.isRegisterZipkinEndpoint()) {
-                            CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(serviceId, spanName, DetectPoint.SERVER);
+                            CoreRegisterLinker.getEndpointInventoryRegister()
+                                              .getOrCreate(serviceId, spanName, DetectPoint.SERVER);
                         }
                     }
             }
@@ -102,7 +100,7 @@ public class SpanForward {
             zipkinSpan.setEndTime(startTime + latency);
             zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
             zipkinSpan.setEncode(SpanEncode.PROTO3);
-            zipkinSpan.setLatency((int)latency);
+            zipkinSpan.setLatency((int) latency);
             zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
 
             receiver.receive(zipkinSpan);

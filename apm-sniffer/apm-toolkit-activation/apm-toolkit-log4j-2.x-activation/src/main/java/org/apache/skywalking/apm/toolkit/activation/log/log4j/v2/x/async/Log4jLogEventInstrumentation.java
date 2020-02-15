@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v2.x.async;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,18 +28,14 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-
 /**
  * Enhance all the Log4jLogEvent instance so that it can carries the trace id in _sw field
- *
- * @author xuhe
  */
-
 
 public class Log4jLogEventInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
+        return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
-
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
@@ -32,6 +31,7 @@ public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrument
     private static final String JDBC_ENHANCE_CLASS = "com.mysql.jdbc.ConnectionImpl";
 
     private static final String CONNECT_METHOD = "getInstance";
+
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {

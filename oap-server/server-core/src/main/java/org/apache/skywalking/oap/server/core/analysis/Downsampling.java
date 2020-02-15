@@ -17,9 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-/**
- * @author peng-yongsheng
- */
 public enum Downsampling {
     None(0, ""), Second(1, "second"), Minute(2, "minute"), Hour(3, "hour"), Day(4, "day"), Month(5, "month");
 

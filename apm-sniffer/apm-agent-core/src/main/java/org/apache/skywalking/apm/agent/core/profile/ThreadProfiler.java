@@ -26,9 +26,6 @@ import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author MrPro
- */
 public class ThreadProfiler {
 
     // current tracing context
@@ -49,7 +46,8 @@ public class ThreadProfiler {
     // thread dump sequence
     private int dumpSequence = 0;
 
-    public ThreadProfiler(TracingContext tracingContext, ID traceSegmentId, Thread profilingThread, ProfileTaskExecutionContext executionContext) {
+    public ThreadProfiler(TracingContext tracingContext, ID traceSegmentId, Thread profilingThread,
+        ProfileTaskExecutionContext executionContext) {
         this.tracingContext = tracingContext;
         this.traceSegmentId = traceSegmentId;
         this.profilingThread = profilingThread;
@@ -61,7 +59,8 @@ public class ThreadProfiler {
      * If tracing start time greater than {@link ProfileTask#getMinDurationThreshold()}, then start to profiling trace
      */
     public void startProfilingIfNeed() {
-        if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask().getMinDurationThreshold()) {
+        if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask()
+                                                                                       .getMinDurationThreshold()) {
             this.profilingStartTime = System.currentTimeMillis();
             this.profilingStatus = ProfilingStatus.PROFILING;
         }

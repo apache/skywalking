@@ -17,9 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class GroupMetrics extends Metrics {
 
     protected void combine(IntKeyLongValueHashMap source, IntKeyLongValueHashMap target) {

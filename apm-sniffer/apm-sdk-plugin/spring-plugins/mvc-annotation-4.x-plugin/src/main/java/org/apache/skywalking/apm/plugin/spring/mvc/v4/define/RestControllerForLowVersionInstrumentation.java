@@ -42,16 +42,20 @@ public class RestControllerForLowVersionInstrumentation extends AbstractControll
                 return "org.apache.skywalking.apm.plugin.spring.mvc.v4.ControllerForLowVersionConstructorInterceptor";
             }
         };
-        return new ConstructorInterceptPoint[]{constructorInterceptPoint};
+        return new ConstructorInterceptPoint[] {constructorInterceptPoint};
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{WITHNESS_CLASSES, "org.springframework.cache.interceptor.DefaultKeyGenerator", WITNESS_CLASSES_LOW_VERSION};
+        return new String[] {
+            WITHNESS_CLASSES,
+            "org.springframework.cache.interceptor.DefaultKeyGenerator",
+            WITNESS_CLASSES_LOW_VERSION
+        };
     }
 
     @Override
     protected String[] getEnhanceAnnotations() {
-        return new String[]{ENHANCE_ANNOTATION};
+        return new String[] {ENHANCE_ANNOTATION};
     }
 }

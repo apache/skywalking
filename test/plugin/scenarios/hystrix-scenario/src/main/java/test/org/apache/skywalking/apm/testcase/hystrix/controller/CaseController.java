@@ -44,27 +44,32 @@ public class CaseController {
     @PostConstruct
     public void setUp() {
         HystrixPlugins.getInstance().registerCommandExecutionHook(new HystrixCommandExecutionHook() {
-            @Override public <T> void onStart(HystrixInvokable<T> commandInstance) {
+            @Override
+            public <T> void onStart(HystrixInvokable<T> commandInstance) {
                 logger.info("[hookA] onStart: " + Thread.currentThread().getId());
                 super.onStart(commandInstance);
             }
 
-            @Override public <T> void onExecutionStart(HystrixInvokable<T> commandInstance) {
+            @Override
+            public <T> void onExecutionStart(HystrixInvokable<T> commandInstance) {
                 logger.info("[hookA] onExecutionStart: " + Thread.currentThread().getId());
                 super.onExecutionStart(commandInstance);
             }
 
-            @Override public <T> void onExecutionSuccess(HystrixInvokable<T> commandInstance) {
+            @Override
+            public <T> void onExecutionSuccess(HystrixInvokable<T> commandInstance) {
                 logger.info("[hookA] onExecutionSuccess: " + Thread.currentThread().getId());
                 super.onExecutionSuccess(commandInstance);
             }
 
-            @Override public <T> Exception onExecutionError(HystrixInvokable<T> commandInstance, Exception e) {
+            @Override
+            public <T> Exception onExecutionError(HystrixInvokable<T> commandInstance, Exception e) {
                 logger.info("[hookA] onExecutionError: " + Thread.currentThread().getId());
                 return super.onExecutionError(commandInstance, e);
             }
 
-            @Override public <T> Exception onRunError(HystrixCommand<T> commandInstance, Exception e) {
+            @Override
+            public <T> Exception onRunError(HystrixCommand<T> commandInstance, Exception e) {
                 logger.info("[hookA] onRunError: " + Thread.currentThread().getId());
                 return super.onRunError(commandInstance, e);
             }

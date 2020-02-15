@@ -28,11 +28,11 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.grpc.v1.OperationNameFormatUtil;
 
-import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.*;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_CANCEL_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_COMPLETE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.REQUEST_ON_MESSAGE_OPERATION_NAME;
+import static org.apache.skywalking.apm.plugin.grpc.v1.Constants.SERVER;
 
-/**
- * @author wang zheng, kanro
- */
 public class TracingServerCallListener<REQUEST> extends ForwardingServerCallListener.SimpleForwardingServerCallListener<REQUEST> {
 
     private final ContextSnapshot contextSnapshot;
@@ -40,7 +40,7 @@ public class TracingServerCallListener<REQUEST> extends ForwardingServerCallList
     private final String operationPrefix;
 
     protected TracingServerCallListener(ServerCall.Listener<REQUEST> delegate, MethodDescriptor<REQUEST, ?> descriptor,
-                                        ContextSnapshot contextSnapshot) {
+        ContextSnapshot contextSnapshot) {
         super(delegate);
         this.contextSnapshot = contextSnapshot;
         this.methodType = descriptor.getType();

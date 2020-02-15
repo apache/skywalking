@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.cassandra.java.driver.v3;
 
-/**
- * @author stone.wlg
- */
 public class Constants {
     public static final String CASSANDRA_OP_PREFIX = "Cassandra/";
     public static final String CASSANDRA_DB_TYPE = "cassandra";

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
 public interface RegistryApplication {
@@ -35,7 +36,8 @@ public interface RegistryApplication {
             return applicationCode;
         }
 
-        @Override public String expressValue() {
+        @Override
+        public String expressValue() {
             return express;
         }
     }

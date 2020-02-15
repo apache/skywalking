@@ -29,10 +29,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch;
 
 /**
  * intercepts the following methods that the class which implements {@code com.mongodb.OperationExecutor}
- *
+ * <p>
  * support: 3.6.x
- *
- * @author dengliming
  */
 public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -42,7 +40,7 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     protected ClassMatch enhanceClass() {
-        return HierarchyMatch.byHierarchyMatch(new String[]{ENHANCE_CLASS});
+        return HierarchyMatch.byHierarchyMatch(new String[] {ENHANCE_CLASS});
     }
 
     @Override
@@ -52,24 +50,25 @@ public class MongoDBOperationExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return ElementMatchers
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return ElementMatchers
                         // 3.6.x
                         .named(METHOD_NAME);
-            }
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 }

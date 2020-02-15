@@ -18,25 +18,36 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
- * @author peng-yongsheng
+ * ValueColumnMetadata holds the metadata for column values of metrics. The metadata of ValueColumn is declared through
+ * {@link Column} annotation.
  */
-public enum ValueColumnIds {
+public enum ValueColumnMetadata {
     INSTANCE;
 
     private Map<String, ValueColumn> mapping = new HashMap<>();
 
-    public void putIfAbsent(String indName, String valueCName, Function function) {
-        mapping.putIfAbsent(indName, new ValueColumn(valueCName, function));
+    /**
+     * Register the new metadata for the given model name.
+     */
+    public void putIfAbsent(String modelName, String valueCName, Function function) {
+        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, function));
     }
 
+    /**
+     * Fetch the value column name of the given metrics name.
+     */
     public String getValueCName(String metricsName) {
         return findColumn(metricsName).valueCName;
     }
 
+    /**
+     * Fetch the function for the value column of the given metrics name.
+     */
     public Function getValueFunction(String metricsName) {
         return findColumn(metricsName).function;
     }

@@ -19,18 +19,18 @@
 package org.apache.skywalking.oap.server.core.analysis.generated.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.EqualMatch;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.GreaterMatch;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.analysis.metrics.expression.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.Service;
 
 /**
  * This class is auto generated. Please don't change this class manually.
- *
- * @author Observability Analysis Language code generator
  */
 public class ServiceDispatcher implements SourceDispatcher<Service> {
 
-    @Override public void dispatch(Service source) {
+    @Override
+    public void dispatch(Service source) {
         doServiceAvg(source);
     }
 

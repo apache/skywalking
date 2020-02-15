@@ -21,8 +21,19 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.StandardBuilder;
 
 /**
- * @author peng-yongsheng
+ * The implementation has details to do String to ID(integer) transformation.
  */
 public interface IdExchanger<T extends StandardBuilder> {
+    /**
+     * Register all required fields in the builder to get the assigned IDs.
+     *
+     * @param standardBuilder object includes unregistered data.
+     * @param serviceId       service id of this builder.
+     * @return true if all register completed. NOTICE, because the register is in async mode, mostly because this is a
+     * distributed register mechanism, check {@link org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor},
+     * the required ID could be unreachable as the register is still in processing. But in the production environment,
+     * besides the moments of the SkyWalking just being setup or new service/instance/endpoint online, all the registers
+     * should have finished back to when they are accessed at the first time. This register could process very fast.
+     */
     boolean exchange(T standardBuilder, int serviceId);
 }

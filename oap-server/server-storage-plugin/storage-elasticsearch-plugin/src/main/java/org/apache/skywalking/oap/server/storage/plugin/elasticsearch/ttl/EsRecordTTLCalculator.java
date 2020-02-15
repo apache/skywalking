@@ -24,12 +24,11 @@ import org.joda.time.DateTime;
 
 /**
  * Calculate TTL for record.
- *
- * @author wusheng
  */
 public class EsRecordTTLCalculator implements TTLCalculator {
 
-    @Override public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
+    @Override
+    public long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig) {
         return Long.valueOf(currentTime.plusDays(0 - dataTTLConfig.getRecordDataTTL()).toString("yyyyMMdd"));
     }
 }

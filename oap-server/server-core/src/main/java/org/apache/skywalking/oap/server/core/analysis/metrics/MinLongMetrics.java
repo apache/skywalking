@@ -25,16 +25,15 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author jian.tan
- */
-
 @MetricsFunction(functionName = "min")
 public abstract class MinLongMetrics extends Metrics implements LongValueHolder {
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value = Long.MAX_VALUE;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, isValue = true)
+    private long value = Long.MAX_VALUE;
 
     @Entrance
     public final void combine(@SourceFrom long count) {
@@ -43,11 +42,13 @@ public abstract class MinLongMetrics extends Metrics implements LongValueHolder 
         }
     }
 
-    @Override public final void combine(Metrics metrics) {
-        MinLongMetrics minLongMetrics = (MinLongMetrics)metrics;
+    @Override
+    public final void combine(Metrics metrics) {
+        MinLongMetrics minLongMetrics = (MinLongMetrics) metrics;
         combine(minLongMetrics.value);
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
     }
 }

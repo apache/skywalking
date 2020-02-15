@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.kafka.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,15 +29,12 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * intercept kafkaTemplate.buildCallback translation callback
- *
- * @author stalary
  */
 public class KafkaTemplateInstrumentation extends AbstractKafkaTemplateInstrumentation {
 
     private static final String ENHANCE_CLASS = "org.springframework.kafka.core.KafkaTemplate";
     private static final String ENHANCE_METHOD = "buildCallback";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.kafka.KafkaTemplateCallbackInterceptor";
-
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -45,7 +43,7 @@ public class KafkaTemplateInstrumentation extends AbstractKafkaTemplateInstrumen
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

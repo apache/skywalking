@@ -20,13 +20,14 @@ package org.apache.skywalking.oap.server.library.server.jetty;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
-import org.apache.skywalking.oap.server.library.server.*;
-import org.eclipse.jetty.servlet.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.server.Server;
+import org.apache.skywalking.oap.server.library.server.ServerException;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.ServletMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, wusheng
- */
 public class JettyServer implements Server {
 
     private static final Logger logger = LoggerFactory.getLogger(JettyServer.class);
@@ -93,9 +94,12 @@ public class JettyServer implements Server {
         logger.info("start server, host: {}, port: {}", host, port);
         try {
             if (logger.isDebugEnabled()) {
-                if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler().getServletMappings() != null) {
-                    for (ServletMapping servletMapping : servletContextHandler.getServletHandler().getServletMappings()) {
-                        logger.debug("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping.getServletName());
+                if (servletContextHandler.getServletHandler() != null && servletContextHandler.getServletHandler()
+                                                                                              .getServletMappings() != null) {
+                    for (ServletMapping servletMapping : servletContextHandler.getServletHandler()
+                                                                              .getServletMappings()) {
+                        logger.debug("jetty servlet mappings: {} register by {}", servletMapping.getPathSpecs(), servletMapping
+                            .getServletName());
                     }
                 }
             }
@@ -112,9 +116,8 @@ public class JettyServer implements Server {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        JettyServer that = (JettyServer)o;
-        return port == that.port &&
-            Objects.equals(host, that.host);
+        JettyServer that = (JettyServer) o;
+        return port == that.port && Objects.equals(host, that.host);
     }
 
     @Override

@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.e2e.topo;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author zhangwei
- */
 @Setter
 @Getter
 @Accessors(chain = true)

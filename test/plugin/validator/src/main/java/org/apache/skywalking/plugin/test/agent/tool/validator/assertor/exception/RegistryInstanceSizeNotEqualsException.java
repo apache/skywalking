@@ -29,8 +29,9 @@ public class RegistryInstanceSizeNotEqualsException extends AssertFailedExceptio
         this.cause = cause;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("RegistryInstanceSizeNotEqualsException %s\nexpected: %s\nactual: %s\n",
-            applicationCode, cause.getExpected(), cause.getActual());
+    @Override
+    public String getCauseMessage() {
+        return String.format("RegistryInstanceSizeNotEqualsException %s\nexpected: %s\nactual: %s\n", applicationCode, cause
+            .getExpected(), cause.getActual());
     }
 }

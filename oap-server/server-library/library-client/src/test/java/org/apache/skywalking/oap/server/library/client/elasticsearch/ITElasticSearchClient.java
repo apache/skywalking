@@ -47,9 +47,6 @@ import org.powermock.reflect.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class ITElasticSearchClient {
 
     private static final Logger logger = LoggerFactory.getLogger(ITElasticSearchClient.class);
@@ -101,10 +98,24 @@ public class ITElasticSearchClient {
         JsonObject index = getIndex(indexName);
         logger.info(index.toString());
 
-        Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(2, index.getAsJsonObject(indexName).getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(2, index.getAsJsonObject(indexName)
+                                    .getAsJsonObject("settings")
+                                    .getAsJsonObject("index")
+                                    .get("number_of_shards")
+                                    .getAsInt());
+        Assert.assertEquals(2, index.getAsJsonObject(indexName)
+                                    .getAsJsonObject("settings")
+                                    .getAsJsonObject("index")
+                                    .get("number_of_replicas")
+                                    .getAsInt());
 
-        Assert.assertEquals("text", index.getAsJsonObject(indexName).getAsJsonObject("mappings").getAsJsonObject("type").getAsJsonObject("properties").getAsJsonObject("column1").get("type").getAsString());
+        Assert.assertEquals("text", index.getAsJsonObject(indexName)
+                                         .getAsJsonObject("mappings")
+                                         .getAsJsonObject("type")
+                                         .getAsJsonObject("properties")
+                                         .getAsJsonObject("column1")
+                                         .get("type")
+                                         .getAsString());
 
         Assert.assertTrue(client.deleteByModelName(indexName));
     }
@@ -114,11 +125,11 @@ public class ITElasticSearchClient {
         String id = String.valueOf(System.currentTimeMillis());
 
         XContentBuilder builder = XContentFactory.jsonBuilder()
-            .startObject()
-            .field("user", "kimchy")
-            .field("post_date", "2009-11-15T14:12:12")
-            .field("message", "trying out Elasticsearch")
-            .endObject();
+                                                 .startObject()
+                                                 .field("user", "kimchy")
+                                                 .field("post_date", "2009-11-15T14:12:12")
+                                                 .field("message", "trying out Elasticsearch")
+                                                 .endObject();
 
         String indexName = "test_document_operate";
         client.forceInsert(indexName, id, builder);
@@ -127,10 +138,7 @@ public class ITElasticSearchClient {
         Assert.assertEquals("kimchy", response.getSource().get("user"));
         Assert.assertEquals("trying out Elasticsearch", response.getSource().get("message"));
 
-        builder = XContentFactory.jsonBuilder()
-            .startObject()
-            .field("user", "pengys")
-            .endObject();
+        builder = XContentFactory.jsonBuilder().startObject().field("user", "pengys").endObject();
         client.forceUpdate(indexName, id, builder);
 
         response = client.get(indexName, id);
@@ -140,7 +148,8 @@ public class ITElasticSearchClient {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(QueryBuilders.termQuery("user", "pengys"));
         SearchResponse searchResponse = client.search(indexName, sourceBuilder);
-        Assert.assertEquals("trying out Elasticsearch", searchResponse.getHits().getHits()[0].getSourceAsMap().get("message"));
+        Assert.assertEquals("trying out Elasticsearch", searchResponse.getHits().getHits()[0].getSourceAsMap()
+                                                                                             .get("message"));
     }
 
     @Test
@@ -168,16 +177,22 @@ public class ITElasticSearchClient {
 
         Assert.assertTrue(client.isExistsTemplate(indexName));
 
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
-            .field("name", "pengys")
-            .endObject();
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(indexName + "-2019", "testid", builder);
 
         JsonObject index = getIndex(indexName + "-2019");
         logger.info(index.toString());
 
-        Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_shards").getAsInt());
-        Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019").getAsJsonObject("settings").getAsJsonObject("index").get("number_of_replicas").getAsInt());
+        Assert.assertEquals(1, index.getAsJsonObject(indexName + "-2019")
+                                    .getAsJsonObject("settings")
+                                    .getAsJsonObject("index")
+                                    .get("number_of_shards")
+                                    .getAsInt());
+        Assert.assertEquals(0, index.getAsJsonObject(indexName + "-2019")
+                                    .getAsJsonObject("settings")
+                                    .getAsJsonObject("index")
+                                    .get("number_of_replicas")
+                                    .getAsInt());
 
         client.deleteTemplate(indexName);
         Assert.assertFalse(client.isExistsTemplate(indexName));
@@ -219,9 +234,7 @@ public class ITElasticSearchClient {
 
         client.createTemplate(indexName, new HashMap<>(), mapping);
 
-        XContentBuilder builder = XContentFactory.jsonBuilder().startObject()
-            .field("name", "pengys")
-            .endObject();
+        XContentBuilder builder = XContentFactory.jsonBuilder().startObject().field("name", "pengys").endObject();
         client.forceInsert(timeSeriesIndexName, "testid", builder);
 
         List<String> indexes = client.retrievalIndexByAliases(indexName);
@@ -236,14 +249,15 @@ public class ITElasticSearchClient {
         GetIndexRequest request = new GetIndexRequest();
         request.indices(indexName);
 
-        Response response = getRestHighLevelClient().getLowLevelClient().performRequest(HttpGet.METHOD_NAME, "/" + indexName);
+        Response response = getRestHighLevelClient().getLowLevelClient()
+                                                    .performRequest(HttpGet.METHOD_NAME, "/" + indexName);
         InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
         Gson gson = new Gson();
         return undoFormatIndexName(gson.fromJson(reader, JsonObject.class));
     }
 
     private RestHighLevelClient getRestHighLevelClient() {
-        return (RestHighLevelClient)Whitebox.getInternalState(client, "client");
+        return (RestHighLevelClient) Whitebox.getInternalState(client, "client");
     }
 
     private JsonObject undoFormatIndexName(JsonObject index) {
@@ -256,7 +270,8 @@ public class ITElasticSearchClient {
                     index.add(oldIndexName.substring(namespacePrefix.length()), entry.getValue());
                     index.remove(oldIndexName);
                 } else {
-                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry.getKey());
+                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry
+                        .getKey());
                 }
             });
             logger.info("UndoFormatIndexName after " + index.toString());

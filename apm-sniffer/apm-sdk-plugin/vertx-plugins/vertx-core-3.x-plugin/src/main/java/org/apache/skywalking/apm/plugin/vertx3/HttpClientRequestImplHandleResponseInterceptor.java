@@ -28,15 +28,12 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * @author brandon.fergerson
- */
 public class HttpClientRequestImplHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
         context.getSpan().asyncFinish();
 
@@ -48,13 +45,14 @@ public class HttpClientRequestImplHandleResponseInterceptor implements InstanceM
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                                Class<?>[] argumentsTypes, Throwable t) {
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

@@ -20,22 +20,33 @@ package org.apache.skywalking.aop.server.receiver.mesh;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.skywalking.apm.network.servicemesh.*;
+import org.apache.skywalking.apm.network.servicemesh.Protocol;
+import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringFormatGroup;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
+import org.apache.skywalking.oap.server.core.source.All;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.Service;
+import org.apache.skywalking.oap.server.core.source.ServiceInstance;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
  * dispatcher.
- *
- * @author wusheng
  */
 public class TelemetryDataDispatcher {
     private static final Logger logger = LoggerFactory.getLogger(TelemetryDataDispatcher.class);
@@ -54,15 +65,21 @@ public class TelemetryDataDispatcher {
     public static void setCache(MeshDataBufferFileCache cache, ModuleManager moduleManager) {
         CACHE = cache;
         SERVICE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
+        SERVICE_INSTANCE_CACHE = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(ServiceInstanceInventoryCache.class);
         SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
-        SERVICE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+        SERVICE_INSTANCE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME)
+                                                           .provider()
+                                                           .getService(IServiceInstanceInventoryRegister.class);
+        SERVICE_INVENTORY_REGISTER = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(IServiceInventoryRegister.class);
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() :
-            SERVICE_CACHE.get(data.getDestServiceId()).getName();
+        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() : SERVICE_CACHE.get(data.getDestServiceId())
+                                                                                                          .getName();
         String endpointName = data.getEndpoint();
         StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
         if (formatResult.isMatch()) {
@@ -84,8 +101,6 @@ public class TelemetryDataDispatcher {
 
     /**
      * The {@link ServiceMeshMetricDataDecorator} is standard, all metadata registered through {@link #CACHE}
-     *
-     * @param decorator
      */
     static void doDispatch(ServiceMeshMetricDataDecorator decorator) {
         ServiceMeshMetric metrics = decorator.getMetric();
@@ -178,7 +193,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceId(metrics.getSourceServiceId());
         serviceRelation.setSourceServiceName(getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
-        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics.getSourceServiceInstance()));
+        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
+            .getSourceServiceInstance()));
 
         serviceRelation.setDestServiceId(metrics.getDestServiceId());
         serviceRelation.setDestServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
@@ -217,7 +233,8 @@ public class TelemetryDataDispatcher {
         ServiceInstanceRelation serviceRelation = new ServiceInstanceRelation();
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceInstanceId(metrics.getSourceServiceInstanceId());
-        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics.getSourceServiceInstance()));
+        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
+            .getSourceServiceInstance()));
         serviceRelation.setSourceServiceId(metrics.getSourceServiceId());
         serviceRelation.setSourceServiceName(getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
 

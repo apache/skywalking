@@ -18,14 +18,11 @@
 
 package org.apache.skywalking.e2e.service;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
 import java.util.Objects;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
- *
- * @author kezhenxu94
  */
 public class ServiceMatcher extends AbstractMatcher<Service> {
 
@@ -75,9 +72,6 @@ public class ServiceMatcher extends AbstractMatcher<Service> {
 
     @Override
     public String toString() {
-        return "ServiceMatcher{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            '}';
+        return "ServiceMatcher{" + "key='" + key + '\'' + ", label='" + label + '\'' + '}';
     }
 }

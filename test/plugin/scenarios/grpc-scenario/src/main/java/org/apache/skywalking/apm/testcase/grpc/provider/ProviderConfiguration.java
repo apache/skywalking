@@ -29,9 +29,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-/**
- * @author zhangwei
- */
 @Configurable
 @Component
 public class ProviderConfiguration {
@@ -39,9 +36,9 @@ public class ProviderConfiguration {
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     public Server server() {
         return ServerBuilder.forPort(18080)
-                .addService(ServerInterceptors.intercept(new GreeterServiceImpl(), new ProviderInterceptor()))
-                .addService(ServerInterceptors.intercept(new GreeterBlockingServiceImpl(), new ProviderInterceptor()))
-                .addService(ServerInterceptors.intercept(new GreeterBlockingErrorServiceImpl(), new ProviderInterceptor()))
-                .build();
+                            .addService(ServerInterceptors.intercept(new GreeterServiceImpl(), new ProviderInterceptor()))
+                            .addService(ServerInterceptors.intercept(new GreeterBlockingServiceImpl(), new ProviderInterceptor()))
+                            .addService(ServerInterceptors.intercept(new GreeterBlockingErrorServiceImpl(), new ProviderInterceptor()))
+                            .build();
     }
 }

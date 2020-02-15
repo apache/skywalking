@@ -23,9 +23,6 @@ import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 public abstract class AbstractMatcher<T> {
     private static final Pattern NE_MATCHER = Pattern.compile("ne\\s+(?<val>.+)");
     private static final Pattern EQ_MATCHER = Pattern.compile("eq\\s+(?<val>.+)");

@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.util.function.BiConsumer;
 
-/**
- * @author zhaoyuguang
- */
 public class SWBiConsumer<T, U> implements BiConsumer<T, U> {
 
     private BiConsumer<T, U> biConsumer;

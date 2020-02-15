@@ -18,12 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Analyze {@link ProfileStack} data to {@link ProfileAnalyzation}
@@ -32,27 +43,143 @@ import java.util.stream.Collectors;
  */
 public class ProfileAnalyzer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProfileAnalyzer.class);
+
     private static final ProfileAnalyzeCollector ANALYZE_COLLECTOR = new ProfileAnalyzeCollector();
+
+    private final int threadSnapshotAnalyzeBatchSize;
+    private final int analyzeSnapshotMaxSize;
+
+    private final ModuleManager moduleManager;
+    private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
+
+    public ProfileAnalyzer(ModuleManager moduleManager, int snapshotAnalyzeBatchSize, int analyzeSnapshotMaxSize) {
+        this.moduleManager = moduleManager;
+        this.threadSnapshotAnalyzeBatchSize = snapshotAnalyzeBatchSize;
+        this.analyzeSnapshotMaxSize = analyzeSnapshotMaxSize;
+    }
+
+    /**
+     * search snapshots and analyze
+     */
+    public ProfileAnalyzation analyze(String segmentId, long start, long end) throws IOException {
+        ProfileAnalyzation analyzation = new ProfileAnalyzation();
+
+        // query sequence range list
+        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, start, end);
+        if (sequenceSearch == null) {
+            analyzation.setTip("Data not found");
+            return analyzation;
+        }
+        if (sequenceSearch.totalSequenceCount > analyzeSnapshotMaxSize) {
+            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.totalSequenceCount + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
+        }
+
+        // query snapshots
+        List<ProfileStack> stacks = sequenceSearch.getRanges().parallelStream().map(r -> {
+            try {
+                return getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, r.getMinSequence(), r.getMaxSequence());
+            } catch (IOException e) {
+                LOGGER.warn(e.getMessage(), e);
+                return Collections.<ProfileThreadSnapshotRecord>emptyList();
+            }
+        }).flatMap(Collection::stream).map(ProfileStack::deserialize).collect(Collectors.toList());
+
+        // analyze
+        analyzation.setTrees(analyze(stacks));
+
+        return analyzation;
+    }
+
+    private SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
+        // query min and max sequence
+        int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
+        int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end);
+
+        // data not found
+        if (maxSequence <= 0) {
+            return null;
+        }
+
+        SequenceSearch sequenceSearch = new SequenceSearch(maxSequence - minSequence);
+        maxSequence = Math.min(maxSequence, minSequence + analyzeSnapshotMaxSize);
+
+        do {
+            int batchMax = Math.min(minSequence + threadSnapshotAnalyzeBatchSize, maxSequence);
+            sequenceSearch.getRanges().add(new SequenceRange(minSequence, batchMax));
+            minSequence = batchMax + 1;
+        }
+        while (minSequence < maxSequence);
+
+        // increase last range max sequence, need to include last sequence data
+        sequenceSearch.getRanges().getLast().increaseMaxSequence();
+
+        return sequenceSearch;
+    }
 
     /**
      * Analyze records
-     * @param stacks
-     * @return
      */
-    public static ProfileAnalyzation analyze(List<ProfileStack> stacks) {
+    protected List<ProfileStackTree> analyze(List<ProfileStack> stacks) {
         if (CollectionUtils.isEmpty(stacks)) {
             return null;
         }
 
         // using parallel stream
-        Map<String, ProfileStackElement> stackTrees = stacks.parallelStream()
-                // stack list cannot be empty
-                .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
-                .collect(Collectors.groupingBy(s -> s.getStack().get(0), ANALYZE_COLLECTOR));
+        Map<String, ProfileStackTree> stackTrees = stacks.parallelStream()
+                                                         // stack list cannot be empty
+                                                         .filter(s -> CollectionUtils.isNotEmpty(s.getStack()))
+                                                         .collect(Collectors.groupingBy(s -> s.getStack()
+                                                                                              .get(0), ANALYZE_COLLECTOR));
 
-        ProfileAnalyzation analyzer = new ProfileAnalyzation();
-        analyzer.setStack(new ArrayList<>(stackTrees.values()));
-        return analyzer;
+        return new ArrayList<>(stackTrees.values());
     }
 
+    private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
+        if (profileThreadSnapshotQueryDAO == null) {
+            profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(IProfileThreadSnapshotQueryDAO.class);
+        }
+        return profileThreadSnapshotQueryDAO;
+    }
+
+    private static class SequenceSearch {
+        private LinkedList<SequenceRange> ranges = new LinkedList<>();
+        private int totalSequenceCount;
+
+        public SequenceSearch(int totalSequenceCount) {
+            this.totalSequenceCount = totalSequenceCount;
+        }
+
+        public LinkedList<SequenceRange> getRanges() {
+            return ranges;
+        }
+
+        public int getTotalSequenceCount() {
+            return totalSequenceCount;
+        }
+    }
+
+    private static class SequenceRange {
+        private int minSequence;
+        private int maxSequence;
+
+        public SequenceRange(int minSequence, int maxSequence) {
+            this.minSequence = minSequence;
+            this.maxSequence = maxSequence;
+        }
+
+        public int getMinSequence() {
+            return minSequence;
+        }
+
+        public int getMaxSequence() {
+            return maxSequence;
+        }
+
+        public void increaseMaxSequence() {
+            this.maxSequence++;
+        }
+    }
 }

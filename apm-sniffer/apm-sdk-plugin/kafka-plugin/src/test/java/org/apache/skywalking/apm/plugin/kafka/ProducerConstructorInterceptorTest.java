@@ -44,12 +44,14 @@ public class ProducerConstructorInterceptorTest {
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private String brokerServers;
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return brokerServers;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            brokerServers = (String)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            brokerServers = (String) value;
         }
     };
 

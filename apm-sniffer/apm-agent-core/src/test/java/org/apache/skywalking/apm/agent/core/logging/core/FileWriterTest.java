@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.junit.AfterClass;
@@ -33,9 +32,6 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * @author wusheng
- */
 public class FileWriterTest {
 
     @BeforeClass

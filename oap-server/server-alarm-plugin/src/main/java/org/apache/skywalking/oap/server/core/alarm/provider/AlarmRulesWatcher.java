@@ -18,26 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
- * Alarm rules' settings can be dynamically updated via configuration center(s),
- * this class is responsible for monitoring the configuration and parsing them
- * into {@link Rules} and {@link #runningContext}.
+ * Alarm rules' settings can be dynamically updated via configuration center(s), this class is responsible for
+ * monitoring the configuration and parsing them into {@link Rules} and {@link #runningContext}.
  *
- * @author kezhenxu94
  * @since 6.5.0
  */
+@Slf4j
 public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
@@ -90,6 +90,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.rules = newRules;
         this.runningContext = newRunningContext;
         this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
+        log.info("Update alarm rules to {}", rules);
     }
 
     @Override
@@ -103,5 +104,9 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     public List<String> getWebHooks() {
         return this.rules.getWebhooks();
+    }
+
+    public GRPCAlarmSetting getGrpchookSetting() {
+        return this.rules.getGrpchookSetting();
     }
 }

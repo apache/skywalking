@@ -31,9 +31,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author stone.wlg
- */
 @RunWith(PowerMockRunner.class)
 public class ClusterConstructorWithStateListenerArgInterceptorTest {
 
@@ -67,7 +64,10 @@ public class ClusterConstructorWithStateListenerArgInterceptorTest {
 
     @Test
     public void onConstruct() {
-        interceptor.onConstruct(enhancedInstance, new Object[]{"cluster-name", inetSocketAddresses});
+        interceptor.onConstruct(enhancedInstance, new Object[] {
+            "cluster-name",
+            inetSocketAddresses
+        });
         ConnectionInfo connectionInfo = (ConnectionInfo) enhancedInstance.getSkyWalkingDynamicField();
         Assert.assertThat(connectionInfo.getContactPoints(), Is.is("172.20.0.2:9042"));
     }

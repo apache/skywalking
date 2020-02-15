@@ -18,27 +18,33 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
- *
- * @author wusheng
  */
+@Slf4j
 public class RunningRule {
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
 
@@ -85,17 +91,26 @@ public class RunningRule {
     public void in(MetaInAlarm meta, Metrics metrics) {
         if (!meta.getMetricsName().equals(metricsName)) {
             //Don't match rule, exit.
+            if (log.isTraceEnabled()) {
+                log.trace("Metric names are inconsistent, {}-{}", meta.getMetricsName(), metricsName);
+            }
             return;
         }
 
         if (CollectionUtils.isNotEmpty(includeNames)) {
             if (!includeNames.contains(meta.getName())) {
+                if (log.isTraceEnabled()) {
+                    log.trace("{} isn't in the including list {}", meta.getName(), includeNames);
+                }
                 return;
             }
         }
 
         if (CollectionUtils.isNotEmpty(excludeNames)) {
             if (excludeNames.contains(meta.getName())) {
+                if (log.isTraceEnabled()) {
+                    log.trace("{} is in the excluding list {}", meta.getName(), excludeNames);
+                }
                 return;
             }
         }
@@ -114,6 +129,7 @@ public class RunningRule {
                 valueType = MetricsValueType.MULTI_INTS;
                 threshold.setType(MetricsValueType.MULTI_INTS);
             } else {
+                log.warn("Unsupported value type {}", valueType);
                 return;
             }
         }
@@ -160,8 +176,6 @@ public class RunningRule {
     /**
      * A metrics window, based on AlarmRule#period. This window slides with time, just keeps the recent N(period)
      * buckets.
-     *
-     * @author wusheng
      */
     public class Window {
         private LocalDateTime endTime;
@@ -204,6 +218,9 @@ public class RunningRule {
             } finally {
                 lock.unlock();
             }
+            if (log.isTraceEnabled()) {
+                log.trace("Move window {}", transformValues(values));
+            }
         }
 
         public void add(Metrics metrics) {
@@ -226,12 +243,18 @@ public class RunningRule {
                 if (minutes >= values.size()) {
                     // too old data
                     // also should happen, but maybe if agent/probe mechanism time is not right.
+                    if (log.isTraceEnabled()) {
+                        log.trace("Timebucket is {}, endTime is {} and value size is {}", timeBucket, this.endTime, values.size());
+                    }
                     return;
                 }
 
                 this.values.set(values.size() - minutes - 1, metrics);
             } finally {
                 this.lock.unlock();
+            }
+            if (log.isTraceEnabled()) {
+                log.trace("Add metric {} to window {}", metrics, transformValues(this.values));
             }
         }
 
@@ -293,6 +316,9 @@ public class RunningRule {
                     case MULTI_INTS:
                         int[] ivalueArray = ((MultiIntValuesHolder) metrics).getValues();
                         Integer[] iaexpected = RunningRule.this.threshold.getIntValuesThreshold();
+                        if (log.isTraceEnabled()) {
+                            log.trace("Value array is {}, expected array is {}", ivalueArray, iaexpected);
+                        }
                         for (int i = 0; i < ivalueArray.length; i++) {
                             ivalue = ivalueArray[i];
                             Integer iNullableExpected = 0;
@@ -303,6 +329,9 @@ public class RunningRule {
                                 }
                             }
                             if (op.test(iNullableExpected, ivalue)) {
+                                if (log.isTraceEnabled()) {
+                                    log.trace("Matched, expected {}, value {}", iNullableExpected, ivalue);
+                                }
                                 matchCount++;
                                 break;
                             }
@@ -311,6 +340,9 @@ public class RunningRule {
                 }
             }
 
+            if (log.isTraceEnabled()) {
+                log.trace("Match count is {}, threshold is {}", matchCount, countThreshold);
+            }
             // Reach the threshold in current bucket.
             return matchCount >= countThreshold;
         }
@@ -321,5 +353,38 @@ public class RunningRule {
                 values.add(null);
             }
         }
+    }
+
+    private LinkedList<TraceLogMetric> transformValues(final LinkedList<Metrics> values) {
+        LinkedList<TraceLogMetric> r = new LinkedList<>();
+        values.forEach(m -> {
+            if (m == null) {
+                r.add(null);
+                return;
+            }
+            switch (valueType) {
+                case LONG:
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((LongValueHolder) m).getValue()}));
+                    break;
+                case INT:
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder) m).getValue()}));
+                    break;
+                case DOUBLE:
+                    r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder) m).getValue()}));
+                    break;
+                case MULTI_INTS:
+                    int[] iArr = ((MultiIntValuesHolder) m).getValues();
+                    r.add(new TraceLogMetric(m.getTimeBucket(), Arrays.stream(iArr).boxed().toArray(Number[]::new)));
+                    break;
+            }
+        });
+        return r;
+    }
+
+    @RequiredArgsConstructor
+    @ToString
+    private static class TraceLogMetric {
+        private final long timeBucket;
+        private final Number[] value;
     }
 }

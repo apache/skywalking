@@ -22,9 +22,6 @@ import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author MrPro
- */
 public class ProfileTaskCreationResultMatcher extends AbstractMatcher<ProfileTaskCreationResult> {
 
     @Override

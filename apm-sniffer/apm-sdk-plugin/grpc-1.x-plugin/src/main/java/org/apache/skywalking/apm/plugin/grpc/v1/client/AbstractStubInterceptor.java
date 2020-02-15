@@ -29,8 +29,6 @@ import java.lang.reflect.Method;
 
 /**
  * {@link AbstractStubInterceptor} add the interceptor for every ClientCall.
- *
- * @author zhang xin, kanro
  */
 public class AbstractStubInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
     @Override
@@ -41,17 +39,17 @@ public class AbstractStubInterceptor implements InstanceMethodsAroundInterceptor
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         return objInst.getSkyWalkingDynamicField();
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 }

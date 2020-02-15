@@ -31,10 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author zhaoyuguang
- */
-
 class BaseInterceptorMethods {
 
     void beforeMethod(Method method, Object[] allArguments) {

@@ -19,24 +19,24 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.Histogram;
-import org.apache.skywalking.oap.server.telemetry.api.*;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * HistogramMetrics metrics in Prometheus implementor.
- *
- * @author wusheng
  */
 public class PrometheusHistogramMetrics extends HistogramMetrics {
     private InnerMetricObject inner;
     private final double[] buckets;
 
-    public PrometheusHistogramMetrics(String name, String tips, MetricsTag.Keys labels,
-        MetricsTag.Values values, double... buckets) {
+    public PrometheusHistogramMetrics(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values,
+        double... buckets) {
         inner = new InnerMetricObject(name, tips, labels, values);
         this.buckets = buckets;
     }
 
-    @Override public void observe(double value) {
+    @Override
+    public void observe(double value) {
         Histogram.Child metrics = inner.getMetric();
         if (metrics != null) {
             metrics.observe(value);
@@ -44,14 +44,13 @@ public class PrometheusHistogramMetrics extends HistogramMetrics {
     }
 
     class InnerMetricObject extends BaseMetrics<Histogram, Histogram.Child> {
-        public InnerMetricObject(String name, String tips, MetricsTag.Keys labels,
-            MetricsTag.Values values) {
+        public InnerMetricObject(String name, String tips, MetricsTag.Keys labels, MetricsTag.Values values) {
             super(name, tips, labels, values);
         }
 
-        @Override protected Histogram create(String[] labelNames) {
-            Histogram.Builder builder = Histogram.build()
-                .name(name).help(tips);
+        @Override
+        protected Histogram create(String[] labelNames) {
+            Histogram.Builder builder = Histogram.build().name(name).help(tips);
             if (builder != null && buckets.length > 0) {
                 builder = builder.buckets(buckets);
             }

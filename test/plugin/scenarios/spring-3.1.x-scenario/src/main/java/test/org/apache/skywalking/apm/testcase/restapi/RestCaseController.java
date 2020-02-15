@@ -18,6 +18,9 @@
 
 package test.org.apache.skywalking.apm.testcase.restapi;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,10 +31,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.util.UriComponentsBuilder;
 import test.org.apache.skywalking.apm.testcase.entity.User;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class RestCaseController {
@@ -47,16 +46,18 @@ public class RestCaseController {
     @RequestMapping(value = "/create/", method = RequestMethod.POST)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@RequestBody User user,
-                           HttpServletResponse response, UriComponentsBuilder ucBuilder) throws InterruptedException {
+    public void createUser(@RequestBody User user, HttpServletResponse response,
+        UriComponentsBuilder ucBuilder) throws InterruptedException {
         users.put(user.getId(), user);
-        response.setHeader("Location", ucBuilder.path("/get/{id}").buildAndExpand(user.getId()).toUri().toASCIIString());
+        response.setHeader("Location", ucBuilder.path("/get/{id}")
+                                                .buildAndExpand(user.getId())
+                                                .toUri()
+                                                .toASCIIString());
     }
 
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     @ResponseBody
-    public User updateUser(@PathVariable("id") int id,
-                                           @RequestBody User user) throws InterruptedException {
+    public User updateUser(@PathVariable("id") int id, @RequestBody User user) throws InterruptedException {
         return new User(id, user.getUserName());
     }
 
@@ -66,7 +67,7 @@ public class RestCaseController {
     public void deleteUser(@PathVariable("id") int id) throws InterruptedException {
         User currentUser = users.get(id);
         if (currentUser == null) {
-           return;
+            return;
         }
         users.remove(id);
     }

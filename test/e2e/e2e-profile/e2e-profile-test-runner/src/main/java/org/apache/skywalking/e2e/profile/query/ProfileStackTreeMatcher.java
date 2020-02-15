@@ -15,31 +15,27 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
+package org.apache.skywalking.e2e.profile.query;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
+import org.assertj.core.api.Assertions;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 @Data
-public class ProfileStackAnalyze {
+public class ProfileStackTreeMatcher extends AbstractMatcher<ProfileAnalyzation.ProfileStackTree> {
 
-    private ProfileStackData data;
-    private List<ProfileStackElementMatcher> expected;
+    private List<ProfileStackElementMatcher> elements;
 
-    public void analyzeAndAssert() {
-        List<ProfileStack> stacks = data.transform();
-        ProfileAnalyzation analyze = ProfileAnalyzer.analyze(stacks);
+    @Override
+    public void verify(ProfileAnalyzation.ProfileStackTree profileStackTree) {
+        Assertions.assertThat(profileStackTree.getElements()).hasSameSizeAs(this.elements);
 
-        assertEquals(analyze.getStack().size(), expected.size());
-        for (int i = 0; i < analyze.getStack().size(); i++) {
-            expected.get(i).verify(analyze.getStack().get(i));
+        int size = this.elements.size();
+
+        for (int i = 0; i < size; i++) {
+            elements.get(i).verify(profileStackTree.getElements().get(i));
         }
     }
-
 }

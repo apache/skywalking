@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
-/**
- * @author peng-yongsheng
- */
 public class MergeDataCollection<STREAM_DATA extends StreamData> implements SWCollection<STREAM_DATA> {
 
     private Map<STREAM_DATA, STREAM_DATA> collection;
@@ -36,51 +35,63 @@ public class MergeDataCollection<STREAM_DATA extends StreamData> implements SWCo
         this.reading = false;
     }
 
-    @Override public void finishWriting() {
+    @Override
+    public void finishWriting() {
         writing = false;
     }
 
-    @Override public void writing() {
+    @Override
+    public void writing() {
         writing = true;
     }
 
-    @Override public boolean isWriting() {
+    @Override
+    public boolean isWriting() {
         return writing;
     }
 
-    @Override public void finishReading() {
+    @Override
+    public void finishReading() {
         reading = false;
     }
 
-    @Override public void reading() {
+    @Override
+    public void reading() {
         reading = true;
     }
 
-    @Override public boolean isReading() {
+    @Override
+    public boolean isReading() {
         return reading;
     }
 
-    @Override public boolean containsKey(STREAM_DATA key) {
+    @Override
+    public boolean containsKey(STREAM_DATA key) {
         return collection.containsKey(key);
     }
 
-    @Override public void put(STREAM_DATA value) {
+    @Override
+    public void put(STREAM_DATA value) {
         collection.put(value, value);
     }
 
-    @Override public STREAM_DATA get(STREAM_DATA key) {
+    @Override
+    public STREAM_DATA get(STREAM_DATA key) {
         return collection.get(key);
     }
 
-    @Override public int size() {
+    @Override
+    public int size() {
         return collection.size();
     }
 
-    @Override public void clear() {
+    @Override
+    public void clear() {
         collection.clear();
     }
 
-    @Override public Collection<STREAM_DATA> collection() {
+    @Override
+    public Collection<STREAM_DATA> collection() {
         return collection.values();
     }
 }

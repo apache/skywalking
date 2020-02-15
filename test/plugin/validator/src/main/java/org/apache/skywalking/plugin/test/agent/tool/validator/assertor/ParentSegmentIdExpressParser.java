@@ -14,16 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import java.util.List;
-
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ParentSegmentNotFoundException;
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.SegmentItem;
 
-/**
- * Created by xin on 2017/7/16.
- */
 public class ParentSegmentIdExpressParser {
     public static String parse(String express, List<SegmentItem> actual) {
         if (!express.trim().startsWith("${") && !express.trim().endsWith("}")) {

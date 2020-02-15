@@ -25,9 +25,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author brandon.fergerson
- */
 class VertxContext {
 
     public static final String STOP_SPAN_NECESSARY = "VERTX_STOP_SPAN_NECESSARY";

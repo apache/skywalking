@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -31,16 +32,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 /**
- *
  * {@link RestHighLevelClientInstrumentation} enhance the constructor method without argument in
  * <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientConInterceptor</code>
- * also enhance the <code>performRequestAndParseEntity</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor</code>,
- * also enhance the <code>get getAsync search searchAsync index indexAsync update updateAsync</code> method in <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientGetMethodsInterceptor
- * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientSearchMethodsInterceptor org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndexMethodsInterceptor
+ * also enhance the <code>performRequestAndParseEntity</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code>
+ * by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor</code>,
+ * also enhance the <code>get getAsync search searchAsync index indexAsync update updateAsync</code> method in
+ * <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientGetMethodsInterceptor
+ * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientSearchMethodsInterceptor
+ * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndexMethodsInterceptor
  * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientUpdateMethodsInterceptor</code>,
- * also enhance the <code>indices</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndicesMethodsInterceptor</code>
- *
- * @author aderm
+ * also enhance the <code>indices</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by
+ * <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndicesMethodsInterceptor</code>
  */
 public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine {
 

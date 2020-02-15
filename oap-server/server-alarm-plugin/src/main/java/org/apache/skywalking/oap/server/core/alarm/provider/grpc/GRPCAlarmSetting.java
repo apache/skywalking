@@ -15,15 +15,22 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
 
-import lombok.Data;
+package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
-import java.util.List;
+import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class ProfileStackAnalyzeHolder {
+@Setter
+@Getter
+@EqualsAndHashCode
+public class GRPCAlarmSetting {
+    private String targetHost;
+    private int targetPort;
 
-    private List<ProfileStackAnalyze> list;
-
+    public boolean isEmptySetting() {
+        return Objects.isNull(targetHost);
+    }
 }

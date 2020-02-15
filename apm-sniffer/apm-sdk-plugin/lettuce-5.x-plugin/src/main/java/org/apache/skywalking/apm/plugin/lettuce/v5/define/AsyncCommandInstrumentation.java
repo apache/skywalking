@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.lettuce.v5.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,9 +29,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
 public class AsyncCommandInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.lettuce.core.protocol.AsyncCommand";
@@ -46,12 +42,12 @@ public class AsyncCommandInstrumentation extends ClassInstanceMethodsEnhancePlug
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return (named("onComplete").and(takesArgumentWithType(0,"java.util.function.Consumer")))
-                            .or(named("onComplete").and(takesArgumentWithType(0,"java.util.function.BiConsumer")));
+                    return (named("onComplete").and(takesArgumentWithType(0, "java.util.function.Consumer"))).or(named("onComplete")
+                        .and(takesArgumentWithType(0, "java.util.function.BiConsumer")));
                 }
 
                 @Override

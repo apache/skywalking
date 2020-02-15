@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class ApdexMetricsTest {
 
@@ -88,7 +88,6 @@ public class ApdexMetricsTest {
         apdex1.combine(200, "foo", true);
         apdex1.combine(1500, "bar", true);
 
-
         ApdexMetrics apdex2 = new ApdexMetricsImpl();
         apdex2.combine(200, "foo", true);
         apdex2.combine(300, "bar", false);
@@ -104,31 +103,38 @@ public class ApdexMetricsTest {
 
     public class ApdexMetricsImpl extends ApdexMetrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
     }

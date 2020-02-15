@@ -35,9 +35,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = NETWORK_ADDRESS, name = "NetworkAddress")
 @Stream(name = NetworkAddressInventory.INDEX_NAME, scopeId = DefaultScopeDefine.NETWORK_ADDRESS, builder = NetworkAddressInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class NetworkAddressInventory extends RegisterSource {
@@ -47,8 +44,14 @@ public class NetworkAddressInventory extends RegisterSource {
     private static final String NAME = "name";
     private static final String NODE_TYPE = "node_type";
 
-    @Setter @Getter @Column(columnName = NAME, matchQuery = true) private String name = Const.EMPTY_STRING;
-    @Setter(AccessLevel.PRIVATE) @Getter(AccessLevel.PRIVATE) @Column(columnName = NODE_TYPE) private int nodeType;
+    @Setter
+    @Getter
+    @Column(columnName = NAME, matchQuery = true)
+    private String name = Const.EMPTY_STRING;
+    @Setter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PRIVATE)
+    @Column(columnName = NODE_TYPE)
+    private int nodeType;
 
     public void setNetworkAddressNodeType(NodeType nodeType) {
         this.nodeType = nodeType.value();
@@ -62,17 +65,20 @@ public class NetworkAddressInventory extends RegisterSource {
         return networkAddress;
     }
 
-    @Override public String id() {
+    @Override
+    public String id() {
         return buildId(name);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = 17;
         result = 31 * result + name.hashCode();
         return result;
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -80,11 +86,8 @@ public class NetworkAddressInventory extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        NetworkAddressInventory source = (NetworkAddressInventory)obj;
-        if (!name.equals(source.getName()))
-            return false;
-
-        return true;
+        NetworkAddressInventory source = (NetworkAddressInventory) obj;
+        return name.equals(source.getName());
     }
 
     public NetworkAddressInventory getClone() {
@@ -99,9 +102,10 @@ public class NetworkAddressInventory extends RegisterSource {
         return inventory;
     }
 
-    @Override public boolean combine(RegisterSource registerSource) {
+    @Override
+    public boolean combine(RegisterSource registerSource) {
         boolean isChanged = super.combine(registerSource);
-        NetworkAddressInventory inventory = (NetworkAddressInventory)registerSource;
+        NetworkAddressInventory inventory = (NetworkAddressInventory) registerSource;
 
         if (this.nodeType != inventory.getNodeType() && inventory.getLastUpdateTime() >= this.getLastUpdateTime()) {
             setNodeType(inventory.getNodeType());
@@ -111,7 +115,8 @@ public class NetworkAddressInventory extends RegisterSource {
         }
     }
 
-    @Override public RemoteData.Builder serialize() {
+    @Override
+    public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(getNodeType());
@@ -124,7 +129,8 @@ public class NetworkAddressInventory extends RegisterSource {
         return remoteBuilder;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
+    @Override
+    public void deserialize(RemoteData remoteData) {
         setSequence(remoteData.getDataIntegers(0));
         setNodeType(remoteData.getDataIntegers(1));
 
@@ -135,24 +141,27 @@ public class NetworkAddressInventory extends RegisterSource {
         setName(remoteData.getDataStrings(0));
     }
 
-    @Override public int remoteHashCode() {
+    @Override
+    public int remoteHashCode() {
         return 0;
     }
 
     public static class Builder implements StorageBuilder<NetworkAddressInventory> {
 
-        @Override public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {
+        @Override
+        public NetworkAddressInventory map2Data(Map<String, Object> dbMap) {
             NetworkAddressInventory inventory = new NetworkAddressInventory();
-            inventory.setSequence(((Number)dbMap.get(SEQUENCE)).intValue());
-            inventory.setName((String)dbMap.get(NAME));
-            inventory.setNodeType(((Number)dbMap.get(NODE_TYPE)).intValue());
-            inventory.setRegisterTime(((Number)dbMap.get(REGISTER_TIME)).longValue());
-            inventory.setHeartbeatTime(((Number)dbMap.get(HEARTBEAT_TIME)).longValue());
-            inventory.setLastUpdateTime(((Number)dbMap.get(LAST_UPDATE_TIME)).longValue());
+            inventory.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
+            inventory.setName((String) dbMap.get(NAME));
+            inventory.setNodeType(((Number) dbMap.get(NODE_TYPE)).intValue());
+            inventory.setRegisterTime(((Number) dbMap.get(REGISTER_TIME)).longValue());
+            inventory.setHeartbeatTime(((Number) dbMap.get(HEARTBEAT_TIME)).longValue());
+            inventory.setLastUpdateTime(((Number) dbMap.get(LAST_UPDATE_TIME)).longValue());
             return inventory;
         }
 
-        @Override public Map<String, Object> data2Map(NetworkAddressInventory storageData) {
+        @Override
+        public Map<String, Object> data2Map(NetworkAddressInventory storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SEQUENCE, storageData.getSequence());
             map.put(NAME, storageData.getName());

@@ -38,10 +38,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.OverrideC
  * instrumentation.</p>
  * <p>Date, 24th July 2019</p>
  * -------------------------------
- *
+ * <p>
  * This class wouldn't be loaded in real env. This is a class template for dynamic class generation.
- *
- * @author wusheng
  */
 public class InstanceMethodInterWithOverrideArgsTemplate {
     /**
@@ -55,29 +53,25 @@ public class InstanceMethodInterWithOverrideArgsTemplate {
     /**
      * Intercept the target instance method.
      *
-     * @param obj target class instance.
+     * @param obj          target class instance.
      * @param allArguments all method arguments
-     * @param method method description.
-     * @param zuper the origin call ref.
+     * @param method       method description.
+     * @param zuper        the origin call ref.
      * @return the return value of target instance method.
      * @throws Exception only throw exception because of zuper.call() or unexpected exception in sky-walking ( This is a
-     * bug, if anything triggers this condition ).
+     *                   bug, if anything triggers this condition ).
      */
     @RuntimeType
-    public static Object intercept(@This Object obj,
-        @AllArguments Object[] allArguments,
-        @Morph OverrideCallable zuper,
-        @Origin Method method
-    ) throws Throwable {
-        EnhancedInstance targetObject = (EnhancedInstance)obj;
+    public static Object intercept(@This Object obj, @AllArguments Object[] allArguments, @Morph OverrideCallable zuper,
+        @Origin Method method) throws Throwable {
+        EnhancedInstance targetObject = (EnhancedInstance) obj;
 
         prepare();
 
         MethodInterceptResult result = new MethodInterceptResult();
         try {
             if (INTERCEPTOR != null) {
-                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                    result);
+                INTERCEPTOR.beforeMethod(targetObject, method, allArguments, method.getParameterTypes(), result);
             }
         } catch (Throwable t) {
             if (LOGGER != null) {
@@ -95,8 +89,7 @@ public class InstanceMethodInterWithOverrideArgsTemplate {
         } catch (Throwable t) {
             try {
                 if (INTERCEPTOR != null) {
-                    INTERCEPTOR.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(),
-                        t);
+                    INTERCEPTOR.handleMethodException(targetObject, method, allArguments, method.getParameterTypes(), t);
                 }
             } catch (Throwable t2) {
                 if (LOGGER != null) {
@@ -107,8 +100,7 @@ public class InstanceMethodInterWithOverrideArgsTemplate {
         } finally {
             try {
                 if (INTERCEPTOR != null) {
-                    ret = INTERCEPTOR.afterMethod(targetObject, method, allArguments, method.getParameterTypes(),
-                        ret);
+                    ret = INTERCEPTOR.afterMethod(targetObject, method, allArguments, method.getParameterTypes(), ret);
                 }
             } catch (Throwable t) {
                 if (LOGGER != null) {

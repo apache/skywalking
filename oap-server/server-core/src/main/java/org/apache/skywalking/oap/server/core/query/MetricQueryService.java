@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -39,9 +39,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class MetricQueryService implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricQueryService.class);
@@ -61,8 +58,7 @@ public class MetricQueryService implements Service {
     }
 
     public IntValues getValues(final String metricsName, final List<String> ids, final Downsampling downsampling,
-        final long startTB,
-        final long endTB) throws IOException {
+        final long startTB, final long endTB) throws IOException {
         if (CollectionUtils.isEmpty(ids)) {
             /*
              * Don't support query values w/o ID. but UI still did this(as bug),
@@ -79,12 +75,12 @@ public class MetricQueryService implements Service {
         where.getKeyValues().add(intKeyValues);
         ids.forEach(intKeyValues.getValues()::add);
 
-        return getMetricQueryDAO().getValues(metricsName, downsampling, startTB, endTB, where, ValueColumnIds.INSTANCE.getValueCName(metricsName), ValueColumnIds.INSTANCE.getValueFunction(metricsName));
+        return getMetricQueryDAO().getValues(metricsName, downsampling, startTB, endTB, where, ValueColumnMetadata.INSTANCE.getValueCName(metricsName), ValueColumnMetadata.INSTANCE
+            .getValueFunction(metricsName));
     }
 
     public IntValues getLinearIntValues(final String indName, final String id, final Downsampling downsampling,
-        final long startTB,
-        final long endTB) throws IOException {
+        final long startTB, final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         if (StringUtil.isEmpty(id)) {
@@ -93,13 +89,11 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnMetadata.INSTANCE.getValueCName(indName));
     }
 
     public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
-        final Downsampling downsampling,
-        final long startTB,
-        final long endTB) throws IOException {
+        final Downsampling downsampling, final long startTB, final long endTB) throws IOException {
         List<Integer> linearIndex = new ArrayList<>(numOfLinear);
         for (int i = 0; i < numOfLinear; i++) {
             linearIndex.add(i);
@@ -109,9 +103,7 @@ public class MetricQueryService implements Service {
     }
 
     public List<IntValues> getSubsetOfMultipleLinearIntValues(final String indName, final String id,
-        final List<Integer> linearIndex,
-        final Downsampling downsampling,
-        final long startTB,
+        final List<Integer> linearIndex, final Downsampling downsampling, final long startTB,
         final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
@@ -121,7 +113,8 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnIds.INSTANCE.getValueCName(indName));
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnMetadata.INSTANCE
+            .getValueCName(indName));
 
         List<IntValues> response = new ArrayList<>(linearIndex.size());
         Collections.addAll(response, multipleLinearIntValues);
@@ -129,8 +122,7 @@ public class MetricQueryService implements Service {
     }
 
     public Thermodynamic getThermodynamic(final String indName, final String id, final Downsampling downsampling,
-        final long startTB,
-        final long endTB) throws IOException {
+        final long startTB, final long endTB) throws IOException {
         List<DurationPoint> durationPoints = DurationUtils.INSTANCE.getDurationPoints(downsampling, startTB, endTB);
         List<String> ids = new ArrayList<>();
         durationPoints.forEach(durationPoint -> {
@@ -141,6 +133,6 @@ public class MetricQueryService implements Service {
             }
         });
 
-        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnMetadata.INSTANCE.getValueCName(indName));
     }
 }

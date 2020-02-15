@@ -26,13 +26,12 @@ import org.apache.skywalking.oap.server.telemetry.prometheus.PrometheusMetricsCr
 
 /**
  * Delegate prometheus metrics creator.
- *
- * @author gaohongtao
  */
 public class So11yMetricsCreator extends PrometheusMetricsCreator {
 
     @Override
-    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
+    public CounterMetrics createCounter(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues) {
         return super.createCounter(name, tips, tagKeys, tagValues);
     }
 
@@ -42,7 +41,8 @@ public class So11yMetricsCreator extends PrometheusMetricsCreator {
     }
 
     @Override
-    public HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues, double... buckets) {
+    public HistogramMetrics createHistogramMetric(String name, String tips, MetricsTag.Keys tagKeys,
+        MetricsTag.Values tagValues, double... buckets) {
         return super.createHistogramMetric(name, tips, tagKeys, tagValues, buckets);
     }
 }

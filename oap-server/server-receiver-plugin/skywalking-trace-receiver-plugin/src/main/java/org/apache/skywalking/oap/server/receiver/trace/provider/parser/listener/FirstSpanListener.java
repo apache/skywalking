@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 
 /**
- * @author peng-yongsheng
+ * SpanListener for the first span in the segment. The first span means span id is 0.
  */
 public interface FirstSpanListener extends SpanListener {
     void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);

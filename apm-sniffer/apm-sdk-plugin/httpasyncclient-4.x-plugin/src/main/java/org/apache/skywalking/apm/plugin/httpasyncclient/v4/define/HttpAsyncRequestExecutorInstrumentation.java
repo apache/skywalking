@@ -29,8 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link HttpAsyncRequestExecutorInstrumentation} indicates the real request start location in method requestReady
- *
- * @author lican
  */
 public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -45,22 +43,23 @@ public class HttpAsyncRequestExecutorInstrumentation extends ClassInstanceMethod
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{new InstanceMethodsInterceptPoint() {
-            @Override
-            public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(METHOD);
-            }
+        return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(METHOD);
+                }
 
-            @Override
-            public String getMethodsInterceptor() {
-                return INTERCEPTOR_CLASS;
-            }
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
 
-            @Override
-            public boolean isOverrideArgs() {
-                return false;
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
             }
-        }
         };
     }
 

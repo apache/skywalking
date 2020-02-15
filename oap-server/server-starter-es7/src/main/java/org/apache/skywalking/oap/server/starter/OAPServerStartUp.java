@@ -19,11 +19,10 @@
 package org.apache.skywalking.oap.server.starter;
 
 /**
- * @author peng-yongsheng
- * @author kezhenxu94
+ * OAP starter specific for the ES7 storage. This includes the same code of OAPServerStartUp in the `server-starter`
+ * module.
  */
 public class OAPServerStartUp {
-
     public static void main(String[] args) {
         OAPServerBootstrap.start();
     }

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.testcase.postgresql.controller;
 
 import org.springframework.beans.factory.annotation.Value;

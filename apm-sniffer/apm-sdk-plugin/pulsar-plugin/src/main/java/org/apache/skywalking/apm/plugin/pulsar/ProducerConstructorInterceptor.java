@@ -24,12 +24,10 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 /**
  * Interceptor of pulsar producer constructor.
- *
- * The interceptor create {@link ProducerEnhanceRequiredInfo} which is required by instance method interceptor,
- * So use it to update the skywalking dynamic field of pulsar producer enhanced instance.
- * So that the instance methods can get the {@link ProducerEnhanceRequiredInfo}
- *
- * @author penghui
+ * <p>
+ * The interceptor create {@link ProducerEnhanceRequiredInfo} which is required by instance method interceptor, So use
+ * it to update the skywalking dynamic field of pulsar producer enhanced instance. So that the instance methods can get
+ * the {@link ProducerEnhanceRequiredInfo}
  */
 public class ProducerConstructorInterceptor implements InstanceConstructorInterceptor {
 

@@ -20,8 +20,6 @@ package org.apache.skywalking.apm.toolkit.trace;
 
 /**
  * provide custom api that set tag for current active span.
- *
- * @author zhangxin
  */
 public class ActiveSpan {
     /**

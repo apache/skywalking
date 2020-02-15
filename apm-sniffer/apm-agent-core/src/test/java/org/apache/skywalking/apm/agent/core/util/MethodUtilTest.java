@@ -23,15 +23,11 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-/**
- * @author zhaoyuguang
- */
-
 public class MethodUtilTest {
 
     @Test
     public void testClassForName() throws NoSuchMethodException {
         Assert.assertTrue(MethodUtil.generateOperationName(MethodUtil.class.getMethod("generateOperationName", Method.class))
-                .equals("org.apache.skywalking.apm.agent.core.util.MethodUtil.generateOperationName(java.lang.reflect.Method)"));
+                                    .equals("org.apache.skywalking.apm.agent.core.util.MethodUtil.generateOperationName(java.lang.reflect.Method)"));
     }
 }

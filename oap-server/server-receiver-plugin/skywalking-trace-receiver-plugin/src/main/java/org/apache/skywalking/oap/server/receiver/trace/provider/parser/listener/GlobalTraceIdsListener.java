@@ -22,7 +22,8 @@ import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 
 /**
- * @author peng-yongsheng
+ * GlobalTraceIdsListener is the first notified listener in the trace analysis. The notifications include the trace is
+ * with other segment core info.
  */
 public interface GlobalTraceIdsListener extends SpanListener {
     void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo);

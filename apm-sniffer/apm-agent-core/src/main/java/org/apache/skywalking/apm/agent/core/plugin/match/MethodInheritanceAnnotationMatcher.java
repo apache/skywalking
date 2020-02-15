@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import net.bytebuddy.build.HashCodeAndEqualsPlugin;
@@ -35,7 +36,6 @@ import static net.bytebuddy.matcher.ElementMatchers.annotationType;
 
 /**
  * Matching used to match method annotations, Can match annotations on interface methods
- * @author jialong
  */
 @HashCodeAndEqualsPlugin.Enhance
 public class MethodInheritanceAnnotationMatcher<T extends MethodDescription> extends ElementMatcher.Junction.AbstractBase<T> {
@@ -65,7 +65,6 @@ public class MethodInheritanceAnnotationMatcher<T extends MethodDescription> ext
         return recursiveMatches(declaringType, name, parameters);
     }
 
-
     private boolean recursiveMatches(TypeDefinition typeDefinition, String methodName, ParameterList<?> parameters) {
         TypeList.Generic interfaces = typeDefinition.getInterfaces();
         for (TypeDescription.Generic implInterface : interfaces) {
@@ -82,7 +81,6 @@ public class MethodInheritanceAnnotationMatcher<T extends MethodDescription> ext
         return false;
     }
 
-
     private boolean parameterEquals(ParameterList<?> source, ParameterList<?> impl) {
         if (source.size() != impl.size()) {
             return false;
@@ -95,7 +93,8 @@ public class MethodInheritanceAnnotationMatcher<T extends MethodDescription> ext
         return true;
     }
 
-    public static <T extends AnnotationSource> ElementMatcher.Junction<T> byMethodInheritanceAnnotationMatcher(ElementMatcher<? super TypeDescription> matcher) {
+    public static <T extends AnnotationSource> ElementMatcher.Junction<T> byMethodInheritanceAnnotationMatcher(
+        ElementMatcher<? super TypeDescription> matcher) {
         return new MethodInheritanceAnnotationMatcher(new CollectionItemMatcher<>(annotationType(matcher)));
     }
 }

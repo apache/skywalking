@@ -27,7 +27,8 @@ import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import static java.util.Objects.isNull;
 
 /**
- * @author peng-yongsheng
+ * SpanDecorator is used in the metadata register process, and provides an easy access way consistently, no matter
+ * before or after the register.
  */
 public class SpanDecorator implements StandardBuilder {
     private boolean isOrigin = true;
@@ -222,7 +223,8 @@ public class SpanDecorator implements StandardBuilder {
         }
     }
 
-    @Override public void toBuilder() {
+    @Override
+    public void toBuilder() {
         if (this.isOrigin) {
             this.isOrigin = false;
             spanBuilderV2 = spanObjectV2.toBuilder();

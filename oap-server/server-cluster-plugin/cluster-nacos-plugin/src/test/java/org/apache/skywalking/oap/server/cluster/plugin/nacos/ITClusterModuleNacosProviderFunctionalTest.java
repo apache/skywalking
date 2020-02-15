@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import com.alibaba.nacos.api.naming.NamingService;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -30,18 +32,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author zhangwei
- */
 public class ITClusterModuleNacosProviderFunctionalTest {
-
 
     private String nacosAddress;
 
@@ -173,7 +168,8 @@ public class ITClusterModuleNacosProviderFunctionalTest {
             } else {
                 Thread.sleep(1000);
             }
-        } while (--i > 0);
+        }
+        while (--i > 0);
         return Collections.EMPTY_LIST;
     }
 

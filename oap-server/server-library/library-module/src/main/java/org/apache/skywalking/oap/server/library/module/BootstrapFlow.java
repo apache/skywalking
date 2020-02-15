@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author wu-sheng, peng-yongsheng
- */
 class BootstrapFlow {
     private static final Logger logger = LoggerFactory.getLogger(BootstrapFlow.class);
 
@@ -50,8 +47,8 @@ class BootstrapFlow {
             if (requiredModules != null) {
                 for (String module : requiredModules) {
                     if (!moduleManager.has(module)) {
-                        throw new ModuleNotFoundException(module + " is required by " + provider.getModuleName()
-                            + "." + provider.name() + ", but not found.");
+                        throw new ModuleNotFoundException(module + " is required by " + provider.getModuleName() + "." + provider
+                            .name() + ", but not found.");
                     }
                 }
             }
@@ -108,8 +105,12 @@ class BootstrapFlow {
 
             if (numOfToBeSequenced == allProviders.size()) {
                 StringBuilder unSequencedProviders = new StringBuilder();
-                allProviders.forEach(provider -> unSequencedProviders.append(provider.getModuleName()).append("[provider=").append(provider.getClass().getName()).append("]\n"));
-                throw new CycleDependencyException("Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders.length() - 1));
+                allProviders.forEach(provider -> unSequencedProviders.append(provider.getModuleName())
+                                                                     .append("[provider=")
+                                                                     .append(provider.getClass().getName())
+                                                                     .append("]\n"));
+                throw new CycleDependencyException("Exist cycle module dependencies in \n" + unSequencedProviders.substring(0, unSequencedProviders
+                    .length() - 1));
             }
         }
         while (allProviders.size() != 0);

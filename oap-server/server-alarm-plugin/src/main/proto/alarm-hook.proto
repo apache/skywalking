@@ -15,33 +15,28 @@
  * limitations under the License.
  *
  */
-package org.apache.skywalking.oap.server.core.profile.bean;
 
-import com.google.common.base.Splitter;
-import lombok.Data;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStack;
+syntax = "proto3";
 
-import java.util.ArrayList;
-import java.util.List;
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.core.alarm.grpc";
 
-@Data
-public class ProfileStackData {
-
-    private int limit;
-    private List<String> snapshots;
-
-    public List<ProfileStack> transform() {
-        ArrayList<ProfileStack> result = new ArrayList<>(snapshots.size());
-
-        for (int i = 0; i < snapshots.size(); i++) {
-            ProfileStack stack = new ProfileStack();
-            stack.setSequence(i);
-            stack.setDumpTime(i * limit);
-            stack.setStack(Splitter.on("-").splitToList(snapshots.get(i)));
-            result.add(stack);
-        }
-
-        return result;
+service AlarmService {
+    rpc doAlarm (stream AlarmMessage) returns (Response) {
     }
-
 }
+
+message AlarmMessage {
+    int64 scopeId = 1;
+    string scope = 2;
+    string name = 3;
+    int64 id0 = 4;
+    int64 id1 = 5;
+    string ruleName = 6;
+    string alarmMessage = 7;
+    int64 startTime = 8;
+}
+
+message Response {
+}
+

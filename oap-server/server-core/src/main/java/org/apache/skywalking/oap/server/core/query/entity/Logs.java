@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author wusheng
- */
 @Setter
 @Getter
 public class Logs {

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -32,47 +31,45 @@ import net.bytebuddy.matcher.ElementMatcher;
 
 /**
  * {@link PreparedStatementInstrumentation} define that the mysql-2.x plugin intercepts the following methods in the
- * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and
- * com.mysql.cj.jdbc.PreparedStatement class:
- * 1. execute
- * 2. executeQuery
- * 3. executeUpdate
- * 4. executeLargeUpdate
- * 5. addBatch
- *
- * @author zhangxin
+ * com.mysql.jdbc.JDBC42PreparedStatement, com.mysql.jdbc.PreparedStatement and com.mysql.cj.jdbc.PreparedStatement
+ * class: 1. execute 2. executeQuery 3. executeUpdate 4. executeLargeUpdate 5. addBatch
  */
 public class PreparedStatementInstrumentation extends AbstractMysqlInstrumentation {
 
     private static final String SERVICE_METHOD_INTERCEPTOR = Constants.PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL_PREPARED_STATEMENT_CLASS_NAME = "com.mysql.jdbc.PreparedStatement";
 
-    @Override public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate"))
-                        .or(named("executeLargeUpdate"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute").or(named("executeQuery"))
+                                           .or(named("executeUpdate"))
+                                           .or(named("executeLargeUpdate"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SERVICE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(MYSQL_PREPARED_STATEMENT_CLASS_NAME);
     }
 

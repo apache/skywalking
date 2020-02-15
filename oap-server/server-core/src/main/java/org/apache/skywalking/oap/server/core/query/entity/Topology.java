@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Topology {
     private final List<Node> nodes;

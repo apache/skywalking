@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author liuhaoyang
+ *
  **/
 public class MaxLongMetricsTest {
 
@@ -53,31 +53,38 @@ public class MaxLongMetricsTest {
 
     public class MaxLongMetricsImpl extends MaxLongMetrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public Metrics toMonth() {
             return null;
         }
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
 
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
     }

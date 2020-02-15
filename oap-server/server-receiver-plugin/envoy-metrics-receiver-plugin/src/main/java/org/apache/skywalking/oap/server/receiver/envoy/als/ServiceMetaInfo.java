@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import java.util.*;
-import lombok.*;
+import java.util.List;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * @author wusheng
- */
 @Getter
 @Setter
 @ToString
@@ -49,17 +50,18 @@ public class ServiceMetaInfo {
         private final String value;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        ServiceMetaInfo info = (ServiceMetaInfo)o;
-        return Objects.equals(serviceName, info.serviceName) &&
-            Objects.equals(serviceInstanceName, info.serviceInstanceName);
+        ServiceMetaInfo info = (ServiceMetaInfo) o;
+        return Objects.equals(serviceName, info.serviceName) && Objects.equals(serviceInstanceName, info.serviceInstanceName);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(serviceName, serviceInstanceName);
     }
 

@@ -31,7 +31,6 @@ import org.apache.skywalking.apm.util.StringUtil;
  * {@link ContextCarrier} is a data carrier of {@link TracingContext}. It holds the snapshot (current state) of {@link
  * TracingContext}.
  * <p>
- * Created by wusheng on 2017/2/17.
  */
 public class ContextCarrier implements Serializable {
     private ID traceSegmentId;
@@ -83,7 +82,8 @@ public class ContextCarrier implements Serializable {
      */
     String serialize(HeaderVersion version) {
         if (this.isValid(version)) {
-            return StringUtil.join('-',
+            return StringUtil.join(
+                '-',
                 "1",
                 Base64.encode(this.getPrimaryDistributedTraceId().encode()),
                 Base64.encode(this.getTraceSegmentId().encode()),
@@ -92,7 +92,8 @@ public class ContextCarrier implements Serializable {
                 this.getEntryServiceInstanceId() + "",
                 Base64.encode(this.getPeerHost()),
                 Base64.encode(this.getEntryEndpointName()),
-                Base64.encode(this.getParentEndpointName()));
+                Base64.encode(this.getParentEndpointName())
+            );
         }
         return "";
     }

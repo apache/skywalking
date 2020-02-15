@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.storage.profile;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.DAO;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * {@link ProfileThreadSnapshotRecord} database queries
@@ -31,11 +30,30 @@ import java.util.List;
 public interface IProfileThreadSnapshotQueryDAO extends DAO {
 
     /**
-     * search all profiled segments, need appoint taskId and snapshot sequence equals 0
-     * sort by segment start time
-     * @param taskId
+     * search all profiled segments, need appoint taskId and snapshot sequence equals 0 sort by segment start time
+     *
      * @return it represents the segments having profile snapshot data.
      */
     List<BasicTrace> queryProfiledSegments(String taskId) throws IOException;
+
+    /**
+     * search snapshots min sequence
+     * @return min sequence, return -1 if not found data
+     */
+    int queryMinSequence(String segmentId, long start, long end) throws IOException;
+
+    /**
+     * search snapshots max sequence
+     * @return max sequence, return -1 if not found data
+     */
+    int queryMaxSequence(String segmentId, long start, long end) throws IOException;
+
+    /**
+     * search snapshots with sequence range
+     * @param minSequence min sequence, include self
+     * @param maxSequence max sequence, exclude self
+     * @return snapshots
+     */
+    List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException;
 
 }

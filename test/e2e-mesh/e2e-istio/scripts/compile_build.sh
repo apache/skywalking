@@ -27,4 +27,4 @@ git rev-parse HEAD
 git submodule init
 git submodule update
 
-make build.all && make docker.oap -e TAG=$TAG
+SKIP_TEST=true make build.all && make docker.oap -e TAG=$TAG
