@@ -23,8 +23,14 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -48,6 +54,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexNameConverter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -106,38 +113,54 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         if (!StringUtil.isEmpty(config.getNameSpace())) {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
-        elasticSearchClient = new ElasticSearchClient(config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
-            .getTrustStorePass(), config.getNameSpace(), config.getUser(), config.getPassword());
+        elasticSearchClient = new ElasticSearchClient(
+            config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
+            .getTrustStorePass(), config.getUser(), config.getPassword(),
+            indexNameConverters(config.getNameSpace(), config.isEnablePackedDownsampling())
+        );
 
-        this.registerServiceImplementation(IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
-            .getFlushInterval(), config.getConcurrentRequests()));
+        this.registerServiceImplementation(
+            IBatchDAO.class, new BatchProcessEsDAO(elasticSearchClient, config.getBulkActions(), config
+                .getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockDAOImpl(elasticSearchClient));
-        this.registerServiceImplementation(IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(getManager(), elasticSearchClient, new ElasticsearchStorageTTL()));
+        this.registerServiceImplementation(
+            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(getManager(), elasticSearchClient,
+                                                            new ElasticsearchStorageTTL()
+            ));
 
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new ServiceInventoryCacheEsDAO(elasticSearchClient, config
-            .getResultWindowMaxSize()));
-        this.registerServiceImplementation(IServiceInstanceInventoryCacheDAO.class, new ServiceInstanceInventoryCacheDAO(elasticSearchClient, config
-            .getResultWindowMaxSize()));
-        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new EndpointInventoryCacheEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(INetworkAddressInventoryCacheDAO.class, new NetworkAddressInventoryCacheEsDAO(elasticSearchClient, config
-            .getResultWindowMaxSize()));
+        this.registerServiceImplementation(
+            IServiceInventoryCacheDAO.class, new ServiceInventoryCacheEsDAO(elasticSearchClient, config
+                .getResultWindowMaxSize()));
+        this.registerServiceImplementation(
+            IServiceInstanceInventoryCacheDAO.class, new ServiceInstanceInventoryCacheDAO(elasticSearchClient, config
+                .getResultWindowMaxSize()));
+        this.registerServiceImplementation(
+            IEndpointInventoryCacheDAO.class, new EndpointInventoryCacheEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(
+            INetworkAddressInventoryCacheDAO.class, new NetworkAddressInventoryCacheEsDAO(elasticSearchClient, config
+                .getResultWindowMaxSize()));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQueryEsDAO(elasticSearchClient));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(
+            ITraceQueryDAO.class, new TraceQueryEsDAO(elasticSearchClient, config.getSegmentQueryMaxSize()));
+        this.registerServiceImplementation(
+            IMetadataQueryDAO.class, new MetadataQueryEsDAO(elasticSearchClient, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEsDAO(elasticSearchClient));
 
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config
-            .getProfileTaskQueryMaxSize()));
-        this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(elasticSearchClient, config
-            .getProfileTaskQueryMaxSize()));
-        this.registerServiceImplementation(IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
-            .getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(
+            IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(
+            IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
+        this.registerServiceImplementation(
+            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
+                .getProfileTaskQueryMaxSize()));
     }
 
     @Override
@@ -173,5 +196,64 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         configService.getDataTTLConfig().setHourMetricsDataTTL(config.getHourMetricsDataTTL());
         configService.getDataTTLConfig().setDayMetricsDataTTL(config.getDayMetricsDataTTL());
         configService.getDataTTLConfig().setMonthMetricsDataTTL(config.getMonthMetricsDataTTL());
+    }
+
+    public static List<IndexNameConverter> indexNameConverters(String namespace, boolean enablePackedDownsampling) {
+        List<IndexNameConverter> converters = new ArrayList<>();
+
+        if (enablePackedDownsampling) {
+            // Packed downsampling converter.
+            converters.add(new PackedDownsamplingConverter(enablePackedDownsampling));
+            converters.add(new NamespaceConverter(namespace));
+        }
+        return converters;
+    }
+
+    private static class PackedDownsamplingConverter implements IndexNameConverter {
+        private final boolean enablePackedDownsampling;
+        private final String[] removableSuffixes = new String[] {
+            Const.ID_SPLIT + Downsampling.Day.getName(),
+            Const.ID_SPLIT + Downsampling.Hour.getName()
+        };
+        private final Map<String, String> convertedIndexNames = new ConcurrentHashMap<>();
+
+        public PackedDownsamplingConverter(final boolean enablePackedDownsampling) {
+            this.enablePackedDownsampling = enablePackedDownsampling;
+        }
+
+        @Override
+        public String convert(final String indexName) {
+            String convertedName = convertedIndexNames.get(indexName);
+            if (convertedName != null) {
+                return convertedName;
+            }
+            convertedName = indexName;
+            for (final String removableSuffix : removableSuffixes) {
+                String mayReplaced = indexName.replaceAll(removableSuffix, "");
+                if (mayReplaced.length() != convertedName.length()) {
+                    convertedName = mayReplaced;
+                    break;
+                }
+            }
+            convertedIndexNames.put(indexName, convertedName);
+            return convertedName;
+        }
+    }
+
+    private static class NamespaceConverter implements IndexNameConverter {
+        private final String namespace;
+
+        public NamespaceConverter(final String namespace) {
+            this.namespace = namespace;
+        }
+
+        @Override
+        public String convert(final String indexName) {
+            if (StringUtil.isNotEmpty(namespace)) {
+                return namespace + "_" + indexName;
+            }
+
+            return indexName;
+        }
     }
 }

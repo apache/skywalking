@@ -55,6 +55,16 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Getter
     @Setter
     String trustStorePass;
+    /**
+     * If this is ON, downsampling indexes(hour and day precisions) merged into minute precision. In this case, only
+     * {@link #minuteMetricsDataTTL} works for minute, hour and day.
+     *
+     * @since 7.0.0 This is an enhancement. Reduce 50% of index number(remove day/hour index requirements) but keep the
+     * performance nearly same as before. Only one side-effect for 6.x storage is just day/hour indexes remain, users
+     * need to remove them manually.
+     */
+    @Getter
+    private boolean enablePackedDownsampling = true;
     @Setter
     private int resultWindowMaxSize = 10000;
     @Setter
