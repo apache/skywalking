@@ -203,22 +203,20 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
         if (enablePackedDownsampling) {
             // Packed downsampling converter.
-            converters.add(new PackedDownsamplingConverter(enablePackedDownsampling));
-            converters.add(new NamespaceConverter(namespace));
+            converters.add(new PackedDownsamplingConverter());
         }
+        converters.add(new NamespaceConverter(namespace));
         return converters;
     }
 
     private static class PackedDownsamplingConverter implements IndexNameConverter {
-        private final boolean enablePackedDownsampling;
         private final String[] removableSuffixes = new String[] {
             Const.ID_SPLIT + Downsampling.Day.getName(),
             Const.ID_SPLIT + Downsampling.Hour.getName()
         };
         private final Map<String, String> convertedIndexNames = new ConcurrentHashMap<>();
 
-        public PackedDownsamplingConverter(final boolean enablePackedDownsampling) {
-            this.enablePackedDownsampling = enablePackedDownsampling;
+        public PackedDownsamplingConverter() {
         }
 
         @Override
