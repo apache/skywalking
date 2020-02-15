@@ -28,6 +28,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
+/**
+ * Instruments Armeria server 0.85.x
+ */
 public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.linecorp.armeria.server.HttpServerHandler";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.armeria.Armeria085ServerInterceptor";
@@ -48,8 +51,9 @@ public class Armeria085ServerInstrumentation extends ClassInstanceMethodsEnhance
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("handleRequest").and(takesArgument(0, named("io.netty.channel.ChannelHandlerContext")))
-                                                 .and(takesArgument(1, named("com.linecorp.armeria.server.DecodedHttpRequest")));
+                    return named("handleRequest")
+                        .and(takesArgument(0, named("io.netty.channel.ChannelHandlerContext")))
+                        .and(takesArgument(1, named("com.linecorp.armeria.server.DecodedHttpRequest")));
                 }
 
                 @Override

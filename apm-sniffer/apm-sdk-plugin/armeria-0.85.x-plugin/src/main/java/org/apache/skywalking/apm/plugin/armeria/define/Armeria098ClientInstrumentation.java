@@ -30,11 +30,11 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Instruments Armeria client 0.85.x
+ * Instruments Armeria client 0.98.x
  */
-public class Armeria085ClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class Armeria098ClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.linecorp.armeria.client.UserClient";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.armeria.Armeria085ClientInterceptor";
+    private static final String INTERCEPTOR_CLASS_98 = "org.apache.skywalking.apm.plugin.armeria.Armeria098ClientInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -52,17 +52,18 @@ public class Armeria085ClientInstrumentation extends ClassInstanceMethodsEnhance
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute").and(takesArguments(7))
-                                           .and(takesArgument(0, named("io.netty.channel.EventLoop")))
-                                           .and(takesArgument(1, named("com.linecorp.armeria.common.HttpMethod")))
-                                           .and(takesArgument(2, named("java.lang.String")))
-                                           .and(takesArgument(3, named("java.lang.String")))
-                                           .and(takesArgument(4, named("java.lang.String")));
+                    return named("execute")
+                        .and(takesArguments(7))
+                        .and(takesArgument(0, named("com.linecorp.armeria.client.endpoint.EndpointGroup")))
+                        .and(takesArgument(1, named("com.linecorp.armeria.common.HttpMethod")))
+                        .and(takesArgument(2, named("java.lang.String")))
+                        .and(takesArgument(3, named("java.lang.String")))
+                        .and(takesArgument(4, named("java.lang.String")));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return INTERCEPTOR_CLASS_98;
                 }
 
                 @Override
