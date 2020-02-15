@@ -45,7 +45,6 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -151,7 +150,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         //part3 has two parts, 1) a timestamp measured in milliseconds 2) a seq between 0(included) and 9999(included)
         String part3 = idParts[2];
-        String strTimestamps = part3.substring(0, part3.length()-4);
+        String strTimestamps = part3.substring(0, part3.length() - 4);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
