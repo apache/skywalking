@@ -9,6 +9,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Required items could not be found, when import project into Eclipse](Import-Project-Eclipse-RequireItems-Exception.md)
 
 ## Runtime
+* [Why metrics indexes(ElasticSearch) in Hour and Day precisions stop update after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)
 * [6.x version upgrade](v6-version-upgrade.md)
 * [Why only traces in UI?](Why-have-traces-no-others.md)
 * [Too many GRPC logs in the console](Too-many-gRPC-logs.md)
