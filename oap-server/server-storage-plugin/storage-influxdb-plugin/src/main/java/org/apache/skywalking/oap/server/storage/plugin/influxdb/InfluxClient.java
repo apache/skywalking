@@ -50,9 +50,9 @@ public class InfluxClient implements Client {
      */
     public static final String TIME = "time";
     /**
-     * A constant, the name of tag.
+     * A constant, the name of tag of time_bucket.
      */
-    public static final String TAG_ENTITY_ID = "entity_id";
+    public static final String TAG_TIME_BUCKET = "_time_bucket";
 
     private final String database;
 
@@ -91,8 +91,6 @@ public class InfluxClient implements Client {
      * Execute a query against InfluxDB and return a set of {@link QueryResult.Result}s. Normally, InfluxDB supports
      * combining multiple statements into one query, so that we do get multi-results.
      *
-     * @param query Query
-     * @return a set of {@link QueryResult.Result}s.
      * @throws IOException if there is an error on the InfluxDB server or communication error.
      */
     public List<QueryResult.Result> query(Query query) throws IOException {
@@ -114,8 +112,6 @@ public class InfluxClient implements Client {
     /**
      * Execute a query against InfluxDB with a single statement.
      *
-     * @param query Query
-     * @return a set of {@link QueryResult.Series}s
      * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public List<QueryResult.Series> queryForSeries(Query query) throws IOException {
@@ -130,8 +126,6 @@ public class InfluxClient implements Client {
     /**
      * Execute a query against InfluxDB with a single statement but return a single {@link QueryResult.Series}.
      *
-     * @param query Query
-     * @return {@link QueryResult.Series}
      * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public QueryResult.Series queryForSingleSeries(Query query) throws IOException {
@@ -146,8 +140,6 @@ public class InfluxClient implements Client {
      * Data management, to drop a time-series by measurement and time-series name specified. If an exception isn't
      * thrown, it means execution success. Notice, drop series don't support to drop series by range
      *
-     * @param measurement String
-     * @param timeBucket  long
      * @throws IOException if there is an error on the InfluxDB server or communication error
      */
     public void dropSeries(String measurement, long timeBucket) throws IOException {
@@ -166,8 +158,6 @@ public class InfluxClient implements Client {
     /**
      * Write a {@link Point} into InfluxDB. Note that, the {@link Point} is written into buffer of InfluxDB Client and
      * wait for buffer flushing.
-     *
-     * @param point Point
      */
     public void write(Point point) {
         getInflux().write(point);
@@ -175,8 +165,6 @@ public class InfluxClient implements Client {
 
     /**
      * A batch operation of write. {@link Point}s flush directly.
-     *
-     * @param points BatchPoints
      */
     public void write(BatchPoints points) {
         getInflux().write(points);
@@ -189,10 +177,6 @@ public class InfluxClient implements Client {
 
     /**
      * Convert to InfluxDB {@link TimeInterval}.
-     *
-     * @param timeBucket   long
-     * @param downsampling Downsampling
-     * @return
      */
     public static TimeInterval timeInterval(long timeBucket, Downsampling downsampling) {
         return ti(TimeBucket.getTimestamp(timeBucket, downsampling), "ms");
@@ -200,9 +184,6 @@ public class InfluxClient implements Client {
 
     /**
      * Convert to InfluxDB {@link TimeInterval}.
-     *
-     * @param timeBucket long
-     * @return
      */
     public static TimeInterval timeInterval(long timeBucket) {
         return ti(TimeBucket.getTimestamp(timeBucket), "ms");

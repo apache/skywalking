@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
@@ -41,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -114,7 +114,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         queryWhereQuery
             .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB, downsampling)))
             .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB, downsampling)))
-            .groupBy(InfluxClient.TAG_ENTITY_ID);
+            .groupBy(MetricsDAO.TAG_ENTITY_ID);
 
         IntValues intValues = new IntValues();
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);
@@ -124,7 +124,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (!(seriesList == null || seriesList.isEmpty())) {
             for (QueryResult.Series series : seriesList) {
                 KVInt kv = new KVInt();
-                kv.setId(series.getTags().get(Metrics.ENTITY_ID));
+                kv.setId(series.getTags().get(MetricsDAO.TAG_ENTITY_ID));
                 Number value = (Number) series.getValues().get(0).get(1);
                 kv.setValue(value.longValue());
 
@@ -263,18 +263,18 @@ public class MetricsQuery implements IMetricsQueryDAO {
             .where(contains("id", Joiner.on("|").join(ids)));
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
-        List<QueryResult.Series> series = client.queryForSeries(query);
+        QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        if (series == null || series.isEmpty()) {
+        if (series == null) {
             return new Thermodynamic();
         }
 
         int numOfSteps = 0, axisYStep = 0;
         List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
         Thermodynamic thermodynamic = new Thermodynamic();
-        for (List<Object> values : series.get(0).getValues()) {
+        for (List<Object> values : series.getValues()) {
             numOfSteps = (int) values.get(2) + 1;
             axisYStep = (int) values.get(1);
             IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);

@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -42,6 +44,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 public class MetricsDAO implements IMetricsDAO {
+    public static final String TAG_ENTITY_ID = "_entity_id";
+
     private final StorageBuilder<Metrics> storageBuilder;
     private final InfluxClient client;
 
@@ -52,10 +56,12 @@ public class MetricsDAO implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select("*::field")
+        WhereQueryImpl<SelectQueryImpl> query = select()
+            .regex("*::field")
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
         QueryResult.Series series = client.queryForSingleSeries(query);
+
         if (series == null) {
             return Collections.emptyList();
         }
@@ -64,7 +70,7 @@ public class MetricsDAO implements IMetricsDAO {
         List<String> columns = series.getColumns();
         Map<String, String> storageAndColumnNames = Maps.newHashMap();
         for (ModelColumn column : model.getColumns()) {
-            storageAndColumnNames.put(column.getColumnName().getName(), column.getColumnName().getStorageName());
+            storageAndColumnNames.put(column.getColumnName().getStorageName(), column.getColumnName().getName());
         }
 
         series.getValues().forEach(values -> {
@@ -81,12 +87,16 @@ public class MetricsDAO implements IMetricsDAO {
             metrics.add(storageBuilder.map2Data(data));
 
         });
+
         return metrics;
     }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
-        return new InfluxInsertRequest(PointBuilder.fromMetrics(model, metrics, storageBuilder.data2Map(metrics)));
+        final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
+        return new InfluxInsertRequest(model, metrics, storageBuilder)
+            .time(timestamp, TimeUnit.MILLISECONDS)
+            .addFieldAsTag(Metrics.ENTITY_ID, TAG_ENTITY_ID);
     }
 
     @Override

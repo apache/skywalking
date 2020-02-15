@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Logs;
 import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -65,11 +66,11 @@ public class LogQuery implements ILogQueryDAO {
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
                           LogState state, String stateCode, Pagination paging, int from, int limit,
                           long startTB, long endTB) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> recallQuery = select("*::field")
+        WhereQueryImpl<SelectQueryImpl> recallQuery = select().regex("*::field")
             .from(client.getDatabase(), metricName)
             .where();
         if (serviceId != Const.NONE) {
-            recallQuery.and(eq(SERVICE_ID, serviceId));
+            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
         }
         if (serviceInstanceId != Const.NONE) {
             recallQuery.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));

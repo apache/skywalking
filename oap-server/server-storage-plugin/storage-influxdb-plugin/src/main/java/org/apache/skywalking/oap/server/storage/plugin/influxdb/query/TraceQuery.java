@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -100,7 +101,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(regex(SegmentRecord.ENDPOINT_NAME, "/" + endpointName.replaceAll("/", "\\\\/") + "/"));
         }
         if (serviceId != 0) {
-            recallQuery.and(eq(SegmentRecord.SERVICE_ID, serviceId));
+            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
         }
         if (serviceInstanceId != 0) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
