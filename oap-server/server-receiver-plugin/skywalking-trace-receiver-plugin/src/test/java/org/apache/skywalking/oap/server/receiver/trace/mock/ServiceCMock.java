@@ -30,9 +30,6 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author peng-yongsheng
- */
 class ServiceCMock {
 
     private final RegisterMock registerMock;
