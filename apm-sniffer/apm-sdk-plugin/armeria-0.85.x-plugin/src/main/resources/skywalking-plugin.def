@@ -17,3 +17,4 @@
 armeria-085=org.apache.skywalking.apm.plugin.armeria.define.Armeria085ServerInstrumentation
 armeria-085=org.apache.skywalking.apm.plugin.armeria.define.Armeria085ClientInstrumentation
 armeria-086=org.apache.skywalking.apm.plugin.armeria.define.Armeria086ClientInstrumentation
+armeria-098=org.apache.skywalking.apm.plugin.armeria.define.Armeria098ClientInstrumentation
