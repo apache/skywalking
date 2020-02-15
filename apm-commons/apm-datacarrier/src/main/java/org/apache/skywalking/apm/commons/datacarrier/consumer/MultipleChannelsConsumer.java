@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Channels;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
@@ -30,12 +31,13 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 public class MultipleChannelsConsumer extends Thread {
     private volatile boolean running;
     private volatile ArrayList<Group> consumeTargets;
-    private volatile long size;
+    private final AtomicLong size;
     private final long consumeCycle;
 
     public MultipleChannelsConsumer(String threadName, long consumeCycle) {
         super(threadName);
-        this.consumeTargets = new ArrayList<Group>();
+        this.consumeTargets = new ArrayList<>();
+        this.size = new AtomicLong(0);
         this.consumeCycle = consumeCycle;
     }
 
@@ -99,11 +101,11 @@ public class MultipleChannelsConsumer extends Thread {
         }
         newList.add(group);
         consumeTargets = newList;
-        size += channels.size();
+        size.addAndGet(channels.size());
     }
 
     public long size() {
-        return size;
+        return size.get();
     }
 
     void shutdown() {

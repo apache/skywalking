@@ -18,15 +18,17 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.partition;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * use normal int to rolling.
  */
 public class SimpleRollingPartitioner<T> implements IDataPartitioner<T> {
-    private volatile int i = 0;
+    private AtomicInteger i = new AtomicInteger(0);
 
     @Override
     public int partition(int total, T data) {
-        return Math.abs(i++ % total);
+        return Math.abs(i.getAndIncrement() % total);
     }
 
     @Override

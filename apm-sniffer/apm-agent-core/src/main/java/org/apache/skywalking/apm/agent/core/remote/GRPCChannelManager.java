@@ -29,6 +29,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
@@ -48,7 +49,7 @@ public class GRPCChannelManager implements BootService, Runnable {
     private final List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<>());
     private volatile List<String> grpcServers;
     private volatile int selectedIdx = -1;
-    private volatile int reconnectCount = 0;
+    private AtomicInteger reconnectCount = new AtomicInteger(0);
 
     @Override
     public void prepare() {
@@ -114,13 +115,13 @@ public class GRPCChannelManager implements BootService, Runnable {
                                                     .addChannelDecorator(new AuthenticationDecorator())
                                                     .build();
                         notify(GRPCChannelStatus.CONNECTED);
-                        reconnectCount = 0;
+                        reconnectCount.set(0);
                         reconnect = false;
-                    } else if (managedChannel.isConnected(++reconnectCount > Config.Agent.FORCE_RECONNECTION_PERIOD)) {
+                    } else if (managedChannel.isConnected(reconnectCount.incrementAndGet() > Config.Agent.FORCE_RECONNECTION_PERIOD)) {
                         // Reconnect to the same server is automatically done by GRPC,
                         // therefore we are responsible to check the connectivity and
                         // set the state and notify listeners
-                        reconnectCount = 0;
+                        reconnectCount.set(0);
                         notify(GRPCChannelStatus.CONNECTED);
                         reconnect = false;
                     }

@@ -21,7 +21,6 @@ package org.apache.skywalking.apm.agent.core.logging.core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -45,9 +45,10 @@ public class FileWriter implements IWriter {
     private static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
     private FileOutputStream fileOutputStream;
-    private ArrayBlockingQueue logBuffer;
-    private volatile int fileSize;
-    private Pattern filenamePattern = Pattern.compile(Config.Logging.FILE_NAME + "\\.\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}");
+    private final ArrayBlockingQueue<String> logBuffer;
+    private final AtomicLong fileSize = new AtomicLong(0);
+    private final Pattern filenamePattern =
+        Pattern.compile(Config.Logging.FILE_NAME + "\\.\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}");
 
     public static FileWriter get() {
         if (INSTANCE == null) {
@@ -61,30 +62,24 @@ public class FileWriter implements IWriter {
     }
 
     private FileWriter() {
-        logBuffer = new ArrayBlockingQueue(1024);
-        final ArrayList<String> outputLogs = new ArrayList<String>(200);
+        logBuffer = new ArrayBlockingQueue<>(1024);
+        final ArrayList<String> outputLogs = new ArrayList<>(200);
         Executors.newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("LogFileWriter"))
-                 .scheduleAtFixedRate(new RunnableWithExceptionProtection(new Runnable() {
-                     @Override
-                     public void run() {
-                         try {
-                             logBuffer.drainTo(outputLogs);
-                             for (String log : outputLogs) {
-                                 writeToFile(log + Constants.LINE_SEPARATOR);
-                             }
-                             try {
-                                 fileOutputStream.flush();
-                             } catch (IOException e) {
-                                 e.printStackTrace();
-                             }
-                         } finally {
-                             outputLogs.clear();
+                 .scheduleAtFixedRate(new RunnableWithExceptionProtection(() -> {
+                     try {
+                         logBuffer.drainTo(outputLogs);
+                         for (String log : outputLogs) {
+                             writeToFile(log + Constants.LINE_SEPARATOR);
                          }
+                         try {
+                             fileOutputStream.flush();
+                         } catch (IOException e) {
+                             e.printStackTrace();
+                         }
+                     } finally {
+                         outputLogs.clear();
                      }
-                 }, new RunnableWithExceptionProtection.CallbackWhenException() {
-                     @Override
-                     public void handle(Throwable t) {
-                     }
+                 }, t -> {
                  }), 0, 1, TimeUnit.SECONDS);
     }
 
@@ -95,7 +90,7 @@ public class FileWriter implements IWriter {
         if (prepareWriteStream()) {
             try {
                 fileOutputStream.write(message.getBytes());
-                fileSize += message.length();
+                fileSize.addAndGet(message.length());
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -105,35 +100,26 @@ public class FileWriter implements IWriter {
     }
 
     private void switchFile() {
-        if (fileSize > Config.Logging.MAX_FILE_SIZE) {
-            forceExecute(new Callable() {
-                @Override
-                public Object call() throws Exception {
-                    fileOutputStream.flush();
-                    return null;
-                }
+        if (fileSize.get() > Config.Logging.MAX_FILE_SIZE) {
+            forceExecute(() -> {
+                fileOutputStream.flush();
+                return null;
             });
-            forceExecute(new Callable() {
-                @Override
-                public Object call() throws Exception {
-                    fileOutputStream.close();
-                    return null;
-                }
+            forceExecute(() -> {
+                fileOutputStream.close();
+                return null;
             });
-            forceExecute(new Callable() {
-                @Override
-                public Object call() throws Exception {
-                    new File(Config.Logging.DIR, Config.Logging.FILE_NAME).renameTo(new File(Config.Logging.DIR, Config.Logging.FILE_NAME + new SimpleDateFormat(".yyyy_MM_dd_HH_mm_ss")
-                        .format(new Date())));
-                    return null;
-                }
+            forceExecute(() -> {
+                new File(Config.Logging.DIR, Config.Logging.FILE_NAME)
+                    .renameTo(new File(
+                        Config.Logging.DIR,
+                        Config.Logging.FILE_NAME + new SimpleDateFormat(".yyyy_MM_dd_HH_mm_ss").format(new Date())
+                    ));
+                return null;
             });
-            forceExecute(new Callable() {
-                @Override
-                public Object call() throws Exception {
-                    fileOutputStream = null;
-                    return null;
-                }
+            forceExecute(() -> {
+                fileOutputStream = null;
+                return null;
             });
 
             if (Config.Logging.MAX_HISTORY_FILES > 0) {
@@ -149,14 +135,8 @@ public class FileWriter implements IWriter {
      */
     private String[] getHistoryFilePath() {
         File path = new File(Config.Logging.DIR);
-        String[] pathArr = path.list(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return filenamePattern.matcher(name).matches();
-            }
-        });
 
-        return pathArr;
+        return path.list((dir, name) -> filenamePattern.matcher(name).matches());
     }
 
     /**
@@ -166,12 +146,7 @@ public class FileWriter implements IWriter {
         String[] historyFileArr = getHistoryFilePath();
         if (historyFileArr != null && historyFileArr.length > Config.Logging.MAX_HISTORY_FILES) {
 
-            Arrays.sort(historyFileArr, new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o2.compareTo(o1);
-                }
-            });
+            Arrays.sort(historyFileArr, Comparator.reverseOrder());
 
             for (int i = Config.Logging.MAX_HISTORY_FILES; i < historyFileArr.length; i++) {
                 File expiredFile = new File(Config.Logging.DIR, historyFileArr[i]);
@@ -180,7 +155,7 @@ public class FileWriter implements IWriter {
         }
     }
 
-    private void forceExecute(Callable callable) {
+    private void forceExecute(Callable<Void> callable) {
         try {
             callable.call();
         } catch (Exception e) {
@@ -203,7 +178,7 @@ public class FileWriter implements IWriter {
         }
         try {
             fileOutputStream = new FileOutputStream(new File(logFilePath, Config.Logging.FILE_NAME), true);
-            fileSize = Long.valueOf(new File(logFilePath, Config.Logging.FILE_NAME).length()).intValue();
+            fileSize.set(new File(logFilePath, Config.Logging.FILE_NAME).length());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
