@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc;
 
 import io.grpc.stub.StreamObserver;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstancePingGrpc;
@@ -32,14 +34,13 @@ import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceIn
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
+/**
+ * ServiceInstancePingServiceHandler responses the requests for instance ping. Trigger the heartbeat update and push the
+ * commands to the downstream.
+ */
+@Slf4j
 public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.ServiceInstancePingImplBase implements GRPCHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstancePingServiceHandler.class);
-
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
@@ -69,10 +70,14 @@ public class ServiceInstancePingServiceHandler extends ServiceInstancePingGrpc.S
             serviceInventoryRegister.heartbeat(serviceInstanceInventory.getServiceId(), heartBeatTime);
             responseObserver.onNext(Commands.getDefaultInstance());
         } else {
-            logger.warn("Can't find service by service instance id from cache," + " service instance id is: {}, will send a reset command to agent side", serviceInstanceId);
+            log.warn(
+                "Can't find service by service instance id from cache," + " service instance id is: {}, will send a reset command to agent side",
+                serviceInstanceId
+            );
 
-            final ServiceResetCommand resetCommand = commandService.newResetCommand(request.getServiceInstanceId(), request
-                .getTime(), request.getServiceInstanceUUID());
+            final ServiceResetCommand resetCommand = commandService.newResetCommand(
+                request.getServiceInstanceId(), request
+                    .getTime(), request.getServiceInstanceUUID());
             final Command command = resetCommand.serialize().build();
             final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
             responseObserver.onNext(nextCommands);

@@ -26,9 +26,15 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 public class SharingServerConfig extends ModuleConfig {
     private String restHost;
+    /**
+     * Only setting the real port(not 0) makes the jetty server online.
+     */
     private int restPort;
     private String restContextPath;
     private String gRPCHost;
+    /**
+     * Only setting the real port(not 0) makes the gRPC server online.
+     */
     private int gRPCPort;
     private int maxConcurrentCallsPerConnection;
     private int maxMessageSize;

@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.standard
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
@@ -38,15 +40,15 @@ import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryR
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
+/**
+ * SpanExchanger process the segment owner(service/instance) ID register, including operation name and network address.
+ *
+ * @since 6.6.0 only the operation name of entry span is registered as the endpoint, others keep the operation name as
+ * the literal string.
+ */
+@Slf4j
 public class SpanExchanger implements IdExchanger<SpanDecorator> {
-
-    private static final Logger logger = LoggerFactory.getLogger(SpanExchanger.class);
-
     private static SpanExchanger EXCHANGER;
     private final ServiceInventoryCache serviceInventoryCacheDAO;
     private final IServiceInventoryRegister serviceInventoryRegister;
@@ -95,8 +97,9 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
             int componentId = componentLibraryCatalogService.getComponentId(standardBuilder.getComponent());
 
             if (componentId == 0) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("component: {} in service: {} exchange failed", standardBuilder.getComponent(), serviceId);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "component: {} in service: {} exchange failed", standardBuilder.getComponent(), serviceId);
                 }
 
                 exchanged = false;
@@ -109,11 +112,12 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
 
         int peerId = standardBuilder.getPeerId();
         if (peerId == 0 && !Strings.isNullOrEmpty(standardBuilder.getPeer())) {
-            peerId = networkAddressInventoryRegister.getOrCreate(standardBuilder.getPeer(), buildServiceProperties(standardBuilder));
+            peerId = networkAddressInventoryRegister.getOrCreate(
+                standardBuilder.getPeer(), buildServiceProperties(standardBuilder));
 
             if (peerId == Const.NONE) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("peer: {} in service: {} exchange failed", standardBuilder.getPeer(), serviceId);
+                if (log.isDebugEnabled()) {
+                    log.debug("peer: {} in service: {} exchange failed", standardBuilder.getPeer(), serviceId);
                 }
 
                 exchanged = false;
@@ -135,7 +139,8 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
              * it will only be updated at the first time for now.
              */
             JsonObject properties = null;
-            ServiceInventory newServiceInventory = serviceInventoryCacheDAO.get(serviceInventoryCacheDAO.getServiceId(peerId));
+            ServiceInventory newServiceInventory = serviceInventoryCacheDAO.get(
+                serviceInventoryCacheDAO.getServiceId(peerId));
             if (SpanLayer.Database.equals(standardBuilder.getSpanLayer())) {
                 if (!newServiceInventory.hasProperties()) {
                     properties = buildServiceProperties(standardBuilder);
@@ -143,8 +148,9 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
             }
             serviceInventoryRegister.update(newServiceInventory.getSequence(), nodeType, properties);
 
-            ServiceInstanceInventory newServiceInstanceInventory = serviceInstanceInventoryCacheDAO.get(serviceInstanceInventoryCacheDAO
-                .getServiceInstanceId(newServiceInventory.getSequence(), peerId));
+            ServiceInstanceInventory newServiceInstanceInventory = serviceInstanceInventoryCacheDAO.get(
+                serviceInstanceInventoryCacheDAO
+                    .getServiceInstanceId(newServiceInventory.getSequence(), peerId));
             serviceInstanceInventoryRegister.update(newServiceInstanceInventory.getSequence(), nodeType, properties);
         }
 
@@ -154,14 +160,16 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
              * so, since 6.6.0, only it triggers register.
              */
             if (SpanType.Entry.equals(standardBuilder.getSpanType())) {
-                String endpointName = Strings.isNullOrEmpty(standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
+                String endpointName = Strings.isNullOrEmpty(
+                    standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
                     .getOperationName();
-                int endpointId = endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder
-                    .getSpanType()));
+                int endpointId = endpointInventoryRegister.getOrCreate(
+                    serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder
+                                                                          .getSpanType()));
 
                 if (endpointId == 0) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("endpoint name: {} from service id: {} exchange failed", endpointName, serviceId);
+                    if (log.isDebugEnabled()) {
+                        log.debug("endpoint name: {} from service id: {} exchange failed", endpointName, serviceId);
                     }
 
                     exchanged = false;

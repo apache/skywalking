@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.remote;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 
+/**
+ * Covert the interface implementation to {@link RemoteData.Builder}, in order to send the data through network.
+ */
 public interface Serializable {
     RemoteData.Builder serialize();
 }

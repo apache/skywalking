@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -34,16 +37,13 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * ServiceMappingSpanListener includes the specific logic about the concept of service mapping. Service mapping is the
+ * core idea to make the SkyWalking has good performance and low memory costs, when discovery the big topology.
+ */
+@Slf4j
 public class ServiceMappingSpanListener implements EntrySpanListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceMappingSpanListener.class);
-
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final TraceServiceModuleConfig config;
     private final ServiceInventoryCache serviceInventoryCache;
@@ -69,10 +69,15 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
         return Point.Entry.equals(point);
     }
 
+    /**
+     * Fetch the network address information used at the client side from the propagated context(headers mostly. Besides
+     * the MQ and uninstrumented services, the the network address will be treated as the alias name of the current
+     * service. The alias mechanism is the service mapping.
+     */
     @Override
     public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("service mapping listener parse reference");
+        if (log.isDebugEnabled()) {
+            log.debug("service mapping listener parse reference");
         }
 
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
@@ -83,11 +88,12 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
                     int serviceId = serviceInventoryCache.getServiceId(networkAddressId);
 
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("{} is configured as gateway, will reset its mapping service id", serviceId);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} is configured as gateway, will reset its mapping service id", serviceId);
                         }
                         ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
-                        if (serviceInventory.getMappingServiceId() != Const.NONE && !servicesToResetMapping.contains(serviceId)) {
+                        if (serviceInventory.getMappingServiceId() != Const.NONE && !servicesToResetMapping.contains(
+                            serviceId)) {
                             servicesToResetMapping.add(serviceId);
                         }
                     } else {
@@ -104,15 +110,18 @@ public class ServiceMappingSpanListener implements EntrySpanListener {
     @Override
     public void build() {
         serviceMappings.forEach(serviceMapping -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("service mapping listener build, service id: {}, mapping service id: {}", serviceMapping.getServiceId(), serviceMapping
-                    .getMappingServiceId());
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "service mapping listener build, service id: {}, mapping service id: {}",
+                    serviceMapping.getServiceId(), serviceMapping
+                        .getMappingServiceId()
+                );
             }
             serviceInventoryRegister.updateMapping(serviceMapping.getServiceId(), serviceMapping.getMappingServiceId());
         });
         servicesToResetMapping.forEach(serviceId -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("service mapping listener build, reset mapping of service id: {}", serviceId);
+            if (log.isDebugEnabled()) {
+                log.debug("service mapping listener build, reset mapping of service id: {}", serviceId);
             }
             serviceInventoryRegister.resetMapping(serviceId);
         });

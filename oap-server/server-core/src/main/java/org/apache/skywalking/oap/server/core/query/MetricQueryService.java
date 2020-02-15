@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnIds;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -75,7 +75,7 @@ public class MetricQueryService implements Service {
         where.getKeyValues().add(intKeyValues);
         ids.forEach(intKeyValues.getValues()::add);
 
-        return getMetricQueryDAO().getValues(metricsName, downsampling, startTB, endTB, where, ValueColumnIds.INSTANCE.getValueCName(metricsName), ValueColumnIds.INSTANCE
+        return getMetricQueryDAO().getValues(metricsName, downsampling, startTB, endTB, where, ValueColumnMetadata.INSTANCE.getValueCName(metricsName), ValueColumnMetadata.INSTANCE
             .getValueFunction(metricsName));
     }
 
@@ -89,7 +89,7 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnMetadata.INSTANCE.getValueCName(indName));
     }
 
     public List<IntValues> getMultipleLinearIntValues(final String indName, final String id, final int numOfLinear,
@@ -113,7 +113,7 @@ public class MetricQueryService implements Service {
             durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
         }
 
-        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnIds.INSTANCE
+        IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnMetadata.INSTANCE
             .getValueCName(indName));
 
         List<IntValues> response = new ArrayList<>(linearIndex.size());
@@ -133,6 +133,6 @@ public class MetricQueryService implements Service {
             }
         });
 
-        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnIds.INSTANCE.getValueCName(indName));
+        return getMetricQueryDAO().getThermodynamic(indName, downsampling, ids, ValueColumnMetadata.INSTANCE.getValueCName(indName));
     }
 }

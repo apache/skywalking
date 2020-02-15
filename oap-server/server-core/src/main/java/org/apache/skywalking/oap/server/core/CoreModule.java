@@ -55,6 +55,9 @@ import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
+/**
+ * Core module definition. Define all open services to other modules.
+ */
 public class CoreModule extends ModuleDefine {
 
     public static final String NAME = "core";
