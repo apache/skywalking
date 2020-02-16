@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -35,9 +36,8 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class StorageEsInstaller extends ModelInstaller {
-
-    private static final Logger logger = LoggerFactory.getLogger(StorageEsInstaller.class);
     private final Gson gson = new Gson();
 
     private final StorageModuleElasticsearchConfig config;
@@ -54,7 +54,8 @@ public class StorageEsInstaller extends ModelInstaller {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
             if (model.isCapableOfTimeSeries()) {
-                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(model.getName());
+                String timeSeriesIndexName = TimeSeriesUtils.timeSeries(model);
+                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
             } else {
                 return esClient.isExistsIndex(model.getName());
             }
@@ -69,29 +70,30 @@ public class StorageEsInstaller extends ModelInstaller {
 
         Map<String, Object> settings = createSetting(model.isRecord());
         Map<String, Object> mapping = createMapping(model);
-        logger.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
+        log.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
             .toString());
 
         try {
             if (model.isCapableOfTimeSeries()) {
                 if (!esClient.isExistsTemplate(model.getName())) {
                     boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
-                    logger.info("create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                    log.info(
+                        "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
                     if (!isAcknowledged) {
                         throw new StorageException("create " + model.getName() + " index template failure, ");
                     }
                 }
-                if (!esClient.isExistsIndex(model.getName())) {
-                    String timeSeriesIndexName = TimeSeriesUtils.timeSeries(model);
+                String timeSeriesIndexName = TimeSeriesUtils.timeSeries(model);
+                if (!esClient.isExistsIndex(timeSeriesIndexName)) {
                     boolean isAcknowledged = esClient.createIndex(timeSeriesIndexName);
-                    logger.info("create {} index finished, isAcknowledged: {}", timeSeriesIndexName, isAcknowledged);
+                    log.info("create {} index finished, isAcknowledged: {}", timeSeriesIndexName, isAcknowledged);
                     if (!isAcknowledged) {
                         throw new StorageException("create " + timeSeriesIndexName + " time series index failure, ");
                     }
                 }
             } else {
                 boolean isAcknowledged = esClient.createIndex(model.getName(), settings, mapping);
-                logger.info("create {} index finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                log.info("create {} index finished, isAcknowledged: {}", model.getName(), isAcknowledged);
                 if (!isAcknowledged) {
                     throw new StorageException("create " + model.getName() + " index failure, ");
                 }
@@ -106,7 +108,8 @@ public class StorageEsInstaller extends ModelInstaller {
         setting.put("index.number_of_shards", config.getIndexShardsNumber());
         setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
         setting.put("index.refresh_interval", record ? TimeValue.timeValueSeconds(10)
-                                                                .toString() : TimeValue.timeValueSeconds(config.getFlushInterval())
+                                                                .toString() : TimeValue.timeValueSeconds(
+            config.getFlushInterval())
                                                                                        .toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
         if (!StringUtil.isEmpty(config.getAdvanced())) {
@@ -150,7 +153,7 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        logger.debug("elasticsearch index template setting: {}", mapping.toString());
+        log.debug("elasticsearch index template setting: {}", mapping.toString());
 
         return mapping;
     }
