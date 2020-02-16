@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.entity.Call.CallDetail;
 import org.apache.skywalking.oap.server.core.query.entity.Node;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
@@ -78,11 +79,20 @@ class TopologyBuilder {
                 nodes.put(source.getSequence(), buildNode(source));
             }
 
-            if (!nodes.containsKey(target.getSequence())) {
-                nodes.put(target.getSequence(), buildNode(target));
+            int sequence = target.getSequence();
+            if (nodes.containsKey(sequence)) {
+                //if node type is Unknown, but some targer know node type, so update the node type.
+                Node node = nodes.get(sequence);
+                if (node.getType() == Const.UNKNOWN) {
+                    if (BooleanUtils.valueToBoolean(target.getIsAddress()) ) {
+                        setNodeTypeFromCallDetail(node, clientCall);
+                    }
+                }
+            } else {
+                Node node = buildNode(target);
+                nodes.put(sequence, node);
                 if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
-                    nodes.get(target.getSequence())
-                         .setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+                    setNodeTypeFromCallDetail(node, clientCall);
                 }
             }
 
@@ -158,13 +168,14 @@ class TopologyBuilder {
                 nodes.put(source.getSequence(), buildNode(source));
             }
 
-            if (!nodes.containsKey(target.getSequence())) {
-                nodes.put(target.getSequence(), buildNode(target));
+            int sequence = target.getSequence();
+            if (!nodes.containsKey(sequence)) {
+                nodes.put(sequence, buildNode(target));
             }
 
-            if (nodes.containsKey(target.getSequence())) {
-                nodes.get(target.getSequence())
-                     .setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+            if (nodes.containsKey(sequence)) {
+                Node node = nodes.get(sequence);
+                setNodeTypeFromCallDetail(node, serverCall);
             }
         }
 
@@ -172,6 +183,12 @@ class TopologyBuilder {
         topology.getCalls().addAll(calls);
         topology.getNodes().addAll(nodes.values());
         return topology;
+    }
+
+    private void setNodeTypeFromCallDetail(Node node, CallDetail callDetail) {
+        int componentId = callDetail.getComponentId();
+        String type = componentLibraryCatalogService.getServerNameBasedOnComponent(componentId);
+        node.setType(type);
     }
 
     private Node buildNode(ServiceInventory serviceInventory) {
