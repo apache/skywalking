@@ -18,14 +18,18 @@
 
 package org.apache.skywalking.apm.agent.core.boot;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-
+/**
+ * AgentPackagePath is a flag and finder to locate the SkyWalking agent.jar. It gets the absolute path of the agent jar.
+ * The path is the required metadata for agent core looking up the plugins and toolkit activations. If the lookup
+ * mechanism fails, the agent will exit directly.
+ */
 public class AgentPackagePath {
     private static final ILog logger = LogManager.getLogger(AgentPackagePath.class);
 
@@ -67,7 +71,8 @@ public class AgentPackagePath {
                 }
             } else {
                 int prefixLength = "file:".length();
-                String classLocation = urlString.substring(prefixLength, urlString.length() - classResourcePath.length());
+                String classLocation = urlString.substring(
+                    prefixLength, urlString.length() - classResourcePath.length());
                 return new File(classLocation);
             }
         }
