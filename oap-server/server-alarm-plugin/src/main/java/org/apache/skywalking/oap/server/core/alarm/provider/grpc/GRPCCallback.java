@@ -58,7 +58,7 @@ public class GRPCCallback implements AlarmCallback {
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
 
-        if (alarmSetting.isEmptySetting()) {
+        if (alarmSetting == null || alarmSetting.isEmptySetting()) {
             return;
         }
 
