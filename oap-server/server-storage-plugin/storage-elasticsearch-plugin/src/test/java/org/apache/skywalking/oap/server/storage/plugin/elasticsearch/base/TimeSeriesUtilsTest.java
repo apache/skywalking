@@ -13,38 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.core.analysis;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-public enum Downsampling {
-    /**
-     * None downsampling is for inventory
-     */
-    None(0, ""),
-    /**
-     * Second downsampling is not for metrics, but for record, profile and top n. Those are details but don't do
-     * aggregation, and still merge into day level in the persistence.
-     */
-    Second(1, "second"),
-    Minute(2, "minute"),
-    Hour(3, "hour"),
-    Day(4, "day"),
-    Month(5, "month");
+import org.junit.Assert;
+import org.junit.Test;
 
-    private final int value;
-    private final String name;
+import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils.compressTimeBucket;
 
-    Downsampling(int value, String name) {
-        this.value = value;
-        this.name = name;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public String getName() {
-        return name;
+public class TimeSeriesUtilsTest {
+    @Test
+    public void testCompressTimeBucket() {
+        Assert.assertEquals(20000101L, compressTimeBucket(20000105, 11));
+        Assert.assertEquals(20000101L, compressTimeBucket(20000111, 11));
+        Assert.assertEquals(20000112L, compressTimeBucket(20000112, 11));
+        Assert.assertEquals(20000112L, compressTimeBucket(20000122, 11));
+        Assert.assertEquals(20000123L, compressTimeBucket(20000123, 11));
+        Assert.assertEquals(20000123L, compressTimeBucket(20000125, 11));
     }
 }
