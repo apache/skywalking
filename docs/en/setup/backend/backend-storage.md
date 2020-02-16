@@ -48,6 +48,7 @@ storage:
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
     enablePackedDownsampling: ${SW_STORAGE_ENABLE_PACKED_DOWNSAMPLING:true} # Hour and Day metrics will be merged into minute index.
+    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
@@ -107,6 +108,19 @@ storage:
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
+### Daily Index Step
+Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, several days(dayStep value)' metrics are saved.
+
+Mostly, users don't need to change the value manually. As SkyWalking is designed to observe large scale distributed system.
+But in some specific cases, users want to set a long TTL value, such as more than 60 days, but their ElasticSearch cluster isn't powerful due to the low traffic in the production environment.
+This value could be increased to 5(or more), if users could make sure single one index could support these days(5 in this case) metrics and traces.
+
+Such as, if dayStep == 11, 
+1. data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
+1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
+
+NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
 ### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)

@@ -36,5 +36,7 @@ You have following settings in Elasticsearch storage.
 ``` 
 
 - `recordDataTTL` affects **Record** data.
-- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. If you want to set them manually, please remove `otherMetricsDataTTL`.
+- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. 
+If you want to set them manually, please remove `otherMetricsDataTTL`. Since 7.0.0, `enablePackedDownsampling` is activated by default, in that case, only `minuteMetricsDataTTL` works.
+There is no much difference between use `otherMetricsDataTTL` or not, unless turn `enablePackedDownsampling` OFF.
 - `monthMetricsDataTTL` affects month dimension of metrics.
