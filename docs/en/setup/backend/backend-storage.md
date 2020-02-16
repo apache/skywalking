@@ -47,6 +47,7 @@ storage:
     # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
+    enablePackedDownsampling: ${SW_STORAGE_ENABLE_PACKED_DOWNSAMPLING:true} # Hour and Day metrics will be merged into minute index.
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
@@ -66,6 +67,14 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
+
+### Downsampling Data Packing
+
+Downsampling data packing(`storage/elasticsearch/enablePackedDownsampling`, default activated) is a new feature since 7.0.0.  
+Metrics data has 4 different precisions,based on `core/default/downsampling` configurations. 
+In previous(6.x), every precision of each metrics had one separated
+index. After this is activated, metrics of day and hour precisions are merged into minute precision. The number of indexes
+decreased, and cause less payload to the ElasticSearch server.
 
 ### ElasticSearch 6 With Https SSL Encrypting communications.
 

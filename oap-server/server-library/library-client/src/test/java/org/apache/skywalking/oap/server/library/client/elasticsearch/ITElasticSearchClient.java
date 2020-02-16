@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,9 @@ public class ITElasticSearchClient {
     public void before() throws Exception {
         final String esAddress = System.getProperty("elastic.search.address");
         final String esProtocol = System.getProperty("elastic.search.protocol");
-        client = new ElasticSearchClient(esAddress, esProtocol, "", "", namespace, "test", "test");
+        client = new ElasticSearchClient(esAddress, esProtocol, "", "", "test", "test",
+                                         indexNameConverters(namespace)
+        );
         client.connect();
     }
 
@@ -270,12 +273,36 @@ public class ITElasticSearchClient {
                     index.add(oldIndexName.substring(namespacePrefix.length()), entry.getValue());
                     index.remove(oldIndexName);
                 } else {
-                    throw new RuntimeException("The indexName must contain the " + namespace + " prefix, but it is " + entry
-                        .getKey());
+                    throw new RuntimeException(
+                        "The indexName must contain the " + namespace + " prefix, but it is " + entry
+                            .getKey());
                 }
             });
             logger.info("UndoFormatIndexName after " + index.toString());
         }
         return index;
+    }
+
+    private static List<IndexNameConverter> indexNameConverters(String namespace) {
+        List<IndexNameConverter> converters = new ArrayList<>();
+        converters.add(new NamespaceConverter(namespace));
+        return converters;
+    }
+
+    private static class NamespaceConverter implements IndexNameConverter {
+        private final String namespace;
+
+        public NamespaceConverter(final String namespace) {
+            this.namespace = namespace;
+        }
+
+        @Override
+        public String convert(final String indexName) {
+            if (StringUtil.isNotEmpty(namespace)) {
+                return namespace + "_" + indexName;
+            }
+
+            return indexName;
+        }
     }
 }
