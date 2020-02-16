@@ -84,7 +84,7 @@ class TopologyBuilder {
                 //if node type is Unknown, but some targer know node type, so update the node type.
                 Node node = nodes.get(sequence);
                 if (node.getType() == Const.UNKNOWN) {
-                    if (BooleanUtils.valueToBoolean(target.getIsAddress()) ) {
+                    if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
                         setNodeTypeFromCallDetail(node, clientCall);
                     }
                 }
