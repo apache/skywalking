@@ -445,9 +445,6 @@ public class ElasticSearchClient implements Client {
     }
 
     public List<String> formatIndexNames(List<String> indexNameList) {
-        if (StringUtil.isNotEmpty(namespace)) {
-            return indexNameList.stream().map(indexName -> namespace + "_" + indexName).collect(Collectors.toList());
-        }
-        return indexNameList;
+        return indexNameList.stream().map(indexName -> formatIndexName(indexName)).collect(Collectors.toList());
     }
 }
