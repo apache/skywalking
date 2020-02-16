@@ -81,7 +81,7 @@ class TopologyBuilder {
 
             int sequence = target.getSequence();
             if (nodes.containsKey(sequence)) {
-                //if node type is Unknown, but some targer know node type, so update the node type.
+                //if node type is Unknown, but the target may know the node type.
                 Node node = nodes.get(sequence);
                 if (node.getType() == Const.UNKNOWN) {
                     if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
