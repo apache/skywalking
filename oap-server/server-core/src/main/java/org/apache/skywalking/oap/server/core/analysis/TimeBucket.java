@@ -65,7 +65,7 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in minute Unit is "yyyyMMddHHmmss", so which means the TimeBucket mush between
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmmss", so which means the TimeBucket must be between
      * 10000000000000 and 99999999999999.
      */
     public static boolean isSecondBucket(long timeBucket) {
@@ -73,7 +73,7 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in minute Unit is "yyyyMMddHHmm", so which means the TimeBucket mush between
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmm", so which means the TimeBucket must be between
      * 100000000000 and 999999999999.
      */
     public static boolean isMinuteBucket(long timeBucket) {
@@ -81,7 +81,7 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket mush between 1000000000 and
+     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket must be between 1000000000 and
      * 9999999999.
      */
     public static boolean isHourBucket(long timeBucket) {
@@ -89,7 +89,7 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in day Unit is "yyyyMMdd", so which means the TimeBucket mush between 10000000 and
+     * The format of timeBucket in day Unit is "yyyyMMdd", so which means the TimeBucket must be between 10000000 and
      * 99999999.
      */
     public static boolean isDayBucket(long timeBucket) {
@@ -97,7 +97,7 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in month Unit is "yyyyMM", so which means the TimeBucket mush between 100000 and
+     * The format of timeBucket in month Unit is "yyyyMM", so which means the TimeBucket must be between 100000 and
      * 999999.
      */
     public static boolean isMonthBucket(long timeBucket) {
