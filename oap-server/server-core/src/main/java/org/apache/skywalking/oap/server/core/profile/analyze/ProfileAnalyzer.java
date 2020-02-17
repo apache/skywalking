@@ -51,7 +51,7 @@ public class ProfileAnalyzer {
     private final int analyzeSnapshotMaxSize;
 
     private final ModuleManager moduleManager;
-    private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
+    protected IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
 
     public ProfileAnalyzer(ModuleManager moduleManager, int snapshotAnalyzeBatchSize, int analyzeSnapshotMaxSize) {
         this.moduleManager = moduleManager;
@@ -91,7 +91,7 @@ public class ProfileAnalyzer {
         return analyzation;
     }
 
-    private SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
+    protected SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
         // query min and max sequence
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
         int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end);
@@ -107,12 +107,9 @@ public class ProfileAnalyzer {
         do {
             int batchMax = Math.min(minSequence + threadSnapshotAnalyzeBatchSize, maxSequence);
             sequenceSearch.getRanges().add(new SequenceRange(minSequence, batchMax));
-            minSequence = batchMax + 1;
+            minSequence = batchMax;
         }
         while (minSequence < maxSequence);
-
-        // increase last range max sequence, need to include last sequence data
-        sequenceSearch.getRanges().getLast().increaseMaxSequence();
 
         return sequenceSearch;
     }
@@ -135,7 +132,7 @@ public class ProfileAnalyzer {
         return new ArrayList<>(stackTrees.values());
     }
 
-    private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
+    protected IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
         if (profileThreadSnapshotQueryDAO == null) {
             profileThreadSnapshotQueryDAO = moduleManager.find(StorageModule.NAME)
                                                          .provider()
