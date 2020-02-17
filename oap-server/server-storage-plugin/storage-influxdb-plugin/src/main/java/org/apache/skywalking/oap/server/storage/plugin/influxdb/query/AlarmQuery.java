@@ -95,6 +95,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
 
         series.get(0).getValues()
               .stream()
+              // re-sort by self, because of the result order by time.
               .sorted((a, b) -> Long.compare((long) b.get(1), (long) a.get(1)))
               .skip(from)
               .forEach(values -> {

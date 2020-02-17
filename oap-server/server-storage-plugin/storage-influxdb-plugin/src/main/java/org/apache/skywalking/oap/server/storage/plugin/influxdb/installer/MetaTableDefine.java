@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
 
@@ -34,7 +33,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 public class MetaTableDefine {
 
     /**
-     * Test a {@link Model} is stored in H2/MySQL or not.
+     * Test a {@link Model} is stored in H2/MySQL or not. Some tables are stored by RegisterDAO, called metadata. And
+     * they are stored on metabase(H2/MySQL).
      *
      * @param model Model
      * @return true if the {@link Model} is stored in H2/MySQL
@@ -46,7 +46,6 @@ public class MetaTableDefine {
             case NETWORK_ADDRESS:
             case ENDPOINT_INVENTORY:
             case PROFILE_TASK:
-            case PROFILE_TASK_SEGMENT_SNAPSHOT:
                 return true;
         }
         TableMetaInfo.addModel(model);

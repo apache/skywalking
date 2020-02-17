@@ -61,9 +61,6 @@ import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author kezhenxu94
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 public class SampleVerificationITCase {
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleVerificationITCase.class);

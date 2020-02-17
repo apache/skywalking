@@ -147,6 +147,7 @@ public class TraceQuery implements ITraceQueryDAO {
         traceBrief.setTotal(((Number) counter.get(0).getValues().get(0).get(1)).intValue());
 
         result.get(0).getValues().stream().sorted((a, b) -> {
+            // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
             return Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue());
         }).skip(from).forEach(values -> {
             BasicTrace basicTrace = new BasicTrace();

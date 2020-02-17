@@ -95,6 +95,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                                            Order order,
                                            int topN) throws IOException {
         String measurement = ModelName.build(downsampling, name);
+        // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNEntity> comparator = DESCENDING;
         String functionName = "top";
         if (order == Order.ASC) {

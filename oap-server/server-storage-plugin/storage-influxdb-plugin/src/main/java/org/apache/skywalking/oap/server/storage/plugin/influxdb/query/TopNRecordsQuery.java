@@ -51,6 +51,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName,
                                            int serviceId, int topN, Order order) throws IOException {
         String function = "bottom";
+        // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNRecord> comparator = Comparator.comparingLong(TopNRecord::getLatency);
         if (order.equals(Order.DES)) {
             function = "top";
