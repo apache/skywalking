@@ -38,6 +38,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.CLONE_CACHE_ENHANCE_METHOD;
 import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_ALL_CACHE_ENHANCE_METHOD;
 import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_CACHE_ENHANCE_METHOD;
 import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.PUT_CACHE_ENHANCE_METHOD;
@@ -64,6 +65,7 @@ public class EhcacheInterceptorTest {
     private EhcacheOperateAllInterceptor operateAllInterceptor;
     private EhcacheLockInterceptor lockInterceptor;
     private EhcacheConstructorInterceptor constructorInterceptor;
+    private EhcacheCloneInterceptor cloneInterceptor;
     private Object[] operateObjectArguments;
     private Object[] operateElementArguments;
     private Object[] tryLockArguments;
@@ -79,6 +81,8 @@ public class EhcacheInterceptorTest {
     private Method tryWriteLockMethod;
     private Method releaseReadLockMethod;
     private Method releaseWriteLockMethod;
+
+    private Method cloneMethod;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         @Override
@@ -97,6 +101,7 @@ public class EhcacheInterceptorTest {
         operateElementInterceptor = new EhcacheOperateElementInterceptor();
         operateAllInterceptor = new EhcacheOperateAllInterceptor();
         constructorInterceptor = new EhcacheConstructorInterceptor();
+        cloneInterceptor = new EhcacheCloneInterceptor();
         lockInterceptor = new EhcacheLockInterceptor();
 
         exception = new Exception();
@@ -117,11 +122,20 @@ public class EhcacheInterceptorTest {
         tryWriteLockMethod = Whitebox.getMethods(Cache.class, WRITE_LOCK_TRY_ENHANCE_METHOD)[0];
         releaseReadLockMethod = Whitebox.getMethods(Cache.class, READ_LOCK_RELEASE_ENHANCE_METHOD)[0];
         releaseWriteLockMethod = Whitebox.getMethods(Cache.class, WRITE_LOCK_RELEASE_ENHANCE_METHOD)[0];
+
+        cloneMethod = Whitebox.getMethods(Cache.class, CLONE_CACHE_ENHANCE_METHOD)[0];
     }
 
     @Test
     public void assertConstruct() throws Throwable {
         constructorInterceptor.onConstruct(enhancedInstance, new Object[] {new CacheConfiguration(CACHE_NAME, 20)});
+    }
+
+    @Test
+    public void assertClone() throws Throwable {
+        cloneInterceptor.beforeMethod(enhancedInstance, cloneMethod, null, null, null);
+        cloneInterceptor.handleMethodException(enhancedInstance, cloneMethod, null, null, exception);
+        cloneInterceptor.afterMethod(enhancedInstance, cloneMethod, null, null, null);
     }
 
     @Test

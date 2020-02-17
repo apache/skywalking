@@ -37,10 +37,12 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     public static final String INTERCEPT_CLASS = "net.sf.ehcache.Cache";
     public static final String CONSTRUCTOR_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheConstructorInterceptor";
+    public static final String CLONE_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheCloneInterceptor";
 
     // get and put value
     public static final String PUT_CACHE_ENHANCE_METHOD = "put";
     public static final String GET_CACHE_ENHANCE_METHOD = "get";
+    public static final String CLONE_CACHE_ENHANCE_METHOD = "clone";
     public static final String GET_QUIET_CACHE_ENHANCE_METHOD = "getQuiet";
     public static final String REMOVE_CACHE_ENHANCE_METHOD = "remove";
     public static final String REMOVE_AND_RETURN_ELEMENT_CACHE_ENHANCE_METHOD = "removeAndReturnElement";
@@ -89,7 +91,24 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(CLONE_CACHE_ENHANCE_METHOD);
+                    }
+
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return CLONE_CLASS_INTERCEPT_CLASS;
+                    }
+
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
+
+                },
+                new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(GET_WITH_LOADER_CACHE_ENHANCE_METHOD).or(named(GET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
