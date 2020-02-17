@@ -129,10 +129,11 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         StringBuilder removeImagesScript = new StringBuilder();
         configuration.caseConfiguration().getDependencies().forEach((name, service) -> {
             if (service.getRemoveOnExit()) {
-                removeImagesScript.append("docker rmi -f ")
-                                 .append(service.getImage())
-                                 .append(":")
-                                 .append(service.getVersion());
+                removeImagesScript.append("docker rmi ")
+                                  .append(service.getImage())
+                                  .append(":")
+                                  .append(service.getVersion())
+                                  .append(System.lineSeparator());
             }
         });
         root.put("removeImagesScript", removeImagesScript.toString());
