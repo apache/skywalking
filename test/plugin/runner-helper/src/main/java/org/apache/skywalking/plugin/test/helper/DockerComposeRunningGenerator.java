@@ -92,7 +92,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
     }
 
     protected List<DockerService> convertDockerServices(final String version,
-        Map<String, DependencyComponent> componentMap) {
+                                                        Map<String, DependencyComponent> componentMap) {
         ArrayList<DockerService> services = Lists.newArrayList();
         componentMap.forEach((name, dependency) -> {
             DockerService service = new DockerService();
@@ -108,6 +108,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             service.setEntrypoint(dependency.getEntrypoint());
             service.setHealthcheck(dependency.getHealthcheck());
             service.setEnvironment(dependency.getEnvironment());
+            service.setRemoveOnExit(dependency.getRemoveOnExit());
             services.add(service);
         });
         return services;
@@ -124,6 +125,18 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         root.put("docker_compose_file", docker_compose_file);
         root.put("build_id", configuration.dockerImageVersion());
         root.put("docker_container_name", configuration.dockerContainerName());
+
+        StringBuilder removeImagesScript = new StringBuilder();
+        configuration.caseConfiguration().getDependencies().forEach((name, service) -> {
+            if (service.getRemoveOnExit()) {
+                removeImagesScript.append("docker rmi -f ")
+                                 .append(service.getImage())
+                                 .append(":")
+                                 .append(service.getVersion());
+            }
+        });
+        root.put("removeImagesScript", removeImagesScript.toString());
+
         StringWriter out = null;
 
         try {

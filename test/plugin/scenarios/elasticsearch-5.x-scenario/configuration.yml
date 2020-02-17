@@ -23,6 +23,7 @@ dependencies:
   elasticsearch-server-5.x:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
     hostname: elasticsearch-server-5.x
+    removeOnExit: true
     expose:
       - 9300
       - 9200

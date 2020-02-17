@@ -23,6 +23,7 @@ public class DockerService {
     private String name;
     private String imageName;
     private String hostname;
+    private boolean removeOnExit;
     private List<String> startScript;
     private List<String> links;
     private List<String> expose;
@@ -109,5 +110,13 @@ public class DockerService {
 
     public void setStartScript(List<String> startScript) {
         this.startScript = startScript;
+    }
+
+    public boolean getRemoveOnExit() {
+        return removeOnExit;
+    }
+
+    public void setRemoveOnExit(final boolean removeOnExit) {
+        this.removeOnExit = removeOnExit;
     }
 }
