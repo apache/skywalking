@@ -23,7 +23,7 @@ environment:
 - elasticsearch.server=elasticsearch-server-7.x:9200
 dependencies:
   elasticsearch-server-7.x:
-    image: elasticsearch:${CASE_SERVER_IMAGE_VERSION}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${CASE_SERVER_IMAGE_VERSION}
     hostname: elasticsearch-server-7.x
     expose:
     - 9200
