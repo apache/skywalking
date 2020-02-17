@@ -58,6 +58,9 @@ services:
     ${service.name}:
         image: ${service.imageName}
         hostname: ${service.hostname}
+        <#if service.remoteOnExit??>
+        remoteOnExit: ${service.remoteOnExit}
+        </#if>
         <#if service.volumes??>
         volumes:
         <#list service.volumes as volume>

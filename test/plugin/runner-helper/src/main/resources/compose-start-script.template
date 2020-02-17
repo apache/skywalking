@@ -37,3 +37,5 @@ else
     docker-compose -p ${project_name} -f ${compose_file} rm -f
 fi
 </#noparse>
+
+${removeImagesScript}
