@@ -122,7 +122,8 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         this.registerServiceImplementation(IRegisterLockDAO.class, new RegisterLockEs77DAOImpl(elasticSearch7Client));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(getManager(), elasticSearch7Client,
-                                                            new ElasticsearchStorageTTL()
+                                                            new ElasticsearchStorageTTL(),
+                                                            config.isEnablePackedDownsampling()
             ));
 
         this.registerServiceImplementation(

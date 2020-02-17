@@ -65,6 +65,20 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     @Getter
     private boolean enablePackedDownsampling = true;
+    /**
+     * Since 6.4.0, the index of metrics and traces data in minute/hour/month precision are organized in days. ES
+     * storage creates new indexes in every day.
+     *
+     * @since 7.0.0 dayStep represents how many days a single one index represents. Default is 1, meaning no difference
+     * with previous versions. But if there isn't much traffic for single one day, user could set the step larger to
+     * reduce the number of indexes, and keep the TTL longer.
+     *
+     * Same as {@link #enablePackedDownsampling} this config doesn't affects month level data. Because usually, no one
+     * keeps the observability data in several months.
+     *
+     */
+    @Getter
+    private int dayStep = 1;
     @Setter
     private int resultWindowMaxSize = 10000;
     @Setter
