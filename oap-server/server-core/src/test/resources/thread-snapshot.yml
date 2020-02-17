@@ -200,3 +200,23 @@ list:
           - code: E
             count: 1
             duration: 0:0
+
+  # case 7(only analyze first 10 snapshots):
+  - data:
+      limit: 10
+      snapshots:
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+        - A
+    expected:
+      - code: A
+        count: 10
+        duration: 90:90
