@@ -130,9 +130,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         configuration.caseConfiguration().getDependencies().forEach((name, service) -> {
             if (service.getRemoveOnExit()) {
                 removeImagesScript.append("docker rmi ")
-                                  .append(service.getImage())
-                                  .append(":")
-                                  .append(service.getVersion())
+                                  .append(service.getImage().replace("${CASE_SERVER_IMAGE_VERSION}", configuration.scenarioVersion()))
                                   .append(System.lineSeparator());
             }
         });
