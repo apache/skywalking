@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.profile;
+package org.apache.skywalking.oap.server.core.profile.analyze;
 
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStackAnalyze;
-import org.apache.skywalking.oap.server.core.profile.analyze.ProfileStackAnalyzeHolder;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public class ProfileAnalyzerTest {
 
+    public static final int MAX_ANALYZE_COUNT = 10;
+
     @Test
-    public void testAnalyze() {
+    public void testAnalyze() throws IOException {
         ProfileStackAnalyzeHolder holder = loadYaml("thread-snapshot.yml", ProfileStackAnalyzeHolder.class);
 
         for (ProfileStackAnalyze analyze : holder.getList()) {
-            analyze.analyzeAndAssert();
+            analyze.analyzeAndAssert(MAX_ANALYZE_COUNT);
         }
     }
 
