@@ -83,16 +83,17 @@ class TopologyBuilder {
             if (nodes.containsKey(sequence)) {
                 //if node type is Unknown, but the target may know the node type.
                 Node node = nodes.get(sequence);
-                if (node.getType() == Const.UNKNOWN) {
+                String callType = getNodeTypeFromServer(clientCall);
+                if (node.getType() == Const.UNKNOWN && !(callType.equals(Const.UNKNOWN))) {
                     if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
-                        setNodeTypeFromCallDetail(node, clientCall);
+                        node.setType(callType);
                     }
                 }
             } else {
                 Node node = buildNode(target);
                 nodes.put(sequence, node);
                 if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
-                    setNodeTypeFromCallDetail(node, clientCall);
+                    node.setType(getNodeTypeFromServer(clientCall));
                 }
             }
 
@@ -145,6 +146,23 @@ class TopologyBuilder {
                 }
             }
 
+            if (!nodes.containsKey(source.getSequence())) {
+                nodes.put(source.getSequence(), buildNode(source));
+            }
+
+            int sequence = target.getSequence();
+            if (!nodes.containsKey(sequence)) {
+                nodes.put(sequence, buildNode(target));
+            }
+
+            if (nodes.containsKey(sequence)) {
+                Node node = nodes.get(sequence);
+                String callType = getNodeTypeFromComponent(serverCall);
+                if (node.getType() == Const.UNKNOWN && !(callType.equals(Const.UNKNOWN))) {
+                    node.setType(callType);
+                }
+            }
+
             String callId = source.getSequence() + Const.ID_SPLIT + target.getSequence();
             if (!callMap.containsKey(callId)) {
                 Call call = new Call();
@@ -163,20 +181,6 @@ class TopologyBuilder {
                 call.addDetectPoint(DetectPoint.SERVER);
                 call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
-
-            if (!nodes.containsKey(source.getSequence())) {
-                nodes.put(source.getSequence(), buildNode(source));
-            }
-
-            int sequence = target.getSequence();
-            if (!nodes.containsKey(sequence)) {
-                nodes.put(sequence, buildNode(target));
-            }
-
-            if (nodes.containsKey(sequence)) {
-                Node node = nodes.get(sequence);
-                setNodeTypeFromCallDetail(node, serverCall);
-            }
         }
 
         Topology topology = new Topology();
@@ -185,10 +189,14 @@ class TopologyBuilder {
         return topology;
     }
 
-    private void setNodeTypeFromCallDetail(Node node, CallDetail callDetail) {
+    private String getNodeTypeFromServer(CallDetail callDetail) {
         int componentId = callDetail.getComponentId();
-        String type = componentLibraryCatalogService.getServerNameBasedOnComponent(componentId);
-        node.setType(type);
+        return componentLibraryCatalogService.getServerNameBasedOnComponent(componentId);
+    }
+
+    private String getNodeTypeFromComponent(CallDetail callDetail) {
+        int componentId = callDetail.getComponentId();
+        return componentLibraryCatalogService.getComponentName(componentId);
     }
 
     private Node buildNode(ServiceInventory serviceInventory) {
