@@ -84,7 +84,7 @@ class TopologyBuilder {
                 //if node type is Unknown, but the target may know the node type.
                 Node node = nodes.get(sequence);
                 String callType = getNodeTypeFromServer(clientCall);
-                if (node.getType() == Const.UNKNOWN && !(callType.equals(Const.UNKNOWN))) {
+                if ((node.getType() == Const.UNKNOWN || node.getType() == null) && !(callType.equals(Const.UNKNOWN))) {
                     if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
                         node.setType(callType);
                     }
@@ -158,7 +158,7 @@ class TopologyBuilder {
             if (nodes.containsKey(sequence)) {
                 Node node = nodes.get(sequence);
                 String callType = getNodeTypeFromComponent(serverCall);
-                if (node.getType() == Const.UNKNOWN && !(callType.equals(Const.UNKNOWN))) {
+                if ((node.getType() == Const.UNKNOWN  || node.getType() == null) && !(callType.equals(Const.UNKNOWN))) {
                     node.setType(callType);
                 }
             }
