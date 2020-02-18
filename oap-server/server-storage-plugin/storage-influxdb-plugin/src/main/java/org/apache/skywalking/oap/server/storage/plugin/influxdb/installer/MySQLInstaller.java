@@ -18,16 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 
 public class MySQLInstaller extends MySQLTableInstaller {
 
     public MySQLInstaller(ModuleManager moduleManager) {
         super(moduleManager);
+        overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
     }
 
     @Override

@@ -18,16 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 
 public class H2Installer extends H2TableInstaller {
 
     public H2Installer(ModuleManager moduleManager) {
         super(moduleManager);
+        overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
     }
 
     @Override

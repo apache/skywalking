@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.NoneStreamDAO;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -54,7 +55,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
             select("id", ProfileTaskRecord.SERVICE_ID,
                    ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
                    ProfileTaskRecord.CREATE_TIME,
-                   "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
+                   InfluxModelConstants.DURATION,
                    ProfileTaskRecord.MIN_DURATION_THRESHOLD,
                    ProfileTaskRecord.DUMP_PERIOD,
                    ProfileTaskRecord.MAX_SAMPLING_COUNT
@@ -96,7 +97,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         SelectQueryImpl query = select("id", ProfileTaskRecord.SERVICE_ID,
                                        ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
                                        ProfileTaskRecord.CREATE_TIME,
-                                       "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
+                                       InfluxModelConstants.DURATION,
                                        ProfileTaskRecord.MIN_DURATION_THRESHOLD,
                                        ProfileTaskRecord.DUMP_PERIOD,
                                        ProfileTaskRecord.MAX_SAMPLING_COUNT
