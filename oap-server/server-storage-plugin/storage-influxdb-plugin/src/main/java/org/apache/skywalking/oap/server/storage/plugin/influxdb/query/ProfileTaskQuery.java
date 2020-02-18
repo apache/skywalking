@@ -50,16 +50,17 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
                                          final Long startTimeBucket,
                                          final Long endTimeBucket,
                                          final Integer limit) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select("id", ProfileTaskRecord.SERVICE_ID,
-                                                       ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
-                                                       ProfileTaskRecord.CREATE_TIME,
-                                                       ProfileTaskRecord.DURATION,
-                                                       ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                                                       ProfileTaskRecord.DUMP_PERIOD,
-                                                       ProfileTaskRecord.MAX_SAMPLING_COUNT
-        )
-            .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
-            .where();
+        WhereQueryImpl<SelectQueryImpl> query =
+            select("id", ProfileTaskRecord.SERVICE_ID,
+                   ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
+                   ProfileTaskRecord.CREATE_TIME,
+                   "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
+                   ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                   ProfileTaskRecord.DUMP_PERIOD,
+                   ProfileTaskRecord.MAX_SAMPLING_COUNT
+            )
+                .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
+                .where();
 
         if (Objects.nonNull(serviceId)) {
             query.and(eq(NoneStreamDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
@@ -95,7 +96,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         WhereQueryImpl query = select("ID", ProfileTaskRecord.SERVICE_ID,
                                       ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
                                       ProfileTaskRecord.CREATE_TIME,
-                                      ProfileTaskRecord.DURATION,
+                                      "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
                                       ProfileTaskRecord.MIN_DURATION_THRESHOLD,
                                       ProfileTaskRecord.DUMP_PERIOD,
                                       ProfileTaskRecord.MAX_SAMPLING_COUNT

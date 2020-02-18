@@ -34,7 +34,7 @@ public class MetaTableDefine {
      * @return true if the {@link Model} is stored in H2/MySQL
      */
     public static boolean contains(Model model) {
-        if (model.isCapableOfTimeSeries()) {
+        if (!model.isCapableOfTimeSeries()) {
             return true;
         }
         TableMetaInfo.addModel(model);
