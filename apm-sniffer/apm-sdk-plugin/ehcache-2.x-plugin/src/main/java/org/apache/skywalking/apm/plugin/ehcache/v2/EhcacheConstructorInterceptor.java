@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.ehcache.v2;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.config.CacheConfiguration;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -25,11 +26,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 public class EhcacheConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        CacheConfiguration cacheConfiguration = (CacheConfiguration) allArguments[0];
+        try {
+            CacheConfiguration cacheConfiguration = (CacheConfiguration) allArguments[0];
 
-        // get cache name
-        if (cacheConfiguration != null) {
-            objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cacheConfiguration.getName()));
+            // get cache name
+            if (cacheConfiguration != null) {
+                objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cacheConfiguration.getName()));
+            }
+        } catch (ClassCastException e) {
+            Cache cache = (Cache) allArguments[0];
+
+            // get cache name
+            if (cache != null && cache.getCacheConfiguration() != null) {
+                objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cache.getCacheConfiguration().getName()));
+            }
         }
     }
 }

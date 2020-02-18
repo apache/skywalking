@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static net.bytebuddy.matcher.ElementMatchers.isPrivate;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
@@ -37,12 +38,10 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     public static final String INTERCEPT_CLASS = "net.sf.ehcache.Cache";
     public static final String CONSTRUCTOR_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheConstructorInterceptor";
-    public static final String CLONE_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheCloneInterceptor";
 
     // get and put value
     public static final String PUT_CACHE_ENHANCE_METHOD = "put";
     public static final String GET_CACHE_ENHANCE_METHOD = "get";
-    public static final String CLONE_CACHE_ENHANCE_METHOD = "clone";
     public static final String GET_QUIET_CACHE_ENHANCE_METHOD = "getQuiet";
     public static final String REMOVE_CACHE_ENHANCE_METHOD = "remove";
     public static final String REMOVE_AND_RETURN_ELEMENT_CACHE_ENHANCE_METHOD = "removeAndReturnElement";
@@ -71,13 +70,18 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     public static final String READ_LOCK_RELEASE_ENHANCE_METHOD = "releaseRead" + LOCK_ENHANCE_METHOD_SUFFIX;
     public static final String READ_WRITE_LOCK_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheLockInterceptor";
 
+    // cache name
+    public static final String CACHE_NAME_ENHANCE_METHOD = "setName";
+    public static final String CACHE_NAME_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheCacheNameInterceptor";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgument(0, named("net.sf.ehcache.config.CacheConfiguration"));
+                    return takesArgument(0, named("net.sf.ehcache.config.CacheConfiguration"))
+                            .or(isPrivate().and(takesArgument(0, named("net.sf.ehcache.Cache"))));
                 }
 
                 @Override
@@ -91,24 +95,24 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-                new InstanceMethodsInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(CLONE_CACHE_ENHANCE_METHOD);
-                    }
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(CACHE_NAME_ENHANCE_METHOD).and(takesArgument(0, String.class));
+                }
 
-                    @Override
-                    public String getMethodsInterceptor() {
-                        return CLONE_CLASS_INTERCEPT_CLASS;
-                    }
+                @Override
+                public String getMethodsInterceptor() {
+                    return CACHE_NAME_INTERCEPTOR_CLASS;
+                }
 
-                    @Override
-                    public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                         return false;
                     }
 
-                },
-                new InstanceMethodsInterceptPoint() {
+            },
+            new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(GET_WITH_LOADER_CACHE_ENHANCE_METHOD).or(named(GET_CACHE_ENHANCE_METHOD).and(takesArgument(0, Object.class)))
