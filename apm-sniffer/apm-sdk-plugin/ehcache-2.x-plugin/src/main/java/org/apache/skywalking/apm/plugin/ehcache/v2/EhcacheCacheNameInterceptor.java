@@ -18,35 +18,29 @@
 
 package org.apache.skywalking.apm.plugin.ehcache.v2;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.config.CacheConfiguration;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
 
-public class EhcacheCloneInterceptor implements InstanceMethodsAroundInterceptor {
+public class EhcacheCacheNameInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                             MethodInterceptResult result) throws Throwable {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (ret == null) {
-            return null;
-        }
-        CacheConfiguration cacheConfiguration = ((Cache) ret).getCacheConfiguration();
-        if (cacheConfiguration != null) {
-            ((EnhancedInstance) ret).setSkyWalkingDynamicField(new EhcacheEnhanceInfo(cacheConfiguration.getName()));
-        }
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+                              Object ret) throws Throwable {
+        String name = (String) allArguments[0];
+        objInst.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(name));
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 }

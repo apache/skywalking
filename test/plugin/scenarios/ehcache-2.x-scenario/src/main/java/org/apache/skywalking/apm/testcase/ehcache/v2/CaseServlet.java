@@ -35,14 +35,7 @@ public class CaseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Cache originCache = cacheManager.getCache("testCache");
-
-        // EhcacheCloneInterceptor
-        Cache cache = null;
-        try {
-            cache = originCache.clone();
-        } catch (CloneNotSupportedException e) {
-        }
+        Cache cache = cacheManager.getCache("testCache");
 
         String objectKey = "dataKey";
 
@@ -64,6 +57,14 @@ public class CaseServlet extends HttpServlet {
         } finally {
             cache.releaseReadLockOnKey(objectKey);
         }
+
+        // EhcacheCacheNameInterceptor
+        cacheManager.addCacheIfAbsent("testCache2");
+
+        Cache cloneCache = cacheManager.getCache("testCache2");
+
+        // EhcacheOperateElementInterceptor
+        cloneCache.put(el);
 
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");
