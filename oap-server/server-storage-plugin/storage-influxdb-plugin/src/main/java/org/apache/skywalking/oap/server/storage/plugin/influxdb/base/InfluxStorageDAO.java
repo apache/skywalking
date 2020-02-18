@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NoneStreamDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterDAO;
 
 public class InfluxStorageDAO implements StorageDAO {
@@ -59,6 +58,6 @@ public class InfluxStorageDAO implements StorageDAO {
 
     @Override
     public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new H2NoneStreamDAO(client, storageBuilder);
+        return new NoneStreamDAO(influxClient, storageBuilder);
     }
 }
