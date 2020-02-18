@@ -93,16 +93,18 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
-        WhereQueryImpl query = select("ID", ProfileTaskRecord.SERVICE_ID,
-                                      ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
-                                      ProfileTaskRecord.CREATE_TIME,
-                                      "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
-                                      ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                                      ProfileTaskRecord.DUMP_PERIOD,
-                                      ProfileTaskRecord.MAX_SAMPLING_COUNT
+        SelectQueryImpl query = select("id", ProfileTaskRecord.SERVICE_ID,
+                                       ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
+                                       ProfileTaskRecord.CREATE_TIME,
+                                       "\"" + ProfileTaskRecord.DURATION + "\"", // scape, the 'duration' is identifier
+                                       ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                                       ProfileTaskRecord.DUMP_PERIOD,
+                                       ProfileTaskRecord.MAX_SAMPLING_COUNT
         )
             .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
-            .where().and(eq("id", id));
+            .where()
+            .and(eq("id", id))
+            .limit(1);
 
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
@@ -115,13 +117,13 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         return ProfileTask.builder()
                           .id((String) values.get(1))
                           .serviceId(((Number) values.get(2)).intValue())
-                          .endpointName((String) values.get(4))
-                          .startTime(((Number) values.get(2)).longValue())
-                          .createTime(((Number) values.get(2)).longValue())
-                          .duration((int) values.get(2))
-                          .minDurationThreshold((int) values.get(2))
-                          .dumpPeriod((int) values.get(2))
-                          .maxSamplingCount((int) values.get(2))
+                          .endpointName((String) values.get(3))
+                          .startTime(((Number) values.get(4)).longValue())
+                          .createTime(((Number) values.get(5)).longValue())
+                          .duration((int) values.get(6))
+                          .minDurationThreshold((int) values.get(7))
+                          .dumpPeriod((int) values.get(8))
+                          .maxSamplingCount((int) values.get(9))
                           .build();
     }
 
