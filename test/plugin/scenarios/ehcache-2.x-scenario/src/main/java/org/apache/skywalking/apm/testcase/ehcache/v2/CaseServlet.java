@@ -35,7 +35,14 @@ public class CaseServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Cache cache = cacheManager.getCache("testCache");
+        Cache originCache = cacheManager.getCache("testCache");
+
+        // EhcacheCloneInterceptor
+        Cache cache = null;
+        try {
+            cache = originCache.clone();
+        } catch (CloneNotSupportedException e) {
+        }
 
         String objectKey = "dataKey";
 
