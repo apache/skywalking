@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 public class MetaTableDefine {
 
     /**
-     * Test a {@link Model} is stored in H2/MySQL or not. Some tables are stored by RegisterDAO, called metadata. And
-     * they are stored on metabase(H2/MySQL).
+     * In the InfluxDB implementation, only the metadata is managed by the traditional MySQL/H2 storages.
+     * Model#isCapableOfTimeSeries represents the metadata.
      *
      * @param model Model
      * @return true if the {@link Model} is stored in H2/MySQL
