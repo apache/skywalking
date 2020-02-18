@@ -21,12 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
-
 /**
  * Here defines which table is stored in metadata database(H2/MySQL).
  */
@@ -40,13 +34,8 @@ public class MetaTableDefine {
      * @return true if the {@link Model} is stored in H2/MySQL
      */
     public static boolean contains(Model model) {
-        switch (model.getScopeId()) {
-            case SERVICE_INVENTORY:
-            case SERVICE_INSTANCE_INVENTORY:
-            case NETWORK_ADDRESS:
-            case ENDPOINT_INVENTORY:
-            case PROFILE_TASK:
-                return true;
+        if (model.isCapableOfTimeSeries()) {
+            return true;
         }
         TableMetaInfo.addModel(model);
         return false;

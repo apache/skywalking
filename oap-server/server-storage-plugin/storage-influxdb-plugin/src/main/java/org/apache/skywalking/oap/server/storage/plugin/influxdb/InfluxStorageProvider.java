@@ -60,6 +60,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThreadSnapshotQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
@@ -67,7 +68,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
@@ -116,25 +116,24 @@ public class InfluxStorageProvider extends ModuleProvider {
 
         this.lockDAO = new H2RegisterLockDAO(client);
         this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO(client));
-
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(client));
         this.registerServiceImplementation(
             IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
         this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(client));
         this.registerServiceImplementation(
             INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(client));
+        this.registerServiceImplementation(
+            IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
         this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(influxClient));
-        this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(influxClient));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQuery(influxClient));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQuery(influxClient));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQuery(influxClient));
 
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(client));
+        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQuery(influxClient));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(influxClient));
         this.registerServiceImplementation(

@@ -79,6 +79,7 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
 
         List<ProfileTaskLog> taskLogs = Lists.newArrayList();
         series.getValues().stream()
+              // re-sort by self, because of the result order by time.
               .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
               .forEach(values -> {
                   taskLogs.add(ProfileTaskLog.builder()

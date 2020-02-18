@@ -87,7 +87,8 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             record.setStatement((String) values.get(2));
             records.add(record);
         });
-        Collections.sort(records, comparator);
+
+        Collections.sort(records, comparator); // re-sort by self, because of the result order by time.
         return records;
     }
 }

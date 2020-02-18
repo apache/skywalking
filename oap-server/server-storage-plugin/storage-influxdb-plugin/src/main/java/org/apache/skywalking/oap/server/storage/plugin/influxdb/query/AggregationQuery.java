@@ -124,7 +124,8 @@ public class AggregationQuery implements IAggregationQueryDAO {
             entity.setValue(((Double) values.get(1)).longValue());
             entities.add(entity);
         });
-        Collections.sort(entities, comparator);
+
+        Collections.sort(entities, comparator); // re-sort by self, because of the result order by time.
         return entities;
     }
 
