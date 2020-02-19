@@ -66,6 +66,7 @@ public class EhcacheInterceptorTest {
     private EhcacheOperateAllInterceptor operateAllInterceptor;
     private EhcacheLockInterceptor lockInterceptor;
     private EhcacheConstructorInterceptor constructorInterceptor;
+    private EhcachePrivateConstructorInterceptor privateConstructorInterceptor;
     private EhcacheCacheNameInterceptor cacheNameInterceptor;
     private Object[] operateObjectArguments;
     private Object[] operateElementArguments;
@@ -106,6 +107,7 @@ public class EhcacheInterceptorTest {
         operateElementInterceptor = new EhcacheOperateElementInterceptor();
         operateAllInterceptor = new EhcacheOperateAllInterceptor();
         constructorInterceptor = new EhcacheConstructorInterceptor();
+        privateConstructorInterceptor = new EhcachePrivateConstructorInterceptor();
         cacheNameInterceptor = new EhcacheCacheNameInterceptor();
         lockInterceptor = new EhcacheLockInterceptor();
 
@@ -137,6 +139,11 @@ public class EhcacheInterceptorTest {
     @Test
     public void assertConstruct() throws Throwable {
         constructorInterceptor.onConstruct(enhancedInstance, new Object[] {new CacheConfiguration(CACHE_NAME, 20)});
+    }
+
+    @Test
+    public void assertPrivateConstruct() throws Throwable {
+        privateConstructorInterceptor.onConstruct(enhancedInstance, new Object[] {new Cache(new CacheConfiguration(CACHE_NAME, 20))});
     }
 
     @Test
