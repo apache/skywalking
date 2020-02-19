@@ -65,4 +65,12 @@ public class IntKeyLongValueHashMapTestCase {
 
         Assert.assertEquals("1,100|2,200|5,500|6,600|7,700", intKeyLongValueHashMap.toStorageData());
     }
+
+    @Test
+    public void testNull() {
+        IntKeyLongValueHashMap nullHm = new IntKeyLongValueHashMap();
+        IntKeyLongValueHashMap m = new IntKeyLongValueHashMap();
+        m.toObject(nullHm.toStorageData());
+        Assert.assertEquals(m.toStorageData(), "");
+    }
 }

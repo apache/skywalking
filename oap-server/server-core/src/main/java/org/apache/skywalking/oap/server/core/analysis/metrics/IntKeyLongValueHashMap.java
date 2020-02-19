@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,9 @@ public class IntKeyLongValueHashMap extends HashMap<Integer, IntKeyLongValue> im
 
     @Override
     public void toObject(String data) {
+        if (Strings.isNullOrEmpty(data)) {
+            return;
+        }
         String[] keyValues = data.split(Const.ARRAY_PARSER_SPLIT);
         for (String keyValue : keyValues) {
             IntKeyLongValue value = new IntKeyLongValue();
