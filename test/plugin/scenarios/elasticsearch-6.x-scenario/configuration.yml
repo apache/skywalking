@@ -23,7 +23,6 @@ dependencies:
   elasticsearch-server-6.x:
     image: elasticsearch:${CASE_SERVER_IMAGE_VERSION}
     hostname: elasticsearch-server-6.x
-    removeOnExit: true
     expose:
       - 9200
     environment:
