@@ -36,9 +36,11 @@ BEGIN {
             } else if (ENVIRON["ES_VERSION"] ~ /^7.+/) {
                 in_storage_type_section=$0 ~ /^#?\s+elasticsearch7:$/
             } else if (ENVIRON["STORAGE"] ~ /^mysql.*$/) {
-                in_storage_type_section=$0 ~ /^#?\s+mysql/
+                in_storage_type_section=$0 ~ /^#?\s+mysql:/
             } else if (ENVIRON["STORAGE"] ~ /^h2.*$/) {
                 in_storage_type_section=$0 ~ /^#?\s+h2:$/
+            } else if (ENVIRON["STORAGE"] ~ /^influx.*$/) {
+                in_storage_type_section=$0 ~ /^#?\s+influx:$/
             }
         } else {
             in_storage_type_section=$0 ~ /^#?\s{4}/

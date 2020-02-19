@@ -15,8 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apt-get update && apt-get install -y gawk
-
 original_wd=$(pwd)
 
 # substitute application.yml to be capable of es mode

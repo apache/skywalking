@@ -323,7 +323,10 @@ The text of each license is the standard Apache 2.0 license.
     etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
     jackson-module-afterburner 2.9.5: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
-    perfmark-api 0.19.0: https://github.com/perfmark/perfmark
+    perfmark-api 0.19.0: https://github.com/perfmark/perfmark, Apache 2.0
+    moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
+    logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
+    msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -341,6 +344,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
+    influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
 
 ========================================================================
 MIT licenses
