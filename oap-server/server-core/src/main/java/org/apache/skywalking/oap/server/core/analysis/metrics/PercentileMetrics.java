@@ -61,7 +61,7 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
     private boolean isCalculated;
 
     public PercentileMetrics() {
-        percentileValues = initDataset();
+        percentileValues = new IntKeyLongValueHashMap(RANKS.length);
         dataset = new IntKeyLongValueHashMap(30);
     }
 
@@ -127,13 +127,5 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
             values[i] = (int) percentileValues.get(i).getValue();
         }
         return values;
-    }
-
-    private IntKeyLongValueHashMap initDataset() {
-        IntKeyLongValueHashMap r = new IntKeyLongValueHashMap(RANKS.length);
-        for (final int rank : RANKS) {
-            r.put(rank, new IntKeyLongValue(rank, 0));
-        }
-        return r;
     }
 }
