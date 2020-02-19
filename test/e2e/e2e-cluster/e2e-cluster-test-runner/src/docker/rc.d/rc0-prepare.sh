@@ -15,7 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apt-get update && apt-get install -y gawk
+if test "${SW_STORAGE_METABASE_TYPE}" = "mysql"; then
+  MYSQL_URL="https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.13/mysql-connector-java-8.0.13.jar"
+  MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
+
+  # Download MySQL connector.
+  curl -L -o "${SW_HOME}/oap-libs/${MYSQL_DRIVER}" ${MYSQL_URL}
+  [[ $? -ne 0 ]] && echo "Fail to download ${MYSQL_DRIVER}." && exit 1
+fi
 
 if test "${MODE}" = "cluster"; then
     original_wd=$(pwd)
