@@ -119,8 +119,8 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
 
                 @Override
                 public boolean isOverrideArgs() {
-                        return false;
-                    }
+                    return false;
+                }
 
             },
             new InstanceMethodsInterceptPoint() {
