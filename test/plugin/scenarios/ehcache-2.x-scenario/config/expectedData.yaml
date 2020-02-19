@@ -100,6 +100,21 @@ segmentItems:
             peerId: 0
             tags:
               - {key: db.statement, value: dataKey}
+          - operationName: Ehcache/put/testCache2
+            operationId: 0
+            parentSpanId: 0
+            spanId: 6
+            spanLayer: Cache
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 75
+            componentName: ''
+            isError: false
+            spanType: Local
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: db.statement, value: dataKey}
           - operationName: /ehcache-2.x-scenario/case/ehcache
             operationId: 0
             parentSpanId: -1
