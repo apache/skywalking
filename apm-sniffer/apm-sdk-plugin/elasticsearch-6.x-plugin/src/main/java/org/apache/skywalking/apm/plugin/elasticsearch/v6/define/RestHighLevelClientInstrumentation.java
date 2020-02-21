@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -59,7 +60,7 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, "org.elasticsearch.client.RestClientBuilder");
+                    return takesArguments(1);
                 }
 
                 @Override
@@ -162,6 +163,22 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
                 @Override
                 public String getMethodsInterceptor() {
                     return Constants.REST_HIGH_LEVEL_CLIENT_INDICES_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("cluster");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_CLUSTER_METHODS_INTERCEPTOR;
                 }
 
                 @Override
