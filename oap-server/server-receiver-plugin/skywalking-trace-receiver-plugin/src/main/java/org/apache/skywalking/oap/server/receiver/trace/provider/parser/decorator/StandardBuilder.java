@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
+/**
+ * The implementation supports immutable data format to mutable builder transformation.
+ */
 public interface StandardBuilder {
+    /**
+     * Change the status to be mutable if it hasn't. Keep in the mutable status when this is called multiple times.
+     */
     void toBuilder();
 }

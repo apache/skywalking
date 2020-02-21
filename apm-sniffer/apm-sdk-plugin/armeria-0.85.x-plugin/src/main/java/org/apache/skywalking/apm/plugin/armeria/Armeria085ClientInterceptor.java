@@ -20,18 +20,20 @@ package org.apache.skywalking.apm.plugin.armeria;
 import com.linecorp.armeria.client.UserClient;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
+import java.lang.reflect.Method;
+import java.net.URI;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({
+    "rawtypes",
+    "unused"
+})
 public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
 
     @Override
     public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final MethodInterceptResult result) throws Throwable {
+                             final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
         final UserClient userClient = (UserClient) objInst;
         final URI uri = userClient.uri();
@@ -48,7 +50,7 @@ public class Armeria085ClientInterceptor extends ArmeriaClientInterceptor {
 
     @Override
     public Object afterMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
-        final Class<?>[] argumentsTypes, final Object ret) {
+                              final Class<?>[] argumentsTypes, final Object ret) {
 
         Object req = allArguments[5];
 

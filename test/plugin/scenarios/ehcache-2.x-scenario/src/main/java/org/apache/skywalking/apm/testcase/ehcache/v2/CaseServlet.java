@@ -58,6 +58,14 @@ public class CaseServlet extends HttpServlet {
             cache.releaseReadLockOnKey(objectKey);
         }
 
+        // EhcacheCacheNameInterceptor
+        cacheManager.addCacheIfAbsent("testCache2");
+
+        Cache cloneCache = cacheManager.getCache("testCache2");
+
+        // EhcacheOperateElementInterceptor
+        cloneCache.put(el);
+
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");
         printWriter.flush();

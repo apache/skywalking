@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 
+/**
+ * SpanListener for local span
+ */
 public interface LocalSpanListener extends SpanListener {
     void parseLocal(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);
 }
