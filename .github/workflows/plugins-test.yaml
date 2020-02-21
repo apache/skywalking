@@ -53,7 +53,7 @@ jobs:
       - name: Run okhttp 3.0.x-3.14.x (34)
         run: bash test/plugin/run.sh okhttp-scenario
 
-  Spring31x_ES5_Gateway_Avro_Struts2.5:
+  Spring31x_ES5_Gateway_Avro_Struts25:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -335,7 +335,7 @@ jobs:
       - name: Run zookeeper 3.4.x (14)
         run: bash test/plugin/run.sh zookeeper-scenario
 
-  Spring43_Struts2.3:
+  Spring43_Struts23:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
