@@ -95,6 +95,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int hourMetricsDataTTL = 2;
     @Setter
     private int dayMetricsDataTTL = 2;
+    @Setter
     private int otherMetricsDataTTL = 0;
     @Setter
     private int monthMetricsDataTTL = 18;
