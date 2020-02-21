@@ -83,6 +83,8 @@ jobs:
         run: bash test/plugin/run.sh elasticsearch-5.x-scenario
       - name: Run avro 1.7.0-1.8.2 (10)
         run: bash test/plugin/run.sh avro-scenario
+      - name: Run struts2.5-scenario (14)
+        run: bash test/plugin/run.sh struts2.5-scenario
 
   Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
     runs-on: ubuntu-18.04
@@ -357,6 +359,8 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run spring 4.3.x-5.2.x (54)
         run: bash test/plugin/run.sh spring-4.3.x-scenario
+      - name: Run struts2.3-scenario (35)
+        run: bash test/plugin/run.sh struts2.3-scenario
 
   PostgreSQL94:
     runs-on: ubuntu-18.04
@@ -551,3 +555,5 @@ jobs:
         run: bash test/plugin/run.sh lettuce-scenario
       - name: Run Play! Framework
         run: bash test/plugin/run.sh play-scenario
+      - name: Run h2-scenario (24)
+        run: bash test/plugin/run.sh h2-scenario
