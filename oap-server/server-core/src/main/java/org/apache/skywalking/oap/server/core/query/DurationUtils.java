@@ -93,6 +93,54 @@ public enum DurationUtils {
         return secondTimeBucket;
     }
 
+    public long startTimeDurationToStandardSecondTimeBucket(Step step, String dateStr) {
+        long secondTimeBucket = 0;
+        switch (step) {
+            case MONTH:
+                //month lowerest is 1
+                secondTimeBucket = (exchangeToTimeBucket(dateStr) * 100 + 1) * 100 * 100 * 100;
+                break;
+            case DAY:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 * 100 * 100;
+                break;
+            case HOUR:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 * 100;
+                break;
+            case MINUTE:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100;
+                break;
+            case SECOND:
+                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                break;
+        }
+        return secondTimeBucket;
+    }
+
+    public long endTimeDurationToStandardSecondTimeBucket(Step step, String dateStr) {
+        long secondTimeBucket = 0;
+        switch (step) {
+            case MONTH:
+                //cal current month max day, maybe put in cache.
+                DateTime dateTime = YYYY_MM.parseDateTime(dateStr);
+                int maxDay = dateTime.dayOfMonth().getMaximumValue();
+                secondTimeBucket = (((exchangeToTimeBucket(dateStr) * 100 + maxDay) * 100 + 23) * 100 + 59) * 100 + 59;
+                break;
+            case DAY:
+                secondTimeBucket = ((exchangeToTimeBucket(dateStr) * 100 + 23) * 100 + 59) * 100 + 59;
+                break;
+            case HOUR:
+                secondTimeBucket = (exchangeToTimeBucket(dateStr) * 100 + 59) * 100 + 59;
+                break;
+            case MINUTE:
+                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 + 59;
+                break;
+            case SECOND:
+                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                break;
+        }
+        return secondTimeBucket;
+    }
+
     public long startTimeToTimestamp(Step step, String dateStr) {
         switch (step) {
             case MONTH:

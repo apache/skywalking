@@ -61,10 +61,10 @@ public class TraceQuery implements GraphQLQueryResolver {
         if (!Strings.isNullOrEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
         } else if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration()
+            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToStandardSecondTimeBucket(condition.getQueryDuration()
                                                                                                 .getStep(), condition.getQueryDuration()
                                                                                                                      .getStart());
-            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration()
+            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToStandardSecondTimeBucket(condition.getQueryDuration()
                                                                                             .getStep(), condition.getQueryDuration()
                                                                                                                  .getEnd());
         } else {
