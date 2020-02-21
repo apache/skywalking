@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
+import static net.bytebuddy.matcher.ElementMatchers.isPrivate;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
@@ -37,6 +38,7 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
 
     public static final String INTERCEPT_CLASS = "net.sf.ehcache.Cache";
     public static final String CONSTRUCTOR_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheConstructorInterceptor";
+    public static final String PRIVATE_CONSTRUCTOR_CLASS_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcachePrivateConstructorInterceptor";
 
     // get and put value
     public static final String PUT_CACHE_ENHANCE_METHOD = "put";
@@ -69,6 +71,10 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     public static final String READ_LOCK_RELEASE_ENHANCE_METHOD = "releaseRead" + LOCK_ENHANCE_METHOD_SUFFIX;
     public static final String READ_WRITE_LOCK_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheLockInterceptor";
 
+    // cache name
+    public static final String CACHE_NAME_ENHANCE_METHOD = "setName";
+    public static final String CACHE_NAME_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.ehcache.v2.EhcacheCacheNameInterceptor";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
@@ -82,6 +88,17 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
                 public String getConstructorInterceptor() {
                     return CONSTRUCTOR_CLASS_INTERCEPT_CLASS;
                 }
+            },
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return isPrivate().and(takesArgument(0, named("net.sf.ehcache.Cache")));
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return PRIVATE_CONSTRUCTOR_CLASS_INTERCEPT_CLASS;
+                }
             }
         };
     }
@@ -89,6 +106,23 @@ public class EhcachePluginInstrumentation extends ClassInstanceMethodsEnhancePlu
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(CACHE_NAME_ENHANCE_METHOD).and(takesArgument(0, String.class));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return CACHE_NAME_INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+
+            },
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

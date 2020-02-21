@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import com.google.common.base.Splitter;
 import lombok.Data;
+import org.apache.skywalking.apm.network.language.profile.ThreadStack;
+import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +32,15 @@ public class ProfileStackData {
     private int limit;
     private List<String> snapshots;
 
-    public List<ProfileStack> transform() {
-        ArrayList<ProfileStack> result = new ArrayList<>(snapshots.size());
+    public List<ProfileThreadSnapshotRecord> transform() {
+        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(snapshots.size());
 
         for (int i = 0; i < snapshots.size(); i++) {
-            ProfileStack stack = new ProfileStack();
+            ProfileThreadSnapshotRecord stack = new ProfileThreadSnapshotRecord();
             stack.setSequence(i);
             stack.setDumpTime(i * limit);
-            stack.setStack(Splitter.on("-").splitToList(snapshots.get(i)));
+            ThreadStack stackData = ThreadStack.newBuilder().addAllCodeSignatures(Splitter.on("-").splitToList(snapshots.get(i))).build();
+            stack.setStackBinary(stackData.toByteArray());
             result.add(stack);
         }
 

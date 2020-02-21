@@ -7,6 +7,7 @@ Native supported storage
 - ElasticSearch 6, 7
 - MySQL
 - TiDB
+- InfluxDB
 
 Redistribution version with supported storage.
 - ElasticSearch 5
@@ -48,6 +49,7 @@ storage:
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
     enablePackedDownsampling: ${SW_STORAGE_ENABLE_PACKED_DOWNSAMPLING:true} # Hour and Day metrics will be merged into minute index.
+    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
@@ -107,6 +109,19 @@ storage:
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
+
+### Daily Index Step
+Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, several days(dayStep value)' metrics are saved.
+
+Mostly, users don't need to change the value manually. As SkyWalking is designed to observe large scale distributed system.
+But in some specific cases, users want to set a long TTL value, such as more than 60 days, but their ElasticSearch cluster isn't powerful due to the low traffic in the production environment.
+This value could be increased to 5(or more), if users could make sure single one index could support these days(5 in this case) metrics and traces.
+
+Such as, if dayStep == 11, 
+1. data in [2000-01-01, 2000-01-11] will be merged into the index-20000101.
+1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
+
+NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
 ### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
@@ -234,6 +249,39 @@ storage:
 ```
 All connection related settings including link url, username and password are in `application.yml`. 
 These settings can refer to the configuration of *MySQL* above.
+
+## InfluxDB
+InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugin to store `metadata` like `Inventory` and `ProfileTask`. So, when we set `InfluxDB` as storage provider. We need to configure properties of InfluxDB and Metabase.
+
+```yaml
+storage:
+  influx:
+    # Metadata storage provider configuration
+    metabaseType: ${SW_STORAGE_METABASE_TYPE:H2} # There are 2 options as Metabase provider, H2 or MySQL.
+    h2Props:
+      dataSourceClassName: ${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
+      dataSource.url: ${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
+      dataSource.user: ${SW_STORAGE_METABASE_USER:sa}
+      dataSource.password: ${SW_STORAGE_METABASE_PASSWORD:}
+    mysqlProps:
+      jdbcUrl: ${SW_STORAGE_METABASE_URL:"jdbc:mysql://localhost:3306/swtest"}
+      dataSource.user: ${SW_STORAGE_METABASE_USER:root}
+      dataSource.password: ${SW_STORAGE_METABASE_PASSWORD:root@1234}
+      dataSource.cachePrepStmts: ${SW_STORAGE_METABASE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_STORAGE_METABASE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_STORAGE_METABASE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_STORAGE_METABASE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_METABASE_QUERY_MAX_SIZE:5000}
+    # InfluxDB configuration
+    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
+    user: ${SW_STORAGE_INFLUXDB_USER:root}
+    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
+    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
+    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
+    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
+    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
+```
+All connection related settings including link url, username and password are in `application.yml`. The Metadata storage provider settings can refer to the configuration of **H2/MySQL** above.
 
 ## ElasticSearch 5
 ElasticSearch 5 is incompatible with ElasticSearch 6 Java client jar, so it could not be included in native distribution.
