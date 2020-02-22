@@ -25,5 +25,8 @@
         <action name="case" class="org.apache.skywalking.apm.testcase.struts.CaseAction">
             <result name="SUCCESS">/jsp/success.jsp</result>
         </action>
+        <action name="case1" class="org.apache.skywalking.apm.testcase.struts.Case1Action">
+            <result name="SUCCESS">/jsp/success.jsp</result>
+        </action>
     </package>
 </struts>
