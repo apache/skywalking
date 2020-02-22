@@ -352,7 +352,7 @@ ServiceCombServiceCenter:
   languages: Golang
 
 # Lua components
-# [5000, 6000) for Golang agent
+# [6000, 7000) for Lua agent
 Nginx:
   id: 6000
   languages: Lua
