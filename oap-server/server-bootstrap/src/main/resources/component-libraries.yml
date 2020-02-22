@@ -357,6 +357,12 @@ ServiceCombServiceCenter:
   id: 5002
   languages: Golang
 
+# Lua components
+# [6000, 7000) for Lua agent
+Nginx:
+  id: 6000
+  languages: Lua
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
