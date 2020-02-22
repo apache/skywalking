@@ -275,6 +275,9 @@ AvroServer:
 AvroClient:
   id: 83
   languages: Java
+Nginx:
+  id: 84
+  languages: Lua
 
 
 # .NET/.NET Core components
