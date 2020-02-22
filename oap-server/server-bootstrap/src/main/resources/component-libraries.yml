@@ -275,10 +275,6 @@ AvroServer:
 AvroClient:
   id: 83
   languages: Java
-Nginx:
-  id: 84
-  languages: Lua
-
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -354,6 +350,12 @@ ServiceCombMesher:
 ServiceCombServiceCenter:
   id: 5002
   languages: Golang
+
+# Lua components
+# [5000, 6000) for Golang agent
+Nginx:
+  id: 6000
+  languages: Lua
 
 # Component Server mapping defines the server display names of some components
 # e.g.
