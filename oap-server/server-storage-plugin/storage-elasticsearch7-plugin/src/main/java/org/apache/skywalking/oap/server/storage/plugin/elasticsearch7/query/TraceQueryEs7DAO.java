@@ -36,6 +36,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -52,8 +53,8 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
         String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
         TraceState traceState, QueryOrder queryOrder) throws IOException {
+        TraceBrief traceBrief = new TraceBrief();
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
@@ -107,14 +108,22 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        List<String> formatIndexNames = EsModelName
-            .build(Downsampling.Second, SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        //if traceId exist, then direct local index name.
+        List<String> formatIndexNames;
+        if (!Strings.isNullOrEmpty(traceId)) {
+            formatIndexNames = buildNameFromTraceId(traceId);
+        } else {
+            formatIndexNames = EsModelName.build(Downsampling.Second, SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        }
+
+        if (formatIndexNames.size() == 0) {
+            return traceBrief;
+        }
+
         SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
-
-        TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal((int) response.getHits().getTotalHits().value);
-
-        for (SearchHit searchHit : response.getHits().getHits()) {
+        SearchHits searchHits = response.getHits();
+        traceBrief.setTotal((int) searchHits.getTotalHits().value);
+        for (SearchHit searchHit : searchHits.getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));

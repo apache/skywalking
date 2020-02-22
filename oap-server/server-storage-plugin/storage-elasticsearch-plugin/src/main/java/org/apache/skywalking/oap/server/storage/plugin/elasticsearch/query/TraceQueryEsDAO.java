@@ -45,6 +45,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.joda.time.format.DateTimeFormat;
@@ -65,8 +66,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
         String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
         TraceState traceState, QueryOrder queryOrder) throws IOException {
+        TraceBrief traceBrief = new TraceBrief();
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
         List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
@@ -120,13 +121,22 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        List<String> formatIndexNames = EsModelName.build(Downsampling.Second, SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        //if traceId exist, then direct local index name.
+        List<String> formatIndexNames;
+        if (!Strings.isNullOrEmpty(traceId)) {
+            formatIndexNames = buildNameFromTraceId(traceId);
+        } else {
+            formatIndexNames = EsModelName.build(Downsampling.Second, SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        }
+
+        if (formatIndexNames.size() == 0) {
+            return traceBrief;
+        }
+
         SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
-
-        TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal((int) response.getHits().totalHits);
-
-        for (SearchHit searchHit : response.getHits().getHits()) {
+        SearchHits searchHits = response.getHits();
+        traceBrief.setTotal((int) searchHits.totalHits);
+        for (SearchHit searchHit : searchHits.getHits()) {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
@@ -145,22 +155,15 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
-
-        String[] idParts = traceId.split("\\.", 3);
-        if (idParts.length != 3) {
-            return segmentRecords;
-        }
-
-        //part3 has two parts, 1) a timestamp measured in milliseconds 2) a seq between 0(included) and 9999(included)
-        String part3 = idParts[2];
-        String strTimestamps = part3.substring(0, part3.length() - 4);
-
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        String fullIndexName = SegmentRecord.INDEX_NAME + Const.LINE + YYYYMMDD.print(Long.parseLong(strTimestamps));
-        SearchResponse response = getClient().search(Arrays.asList(fullIndexName), sourceBuilder);
+        List<String> formatIndexNames = buildNameFromTraceId(traceId);
+        if (formatIndexNames.size() == 0) {
+            return segmentRecords;
+        }
+        SearchResponse response = getClient().search(formatIndexNames, sourceBuilder);
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord();
@@ -185,5 +188,19 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
+    }
+
+    protected List<String> buildNameFromTraceId(String traceId) {
+        String[] idParts = traceId.split("\\.", 3);
+        if (idParts.length != 3) {
+            return new ArrayList<>();
+        }
+
+        //traceId part3 has two parts, 1) a timestamp measured in milliseconds 2) a seq between 0(included) and 9999(included)
+        String part3 = idParts[2];
+        String strTimestamps = part3.substring(0, part3.length() - 4);
+
+        String fullIndexName = SegmentRecord.INDEX_NAME + Const.LINE + YYYYMMDD.print(Long.parseLong(strTimestamps));
+        return Arrays.asList(fullIndexName);
     }
 }
