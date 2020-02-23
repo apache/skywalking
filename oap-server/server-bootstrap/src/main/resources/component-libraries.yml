@@ -269,11 +269,17 @@ Armeria:
 JdkThreading:
   id: 80
   languages: Java
+KotlinCoroutine:
+  id: 81
+  languages: Java
 AvroServer:
   id: 82
   languages: Java
 AvroClient:
   id: 83
+  languages: Java
+Undertow:
+  id: 84
   languages: Java
 
 # .NET/.NET Core components

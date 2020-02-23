@@ -65,7 +65,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent JEDIS = new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "jdbc-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "h2-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 
@@ -94,8 +94,6 @@ public class ComponentsDefine {
     public static final OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46, "activemq-consumer");
 
     public static final OfficialComponent TRANSPORT_CLIENT = new OfficialComponent(48, "transport-client");
-
-    public static final OfficialComponent UNDERTOW = new OfficialComponent(49, "Undertow");
 
     public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52, "rabbitmq-producer");
 
@@ -151,7 +149,9 @@ public class ComponentsDefine {
 
     public static final OfficialComponent KT_COROUTINE = new OfficialComponent(81, "KotlinCoroutine");
 
-    public static final OfficialComponent AVRO_SERVER = new OfficialComponent(82, "avro-server");
+    public static final OfficialComponent AVRO_SERVER = new OfficialComponent(82, "AvroServer");
 
-    public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "avro-client");
+    public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "AvroClient");
+
+    public static final OfficialComponent UNDERTOW = new OfficialComponent(84, "Undertow");
 }
