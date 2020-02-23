@@ -36,7 +36,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -54,7 +54,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -77,7 +77,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -116,7 +116,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Local
@@ -152,7 +152,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Local

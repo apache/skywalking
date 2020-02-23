@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.mysql;
+package org.apache.skywalking.apm.testcase.h2.controller;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -25,15 +26,20 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SQLExecutor implements AutoCloseable {
+
+    private static final String URL = "jdbc:h2:mem:test";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "root";
+
     private Connection connection;
 
     public SQLExecutor() throws SQLException {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("org.h2.Driver");
         } catch (ClassNotFoundException e) {
             //
         }
-        connection = DriverManager.getConnection(MysqlConfig.getUrl(), MysqlConfig.getUserName(), MysqlConfig.getPassword());
+        connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
 
     public void createTable(String sql) throws SQLException {
@@ -43,7 +49,7 @@ public class SQLExecutor implements AutoCloseable {
     }
 
     public void insertData(String sql, String id, String value) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        CallableStatement preparedStatement = connection.prepareCall(sql);
         preparedStatement.setString(1, id);
         preparedStatement.setString(2, value);
         preparedStatement.execute();

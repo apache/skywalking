@@ -16,32 +16,19 @@
  *
  */
 
-package ${package}.controller;
+package org.apache.skywalking.apm.testcase.h2;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@RestController
-@RequestMapping("/case")
-@Log4j2
-public class CaseController {
+@SpringBootApplication
+public class Application {
 
-    private static final String SUCCESS = "Success";
-
-    @RequestMapping("/${scenario_case}")
-    @ResponseBody
-    public String testcase() {
-        // your codes
-        return SUCCESS;
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
-
-    @RequestMapping("/healthCheck")
-    @ResponseBody
-    public String healthCheck() {
-        // your codes
-        return SUCCESS;
-    }
-
 }
