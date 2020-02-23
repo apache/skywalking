@@ -21,18 +21,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>org.apache.skywalking.apm.testcase</groupId>
-    <artifactId>${artifactId}</artifactId>
+    <artifactId>struts2.3-scenario</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>skywalking-${scenario_name}</name>
+    <name>skywalking-struts2.3-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>YOUR VERSION</test.framework.version>
+        <test.framework.version>2.3.4</test.framework.version>
         <lombok.version>1.18.10</lombok.version>
     </properties>
 
@@ -54,15 +54,26 @@
             <version>2.8.1</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.struts</groupId>
+            <artifactId>struts2-core</artifactId>
+            <version>${test.framework.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>${scenario_name}</finalName>
+        <finalName>struts2.3-scenario</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

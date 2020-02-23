@@ -16,7 +16,7 @@
  *
  */
 
-package ${package}.controller;
+package org.apache.skywalking.apm.testcase.h2.controller;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +30,23 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    @RequestMapping("/${scenario_case}")
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
+        "id VARCHAR(1) PRIMARY KEY, \n" +
+        "value VARCHAR(1) NOT NULL)";
+    private static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
+    private static final String DROP_TABLE_SQL = "DROP table test_007";
+
+    @RequestMapping("/h2-scenario")
     @ResponseBody
-    public String testcase() {
-        // your codes
+    public String testcase() throws Exception {
+        try (SQLExecutor sqlExecute = new SQLExecutor()) {
+            sqlExecute.createTable(CREATE_TABLE_SQL);
+            sqlExecute.insertData(INSERT_DATA_SQL, "1", "1");
+            sqlExecute.dropTable(DROP_TABLE_SQL);
+        } catch (Exception e) {
+            log.error("Failed to execute sql.", e);
+            throw e;
+        }
         return SUCCESS;
     }
 
