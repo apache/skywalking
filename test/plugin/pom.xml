@@ -55,6 +55,8 @@
 
         <docker.image.version>1.0.0</docker.image.version>
         <skip.docker>true</skip.docker>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+        <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
     </properties>
 
     <dependencies>
@@ -122,8 +124,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
-                    <configLocation>apm-checkstyle/checkStyle.xml</configLocation>
-                    <headerLocation>apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                    <configLocation>../../apm-checkstyle/checkStyle.xml</configLocation>
+                    <headerLocation>../../apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>

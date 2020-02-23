@@ -37,7 +37,7 @@ jobs:
         run: |
           ./mvnw --batch-mode checkstyle:check apache-rat:check
           ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean checkstyle:checkstyle install
       - name: Single Node Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-single-service
       - name: Single Node Tests(InfluxDB/JDK8)
@@ -71,7 +71,7 @@ jobs:
         run: |
           ./mvnw --batch-mode checkstyle:check apache-rat:check
           ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean checkstyle:checkstyle install
       - name: Cluster Tests (ES6/ZK/JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=elasticsearch
       - name: Cluster Tests (InfluxDB/ZK/JDK8)
@@ -99,7 +99,7 @@ jobs:
         run: |
           ./mvnw --batch-mode checkstyle:check apache-rat:check
           ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean checkstyle:checkstyle install
       - name: 6.x Agents & 7.x Backend
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-6.x-agent-7.x-oap-compatibility
 
@@ -115,7 +115,7 @@ jobs:
         run: |
           ./mvnw --batch-mode checkstyle:check apache-rat:check
           ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
+          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean checkstyle:checkstyle install
       - name: Profile Tests H2(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=h2
       - name: Profile Tests MySQL(JDK8)

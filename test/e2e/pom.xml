@@ -67,6 +67,8 @@
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <lombok.version>1.18.10</lombok.version>
+        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+        <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
 
         <!-- build.id is an available environment variable in Jenkins to
              distinguish the different build jobs, once Jenkins job is aborted,
@@ -138,8 +140,8 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
                     <configuration>
-                        <configLocation>apm-checkstyle/checkStyle.xml</configLocation>
-                        <headerLocation>apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
+                        <configLocation>../../apm-checkstyle/checkStyle.xml</configLocation>
+                        <headerLocation>../../apm-checkstyle/CHECKSTYLE_HEAD</headerLocation>
                         <encoding>UTF-8</encoding>
                         <consoleOutput>true</consoleOutput>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
