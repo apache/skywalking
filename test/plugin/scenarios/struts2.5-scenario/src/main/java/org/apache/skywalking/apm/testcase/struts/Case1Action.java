@@ -16,32 +16,13 @@
  *
  */
 
-package ${package}.controller;
+package org.apache.skywalking.apm.testcase.struts;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.io.IOException;
 
-@RestController
-@RequestMapping("/case")
-@Log4j2
-public class CaseController {
+public class Case1Action {
 
-    private static final String SUCCESS = "Success";
-
-    @RequestMapping("/${scenario_case}")
-    @ResponseBody
-    public String testcase() {
-        // your codes
-        return SUCCESS;
+    public String execute() throws IOException {
+        return "SUCCESS";
     }
-
-    @RequestMapping("/healthCheck")
-    @ResponseBody
-    public String healthCheck() {
-        // your codes
-        return SUCCESS;
-    }
-
 }
