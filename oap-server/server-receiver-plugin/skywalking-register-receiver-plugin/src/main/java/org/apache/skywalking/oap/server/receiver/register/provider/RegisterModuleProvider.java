@@ -20,12 +20,16 @@ package org.apache.skywalking.oap.server.receiver.register.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.RegisterServiceHandler;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstancePingServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstanceRegisterServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceRegisterServletHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class RegisterModuleProvider extends ModuleProvider {
@@ -56,6 +60,13 @@ public class RegisterModuleProvider extends ModuleProvider {
                                                               .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
+
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                                .provider()
+                                                                .getService(JettyHandlerRegister.class);
+        jettyHandlerRegister.addHandler(new ServiceRegisterServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ServiceInstanceRegisterServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ServiceInstancePingServletHandler(getManager()));
     }
 
     @Override
