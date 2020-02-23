@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.SQLException;
-
 @RestController
 @RequestMapping("/case")
 @Log4j2
@@ -40,17 +38,14 @@ public class CaseController {
 
     @RequestMapping("/h2-scenario")
     @ResponseBody
-    public String testcase() throws SQLException {
-        SQLExecutor sqlExecute = null;
-        try {
-            sqlExecute = new SQLExecutor();
+    public String testcase() throws Exception {
+        try (SQLExecutor sqlExecute = new SQLExecutor()) {
             sqlExecute.createTable(CREATE_TABLE_SQL);
             sqlExecute.insertData(INSERT_DATA_SQL, "1", "1");
             sqlExecute.dropTable(DROP_TABLE_SQL);
-        } finally {
-            if (sqlExecute != null) {
-                sqlExecute.closeConnection();
-            }
+        } catch (Exception e) {
+            log.error("Failed to execute sql.", e);
+            throw e;
         }
         return SUCCESS;
     }

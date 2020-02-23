@@ -25,7 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SQLExecutor {
+public class SQLExecutor implements AutoCloseable {
 
     private static final String URL = "jdbc:h2:mem:test";
     private static final String USERNAME = "root";
@@ -66,5 +66,10 @@ public class SQLExecutor {
         if (this.connection != null) {
             this.connection.close();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        closeConnection();
     }
 }
