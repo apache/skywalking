@@ -89,5 +89,3 @@ segmentItems:
             logs:
               - logEvent:
                   - {key: forward-url, value: /struts2.5-scenario/jsp/success.jsp}
-
-
