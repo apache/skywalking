@@ -29,7 +29,7 @@ on:
 
 jobs:
   Spring_Dubbo:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -54,7 +54,7 @@ jobs:
         run: bash test/plugin/run.sh okhttp-scenario
 
   Spring31x_ES5_Gateway_Avro_Struts25:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -87,7 +87,7 @@ jobs:
         run: bash test/plugin/run.sh struts2.5-scenario
 
   Toolkit_Webflux_SocketIO_RabbitMQ_GSON:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -120,7 +120,7 @@ jobs:
         run: bash test/plugin/run.sh gson-scenario
 
   Feign_Canal_Armeria:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -156,7 +156,7 @@ jobs:
 
 
   Cassandra_Hystrix_SofaRPC_Spring30x:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -187,7 +187,7 @@ jobs:
         run: bash test/plugin/run.sh spring-3.0.x-scenario
 
   SpringAsync_gRPC_KotlinCoroutine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -216,7 +216,7 @@ jobs:
         run: bash test/plugin/run.sh kotlin-coroutine-scenario
 
   Ehcache_Undertow_Jedis:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -245,7 +245,7 @@ jobs:
         run: bash test/plugin/run.sh jedis-scenario
 
   Spring41x_SolrJ-Http:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -278,7 +278,7 @@ jobs:
         run: bash test/plugin/run.sh httpasyncclient-scenario
 
   MongoDB:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -303,7 +303,7 @@ jobs:
         run: bash test/plugin/run.sh mongodb-3.x-scenario
 
   Redisson_ShardingSphere_Zookeeper:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -336,7 +336,7 @@ jobs:
         run: bash test/plugin/run.sh zookeeper-scenario
 
   Spring43_Struts23:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -363,7 +363,7 @@ jobs:
         run: bash test/plugin/run.sh struts2.3-scenario
 
   PostgreSQL94:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -388,7 +388,7 @@ jobs:
         run: bash test/plugin/run.sh postgresql-above9.4.1207-scenario
 
   PostgreSQL92_ServiceComb:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -417,7 +417,7 @@ jobs:
         run: bash test/plugin/run.sh servicecomb-1.x-scenario
 
   Jetty:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -442,7 +442,7 @@ jobs:
         run: bash test/plugin/run.sh jetty-scenario
 
   ElasticSearch6_7:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -469,7 +469,7 @@ jobs:
         run: bash test/plugin/run.sh elasticsearch-6.x-scenario
 
   Oracle_Activemq_Kafka_JdkHttp_JdkThreading:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -505,7 +505,7 @@ jobs:
         run: bash test/plugin/run.sh jdk-threading-scenario
 
   MySQL:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
@@ -530,7 +530,7 @@ jobs:
         run: bash test/plugin/run.sh mysql-scenario
 
   LETTUCE_PlayFramework_H2:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
