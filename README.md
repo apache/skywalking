@@ -35,9 +35,10 @@ SkyWalking supports to collect telemetry (traces and metrics) data from multiple
 and multiple formats,
 including
 1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents in SkyWalking format
-1. Manual-instrument [Go agent](https://github.com/tetratelabs/go2sky) in SkyWalking format.
-1. Istio telemetry format
-1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh
+1. [Go agent](https://github.com/tetratelabs/go2sky).
+1. [LUA agent](https://github.com/apache/skywalking-nginx-lua), especially for Nginx, OpenResty.
+1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh. 
+1. Istio telemetry format.
 1. Envoy Metrics Service format.
 1. Zipkin v1/v2 format.
 1. Jaeger gRPC format.
