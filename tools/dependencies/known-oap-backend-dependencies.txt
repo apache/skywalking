@@ -141,6 +141,7 @@ parent-join-client-6.3.2.jar
 perfmark-api-0.19.0.jar
 proto-google-common-protos-1.12.0.jar
 protobuf-java-3.4.0.jar
+protobuf-java-util-3.9.2.jar
 rank-eval-client-6.3.2.jar
 reactive-streams-1.0.2.jar
 reflectasm-1.11.7.jar
