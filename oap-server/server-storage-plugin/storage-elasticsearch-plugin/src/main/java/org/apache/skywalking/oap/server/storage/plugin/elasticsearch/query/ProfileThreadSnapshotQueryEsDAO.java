@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
@@ -39,6 +40,7 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,6 +146,35 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
             result.add(record);
         }
         return result;
+    }
+
+    @Override
+    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, segmentId));
+        sourceBuilder.size(1);
+
+        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+
+        if (response.getHits().getHits().length == 0) {
+            return null;
+        }
+        SearchHit searchHit = response.getHits().getHits()[0];
+        SegmentRecord segmentRecord = new SegmentRecord();
+        segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
+        segmentRecord.setTraceId((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
+        segmentRecord.setServiceId(((Number) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID)).intValue());
+        segmentRecord.setEndpointName((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
+        segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
+        segmentRecord.setEndTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.END_TIME)).longValue());
+        segmentRecord.setLatency(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
+        segmentRecord.setIsError(((Number) searchHit.getSourceAsMap().get(SegmentRecord.IS_ERROR)).intValue());
+        String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
+        if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+            segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+        }
+        segmentRecord.setVersion(((Number) searchHit.getSourceAsMap().get(SegmentRecord.VERSION)).intValue());
+        return segmentRecord;
     }
 
     protected int querySequenceWithAgg(AbstractAggregationBuilder aggregationBuilder, String segmentId, long start, long end) throws IOException {

@@ -34,6 +34,8 @@ import org.apache.skywalking.e2e.profile.query.ProfileAnalyzation;
 import org.apache.skywalking.e2e.profile.query.ProfileStackTreeMatcher;
 import org.apache.skywalking.e2e.profile.query.ProfileTaskQuery;
 import org.apache.skywalking.e2e.profile.query.ProfileTasks;
+import org.apache.skywalking.e2e.profile.query.ProfiledSegment;
+import org.apache.skywalking.e2e.profile.query.ProfiledSegmentMatcher;
 import org.apache.skywalking.e2e.profile.query.ProfilesTasksMatcher;
 import org.apache.skywalking.e2e.service.Service;
 import org.apache.skywalking.e2e.service.ServicesMatcher;
@@ -192,6 +194,15 @@ public class ProfileVerificationITCase {
         }
 
         String segmentId = foundedTrace.getKey();
+
+        // verify segment
+        ProfiledSegment.ProfiledSegmentData segmentData = profileClient.getProfiledSegment(foundedTrace.getKey());
+        LOGGER.info("get profiled segment : {}", segmentData);
+        InputStream inputStream = new ClassPathResource(
+                "expected-data/org.apache.skywalking.e2e.ProfileVerificationITCase.profileSegment.yml").getInputStream();
+        final ProfiledSegmentMatcher tracesMatcher = new Yaml().loadAs(inputStream, ProfiledSegmentMatcher.class);
+        tracesMatcher.verify(segmentData);
+
         long start = Long.parseLong(foundedTrace.getStart());
         long end = start + foundedTrace.getDuration();
         ProfileAnalyzation analyzation = profileClient.getProfileAnalyzation(segmentId, start, end);
