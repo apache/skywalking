@@ -32,11 +32,9 @@ public class ProtoBufJsonUtilsTest {
             "  \"spans\": [\n" +
             "    {\n" +
             "      \"operationName\": \"/tier2/lb\",\n" +
-            "      \"startTime\": 1582461179910,\n" +
-            "      \"tags\": [],\n" +
-            "      \"endTime\": 1582461179922,\n" +
+            "      \"startTime\": 1582526028207,\n" +
+            "      \"endTime\": 1582526028221,\n" +
             "      \"spanType\": \"Exit\",\n" +
-            "      \"logs\":[],\n" +
             "      \"spanId\": 1,\n" +
             "      \"isError\": false,\n" +
             "      \"parentSpanId\": 0,\n" +
@@ -46,7 +44,7 @@ public class ProtoBufJsonUtilsTest {
             "    },\n" +
             "    {\n" +
             "      \"operationName\": \"/tier2/lb\",\n" +
-            "      \"startTime\": 1582461179910,\n" +
+            "      \"startTime\": 1582526028207,\n" +
             "      \"tags\": [\n" +
             "        {\n" +
             "          \"key\": \"http.method\",\n" +
@@ -57,9 +55,8 @@ public class ProtoBufJsonUtilsTest {
             "          \"value\": \"http://127.0.0.1/tier2/lb\"\n" +
             "        }\n" +
             "      ],\n" +
-            "      \"endTime\": 1582461179922,\n" +
+            "      \"endTime\": 1582526028221,\n" +
             "      \"spanType\": \"Entry\",\n" +
-            "      \"logs\": [],\n" +
             "      \"spanId\": 0,\n" +
             "      \"isError\": false,\n" +
             "      \"parentSpanId\": -1,\n" +
@@ -68,7 +65,7 @@ public class ProtoBufJsonUtilsTest {
             "        {\n" +
             "          \"parentTraceSegmentId\": {\n" +
             "            \"idParts\": [\n" +
-            "              1582461179038,\n" +
+            "              1582526028032,\n" +
             "              794206293,\n" +
             "              69887\n" +
             "            ]\n" +
@@ -91,7 +88,7 @@ public class ProtoBufJsonUtilsTest {
             "  \"serviceId\": 1,\n" +
             "  \"traceSegmentId\": {\n" +
             "    \"idParts\": [\n" +
-            "      1582461179044,\n" +
+            "      1582526028040,\n" +
             "      794206293,\n" +
             "      69887\n" +
             "    ]\n" +
@@ -99,7 +96,7 @@ public class ProtoBufJsonUtilsTest {
             "  \"globalTraceIds\": [\n" +
             "    {\n" +
             "      \"idParts\": [\n" +
-            "        1582461179038,\n" +
+            "        1582526028032,\n" +
             "        794206293,\n" +
             "        69887\n" +
             "      ]\n" +
@@ -111,7 +108,7 @@ public class ProtoBufJsonUtilsTest {
         try {
             ProtoBufJsonUtils.fromJSON(json, builder);
             UpstreamSegment upstreamSegment = builder.build();
-            Assert.assertEquals(1582461179038L, upstreamSegment.getGlobalTraceIds(0).getIdParts(0));
+            Assert.assertEquals(1582526028032L, upstreamSegment.getGlobalTraceIds(0).getIdParts(0));
 
             SegmentObject.Builder segBuilder = SegmentObject.newBuilder();
             ProtoBufJsonUtils.fromJSON(json, segBuilder);
