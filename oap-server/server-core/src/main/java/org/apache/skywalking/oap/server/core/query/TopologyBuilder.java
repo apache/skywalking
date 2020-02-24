@@ -82,7 +82,8 @@ class TopologyBuilder {
                 nodes.put(target.getSequence(), buildNode(target));
                 if (BooleanUtils.valueToBoolean(target.getIsAddress())) {
                     nodes.get(target.getSequence())
-                         .setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+                         .setType(
+                             componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
@@ -129,7 +130,8 @@ class TopologyBuilder {
                     Node conjecturalNode = new Node();
                     conjecturalNode.setId(source.getSequence());
                     conjecturalNode.setName(source.getName());
-                    conjecturalNode.setType(componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
+                    conjecturalNode.setType(
+                        componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
                     conjecturalNode.setReal(true);
                     nodes.put(source.getSequence(), conjecturalNode);
                 }

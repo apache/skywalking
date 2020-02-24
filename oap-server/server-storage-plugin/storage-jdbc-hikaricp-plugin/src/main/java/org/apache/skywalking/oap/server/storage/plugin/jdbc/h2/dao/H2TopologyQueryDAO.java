@@ -56,7 +56,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB,
         long endTB, List<Integer> serviceIds) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, true);
+        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID, ServiceRelationClientSideMetrics.DEST_SERVICE_ID, serviceIds, true);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
         long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
-        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), true);
+        return loadServiceCalls(tableName, startTB, endTB, ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID, ServiceRelationClientSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), true);
     }
 
     @Override
