@@ -1,6 +1,6 @@
 # Alarm
 Alarm core is driven by a collection of rules, which are defined in `config/alarm-settings.yml`.
-There are two parts in alarm rule definition.
+There are three parts in alarm rule definition.
 1. [Alarm rules](#rules). They define how metrics alarm should be triggered, what conditions should be considered.
 1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
 1. [gRPCHook](#gRPCHook). The host and port of remote gRPC method, which should be called after the alarm is triggered.

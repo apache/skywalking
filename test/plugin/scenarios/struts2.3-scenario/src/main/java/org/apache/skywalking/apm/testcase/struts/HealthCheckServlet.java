@@ -13,35 +13,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package ${package}.controller;
+package org.apache.skywalking.apm.testcase.struts;
 
-import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-@RestController
-@RequestMapping("/case")
-@Log4j2
-public class CaseController {
+public class HealthCheckServlet extends HttpServlet {
 
-    private static final String SUCCESS = "Success";
-
-    @RequestMapping("/${scenario_case}")
-    @ResponseBody
-    public String testcase() {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // your codes
-        return SUCCESS;
+        PrintWriter writer = resp.getWriter();
+        writer.write("Success");
+        writer.flush();
     }
 
-    @RequestMapping("/healthCheck")
-    @ResponseBody
-    public String healthCheck() {
-        // your codes
-        return SUCCESS;
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
     }
-
 }
