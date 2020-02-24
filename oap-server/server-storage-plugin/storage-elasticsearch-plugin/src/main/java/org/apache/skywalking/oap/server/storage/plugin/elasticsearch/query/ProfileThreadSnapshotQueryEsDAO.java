@@ -151,7 +151,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, segmentId));
+        sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.SEGMENT_ID, segmentId));
         sourceBuilder.size(1);
 
         SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
