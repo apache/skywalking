@@ -186,6 +186,7 @@
                                                 <volume>
                                                     ${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal
                                                 </volume>
+                                                <volume>/tmp/skywalking-test:/tmp/skywalking-test</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
@@ -352,6 +353,7 @@
                                                 <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                                 <volume>${project.basedir}/src/docker/adapt_storage.awk:/adapt_storage.awk</volume>
                                                 <volume>${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal</volume>
+                                                <volume>/tmp/skywalking-test:/tmp/skywalking-test</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
@@ -381,6 +383,9 @@
                         <service.host>${service.host}</service.host>
                         <service.port>${service.port}</service.port>
                         <provider.name>${provider.name}</provider.name>
+                        <SW_STORAGE_ES_CLUSTER_NODES>localhost:${es.port}</SW_STORAGE_ES_CLUSTER_NODES>
+                        <SW_STORAGE_INFLUXDB_URL>http://localhost:${influxdb.port}</SW_STORAGE_INFLUXDB_URL>
+                        <SW_JDBC_URL>jdbc:mysql://localhost:${mysql.port}/swtest</SW_JDBC_URL>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

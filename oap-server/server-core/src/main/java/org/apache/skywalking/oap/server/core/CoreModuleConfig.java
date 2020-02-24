@@ -103,7 +103,7 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
 
-    CoreModuleConfig() {
+    public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
 

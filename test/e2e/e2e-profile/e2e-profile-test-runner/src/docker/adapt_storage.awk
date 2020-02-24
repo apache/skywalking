@@ -19,6 +19,7 @@
 BEGIN {
     in_storage_section=0;
     in_storage_type_section=0;
+    in_storage_mem_selection=0;
 }
 
 {
@@ -39,14 +40,21 @@ BEGIN {
                 in_storage_type_section=$0 ~ /^#?\s+mysql:/
             } else if (ENVIRON["STORAGE"] ~ /^h2.*$/) {
                 in_storage_type_section=$0 ~ /^#?\s+h2:$/
+                in_storage_mem_selection=1
             } else if (ENVIRON["STORAGE"] ~ /^influx.*$/) {
                 in_storage_type_section=$0 ~ /^#?\s+influx:$/
+                in_storage_mem_selection=1
             }
         } else {
             in_storage_type_section=$0 ~ /^#?\s{4}/
         }
         if (in_storage_type_section == 1) {
             gsub("^#", "", $0)
+            if (in_storage_mem_selection == 1) {
+                if ($0 ~ /\:h2\:mem\:/) {
+                    gsub("mem", "/tmp/skywalking-test/db" rand(), $0)
+                }
+            }
             print
         } else {
             if ($0 !~ /^#/) {

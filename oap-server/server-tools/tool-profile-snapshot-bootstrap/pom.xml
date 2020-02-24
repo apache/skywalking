@@ -17,22 +17,19 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-tools</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-starter-es7</artifactId>
-    <description>A backend starter specially for ElasticSearch 7 storage</description>
-    <packaging>jar</packaging>
-
-    <properties>
-        <elasticsearch.version>7.0.0</elasticsearch.version>
-    </properties>
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>tool-profile-snapshot-bootstrap</artifactId>
+    <version>7.0.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -40,41 +37,27 @@
             <artifactId>server-bootstrap</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch7-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
-        <!-- profile exporter -->
+        <!-- core module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>tool-profile-snapshot-exporter-es7</artifactId>
+            <artifactId>tool-profile-snapshot-server-mock</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- core module -->
+
+        <!-- storage module -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-jdbc-hikaricp-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-influxdb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- storage module -->
     </dependencies>
 
-    <build>
-        <finalName>skywalking-oap</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

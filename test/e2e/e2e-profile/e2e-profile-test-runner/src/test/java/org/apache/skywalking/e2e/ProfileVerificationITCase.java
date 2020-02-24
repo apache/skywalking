@@ -18,14 +18,20 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.e2e.profile.ProfileClient;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
@@ -202,6 +208,10 @@ public class ProfileVerificationITCase {
             expectedInputStream, ProfileStackTreeMatcher.class);
         servicesMatcher.verify(analyzation.getData().getTrees().get(0));
 
+        // verify shell exporter
+        String swHome = System.getProperty("sw.home");
+        String exporterBin = swHome + File.separator + "tools" + File.separator + "profile" + File.separator + "profile_exporter.sh";
+        validateExporter(exporterBin, swHome, taskId, foundedTrace.getTraceIds().get(0));
     }
 
     private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {
@@ -285,6 +295,34 @@ public class ProfileVerificationITCase {
                 Thread.sleep(retryInterval);
             }
         }
+    }
+
+    private void validateExporter(String exporterBin, String exportTo, String taskId, String traceId) throws IOException, InterruptedException {
+        String executeShell = exporterBin;
+        executeShell += " --taskid=" + taskId;
+        executeShell += " --traceid=" + traceId;
+        executeShell += " " + exportTo;
+
+        Properties properties = System.getProperties();
+        List<String> env = properties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
+
+        Process exec = Runtime.getRuntime().exec(executeShell, env.toArray(new String[env.size()]));
+        LOGGER.info("executing shell: {}", executeShell);
+
+        // print data
+        BufferedReader strCon = new BufferedReader(new InputStreamReader(exec.getInputStream()));
+        String line;
+        while ((line = strCon.readLine()) != null) {
+            LOGGER.info("executing: {}", line);
+        }
+        exec.waitFor();
+
+        // reading result file
+        File zipFile = new File(exportTo + File.separator + traceId + ".tar.gz");
+        assertThat(zipFile).canRead();
+
+        // delete it
+        zipFile.delete();
     }
 
 }
