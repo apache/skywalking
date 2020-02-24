@@ -102,10 +102,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getServiceTopology(final Downsampling downsampling, final long startTB, final long endTB,
-                                       final int serviceId) throws IOException {
-        List<Integer> serviceIds = new ArrayList<>();
-        serviceIds.add(serviceId);
-
+                                       final List<Integer> serviceIds) throws IOException {
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(
             downsampling, startTB, endTB, serviceIds);
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(
@@ -119,18 +116,18 @@ public class TopologyQueryService implements Service {
          * There is a special case, there may be a node of the `serviceIds` call these services as and only as a client, so it is included in the topology,
          * its component name could be missed as not being queried before. We add another query about this.
          */
-        List<Integer> sourceServiceIds = new ArrayList<>();
+        List<Integer> outScopeSourceServiceIds = new ArrayList<>();
         serviceRelationClientCalls.forEach(call -> {
             // Client side relationships exclude the given services(#serviceIds)
             // The given services(#serviceIds)'s component names have been included inside `serviceRelationServerCalls`
             if (!serviceIds.contains(call.getSource())) {
-                sourceServiceIds.add(call.getSource());
+                outScopeSourceServiceIds.add(call.getSource());
             }
         });
-        if (CollectionUtils.isNotEmpty(sourceServiceIds)) {
+        if (CollectionUtils.isNotEmpty(outScopeSourceServiceIds)) {
             // If exist, query them as the server side to get the target's component.
             List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(
-                downsampling, startTB, endTB, sourceServiceIds);
+                downsampling, startTB, endTB, outScopeSourceServiceIds);
             topology.getNodes().forEach(node -> {
                 if (Strings.isNullOrEmpty(node.getType())) {
                     for (Call.CallDetail call : sourceCalls) {
