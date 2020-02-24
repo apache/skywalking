@@ -57,14 +57,14 @@ public class TraceSegmentCollectServletHandler extends JettyJsonHandler {
             logger.debug("receive stream segment");
         }
 
-        StringBuffer jb = new StringBuffer();
+        StringBuffer stringBuffer = new StringBuffer();
         String line = null;
         try {
             BufferedReader reader = req.getReader();
             while ((line = reader.readLine()) != null) {
-                jb.append(line);
+                stringBuffer.append(line);
             }
-            UpstreamSegment upstreamSegment = upstreamSegmentJsonReader.read(jb.toString()).build();
+            UpstreamSegment upstreamSegment = upstreamSegmentJsonReader.read(stringBuffer.toString()).build();
 
             segmentProducer.send(upstreamSegment, SegmentSource.Agent);
         } catch (Exception e) {

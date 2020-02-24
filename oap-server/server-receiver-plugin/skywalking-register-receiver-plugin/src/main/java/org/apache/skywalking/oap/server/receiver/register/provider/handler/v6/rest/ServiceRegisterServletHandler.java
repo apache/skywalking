@@ -18,19 +18,21 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.apm.network.common.ServiceType;
+import org.apache.skywalking.apm.network.register.v2.Service;
+import org.apache.skywalking.apm.network.register.v2.Services;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
+import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +41,7 @@ public class ServiceRegisterServletHandler extends JettyJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(ServiceRegisterServletHandler.class);
 
     private final IServiceInventoryRegister serviceInventoryRegister;
-    private final Gson gson = new Gson();
-    private static final String SERVICES = "services";
-    private static final String SERVICE_NAME = "serviceName";
-    private static final String TYPE = "type";
+
     private static final String KEY = "key";
     private static final String VALUE = "value";
 
@@ -65,17 +64,20 @@ public class ServiceRegisterServletHandler extends JettyJsonHandler {
     @Override
     protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
         JsonArray responseArray = new JsonArray();
-        try {
-            gson.fromJson(req.getReader(), JsonObject.class).getAsJsonArray(SERVICES).forEach(serviceObj -> {
-                JsonObject service = serviceObj.getAsJsonObject();
-                String serviceCode = service.get(SERVICE_NAME).getAsString();
-                String type = service.get(TYPE).getAsString();
 
-                int serviceId = serviceInventoryRegister.getOrCreate(serviceCode, NodeType.fromRegisterServiceType(
-                    ServiceType.valueOf(type)), null);
+        try {
+            Services.Builder builder = Services.newBuilder();
+            ProtoBufJsonUtils.fromJSON(getJsonBody(req), builder);
+            List<Service> serviceList = builder.build().getServicesList();
+
+            serviceList.forEach(service -> {
+                int serviceId = serviceInventoryRegister.getOrCreate(service.getServiceName(),
+                                                                     NodeType.fromRegisterServiceType(
+                                                                         service.getType()), null
+                );
 
                 JsonObject mapping = new JsonObject();
-                mapping.addProperty(KEY, serviceCode);
+                mapping.addProperty(KEY, service.getServiceName());
                 mapping.addProperty(VALUE, serviceId);
                 responseArray.add(mapping);
             });

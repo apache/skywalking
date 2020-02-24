@@ -18,23 +18,31 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstance;
+import org.apache.skywalking.apm.network.register.v2.ServiceInstances;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
+import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.HOST_NAME;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.IPV4S;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.LANGUAGE;
+import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
 public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
@@ -44,13 +52,7 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
 
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
     private final ServiceInventoryCache serviceInventoryCache;
-    private final Gson gson = new Gson();
 
-    private static final String INSTANCES = "instances";
-    private static final String TIME = "time";
-    private static final String SERVICE_ID = "serviceId";
-    private static final String INSTANCE_UUID = "instanceUUID";
-    private static final String PROPERTIES = "properties";
     private static final String KEY = "key";
     private static final String VALUE = "value";
 
@@ -74,25 +76,45 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
 
     @Override
     protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
-        JsonObject responseJson = new JsonObject();
-        try {
-            JsonObject jsonObject = gson.fromJson(req.getReader(), JsonObject.class);
-            JsonArray instances = jsonObject.getAsJsonArray(INSTANCES);
-            instances.forEach(instanceObj -> {
-                JsonObject instance = instanceObj.getAsJsonObject();
-                long time = instance.get(TIME).getAsLong();
-                int serviceId = instance.get(SERVICE_ID).getAsInt();
-                String instanceUUID = instance.get(INSTANCE_UUID).getAsString();
-                JsonArray properties = new JsonArray();
-                JsonObject instanceProperties = new JsonObject();
-                if (instance.has(PROPERTIES)) {
-                    properties = instance.get(PROPERTIES).getAsJsonArray();
-                }
 
-                properties.forEach(property -> {
-                    JsonObject prop = property.getAsJsonObject();
-                    instanceProperties.addProperty(prop.get(KEY).getAsString(), prop.get(VALUE).getAsString());
-                });
+        JsonObject responseJson = new JsonObject();
+
+        try {
+            ServiceInstances.Builder builder = ServiceInstances.newBuilder();
+            ProtoBufJsonUtils.fromJSON(getJsonBody(req), builder);
+            List<ServiceInstance> serviceInstances = builder.build().getInstancesList();
+
+            serviceInstances.forEach(instance -> {
+                long time = instance.getTime();
+                int serviceId = instance.getServiceId();
+                String instanceUUID = instance.getInstanceUUID();
+
+                JsonObject instanceProperties = new JsonObject();
+                List<String> ipv4s = new ArrayList<>();
+
+                for (KeyStringValuePair property : instance.getPropertiesList()) {
+                    String key = property.getKey();
+                    switch (key) {
+                        case HOST_NAME:
+                            instanceProperties.addProperty(HOST_NAME, property.getValue());
+                            break;
+                        case OS_NAME:
+                            instanceProperties.addProperty(OS_NAME, property.getValue());
+                            break;
+                        case LANGUAGE:
+                            instanceProperties.addProperty(LANGUAGE, property.getValue());
+                            break;
+                        case "ipv4":
+                            ipv4s.add(property.getValue());
+                            break;
+                        case PROCESS_NO:
+                            instanceProperties.addProperty(PROCESS_NO, property.getValue());
+                            break;
+                        default:
+                            instanceProperties.addProperty(key, property.getValue());
+                    }
+                }
+                instanceProperties.addProperty(IPV4S, ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4s));
 
                 String instanceName = null;
                 if (instanceUUID.startsWith(INSTANCE_CUSTOMIZED_NAME_PREFIX)) {
@@ -113,7 +135,6 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
                         instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
                     }
                 }
-
                 int instanceId = serviceInstanceInventoryRegister.getOrCreate(
                     serviceId, instanceName, instanceUUID, time, instanceProperties);
 
