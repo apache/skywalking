@@ -23,12 +23,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -43,16 +40,19 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceRegisterServletHandler.class);
+    private static final String INSTANCE_CUSTOMIZED_NAME_PREFIX = "NAME:";
 
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
     private final ServiceInventoryCache serviceInventoryCache;
     private final Gson gson = new Gson();
 
-    private static final String SERVICE_ID = "service_id";
-    private static final String AGENT_UUID = "agent_uuid";
-    private static final String REGISTER_TIME = "register_time";
-    private static final String INSTANCE_ID = "instance_id";
-    private static final String OS_INFO = "os_info";
+    private static final String INSTANCES = "instances";
+    private static final String TIME = "time";
+    private static final String SERVICE_ID = "serviceId";
+    private static final String INSTANCE_UUID = "instanceUUID";
+    private static final String PROPERTIES = "properties";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
 
     public ServiceInstanceRegisterServletHandler(ModuleManager moduleManager) {
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
@@ -76,46 +76,54 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
     protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
         JsonObject responseJson = new JsonObject();
         try {
-            JsonObject instance = gson.fromJson(req.getReader(), JsonObject.class);
-            int serviceId = instance.get(SERVICE_ID).getAsInt();
-            String agentUUID = instance.get(AGENT_UUID).getAsString();
-            long registerTime = instance.get(REGISTER_TIME).getAsLong();
-            JsonObject osInfoJson = instance.get(OS_INFO).getAsJsonObject();
+            JsonObject jsonObject = gson.fromJson(req.getReader(), JsonObject.class);
+            JsonArray instances = jsonObject.getAsJsonArray(INSTANCES);
+            instances.forEach(instanceObj -> {
+                JsonObject instance = instanceObj.getAsJsonObject();
+                long time = instance.get(TIME).getAsLong();
+                int serviceId = instance.get(SERVICE_ID).getAsInt();
+                String instanceUUID = instance.get(INSTANCE_UUID).getAsString();
+                JsonArray properties = new JsonArray();
+                JsonObject instanceProperties = new JsonObject();
+                if (instance.has(PROPERTIES)) {
+                    properties = instance.get(PROPERTIES).getAsJsonArray();
+                }
 
-            List<String> ipv4sList = new ArrayList<>();
-            JsonArray ipv4s = osInfoJson.get("ipv4s").getAsJsonArray();
-            ipv4s.forEach(ipv4 -> ipv4sList.add(ipv4.getAsString()));
+                properties.forEach(property -> {
+                    JsonObject prop = property.getAsJsonObject();
+                    instanceProperties.addProperty(prop.get(KEY).getAsString(), prop.get(VALUE).getAsString());
+                });
 
-            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+                String instanceName = null;
+                if (instanceUUID.startsWith(INSTANCE_CUSTOMIZED_NAME_PREFIX)) {
+                    instanceName = instanceUUID.substring(INSTANCE_CUSTOMIZED_NAME_PREFIX.length());
+                }
 
-            JsonObject instanceProperties = new JsonObject();
-            instanceProperties.addProperty(
-                ServiceInstanceInventory.PropertyUtil.HOST_NAME, osInfoJson.get("host_name").getAsString());
-            instanceProperties.addProperty(
-                ServiceInstanceInventory.PropertyUtil.OS_NAME, osInfoJson.get("os_name").getAsString());
-            instanceProperties.addProperty(
-                ServiceInstanceInventory.PropertyUtil.PROCESS_NO, osInfoJson.get("process_id").getAsInt() + "");
-            instanceProperties.addProperty(
-                ServiceInstanceInventory.PropertyUtil.IPV4S,
-                ServiceInstanceInventory.PropertyUtil.ipv4sSerialize(ipv4sList)
-            );
+                ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
 
-            String instanceName = serviceInventory.getName();
-            if (instanceProperties.has(PROCESS_NO)) {
-                instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
-            }
-            if (instanceProperties.has(HOST_NAME)) {
-                instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
-            }
+                if (instanceName == null) {
+                    /**
+                     * After 7.0.0, only active this naming rule when instance name has not been set in UUID parameter.
+                     */
+                    instanceName = serviceInventory.getName();
+                    if (instanceProperties.has(PROCESS_NO)) {
+                        instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();
+                    }
+                    if (instanceProperties.has(HOST_NAME)) {
+                        instanceName += "@" + instanceProperties.get(HOST_NAME).getAsString();
+                    }
+                }
 
-            int instanceId = serviceInstanceInventoryRegister.getOrCreate(
-                serviceId, instanceName, agentUUID, registerTime, instanceProperties);
-            responseJson.addProperty(SERVICE_ID, serviceId);
-            responseJson.addProperty(INSTANCE_ID, instanceId);
+                int instanceId = serviceInstanceInventoryRegister.getOrCreate(
+                    serviceId, instanceName, instanceUUID, time, instanceProperties);
+
+                responseJson.addProperty(KEY, instanceUUID);
+                responseJson.addProperty(VALUE, instanceId);
+            });
+
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        //TODO: Commands
         return responseJson;
     }
 }

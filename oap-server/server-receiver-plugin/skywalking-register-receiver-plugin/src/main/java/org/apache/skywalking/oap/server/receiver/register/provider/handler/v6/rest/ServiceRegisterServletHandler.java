@@ -24,7 +24,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
@@ -38,8 +40,11 @@ public class ServiceRegisterServletHandler extends JettyJsonHandler {
 
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final Gson gson = new Gson();
-    private static final String SERVICE_NAME = "service_name";
-    private static final String SERVICE_ID = "service_id";
+    private static final String SERVICES = "services";
+    private static final String SERVICE_NAME = "serviceName";
+    private static final String TYPE = "type";
+    private static final String KEY = "key";
+    private static final String VALUE = "value";
 
     public ServiceRegisterServletHandler(ModuleManager moduleManager) {
         serviceInventoryRegister = moduleManager.find(CoreModule.NAME)
@@ -61,17 +66,19 @@ public class ServiceRegisterServletHandler extends JettyJsonHandler {
     protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
         JsonArray responseArray = new JsonArray();
         try {
-            JsonArray serviceCodes = gson.fromJson(req.getReader(), JsonArray.class);
-            for (int i = 0; i < serviceCodes.size(); i++) {
-                JsonObject service = serviceCodes.get(i).getAsJsonObject();
+            gson.fromJson(req.getReader(), JsonObject.class).getAsJsonArray(SERVICES).forEach(serviceObj -> {
+                JsonObject service = serviceObj.getAsJsonObject();
                 String serviceCode = service.get(SERVICE_NAME).getAsString();
-                int serviceId = serviceInventoryRegister.getOrCreate(serviceCode, null);
+                String type = service.get(TYPE).getAsString();
+
+                int serviceId = serviceInventoryRegister.getOrCreate(serviceCode, NodeType.fromRegisterServiceType(
+                    ServiceType.valueOf(type)), null);
+
                 JsonObject mapping = new JsonObject();
-                mapping.addProperty(SERVICE_NAME, serviceCode);
-                mapping.addProperty(SERVICE_ID, serviceId);
+                mapping.addProperty(KEY, serviceCode);
+                mapping.addProperty(VALUE, serviceId);
                 responseArray.add(mapping);
-                //
-            }
+            });
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

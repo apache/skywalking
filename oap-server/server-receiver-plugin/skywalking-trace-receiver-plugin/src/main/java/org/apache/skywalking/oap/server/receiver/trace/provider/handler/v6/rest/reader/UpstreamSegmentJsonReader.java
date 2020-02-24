@@ -18,46 +18,24 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader;
 
-import com.google.gson.stream.JsonReader;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
-public class UpstreamSegmentJsonReader implements StreamJsonReader<TraceSegment> {
+public class UpstreamSegmentJsonReader implements StreamJsonReader<UpstreamSegment.Builder> {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpstreamSegmentJsonReader.class);
-
-    private UniqueIdJsonReader uniqueIdJsonReader = new UniqueIdJsonReader();
-    private SegmentJsonReader segmentJsonReader = new SegmentJsonReader();
-
-    private static final String GLOBAL_TRACE_IDS = "global_trace_ids";
-    private static final String SEGMENT = "segment";
+    private final SegmentJsonReader segmentJsonReader = new SegmentJsonReader();
 
     @Override
-    public TraceSegment read(JsonReader reader) throws IOException {
-        TraceSegment traceSegment = new TraceSegment();
+    public UpstreamSegment.Builder read(String json) throws IOException {
+        UpstreamSegment.Builder upstreamSegmentBuilder = UpstreamSegment.newBuilder();
+        ProtoBufJsonUtils.fromJSON(json, upstreamSegmentBuilder);
 
-        reader.beginObject();
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case GLOBAL_TRACE_IDS:
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        traceSegment.addGlobalTraceId(uniqueIdJsonReader.read(reader));
-                    }
-                    reader.endArray();
+        SegmentObject.Builder segmentBuilder = segmentJsonReader.read(json);
 
-                    break;
-                case SEGMENT:
-                    traceSegment.setTraceSegmentBuilder(segmentJsonReader.read(reader));
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
-            }
-        }
-        reader.endObject();
+        upstreamSegmentBuilder.setSegment(segmentBuilder.build().toByteString());
 
-        return traceSegment;
+        return upstreamSegmentBuilder;
     }
 }

@@ -49,9 +49,9 @@ public class ServiceInstancePingServletHandler extends JettyJsonHandler {
     private final CommandService commandService;
     private final Gson gson = new Gson();
 
-    private static final String INSTANCE_ID = "instance_id";
+    private static final String INSTANCE_ID = "instanceId";
     private static final String TIME = "time";
-    private static final String SERVICE_INSTANCE_UUID = "service_instance_UUID";
+    private static final String SERVICE_INSTANCE_UUID = "serviceInstanceUUID";
     private static final String COMMANDS = "commands";
 
     public ServiceInstancePingServletHandler(ModuleManager moduleManager) {

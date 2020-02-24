@@ -19,12 +19,10 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest;
 
 import com.google.gson.JsonElement;
-import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader.TraceSegment;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader.UpstreamSegmentJsonReader;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
@@ -36,6 +34,8 @@ public class TraceSegmentCollectServletHandler extends JettyJsonHandler {
     private static final Logger logger = LoggerFactory.getLogger(TraceSegmentCollectServletHandler.class);
 
     private final SegmentParseV2.Producer segmentProducer;
+
+    private UpstreamSegmentJsonReader upstreamSegmentJsonReader = new UpstreamSegmentJsonReader();
 
     public TraceSegmentCollectServletHandler(SegmentParseV2.Producer segmentProducer) {
         this.segmentProducer = segmentProducer;
@@ -57,26 +57,20 @@ public class TraceSegmentCollectServletHandler extends JettyJsonHandler {
             logger.debug("receive stream segment");
         }
 
+        StringBuffer jb = new StringBuffer();
+        String line = null;
         try {
-            BufferedReader bufferedReader = req.getReader();
-            read(bufferedReader);
-        } catch (IOException e) {
+            BufferedReader reader = req.getReader();
+            while ((line = reader.readLine()) != null) {
+                jb.append(line);
+            }
+            UpstreamSegment upstreamSegment = upstreamSegmentJsonReader.read(jb.toString()).build();
+
+            segmentProducer.send(upstreamSegment, SegmentSource.Agent);
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
 
         return null;
-    }
-
-    private UpstreamSegmentJsonReader jsonReader = new UpstreamSegmentJsonReader();
-
-    private void read(BufferedReader bufferedReader) throws IOException {
-        JsonReader reader = new JsonReader(bufferedReader);
-
-        reader.beginArray();
-        while (reader.hasNext()) {
-            TraceSegment traceSegment = jsonReader.read(reader);
-            segmentProducer.send(traceSegment.getUpstreamSegment(), SegmentSource.Agent);
-        }
-        reader.endArray();
     }
 }

@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader;
 
-import com.google.gson.stream.JsonReader;
 import java.io.IOException;
 
 public interface StreamJsonReader<T> {
-    T read(JsonReader reader) throws IOException;
+    T read(String json) throws IOException;
 }
