@@ -121,6 +121,26 @@ public class ProfileClient extends SimpleQueryClient {
         return Objects.requireNonNull(responseEntity.getBody()).getData().getTraces();
     }
 
+    public ProfiledSegment.ProfiledSegmentData getProfiledSegment(final String segmentId) throws IOException {
+        final URL queryFileUrl = Resources.getResource("getProfiledSegment.gql");
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                .stream()
+                .filter(it -> !it.startsWith("#"))
+                .collect(Collectors.joining())
+                .replace("{segmentId}", segmentId);
+        final ResponseEntity<GQLResponse<ProfiledSegment>> responseEntity = restTemplate.exchange(
+                new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
+                new ParameterizedTypeReference<GQLResponse<ProfiledSegment>>() {
+                }
+        );
+
+        if (responseEntity.getStatusCode() != HttpStatus.OK) {
+            throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
+        }
+
+        return Objects.requireNonNull(responseEntity.getBody()).getData().getSegment();
+    }
+
     public ProfileAnalyzation getProfileAnalyzation(final String segmentId, long start, long end) throws IOException {
         final URL queryFileUrl = Resources.getResource("getProfileAnalyzation.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
@@ -142,5 +162,6 @@ public class ProfileClient extends SimpleQueryClient {
 
         return Objects.requireNonNull(responseEntity.getBody()).getData();
     }
+
 
 }

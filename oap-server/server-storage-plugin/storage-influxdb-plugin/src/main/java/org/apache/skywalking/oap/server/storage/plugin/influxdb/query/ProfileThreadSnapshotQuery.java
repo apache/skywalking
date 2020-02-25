@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
@@ -146,6 +147,47 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         });
 
         return result;
+    }
+
+    @Override
+    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
+        WhereQueryImpl query = select().column(SegmentRecord.SEGMENT_ID)
+                .column(SegmentRecord.TRACE_ID)
+                .column(SegmentRecord.SERVICE_ID)
+                .column(SegmentRecord.ENDPOINT_NAME)
+                .column(SegmentRecord.START_TIME)
+                .column(SegmentRecord.END_TIME)
+                .column(SegmentRecord.LATENCY)
+                .column(SegmentRecord.IS_ERROR)
+                .column(SegmentRecord.DATA_BINARY)
+                .column(SegmentRecord.VERSION)
+                .from(client.getDatabase(), SegmentRecord.INDEX_NAME)
+                .where()
+                .and(eq(SegmentRecord.SEGMENT_ID, segmentId));
+        List<QueryResult.Series> series = client.queryForSeries(query);
+        if (series == null || series.isEmpty()) {
+            return null;
+        }
+
+        List<Object> values = series.get(0).getValues().get(0);
+        SegmentRecord segmentRecord = new SegmentRecord();
+
+        segmentRecord.setSegmentId((String) values.get(1));
+        segmentRecord.setTraceId((String) values.get(2));
+        segmentRecord.setServiceId((int) values.get(3));
+        segmentRecord.setEndpointName((String) values.get(4));
+        segmentRecord.setStartTime((long) values.get(5));
+        segmentRecord.setEndTime((long) values.get(6));
+        segmentRecord.setLatency((int) values.get(7));
+        segmentRecord.setIsError((int) values.get(8));
+        segmentRecord.setVersion((int) values.get(10));
+
+        String base64 = (String) values.get(9);
+        if (!Strings.isNullOrEmpty(base64)) {
+            segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
+        }
+
+        return segmentRecord;
     }
 
     private int querySequenceWithAgg(String function, String segmentId, long start, long end) throws IOException {

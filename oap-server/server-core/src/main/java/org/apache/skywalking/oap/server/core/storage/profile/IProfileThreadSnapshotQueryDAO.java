@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.storage.profile;
 
 import java.io.IOException;
 import java.util.List;
+
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.DAO;
@@ -56,4 +58,8 @@ public interface IProfileThreadSnapshotQueryDAO extends DAO {
      */
     List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException;
 
+    /**
+     * search segment data
+     */
+    SegmentRecord getProfiledSegment(String segmentId) throws IOException;
 }
