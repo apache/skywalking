@@ -186,7 +186,7 @@
                                                 <volume>
                                                     ${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal
                                                 </volume>
-                                                <volume>/tmp/skywalking-test:/tmp/skywalking-test</volume>
+                                                <volume>/tmp/skywalking-e2e:/tmp/skywalking-e2e</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
@@ -353,7 +353,7 @@
                                                 <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                                 <volume>${project.basedir}/src/docker/adapt_storage.awk:/adapt_storage.awk</volume>
                                                 <volume>${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal</volume>
-                                                <volume>/tmp/skywalking-test:/tmp/skywalking-test</volume>
+                                                <volume>/tmp/skywalking-e2e:/tmp/skywalking-e2e</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
