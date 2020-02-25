@@ -55,6 +55,7 @@ BEGIN {
             if (in_storage_mem_selection == 1) {
                 if ($0 ~ /\:h2\:mem\:/) {
                     gsub("mem", "/tmp/skywalking-e2e/db_" rand_word(20), $0)
+                    $0=$0 ";FILE_LOCK=NO"
                 }
             }
             print
