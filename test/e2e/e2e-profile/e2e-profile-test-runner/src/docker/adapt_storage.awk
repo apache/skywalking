@@ -20,6 +20,8 @@ BEGIN {
     in_storage_section=0;
     in_storage_type_section=0;
     in_storage_mem_selection=0;
+
+    srand();
 }
 
 {
@@ -52,7 +54,7 @@ BEGIN {
             gsub("^#", "", $0)
             if (in_storage_mem_selection == 1) {
                 if ($0 ~ /\:h2\:mem\:/) {
-                    gsub("mem", "/tmp/skywalking-test/db" rand(), $0)
+                    gsub("mem", "/tmp/skywalking-e2e/db_" rand_word(20), $0)
                 }
             }
             print
@@ -72,3 +74,10 @@ BEGIN {
     }
 }
 
+function rand_word(LEN) {
+    randw=""
+    for( j = 1; j <= LEN; j++) {
+            randw=randw substr("abcdefghijklmnopqrstuvwxyz", int(26 *rand()) + 1, 1)
+    }
+    return randw
+}
