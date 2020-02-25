@@ -27,6 +27,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.google.common.base.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -153,6 +155,36 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         }
 
         return result;
+    }
+
+    @Override
+    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
+        try (Connection connection = h2Client.getConnection()) {
+
+            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?", segmentId)) {
+                if (resultSet.next()) {
+                    SegmentRecord segmentRecord = new SegmentRecord();
+                    segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
+                    segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
+                    segmentRecord.setServiceId(resultSet.getInt(SegmentRecord.SERVICE_ID));
+                    segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
+                    segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
+                    segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
+                    segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
+                    segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
+                    String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
+                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                        segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                    }
+                    segmentRecord.setVersion(resultSet.getInt(SegmentRecord.VERSION));
+                    return segmentRecord;
+                }
+            }
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+
+        return null;
     }
 
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {

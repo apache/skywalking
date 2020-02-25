@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
@@ -84,6 +85,11 @@ public class ProfileStackAnalyze {
                     .filter(s -> s.getSequence() >= minSequence)
                     .filter(s -> s.getSequence() < maxSequence)
                     .collect(Collectors.toList());
+        }
+
+        @Override
+        public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
+            return null;
         }
 
     }
