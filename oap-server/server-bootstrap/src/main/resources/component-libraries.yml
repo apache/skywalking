@@ -269,13 +269,18 @@ Armeria:
 JdkThreading:
   id: 80
   languages: Java
+KotlinCoroutine:
+  id: 81
+  languages: Java
 AvroServer:
   id: 82
   languages: Java
 AvroClient:
   id: 83
   languages: Java
-
+Undertow:
+  id: 84
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -351,6 +356,12 @@ ServiceCombMesher:
 ServiceCombServiceCenter:
   id: 5002
   languages: Golang
+
+# Lua components
+# [6000, 7000) for Lua agent
+Nginx:
+  id: 6000
+  languages: Lua
 
 # Component Server mapping defines the server display names of some components
 # e.g.
