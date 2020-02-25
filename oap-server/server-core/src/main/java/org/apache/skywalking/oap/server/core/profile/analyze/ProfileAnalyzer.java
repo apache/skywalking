@@ -25,9 +25,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -62,11 +64,11 @@ public class ProfileAnalyzer {
     /**
      * search snapshots and analyze
      */
-    public ProfileAnalyzation analyze(String segmentId, long start, long end) throws IOException {
+    public ProfileAnalyzation analyze(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
 
         // query sequence range list
-        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, start, end);
+        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, timeRanges);
         if (sequenceSearch == null) {
             analyzation.setTip("Data not found");
             return analyzation;
@@ -89,6 +91,21 @@ public class ProfileAnalyzer {
         analyzation.setTrees(analyze(stacks));
 
         return analyzation;
+    }
+
+    protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+        return timeRanges.parallelStream().map(r -> {
+            try {
+                return getAllSequenceRange(segmentId, r.getStart(), r.getEnd());
+            } catch (IOException e) {
+                LOGGER.warn(e.getMessage(), e);
+                return null;
+            }
+        }).filter(Objects::nonNull).reduce(new SequenceSearch(0), (s1, s2) -> {
+            s1.ranges.addAll(s2.ranges);
+            s1.totalSequenceCount += s2.totalSequenceCount;
+            return s1;
+        });
     }
 
     protected SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {

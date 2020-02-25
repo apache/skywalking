@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 
@@ -41,7 +43,10 @@ public class ProfileStackAnalyze {
     public void analyzeAndAssert(int maxAnalyzeCount) throws IOException {
         List<ProfileThreadSnapshotRecord> stacks = data.transform();
 
-        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, 0, 0).getTrees();
+        final ProfileAnalyzeTimeRange range = new ProfileAnalyzeTimeRange();
+        range.setStart(0);
+        range.setEnd(0);
+        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, Collections.singletonList(range)).getTrees();
 
         assertNotNull(trees);
         assertEquals(trees.size(), expected.size());
