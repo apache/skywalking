@@ -27,10 +27,12 @@ import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnaps
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -61,7 +63,7 @@ public class ProfileSnapshotDumper {
                             .setSequence(record.getSequence())
                             .setTime(record.getDumpTime())
                             .build()
-                            .writeTo(outputStream);
+                            .writeDelimitedTo(outputStream);
                 }
 
                 // print process log if need
@@ -90,4 +92,19 @@ public class ProfileSnapshotDumper {
         return null;
     }
 
+    /**
+     * load thread snapshots in appointing time range
+     */
+    public static List<ThreadSnapshot> parseFromFileWithTimeRange(File file, long dumpStartTime, long dumpEndTime) throws IOException {
+        try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+            ThreadSnapshot snapshot;
+            final ArrayList<ThreadSnapshot> data = new ArrayList<>();
+            while ((snapshot = ThreadSnapshot.parseDelimitedFrom(fileInputStream)) != null) {
+                if (snapshot.getTime() >= dumpStartTime && snapshot.getTime() <= dumpEndTime) {
+                    data.add(snapshot);
+                }
+            }
+            return data;
+        }
+    }
 }

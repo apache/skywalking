@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +114,15 @@ public class ProfiledBasicInfo {
         File file = new File(config.getAnalyzeResultDist() + File.separator + "basic.yml");
         FileUtils.write(file, serialData, "UTF-8");
         return file;
+    }
+
+    /**
+     * deserialize data from file
+     */
+    public static ProfiledBasicInfo parseFormFile(File file) throws IOException {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            return new Yaml().loadAs(fileInputStream, ProfiledBasicInfo.class);
+        }
     }
 
     /**
