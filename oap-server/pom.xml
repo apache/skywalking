@@ -67,6 +67,7 @@
         <kubernetes.version>4.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
+        <shardingsphere.version>4.0.0</shardingsphere.version>
         <caffeine.version>2.6.2</caffeine.version>
         <okhttp.version>3.9.0</okhttp.version>
         <jackson-core.version>2.9.5</jackson-core.version>
@@ -87,9 +88,8 @@
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
-
+        
         <zookeeper.image.version>3.5</zookeeper.image.version>
-
     </properties>
 
     <dependencies>
@@ -338,6 +338,11 @@
                 <version>${caffeine.version}</version>
             </dependency>
             <!-- -->
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>sharding-core-api</artifactId>
+                <version>${shardingsphere.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
