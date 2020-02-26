@@ -94,20 +94,23 @@ public class ProfileAnalyzer {
     }
 
     protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
-        return timeRanges.parallelStream().map(r -> {
+        final List<SequenceSearch> searches = timeRanges.parallelStream().map(r -> {
             try {
                 return getAllSequenceRange(segmentId, r.getStart(), r.getEnd());
             } catch (IOException e) {
                 LOGGER.warn(e.getMessage(), e);
                 return null;
             }
-        }).filter(Objects::nonNull).reduce(new SequenceSearch(0), SequenceSearch::combine);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        // using none parallels to combine nodes
+        return searches.stream().reduce(new SequenceSearch(0), SequenceSearch::combine);
     }
 
     protected SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
-        // query min and max sequence
+        // query min and max sequence(include last seqeucne)
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
-        int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end);
+        int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end) + 1;
 
         // data not found
         if (maxSequence <= 0) {
