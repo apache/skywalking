@@ -89,7 +89,7 @@
         <javaassist.version>3.25.0-GA</javaassist.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
-        <protobuf-java-util.version>3.9.2</protobuf-java-util.version>
+        <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
 
     </properties>
 
@@ -224,10 +224,6 @@
                         <groupId>com.google.j2objc</groupId>
                         <artifactId>j2objc-annotations</artifactId>
                     </exclusion>
-                    <exclusion>
-                        <groupId>com.google.protobuf</groupId>
-                        <artifactId>protobuf-java-util</artifactId>
-                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -267,11 +263,13 @@
                 <artifactId>grpc-protobuf</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java-util</artifactId>
                 <version>${protobuf-java-util.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
