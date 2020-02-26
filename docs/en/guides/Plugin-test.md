@@ -581,8 +581,7 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
           auth_header="$(git config --local --get http.https://github.com/.extraheader)"
           git submodule sync --recursive
           git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
-        with:
-          submodules: true
+
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
