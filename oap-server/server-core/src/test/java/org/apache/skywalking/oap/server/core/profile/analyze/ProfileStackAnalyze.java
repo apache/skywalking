@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
