@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
 import org.apache.skywalking.oap.server.core.query.entity.LogEntity;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfiledSegment;
@@ -198,8 +199,8 @@ public class ProfileTaskQueryService implements Service {
         return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
-        return profileAnalyzer.analyze(segmentId, start, end);
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+        return profileAnalyzer.analyze(segmentId, timeRanges);
     }
 
     public ProfiledSegment getProfiledSegment(String segmentId) throws IOException {

@@ -15,8 +15,8 @@
 # limitations under the License.
 
 {
-  "query":"query getProfileAnalyze($segmentId: String!, $start: Long!, $end: Long!) {
-    data: getProfileAnalyze(segmentId: $segmentId, start: $start, end: $end) {
+  "query":"query getProfileAnalyze($segmentId: String!, $timeRanges: [ProfileAnalyzeTimeRange!]!) {
+    data: getProfileAnalyze(segmentId: $segmentId, timeRanges: $timeRanges) {
       trees {
 		elements {
           id
@@ -31,7 +31,6 @@
   }",
   "variables": {
     "segmentId": "{segmentId}",
-	"start": "{start}",
-	"end": "{end}"
+    "timeRanges": [{"start": "{start}", "end": "{end}"}]
   }
 }
