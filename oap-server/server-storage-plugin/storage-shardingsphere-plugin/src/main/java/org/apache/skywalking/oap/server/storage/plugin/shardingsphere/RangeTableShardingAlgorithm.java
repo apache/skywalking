@@ -50,7 +50,7 @@ public final class RangeTableShardingAlgorithm implements RangeShardingAlgorithm
         try {
             return DATE_FORMAT.parse(dateValue);
         } catch (final ParseException ex) {
-            throw new RuntimeException(ex);
+            throw new UnsupportedOperationException(ex);
         }
     }
     
