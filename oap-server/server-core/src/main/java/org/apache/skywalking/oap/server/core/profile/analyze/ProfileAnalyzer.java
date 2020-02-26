@@ -73,8 +73,8 @@ public class ProfileAnalyzer {
             analyzation.setTip("Data not found");
             return analyzation;
         }
-        if (sequenceSearch.totalSequenceCount > analyzeSnapshotMaxSize) {
-            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.totalSequenceCount + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
+        if (sequenceSearch.getTotalSequenceCount() > analyzeSnapshotMaxSize) {
+            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.getTotalSequenceCount() + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
         }
 
         // query snapshots
@@ -101,11 +101,7 @@ public class ProfileAnalyzer {
                 LOGGER.warn(e.getMessage(), e);
                 return null;
             }
-        }).filter(Objects::nonNull).reduce(new SequenceSearch(0), (s1, s2) -> {
-            s1.ranges.addAll(s2.ranges);
-            s1.totalSequenceCount += s2.totalSequenceCount;
-            return s1;
-        });
+        }).filter(Objects::nonNull).reduce(new SequenceSearch(0), SequenceSearch::combine);
     }
 
     protected SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
@@ -173,6 +169,12 @@ public class ProfileAnalyzer {
         public int getTotalSequenceCount() {
             return totalSequenceCount;
         }
+
+        public SequenceSearch combine(SequenceSearch search) {
+            this.ranges.addAll(search.ranges);
+            this.totalSequenceCount += search.totalSequenceCount;
+            return this;
+        }
     }
 
     private static class SequenceRange {
@@ -192,8 +194,5 @@ public class ProfileAnalyzer {
             return maxSequence;
         }
 
-        public void increaseMaxSequence() {
-            this.maxSequence++;
-        }
     }
 }
