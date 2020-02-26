@@ -28,7 +28,7 @@ jobs:
       matrix:
         es: [es6, es7]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository

@@ -572,7 +572,7 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           submodules: true
       - uses: actions/cache@v1

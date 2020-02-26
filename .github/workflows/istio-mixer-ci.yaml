@@ -32,7 +32,7 @@ jobs:
   build:
     runs-on: ubuntu-16.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Prepare enviroment
         run: |
           bash ${SCRIPTS_DIR}/pre.sh
