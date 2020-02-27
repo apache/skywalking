@@ -24,6 +24,7 @@ list:
   # case 1
   - data:
       limit: 10
+      timeRanges: 0-2
       snapshots:
         - A-B-C
         - A-B
@@ -48,6 +49,7 @@ list:
   # case 2
   - data:
       limit: 10
+      timeRanges: 0-1
       snapshots:
         - A-B-C
         - B-C-D
@@ -78,6 +80,7 @@ list:
   # case 3
   - data:
       limit: 10
+      timeRanges: 0-4
       snapshots:
         - A-B-C-D
         - A-B
@@ -104,6 +107,7 @@ list:
   # case 4:
   - data:
       limit: 10
+      timeRanges: 0-3
       snapshots:
         - A-B-C
         - A-B-C-A
@@ -139,6 +143,7 @@ list:
   # case 5:
   - data:
       limit: 10
+      timeRanges: 0-3
       snapshots:
         - A-B-C
         - A-B-B-C
@@ -177,6 +182,7 @@ list:
   # case 6:
   - data:
       limit: 10
+      timeRanges: 0-2
       snapshots:
         - A-B-C
         - A-B
@@ -204,6 +210,7 @@ list:
   # case 7(only analyze first 10 snapshots):
   - data:
       limit: 10
+      timeRanges: 0-10
       snapshots:
         - A
         - A
@@ -220,3 +227,20 @@ list:
       - code: A
         count: 10
         duration: 90:90
+
+  # case 8(multiple time ranges)
+  - data:
+      limit: 10
+      timeRanges: 0-2,4-5
+      snapshots:
+        - A
+        - A
+        - A
+        - A-C
+        - A
+        - A
+        - A-D
+    expected:
+      - code: A
+        count: 5
+        duration: 30:30

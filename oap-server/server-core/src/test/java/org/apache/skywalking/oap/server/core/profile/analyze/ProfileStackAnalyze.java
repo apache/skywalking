@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.profile.analyze;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,12 +40,10 @@ public class ProfileStackAnalyze {
     private List<ProfileStackElementMatcher> expected;
 
     public void analyzeAndAssert(int maxAnalyzeCount) throws IOException {
-        List<ProfileThreadSnapshotRecord> stacks = data.transform();
+        List<ProfileThreadSnapshotRecord> stacks = data.transformSnapshots();
+        final List<ProfileAnalyzeTimeRange> ranges = data.transformTimeRanges();
 
-        final ProfileAnalyzeTimeRange range = new ProfileAnalyzeTimeRange();
-        range.setStart(0);
-        range.setEnd(0);
-        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, Collections.singletonList(range)).getTrees();
+        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, ranges).getTrees();
 
         assertNotNull(trees);
         assertEquals(trees.size(), expected.size());
@@ -76,11 +73,21 @@ public class ProfileStackAnalyze {
 
         @Override
         public int queryMinSequence(String segmentId, long start, long end) throws IOException {
+            for (ProfileThreadSnapshotRecord stack : stacks) {
+                if (stack.getDumpTime() >= start) {
+                    return stack.getSequence();
+                }
+            }
             return 0;
         }
 
         @Override
         public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
+            for (int i = stacks.size() - 1; i >= 0; i--) {
+                if (stacks.get(i).getDumpTime() <= end) {
+                    return stacks.get(i).getSequence();
+                }
+            }
             return stacks.size();
         }
 
