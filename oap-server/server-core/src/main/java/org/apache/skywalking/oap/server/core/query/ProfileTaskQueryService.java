@@ -20,18 +20,32 @@ package org.apache.skywalking.oap.server.core.query;
 
 import com.google.common.base.Objects;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
+import org.apache.skywalking.oap.server.core.query.entity.LogEntity;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
+import org.apache.skywalking.oap.server.core.query.entity.ProfiledSegment;
+import org.apache.skywalking.oap.server.core.query.entity.ProfiledSpan;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -43,6 +57,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * handle profile task queries
@@ -54,6 +69,9 @@ public class ProfileTaskQueryService implements Service {
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
+    private NetworkAddressInventoryCache networkAddressInventoryCache;
+    private IComponentLibraryCatalogService componentLibraryCatalogService;
+    private EndpointInventoryCache endpointInventoryCache;
 
     private final ProfileAnalyzer profileAnalyzer;
 
@@ -107,6 +125,33 @@ public class ProfileTaskQueryService implements Service {
         return profileThreadSnapshotQueryDAO;
     }
 
+    private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
+        if (networkAddressInventoryCache == null) {
+            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(NetworkAddressInventoryCache.class);
+        }
+        return networkAddressInventoryCache;
+    }
+
+    private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
+        if (componentLibraryCatalogService == null) {
+            this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                               .provider()
+                                                               .getService(IComponentLibraryCatalogService.class);
+        }
+        return componentLibraryCatalogService;
+    }
+
+    private EndpointInventoryCache getEndpointInventoryCache() {
+        if (endpointInventoryCache == null) {
+            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(EndpointInventoryCache.class);
+        }
+        return endpointInventoryCache;
+    }
+
     /**
      * search profile task list
      *
@@ -154,8 +199,91 @@ public class ProfileTaskQueryService implements Service {
         return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final long start, final long end) throws IOException {
-        return profileAnalyzer.analyze(segmentId, start, end);
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+        return profileAnalyzer.analyze(segmentId, timeRanges);
+    }
+
+    public ProfiledSegment getProfiledSegment(String segmentId) throws IOException {
+        SegmentRecord segmentRecord = getProfileThreadSnapshotQueryDAO().getProfiledSegment(segmentId);
+        if (segmentRecord == null) {
+            return null;
+        }
+
+        ProfiledSegment profiledSegment = new ProfiledSegment();
+        SegmentObject segmentObject = SegmentObject.parseFrom(segmentRecord.getDataBinary());
+        profiledSegment.getSpans().addAll(buildProfiledSpanList(segmentObject));
+
+        return profiledSegment;
+    }
+
+    private List<ProfiledSpan> buildProfiledSpanList(SegmentObject segmentObject) {
+        List<ProfiledSpan> spans = new ArrayList<>();
+
+        segmentObject.getSpansList().forEach(spanObject -> {
+            ProfiledSpan span = new ProfiledSpan();
+            span.setSpanId(spanObject.getSpanId());
+            span.setParentSpanId(spanObject.getParentSpanId());
+            span.setStartTime(spanObject.getStartTime());
+            span.setEndTime(spanObject.getEndTime());
+            span.setError(spanObject.getIsError());
+            span.setLayer(spanObject.getSpanLayer().name());
+            span.setType(spanObject.getSpanType().name());
+
+            if (spanObject.getPeerId() == 0) {
+                span.setPeer(spanObject.getPeer());
+            } else {
+                span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
+            }
+
+            String endpointName = spanObject.getOperationName();
+            if (spanObject.getOperationNameId() != 0) {
+                EndpointInventory endpointInventory = getEndpointInventoryCache().get(spanObject.getOperationNameId());
+                if (nonNull(endpointInventory)) {
+                    endpointName = endpointInventory.getName();
+                } else {
+                    endpointName = Const.EMPTY_STRING;
+                }
+            }
+            span.setEndpointName(endpointName);
+
+            final ServiceInventory serviceInventory = getServiceInventoryCache().get(segmentObject.getServiceId());
+            if (serviceInventory != null) {
+                span.setServiceCode(serviceInventory.getName());
+            } else {
+                span.setServiceCode("unknown");
+            }
+
+            if (spanObject.getComponentId() == 0) {
+                span.setComponent(spanObject.getComponent());
+            } else {
+                span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
+            }
+
+            spanObject.getTagsList().forEach(tag -> {
+                KeyValue keyValue = new KeyValue();
+                keyValue.setKey(tag.getKey());
+                keyValue.setValue(tag.getValue());
+                span.getTags().add(keyValue);
+            });
+
+            spanObject.getLogsList().forEach(log -> {
+                LogEntity logEntity = new LogEntity();
+                logEntity.setTime(log.getTime());
+
+                log.getDataList().forEach(data -> {
+                    KeyValue keyValue = new KeyValue();
+                    keyValue.setKey(data.getKey());
+                    keyValue.setValue(data.getValue());
+                    logEntity.getData().add(keyValue);
+                });
+
+                span.getLogs().add(logEntity);
+            });
+
+            spans.add(span);
+        });
+
+        return spans;
     }
 
 }

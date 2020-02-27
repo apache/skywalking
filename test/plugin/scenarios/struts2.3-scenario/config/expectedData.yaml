@@ -1,0 +1,91 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+registryItems:
+  applications:
+    - {struts2.3-scenario: 2}
+  instances:
+    - {struts2.3-scenario: 1}
+  operationNames:
+    - struts2.3-scenario: [/struts2.3-scenario/struts-scenario/case1.action, /struts2.3-scenario/struts-scenario/case.action]
+  heartbeat: []
+segmentItems:
+  - applicationCode: struts2.3-scenario
+    segmentSize: gt 2
+    segments:
+      - segmentId: not null
+        spans:
+          - operationName: /struts2.3-scenario/struts-scenario/case1.action
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 15
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/struts2.3-scenario/struts-scenario/case1.action'}
+              - {key: http.method, value: GET}
+            logs:
+              - logEvent:
+                  - {key: forward-url, value: /struts2.3-scenario/jsp/success.jsp}
+            refs:
+              - {parentEndpointId: 0, parentEndpoint: /struts2.3-scenario/struts-scenario/case.action,
+                 networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
+                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+                 networkAddress: 'localhost:8080', entryEndpoint: /struts2.3-scenario/struts-scenario/case.action,
+                 entryServiceInstanceId: 1}
+      - segmentId: not null
+        spans:
+          - operationName: /struts2.3-scenario/struts-scenario/case1.action
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 2
+            componentName: ''
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/struts2.3-scenario/struts-scenario/case1.action'}
+              - {key: http.method, value: GET}
+          - operationName: /struts2.3-scenario/struts-scenario/case.action
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: gt 0
+            endTime: gt 0
+            componentId: 15
+            componentName: ''
+            isError: false
+            spanType: Entry
+            peer: ''
+            peerId: 0
+            tags:
+              - {key: url, value: 'http://localhost:8080/struts2.3-scenario/struts-scenario/case.action'}
+              - {key: http.method, value: GET}
+            logs:
+              - logEvent:
+                  - {key: forward-url, value: /struts2.3-scenario/jsp/success.jsp}

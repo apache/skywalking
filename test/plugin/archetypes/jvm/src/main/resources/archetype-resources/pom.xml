@@ -30,10 +30,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-
         <test.framework.version>YOUR VERSION</test.framework.version>
-
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
+        <lombok.version>1.18.10</lombok.version>
     </properties>
 
     <name>skywalking-${scenario_name}</name>
@@ -64,6 +63,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
