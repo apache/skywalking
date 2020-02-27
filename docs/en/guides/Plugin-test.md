@@ -573,10 +573,10 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
       fail-fast: true
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
+      # for checkout@v2 is not compatible with submodule
+      - name: checkout submodules
         shell: bash
         run: |
-          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
           git submodule sync --recursive
           git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/cache@v1
