@@ -139,29 +139,19 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                 standardBuilder.setNetworkAddressId(networkAddressId);
                 standardBuilder.setNetworkAddress(Const.EMPTY_STRING);
             }
-        } else {
-            /**
-             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
-             */
         }
         return exchanged;
     }
 
     /**
-     * Endpoint in ref could be local or exit span's operation name. Especially if it is local span operation name,
-     * exchange may not happen at agent, such as Java agent, then put literal endpoint string in the header, Need to try
-     * to get the id by assuming the endpoint name is detected at server, local or client.
-     * <p>
-     * If agent does the exchange, then always use endpoint id.
+     * @since 6.6.0 The endpoint in the ref should be server endpoint only. The agent will/should use `-1`, when it can't
+     * find the endpoint of entry span in the current tracing context when build the ref.
+     * @since 5.0 Endpoint in ref could be local or exit span's operation name. Especially if it is local span operation
+     * name, * exchange may not happen at agent, such as Java agent, then put literal endpoint string in the header,
+     * Need to try * to get the id by assuming the endpoint name is detected at server, local or client. * <p> * If
+     * agent does the exchange, then always use endpoint id.
      */
     private int getEndpointId(int serviceId, String endpointName) {
-        int endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.SERVER.ordinal());
-        if (endpointId == Const.NONE) {
-            endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.CLIENT.ordinal());
-            if (endpointId == Const.NONE) {
-                endpointId = endpointInventoryRegister.get(serviceId, endpointName, DetectPoint.UNRECOGNIZED.ordinal());
-            }
-        }
-        return endpointId;
+        return endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.SERVER);
     }
 }
