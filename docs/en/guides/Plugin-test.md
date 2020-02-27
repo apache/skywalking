@@ -572,9 +572,13 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
