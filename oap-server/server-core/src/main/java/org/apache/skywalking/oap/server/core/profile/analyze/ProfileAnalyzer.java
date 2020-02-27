@@ -25,9 +25,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzation;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -62,17 +64,17 @@ public class ProfileAnalyzer {
     /**
      * search snapshots and analyze
      */
-    public ProfileAnalyzation analyze(String segmentId, long start, long end) throws IOException {
+    public ProfileAnalyzation analyze(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
 
         // query sequence range list
-        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, start, end);
+        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, timeRanges);
         if (sequenceSearch == null) {
             analyzation.setTip("Data not found");
             return analyzation;
         }
-        if (sequenceSearch.totalSequenceCount > analyzeSnapshotMaxSize) {
-            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.totalSequenceCount + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
+        if (sequenceSearch.getTotalSequenceCount() > analyzeSnapshotMaxSize) {
+            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.getTotalSequenceCount() + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
         }
 
         // query snapshots
@@ -91,10 +93,24 @@ public class ProfileAnalyzer {
         return analyzation;
     }
 
+    protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+        final List<SequenceSearch> searches = timeRanges.parallelStream().map(r -> {
+            try {
+                return getAllSequenceRange(segmentId, r.getStart(), r.getEnd());
+            } catch (IOException e) {
+                LOGGER.warn(e.getMessage(), e);
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        // using none parallels to combine nodes
+        return searches.stream().reduce(new SequenceSearch(0), SequenceSearch::combine);
+    }
+
     protected SequenceSearch getAllSequenceRange(String segmentId, long start, long end) throws IOException {
-        // query min and max sequence
+        // query min and max sequence(include last seqeucne)
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
-        int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end);
+        int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end) + 1;
 
         // data not found
         if (maxSequence <= 0) {
@@ -156,6 +172,12 @@ public class ProfileAnalyzer {
         public int getTotalSequenceCount() {
             return totalSequenceCount;
         }
+
+        public SequenceSearch combine(SequenceSearch search) {
+            this.ranges.addAll(search.ranges);
+            this.totalSequenceCount += search.totalSequenceCount;
+            return this;
+        }
     }
 
     private static class SequenceRange {
@@ -175,8 +197,5 @@ public class ProfileAnalyzer {
             return maxSequence;
         }
 
-        public void increaseMaxSequence() {
-            this.maxSequence++;
-        }
     }
 }

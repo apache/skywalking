@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.library.module.Service;
+import lombok.Getter;
+import lombok.Setter;
 
-public interface IEndpointInventoryRegister extends Service {
+@Getter
+@Setter
+public class ProfileAnalyzeTimeRange {
 
-    int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint);
+    private long start;
+    private long end;
 
-    int get(int serviceId, String endpointName, DetectPoint detectPoint);
-
-    void heartbeat(int endpointId, long heartBeatTime);
 }

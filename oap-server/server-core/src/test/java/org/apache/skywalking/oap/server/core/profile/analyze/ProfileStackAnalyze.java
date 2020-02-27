@@ -26,6 +26,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 
@@ -39,9 +40,10 @@ public class ProfileStackAnalyze {
     private List<ProfileStackElementMatcher> expected;
 
     public void analyzeAndAssert(int maxAnalyzeCount) throws IOException {
-        List<ProfileThreadSnapshotRecord> stacks = data.transform();
+        List<ProfileThreadSnapshotRecord> stacks = data.transformSnapshots();
+        final List<ProfileAnalyzeTimeRange> ranges = data.transformTimeRanges();
 
-        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, 0, 0).getTrees();
+        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, ranges).getTrees();
 
         assertNotNull(trees);
         assertEquals(trees.size(), expected.size());
@@ -71,11 +73,21 @@ public class ProfileStackAnalyze {
 
         @Override
         public int queryMinSequence(String segmentId, long start, long end) throws IOException {
+            for (ProfileThreadSnapshotRecord stack : stacks) {
+                if (stack.getDumpTime() >= start) {
+                    return stack.getSequence();
+                }
+            }
             return 0;
         }
 
         @Override
         public int queryMaxSequence(String segmentId, long start, long end) throws IOException {
+            for (int i = stacks.size() - 1; i >= 0; i--) {
+                if (stacks.get(i).getDumpTime() <= end) {
+                    return stacks.get(i).getSequence();
+                }
+            }
             return stacks.size();
         }
 
