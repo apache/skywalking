@@ -17,11 +17,6 @@
 # limitations under the License.
 #
 
-# This script relies on few environment variables to determine source code package
-# behavior, those variables are:
-#   RELEASE_VERSION -- The version of this source package.
-# For example: RELEASE_VERSION=5.0.0-alpha
-
 bin_path=$0
 exporter_dir=$(cd $(dirname $0); pwd)
 
@@ -34,19 +29,19 @@ while [[ $# -gt 0 ]]; do
       trace_id=${1#*=}
       ;;
     *)
-      dist=$1
+      export_path=$1
   esac
   shift
 done
 
-echo "${task_id}, ${trace_id}, ${dist}, ${workdir}, ${bin_path}"
+echo "${task_id}, ${trace_id}, ${export_path}, ${workdir}, ${bin_path}"
 
-[[ ! ${task_id} || ! ${trace_id} || ! ${dist} ]] \
+[[ ! ${task_id} || ! ${trace_id} || ! ${export_path} ]] \
   && echo 'Usage: sh tools/profile_exporter.sh [--taskid] [--traceid] export_path' \
   && exit 1
 
-[[ ! -d ${dist} ]] \
-  && echo "Cannot found export dist path: ${dist}" \
+[[ ! -d ${export_path} ]] \
+  && echo "Cannot find export export_path path: ${export_path}" \
   && exit 1
 
 # prepare paths
@@ -55,14 +50,14 @@ oap_libs_dir="${exporter_dir}/../../oap-libs"
 exporter_log_file="${exporter_dir}/profile_exporter_log4j2.xml"
 awk_change_file="${exporter_dir}/persist_core_and_storage.awk"
 [[ ! -f ${config_file} ]] \
-  && echo "Cannot found oap application.yml" \
+  && echo "Cannot find oap application.yml" \
   && exit 1
 [[ ! -d ${oap_libs_dir} ]] \
-  && echo "Cannot found oap libs path" \
+  && echo "Cannot find oap libs path" \
   && exit 1
 
-# create current trace tempory path
-work_dir="${dist}/${trace_id}"
+# create current trace temporary path
+work_dir="${export_path}/${trace_id}"
 mkdir -p ${work_dir}
 
 # prepare exporter files
@@ -73,7 +68,7 @@ cp ${exporter_log_file} ${work_dir}/config/log4j2.xml
 awk -f ${awk_change_file} ${config_file} > ${work_dir}/config/application.yml
 
 # start export
-echo "Exporting task: ${task_id}, trace: ${trace_id}, dist: ${work_dir}"
+echo "Exporting task: ${task_id}, trace: ${trace_id}, export_path: ${work_dir}"
 JAVA_OPTS=" -Xms256M -Xmx512M"
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java

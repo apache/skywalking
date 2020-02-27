@@ -39,7 +39,7 @@ public class ExporterConfig {
      */
     public static ExporterConfig parse(String[] args) {
         if (args == null || args.length != 3) {
-            throw new IllegalArgumentException("missing config, replace recheck");
+            throw new IllegalArgumentException("missing config, please recheck");
         }
 
         // build config
@@ -62,7 +62,7 @@ public class ExporterConfig {
         }
 
         if (dist.isFile()) {
-            throw new IllegalArgumentException(analyzeResultDist + " must a directory");
+            throw new IllegalArgumentException(analyzeResultDist + " must be a directory");
         }
     }
 }
