@@ -22,6 +22,11 @@ import org.apache.shardingsphere.api.sharding.standard.PreciseShardingValue;
 
 import java.util.Collection;
 
+/**
+ * Precise sharding algorithm to shard table.
+ *
+ * Sharding Sphere will use it to handle SQL with equal or in query condition.
+ */
 public final class PreciseTableShardingAlgorithm implements PreciseShardingAlgorithm<String> {
     
     private final static int TB_NUMBER = 10;

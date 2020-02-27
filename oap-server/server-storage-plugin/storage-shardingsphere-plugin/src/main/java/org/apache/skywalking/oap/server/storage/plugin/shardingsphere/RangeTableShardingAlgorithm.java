@@ -26,6 +26,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 
+/**
+ * Range sharding algorithm to shard table.
+ *
+ * Sharding Sphere will use it to handle SQL with between query condition.
+ */
 public final class RangeTableShardingAlgorithm implements RangeShardingAlgorithm<String> {
     
     private final static int TB_NUMBER = 10;
