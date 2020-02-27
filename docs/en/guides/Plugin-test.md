@@ -576,11 +576,9 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
       - name: Checkout submodules
         shell: bash
         run: |
-          # If your submodules are configured to use SSH instead of HTTPS please uncomment the following line
-          # git config --global url."https://github.com/".insteadOf "git@github.com:"
           auth_header="$(git config --local --get http.https://github.com/.extraheader)"
           git submodule sync --recursive
-          git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive --depth=1
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
