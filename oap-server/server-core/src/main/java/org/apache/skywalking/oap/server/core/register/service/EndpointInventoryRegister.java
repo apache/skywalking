@@ -69,8 +69,8 @@ public class EndpointInventoryRegister implements IEndpointInventoryRegister {
     }
 
     @Override
-    public int get(int serviceId, String endpointName, int detectPoint) {
-        return getCacheService().getEndpointId(serviceId, endpointName, detectPoint);
+    public int get(int serviceId, String endpointName, DetectPoint detectPoint) {
+        return getCacheService().getEndpointId(serviceId, endpointName, detectPoint.ordinal());
     }
 
     @Override
