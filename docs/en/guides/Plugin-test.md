@@ -573,7 +573,7 @@ Here is a group named 'Kafka'. The latest step is Kafka scenario.
       fail-fast: true
     steps:
       - uses: actions/checkout@v2
-      # for checkout@v2 is not compatible with submodule
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
