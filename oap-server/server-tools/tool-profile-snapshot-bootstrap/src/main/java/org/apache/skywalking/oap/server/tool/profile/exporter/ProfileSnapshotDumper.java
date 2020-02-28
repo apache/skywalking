@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
 import org.apache.skywalking.apm.network.language.profile.ThreadStack;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -95,12 +96,13 @@ public class ProfileSnapshotDumper {
     /**
      * load thread snapshots in appointing time range
      */
-    public static List<ThreadSnapshot> parseFromFileWithTimeRange(File file, long dumpStartTime, long dumpEndTime) throws IOException {
+    public static List<ThreadSnapshot> parseFromFileWithTimeRange(File file, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
         try (final FileInputStream fileInputStream = new FileInputStream(file)) {
             ThreadSnapshot snapshot;
             final ArrayList<ThreadSnapshot> data = new ArrayList<>();
             while ((snapshot = ThreadSnapshot.parseDelimitedFrom(fileInputStream)) != null) {
-                if (snapshot.getTime() >= dumpStartTime && snapshot.getTime() <= dumpEndTime) {
+                ThreadSnapshot finalSnapshot = snapshot;
+                if (timeRanges.stream().filter(t -> finalSnapshot.getTime() >= t.getStart() && finalSnapshot.getTime() <= t.getEnd()).findFirst().isPresent()) {
                     data.add(snapshot);
                 }
             }
