@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -142,18 +143,15 @@ public abstract class Metrics extends StreamData implements StorageData {
         }
     }
 
-    /**
-     * timeBucket in minute 201809120511 min 100000000000 max 999999999999
-     */
     private boolean isMinuteBucket() {
-        return timeBucket < 999999999999L && timeBucket > 100000000000L;
+        return TimeBucket.isMinuteBucket(timeBucket);
     }
 
     private boolean isHourBucket() {
-        return timeBucket < 9999999999L && timeBucket > 1000000000L;
+        return TimeBucket.isHourBucket(timeBucket);
     }
 
     private boolean isDayBucket() {
-        return timeBucket < 99999999L && timeBucket > 10000000L;
+        return TimeBucket.isDayBucket(timeBucket);
     }
 }
