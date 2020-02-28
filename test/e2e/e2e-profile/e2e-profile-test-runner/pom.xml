@@ -147,6 +147,33 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>h2 install</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/src/docker/h2/h2-install.sh</executable>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>h2 clean</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/src/docker/h2/h2-cleanup.sh</executable>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
                         <configuration>
@@ -186,7 +213,6 @@
                                                 <volume>
                                                     ${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal
                                                 </volume>
-                                                <volume>/tmp/skywalking-e2e:/tmp/skywalking-e2e</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
@@ -217,7 +243,7 @@
                                 <image>
                                     <name>elastic/elasticsearch:${elasticsearch.version}</name>
                                     <alias>${e2e.container.name.prefix}-elasticsearch</alias>
-                                    <run>
+                                   <run>
                                         <ports>
                                             <port>es.port:9200</port>
                                         </ports>
@@ -298,6 +324,33 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>h2 install</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/src/docker/h2/h2-install.sh</executable>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>h2 clean</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/src/docker/h2/h2-cleanup.sh</executable>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
                         <configuration>
@@ -353,7 +406,6 @@
                                                 <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                                 <volume>${project.basedir}/src/docker/adapt_storage.awk:/adapt_storage.awk</volume>
                                                 <volume>${project.basedir}/src/docker/profile_official_analysis.oal:/profile_official_analysis.oal</volume>
-                                                <volume>/tmp/skywalking-e2e:/tmp/skywalking-e2e</volume>
                                             </bind>
                                         </volumes>
                                         <wait>
@@ -386,6 +438,8 @@
                         <SW_STORAGE_ES_CLUSTER_NODES>localhost:${es.port}</SW_STORAGE_ES_CLUSTER_NODES>
                         <SW_STORAGE_INFLUXDB_URL>http://localhost:${influxdb.port}</SW_STORAGE_INFLUXDB_URL>
                         <SW_JDBC_URL>jdbc:mysql://localhost:${mysql.port}/swtest</SW_JDBC_URL>
+                        <SW_STORAGE_H2_URL>jdbc:h2:tcp://localhost:1521/skywalking-oap-db</SW_STORAGE_H2_URL>
+                        <SW_STORAGE_METABASE_URL>jdbc:h2:tcp://localhost:1521/skywalking-oap-db</SW_STORAGE_METABASE_URL>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

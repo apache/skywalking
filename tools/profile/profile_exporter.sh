@@ -34,8 +34,6 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-echo "${task_id}, ${trace_id}, ${export_path}, ${workdir}, ${bin_path}"
-
 [[ ! ${task_id} || ! ${trace_id} || ! ${export_path} ]] \
   && echo 'Usage: sh tools/profile_exporter.sh [--taskid] [--traceid] export_path' \
   && exit 1
