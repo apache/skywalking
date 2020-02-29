@@ -16,10 +16,6 @@
 # limitations under the License.
 
 echo 'starting OAP server...' \
-    && SW_STORAGE_ES_BULK_ACTIONS=1 \
-    && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
-    && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
-    && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
     && SW_AUTHENTICATION="test-token" \
     && start_oap 'init'
 
