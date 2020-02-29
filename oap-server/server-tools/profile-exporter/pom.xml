@@ -30,6 +30,7 @@
     <groupId>org.apache.skywalking</groupId>
     <artifactId>profile-exporter</artifactId>
     <version>7.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <modules>
         <module>tool-profile-snapshot-server-mock</module>
