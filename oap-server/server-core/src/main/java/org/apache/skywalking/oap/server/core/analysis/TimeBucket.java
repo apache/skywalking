@@ -26,7 +26,7 @@ public class TimeBucket {
      * Record time bucket format in Second Unit.
      *
      * @param time Timestamp
-     * @return time in second format.
+     * @return time in second format
      */
     public static long getRecordTimeBucket(long time) {
         return getTimeBucket(time, Downsampling.Second);
@@ -36,7 +36,7 @@ public class TimeBucket {
      * Record time bucket format in Minute Unit.
      *
      * @param time Timestamp
-     * @return time in minute format.
+     * @return time in minute format
      */
     public static long getMinuteTimeBucket(long time) {
         return getTimeBucket(time, Downsampling.Minute);
@@ -143,7 +143,7 @@ public class TimeBucket {
      *
      * @param time         Timestamp
      * @param downsampling Downsampling
-     * @return time in downsampling format.
+     * @return time in downsampling format
      */
     public static long getTimeBucket(long time, Downsampling downsampling) {
         Calendar calendar = Calendar.getInstance();
