@@ -221,7 +221,7 @@ public class ProfileVerificationITCase {
 
         // verify shell exporter
         String swHome = System.getProperty("sw.home");
-        String exporterBin = swHome + File.separator + "tools" + File.separator + "profile" + File.separator + "profile_exporter.sh";
+        String exporterBin = swHome + File.separator + "tools" + File.separator + "profile-exporter" + File.separator + "profile_exporter.sh";
         validateExporter(exporterBin, swHome, taskId, foundedTrace.getTraceIds().get(0));
     }
 
