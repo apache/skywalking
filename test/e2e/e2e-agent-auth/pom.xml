@@ -85,8 +85,6 @@
                                 <env>
                                     <SW_AGENT_AUTHENTICATION>test-token</SW_AGENT_AUTHENTICATION>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.agent.cool_down_threshold=1
-                                    </INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
