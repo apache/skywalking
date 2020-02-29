@@ -28,15 +28,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>tool-profile-snapshot-server-mock</artifactId>
+    <artifactId>profile-exporter</artifactId>
     <version>7.0.0-SNAPSHOT</version>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>tool-profile-snapshot-server-mock</module>
+        <module>tool-profile-snapshot-bootstrap</module>
+        <module>tool-profile-snapshot-exporter</module>
+        <module>tool-profile-snapshot-exporter-es7</module>
+    </modules>
+
 
 </project>

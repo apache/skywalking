@@ -21,14 +21,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>server-tools</artifactId>
+        <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>tool-profile-snapshot-exporter-es7</artifactId>
+    <artifactId>tool-profile-snapshot-exporter</artifactId>
     <version>7.0.0-SNAPSHOT</version>
 
     <dependencies>
@@ -40,9 +40,10 @@
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-elasticsearch7-plugin</artifactId>
+            <artifactId>storage-elasticsearch-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
 
 </project>
