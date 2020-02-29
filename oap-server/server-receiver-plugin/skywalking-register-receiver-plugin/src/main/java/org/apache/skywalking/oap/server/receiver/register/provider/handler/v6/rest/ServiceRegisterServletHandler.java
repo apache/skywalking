@@ -82,6 +82,9 @@ public class ServiceRegisterServletHandler extends JettyJsonHandler {
                 responseArray.add(mapping);
             });
         } catch (IOException e) {
+            JsonObject mapping = new JsonObject();
+            mapping.addProperty("error", e.getMessage());
+            responseArray.add(mapping);
             logger.error(e.getMessage(), e);
         }
         return responseArray;
