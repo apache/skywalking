@@ -314,11 +314,11 @@ public class ProfileVerificationITCase {
         executeShell += " --traceid=" + traceId;
         executeShell += " " + exportTo;
 
+        LOGGER.info("executing shell: {}", executeShell);
+
         Properties properties = System.getProperties();
         List<String> env = properties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
-
         Process exec = Runtime.getRuntime().exec(executeShell, env.toArray(new String[env.size()]));
-        LOGGER.info("executing shell: {}", executeShell);
 
         // print data
         BufferedReader strCon = new BufferedReader(new InputStreamReader(exec.getInputStream()));

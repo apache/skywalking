@@ -9,7 +9,7 @@ When the visualization doesn't work well through the official UI, users could su
 2. Enter the Skywalking root path
 3. Execute shell command
     ```bash
-   bash tools/profile/profile_exporter.sh --taskid={profileTaskId} --traceid={traceId} {exportDir}
+   bash tools/profile-exporter/profile_exporter.sh --taskid={profileTaskId} --traceid={traceId} {exportDir}
    ```
 4. The file `{traceId}.tar.gz` will be generated after execution shell.
 

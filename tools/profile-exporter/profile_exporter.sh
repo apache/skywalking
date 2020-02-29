@@ -35,7 +35,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ ! ${task_id} || ! ${trace_id} || ! ${export_path} ]] \
-  && echo 'Usage: sh tools/profile_exporter.sh [--taskid] [--traceid] export_path' \
+  && echo 'Usage: sh tools/profile-exporter/profile_exporter.sh [--taskid] [--traceid] export_path' \
   && exit 1
 
 [[ ! -d ${export_path} ]] \

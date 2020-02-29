@@ -146,7 +146,7 @@ public class ProfileExportedAnalyze {
 
         public Analyzer(List<ThreadSnapshot> snapshots) {
             super(null, new CoreModuleConfig().getMaxPageSizeOfQueryProfileSnapshot(), new CoreModuleConfig().getMaxSizeOfAnalyzeProfileSnapshot());
-            this.dao = new ProfileExportedSnapshotDAO(snapshots);
+            this.dao = new ProfileAnalyzeSnapshotDAO(snapshots);
         }
 
         @Override

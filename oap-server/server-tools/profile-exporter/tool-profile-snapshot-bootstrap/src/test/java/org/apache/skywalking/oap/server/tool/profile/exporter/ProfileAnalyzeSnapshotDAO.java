@@ -30,11 +30,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ProfileExportedSnapshotDAO implements IProfileThreadSnapshotQueryDAO {
+public class ProfileAnalyzeSnapshotDAO implements IProfileThreadSnapshotQueryDAO {
 
     private final List<ThreadSnapshot> snapshots;
 
-    public ProfileExportedSnapshotDAO(List<ThreadSnapshot> snapshots) {
+    public ProfileAnalyzeSnapshotDAO(List<ThreadSnapshot> snapshots) {
         this.snapshots = snapshots;
     }
 
