@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "h2 database is storage provider..."
-original_wd=$(pwd)
-
 # Download and start H2 server
 H2_RELEASE_DATE=2017-06-10
 curl -L http://www.h2database.com/h2-$H2_RELEASE_DATE.zip -o /tmp/h2-$H2_RELEASE_DATE.zip
@@ -25,12 +22,8 @@ curl -L http://www.h2database.com/h2-$H2_RELEASE_DATE.zip -o /tmp/h2-$H2_RELEASE
 
 # unzip h2 and run it
 cd /tmp
-unzip h2-$H2_RELEASE_DATE.zip
-rm -f h2-$H2_RELEASE_DATE.zip
-mkdir -p /tmp/h2/data
+unzip h2-$H2_RELEASE_DATE.zip \
+  && rm -f h2-$H2_RELEASE_DATE.zip \
+  && mkdir -p /tmp/h2/data
 
-java -cp /tmp/h2/bin/h2*.jar org.h2.tools.Server -web -webAllowOthers -webPort 8080 -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /tmp/h2/data > /dev/null 2>&1 &
-
-cd ${original_wd}
-
-echo "h2 database start success..."
+java -cp /tmp/h2/bin/h2*.jar org.h2.tools.Server -tcp -tcpAllowOthers -tcpPort 1521 -baseDir /tmp/h2/data
