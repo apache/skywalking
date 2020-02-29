@@ -143,6 +143,7 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
             });
 
         } catch (IOException e) {
+            responseJson.addProperty("error", e.getMessage());
             logger.error(e.getMessage(), e);
         }
         return responseJson;

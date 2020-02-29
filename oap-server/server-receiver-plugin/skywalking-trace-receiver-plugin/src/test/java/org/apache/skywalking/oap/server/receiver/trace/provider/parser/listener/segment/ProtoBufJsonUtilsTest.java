@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import java.io.IOException;
+import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
@@ -114,6 +116,22 @@ public class ProtoBufJsonUtilsTest {
             ProtoBufJsonUtils.fromJSON(json, segBuilder);
             SegmentObject segmentObject = segBuilder.build();
             Assert.assertEquals(2, segmentObject.getSpansCount());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testToJson() {
+        String json = "{\n" +
+            "  \"commands\": [{\n" +
+            "  }]\n" +
+            "}";
+        try {
+            Command command = Command.newBuilder().build();
+            final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
+            Assert.assertEquals(json, ProtoBufJsonUtils.toJSON(nextCommands));
         } catch (IOException e) {
             e.printStackTrace();
         }

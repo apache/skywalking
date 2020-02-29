@@ -51,8 +51,6 @@ public class ServiceInstancePingServletHandler extends JettyJsonHandler {
     private final CommandService commandService;
     private final Gson gson = new Gson();
 
-    private static final String COMMANDS = "commands";
-
     public ServiceInstancePingServletHandler(ModuleManager moduleManager) {
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(
             IServiceInstanceInventoryRegister.class);
@@ -100,10 +98,11 @@ public class ServiceInstancePingServletHandler extends JettyJsonHandler {
                     serviceInstanceId, heartBeatTime, serviceInstanceUUID);
                 final Command command = resetCommand.serialize().build();
                 final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
-                responseJson.add(COMMANDS, gson.toJsonTree(nextCommands, Commands.class));
+                return gson.fromJson(ProtoBufJsonUtils.toJSON(nextCommands), JsonElement.class);
             }
 
         } catch (IOException e) {
+            responseJson.addProperty("error", e.getMessage());
             logger.error(e.getMessage(), e);
         }
 
