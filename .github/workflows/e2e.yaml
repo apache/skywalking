@@ -56,6 +56,8 @@ jobs:
         run: export E2E_VERSION=jdk12-1.5 && bash -x test/e2e/run.sh e2e-single-service
       - name: Agent Reboot Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-reboot
+      - name: Agent Auth Tests(JDK8)
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-auth
 
   Cluster:
     runs-on: ubuntu-latest
