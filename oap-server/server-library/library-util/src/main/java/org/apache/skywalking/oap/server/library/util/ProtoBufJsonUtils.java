@@ -36,13 +36,12 @@ public class ProtoBufJsonUtils {
      * @return the constructed Message
      * @throws com.google.protobuf.InvalidProtocolBufferException Thrown in case of invalid Message data
      */
-    public static Message fromJSON(String json, Message.Builder targetBuilder) throws IOException {
+    public static void fromJSON(String json, Message.Builder targetBuilder) throws IOException {
         JsonFormat.parser()
                   .usingTypeRegistry(JsonFormat.TypeRegistry.newBuilder()
                                                             .add(targetBuilder.getDescriptorForType())
                                                             .build())
                   .ignoringUnknownFields()
                   .merge(json, targetBuilder);
-        return targetBuilder.build();
     }
 }
