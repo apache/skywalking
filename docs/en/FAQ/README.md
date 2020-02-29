@@ -21,4 +21,4 @@ These are known and common FAQs. We welcome you to contribute yours.
 * ["FORBIDDEN/12/index read-only / allow delete (api)" appears in the log](https://discuss.elastic.co/t/forbidden-12-index-read-only-allow-delete-api/110282)
 * [No data shown and backend replies with "Variable 'serviceId' has coerced Null value for NonNull type 'ID!'"](time-and-timezone.md)
 * [**Unexpected endpoint register** warning after 6.6.0](Unexpected-endpoint-register.md)
-* [Use the profile exporter tool if the profile analysis is not right?](../guides/backend-profile-export.md)
+* [Use the profile exporter tool if the profile analysis is not right](../guides/backend-profile-export.md)
