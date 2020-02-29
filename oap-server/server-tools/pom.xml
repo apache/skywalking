@@ -29,11 +29,9 @@
 
     <artifactId>server-tools</artifactId>
     <packaging>pom</packaging>
+
     <modules>
-        <module>tool-profile-snapshot-server-mock</module>
-        <module>tool-profile-snapshot-bootstrap</module>
-        <module>tool-profile-snapshot-exporter</module>
-        <module>tool-profile-snapshot-exporter-es7</module>
+        <module>profile-exporter</module>
     </modules>
 
 
