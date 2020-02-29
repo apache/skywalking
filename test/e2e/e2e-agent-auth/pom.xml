@@ -98,8 +98,14 @@
                                     </bind>
                                 </volumes>
                                 <wait>
-                                    <log>SkyWalking e2e container is ready for tests</log>
-                                    <time>2400000</time>
+                                    <http>
+                                        <url>
+                                            http://${docker.host.address}:${client.port}/e2e/health-check
+                                        </url>
+                                        <method>GET</method>
+                                        <status>200</status>
+                                    </http>
+                                    <time>300000</time>
                                 </wait>
                             </run>
                         </image>
