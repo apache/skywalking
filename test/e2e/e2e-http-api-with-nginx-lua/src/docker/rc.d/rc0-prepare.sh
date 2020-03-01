@@ -21,7 +21,7 @@ echo 'git clone skyalking-nginx-lua lib from https://github.com/apache/skywalkin
 
 git clone https://github.com/apache/skywalking-nginx-lua.git /usr/share/skywalking-nginx-lua \
   && cd /usr/share/skywalking-nginx-lua \
-  && git checkout $SKYWALKING_NINGX_LUA_GIT_COMMIT_ID \
+  && git checkout ${SKYWALKING_NINGX_LUA_GIT_COMMIT_ID} \
   && ls ./
 
 /usr/bin/openresty -c /var/nginx/conf.d/nginx.conf
