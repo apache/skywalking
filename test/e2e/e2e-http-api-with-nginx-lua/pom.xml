@@ -82,7 +82,7 @@
                     <images>
                         <image>
                             <name>skyapm/e2e-container:${e2e.container.version}</name>
-                            <alias>${e2e.container.name.prefix}-app</alias>
+                            <alias>e2e-container-app-for-nginx-lua</alias>
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
@@ -125,7 +125,7 @@
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>
                                 <dependsOn>
-                                    <container>${e2e.container.name.prefix}-app</container>
+                                    <container>e2e-container-app-for-nginx-lua</container>
                                 </dependsOn>
                                 <ports>
                                     <port>+nginx.host:nginx.port:8080</port>
