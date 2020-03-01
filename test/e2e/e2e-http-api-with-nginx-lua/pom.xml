@@ -169,6 +169,9 @@
                         <client.port>
                             ${client.port}
                         </client.port>
+                        <nginx.port>
+                            ${nginx.port}
+                        </nginx.port>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

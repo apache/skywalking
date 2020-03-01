@@ -86,10 +86,8 @@ public class SampleVerificationITCase {
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
         final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
-        final String instrumentedServiceHost = System.getProperty("client.host", "127.0.0.1");
-        final String instrumentedServicePort = System.getProperty("client.port", "32782");
         final String nginxHost = System.getProperty("nginx.host", "127.0.0.1");
-        final String nginxPort = System.getProperty("nginx.port", "9090");
+        final String nginxPort = System.getProperty("nginx.port", "32782");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         nginxServiceUrl = "http://" + nginxHost + ":" + nginxPort;
     }
