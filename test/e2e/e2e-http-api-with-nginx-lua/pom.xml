@@ -124,9 +124,9 @@
                                     <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>95684f3dcccab36f6592bf91944cdd5424e0d7a4
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>
-                                <dependsOn>
-                                    <container>e2e-container-app-for-nginx-lua</container>
-                                </dependsOn>
+                                <links>
+                                    <link>e2e-container-app-for-nginx-lua:upstream</link>
+                                </links>
                                 <ports>
                                     <port>+nginx.host:nginx.port:8080</port>
                                 </ports>
