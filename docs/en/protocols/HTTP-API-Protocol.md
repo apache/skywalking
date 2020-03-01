@@ -62,10 +62,12 @@ Input:
 OutPut:
 
 ```json
-{
-    "key": "NAME:Service Instance Name",
-    "value": 2
-}
+[
+    {
+        "key": "NAME:Service Instance Name",
+        "value": 0
+    }
+]
 ```
 
 - Service instance heartbeat

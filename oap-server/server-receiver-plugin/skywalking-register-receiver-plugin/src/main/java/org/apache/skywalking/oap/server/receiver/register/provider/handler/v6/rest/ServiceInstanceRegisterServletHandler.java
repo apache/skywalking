@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -78,6 +79,7 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
     protected JsonElement doPost(HttpServletRequest req) throws ArgumentsParseException {
 
         JsonObject responseJson = new JsonObject();
+        JsonArray jsonArray = new JsonArray();
 
         try {
             ServiceInstances.Builder builder = ServiceInstances.newBuilder();
@@ -137,8 +139,10 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
 
                 responseJson.addProperty(KEY, instanceUUID);
                 responseJson.addProperty(VALUE, instanceId);
+                jsonArray.add(responseJson);
             });
 
+            return jsonArray;
         } catch (IOException e) {
             responseJson.addProperty("error", e.getMessage());
             logger.error(e.getMessage(), e);
