@@ -8,7 +8,7 @@ For each agent/SDK, it needs to register service id and service instance id befo
 or metrics data.
 
 Since SkyWalking v7.x, SkyWalking provided register and uplink trace data through HTTP API way.
-[HTTP API Protocol](HTTP-API-Protocol.md) define the API data format.
+[HTTP API Protocol](HTTP-API-Protocol.md) defined the API data format.
 
 ### Step 1. Do register
 [Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 

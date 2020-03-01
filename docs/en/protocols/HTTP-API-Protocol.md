@@ -1,10 +1,10 @@
 # HTTP API Protocol
 
-HTTP API Protocol define the API data format, including api request and response data format.
+HTTP API Protocol defines the API data format, including api request and response data format.
 
 ### Do register
 
-For more information about data format can be found in [Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto).
+Detail information about data format can be found in  [Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto).
 And register steps followings [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md).
 
 - Service Register
@@ -87,7 +87,7 @@ OutPut:
 ```json
 {}
 ```
-If your instance does not exists, and then, you need to clean your local service instance metadata in your application and re-do register:
+If your instance does not exist, you need to clean your local service instance metadata in your application and re-do register:
 
 ```json
 {

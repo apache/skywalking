@@ -21,7 +21,7 @@ echo 'git clone skyalking-nginx-lua lib from https://github.com/apache/skywalkin
 
 git clone https://github.com/apache/skywalking-nginx-lua.git /usr/share/skywalking-nginx-lua \
   && cd /usr/share/skywalking-nginx-lua \
-  && git checkout 95684f3dcccab36f6592bf91944cdd5424e0d7a4 \
+  && git checkout $SKYWALKING_NINGX_LUA_GIT_COMMIT_ID \
   && ls ./
 
 sync

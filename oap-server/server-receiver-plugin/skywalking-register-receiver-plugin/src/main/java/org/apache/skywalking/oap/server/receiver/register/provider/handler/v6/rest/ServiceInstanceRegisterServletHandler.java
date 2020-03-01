@@ -124,9 +124,6 @@ public class ServiceInstanceRegisterServletHandler extends JettyJsonHandler {
                 ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
 
                 if (instanceName == null) {
-                    /**
-                     * After 7.0.0, only active this naming rule when instance name has not been set in UUID parameter.
-                     */
                     instanceName = serviceInventory.getName();
                     if (instanceProperties.has(PROCESS_NO)) {
                         instanceName += "-pid:" + instanceProperties.get(PROCESS_NO).getAsString();

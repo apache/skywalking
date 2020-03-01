@@ -33,7 +33,6 @@ public class ProtoBufJsonUtils {
      *
      * @param json          A JSON data string to parse
      * @param targetBuilder A Message builder to use to construct the resulting Message
-     * @return the constructed Message
      * @throws com.google.protobuf.InvalidProtocolBufferException Thrown in case of invalid Message data
      */
     public static void fromJSON(String json, Message.Builder targetBuilder) throws IOException {
