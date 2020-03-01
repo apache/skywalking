@@ -114,19 +114,11 @@
                                 </wait>
                             </run>
                         </image>
-                    </images>
-                </configuration>
-            </plugin>
 
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <configuration>
-                    <containerNamePattern>%a-%t-%i</containerNamePattern>
-                    <images>
                         <image>
                             <name>openresty/openresty</name>
                             <alias>${e2e.container.name.prefix}-openresty</alias>
+
                             <run>
                                 <env>
                                     <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>95684f3dcccab36f6592bf91944cdd5424e0d7a4
@@ -150,15 +142,14 @@
                                             http://${docker.host.address}:${nginx.port}
                                         </url>
                                     </http>
-                                    <time>30000</time>
+                                    <time>3000000</time>
                                 </wait>
-                                <cmd>/usr/bin/openresty -c /var/nginx/conf.d/nginx.conf</cmd>
+                                <cmd>/rc.d/rc0-prepare.sh</cmd>
                             </run>
                         </image>
                     </images>
                 </configuration>
             </plugin>
-
 
             <!-- set the system properties that can be used in test codes -->
             <plugin>

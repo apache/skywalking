@@ -24,4 +24,5 @@ git clone https://github.com/apache/skywalking-nginx-lua.git /usr/share/skywalki
   && git checkout $SKYWALKING_NINGX_LUA_GIT_COMMIT_ID \
   && ls ./
 
+/usr/bin/openresty -c /var/nginx/conf.d/nginx.conf
 sync
