@@ -90,7 +90,6 @@
                                     </INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
-                                    <port>+webapp.host:oap.http.port:12800</port>
                                     <port>+webapp.host:webapp.port:8080</port>
                                     <port>+client.host:client.port:9090</port>
                                 </ports>
