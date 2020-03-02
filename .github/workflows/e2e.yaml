@@ -44,8 +44,6 @@ jobs:
           ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: Single Node Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-single-service
-      - name: Http API with Ningx Lua Tests In Single Node Mode(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-http-api-with-nginx-lua
       - name: Single Node Tests(InfluxDB/JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-influxdb
       - name: Single Node Tests(MySQL/JDK8)
@@ -118,6 +116,8 @@ jobs:
           ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
       - name: 6.x Agents & 7.x Backend
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-6.x-agent-7.x-oap-compatibility
+      - name: Http API with Ningx Lua Tests In Single Node Mode(JDK8)
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-http-api-with-nginx-lua
 
   Profile:
     runs-on: ubuntu-latest
