@@ -90,6 +90,7 @@
                                     </INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
+                                    <port>+webapp.host:oap.http.port:12800</port>
                                     <port>+webapp.host:webapp.port:8080</port>
                                     <port>+client.host:client.port:9090</port>
                                 </ports>
@@ -121,6 +122,7 @@
 
                             <run>
                                 <env>
+                                    <SKYALKING_BACKEND_ADDRESS>${webapp.host}:${oap.http.port}</SKYALKING_BACKEND_ADDRESS>
                                     <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>95684f3dcccab36f6592bf91944cdd5424e0d7a4
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>
@@ -133,7 +135,6 @@
                                 <volumes>
                                     <bind>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
-                                        <volume>${project.basedir}/src/docker/conf.d:/var/nginx/conf.d</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
