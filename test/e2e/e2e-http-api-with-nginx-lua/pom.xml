@@ -122,7 +122,6 @@
 
                             <run>
                                 <env>
-                                    <SKYALKING_BACKEND_ADDRESS>${webapp.host}:${oap.http.port}</SKYALKING_BACKEND_ADDRESS>
                                     <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>95684f3dcccab36f6592bf91944cdd5424e0d7a4
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>

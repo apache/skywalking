@@ -54,7 +54,7 @@ http {
         -- Instance means the number of Nginx deloyment, does not mean the worker instances
         metadata_buffer:set('serviceInstanceName', 'User_Service_Instance_Name')
 
-        require("client"):startBackendTimer("http://${SKYALKING_BACKEND_ADDRESS}:12800")
+        require("client"):startBackendTimer("http://upstream:12800")
     }
     log_format sw_trace escape=json "$uri $request_body";
 
