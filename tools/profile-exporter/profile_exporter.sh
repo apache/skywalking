@@ -43,11 +43,10 @@ done
   && exit 1
 
 # prepare paths
-config_file="${exporter_dir}/../../config/application.yml"
 oap_libs_dir="${exporter_dir}/../../oap-libs"
 exporter_log_file="${exporter_dir}/profile_exporter_log4j2.xml"
-awk_change_file="${exporter_dir}/persist_core_and_storage.awk"
-[[ ! -f ${config_file} ]] \
+tool_application_config="${exporter_dir}/application.yml"
+[[ ! -f ${tool_application_config} ]] \
   && echo "Cannot find oap application.yml" \
   && exit 1
 [[ ! -d ${oap_libs_dir} ]] \
@@ -63,7 +62,7 @@ mkdir -p "${work_dir}/config"
 mkdir -p "${work_dir}/work"
 cp ${exporter_log_file} ${work_dir}/config/log4j2.xml
 # only persist core and storage module in application.yml config
-awk -f ${awk_change_file} ${config_file} > ${work_dir}/config/application.yml
+cp ${tool_application_config} ${work_dir}/config/application.yml
 
 # start export
 echo "Exporting task: ${task_id}, trace: ${trace_id}, export_path: ${work_dir}"
