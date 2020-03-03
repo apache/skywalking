@@ -56,8 +56,8 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
                 builder.setUuid(uuid);
             }
             ConfigurationResponse response = stub.call(builder.build());
-            String response_uuid = response.getUuid();
-            if (Objects.equals(uuid, response_uuid)) {
+            String responseUuid = response.getUuid();
+            if (Objects.equals(uuid, responseUuid)) {
                 // If UUID matched, the config table is expected as empty.
                 return Optional.empty();
             }
