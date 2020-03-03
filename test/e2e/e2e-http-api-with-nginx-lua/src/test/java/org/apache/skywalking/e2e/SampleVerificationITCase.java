@@ -85,9 +85,9 @@ public class SampleVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
         final String nginxHost = System.getProperty("nginx.host", "127.0.0.1");
-        final String nginxPort = System.getProperty("nginx.port", "32782");
+        final String nginxPort = System.getProperty("nginx.port", "8181");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         nginxServiceUrl = "http://" + nginxHost + ":" + nginxPort;
     }
@@ -102,13 +102,13 @@ public class SampleVerificationITCase {
                 final Map<String, String> user = new HashMap<>();
                 user.put("name", "SkyWalking");
                 final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    nginxServiceUrl + "/e2e/users", user, String.class);
+                    nginxServiceUrl + "/nginx/e2e/users", user, String.class);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
                 final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
                                                                                .end(LocalDateTime.now())
                                                                                .orderByDuration());
-                if (!traces.isEmpty()) {
+                if (!traces.isEmpty() && traces.size() >= 2) {
                     break;
                 }
                 Thread.sleep(10000L);

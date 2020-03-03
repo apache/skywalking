@@ -25,3 +25,7 @@ endpoints:
     label: /e2e/health-check
   - key: not null
     label: /e2e/users
+  - key: not null
+    label: /nginx/e2e/users
+
+

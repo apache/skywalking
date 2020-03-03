@@ -62,7 +62,7 @@ http {
     server {
         listen 8080;
 
-        location /e2e/users {
+        location /nginx/e2e/users {
 
             rewrite_by_lua_block {
                 require("tracer"):startBackendTimer()
