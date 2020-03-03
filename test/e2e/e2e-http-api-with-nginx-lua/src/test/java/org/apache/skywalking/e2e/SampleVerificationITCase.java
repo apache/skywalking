@@ -85,9 +85,9 @@ public class SampleVerificationITCase {
     @Before
     public void setUp() {
         final String swWebappHost = System.getProperty("sw.webapp.host", "127.0.0.1");
-        final String swWebappPort = System.getProperty("sw.webapp.port", "12800");
+        final String swWebappPort = System.getProperty("sw.webapp.port", "32783");
         final String nginxHost = System.getProperty("nginx.host", "127.0.0.1");
-        final String nginxPort = System.getProperty("nginx.port", "8181");
+        final String nginxPort = System.getProperty("nginx.port", "32782");
         queryClient = new SimpleQueryClient(swWebappHost, swWebappPort);
         nginxServiceUrl = "http://" + nginxHost + ":" + nginxPort;
     }
@@ -96,6 +96,16 @@ public class SampleVerificationITCase {
     @DirtiesContext
     public void verify() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
+
+        while (true) {
+            final List<Service> services = queryClient.services(
+                new ServicesQuery().start(minutesAgo).end(LocalDateTime.now()));
+
+            if (!services.isEmpty() && services.size() >= 2) {
+                break;
+            }
+            Thread.sleep(10000L);
+        }
 
         while (true) {
             try {
