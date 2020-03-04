@@ -54,6 +54,7 @@ public class EnvoyInstanceMetric extends Source {
     private int serviceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
