@@ -2,7 +2,7 @@
 When the visualization doesn't work well through the official UI, users could submit the issue to report. This tool helps the users to package the original profile data for helping the community to locate the issue in the user case. NOTICE, this report includes the class name, method name, line number, etc. Before submit this, please make sure this wouldn't become your system vulnerability.
 
 ## Export command line Usage
-1. Copy `storage` config from `config/application.yml` into `tools/profile-exporter/application.yml`, make sure they are using the same storage config.
+1. Set the storage in `tools/profile-exporter/application.yml` file by following your use case.
 1. Prepare data
     - Profile task id: Profile task id
     - Trace id: Wrong profiled trace id
