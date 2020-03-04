@@ -121,7 +121,7 @@ SkyWalking provides browser UI, CLI and GraphQL ways to support extensions. But 
 directly from the storage. Such as in ElasticSearch case, Kibana is a great tool to do this.
 
 In default, due to reduce memory, network and storage space usages, SkyWalking saves id(s) only in the entity and metadata saved in the
-*_inventory entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
+`*_inventory` entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
 SkyWalking provide a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
 
 Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to open this feature.
