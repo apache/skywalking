@@ -43,6 +43,7 @@ public class EndpointRelation extends Source {
     private int endpointId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name", requireDynamicActive = true)
     private String endpoint;
     @Getter
     @Setter
@@ -50,10 +51,10 @@ public class EndpointRelation extends Source {
     private int serviceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id")
     private int serviceInstanceId;
     @Getter
     @Setter
@@ -64,6 +65,7 @@ public class EndpointRelation extends Source {
     private int childEndpointId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name", requireDynamicActive = true)
     private String childEndpoint;
     @Getter
     @Setter
@@ -71,10 +73,10 @@ public class EndpointRelation extends Source {
     private int childServiceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_name", requireDynamicActive = true)
     private String childServiceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_instance_id")
     private int childServiceInstanceId;
     @Getter
     @Setter

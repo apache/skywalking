@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
@@ -78,6 +79,13 @@ public class DefaultScopeDefine {
     private static final Map<Integer, Boolean> SERVICE_INSTANCE_CATALOG = new HashMap<>();
     private static final Map<Integer, Boolean> ENDPOINT_CATALOG = new HashMap<>();
 
+    @Setter
+    private static boolean ACTIVE_EXTRA_MODEL_COLUMNS = false;
+
+    public static void activeExtraModelColumns() {
+        ACTIVE_EXTRA_MODEL_COLUMNS = true;
+    }
+
     /**
      * Annotation scan listener
      */
@@ -99,7 +107,7 @@ public class DefaultScopeDefine {
     /**
      * Add a new scope based on the scan result
      *
-     * @param declaration includes the definition.
+     * @param declaration   includes the definition.
      * @param originalClass represents the class having the {@link ScopeDeclaration} annotation
      */
     private static final void addNewScope(ScopeDeclaration declaration, Class originalClass) {
@@ -133,11 +141,13 @@ public class DefaultScopeDefine {
                 ScopeDefaultColumn.DefinedByField definedByField = field.getAnnotation(
                     ScopeDefaultColumn.DefinedByField.class);
                 if (definedByField != null) {
-                    scopeDefaultColumns.add(
-                        new ScopeDefaultColumn(field.getName(), definedByField.columnName(), field.getType(),
-                                               definedByField
-                                                   .isID()
-                        ));
+                    if (!definedByField.requireDynamicActive() || ACTIVE_EXTRA_MODEL_COLUMNS) {
+                        scopeDefaultColumns.add(
+                            new ScopeDefaultColumn(field.getName(), definedByField.columnName(), field.getType(),
+                                                   definedByField
+                                                       .isID()
+                            ));
+                    }
                 }
             }
         }

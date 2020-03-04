@@ -46,9 +46,11 @@ public class ServiceInstance extends Source {
     private int serviceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter
