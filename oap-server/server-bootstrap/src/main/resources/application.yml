@@ -74,6 +74,10 @@ core:
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
     topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10} # top_n record worker report cycle, unit is minute
+    # Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,
+    # and it will cause more load for memory, network of OAP and storage.
+    # But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party tool, such as Kibana->ES, to query the data by themselves.
+    activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
 storage:
 #  elasticsearch:
 #    nameSpace: ${SW_NAMESPACE:""}

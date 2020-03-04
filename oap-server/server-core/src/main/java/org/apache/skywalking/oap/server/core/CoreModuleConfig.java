@@ -106,7 +106,7 @@ public class CoreModuleConfig extends ModuleConfig {
 
     /**
      * Extra model column are the column defined by {@link ScopeDefaultColumn.DefinedByField#requireDynamicActive()} ==
-     * true. This model is not required logically in aggregation or further query, and it will cause more load for
+     * true. These columns of model are not required logically in aggregation or further query, and it will cause more load for
      * memory, network of OAP and storage.
      *
      * But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party
