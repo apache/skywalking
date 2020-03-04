@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
+import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -88,14 +89,14 @@ public class ConfigWatcherRegisterTest {
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
 
         @Override
-        public ConfigTable readConfig(Set<String> keys) {
+        public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable.ConfigItem item1 = new ConfigTable.ConfigItem("module.provider.prop1", "abc");
             ConfigTable.ConfigItem item2 = new ConfigTable.ConfigItem("MockModule.provider.prop2", "abc2");
 
             ConfigTable table = new ConfigTable();
             table.add(item1);
             table.add(item2);
-            return table;
+            return Optional.of(table);
         }
     }
 

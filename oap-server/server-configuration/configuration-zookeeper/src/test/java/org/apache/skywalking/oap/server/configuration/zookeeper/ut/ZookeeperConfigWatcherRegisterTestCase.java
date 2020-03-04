@@ -48,7 +48,7 @@ public class ZookeeperConfigWatcherRegisterTestCase {
 
         Whitebox.setInternalState(mockRegister, "childrenCache", mockPathChildrenCache);
 
-        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(key));
+        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(key)).get();
 
         assertEquals(1, configTable.getItems().size());
         assertEquals(key, configTable.getItems().get(0).getName());

@@ -52,7 +52,7 @@ public class NacosConfigWatcherRegisterTest {
 
         Whitebox.setInternalState(mockRegister, "configService", mockConfigService);
 
-        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2));
+        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2)).get();
 
         assertEquals(2, configTable.getItems().size());
         Map<String, String> kvs = new HashMap<>();
