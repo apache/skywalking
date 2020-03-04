@@ -114,7 +114,7 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private boolean activeExtraModelColumns = false;
 
-    CoreModuleConfig() {
+    public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
 
