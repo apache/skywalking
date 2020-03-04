@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
@@ -103,7 +104,17 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
 
-    CoreModuleConfig() {
+    /**
+     * Extra model column are the column defined by {@link ScopeDefaultColumn.DefinedByField#requireDynamicActive()} ==
+     * true. These columns of model are not required logically in aggregation or further query, and it will cause more load for
+     * memory, network of OAP and storage.
+     *
+     * But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party
+     * tool, such as Kibana->ES, to query the data by themselves.
+     */
+    private boolean activeExtraModelColumns = false;
+
+    public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
 

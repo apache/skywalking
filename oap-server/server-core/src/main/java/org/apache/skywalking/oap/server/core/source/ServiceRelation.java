@@ -43,6 +43,7 @@ public class ServiceRelation extends Source {
     private int sourceServiceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)
     private String sourceServiceName;
     @Getter
     @Setter
@@ -52,6 +53,7 @@ public class ServiceRelation extends Source {
     private int destServiceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_name", requireDynamicActive = true)
     private String destServiceName;
     @Getter
     @Setter

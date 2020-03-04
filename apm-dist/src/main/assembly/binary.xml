@@ -75,6 +75,12 @@
             <outputDirectory>/agent</outputDirectory>
         </fileSet>
 
+        <!-- Profile exporter tools -->
+        <fileSet>
+            <directory>${project.basedir}/../tools/profile-exporter</directory>
+            <outputDirectory>/tools/profile-exporter</outputDirectory>
+        </fileSet>
+
         <!-- Release docs and licenses -->
         <fileSet>
             <directory>${project.basedir}/../</directory>
