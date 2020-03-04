@@ -21,6 +21,8 @@ set -e
 
 var_application_file="/var/nginx/conf.d/nginx.conf"
 
+var_upstream_ip=$(cat /etc/hosts|grep upstream|awk '{print $1'})
+
 apt-get update && apt-get -y install git
 
 echo 'git clone skyalking-nginx-lua lib from https://github.com/apache/skywalking-nginx-lua.git'
@@ -55,7 +57,7 @@ http {
         -- Instance means the number of Nginx deloyment, does not mean the worker instances
         metadata_buffer:set('serviceInstanceName', 'User_Service_Instance_Name')
 
-        require("client"):startBackendTimer("http://upstream:12800")
+        require("client"):startBackendTimer("http://${var_upstream_ip}:12800")
     }
     log_format sw_trace escape=json "$uri $request_body";
 
