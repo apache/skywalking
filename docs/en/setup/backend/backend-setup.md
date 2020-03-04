@@ -120,7 +120,7 @@ If you want to override it, please follow Java and OS documents to do so.
 SkyWalking provides browser UI, CLI and GraphQL ways to support extensions. But some users may have the idea to query data 
 directly from the storage. Such as in ElasticSearch case, Kibana is a great tool to do this.
 
-In default, due to save memory/network and storage space, SkyWalking saves id(s) only in the entity and metadata saved in the
+In default, due to reduce memory, network and storage space usages, SkyWalking saves id(s) only in the entity and metadata saved in the
 *_inventory entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
 SkyWalking provide a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
 
