@@ -33,9 +33,20 @@ nodes:
     serviceName: Your_ApplicationName
     type: Tomcat
     isReal: true
+  - id: 3
+    name: not null
+    serviceId: 3
+    serviceName: User_Service_Name
+    type: not null
+    isReal: true
 calls:
-  - id: 1_2
+  - id: 1_3
     source: 1
+    detectPoints:
+      - SERVER
+    target: 3
+  - id: 3_2
+    source: 3
     detectPoints:
       - SERVER
     target: 2

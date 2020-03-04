@@ -30,17 +30,27 @@ nodes:
     type: Tomcat
     isReal: true
   - id: 3
+    name: User_Service_Name
+    type: not null
+    isReal: true
+  - id: 4
     name: "localhost:-1"
     type: H2
     isReal: false
+
 calls:
-  - id: 2_3
+  - 2_4
     source: 2
     detectPoints:
       - CLIENT
-    target: 3
-  - id: 1_2
-    source: 1
+    target: 4
+  - id: 3_2
+    source: 3
     detectPoints:
       - SERVER
     target: 2
+  - id: 1_3
+    source: 1
+    detectPoints:
+      - SERVER
+    target: 3
