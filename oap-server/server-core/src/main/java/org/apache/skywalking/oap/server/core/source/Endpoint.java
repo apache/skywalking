@@ -42,6 +42,7 @@ public class Endpoint extends Source {
     private int id;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
@@ -49,6 +50,7 @@ public class Endpoint extends Source {
     private int serviceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter

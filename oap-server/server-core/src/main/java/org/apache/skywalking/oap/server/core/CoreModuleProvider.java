@@ -138,6 +138,10 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (moduleConfig.isActiveExtraModelColumns()) {
+            DefaultScopeDefine.activeExtraModelColumns();
+        }
+
         StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
 
         AnnotationScan scopeScan = new AnnotationScan();
