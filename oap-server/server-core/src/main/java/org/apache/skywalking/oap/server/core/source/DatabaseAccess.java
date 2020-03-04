@@ -42,6 +42,7 @@ public class DatabaseAccess extends Source {
     private long id;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter

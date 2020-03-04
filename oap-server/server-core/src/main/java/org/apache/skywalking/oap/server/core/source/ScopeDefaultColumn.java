@@ -51,6 +51,13 @@ public class ScopeDefaultColumn {
         String columnName();
 
         boolean isID() default false;
+
+        /**
+         * Dynamic active means this column is only activated through core setting explicitly.
+         *
+         * @return
+         */
+        boolean requireDynamicActive() default false;
     }
 
     @Target({ElementType.TYPE})

@@ -42,6 +42,7 @@ public class Service extends Source {
     private int id;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
