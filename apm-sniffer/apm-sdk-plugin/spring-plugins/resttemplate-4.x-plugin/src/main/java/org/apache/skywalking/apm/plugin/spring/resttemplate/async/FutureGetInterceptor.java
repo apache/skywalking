@@ -31,7 +31,7 @@ public class FutureGetInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects)objInst.getSkyWalkingDynamicField();
+        EnhanceCacheObjects cacheValues = (EnhanceCacheObjects) objInst.getSkyWalkingDynamicField();
         ContextManager.createLocalSpan("future/get:" + cacheValues.getOperationName());
     }
 
