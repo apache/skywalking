@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
@@ -68,10 +69,10 @@ public class ApdexThresholdConfigTest {
         }
 
         @Override
-        public ConfigTable readConfig(Set<String> keys) {
+        public Optional<ConfigTable> readConfig(Set<String> keys) {
             ConfigTable table = new ConfigTable();
             table.add(new ConfigTable.ConfigItem("core.default.apdexThreshold", "default: 1000 \nfoo: 200"));
-            return table;
+            return Optional.of(table);
         }
     }
 }
