@@ -56,6 +56,13 @@
             <artifactId>zipkin-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- profile exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>tool-profile-snapshot-exporter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

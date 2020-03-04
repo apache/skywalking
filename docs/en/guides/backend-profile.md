@@ -47,3 +47,6 @@ The reason for generating multiple top-level trees is that original data can be 
     1. Use the same traversal node logic as in the `Combine stack trees` step. Convert to a GraphQL data structure, and put all nodes into a list for subsequent duration calculations.
     2. Calculate each node's duration in parallel. For each node, sort the sequences, if there are two continuous sequences, the duration should add the duration of these two seq's timestamp.
     3. Calculate each node execution in parallel. For each node, the duration of the current node should minus the time consumed by all children.
+
+## Profile data debug
+Please follow the [exporter tool](backend-profile-export.md#export-command-line-usage) to package profile data. Unzip the profile data and using [analyzer main function](../../../oap-server/server-tools/tool-profile-snapshot-bootstrap/src/test/java/org/apache/skywalking/oap/server/tool/profile/exporter/ProfileExportedAnalyze.java) to run it.
