@@ -281,6 +281,9 @@ AvroClient:
 Undertow:
   id: 84
   languages: Java
+Finagle:
+  id: 85
+  languages: Java,Scala
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
