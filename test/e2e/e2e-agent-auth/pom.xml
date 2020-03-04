@@ -83,14 +83,12 @@
                             <alias>${e2e.container.name.prefix}</alias>
                             <run>
                                 <env>
+                                    <SW_AGENT_AUTHENTICATION>test-token</SW_AGENT_AUTHENTICATION>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.agent.cool_down_threshold=1
-                                    </INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
                                     <port>+client.host:client.port:9090</port>
-                                    <port>+reboot.host:reboot.port:9091</port>
                                 </ports>
                                 <volumes>
                                     <bind>
@@ -100,8 +98,14 @@
                                     </bind>
                                 </volumes>
                                 <wait>
-                                    <log>SkyWalking e2e container is ready for tests</log>
-                                    <time>2400000</time>
+                                    <http>
+                                        <url>
+                                            http://${docker.host.address}:${client.port}/e2e/health-check
+                                        </url>
+                                        <method>GET</method>
+                                        <status>200</status>
+                                    </http>
+                                    <time>300000</time>
                                 </wait>
                             </run>
                         </image>

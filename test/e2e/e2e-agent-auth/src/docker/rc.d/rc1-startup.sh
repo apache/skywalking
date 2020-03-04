@@ -15,15 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# set up the tcp server to listen for the restart command
-
-socat -u tcp-l:9091,fork system:'bash restart_oap' &
-
 echo 'starting OAP server...' \
-    && SW_STORAGE_ES_BULK_ACTIONS=1 \
-    && SW_STORAGE_ES_FLUSH_INTERVAL=1 \
-    && SW_RECEIVER_BUFFER_PATH=/tmp/oap/trace_buffer1 \
-    && SW_SERVICE_MESH_BUFFER_PATH=/tmp/oap/mesh_buffer1 \
     && SW_AUTHENTICATION="test-token" \
     && start_oap 'init'
 
