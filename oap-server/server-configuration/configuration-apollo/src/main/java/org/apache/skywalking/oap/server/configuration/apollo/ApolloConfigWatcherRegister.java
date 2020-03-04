@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.configuration.apollo;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.google.common.base.Strings;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
@@ -53,7 +54,7 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public ConfigTable readConfig(Set<String> keys) {
+    public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
 
         for (final String name : keys) {
@@ -61,6 +62,6 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
             configTable.add(new ConfigTable.ConfigItem(name, value));
         }
 
-        return configTable;
+        return Optional.of(configTable);
     }
 }

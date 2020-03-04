@@ -45,9 +45,11 @@ public class ServiceInstanceCLRCPU extends Source {
     private int id;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter

@@ -48,9 +48,11 @@ public class ServiceInstanceRelation extends Source {
     private int sourceServiceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
     private String sourceServiceName;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
     private String sourceServiceInstanceName;
     @Getter
     @Setter
@@ -62,9 +64,11 @@ public class ServiceInstanceRelation extends Source {
     private int destServiceId;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_name", requireDynamicActive = true)
     private String destServiceName;
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_name", requireDynamicActive = true)
     private String destServiceInstanceName;
     @Getter
     @Setter

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.configuration.zookeeper.ut;
 
+import java.util.Optional;
 import java.util.Set;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
@@ -35,12 +36,12 @@ public class MockZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public ConfigTable readConfig(Set<String> keys) {
+    public Optional<ConfigTable> readConfig(Set<String> keys) {
         ConfigTable table = new ConfigTable();
         keys.forEach(s -> {
             ChildData data = this.childrenCache.getCurrentData(this.prefix + s);
             table.add(new ConfigTable.ConfigItem(s, data == null ? null : new String(data.getData())));
         });
-        return table;
+        return Optional.of(table);
     }
 }

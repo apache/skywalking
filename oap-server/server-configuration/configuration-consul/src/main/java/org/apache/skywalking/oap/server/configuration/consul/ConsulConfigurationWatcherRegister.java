@@ -76,7 +76,7 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public ConfigTable readConfig(Set<String> keys) {
+    public Optional<ConfigTable> readConfig(Set<String> keys) {
         removeUninterestedKeys(keys);
 
         registerKeyListeners(keys);
@@ -91,7 +91,7 @@ public class ConsulConfigurationWatcherRegister extends ConfigWatcherRegister {
             }
         });
 
-        return table;
+        return Optional.of(table);
     }
 
     private void registerKeyListeners(final Set<String> keys) {
