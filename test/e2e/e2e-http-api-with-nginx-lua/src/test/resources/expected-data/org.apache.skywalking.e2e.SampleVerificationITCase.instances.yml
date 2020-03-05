@@ -33,7 +33,7 @@ instances:
       - name: ipv4s
         value: not null
 
-  - key: 4
+  - key: 3
     label: not null
     # UNKNOWN
     attributes:

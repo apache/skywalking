@@ -29,37 +29,28 @@ nodes:
     name: Your_ApplicationName
     type: Tomcat
     isReal: true
-   - id: 3
-     name: "localhost:-1"
-     type: H2
-     isReal: false
-  - id: 4
+  - id: 3
     name: User_Service_Name
     type: Nginx
     isReal: true
-  - id: 6
-    name: "User_Service_Name-nginx:upstream_ip:port"
-    type: Unknown
+  - id: 4
+    name: "localhost:-1"
+    type: H2
     isReal: false
-
 calls:
-  - 2_3
-    source: 2
-    detectPoints:
-      - CLIENT
-    target: 3
-  - 4_6
-    source: 4
-    detectPoints:
-      - CLIENT
-    target: 6
-  - 1_4
+  - 1_3
     source: 1
     detectPoints:
       - SERVER
+    target: 3
+  - 2_4
+    source: 2
+    detectPoints:
+      - CLIENT
     target: 4
-  - id: 4_2
-    source: 4
+
+  - id: 3_2
+    source: 3
     detectPoints:
       - SERVER
     target: 2
