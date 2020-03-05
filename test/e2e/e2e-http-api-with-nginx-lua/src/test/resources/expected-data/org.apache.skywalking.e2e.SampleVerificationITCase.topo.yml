@@ -29,27 +29,18 @@ nodes:
     name: Your_ApplicationName
     type: Tomcat
     isReal: true
-  - id: 3
+  - id: 4
     name: User_Service_Name
     type: Nginx
     isReal: true
-  - id: 4
-    name: "localhost:-1"
-    type: H2
-    isReal: false
 calls:
-  - id: 1_3
+  - id: 1_4
     source: 1
     detectPoints:
       - SERVER
-    target: 3
-  - id: 2_4
-    source: 2
-    detectPoints:
-      - CLIENT
     target: 4
-  - id: 3_2
-    source: 3
+  - id: 4_2
+    source: 4
     detectPoints:
       - SERVER
     target: 2

@@ -40,13 +40,13 @@ nodes:
     type: not null
     isReal: true
 calls:
-  - id: 1_3
+  - id: 1_4
     source: 1
     detectPoints:
       - SERVER
-    target: 3
-  - id: 3_2
-    source: 3
+    target: 4
+  - id: 4_2
+    source: 4
     detectPoints:
       - SERVER
     target: 2
