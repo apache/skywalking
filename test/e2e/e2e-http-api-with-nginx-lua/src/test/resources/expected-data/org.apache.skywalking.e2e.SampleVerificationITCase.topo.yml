@@ -38,17 +38,16 @@ nodes:
     type: H2
     isReal: false
 calls:
-  - 1_3
+  - id: 1_3
     source: 1
     detectPoints:
       - SERVER
     target: 3
-  - 2_4
+  - id: 2_4
     source: 2
     detectPoints:
       - CLIENT
     target: 4
-
   - id: 3_2
     source: 3
     detectPoints:
