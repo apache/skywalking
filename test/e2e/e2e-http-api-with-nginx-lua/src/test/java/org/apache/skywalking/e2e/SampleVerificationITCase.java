@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class SampleVerificationITCase {
     @Test(timeout = 1200000)
     @DirtiesContext
     public void verify() throws Exception {
-        final LocalDateTime minutesAgo = LocalDateTime.now();
+        final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);
 
         while (true) {
             final List<Service> services = queryClient.services(
@@ -160,10 +161,11 @@ public class SampleVerificationITCase {
     }
 
     private void verifyTopo(LocalDateTime minutesAgo) throws Exception {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         final TopoData topoData = queryClient.topo(new TopoQuery().stepByMinute()
                                                                   .start(minutesAgo.minusDays(1))
-                                                                  .end(LocalDateTime.now()));
+                                                                  .end(now));
         LOGGER.info("topoData: {}", topoData);
 
         InputStream expectedInputStream = new ClassPathResource(
@@ -176,12 +178,13 @@ public class SampleVerificationITCase {
     }
 
     private void verifyServiceInstanceTopo(LocalDateTime minutesAgo) throws Exception {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         final ServiceInstanceTopoData topoData = queryClient.serviceInstanceTopo(
             new ServiceInstanceTopoQuery().stepByMinute()
                                           .start(minutesAgo
                                                      .minusDays(1))
-                                          .end(LocalDateTime.now())
+                                          .end(now)
                                           .clientServiceId("1")
                                           .serverServiceId("3"));
         LOGGER.info("instanceTopoData: {}", topoData);
@@ -197,7 +200,7 @@ public class SampleVerificationITCase {
     }
 
     private void verifyServices(LocalDateTime minutesAgo) throws Exception {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
         final List<Service> services = queryClient.services(new ServicesQuery().start(minutesAgo).end(now));
         LOGGER.info("services: {}", services);
@@ -322,10 +325,9 @@ public class SampleVerificationITCase {
     }
 
     private void verifyTraces(LocalDateTime minutesAgo) throws Exception {
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
 
-        final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
-                                                                       .end(LocalDateTime.now())
-                                                                       .orderByDuration());
+        final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo).end(now).orderByDuration());
         LOGGER.info("traces: {}", traces);
 
         InputStream expectedInputStream = new ClassPathResource(
