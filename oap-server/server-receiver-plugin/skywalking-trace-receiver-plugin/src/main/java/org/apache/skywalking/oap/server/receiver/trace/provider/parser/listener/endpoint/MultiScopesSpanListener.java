@@ -306,7 +306,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
-            sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            String sourceLanguage = instanceInventoryCache.getServiceInstanceLanguage(exitSourceBuilder.getSourceServiceInstanceId());
+            if (!config.getNoUpstreamRealAddressAgentConfig().ignoreLanguage(sourceLanguage)) {
+                /*
+                 * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+                 */
+                sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
                 sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
             }

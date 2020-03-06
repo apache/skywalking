@@ -54,6 +54,9 @@ public class TraceServiceModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
+    @Setter
+    @Getter
+    private NoUpstreamRealAddressAgentConfig noUpstreamRealAddressAgentConfig;
     /**
      * Analysis trace status.
      * <p>

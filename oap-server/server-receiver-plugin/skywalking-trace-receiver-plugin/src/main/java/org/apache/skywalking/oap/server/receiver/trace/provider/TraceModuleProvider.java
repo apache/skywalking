@@ -49,6 +49,7 @@ public class TraceModuleProvider extends ModuleProvider {
     private SegmentParseV2.Producer segmentProducerV2;
     private DBLatencyThresholdsAndWatcher thresholds;
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
+    private NoUpstreamRealAddressAgentConfig noUpstreamRealAddressAgentConfig;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -74,9 +75,11 @@ public class TraceModuleProvider extends ModuleProvider {
         thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
 
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
+        noUpstreamRealAddressAgentConfig = new NoUpstreamRealAddressAgentConfig(this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
+        moduleConfig.setNoUpstreamRealAddressAgentConfig(noUpstreamRealAddressAgentConfig);
 
         segmentProducerV2 = new SegmentParseV2.Producer(getManager(), listenerManager(), moduleConfig);
 

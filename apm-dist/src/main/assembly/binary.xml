@@ -51,6 +51,7 @@
                 <include>official_analysis.oal</include>
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
+                <include>no_upstream_real_address_agent.yml</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
         </fileSet>

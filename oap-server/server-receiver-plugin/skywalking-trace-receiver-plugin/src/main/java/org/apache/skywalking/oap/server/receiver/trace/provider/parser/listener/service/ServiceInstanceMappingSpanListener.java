@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +31,20 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Service Instance mapping basically is as same as the service mapping. The network address fetched from the propagated
  * context is the alias for the specific service instance. This is just more detailed mapping setup.
- *
+ * <p>
  * Read {@link ServiceMappingSpanListener}.
  */
 @Slf4j
@@ -57,17 +59,17 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
 
     public ServiceInstanceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                          .provider()
-                                                          .getService(ServiceInstanceInventoryCache.class);
+            .provider()
+            .getService(ServiceInstanceInventoryCache.class);
         this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                  .provider()
-                                                  .getService(ServiceInventoryCache.class);
+            .provider()
+            .getService(ServiceInventoryCache.class);
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
-                                                             .provider()
-                                                             .getService(IServiceInstanceInventoryRegister.class);
+            .provider()
+            .getService(IServiceInstanceInventoryRegister.class);
         this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                         .provider()
-                                                         .getService(NetworkAddressInventoryCache.class);
+            .provider()
+            .getService(NetworkAddressInventoryCache.class);
         this.config = config;
     }
 
@@ -79,6 +81,14 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
             if (spanDecorator.getRefsCount() > 0) {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
+                    ReferenceDecorator referenceDecorator = spanDecorator.getRefs(i);
+                    String parentLanguage = serviceInstanceInventoryCache.getServiceInstanceLanguage(referenceDecorator.getParentServiceInstanceId());
+                    if (config.getNoUpstreamRealAddressAgentConfig().ignoreLanguage(parentLanguage)) {
+                        /*
+                         * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+                         */
+                        continue;
+                    }
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
                     int serviceInstanceId = serviceInstanceInventoryCache.getServiceInstanceId(
