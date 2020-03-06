@@ -44,6 +44,7 @@
         <module>e2e-6.x-agent-7.x-oap-compatibility</module>
         <module>e2e-profile</module>
         <module>e2e-protocol</module>
+        <module>e2e-http-api-with-nginx-lua</module>
     </modules>
 
     <properties>
