@@ -19,28 +19,14 @@
 package org.apache.skywalking.e2e.sample.client;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
-    private final UserRepo userRepo;
-
-    public TestController(final UserRepo userRepo) {
-        this.userRepo = userRepo;
-    }
-
     @GetMapping("/health-check")
     public String hello() {
         return "healthy";
-    }
-
-    @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) throws InterruptedException {
-        Thread.sleep(1000L);
-        return userRepo.save(user);
     }
 }

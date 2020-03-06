@@ -115,6 +115,7 @@ public class SampleVerificationITCase {
                     nginxServiceUrl + "/nginx/e2e/users", user, String.class);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(responseEntity.getBody()).isEqualTo("healthy");
                 final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
                                                                                .end(LocalDateTime.now())
                                                                                .orderByDuration());

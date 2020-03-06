@@ -37,17 +37,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>e2e-base</artifactId>
             <version>${project.version}</version>
@@ -121,7 +110,7 @@
 
                             <run>
                                 <env>
-                                    <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>95684f3dcccab36f6592bf91944cdd5424e0d7a4
+                                    <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>c6aca516200573a64db7060cefb5d3608c571c3a
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>
                                 <links>
