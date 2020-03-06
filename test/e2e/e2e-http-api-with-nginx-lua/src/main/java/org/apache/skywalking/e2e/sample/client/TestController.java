@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/e2e")
 public class TestController {
-    @GetMapping("/health-check")
+    @GetMapping("/info")
     public String hello() {
-        return "healthy";
+        return "e2e-container-info";
     }
 }

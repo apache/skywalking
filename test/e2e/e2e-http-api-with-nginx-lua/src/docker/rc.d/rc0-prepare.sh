@@ -64,13 +64,13 @@ http {
     server {
         listen 8080;
 
-        location /nginx/e2e/health-check {
+        location /nginx/e2e/info {
 
             rewrite_by_lua_block {
                 require("tracer"):start("User_Service_Name")
             }
 
-            proxy_pass http://upstream:9090/e2e/health-check;
+            proxy_pass http://upstream:9090/e2e/info;
 
             body_filter_by_lua_block {
                 require("tracer"):finish()

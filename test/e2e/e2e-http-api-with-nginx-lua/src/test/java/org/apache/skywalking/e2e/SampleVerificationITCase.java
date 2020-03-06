@@ -112,10 +112,10 @@ public class SampleVerificationITCase {
                 final Map<String, String> user = new HashMap<>();
                 user.put("name", "SkyWalking");
                 final ResponseEntity<String> responseEntity = restTemplate.getForEntity(
-                    nginxServiceUrl + "/nginx/e2e/health-check", String.class);
+                    nginxServiceUrl + "/nginx/e2e/info", String.class);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                assertThat(responseEntity.getBody()).isEqualTo("healthy");
+                assertThat(responseEntity.getBody()).isEqualTo("e2e-container-info");
                 final List<Trace> traces = queryClient.traces(new TracesQuery().start(minutesAgo)
                                                                                .end(LocalDateTime.now())
                                                                                .orderByDuration());
@@ -288,8 +288,8 @@ public class SampleVerificationITCase {
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
-            if (!endpoint.getLabel().equals("/e2e/health-check") || !endpoint.getLabel()
-                                                                             .equals("/nginx/e2e/health-check")) {
+            if (!endpoint.getLabel().equals("/e2e/info") || !endpoint.getLabel()
+                                                                             .equals("/nginx/e2e/info")) {
                 continue;
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {

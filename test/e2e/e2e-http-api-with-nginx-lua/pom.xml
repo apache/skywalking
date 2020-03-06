@@ -94,7 +94,7 @@
                                 <wait>
                                     <http>
                                         <url>
-                                            http://${docker.host.address}:${client.port}/e2e/health-check
+                                            http://${docker.host.address}:${client.port}/e2e/info
                                         </url>
                                         <method>GET</method>
                                         <status>200</status>

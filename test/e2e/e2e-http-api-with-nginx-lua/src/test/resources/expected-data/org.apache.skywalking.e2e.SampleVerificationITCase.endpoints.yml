@@ -22,7 +22,7 @@
 
 endpoints:
   - key: not null
-    label: /e2e/health-check
+    label: /e2e/info
 
 
 
