@@ -20,16 +20,3 @@ server:
 spring:
   main:
     banner-mode: 'off'
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    data-username: sa
-    password: sa
-    platform: org.hibernate.dialect.H2Dialect
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate.format_sql: true
-    show-sql: true
