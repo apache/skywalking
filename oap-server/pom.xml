@@ -45,6 +45,7 @@
         <module>exporter</module>
         <module>server-configuration</module>
         <module>server-bootstrap</module>
+        <module>server-tools</module>
     </modules>
 
     <properties>

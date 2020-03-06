@@ -18,14 +18,23 @@
 
 package org.apache.skywalking.e2e;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.google.common.base.Charsets;
 import org.apache.skywalking.e2e.profile.ProfileClient;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationRequest;
 import org.apache.skywalking.e2e.profile.creation.ProfileTaskCreationResult;
@@ -213,6 +222,61 @@ public class ProfileVerificationITCase {
             expectedInputStream, ProfileStackTreeMatcher.class);
         servicesMatcher.verify(analyzation.getData().getTrees().get(0));
 
+        // verify shell exporter
+        String swHome = System.getProperty("sw.home");
+        copyStorageConfig(swHome);
+        String exporterBin = swHome + File.separator + "tools" + File.separator + "profile-exporter" + File.separator + "profile_exporter.sh";
+        validateExporter(exporterBin, swHome, taskId, foundedTrace.getTraceIds().get(0));
+    }
+
+    private void copyStorageConfig(String swHome) throws IOException {
+        String runtimeConfigPath = swHome + File.separator + "config" + File.separator + "application.yml";
+        String toolConfigPath = swHome + File.separator + "tools" + File.separator + "profile-exporter" + File.separator + "application.yml";
+
+        LOGGER.info("ready to copy storage config, from:{}, to:{}", runtimeConfigPath, toolConfigPath);
+
+        // reading e2e test config
+        List<String> runtimeStorageConfigLines = new ArrayList<>();
+        boolean currentInStorageConfig = false;
+        for (String runtimeConfigLine : Files.readAllLines(new File(runtimeConfigPath).toPath())) {
+            if (!currentInStorageConfig) {
+                currentInStorageConfig = runtimeConfigLine.startsWith("storage:");
+            } else if (runtimeConfigLine.matches("^\\S+\\:$")) {
+                currentInStorageConfig = false;
+            } else if (!runtimeConfigLine.startsWith("#")) {
+                runtimeStorageConfigLines.add(runtimeConfigLine);
+            }
+        }
+        assertThat(runtimeStorageConfigLines).isNotEmpty();
+        LOGGER.info("current e2e test storage config:");
+        runtimeStorageConfigLines.add(0, "storage:");
+        for (String storageLine : runtimeStorageConfigLines) {
+            LOGGER.info(storageLine);
+        }
+        LOGGER.info("------------");
+
+        // copy storage to tools config file
+        List<String> newToolConfigLines = new ArrayList<>();
+        for (String runtimeConfigLine : Files.readAllLines(new File(toolConfigPath).toPath())) {
+            if (!currentInStorageConfig) {
+                currentInStorageConfig = runtimeConfigLine.startsWith("storage:");
+            } else if (runtimeConfigLine.matches("^\\S+\\:$")) {
+                currentInStorageConfig = false;
+            }
+
+            if (!currentInStorageConfig) {
+                newToolConfigLines.add(runtimeConfigLine);
+            }
+        }
+        newToolConfigLines.addAll(runtimeStorageConfigLines);
+        LOGGER.info("copy to tools config file content:");
+        for (String storageLine : newToolConfigLines) {
+            LOGGER.info(storageLine);
+        }
+        LOGGER.info("------------");
+
+        // write new config content
+        Files.write(new File(toolConfigPath).toPath(), newToolConfigLines, Charsets.UTF_8);
     }
 
     private void verifyProfileTask(int serviceId, String verifyResources) throws InterruptedException {
@@ -296,6 +360,34 @@ public class ProfileVerificationITCase {
                 Thread.sleep(retryInterval);
             }
         }
+    }
+
+    private void validateExporter(String exporterBin, String exportTo, String taskId, String traceId) throws IOException, InterruptedException {
+        String executeShell = exporterBin;
+        executeShell += " --taskid=" + taskId;
+        executeShell += " --traceid=" + traceId;
+        executeShell += " " + exportTo;
+
+        LOGGER.info("executing shell: {}", executeShell);
+
+        Properties properties = System.getProperties();
+        List<String> env = properties.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.toList());
+        Process exec = Runtime.getRuntime().exec(executeShell, env.toArray(new String[env.size()]));
+
+        // print data
+        BufferedReader strCon = new BufferedReader(new InputStreamReader(exec.getInputStream()));
+        String line;
+        while ((line = strCon.readLine()) != null) {
+            LOGGER.info("executing: {}", line);
+        }
+        exec.waitFor();
+
+        // reading result file
+        File zipFile = new File(exportTo + File.separator + traceId + ".tar.gz");
+        assertThat(zipFile).canRead();
+
+        // delete it
+        zipFile.delete();
     }
 
 }
