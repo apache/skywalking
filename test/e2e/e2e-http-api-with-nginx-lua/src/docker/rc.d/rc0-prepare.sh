@@ -67,7 +67,7 @@ http {
         location /nginx/e2e/health-check {
 
             rewrite_by_lua_block {
-                require("tracer"):startBackendTimer()
+                require("tracer"):start("User_Service_Name")
             }
 
             proxy_pass http://upstream:9090/e2e/health-check;

@@ -111,8 +111,8 @@ public class SampleVerificationITCase {
             try {
                 final Map<String, String> user = new HashMap<>();
                 user.put("name", "SkyWalking");
-                final ResponseEntity<String> responseEntity = restTemplate.postForEntity(
-                    nginxServiceUrl + "/nginx/e2e/health-check", user, String.class);
+                final ResponseEntity<String> responseEntity = restTemplate.getForEntity(
+                    nginxServiceUrl + "/nginx/e2e/health-check", String.class);
                 LOGGER.info("responseEntity: {}", responseEntity);
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
                 assertThat(responseEntity.getBody()).isEqualTo("healthy");
