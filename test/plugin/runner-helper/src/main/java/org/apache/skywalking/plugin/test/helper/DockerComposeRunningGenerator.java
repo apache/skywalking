@@ -36,7 +36,7 @@ import org.apache.skywalking.plugin.test.helper.vo.DependencyComponent;
 import org.apache.skywalking.plugin.test.helper.vo.DockerService;
 
 public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
-    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger LOGGER = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     protected DockerComposeRunningGenerator() {
     }
@@ -55,7 +55,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
 
         root.put("expose", configuration.caseConfiguration().getExpose());
         root.put("hostname", configuration.caseConfiguration().getHostname());
-        root.put("depends_on", configuration.caseConfiguration().getDepends_on());
+        root.put("depends_on", configuration.caseConfiguration().getDependsOn());
         root.put("environments", configuration.caseConfiguration().getEnvironment());
 
         root.put("docker_image_name", configuration.dockerImageName());
@@ -87,7 +87,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             cfg.getTemplate("docker-compose.template")
                .process(root, new FileWriter(new File(configuration.outputDir(), "docker-compose.yml")));
         } catch (TemplateException | IOException e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -101,10 +101,10 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             service.setName(name);
             service.setImageName(imageName);
             service.setExpose(dependency.getExpose());
-            service.setLinks(dependency.getDepends_on());
+            service.setLinks(dependency.getDependsOn());
             service.setStartScript(dependency.getStartScript());
             service.setHostname(dependency.getHostname());
-            service.setDepends_on(dependency.getDepends_on());
+            service.setDependsOn(dependency.getDependsOn());
             service.setEntrypoint(dependency.getEntrypoint());
             service.setHealthcheck(dependency.getHealthcheck());
             service.setEnvironment(dependency.getEnvironment());
@@ -116,13 +116,13 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
 
     @Override
     public String runningScript(IConfiguration configuration) {
-        String docker_compose_file = configuration.outputDir() + File.separator + "docker-compose.yml";
+        String dockerComposeFile = configuration.outputDir() + File.separator + "docker-compose.yml";
 
         Map<String, Object> root = new HashMap<>();
         root.put("scenario_name", configuration.scenarioName());
         root.put("scenario_home", configuration.scenarioHome());
         root.put("scenario_version", configuration.scenarioVersion());
-        root.put("docker_compose_file", docker_compose_file);
+        root.put("docker_compose_file", dockerComposeFile);
         root.put("build_id", configuration.dockerImageVersion());
         root.put("docker_container_name", configuration.dockerContainerName());
 
@@ -142,7 +142,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             out = new StringWriter();
             cfg.getTemplate("compose-start-script.template").process(root, out);
         } catch (Exception e) {
-            logger.error("Failed to generate running script.", e);
+            LOGGER.error("Failed to generate running script.", e);
         }
         return out.toString();
     }

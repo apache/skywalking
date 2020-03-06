@@ -38,7 +38,6 @@ public class ReceiveDataService extends HttpServlet {
         resp.setCharacterEncoding("utf-8");
         resp.setStatus(200);
         Gson gson = new GsonBuilder().registerTypeAdapter(ValidateData.class, new ValidateDataSerializer()).create();
-        System.out.println();
         Yaml yaml = new Yaml();
         Writer out = resp.getWriter();
         out.write(yaml.dump(yaml.load(gson.toJson(ValidateData.INSTANCE))));

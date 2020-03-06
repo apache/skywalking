@@ -72,7 +72,7 @@ public class RegistryItemsForRead implements RegistryItems {
         }
 
         List<RegistryInstance> registryInstances = new ArrayList<>();
-        instances.forEach((registryInstance) -> {
+        instances.forEach(registryInstance -> {
             String applicationCode = new ArrayList<String>(registryInstance.keySet()).get(0);
             String express = String.valueOf(registryInstance.get(applicationCode));
             registryInstances.add(new RegistryInstance.Impl(applicationCode, express));
@@ -87,7 +87,7 @@ public class RegistryItemsForRead implements RegistryItems {
         }
 
         List<RegistryOperationName> registryOperationNames = new ArrayList<>();
-        operationNames.forEach((registryInstance) -> {
+        operationNames.forEach(registryInstance -> {
             String applicationCode = new ArrayList<String>(registryInstance.keySet()).get(0);
             List<String> express = registryInstance.get(applicationCode);
             registryOperationNames.add(new RegistryOperationName.Impl(applicationCode, express));

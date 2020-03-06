@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
-    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger LOGGER = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     protected DockerContainerRunningGenerator() {
     }
@@ -57,7 +57,7 @@ public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
             out = new StringWriter();
             cfg.getTemplate("container-start-script.template").process(root, out);
         } catch (Exception e) {
-            logger.error("Failed to generate running script.", e);
+            LOGGER.error("Failed to generate running script.", e);
         }
         return out.toString();
     }

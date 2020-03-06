@@ -23,13 +23,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Data;
 
 public class DataAssert {
-    private static Logger logger = LogManager.getLogger(DataAssert.class);
+    private static Logger LOGGER = LogManager.getLogger(DataAssert.class);
 
     public static void assertEquals(Data excepted, Data actual) {
-        logger.info("excepted data:\n{}", new GsonBuilder().setPrettyPrinting().create().toJson(excepted));
-        logger.info("actual data:\n{}", new GsonBuilder().setPrettyPrinting().create().toJson(actual));
+        LOGGER.info("excepted data:\n{}", new GsonBuilder().setPrettyPrinting().create().toJson(excepted));
+        LOGGER.info("actual data:\n{}", new GsonBuilder().setPrettyPrinting().create().toJson(actual));
         RegistryItemsAssert.assertEquals(excepted.registryItems(), actual.registryItems());
         SegmentItemsAssert.assertEquals(excepted.segmentItems(), actual.segmentItems());
-        logger.info("{} assert successful.", "segment items");
+        LOGGER.info("{} assert successful.", "segment items");
     }
 }

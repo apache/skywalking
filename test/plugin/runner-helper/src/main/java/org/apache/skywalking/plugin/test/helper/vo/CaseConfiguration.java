@@ -30,7 +30,7 @@ public class CaseConfiguration {
     private Map<String, DependencyComponent> dependencies;
     private List<String> environment;
     private List<String> expose;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private String runningMode;
     private String withPlugins;
 
@@ -106,12 +106,12 @@ public class CaseConfiguration {
         this.expose = expose;
     }
 
-    public List<String> getDepends_on() {
-        return depends_on;
+    public List<String> getDependsOn() {
+        return dependsOn;
     }
 
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
+    public void setDependsOn(List<String> dependsOn) {
+        this.dependsOn = dependsOn;
     }
 
     public String getRunningMode() {

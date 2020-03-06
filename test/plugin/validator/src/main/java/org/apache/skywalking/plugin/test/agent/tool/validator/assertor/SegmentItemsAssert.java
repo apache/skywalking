@@ -30,11 +30,11 @@ import org.apache.skywalking.plugin.test.agent.tool.validator.entity.SegmentRef;
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Span;
 
 public class SegmentItemsAssert {
-    private static Logger logger = LogManager.getLogger(SegmentItemsAssert.class);
+    private static Logger LOGGER = LogManager.getLogger(SegmentItemsAssert.class);
 
     public static void assertEquals(List<SegmentItem> expected, List<SegmentItem> actual) {
         if (expected == null) {
-            logger.info("ignore segment items. because expected segment item is null.");
+            LOGGER.info("ignore segment items. because expected segment item is null.");
             return;
         }
 

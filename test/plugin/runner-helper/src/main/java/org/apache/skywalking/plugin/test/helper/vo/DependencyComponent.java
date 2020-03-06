@@ -29,7 +29,7 @@ public class DependencyComponent {
     private List<String> expose;
     private List<String> entrypoint;
     private List<String> environment;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private List<String> healthcheck;
 
     public String getImage() {
@@ -88,12 +88,12 @@ public class DependencyComponent {
         this.environment = environment;
     }
 
-    public List<String> getDepends_on() {
-        return depends_on;
+    public List<String> getDependsOn() {
+        return dependsOn;
     }
 
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
+    public void setDependsOn(List<String> dependsOn) {
+        this.dependsOn = dependsOn;
     }
 
     public List<String> getHealthcheck() {

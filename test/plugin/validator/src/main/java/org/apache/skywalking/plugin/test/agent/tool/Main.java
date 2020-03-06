@@ -25,7 +25,7 @@ import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Data;
 import org.apache.skywalking.plugin.test.agent.tool.validator.exception.AssertFailedException;
 
 public class Main {
-    private static Logger logger = LogManager.getLogger(Main.class);
+    private static Logger LOGGER = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
         System.exit(verify() ? 0 : 1);
@@ -35,11 +35,11 @@ public class Main {
         File casePath = new File(ConfigHelper.testCaseBaseDir());
         try {
             if (!casePath.exists()) {
-                logger.error("test case dir is not exists or is not directory");
+                LOGGER.error("test case dir is not exists or is not directory");
                 return false;
             }
 
-            logger.info("start to assert data of test case[{}]", ConfigHelper.caseName());
+            LOGGER.info("start to assert data of test case[{}]", ConfigHelper.caseName());
             File actualData = new File(casePath, "actualData.yaml");
             File expectedData = new File(casePath, "expectedData.yaml");
 
@@ -48,14 +48,14 @@ public class Main {
                     DataAssert.assertEquals(Data.Loader.loadData("expectedData.yaml", expectedData), Data.Loader.loadData("actualData.yaml", actualData));
                     return true;
                 } catch (AssertFailedException e) {
-                    logger.error("\nassert failed.\n{}\n", e.getCauseMessage());
+                    LOGGER.error("\nassert failed.\n{}\n", e.getCauseMessage());
                 }
             } else {
-                logger.error("assert failed. because actual data {} and expected data {}", actualData.exists() ? "founded" : "not founded", expectedData
+                LOGGER.error("assert failed. because actual data {} and expected data {}", actualData.exists() ? "founded" : "not founded", expectedData
                     .exists() ? "founded" : "not founded");
             }
         } catch (Exception e) {
-            logger.error("assert test case {} failed.", ConfigHelper.caseName(), e);
+            LOGGER.error("assert test case {} failed.", ConfigHelper.caseName(), e);
         }
         return false;
     }

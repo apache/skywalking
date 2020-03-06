@@ -29,7 +29,7 @@ public class DockerService {
     private List<String> expose;
     private List<String> entrypoint;
     private List<String> healthcheck;
-    private List<String> depends_on;
+    private List<String> dependsOn;
     private List<String> environment;
 
     public String getName() {
@@ -88,12 +88,12 @@ public class DockerService {
         this.healthcheck = healthcheck;
     }
 
-    public List<String> getDepends_on() {
-        return depends_on;
+    public List<String> getDependsOn() {
+        return dependsOn;
     }
 
-    public void setDepends_on(List<String> depends_on) {
-        this.depends_on = depends_on;
+    public void setDependsOn(List<String> dependsOn) {
+        this.dependsOn = dependsOn;
     }
 
     public List<String> getEnvironment() {

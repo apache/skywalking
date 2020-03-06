@@ -18,23 +18,18 @@
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor;
 
 import java.io.File;
+
 import org.apache.skywalking.plugin.test.agent.tool.validator.entity.Data;
-import org.apache.skywalking.plugin.test.agent.tool.validator.exception.AssertFailedException;
 import org.junit.Test;
 
 public class DataAssertTest {
 
     @Test
     public void testAssertFunction() {
-        try {
             File actualData = new File(DataAssertTest.class.getResource("/actualData.yaml").getFile());
             File expectedData = new File(DataAssertTest.class.getResource("/expectedData.yaml").getFile());
 
             DataAssert.assertEquals(Data.Loader.loadData("expectedData.yaml", expectedData), Data.Loader.loadData("actualData.yaml", actualData));
-        } catch (AssertFailedException e) {
-            System.out.println(String.format("\nassert failed.\n%s\n", e.getCauseMessage()));
-
-        }
     }
 
 }
