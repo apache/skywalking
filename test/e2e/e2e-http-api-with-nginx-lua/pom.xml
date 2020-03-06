@@ -110,7 +110,7 @@
 
                             <run>
                                 <env>
-                                    <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>c6aca516200573a64db7060cefb5d3608c571c3a
+                                    <SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>9cebe51276d9a8a5b360ee1d9897e8bf803bda31
                                     </SKYWALKING_NINGX_LUA_GIT_COMMIT_ID>
                                 </env>
                                 <links>
