@@ -32,8 +32,3 @@ instances:
         value: gt 0
       - name: ipv4s
         value: not null
-
-  - key: 3
-    label: not null
-    # UNKNOWN
-    attributes:

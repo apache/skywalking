@@ -42,5 +42,6 @@ calls:
   - id: 3_2
     source: 3
     detectPoints:
+      - CLIENT
       - SERVER
     target: 2

@@ -27,15 +27,9 @@ nodes:
     serviceId: 1
     serviceName: User
     isReal: false
-  - id: 2
-    name: not null
-    serviceId: 2
-    serviceName: Your_ApplicationName
-    type: Tomcat
-    isReal: true
   - id: 3
     name: not null
-    serviceId: 4
+    serviceId: 3
     serviceName: User_Service_Name
     type: not null
     isReal: true
@@ -45,8 +39,3 @@ calls:
     detectPoints:
       - SERVER
     target: 3
-  - id: 3_2
-    source: 3
-    detectPoints:
-      - SERVER
-    target: 2
