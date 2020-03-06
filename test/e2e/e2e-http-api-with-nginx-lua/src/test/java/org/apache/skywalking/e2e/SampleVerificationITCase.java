@@ -274,7 +274,8 @@ public class SampleVerificationITCase {
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
-            if (!endpoint.getLabel().equals("/e2e/users")) {
+            if (!endpoint.getLabel().equals("/e2e/health-check") || !endpoint.getLabel()
+                                                                             .equals("/nginx/e2e/health-check")) {
                 continue;
             }
             for (String metricName : ALL_ENDPOINT_METRICS) {
