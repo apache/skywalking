@@ -108,7 +108,7 @@ public class NoUpstreamRealAddressAgentConfig extends ConfigChangeWatcher {
     }
 
     @ToString
-    private static class Languages {
+    public static class Languages {
 
         static final Languages EMPTY = new Languages();
 
