@@ -181,8 +181,6 @@ receiver-trace:
     bufferFileCleanWhenRestart: ${SW_RECEIVER_BUFFER_FILE_CLEAN_WHEN_RESTART:false}
     sampleRate: ${SW_TRACE_SAMPLE_RATE:10000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
     slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
-    noUpstreamRealAddressAgents: # The no upstream real address agents, service instance mapping and service instance client side relation are ignored.
-      - Lua
 receiver-jvm:
   default:
 receiver-clr:

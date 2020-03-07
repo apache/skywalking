@@ -309,15 +309,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
+
+            /*
+             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+             */
             String sourceLanguage = instanceInventoryCache.getServiceInstanceLanguage(exitSourceBuilder.getSourceServiceInstanceId());
-            if (config.getNoUpstreamRealAddressAgents().contains(sourceLanguage)) {
-                /*
-                 * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
-                 */
-                if (log.isDebugEnabled()) {
-                    log.debug("{} can not have the upstream real network address, ignore client side relation. service instance id:{}", sourceLanguage, exitSourceBuilder.getSourceServiceInstanceId());
-                }
-            } else {
+            if (!config.getNoUpstreamRealAddressAgents().contains(sourceLanguage)) {
                 sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
             }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {

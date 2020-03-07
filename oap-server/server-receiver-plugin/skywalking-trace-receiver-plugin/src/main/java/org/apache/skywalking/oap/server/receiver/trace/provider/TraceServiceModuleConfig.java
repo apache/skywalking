@@ -48,9 +48,8 @@ public class TraceServiceModuleConfig extends ModuleConfig {
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
      */
-    @Setter
     @Getter
-    private List<String> noUpstreamRealAddressAgents = Collections.emptyList();
+    private final List<String> noUpstreamRealAddressAgents = Collections.singletonList("Lua");
     /**
      * The threshold used to check the slow database access. Unit, millisecond.
      */

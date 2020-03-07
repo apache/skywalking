@@ -87,9 +87,6 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
                         /*
                          * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
                          */
-                        if (log.isDebugEnabled()) {
-                            log.debug("{} can not have the upstream real network address, ignore mapping. service instance id:{}", parentLanguage, referenceDecorator.getParentServiceInstanceId());
-                        }
                         continue;
                     }
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
