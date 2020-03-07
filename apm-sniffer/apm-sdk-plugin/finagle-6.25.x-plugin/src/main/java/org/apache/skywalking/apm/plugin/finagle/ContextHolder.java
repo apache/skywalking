@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  * }</pre>
  *
  * which means bind value to key in the scope of fn, even if fn may be executed in any threads. But we can't use this
- * method directly, for example, when we intercept ClientTracingFilter, what we need is add {@link SWContextCarrier}
+ * method directly, for example, when we intercept ClientTracingFilter, what we need is add SWContextCarrier
  * into the MarshalledContext in beforeMethod, and remove it in afterMethod, as below:
  * <pre>{@code
  * abstract ClientTracingFilterInterceptor extends InstanceMethodsAroundInterceptor {

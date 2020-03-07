@@ -67,7 +67,7 @@ import java.lang.reflect.Method;
  *
  * <h3> Plugin Implementation </h3>
  *
- * In client side, We create finagle exitspan in the ClientTracingFilter, then add {@link SWContextCarrier} into the
+ * In client side, We create finagle exitspan in the ClientTracingFilter, then add SWContextCarrier into the
  * MarshalledContext, however in ClientTracingFilter, we can not know the remote address, So we add exitspan
  * into the LocalContext, when the request reaches ClientDestTracingFilter, we know the remote address, then we can get
  * exitspan from LocalContext and set remote address.
@@ -81,31 +81,22 @@ import java.lang.reflect.Method;
 abstract class AbstractInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        if (CompatibilityChecker.isCompatible()) {
-            onConstructImpl(objInst, allArguments);
-        }
+        onConstructImpl(objInst, allArguments);
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        if (CompatibilityChecker.isCompatible()) {
-            beforeMethodImpl(objInst, method, allArguments, argumentsTypes, result);
-        }
+        beforeMethodImpl(objInst, method, allArguments, argumentsTypes, result);
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        if (CompatibilityChecker.isCompatible()) {
-            return afterMethodImpl(objInst, method, allArguments, argumentsTypes, ret);
-        }
-        return ret;
+        return afterMethodImpl(objInst, method, allArguments, argumentsTypes, ret);
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-        if (CompatibilityChecker.isCompatible()) {
-            handleMethodExceptionImpl(objInst, method, allArguments, argumentsTypes, t);
-        }
+        handleMethodExceptionImpl(objInst, method, allArguments, argumentsTypes, t);
     }
 
     abstract protected void onConstructImpl(EnhancedInstance objInst, Object[] allArguments);
