@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
+import static java.util.Objects.isNull;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 
 @ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
@@ -144,6 +145,14 @@ public class ServiceInstanceInventory extends RegisterSource {
         this.prop = prop;
         if (!Strings.isNullOrEmpty(prop)) {
             this.properties = GSON.fromJson(prop, JsonObject.class);
+            for (String key : properties.keySet()) {
+                if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
+                    language = properties.get(key).getAsString();
+                }
+            }
+        }
+        if (isNull(language)) {
+            language = Const.UNKNOWN;
         }
     }
 

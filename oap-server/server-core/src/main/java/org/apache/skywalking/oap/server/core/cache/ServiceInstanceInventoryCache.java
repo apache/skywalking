@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -34,7 +33,6 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Slf4j
 public class ServiceInstanceInventoryCache implements Service {
@@ -126,19 +124,6 @@ public class ServiceInstanceInventoryCache implements Service {
         if (isNull(inventory)) {
             return Const.EMPTY_STRING;
         }
-        String language = inventory.getLanguage();
-        if (nonNull(language)) {
-            return language;
-        }
-        JsonObject properties = inventory.getProperties();
-        for (String key : properties.keySet()) {
-            if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
-                language = properties.get(key).getAsString();
-                inventory.setLanguage(language);
-                return language;
-            }
-        }
-        inventory.setLanguage(Const.UNKNOWN);
-        return Const.UNKNOWN;
+        return inventory.getLanguage();
     }
 }
