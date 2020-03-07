@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {gateway-projectB-scenario: nq 0}
     - {gateway-projectA-scenario: nq 0}
   instances:

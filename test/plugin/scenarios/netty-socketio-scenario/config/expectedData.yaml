@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {netty-socketio-scenario: 2}
   instances:
     - {netty-socketio-scenario: 1}

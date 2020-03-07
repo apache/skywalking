@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {ehcache-2.x-scenario: 2}
   instances:
     - {ehcache-2.x-scenario: 1}

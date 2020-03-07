@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {mysql-scenario: nq 0}
   instances:
     - {mysql-scenario: 1}

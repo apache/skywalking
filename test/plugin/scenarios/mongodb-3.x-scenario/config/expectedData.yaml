@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {mongodb-3.x-scenario: nq 0}
   instances:
     - {mongodb-3.x-scenario: 1}

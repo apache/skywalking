@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {undertow-scenario: 2}
   instances:
     - {undertow-scenario: 1}

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {webflux-projectB-scenario: nq 0}
     - {webflux-projectA-scenario: nq 0}
   instances:

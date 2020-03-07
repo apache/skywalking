@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {play-scenario: 2}
   instances:
     - {play-scenario: 1}

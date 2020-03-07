@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {apm-toolkit-trace-scenario: 2}
   instances:
     - {apm-toolkit-trace-scenario: 1}

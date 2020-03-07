@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {zookeeper-scenario: 2}
   instances:
     - {zookeeper-scenario: 1}

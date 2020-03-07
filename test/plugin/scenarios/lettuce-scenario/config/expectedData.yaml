@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {lettuce-scenario: 2}
   instances:
     - {lettuce-scenario: 1}

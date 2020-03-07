@@ -16,7 +16,7 @@
 
 
 registryItems:
-  applications:
+  services:
     - {'armeria-0.96minus-scenario': 2}
   instances:
     - {'armeria-0.96minus-scenario': 1}

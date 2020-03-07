@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {servicecomb-1.x-scenario: 2}
   instances:
     - {servicecomb-1.x-scenario: 1}

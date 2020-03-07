@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {customize-scenario: nq 0}
   instances:
     - {customize-scenario: 1}

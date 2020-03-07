@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {jedis-scenario: 2}
   instances:
     - {jedis-scenario: 1}

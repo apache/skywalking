@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {shardingsphere-4.x-RC3-scenario: nq 0}
   instances:
     - {shardingsphere-4.x-RC3-scenario: 1}

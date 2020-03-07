@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {spring-tx-scenario: 2}
   instances:
     - {spring-tx-scenario: 1}

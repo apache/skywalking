@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-    applications:
+    services:
     - {postgresql-above9.4.1207-scenario: nq 0}
     instances:
     - {postgresql-above9.4.1207-scenario: 1}
