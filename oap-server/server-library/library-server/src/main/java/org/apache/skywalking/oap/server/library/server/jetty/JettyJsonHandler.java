@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.library.server.jetty;
 
 import com.google.gson.JsonElement;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
@@ -84,25 +85,25 @@ public abstract class JettyJsonHandler extends JettyHandler {
 
     @Override
     protected final void doDelete(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException, IOException {
+                                  HttpServletResponse resp) throws ServletException, IOException {
         super.doDelete(req, resp);
     }
 
     @Override
     protected final void doOptions(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException, IOException {
+                                   HttpServletResponse resp) throws ServletException, IOException {
         super.doOptions(req, resp);
     }
 
     @Override
     protected final void doTrace(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException, IOException {
+                                 HttpServletResponse resp) throws ServletException, IOException {
         super.doTrace(req, resp);
     }
 
     @Override
     protected final void service(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException, IOException {
+                                 HttpServletResponse resp) throws ServletException, IOException {
         super.service(req, resp);
     }
 
@@ -188,5 +189,15 @@ public abstract class JettyJsonHandler extends JettyHandler {
         PrintWriter out = response.getWriter();
         out.flush();
         out.close();
+    }
+
+    public String getJsonBody(HttpServletRequest req) throws IOException {
+        StringBuffer stringBuffer = new StringBuffer();
+        String line = null;
+        BufferedReader reader = req.getReader();
+        while ((line = reader.readLine()) != null) {
+            stringBuffer.append(line);
+        }
+        return stringBuffer.toString();
     }
 }
