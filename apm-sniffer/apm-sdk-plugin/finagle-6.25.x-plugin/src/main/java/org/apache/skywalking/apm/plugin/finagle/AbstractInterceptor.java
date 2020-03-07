@@ -33,37 +33,37 @@ import java.lang.reflect.Method;
  *
  * <h3> A simple finagle rpc stack </h3>
  *
- * +------------------------------------------------------------------------------------------------+
- * |       Client                                             Server                                |
- * |                                                                                                |
- * |   initiate rpc          (user thread)                invoke service         (other thread)     |
- * |         |                                                  /|\                                 |
- * |        \|/                                                  |                                  |
- * |  ClientTracingFilter    (user thread)                       |                                  |
- * |         |                                          +------------------+                        |
- * |        \|/                                         |                  |                        |
- * |  +------------------+                              |                  |                        |
- * |  |  other filters   |                              |                  |                        |
- * |  |  in the          |   (other thread)             |                  |                        |
- * |  |  rpc call stack  |                              |  other filters   |                        |
- * |  +----------+-------+                              |  in the          |     (other thread)     |
- * |         |                                          |  rpc call stack  |                        |
- * |        \|/                                         |                  |                        |
- * |  ClientDestTracingFilter (other thread)            |                  |                        |
- * |         |                                          |                  |                        |
- * |        \|/                                         |                  |                        |
- * |  +------------------+                              +------------------+                        |
- * |  |  other filters   |                                        /|\                               |
- * |  |  in the          |    (other thread)                       |                                |
- * |  |  rpc call stack  |                                         |                                |
- * |  +----------+-------+                                ServerTracingFilter    (usually io thread)|
- * |         |                                                    /|\                               |
- * |        \|/                                                    |                                |
- * |  +----------------------------------------------------------------------------------+          |
- * |  |                         Protocol specified transport                             |          |
- * |  |                   such as http, thrift, redis, mysql, etc.                       |          |
- * |  +----------------------------------------------------------------------------------+          |
- * +------------------------------------------------------------------------------------------------+
+ * +-----------------------------------------------------------------------------------------------+
+ * |       Client                                             Server                               |
+ * |                                                                                               |
+ * |   initiate rpc          (user thread)                invoke service      (usually io thread)  |
+ * |         |                                                  /|\                                |
+ * |        \|/                                                  |                                 |
+ * |  ClientTracingFilter    (user thread)              +------------------+                       |
+ * |         |                                          | other filters    |                       |
+ * |        \|/                                         | in the           |                       |
+ * |  +------------------+                              | rpc call stack   |                       |
+ * |  |  other filters   |                              +------------------+                       |
+ * |  |  in the          |   (other thread)                     /|\                                |
+ * |  |  rpc call stack  |                                       |                                 |
+ * |  +----------+-------+                                       |                                 |
+ * |         |                                          ServerTracingFilter  (usually io thread)   |
+ * |        \|/                                                 /|\                                |
+ * |  ClientDestTracingFilter (other thread)                     |                                 |
+ * |         |                                          +------------------+                       |
+ * |        \|/                                         | other filters    |                       |
+ * |  +------------------+                              | in the           |  (usually io thread)  |
+ * |  |  other filters   |                              | rpc call stack   |                       |
+ * |  |  in the          |    (other thread)            +------------------+                       |
+ * |  |  rpc call stack  |                                      /|\                                |
+ * |  +----------+-------+                                       |                                 |
+ * |         |                                                   |                                 |
+ * |        \|/                                                  |                                 |
+ * |  +----------------------------------------------------------------------------------+         |
+ * |  |                         Protocol specified transport                             |         |
+ * |  |                   such as http, thrift, redis, mysql, etc.                       |         |
+ * |  +----------------------------------------------------------------------------------+         |
+ * +-----------------------------------------------------------------------------------------------+
  *
  * <h3> Plugin Implementation </h3>
  *
@@ -72,7 +72,11 @@ import java.lang.reflect.Method;
  * into the LocalContext, when the request reaches ClientDestTracingFilter, we know the remote address, then we can get
  * exitspan from LocalContext and set remote address.
  *
- * In Server side, we just create finagle entryspan in the ServerTracingFilter.
+ * In Server side, with default config, the ServerTracingFilter and the user code will be executed in the same thread,
+ * unless users use a com.twitter.util.FuturePool to execute business code or the com.twitter.finagle.filter
+ * .OffloadFilter is enabled which default is disabled, in bose cases, we had better do nothing and leave this to
+ * users, they can custom FuturePool to propagate context correctly.  So we just create finagel entryspan in
+ * ServerTracingFilter to meet the default behavior of finagle.
  */
 abstract class AbstractInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
     @Override

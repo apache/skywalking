@@ -21,8 +21,6 @@ package org.apache.skywalking.apm.testcase.finagle;
 
 import com.twitter.finagle.ListeningServer;
 import com.twitter.finagle.Thrift;
-import com.twitter.finagle.tracing.ConsoleTracer;
-import com.twitter.finagle.tracing.ConsoleTracer$;
 import org.apache.skywalking.apm.testcase.finagle.interfaces.FinagleRpcDemoService;
 import org.apache.skywalking.apm.testcase.finagle.service.FinagleRpcDemoServiceImpl;
 import org.springframework.boot.SpringApplication;
