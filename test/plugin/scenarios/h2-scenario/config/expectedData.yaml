@@ -22,7 +22,7 @@ registryItems:
     - h2-scenario: [/h2-scenario/case/h2-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: h2-scenario
+  - serviceName: h2-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

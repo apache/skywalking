@@ -22,7 +22,7 @@ registryItems:
   operationNames:
     - customize-scenario: [/case/customize]
 segmentItems:
-  - applicationCode: customize-scenario
+  - serviceName: customize-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

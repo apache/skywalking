@@ -24,7 +24,7 @@ registryItems:
                                    /case/tool-kit, /case/asyncVisit/supplier]
   heartbeat: []
 segmentItems:
-  - applicationCode: apm-toolkit-trace-scenario
+  - serviceName: apm-toolkit-trace-scenario
     segmentSize: gt 5
     segments:
       - segmentId: not null

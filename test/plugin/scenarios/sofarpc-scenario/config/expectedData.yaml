@@ -24,7 +24,7 @@ registryItems:
                          /sofarpc-scenario/case/sofarpc]
   heartbeat: []
 segmentItems:
-  - applicationCode: sofarpc-scenario
+  - serviceName: sofarpc-scenario
     segmentSize: gt 2
     segments:
       - segmentId: not null

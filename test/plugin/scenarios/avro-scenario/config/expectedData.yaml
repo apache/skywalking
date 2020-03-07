@@ -25,7 +25,7 @@ registryItems:
     - avro-client: [/avro-scenario/case/healthCheck, /avro-scenario/case/avro-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: avro-server
+  - serviceName: avro-server
     segmentSize: 1
     segments:
       - segmentId: not null
@@ -48,7 +48,7 @@ segmentItems:
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 2, networkAddress: 'localhost/127.0.0.1:9018', entryEndpoint: /avro-scenario/case/avro-scenario,
                  entryServiceInstanceId: 2}
-  - applicationCode: avro-client
+  - serviceName: avro-client
     segmentSize: ge 2
     segments:
       - segmentId: not null

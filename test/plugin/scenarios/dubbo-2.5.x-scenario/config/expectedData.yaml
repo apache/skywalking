@@ -22,7 +22,7 @@ registryItems:
     - dubbo-2.5.x-scenario: [/dubbo-2.5.x-scenario/case/dubbo, org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
   heartbeat: []
 segmentItems:
-  - applicationCode: dubbo-2.5.x-scenario
+  - serviceName: dubbo-2.5.x-scenario
     segmentSize: ge 3
     segments:
       - segmentId: not null

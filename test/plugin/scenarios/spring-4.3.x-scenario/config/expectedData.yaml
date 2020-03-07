@@ -24,7 +24,7 @@ registryItems:
                               /case/spring3, /impl/requestmapping, /impl/restmapping]
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-4.3.x-scenario
+  - serviceName: spring-4.3.x-scenario
     segmentSize: ge 10
     segments:
       - segmentId: not null

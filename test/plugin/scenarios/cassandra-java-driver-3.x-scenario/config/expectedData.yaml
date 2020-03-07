@@ -22,7 +22,7 @@ registryItems:
     - cassandra-java-driver-3.x-scenario: [/cassandra-java-driver-3.x-scenario/case/cassandra]
   heartbeat: []
 segmentItems:
-  - applicationCode: cassandra-java-driver-3.x-scenario
+  - serviceName: cassandra-java-driver-3.x-scenario
     segmentSize: ge 1
     segments:
     - segmentId: not null

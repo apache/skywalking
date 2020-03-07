@@ -22,7 +22,7 @@ registryItems:
     - kafka-scenario: [Kafka/test/Consumer/testGroup, /case/kafka-case]
   heartbeat: []
 segmentItems:
-  - applicationCode: kafka-scenario
+  - serviceName: kafka-scenario
     segmentSize: gt 3
     segments:
       - segmentId: not null

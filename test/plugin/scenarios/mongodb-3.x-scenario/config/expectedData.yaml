@@ -24,7 +24,7 @@ registryItems:
   heartbeat: []
 
 segmentItems:
-- applicationCode: mongodb-3.x-scenario
+- serviceName: mongodb-3.x-scenario
   segmentSize: ge 2
   segments:
   - segmentId: not null

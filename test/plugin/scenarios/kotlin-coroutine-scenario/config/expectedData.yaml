@@ -22,7 +22,7 @@ registryItems:
     - kotlin-coroutine-scenario: [/kotlin-coroutine-scenario/case/h2]
   heartbeat: []
 segmentItems:
-  - applicationCode: kotlin-coroutine-scenario
+  - serviceName: kotlin-coroutine-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

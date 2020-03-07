@@ -22,7 +22,7 @@ registryItems:
     - elasticsearch-5.x-scenario: [/case/elasticsearch]
     heartbeat: []
 segmentItems:
-- applicationCode: elasticsearch-5.x-scenario
+- serviceName: elasticsearch-5.x-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

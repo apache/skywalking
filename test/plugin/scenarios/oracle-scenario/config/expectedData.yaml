@@ -21,7 +21,7 @@ registryItems:
   operationNames:
   - oracle-scenario: [/oracle-scenario/case/oracle]
 segmentItems:
-- applicationCode: oracle-scenario
+- serviceName: oracle-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

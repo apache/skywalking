@@ -24,7 +24,7 @@ registryItems:
                           '/undertow-routing-scenario/case/{context}']
   heartbeat: []
 segmentItems:
-  - applicationCode: undertow-scenario
+  - serviceName: undertow-scenario
     segmentSize: gt 5
     segments:
       - segmentId: not null

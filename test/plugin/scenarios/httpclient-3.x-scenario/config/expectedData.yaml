@@ -23,7 +23,7 @@ registryItems:
                                 /httpclient-3.x-scenario/case/context-propagate]
   heartbeat: []
 segmentItems:
-  - applicationCode: httpclient-3.x-scenario
+  - serviceName: httpclient-3.x-scenario
     segmentSize: ge 3
     segments:
       - segmentId: not null

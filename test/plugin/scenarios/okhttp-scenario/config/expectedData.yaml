@@ -23,7 +23,7 @@ registryItems:
   - okhttp-scenario: [/case/receiveContext-0, /case/healthCheck, /case/okhttp-case, /case/receiveContext-1]
   heartbeat: []
 segmentItems:
-- applicationCode: okhttp-scenario
+- serviceName: okhttp-scenario
   segmentSize: ge 5
   segments:
   - segmentId: not null

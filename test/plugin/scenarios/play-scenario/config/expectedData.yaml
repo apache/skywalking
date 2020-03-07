@@ -21,7 +21,7 @@ registryItems:
   operationNames:
     - play-scenario: ["/play-scenario/case/play-scenario/projects/{projectId}"]
 segmentItems:
-  - applicationCode: play-scenario
+  - serviceName: play-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

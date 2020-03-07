@@ -25,7 +25,7 @@ registryItems:
   - jettyclient-scenario: [/jettyclient-case/case/jettyclient-case,
                            /jettyclient-case/case/healthCheck]
 segmentItems:
-- applicationCode: jettyserver-scenario
+- serviceName: jettyserver-scenario
   segmentSize: 1
   segments:
   - segmentId: not null
@@ -48,7 +48,7 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpointId: 0, parentEndpoint: /jettyclient-case/case/jettyclient-case, networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: "${jettyclient-scenario[0]}", parentServiceInstanceId: nq 0, networkAddress: 'localhost:18080', entryEndpoint: /jettyclient-case/case/jettyclient-case, entryServiceInstanceId: nq 0 }
-- applicationCode: jettyclient-scenario
+- serviceName: jettyclient-scenario
   segmentSize: 2
   segments:
   - segmentId: not null

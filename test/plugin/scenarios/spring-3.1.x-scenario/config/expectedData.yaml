@@ -24,7 +24,7 @@ registryItems:
                               '{PUT}/update/{id}']
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-3.1.x-scenario
+  - serviceName: spring-3.1.x-scenario
     segmentSize: ge 7
     segments:
       - segmentId: not null

@@ -23,7 +23,7 @@ registryItems:
     - spring-tx-scenario: [/case/spring-tx-case, /case/healthCheck]
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-tx-scenario
+  - serviceName: spring-tx-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

@@ -21,7 +21,7 @@ registryItems:
   operationNames:
     - mysql-scenario: [/mysql-scenario/case/healthCheck, /mysql-scenario/case/mysql-scenario]
 segmentItems:
-  - applicationCode: mysql-scenario
+  - serviceName: mysql-scenario
     segmentSize: ge 2
     segments:
       - segmentId: not null

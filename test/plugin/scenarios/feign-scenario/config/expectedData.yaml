@@ -23,7 +23,7 @@ registryItems:
                      /feign-scenario/case/feign-scenario, /feign-scenario/delete/1]
   heartbeat: []
 segmentItems:
-- applicationCode: feign-scenario
+- serviceName: feign-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

@@ -24,7 +24,7 @@ registryItems:
     - 'armeria-0.96plus-scenario': [/greet/skywalking]
   heartbeat: []
 segmentItems:
-  - applicationCode: armeria-0.96plus-scenario
+  - serviceName: armeria-0.96plus-scenario
     segmentSize: ge 2
     segments:
       - segmentId: not null

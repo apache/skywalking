@@ -21,7 +21,7 @@ registryItems:
   operationNames:
   - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq, RabbitMQ/Topic/Queue/test/Consumer]
 segmentItems:
-- applicationCode: rabbitmq-scenario
+- serviceName: rabbitmq-scenario
   segmentSize: gt 2
   segments:
   - segmentId: not null

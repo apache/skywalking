@@ -22,6 +22,6 @@ registryItems:
     - ${scenario_name}: []
   heartbeat: []
 segmentItems:
-  - applicationCode: ${scenario_name}
+  - serviceName: ${scenario_name}
     segmentSize:
     segments:

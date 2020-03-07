@@ -22,7 +22,7 @@ registryItems:
     - solrj-7.x-scenario: [/solrj-scenario/case/solrj]
   heartbeat: []
 segmentItems:
-  - applicationCode: solrj-7.x-scenario
+  - serviceName: solrj-7.x-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

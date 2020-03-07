@@ -22,7 +22,7 @@ registryItems:
     - hystrix-scenario: [/case/hystrix-scenario]
   heartbeat: []
 segmentItems:
-- applicationCode: hystrix-scenario
+- serviceName: hystrix-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

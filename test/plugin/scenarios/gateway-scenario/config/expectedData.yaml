@@ -26,7 +26,7 @@ registryItems:
     - gateway-projectA-scenario: [WEBFLUX.handle]
   heartbeat: []
 segmentItems:
-  - applicationCode: gateway-projectB-scenario
+  - serviceName: gateway-projectB-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
@@ -52,7 +52,7 @@ segmentItems:
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
                  parentServiceInstanceId: not null, networkAddress: 'localhost:18070', entryEndpoint: WEBFLUX.handle,
                  entryServiceInstanceId: not null}
-  - applicationCode: gateway-projectA-scenario
+  - serviceName: gateway-projectA-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

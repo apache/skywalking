@@ -23,7 +23,7 @@ registryItems:
     - shardingsphere-4.x-RC1-RC2-scenario: [/shardingsphere-4.x-RC1-RC2-scenario/case/execute]
   heartbeat: []
 segmentItems:
-  - applicationCode: shardingsphere-4.x-RC1-RC2-scenario
+  - serviceName: shardingsphere-4.x-RC1-RC2-scenario
     segmentSize: not null
     segments:
       - segmentId: not null

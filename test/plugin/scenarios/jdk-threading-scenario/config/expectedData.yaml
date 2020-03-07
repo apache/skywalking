@@ -24,7 +24,7 @@ registryItems:
   heartbeat: []
 
 segmentItems:
-  - applicationCode: jdk-threading-scenario
+  - serviceName: jdk-threading-scenario
     segmentSize: ge 4
     segments:
       - segmentId: not null

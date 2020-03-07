@@ -21,7 +21,7 @@ registryItems:
     operationNames:
     - httpasyncclient-scenario: [/httpasyncclient/case/httpasyncclient, /httpasyncclient/back]
 segmentItems:
-- applicationCode: httpasyncclient-scenario
+- serviceName: httpasyncclient-scenario
   segmentSize: ge 4
   segments:
   - segmentId: not null

@@ -22,7 +22,7 @@ registryItems:
     - postgresql-scenario: [/postgresql-scenario/case/postgres]
     heartbeat: []
 segmentItems:
-- applicationCode: postgresql-scenario
+- serviceName: postgresql-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

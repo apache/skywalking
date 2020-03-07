@@ -21,7 +21,7 @@ registryItems:
     operationNames:
     - postgresql-above9.4.1207-scenario: [/postgresql-scenario/case/postgres]
 segmentItems:
-- applicationCode: postgresql-above9.4.1207-scenario
+- serviceName: postgresql-above9.4.1207-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

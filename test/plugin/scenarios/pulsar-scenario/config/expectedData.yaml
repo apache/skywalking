@@ -22,7 +22,7 @@ registryItems:
   operationNames:
   - pulsar-scenario: [/case/pulsar-case, Pulsar/test/Consumer/test]
 segmentItems:
-- applicationCode: pulsar-scenario
+- serviceName: pulsar-scenario
   segmentSize: ge 3
   segments:
   - segmentId: not null

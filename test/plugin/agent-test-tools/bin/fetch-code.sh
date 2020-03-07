@@ -16,20 +16,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PRG="$0"
-PRGDIR=`dirname "$PRG"`
-[ -z "$COLLECTOR_HOME" ] && COLLECTOR_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
+WORK_DIRECTORY=$1
+RESPOSITORY=$2
+COMMIT_ID=$3
+DIST_DIRECTORY=$4
 
-_RUNJAVA=${JAVA_HOME}/bin/java
-[ -z "$JAVA_HOME" ] && _RUNJAVA=`java`
+HOME_DIR="$(cd "$(dirname $0)"; pwd)"
 
-CLASSPATH="$COLLECTOR_HOME/config:$CLASSPATH"
-for i in "$COLLECTOR_HOME"/libs/*.jar
-do
-    CLASSPATH="$i:$CLASSPATH"
-done
+git clone $RESPOSITORY $WORK_DIRECTORY
 
-JAVA_OPTS="${JAVA_OPTS} -Xmx256m -Xms256m"
-JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 "
+cd $WORK_DIRECTORY
 
-$_RUNJAVA ${JAVA_OPTS}  -classpath $CLASSPATH org.apache.skywalking.plugin.test.mockcollector.Main
+git checkout $COMMIT_ID
+
+mvn -B package -DskipTests
+
+[[ -d $DIST_DIRECTORY ]] || mkdir -p $DIST_DIRECTORY
+
+cp $WORK_DIRECTORY/dist/* $DIST_DIRECTORY/

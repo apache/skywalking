@@ -22,7 +22,7 @@ registryItems:
   - grpc-scenario: [Greeter.sayHello, GreeterBlocking.sayHello, GreeterBlockingError.sayHello, /grpc-scenario/case/grpc-scenario]
   heartbeat: []
 segmentItems:
-- applicationCode: grpc-scenario
+- serviceName: grpc-scenario
   segmentSize: gt 10
   segments:
   - segmentId: not null

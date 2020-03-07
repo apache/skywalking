@@ -23,7 +23,7 @@ registryItems:
     - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/execute]
   heartbeat: []
 segmentItems:
-  - applicationCode: shardingsphere-3.x-scenario
+  - serviceName: shardingsphere-3.x-scenario
     segmentSize: not null
     segments:
       - segmentId: not null

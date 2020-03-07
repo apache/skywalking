@@ -23,7 +23,7 @@ registryItems:
     - jedis-scenario: [/jedis-scenario/case/jedis-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: jedis-scenario
+  - serviceName: jedis-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

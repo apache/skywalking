@@ -23,7 +23,7 @@ registryItems:
     - servicecomb-1.x-scenario: [codefirst.codeFirstSpringmvcHelloClient.say, codefirst.codeFirstHello.sayHi]
   heartbeat: []
 segmentItems:
-  - applicationCode: servicecomb-1.x-scenario
+  - serviceName: servicecomb-1.x-scenario
     segmentSize: gt 2
     segments:
       - segmentId: not null

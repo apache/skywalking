@@ -23,7 +23,7 @@ registryItems:
     - lettuce-scenario: [/lettuce-scenario/case/lettuce-case, /lettuce-scenario/case/healthCheck]
   heartbeat: []
 segmentItems:
-  - applicationCode: lettuce-scenario
+  - serviceName: lettuce-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

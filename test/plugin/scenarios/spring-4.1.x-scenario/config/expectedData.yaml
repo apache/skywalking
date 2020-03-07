@@ -23,7 +23,7 @@ registryItems:
                                '{POST}/create/', /healthCheck, /case/spring3, '{PUT}/update/{id}']
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-4.1.x-scenario
+  - serviceName: spring-4.1.x-scenario
     segmentSize: ge 7
     segments:
       - segmentId: not null

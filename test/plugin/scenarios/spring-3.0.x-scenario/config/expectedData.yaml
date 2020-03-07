@@ -22,7 +22,7 @@ registryItems:
     - spring-3.0.x-scenario: [/healthCheck, /case/spring3]
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-3.0.x-scenario
+  - serviceName: spring-3.0.x-scenario
     segmentSize: ge 2
     segments:
       - segmentId: not null

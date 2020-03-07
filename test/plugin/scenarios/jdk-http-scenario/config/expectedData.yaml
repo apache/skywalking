@@ -22,7 +22,7 @@ registryItems:
     - jdk-http-scenario: [/jdk-http-scenario/case/receiveContext-0, /jdk-http-scenario/case/jdk-http-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: jdk-http-scenario
+  - serviceName: jdk-http-scenario
     segmentSize: gt 2
     segments:
       - segmentId: not null

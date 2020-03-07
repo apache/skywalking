@@ -23,7 +23,7 @@ registryItems:
     - spring-async-scenario: [/spring-async-scenario/case/asyncVisit, /spring-async-scenario/case/spring-async]
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-async-scenario
+  - serviceName: spring-async-scenario
     segmentSize: gt 5
     segments:
       - segmentId: not null
