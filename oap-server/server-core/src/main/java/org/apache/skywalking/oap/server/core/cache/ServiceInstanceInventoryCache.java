@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -29,17 +30,14 @@ import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInven
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 public class ServiceInstanceInventoryCache implements Service {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceInventoryCache.class);
 
     private final ServiceInstanceInventory userServiceInstance;
     private final Cache<Integer, ServiceInstanceInventory> serviceInstanceIdCache;
@@ -130,18 +128,19 @@ public class ServiceInstanceInventoryCache implements Service {
 
     public String getServiceInstanceLanguage(int serviceInstanceId) {
         String language = languageCache.getIfPresent(serviceInstanceId);
-        if (isNull(language)) {
-            ServiceInstanceInventory inventory = get(serviceInstanceId);
-            if (isNull(inventory)) {
-                return Const.EMPTY_STRING;
-            }
-            JsonObject properties = inventory.getProperties();
-            for (String key : properties.keySet()) {
-                if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
-                    language = properties.get(key).getAsString();
-                    languageCache.put(serviceInstanceId, language);
-                    return language;
-                }
+        if (nonNull(language)) {
+            return language;
+        }
+        ServiceInstanceInventory inventory = get(serviceInstanceId);
+        if (isNull(inventory)) {
+            return Const.EMPTY_STRING;
+        }
+        JsonObject properties = inventory.getProperties();
+        for (String key : properties.keySet()) {
+            if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
+                language = properties.get(key).getAsString();
+                languageCache.put(serviceInstanceId, language);
+                return language;
             }
         }
         return Const.EMPTY_STRING;
