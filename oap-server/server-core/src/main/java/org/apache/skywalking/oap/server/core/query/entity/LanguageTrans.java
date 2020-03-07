@@ -35,7 +35,7 @@ public enum LanguageTrans {
                 return Language.RUBY;
             case "go":
                 return Language.GO;
-            case "Lua":
+            case "lua":
                 return Language.LUA;
             default:
                 return Language.UNKNOWN;
