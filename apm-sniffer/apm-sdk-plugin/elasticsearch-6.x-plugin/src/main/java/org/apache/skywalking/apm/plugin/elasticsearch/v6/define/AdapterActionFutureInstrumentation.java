@@ -6,32 +6,35 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v5.define;
+package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class TransportClientNodesServiceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-
-    public static final String ADD_TRANSPORT_ADDRESSES_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v5.AddTransportAddressesInterceptor";
-    public static final String REMOVE_TRANSPORT_ADDRESS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v5.RemoveTransportAddressInterceptor";
-    public static final String ENHANCE_CLASS = "org.elasticsearch.client.transport.TransportClientNodesService";
+/**
+ /**
+ * @author yi.liang
+ * date 2020.02.13 17:29
+ */
+public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -40,32 +43,16 @@ public class TransportClientNodesServiceInstrumentation extends ClassInstanceMet
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
+        return new InstanceMethodsInterceptPoint[]{
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("addTransportAddresses");
+                    return named("actionGet");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return ADD_TRANSPORT_ADDRESSES_INTERCEPTOR;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("removeTransportAddress");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return REMOVE_TRANSPORT_ADDRESS_INTERCEPTOR;
+                    return "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.AdapterActionFutureInterceptor";
                 }
 
                 @Override
@@ -77,13 +64,17 @@ public class TransportClientNodesServiceInstrumentation extends ClassInstanceMet
     }
 
     @Override
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[0];
+    }
+
+    @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANCE_CLASS);
+        return byName("org.elasticsearch.action.support.AdapterActionFuture");
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{"org.elasticsearch.common.transport.InetSocketTransportAddress"};
+        return new String[]{"org.elasticsearch.common.document.DocumentField"};
     }
-
 }

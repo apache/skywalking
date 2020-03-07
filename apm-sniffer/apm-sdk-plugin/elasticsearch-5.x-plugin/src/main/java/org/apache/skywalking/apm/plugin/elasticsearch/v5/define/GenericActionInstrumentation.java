@@ -60,4 +60,10 @@ public class GenericActionInstrumentation extends ClassEnhancePluginDefine {
     protected ClassMatch enhanceClass() {
         return byHierarchyMatch(new String[] {"org.elasticsearch.action.GenericAction"});
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{"org.elasticsearch.common.transport.InetSocketTransportAddress"};
+    }
+
 }

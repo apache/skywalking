@@ -83,4 +83,10 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
     protected ClassMatch enhanceClass() {
         return byName(ENHANC_CLASS);
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{"org.elasticsearch.common.transport.InetSocketTransportAddress"};
+    }
+
 }

@@ -16,46 +16,47 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v5.define;
+package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class PlainListenableActionFutureInstrumentation extends ClassEnhancePluginDefine {
+/**
+ * @author yi.liang
+ * date 2020.02.13 20:49
+ */
+public class TransportServiceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+
+    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.TransportServiceInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return ENHANCE_CLASS;
+                }
+            }
+        };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("actionGet");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.elasticsearch.v5.PlainListenableActionFutureInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override
@@ -65,12 +66,11 @@ public class PlainListenableActionFutureInstrumentation extends ClassEnhancePlug
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.elasticsearch.action.support.PlainListenableActionFuture");
+        return byName("org.elasticsearch.transport.TransportService");
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{"org.elasticsearch.common.transport.InetSocketTransportAddress"};
+        return new String[]{"org.elasticsearch.common.document.DocumentField"};
     }
-
 }

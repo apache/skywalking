@@ -64,4 +64,10 @@ public class TransportProxyClientInstrumentation extends ClassInstanceMethodsEnh
     protected ClassMatch enhanceClass() {
         return byName("org.elasticsearch.client.transport.TransportProxyClient");
     }
+
+    @Override
+    protected String[] witnessClasses() {
+        return new String[]{"org.elasticsearch.common.transport.InetSocketTransportAddress"};
+    }
+
 }
