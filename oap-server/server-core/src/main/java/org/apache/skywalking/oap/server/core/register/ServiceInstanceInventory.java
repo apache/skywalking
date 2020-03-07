@@ -150,7 +150,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     }
 
     private void setLanguage(JsonObject properties) {
-        if(nonNull(properties)) {
+        if (nonNull(properties)) {
             for (String key : properties.keySet()) {
                 if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
                     language = properties.get(key).getAsString();
