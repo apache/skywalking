@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.finagle;
 
 import com.twitter.finagle.Address;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -30,6 +31,11 @@ import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.setP
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getContextCarrier;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
+/**
+ * When we create exitspan in ClientTracingFilter, we can't know the remote address because the ClientTracingFilter
+ * is above the loadbalancefilter in the rpc call stack. However by intercept the ClientDestTracingFilter, we can get
+ * the remote adress and set it to exitspan and contextCarrier.
+ */
 public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
 
     @Override
@@ -56,8 +62,9 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
     }
 
     @Override
-    public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
-
+    public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects,
+                                          Class<?>[] classes, Throwable t) {
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 
     private String getRemote(Object[] objects) {

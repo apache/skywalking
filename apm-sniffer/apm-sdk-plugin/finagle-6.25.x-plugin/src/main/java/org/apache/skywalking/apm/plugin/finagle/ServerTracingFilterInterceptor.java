@@ -31,15 +31,17 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.FINAGLE;
-import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 
 public class ServerTracingFilterInterceptor extends AbstractInterceptor {
 
     @Override
+    protected void onConstructImpl(EnhancedInstance objInst, Object[] allArguments) {
+
+    }
+
+    @Override
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                                  MethodInterceptResult methodInterceptResult) throws Throwable {
-
-        ContextHolder localContextHolder = getLocalContextHolder();
         AbstractSpan span = null;
         if (Contexts.broadcast().contains(SWContextCarrier$.MODULE$)) {
             SWContextCarrier swContextCarrier = Contexts.broadcast().apply(SWContextCarrier$.MODULE$);
@@ -51,15 +53,12 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
         span.setComponent(FINAGLE);
         SpanLayer.asRPCFramework(span);
 
-        localContextHolder.let(FinagleCtxs.SW_SPAN, span);
-
-        enhancedInstance.setSkyWalkingDynamicField(localContextHolder);
+        enhancedInstance.setSkyWalkingDynamicField(span);
     }
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
-        Object skyWalkingDynamicField = enhancedInstance.getSkyWalkingDynamicField();
-        final AbstractSpan finagleSpan = ((ContextHolder) skyWalkingDynamicField).remove(FinagleCtxs.SW_SPAN);
+        final AbstractSpan finagleSpan = (AbstractSpan) enhancedInstance.getSkyWalkingDynamicField();
         finagleSpan.prepareForAsync();
         ContextManager.stopSpan(finagleSpan);
         ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {
@@ -79,7 +78,8 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
     }
 
     @Override
-    public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
-        ContextManager.activeSpan().errorOccurred().log(throwable);
+    public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects,
+                                          Class<?>[] classes, Throwable t) {
+        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

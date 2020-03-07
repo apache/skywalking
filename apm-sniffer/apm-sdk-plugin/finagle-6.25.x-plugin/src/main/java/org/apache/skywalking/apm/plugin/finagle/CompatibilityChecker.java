@@ -24,6 +24,13 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getMarshalledContextHolder;
 
+/**
+ * The implementation detail of this plugin depend on a private class of Finagle Framework, we can not ensure that
+ * class will still exists in future versions. The mechanism of witness class can ensure this plugin can work in
+ * existing versions, it can not ensure this plugin will still work in future versions. So the purpose of the class
+ * is to check whether this plugin is compatible with future versions, if it does't, the plugin just do nothing,
+ * avoiding unexpected runtime exceptions.
+ */
 public class CompatibilityChecker {
 
     static ILog LOGGER = LogManager.getLogger(CompatibilityChecker.class);

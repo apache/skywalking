@@ -41,6 +41,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+/**
+ * The implementation of {@link ContextHolder} depend on implementation of LocalContext and MarshalledContext of
+ * finagle. To implement {@link ContextHolder}, we need know the actual data struct that the underlying Context use,
+ * and use that data struct to impelment {@link ContextHolder#let(Object, Object)} and
+ * {@link ContextHolder#remove(Object)}.
+ */
 public class ContextHolderFactory {
 
     private static final String CONTEXT_ENV_CLASS = "com.twitter.finagle.context.Context$Env";

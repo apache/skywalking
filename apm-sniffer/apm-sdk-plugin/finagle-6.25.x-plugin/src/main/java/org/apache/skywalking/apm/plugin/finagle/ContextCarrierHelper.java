@@ -23,6 +23,10 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * We need set peer host to {@link ContextCarrier} in {@link ClientDestTracingFilterInterceptor}, but there is no
+ * public method to do this, so we use this helper to achieve it.
+ */
 class ContextCarrierHelper {
 
     private static Method SET_PEERHOST_METHOD = null;

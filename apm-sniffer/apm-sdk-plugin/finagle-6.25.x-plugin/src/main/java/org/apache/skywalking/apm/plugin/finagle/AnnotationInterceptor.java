@@ -18,13 +18,21 @@
 
 package org.apache.skywalking.apm.plugin.finagle;
 
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+
+import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getContextCarrier;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
+/**
+ * Finagle use Annotation to represent data that tracing system interested, usually these annotations are created by
+ * filters after ClientTracingFilter in the rpc call stack. We can intercept annotations that we interested.
+ */
 public class AnnotationInterceptor {
 
     abstract static class Abstract extends AbstractInterceptor {
@@ -37,6 +45,11 @@ public class AnnotationInterceptor {
         protected abstract void onConstruct(EnhancedInstance enhancedInstance, Object[] objects, AbstractSpan span);
     }
 
+    /**
+     * When we create exitspan in ClientTracingFilter, we can't know the operation name, however the Rpc annotation
+     * contains the operation name we need, so we intercept the constructor of this Annotation and set operation name
+     * to exitspan.
+     */
     public static class Rpc extends Abstract {
 
         @Override
@@ -44,6 +57,7 @@ public class AnnotationInterceptor {
             if (objects != null && objects.length == 1) {
                 String rpc = (String) objects[0];
                 if (span == null) {
+                    // in case the exitspan is created later
                     getLocalContextHolder().let(FinagleCtxs.RPC, rpc);
                 } else {
                     span.setOperationName(rpc);
@@ -53,6 +67,21 @@ public class AnnotationInterceptor {
                     swContextCarrier.setOperationName(rpc);
                 }
             }
+        }
+
+        @Override
+        protected void beforeMethodImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
+        }
+
+        @Override
+        protected Object afterMethodImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+            return ret;
+        }
+
+        @Override
+        protected void handleMethodExceptionImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+            ContextManager.activeSpan().errorOccurred().log(t);
         }
     }
 }

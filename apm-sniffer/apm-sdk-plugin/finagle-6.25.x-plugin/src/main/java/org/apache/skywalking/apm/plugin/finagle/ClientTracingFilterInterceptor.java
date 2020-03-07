@@ -47,9 +47,19 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
     }
 
     @Override
+    protected void onConstructImpl(EnhancedInstance objInst, Object[] allArguments) {
+
+    }
+
+    @Override
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                                  MethodInterceptResult methodInterceptResult) throws Throwable {
         ContextCarrier contextCarrier = new ContextCarrier();
+        /*
+         * At this time, we can't know the operation name and peer address, so we just use placeholders here, the
+         * operation name will be filled by {@link AnnotationInterceptor$Rpc} and the peer address will be filled by
+         * {@link ClientDestTracingFilterInterceptor} later.
+         */
         AbstractSpan finagleSpan = ContextManager.createExitSpan("pending", contextCarrier, "");
 
         finagleSpan.setComponent(FINAGLE);
@@ -83,7 +93,7 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
             @Override
             public void onFailure(Throwable cause) {
                 finagleSpan.errorOccurred();
-//                finagleSpan.log(cause);
+                finagleSpan.log(cause);
                 finagleSpan.asyncFinish();
             }
         });
