@@ -33,9 +33,6 @@ import org.jboss.resteasy.spi.HttpResponse;
 
 import java.lang.reflect.Method;
 
-/**
- * @author yan-fucheng
- */
 public class SynchronousDispatcherInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

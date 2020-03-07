@@ -18,22 +18,20 @@
 
 package org.apache.skywalking.e2e.service.instance;
 
-import org.apache.skywalking.e2e.verification.AbstractMatcher;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A simple matcher to verify the given {@code Service} is expected
- *
- * @author kezhenxu94
  */
 public class InstanceMatcher extends AbstractMatcher<Instance> {
 
     private String key;
     private String label;
+    private String instanceUUID;
     private List<AttributeMatcher> attributes;
 
     @Override
@@ -44,6 +42,10 @@ public class InstanceMatcher extends AbstractMatcher<Instance> {
 
         if (Objects.nonNull(getLabel())) {
             verifyLabel(instance);
+        }
+
+        if (Objects.nonNull(getInstanceUUID())) {
+            verifyInstanceUUID(instance);
         }
 
         if (Objects.nonNull(getAttributes())) {
@@ -61,6 +63,13 @@ public class InstanceMatcher extends AbstractMatcher<Instance> {
     private void verifyLabel(Instance instance) {
         final String expected = this.getLabel();
         final String actual = String.valueOf(instance.getLabel());
+
+        doVerify(expected, actual);
+    }
+
+    private void verifyInstanceUUID(Instance instance) {
+        final String expected = this.getInstanceUUID();
+        final String actual = instance.getInstanceUUID();
 
         doVerify(expected, actual);
     }
@@ -94,6 +103,14 @@ public class InstanceMatcher extends AbstractMatcher<Instance> {
         this.label = label;
     }
 
+    public String getInstanceUUID() {
+        return instanceUUID;
+    }
+
+    public void setInstanceUUID(String instanceUUID) {
+        this.instanceUUID = instanceUUID;
+    }
+
     public List<AttributeMatcher> getAttributes() {
         return attributes;
     }
@@ -104,10 +121,6 @@ public class InstanceMatcher extends AbstractMatcher<Instance> {
 
     @Override
     public String toString() {
-        return "InstanceMatcher{" +
-            "key='" + key + '\'' +
-            ", label='" + label + '\'' +
-            ", attributes=" + attributes +
-            '}';
+        return "InstanceMatcher{" + "key='" + key + '\'' + ", label='" + label + '\'' + ", instanceUUID='" + instanceUUID + '\'' + ", attributes=" + attributes + '}';
     }
 }

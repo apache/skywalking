@@ -18,18 +18,25 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
-import org.apache.commons.io.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * OffsetStream is driven by the internal timer. Flush the hold read and write offset into the file. And restore the
+ * data from the same file in the initialization process.o
  */
 class OffsetStream {
 
@@ -38,7 +45,8 @@ class OffsetStream {
     private final File directory;
     private final int offsetFileMaxSize;
 
-    @Getter private final Offset offset;
+    @Getter
+    private final Offset offset;
     private File offsetFile;
     private boolean initialized = false;
     private String lastOffsetRecord = "";
@@ -74,10 +82,10 @@ class OffsetStream {
             offset.deserialize(readLastLine());
             initialized = true;
 
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(this::flush,
-                    t -> logger.error("Flush offset file in background failure.", t)
-                ), 2, 1, TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor()
+                     .scheduleAtFixedRate(
+                         new RunnableWithExceptionProtection(this::flush, t -> logger.error(
+                             "Flush offset file in background failure.", t)), 2, 1, TimeUnit.SECONDS);
         }
     }
 
@@ -120,7 +128,8 @@ class OffsetStream {
     }
 
     private String readLastLine() throws IOException {
-        ReversedLinesFileReader reader = new ReversedLinesFileReader(offsetFile, Charset.forName(BufferFileUtils.CHARSET));
+        ReversedLinesFileReader reader = new ReversedLinesFileReader(
+            offsetFile, Charset.forName(BufferFileUtils.CHARSET));
         return reader.readLine();
     }
 }

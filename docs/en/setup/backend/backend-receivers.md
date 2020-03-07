@@ -13,6 +13,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
+1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -42,6 +43,8 @@ receiver_zipkin:
     host: 0.0.0.0
     port: 9411
     contextPath: /
+receiver-profile:
+  default:
 ```
 
 ## gRPC/HTTP server for receiver

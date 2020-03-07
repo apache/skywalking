@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.boot;
 
 import java.lang.reflect.Field;
@@ -26,7 +25,10 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.IgnoredTracerContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingContextListener;
+import org.apache.skywalking.apm.agent.core.context.TracingThreadListener;
 import org.apache.skywalking.apm.agent.core.jvm.JVMService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
@@ -55,16 +57,24 @@ public class ServiceManagerTest {
     public void testServiceDependencies() throws Exception {
         HashMap<Class, BootService> registryService = getFieldValue(ServiceManager.INSTANCE, "bootedServices");
 
-        assertThat(registryService.size(), is(10));
+        assertThat(registryService.size(), is(12));
 
         assertTraceSegmentServiceClient(ServiceManager.INSTANCE.findService(TraceSegmentServiceClient.class));
         assertContextManager(ServiceManager.INSTANCE.findService(ContextManager.class));
         assertGRPCChannelManager(ServiceManager.INSTANCE.findService(GRPCChannelManager.class));
         assertSamplingService(ServiceManager.INSTANCE.findService(SamplingService.class));
         assertJVMService(ServiceManager.INSTANCE.findService(JVMService.class));
+        assertProfileTaskQueryService(ServiceManager.INSTANCE.findService(ProfileTaskChannelService.class));
+        assertProfileTaskExecuteService(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class));
 
         assertTracingContextListener();
         assertIgnoreTracingContextListener();
+        assertTracingThreadContextListener();
+    }
+
+    private void assertTracingThreadContextListener() throws Exception {
+        List<TracingThreadListener> listeners = getFieldValue(TracingContext.TracingThreadListenerManager.class, "LISTENERS");
+        assertThat(listeners.size(), is(1));
     }
 
     private void assertIgnoreTracingContextListener() throws Exception {
@@ -83,11 +93,19 @@ public class ServiceManagerTest {
         assertNotNull(service);
     }
 
+    private void assertProfileTaskQueryService(ProfileTaskChannelService service) {
+        assertNotNull(service);
+    }
+
+    private void assertProfileTaskExecuteService(ProfileTaskExecutionService service) {
+        assertNotNull(service);
+    }
+
     private void assertGRPCChannelManager(GRPCChannelManager service) throws Exception {
         assertNotNull(service);
 
         List<GRPCChannelListener> listeners = getFieldValue(service, "listeners");
-        assertEquals(listeners.size(), 3);
+        assertEquals(listeners.size(), 4);
     }
 
     private void assertSamplingService(SamplingService service) {
@@ -105,13 +123,13 @@ public class ServiceManagerTest {
     private <T> T getFieldValue(Object instance, String fieldName) throws Exception {
         Field field = instance.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(instance);
+        return (T) field.get(instance);
     }
 
     private <T> T getFieldValue(Class clazz, String fieldName) throws Exception {
         Field field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
-        return (T)field.get(clazz);
+        return (T) field.get(clazz);
     }
 
 }

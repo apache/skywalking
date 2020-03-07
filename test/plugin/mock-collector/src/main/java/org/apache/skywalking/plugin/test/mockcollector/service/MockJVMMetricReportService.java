@@ -14,14 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.service;
 
+import io.grpc.stub.StreamObserver;
+import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v2.JVMMetricReportServiceGrpc;
 
 /**
- * Author Daming
- * Email zteny@foxmail.com
+ * Author Daming Email zteny@foxmail.com
  **/
 public class MockJVMMetricReportService extends JVMMetricReportServiceGrpc.JVMMetricReportServiceImplBase {
 
+    @Override
+    public void collect(JVMMetricCollection request, StreamObserver<Commands> responseObserver) {
+        responseObserver.onNext(Commands.newBuilder().build());
+        responseObserver.onCompleted();
+    }
 }

@@ -16,9 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.ehcache.v2;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -37,15 +38,17 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.*;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_ALL_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.GET_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.PUT_CACHE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.READ_LOCK_RELEASE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.READ_LOCK_TRY_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.WRITE_LOCK_RELEASE_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.WRITE_LOCK_TRY_ENHANCE_METHOD;
+import static org.apache.skywalking.apm.plugin.ehcache.v2.define.EhcachePluginInstrumentation.CACHE_NAME_ENHANCE_METHOD;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
-/**
- * @author MrPro
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class EhcacheInterceptorTest {
@@ -63,10 +66,13 @@ public class EhcacheInterceptorTest {
     private EhcacheOperateAllInterceptor operateAllInterceptor;
     private EhcacheLockInterceptor lockInterceptor;
     private EhcacheConstructorInterceptor constructorInterceptor;
+    private EhcachePrivateConstructorInterceptor privateConstructorInterceptor;
+    private EhcacheCacheNameInterceptor cacheNameInterceptor;
     private Object[] operateObjectArguments;
     private Object[] operateElementArguments;
     private Object[] tryLockArguments;
     private Object[] releaseLockArguments;
+    private Object[] cacheNameArguments;
 
     private Exception exception;
 
@@ -79,14 +85,19 @@ public class EhcacheInterceptorTest {
     private Method releaseReadLockMethod;
     private Method releaseWriteLockMethod;
 
+    private Method setNameMethod;
+
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
+        EhcacheEnhanceInfo ehcacheEnhanceInfo;
+
         @Override
         public Object getSkyWalkingDynamicField() {
-            return new EhcacheEnhanceInfo(CACHE_NAME);
+            return ehcacheEnhanceInfo;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
+            ehcacheEnhanceInfo = (EhcacheEnhanceInfo) value;
         }
     };
 
@@ -96,14 +107,20 @@ public class EhcacheInterceptorTest {
         operateElementInterceptor = new EhcacheOperateElementInterceptor();
         operateAllInterceptor = new EhcacheOperateAllInterceptor();
         constructorInterceptor = new EhcacheConstructorInterceptor();
+        privateConstructorInterceptor = new EhcachePrivateConstructorInterceptor();
+        cacheNameInterceptor = new EhcacheCacheNameInterceptor();
         lockInterceptor = new EhcacheLockInterceptor();
 
         exception = new Exception();
 
         operateObjectArguments = new Object[] {"dataKey"};
         operateElementArguments = new Element[] {new Element("dataKey", 1)};
-        tryLockArguments = new Object[] {"dataKey", 3000};
+        tryLockArguments = new Object[] {
+            "dataKey",
+            3000
+        };
         releaseLockArguments = new Object[] {"dataKey"};
+        cacheNameArguments = new Object[] {"cacheName"};
 
         putCacheMethod = Whitebox.getMethods(Cache.class, PUT_CACHE_ENHANCE_METHOD)[0];
         getCacheMethod = Whitebox.getMethods(Cache.class, GET_CACHE_ENHANCE_METHOD)[0];
@@ -113,11 +130,29 @@ public class EhcacheInterceptorTest {
         tryWriteLockMethod = Whitebox.getMethods(Cache.class, WRITE_LOCK_TRY_ENHANCE_METHOD)[0];
         releaseReadLockMethod = Whitebox.getMethods(Cache.class, READ_LOCK_RELEASE_ENHANCE_METHOD)[0];
         releaseWriteLockMethod = Whitebox.getMethods(Cache.class, WRITE_LOCK_RELEASE_ENHANCE_METHOD)[0];
+
+        setNameMethod = Whitebox.getMethods(Cache.class, CACHE_NAME_ENHANCE_METHOD)[0];
+
+        enhancedInstance.setSkyWalkingDynamicField(new EhcacheEnhanceInfo(CACHE_NAME));
     }
 
     @Test
     public void assertConstruct() throws Throwable {
         constructorInterceptor.onConstruct(enhancedInstance, new Object[] {new CacheConfiguration(CACHE_NAME, 20)});
+    }
+
+    @Test
+    public void assertPrivateConstruct() throws Throwable {
+        privateConstructorInterceptor.onConstruct(enhancedInstance, new Object[] {new Cache(new CacheConfiguration(CACHE_NAME, 20))});
+    }
+
+    @Test
+    public void assertSetNameSuccess() throws Throwable {
+        cacheNameInterceptor.beforeMethod(enhancedInstance, setNameMethod, cacheNameArguments, null, null);
+        cacheNameInterceptor.handleMethodException(enhancedInstance, setNameMethod, null, null, exception);
+        cacheNameInterceptor.afterMethod(enhancedInstance, setNameMethod, cacheNameArguments, null, null);
+
+        Assert.assertThat(((EhcacheEnhanceInfo) enhancedInstance.getSkyWalkingDynamicField()).getCacheName(), equalTo("cacheName"));
     }
 
     @Test
@@ -150,7 +185,6 @@ public class EhcacheInterceptorTest {
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
-
 
     @Test
     public void assertLockSuccess() throws Throwable {

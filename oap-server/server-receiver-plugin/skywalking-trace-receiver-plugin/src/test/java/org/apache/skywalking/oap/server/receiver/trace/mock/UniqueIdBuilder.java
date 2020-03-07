@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.trace.mock;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
-/**
- * @author peng-yongsheng
- */
 public enum UniqueIdBuilder {
     INSTANCE;
 

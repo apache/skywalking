@@ -20,24 +20,21 @@ package org.apache.skywalking.apm.agent.core.commands;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.commands.executor.NoopCommandExecutor;
+import org.apache.skywalking.apm.agent.core.commands.executor.ProfileTaskCommandExecutor;
 import org.apache.skywalking.apm.agent.core.commands.executor.ServiceResetCommandExecutor;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
+import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Command executor service, acts like a routing executor that controls all commands' execution,
- * is responsible for managing all the mappings between commands and their executors,
- * one can simply invoke {@link #execute(BaseCommand)} and it will routes the
- * command to corresponding executor.
- *
- * Registering command executor for new command in {@link #commandExecutorMap}
- * is required to support new command.
- *
- * @author Zhang Xin
- * @author kezhenxu94
+ * Command executor service, acts like a routing executor that controls all commands' execution, is responsible for
+ * managing all the mappings between commands and their executors, one can simply invoke {@link #execute(BaseCommand)}
+ * and it will routes the command to corresponding executor.
+ * <p>
+ * Registering command executor for new command in {@link #commandExecutorMap} is required to support new command.
  */
 @DefaultImplementor
 public class CommandExecutorService implements BootService, CommandExecutor {
@@ -49,6 +46,9 @@ public class CommandExecutorService implements BootService, CommandExecutor {
 
         // Register all the supported commands with their executors here
         commandExecutorMap.put(ServiceResetCommand.NAME, new ServiceResetCommandExecutor());
+
+        // Profile task executor
+        commandExecutorMap.put(ProfileTaskCommand.NAME, new ProfileTaskCommandExecutor());
     }
 
     @Override

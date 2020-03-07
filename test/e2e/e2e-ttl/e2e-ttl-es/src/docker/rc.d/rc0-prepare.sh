@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Licensed to the SkyAPM under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,14 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#!/usr/bin/env bash
-
 original_wd=$(pwd)
 
 # substitute application.yml to be capable of es mode
 cd ${SW_HOME}/config \
-    && awk -f /es_storage.awk application.yml > es_storage_app.yml \
+    && gawk -f /es_storage.awk application.yml > es_storage_app.yml \
     && mv es_storage_app.yml application.yml \
+    && cp /ttl_official_analysis.oal official_analysis.oal \
     && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.storage" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
     && mv log4j2debuggable.xml log4j2.xml
 

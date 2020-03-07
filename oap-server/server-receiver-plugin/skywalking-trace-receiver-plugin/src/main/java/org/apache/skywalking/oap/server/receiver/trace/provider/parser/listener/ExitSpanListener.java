@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.*;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 
 /**
- * @author peng-yongsheng
+ * SpanListener for exit span.
  */
 public interface ExitSpanListener extends SpanListener {
     void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);

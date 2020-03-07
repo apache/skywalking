@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeDataCache;
@@ -27,12 +28,11 @@ import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Top N worker is a persistence worker. Cache and order the data, flush in longer period.
- *
- * @author wusheng, peng-yongsheng
  */
 public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<TopN>> {
 
@@ -45,8 +45,8 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     private long reportCycle;
     private volatile long lastReportTimestamp;
 
-    TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model,
-        int topNSize, IRecordDAO recordDAO) {
+    TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model, int topNSize, long reportCycle,
+        IRecordDAO recordDAO) {
         super(moduleDefineHolder);
         this.limitedSizeDataCache = new LimitedSizeDataCache<>(topNSize);
         this.recordDAO = recordDAO;
@@ -54,11 +54,12 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
         this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
         this.lastReportTimestamp = System.currentTimeMillis();
-        // Top N persistent only works per 10 minutes.
-        this.reportCycle = 10 * 60 * 1000L;
+        // Top N persistent works per 10 minutes default.
+        this.reportCycle = reportCycle;
     }
 
-    @Override public void cacheData(TopN data) {
+    @Override
+    public void cacheData(TopN data) {
         limitedSizeDataCache.writing();
         try {
             limitedSizeDataCache.add(data);
@@ -67,17 +68,19 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         }
     }
 
-    @Override public LimitedSizeDataCache<TopN> getCache() {
+    @Override
+    public LimitedSizeDataCache<TopN> getCache() {
         return limitedSizeDataCache;
     }
 
     /**
      * The top N worker persistent cycle is much less than the others, override `flushAndSwitch` to extend the execute
      * time windows.
-     *
+     * <p>
      * Switch and persistent attempt happens based on reportCycle.
      */
-    @Override public boolean flushAndSwitch() {
+    @Override
+    public boolean flushAndSwitch() {
         long now = System.currentTimeMillis();
         if (now - lastReportTimestamp <= reportCycle) {
             return false;
@@ -86,7 +89,8 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
         return super.flushAndSwitch();
     }
 
-    @Override public void prepareBatch(Collection<TopN> lastCollection, List<PrepareRequest> prepareRequests) {
+    @Override
+    public void prepareBatch(Collection<TopN> lastCollection, List<PrepareRequest> prepareRequests) {
         lastCollection.forEach(record -> {
             try {
                 prepareRequests.add(recordDAO.prepareBatchInsert(model, record));
@@ -99,20 +103,24 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
     /**
      * This method used to clear the expired cache, but TopN is not following it.
      */
-    @Override public void endOfRound(long tookTime) {
+    @Override
+    public void endOfRound(long tookTime) {
     }
 
-    @Override public void in(TopN n) {
+    @Override
+    public void in(TopN n) {
         dataCarrier.produce(n);
     }
 
     private class TopNConsumer implements IConsumer<TopN> {
 
-        @Override public void init() {
+        @Override
+        public void init() {
 
         }
 
-        @Override public void consume(List<TopN> data) {
+        @Override
+        public void consume(List<TopN> data) {
             /*
              * TopN is not following the batch size trigger mode.
              * No need to implement this method, the memory size is limited always.
@@ -120,11 +128,13 @@ public class TopNWorker extends PersistenceWorker<TopN, LimitedSizeDataCache<Top
             data.forEach(TopNWorker.this::onWork);
         }
 
-        @Override public void onError(List<TopN> data, Throwable t) {
+        @Override
+        public void onError(List<TopN> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
 
         }
     }

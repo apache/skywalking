@@ -19,23 +19,30 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author wusheng, peng-yongsheng
- */
 public class H2SQLExecutor {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(H2SQLExecutor.class);
 
     protected List<StorageData> getByIDs(JDBCHikariCPClient h2Client, String modelName, String[] ids,
@@ -88,7 +95,8 @@ public class H2SQLExecutor {
         }
     }
 
-    protected StorageData toStorageData(ResultSet rs, String modelName, StorageBuilder storageBuilder) throws SQLException {
+    protected StorageData toStorageData(ResultSet rs, String modelName,
+        StorageBuilder storageBuilder) throws SQLException {
         if (rs.next()) {
             Map data = new HashMap();
             List<ModelColumn> columns = TableMetaInfo.get(modelName).getColumns();
@@ -113,7 +121,8 @@ public class H2SQLExecutor {
         return Const.NONE;
     }
 
-    protected SQLExecutor getInsertExecutor(String modelName, StorageData metrics, StorageBuilder storageBuilder) throws IOException {
+    protected SQLExecutor getInsertExecutor(String modelName, StorageData metrics,
+        StorageBuilder storageBuilder) throws IOException {
         Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + modelName + " VALUES");
@@ -130,7 +139,7 @@ public class H2SQLExecutor {
 
             Object value = objectMap.get(column.getColumnName().getName());
             if (value instanceof StorageDataType) {
-                param.add(((StorageDataType)value).toStorageData());
+                param.add(((StorageDataType) value).toStorageData());
             } else {
                 param.add(value);
             }
@@ -140,7 +149,8 @@ public class H2SQLExecutor {
         return new SQLExecutor(sqlBuilder.toString(), param);
     }
 
-    protected SQLExecutor getUpdateExecutor(String modelName, StorageData metrics, StorageBuilder storageBuilder) throws IOException {
+    protected SQLExecutor getUpdateExecutor(String modelName, StorageData metrics,
+        StorageBuilder storageBuilder) throws IOException {
         Map<String, Object> objectMap = storageBuilder.data2Map(metrics);
 
         SQLBuilder sqlBuilder = new SQLBuilder("UPDATE " + modelName + " SET ");
@@ -155,7 +165,7 @@ public class H2SQLExecutor {
 
             Object value = objectMap.get(column.getColumnName().getName());
             if (value instanceof StorageDataType) {
-                param.add(((StorageDataType)value).toStorageData());
+                param.add(((StorageDataType) value).toStorageData());
             } else {
                 param.add(value);
             }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -31,37 +30,41 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * {@link HandlerMethodInvokerInstrumentation} intercept the <code>invokeHandlerMethod</code> method in the
  * <code>org.springframework.web.bind.annotation.support.HandlerMethodInvoker</code> class.
- *
- * @author zhangxin
  */
 public class HandlerMethodInvokerInstrumentation extends AbstractSpring3Instrumentation {
     private static final String ENHANCE_CLASS = "org.springframework.web.bind.annotation.support.HandlerMethodInvoker";
     private static final String ENHANCE_METHOD = "invokeHandlerMethod";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.mvc.v3.HandlerMethodInvokerInterceptor";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

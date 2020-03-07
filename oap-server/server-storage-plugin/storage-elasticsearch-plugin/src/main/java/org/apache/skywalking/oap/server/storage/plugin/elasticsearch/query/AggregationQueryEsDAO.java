@@ -19,25 +19,28 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
+import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.Avg;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO {
 
     public AggregationQueryEsDAO(ElasticSearchClient client) {
@@ -45,16 +48,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
-        long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
-
-    @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
@@ -63,7 +57,18 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
+    @Override
+    public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
+        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+        String indexName = ModelName.build(downsampling, indName);
+
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
+        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
+    }
+
+    @Override
+    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
         Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
@@ -79,8 +84,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
-        long endTB, Order order) throws IOException {
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+        long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -89,8 +94,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
+    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
+        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -104,21 +109,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
-    private List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
+    protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
         int topN, Order order) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {
             asc = true;
         }
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders
-            .terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .order(BucketOrder.aggregation(valueCName, asc))
-            .size(topN)
-            .subAggregation(
-                AggregationBuilders.avg(valueCName).field(valueCName)
-            );
+        TermsAggregationBuilder aggregationBuilder = aggregationBuilder(valueCName, topN, asc);
+
         sourceBuilder.aggregation(aggregationBuilder);
 
         SearchResponse response = getClient().search(indexName, sourceBuilder);
@@ -129,10 +128,18 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             TopNEntity topNEntity = new TopNEntity();
             topNEntity.setId(termsBucket.getKeyAsString());
             Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long)value.getValue());
+            topNEntity.setValue((long) value.getValue());
             topNEntities.add(topNEntity);
         }
 
         return topNEntities;
+    }
+
+    protected TermsAggregationBuilder aggregationBuilder(final String valueCName, final int topN, final boolean asc) {
+        return AggregationBuilders.terms(Metrics.ENTITY_ID)
+                                  .field(Metrics.ENTITY_ID)
+                                  .order(BucketOrder.aggregation(valueCName, asc))
+                                  .size(topN)
+                                  .subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
     }
 }

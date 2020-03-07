@@ -18,37 +18,53 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
-import com.google.common.cache.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
-/**
- * @author peng-yongsheng
- */
 public class NetworkAddressInventoryCache implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCache.class);
 
-    private final Cache<String, Integer> networkAddressCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
-    private final Cache<Integer, NetworkAddressInventory> addressIdCache = CacheBuilder.newBuilder().initialCapacity(1000).maximumSize(5000).build();
+    private final Cache<String, Integer> networkAddressCache;
+    private final Cache<Integer, NetworkAddressInventory> addressIdCache;
 
     private final ModuleManager moduleManager;
     private INetworkAddressInventoryCacheDAO cacheDAO;
 
-    public NetworkAddressInventoryCache(ModuleManager moduleManager) {
+    public NetworkAddressInventoryCache(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
+
+        long initialSize = moduleConfig.getMaxSizeOfNetworkInventory() / 10L;
+        int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
+
+        networkAddressCache = CacheBuilder.newBuilder()
+                                          .initialCapacity(initialCapacitySize)
+                                          .maximumSize(moduleConfig.getMaxSizeOfNetworkInventory())
+                                          .build();
+        addressIdCache = CacheBuilder.newBuilder()
+                                     .initialCapacity(initialCapacitySize)
+                                     .maximumSize(moduleConfig.getMaxSizeOfNetworkInventory())
+                                     .build();
     }
 
     private INetworkAddressInventoryCacheDAO getCacheDAO() {
         if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(INetworkAddressInventoryCacheDAO.class);
+            this.cacheDAO = moduleManager.find(StorageModule.NAME)
+                                         .provider()
+                                         .getService(INetworkAddressInventoryCacheDAO.class);
         }
         return this.cacheDAO;
     }

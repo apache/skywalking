@@ -16,14 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.api;
 
 /**
- * No operation logger implementation.
- * Just implement {@link ILog} interface, but do nothing.
+ * No operation logger implementation. Just implement {@link ILog} interface, but do nothing.
  * <p>
- * Created by xin on 2016/11/10.
  */
 public enum NoopLogger implements ILog {
     INSTANCE;
@@ -79,6 +76,11 @@ public enum NoopLogger implements ILog {
     }
 
     @Override
+    public void debug(final Throwable t, final String format, final Object... arguments) {
+
+    }
+
+    @Override
     public void error(String format) {
 
     }
@@ -87,7 +89,6 @@ public enum NoopLogger implements ILog {
     public void error(Throwable e, String format, Object... arguments) {
 
     }
-
 
     @Override
     public void warn(Throwable e, String format, Object... arguments) {

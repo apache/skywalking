@@ -14,32 +14,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.service;
 
 import io.grpc.stub.StreamObserver;
-
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstance;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceHeartbeat;
+import org.apache.skywalking.apm.network.language.agent.ApplicationInstanceMapping;
+import org.apache.skywalking.apm.network.language.agent.Downstream;
+import org.apache.skywalking.apm.network.language.agent.InstanceDiscoveryServiceGrpc;
 import org.apache.skywalking.plugin.test.mockcollector.entity.RegistryItem;
 import org.apache.skywalking.plugin.test.mockcollector.entity.ValidateData;
 
 public class MockInstanceDiscoveryService extends InstanceDiscoveryServiceGrpc.InstanceDiscoveryServiceImplBase {
 
-
     @Override
     public void heartbeat(ApplicationInstanceHeartbeat request, StreamObserver<Downstream> responseObserver) {
-        ValidateData.INSTANCE.getRegistryItem().registryHeartBeat(new RegistryItem.HeartBeat(request.getApplicationInstanceId()));
+        ValidateData.INSTANCE.getRegistryItem()
+                             .registryHeartBeat(new RegistryItem.HeartBeat(request.getApplicationInstanceId()));
         responseObserver.onNext(Downstream.getDefaultInstance());
         responseObserver.onCompleted();
     }
 
     @Override
     public void registerInstance(ApplicationInstance request,
-                                 StreamObserver<ApplicationInstanceMapping> responseObserver) {
+        StreamObserver<ApplicationInstanceMapping> responseObserver) {
         int instanceId = Sequences.INSTANCE_SEQUENCE.incrementAndGet();
-        ValidateData.INSTANCE.getRegistryItem().registryInstance(new RegistryItem.Instance(request.getApplicationId(), instanceId));
+        ValidateData.INSTANCE.getRegistryItem()
+                             .registryInstance(new RegistryItem.Instance(request.getApplicationId(), instanceId));
 
-        responseObserver.onNext(ApplicationInstanceMapping.newBuilder().setApplicationId(request.getApplicationId())
-                .setApplicationInstanceId(instanceId).build());
+        responseObserver.onNext(ApplicationInstanceMapping.newBuilder()
+                                                          .setApplicationId(request.getApplicationId())
+                                                          .setApplicationInstanceId(instanceId)
+                                                          .build());
         responseObserver.onCompleted();
     }
 }

@@ -85,8 +85,10 @@ the yml to active.
 cluster:
   consul:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-    # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+    # Consul cluster agents, example, 1. client agent, 127.0.0.1:8500 2. server agent, 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+    # aclToken of connection consul (optional)
+    aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN}
 ```
 
 Same as Zookeeper coordinator,

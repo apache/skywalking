@@ -23,8 +23,13 @@ import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.net.InetSocketAddress;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.network.register.v2.*;
-import org.junit.*;
+import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
+import org.apache.skywalking.apm.network.register.v2.Service;
+import org.apache.skywalking.apm.network.register.v2.ServiceRegisterMapping;
+import org.apache.skywalking.apm.network.register.v2.Services;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 
 public class GRPCChannelManagerTest {
     @BeforeClass
@@ -41,7 +46,8 @@ public class GRPCChannelManagerTest {
     public void testConnected() throws Throwable {
         GRPCChannelManager manager = new GRPCChannelManager();
         manager.addChannelListener(new GRPCChannelListener() {
-            @Override public void statusChanged(GRPCChannelStatus status) {
+            @Override
+            public void statusChanged(GRPCChannelStatus status) {
             }
         });
 
@@ -50,7 +56,9 @@ public class GRPCChannelManagerTest {
 
         RegisterGrpc.RegisterBlockingStub stub = RegisterGrpc.newBlockingStub(manager.getChannel());
         try {
-            stub.doServiceRegister(Services.newBuilder().addServices(Service.newBuilder().setServiceName("abc")).build());
+            stub.doServiceRegister(Services.newBuilder()
+                                           .addServices(Service.newBuilder().setServiceName("abc"))
+                                           .build());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -67,7 +75,9 @@ public class GRPCChannelManagerTest {
 
         boolean registerSuccess = false;
         try {
-            stub.doServiceRegister(Services.newBuilder().addServices(Service.newBuilder().setServiceName("abc")).build());
+            stub.doServiceRegister(Services.newBuilder()
+                                           .addServices(Service.newBuilder().setServiceName("abc"))
+                                           .build());
             registerSuccess = true;
         } catch (Exception e) {
             e.printStackTrace();

@@ -18,20 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.register.worker;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
 
     private static final Logger logger = LoggerFactory.getLogger(RegisterPersistentWorker.class);
@@ -42,16 +53,24 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
     private final IRegisterLockDAO registerLockDAO;
     private final IRegisterDAO registerDAO;
     private final DataCarrier<RegisterSource> dataCarrier;
+    private final HistogramMetrics workerLatencyHistogram;
 
-    RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName,
-        IRegisterDAO registerDAO, int scopeId) {
+    RegisterPersistentWorker(ModuleDefineHolder moduleDefineHolder, String modelName, IRegisterDAO registerDAO,
+        int scopeId) {
         super(moduleDefineHolder);
         this.modelName = modelName;
         this.sources = new HashMap<>();
         this.registerDAO = registerDAO;
-        this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IRegisterLockDAO.class);
+        this.registerLockDAO = moduleDefineHolder.find(StorageModule.NAME)
+                                                 .provider()
+                                                 .getService(IRegisterLockDAO.class);
         this.scopeId = scopeId;
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + modelName, 1, 1000);
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+
+        workerLatencyHistogram = metricsCreator.createHistogramMetric("register_persistent_worker_latency", "The process latency of register persistent worker", new MetricsTag.Keys("module"), new MetricsTag.Values(modelName));
 
         String name = "REGISTER_L2";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -68,7 +87,8 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new RegisterPersistentWorker.PersistentConsumer(this));
     }
 
-    @Override public final void in(RegisterSource registerSource) {
+    @Override
+    public final void in(RegisterSource registerSource) {
         registerSource.resetEndOfBatch();
         dataCarrier.produce(registerSource);
     }
@@ -80,39 +100,42 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             sources.get(registerSource).combine(registerSource);
         }
 
-        if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
-            sources.values().forEach(source -> {
-                try {
-                    RegisterSource dbSource = registerDAO.get(modelName, source.id());
-                    if (Objects.nonNull(dbSource)) {
-                        if (dbSource.combine(source)) {
-                            registerDAO.forceUpdate(modelName, dbSource);
-                        }
-                    } else {
-                        int sequence;
-                        if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
-                            try {
-                                dbSource = registerDAO.get(modelName, source.id());
-                                if (Objects.nonNull(dbSource)) {
-                                    if (dbSource.combine(source)) {
-                                        registerDAO.forceUpdate(modelName, dbSource);
-                                    }
-                                } else {
-                                    source.setSequence(sequence);
-                                    registerDAO.forceInsert(modelName, source);
-                                }
-                            } catch (Throwable t) {
-                                logger.error(t.getMessage(), t);
+        try (HistogramMetrics.Timer timer = workerLatencyHistogram.createTimer()) {
+            if (sources.size() > 1000 || registerSource.isEndOfBatch()) {
+                sources.values().forEach(source -> {
+                    try {
+                        RegisterSource dbSource = registerDAO.get(modelName, source.id());
+                        if (Objects.nonNull(dbSource)) {
+                            if (dbSource.combine(source)) {
+                                registerDAO.forceUpdate(modelName, dbSource);
                             }
                         } else {
-                            logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine.nameOf(scopeId));
+                            int sequence;
+                            if ((sequence = registerLockDAO.getId(scopeId, source)) != Const.NONE) {
+                                try {
+                                    dbSource = registerDAO.get(modelName, source.id());
+                                    if (Objects.nonNull(dbSource)) {
+                                        if (dbSource.combine(source)) {
+                                            registerDAO.forceUpdate(modelName, dbSource);
+                                        }
+                                    } else {
+                                        source.setSequence(sequence);
+                                        registerDAO.forceInsert(modelName, source);
+                                    }
+                                } catch (Throwable t) {
+                                    logger.error(t.getMessage(), t);
+                                }
+                            } else {
+                                logger.info("{} inventory register try lock and increment sequence failure.", DefaultScopeDefine
+                                    .nameOf(scopeId));
+                            }
                         }
+                    } catch (Throwable t) {
+                        logger.error(t.getMessage(), t);
                     }
-                } catch (Throwable t) {
-                    logger.error(t.getMessage(), t);
-                }
-            });
-            sources.clear();
+                });
+                sources.clear();
+            }
         }
     }
 
@@ -124,11 +147,13 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             this.persistent = persistent;
         }
 
-        @Override public void init() {
+        @Override
+        public void init() {
 
         }
 
-        @Override public void consume(List<RegisterSource> data) {
+        @Override
+        public void consume(List<RegisterSource> data) {
             Iterator<RegisterSource> sourceIterator = data.iterator();
 
             int i = 0;
@@ -142,11 +167,13 @@ public class RegisterPersistentWorker extends AbstractWorker<RegisterSource> {
             }
         }
 
-        @Override public void onError(List<RegisterSource> data, Throwable t) {
+        @Override
+        public void onError(List<RegisterSource> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }

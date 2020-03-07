@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 
-/**
- * @author peng-yongsheng
- */
 public class MergeDataCache<METRICS extends Metrics> extends Window<METRICS> implements DataCache {
 
     private SWCollection<METRICS> lockedMergeDataCollection;
 
-    @Override public SWCollection<METRICS> collectionInstance() {
+    @Override
+    public SWCollection<METRICS> collectionInstance() {
         return new MergeDataCollection<>();
     }
 
@@ -43,11 +41,13 @@ public class MergeDataCache<METRICS extends Metrics> extends Window<METRICS> imp
         lockedMergeDataCollection.put(data);
     }
 
-    @Override public void writing() {
+    @Override
+    public void writing() {
         lockedMergeDataCollection = getCurrentAndWriting();
     }
 
-    @Override public void finishWriting() {
+    @Override
+    public void finishWriting() {
         lockedMergeDataCollection.finishWriting();
         lockedMergeDataCollection = null;
     }

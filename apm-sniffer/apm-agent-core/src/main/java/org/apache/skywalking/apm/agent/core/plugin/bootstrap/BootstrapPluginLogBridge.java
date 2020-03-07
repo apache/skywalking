@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * The log bridge makes the ILog accessible inside bootstrap classloader, especially for internal interceptor.
- *
- * @author wusheng
  */
 public class BootstrapPluginLogBridge implements IBootstrapLog {
     public static IBootstrapLog getLogger(String clazz) {
@@ -37,55 +35,68 @@ public class BootstrapPluginLogBridge implements IBootstrapLog {
         logger = LogManager.getLogger(clazz);
     }
 
-    @Override public void info(String format) {
+    @Override
+    public void info(String format) {
         logger.info(format);
     }
 
-    @Override public void info(String format, Object... arguments) {
+    @Override
+    public void info(String format, Object... arguments) {
         logger.info(format, arguments);
     }
 
-    @Override public void warn(String format, Object... arguments) {
+    @Override
+    public void warn(String format, Object... arguments) {
         logger.warn(format, arguments);
     }
 
-    @Override public void warn(Throwable e, String format, Object... arguments) {
+    @Override
+    public void warn(Throwable e, String format, Object... arguments) {
         logger.warn(e, format, arguments);
     }
 
-    @Override public void error(String format, Throwable e) {
+    @Override
+    public void error(String format, Throwable e) {
         logger.error(format, e);
     }
 
-    @Override public void error(Throwable e, String format, Object... arguments) {
+    @Override
+    public void error(Throwable e, String format, Object... arguments) {
         logger.error(e, format, arguments);
     }
 
-    @Override public boolean isDebugEnable() {
+    @Override
+    public boolean isDebugEnable() {
         return logger.isDebugEnable();
     }
 
-    @Override public boolean isInfoEnable() {
+    @Override
+    public boolean isInfoEnable() {
         return logger.isInfoEnable();
     }
 
-    @Override public boolean isWarnEnable() {
+    @Override
+    public boolean isWarnEnable() {
         return logger.isWarnEnable();
     }
 
-    @Override public boolean isErrorEnable() {
+    @Override
+    public boolean isErrorEnable() {
         return logger.isErrorEnable();
     }
 
-    @Override public void debug(String format) {
+    @Override
+    public void debug(String format) {
         logger.debug(format);
     }
 
-    @Override public void debug(String format, Object... arguments) {
+    @Override
+    public void debug(String format, Object... arguments) {
         logger.debug(format, arguments);
     }
 
-    @Override public void error(String format) {
+    @Override
+    public void error(String format) {
         logger.error(format);
     }
 }

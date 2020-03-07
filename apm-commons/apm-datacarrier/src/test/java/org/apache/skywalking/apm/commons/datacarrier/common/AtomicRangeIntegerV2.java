@@ -16,14 +16,12 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.common;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by lkxiaolou
  * This comes from PR#2874
  */
 public class AtomicRangeIntegerV2 extends Number implements Serializable {
@@ -45,7 +43,8 @@ public class AtomicRangeIntegerV2 extends Number implements Serializable {
             if (next > endValue && this.value.compareAndSet(next, startValue)) {
                 return endValue;
             }
-        } while (next > endValue);
+        }
+        while (next > endValue);
 
         return next - 1;
     }

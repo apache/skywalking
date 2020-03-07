@@ -18,6 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -25,15 +33,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.eclipse.jetty.server.Server;
@@ -87,9 +86,11 @@ public class WebhookCallbackTest implements Servlet {
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.ALL);
+        alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
+        anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
@@ -98,17 +99,19 @@ public class WebhookCallbackTest implements Servlet {
         Assert.assertTrue(isSuccess);
     }
 
-    @Override public void init(ServletConfig config) throws ServletException {
+    @Override
+    public void init(ServletConfig config) throws ServletException {
 
     }
 
-    @Override public ServletConfig getServletConfig() {
+    @Override
+    public ServletConfig getServletConfig() {
         return null;
     }
 
     @Override
     public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest)request;
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         if (httpServletRequest.getContentType().equals("application/json")) {
             InputStream inputStream = request.getInputStream();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -121,20 +124,22 @@ public class WebhookCallbackTest implements Servlet {
 
             JsonArray elements = new Gson().fromJson(new String(out.toByteArray()), JsonArray.class);
             if (elements.size() == 2) {
-                ((HttpServletResponse)response).setStatus(200);
+                ((HttpServletResponse) response).setStatus(200);
                 isSuccess = true;
                 return;
             }
 
-            ((HttpServletResponse)response).setStatus(500);
+            ((HttpServletResponse) response).setStatus(500);
         }
     }
 
-    @Override public String getServletInfo() {
+    @Override
+    public String getServletInfo() {
         return null;
     }
 
-    @Override public void destroy() {
+    @Override
+    public void destroy() {
 
     }
 

@@ -18,34 +18,79 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.All;
+import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.Service;
+import org.apache.skywalking.oap.server.core.source.ServiceInstance;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
-/**
- * @author peng-yongsheng
- */
 class SourceBuilder {
 
-    @Getter @Setter private int sourceServiceId;
-    @Getter @Setter private String sourceServiceName;
-    @Getter @Setter private int sourceServiceInstanceId;
-    @Getter @Setter private String sourceServiceInstanceName;
-    @Getter @Setter private int sourceEndpointId;
-    @Getter @Setter private String sourceEndpointName;
-    @Getter @Setter private int destServiceId;
-    @Getter @Setter private String destServiceName;
-    @Getter @Setter private int destServiceInstanceId;
-    @Getter @Setter private String destServiceInstanceName;
-    @Getter @Setter private int destEndpointId;
-    @Getter @Setter private String destEndpointName;
-    @Getter @Setter private int componentId;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
-    @Getter @Setter private DetectPoint detectPoint;
-    @Getter @Setter private long timeBucket;
+    @Getter
+    @Setter
+    private int sourceServiceId;
+    @Getter
+    @Setter
+    private String sourceServiceName;
+    @Getter
+    @Setter
+    private int sourceServiceInstanceId;
+    @Getter
+    @Setter
+    private String sourceServiceInstanceName;
+    @Getter
+    @Setter
+    private int sourceEndpointId;
+    @Getter
+    @Setter
+    private String sourceEndpointName;
+    @Getter
+    @Setter
+    private int destServiceId;
+    @Getter
+    @Setter
+    private String destServiceName;
+    @Getter
+    @Setter
+    private int destServiceInstanceId;
+    @Getter
+    @Setter
+    private String destServiceInstanceName;
+    @Getter
+    @Setter
+    private int destEndpointId;
+    @Getter
+    @Setter
+    private String destEndpointName;
+    @Getter
+    @Setter
+    private int componentId;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
+    @Getter
+    @Setter
+    private DetectPoint detectPoint;
+    @Getter
+    @Setter
+    private long timeBucket;
 
     All toAll() {
         All all = new All();
@@ -114,7 +159,7 @@ class SourceBuilder {
         serviceInstanceRelation.setSourceServiceId(sourceServiceId);
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
-        serviceInstanceRelation.setSourceServiceId(destServiceId);
+        serviceInstanceRelation.setDestServiceId(destServiceId);
         serviceInstanceRelation.setDestServiceInstanceId(destServiceInstanceId);
         serviceInstanceRelation.setDestServiceName(destServiceName);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);

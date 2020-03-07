@@ -31,22 +31,21 @@ import org.apache.skywalking.apm.util.StringUtil;
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment}, use {@link #spanId} point to
  * the exact span of the ref {@link TraceSegment}.
  * <p>
- * Created by wusheng on 2017/2/17.
  */
 public class TraceSegmentRef {
     private SegmentRefType type;
 
     private ID traceSegmentId;
 
-    private int spanId = -1;
+    private int spanId;
 
     private int peerId = DictionaryUtil.nullValue();
 
     private String peerHost;
 
-    private int entryServiceInstanceId = DictionaryUtil.nullValue();
+    private int entryServiceInstanceId;
 
-    private int parentServiceInstanceId = DictionaryUtil.nullValue();
+    private int parentServiceInstanceId;
 
     private String entryEndpointName;
 
@@ -144,7 +143,7 @@ public class TraceSegmentRef {
         refBuilder.setEntryServiceInstanceId(entryServiceInstanceId);
         refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
         refBuilder.setParentSpanId(spanId);
-        /**
+        /*
          * entryEndpointId/entryEndpointName and parentEndpointId/parentEndpointName could be empty at same time.
          * This is accepted in v2 format.
          *
@@ -173,7 +172,7 @@ public class TraceSegmentRef {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        TraceSegmentRef ref = (TraceSegmentRef)o;
+        TraceSegmentRef ref = (TraceSegmentRef) o;
 
         if (spanId != ref.spanId)
             return false;
@@ -188,7 +187,6 @@ public class TraceSegmentRef {
     }
 
     public enum SegmentRefType {
-        CROSS_PROCESS,
-        CROSS_THREAD
+        CROSS_PROCESS, CROSS_THREAD
     }
 }

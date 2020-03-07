@@ -1,7 +1,7 @@
 # TTL
 In SkyWalking, there are two types of observability data, besides metadata.
 1. Record, including trace and alarm. Maybe log in the future.
-1. Metric, including such as p99/p95/p90/p75/p50, heatmap, success rate, cpm(rpm) etc.
+1. Metric, including such as percentile, heatmap, success rate, cpm(rpm) etc.
 Metric is separated in minute/hour/day/month dimensions in storage, different indexes or tables.
 
 You have following settings for different types.
@@ -36,5 +36,7 @@ You have following settings in Elasticsearch storage.
 ``` 
 
 - `recordDataTTL` affects **Record** data.
-- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. If you want to set them manually, please remove `otherMetricsDataTTL`.
+- `otherMetricsDataTTL` affects minute/hour/day dimensions of metrics. `minuteMetricsDataTTL`, `hourMetricsDataTTL` and `dayMetricsDataTTL` are still there, but the **Unit** of them changed to **DAY** too. 
+If you want to set them manually, please remove `otherMetricsDataTTL`. Since 7.0.0, `enablePackedDownsampling` is activated by default, in that case, only `minuteMetricsDataTTL` works.
+There is no much difference between use `otherMetricsDataTTL` or not, unless turn `enablePackedDownsampling` OFF.
 - `monthMetricsDataTTL` affects month dimension of metrics.

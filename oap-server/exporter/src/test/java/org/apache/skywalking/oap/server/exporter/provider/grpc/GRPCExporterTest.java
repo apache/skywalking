@@ -19,7 +19,12 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.testing.GrpcServerRule;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.exporter.ExportData;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
@@ -28,13 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * Created by dengming, 2019.04.20
- */
 public class GRPCExporterTest {
 
     private GRPCExporter exporter;
@@ -64,7 +62,8 @@ public class GRPCExporterTest {
     }
 
     public static class MockExporterMetrics extends MockMetrics implements WithMetadata {
-        @Override public MetricsMetaInfo getMeta() {
+        @Override
+        public MetricsMetaInfo getMeta() {
             return new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.ALL);
         }
     }
@@ -87,7 +86,6 @@ public class GRPCExporterTest {
         exporter.consume(Collections.emptyList());
     }
 
-
     @Test
     public void onError() {
         Exception e = new IllegalArgumentException("some something wrong");
@@ -100,12 +98,12 @@ public class GRPCExporterTest {
         exporter.onExit();
     }
 
-    private List<GRPCExporter.ExportData> dataList() {
-        List<GRPCExporter.ExportData> dataList = new LinkedList<>();
-        dataList.add(exporter.new ExportData(metaInfo, new MockMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockIntValueMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockLongValueMetrics()));
-        dataList.add(exporter.new ExportData(metaInfo, new MockDoubleValueMetrics()));
+    private List<ExportData> dataList() {
+        List<ExportData> dataList = new LinkedList<>();
+        dataList.add(new ExportData(metaInfo, new MockMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockIntValueMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockLongValueMetrics()));
+        dataList.add(new ExportData(metaInfo, new MockDoubleValueMetrics()));
         return dataList;
     }
 }

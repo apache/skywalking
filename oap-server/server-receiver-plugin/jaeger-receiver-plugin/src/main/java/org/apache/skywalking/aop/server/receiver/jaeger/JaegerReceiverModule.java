@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
  * Adapt Jaeger gRPC backend service.
- *
- * @author wusheng
  */
 public class JaegerReceiverModule extends ModuleDefine {
     public static final String NAME = "receiver_jaeger";
@@ -32,7 +30,8 @@ public class JaegerReceiverModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

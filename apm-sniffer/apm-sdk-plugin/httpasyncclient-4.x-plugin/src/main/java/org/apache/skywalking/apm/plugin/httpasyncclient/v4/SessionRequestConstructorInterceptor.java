@@ -26,14 +26,20 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * hold the snapshot in SkyWalkingDynamicField
- * @author lican
  */
 public class SessionRequestConstructorInterceptor implements InstanceConstructorInterceptor {
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (ContextManager.isActive()) {
+            if (ContextManager.activeSpan().isExit()) {
+                CONTEXT_LOCAL.remove();
+                return;
+            }
             ContextSnapshot snapshot = ContextManager.capture();
-            objInst.setSkyWalkingDynamicField(new Object[]{snapshot, CONTEXT_LOCAL.get()});
+            objInst.setSkyWalkingDynamicField(new Object[] {
+                snapshot,
+                CONTEXT_LOCAL.get()
+            });
         }
         CONTEXT_LOCAL.remove();
     }

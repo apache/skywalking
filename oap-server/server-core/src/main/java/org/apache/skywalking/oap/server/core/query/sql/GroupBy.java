@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.sql;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
 public class GroupBy {

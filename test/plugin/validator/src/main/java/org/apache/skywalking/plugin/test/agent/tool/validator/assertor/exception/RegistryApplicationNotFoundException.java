@@ -26,8 +26,8 @@ public class RegistryApplicationNotFoundException extends AssertFailedException 
         this.applicationCode = applicationCode;
     }
 
-    @Override public String getCauseMessage() {
-        return String.format("RegistryApplicationNotFoundException\nexpected: %s\nactual: %s\n", applicationCode,
-            "Not Found");
+    @Override
+    public String getCauseMessage() {
+        return String.format("RegistryApplicationNotFoundException\nexpected: %s\nactual: %s\n", applicationCode, "Not Found");
     }
 }

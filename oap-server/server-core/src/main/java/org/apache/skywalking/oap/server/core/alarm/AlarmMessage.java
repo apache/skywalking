@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Alarm message represents the details of each alarm.
- *
- * @author wusheng, peng-yongsheng
  */
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
@@ -32,9 +32,11 @@ public class AlarmMessage {
     public static AlarmMessage NONE = new NoAlarm();
 
     private int scopeId;
+    private String scope;
     private String name;
     private int id0;
     private int id1;
+    private String ruleName;
     private String alarmMessage;
     private long startTime;
 

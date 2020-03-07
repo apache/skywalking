@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.mockcollector.entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.skywalking.apm.network.language.agent.SpanType;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class RegistryItem {
     /**
@@ -44,10 +43,10 @@ public class RegistryItem {
     private final Map<String, Integer> heartBeats;
 
     public RegistryItem() {
-        applications = new HashMap<>();
-        operationNames = new HashMap<>();
-        instanceMapping = new HashMap<>();
-        heartBeats = new HashMap<>();
+        applications = new ConcurrentHashMap<>();
+        operationNames = new ConcurrentHashMap<>();
+        instanceMapping = new ConcurrentHashMap<>();
+        heartBeats = new ConcurrentHashMap<>();
     }
 
     public void registryApplication(Application application) {

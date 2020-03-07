@@ -19,17 +19,30 @@
 package org.apache.skywalking.oap.server.core.register.service;
 
 import com.google.gson.JsonObject;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface IServiceInstanceInventoryRegister extends Service {
 
-    int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
-        JsonObject properties);
+    int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime, JsonObject properties);
 
-    int getOrCreate(int serviceId, int addressId, long registerTime);
+    int getOrCreate(int serviceId, String serviceInstanceName, int addressId, long registerTime);
+
+    void update(int serviceInstanceId, NodeType nodeType, JsonObject properties);
 
     void heartbeat(int serviceInstanceId, long heartBeatTime);
+
+    void updateMapping(int serviceInstanceId, int mappingServiceInstanceId);
+
+    /**
+     * Reset the {@link org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory#mappingServiceInstanceId}
+     * of a given service id.
+     * <p>
+     * There are cases when the mapping service id needs to be reset to {@code 0}, for example, when an uninstrumented
+     * gateway joins, the mapping service id of the services that are delegated by this gateway should be reset to
+     * {@code 0}, allowing the gateway to appear in the topology, see #3308 for more detail.
+     *
+     * @param serviceInstanceId id of the service whose mapping service id is to be reset
+     */
+    void resetMapping(int serviceInstanceId);
 }

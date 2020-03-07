@@ -18,24 +18,11 @@
 
 package org.apache.skywalking.e2e.metrics;
 
-/**
- * @author kezhenxu94
- */
+import lombok.Data;
+import lombok.ToString;
+
+@Data
+@ToString
 public class MetricsData {
     private Metrics metrics;
-
-    public Metrics getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(Metrics metrics) {
-        this.metrics = metrics;
-    }
-
-    @Override
-    public String toString() {
-        return "MetricsData{" +
-            "metrics=" + metrics +
-            '}';
-    }
 }

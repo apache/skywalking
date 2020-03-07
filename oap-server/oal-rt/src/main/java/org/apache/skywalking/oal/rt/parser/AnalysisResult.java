@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
-import lombok.*;
+import java.util.LinkedList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
@@ -50,7 +53,7 @@ public class AnalysisResult {
 
     private List<ConditionExpression> funcConditionExpressions;
 
-    private List<String> funcArgs;
+    private List<Argument> funcArgs;
     private int argGetIdx = 0;
 
     private List<DataColumn> persistentFields;
@@ -88,14 +91,14 @@ public class AnalysisResult {
         filterExpressionsParserResult.add(conditionExpression);
     }
 
-    public void addFuncArg(String value) {
+    public void addFuncArg(Argument argument) {
         if (funcArgs == null) {
             funcArgs = new LinkedList<>();
         }
-        funcArgs.add(value);
+        funcArgs.add(argument);
     }
 
-    public String getNextFuncArg() {
+    public Argument getNextFuncArg() {
         return funcArgs.get(argGetIdx++);
     }
 
@@ -117,7 +120,8 @@ public class AnalysisResult {
                     serializeFields.addLongField(sourceColumn.getFieldName());
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field type [" + type + "] of source sourceColumn [" + sourceColumn.getFieldName() + "]");
+                    throw new IllegalStateException("Unexpected field type [" + type + "] of source sourceColumn [" + sourceColumn
+                        .getFieldName() + "]");
             }
         }
 
@@ -140,7 +144,8 @@ public class AnalysisResult {
                     serializeFields.addIntKeyLongValueHashMapField(column.getFieldName());
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field type [" + type + "] of persistence column [" + column.getFieldName() + "]");
+                    throw new IllegalStateException("Unexpected field type [" + type + "] of persistence column [" + column
+                        .getFieldName() + "]");
             }
         }
     }

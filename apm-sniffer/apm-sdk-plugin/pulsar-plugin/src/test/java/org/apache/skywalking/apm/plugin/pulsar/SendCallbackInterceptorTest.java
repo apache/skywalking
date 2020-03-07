@@ -61,14 +61,16 @@ public class SendCallbackInterceptorTest {
 
     private EnhancedInstance callBackInstance = new EnhancedInstance() {
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             SendCallbackEnhanceRequiredInfo requiredInfo = new SendCallbackEnhanceRequiredInfo();
             requiredInfo.setTopic("persistent://my-tenant/my-ns/my-topic");
             requiredInfo.setContextSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
             return requiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     };

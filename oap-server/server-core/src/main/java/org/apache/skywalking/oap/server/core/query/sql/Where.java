@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.sql;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.Getter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Where {
     private List<KeyValues> keyValues = new LinkedList<>();

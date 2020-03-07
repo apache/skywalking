@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.resttemplate.async.define;
 
 import java.net.URI;
@@ -33,14 +32,12 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link RestTemplateInstrumentation} enhance the <code>doExecute</code> method and <code>createAsyncRequest</code>
- * method of <code>org.springframework.web.client.AsyncRestTemplate</code> by <code>RestExecuteInterceptor</code>
- * and <code>org.springframework.http.client.RestRequestInterceptor</code>.
+ * method of <code>org.springframework.web.client.AsyncRestTemplate</code> by <code>RestExecuteInterceptor</code> and
+ * <code>org.springframework.http.client.RestRequestInterceptor</code>.
  *
  * <code>org.springframework.http.client.RestRequestInterceptor</code> set {@link URI} and {@link ContextSnapshot} to
  * <code>org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture</code> for propagate trace context
  * after execute <code>doExecute</code> .
- *
- * @author zhangxin
  */
 public class RestTemplateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -59,28 +56,34 @@ public class RestTemplateInstrumentation extends ClassInstanceMethodsEnhancePlug
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(DO_EXECUTE_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return DO_EXECUTE_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(CREATE_REQUEST_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return CREATE_REQUEST_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

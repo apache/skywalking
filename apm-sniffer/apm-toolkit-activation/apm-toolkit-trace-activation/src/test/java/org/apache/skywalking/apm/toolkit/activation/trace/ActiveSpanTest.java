@@ -15,14 +15,20 @@
  * limitations under the License.
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.junit.Before;
@@ -33,17 +39,10 @@ import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-/**
- * @author caoyixiong
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class ActiveSpanTest {
@@ -53,7 +52,6 @@ public class ActiveSpanTest {
     private ActiveSpanErrorMsgInterceptor activeSpanErrorMsgInterceptor;
     private ActiveSpanErrorThrowableInteceptor activeSpanErrorThrowableInteceptor;
     private ActiveSpanInfoInterceptor activeSpanInfoInterceptor;
-
 
     @Mock
     private EnhancedInstance enhancedInstance;
@@ -76,11 +74,11 @@ public class ActiveSpanTest {
         activeSpanErrorThrowableInteceptor = new ActiveSpanErrorThrowableInteceptor();
         activeSpanInfoInterceptor = new ActiveSpanInfoInterceptor();
 
-        tagParametersMsg = new Object[]{"testMsgValue"};
-        tagParameterTypesMsg = new Class[]{String.class};
+        tagParametersMsg = new Object[] {"testMsgValue"};
+        tagParameterTypesMsg = new Class[] {String.class};
 
-        tagParametersThrowable = new Object[]{new RuntimeException("test-Throwable")};
-        tagParameterTypesThrowable = new Class[]{Throwable.class};
+        tagParametersThrowable = new Object[] {new RuntimeException("test-Throwable")};
+        tagParameterTypesThrowable = new Class[] {Throwable.class};
     }
 
     @Test

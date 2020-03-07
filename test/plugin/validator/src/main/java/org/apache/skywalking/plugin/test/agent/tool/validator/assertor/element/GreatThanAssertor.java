@@ -14,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.assertor.element;
 
 import org.apache.skywalking.plugin.test.agent.tool.validator.assertor.exception.ValueAssertFailedException;
 
-/**
- * Created by xin on 2017/7/16.
- */
 public class GreatThanAssertor extends ElementAssertor {
 
     public GreatThanAssertor(String exceptedValue) {
@@ -30,7 +28,7 @@ public class GreatThanAssertor extends ElementAssertor {
     @Override
     public void assertValue(String desc, String actualValue) {
         if (Long.parseLong(actualValue) <= Long.parseLong(exceptedValue)) {
-            throw new ValueAssertFailedException(desc," gt " + exceptedValue, actualValue);
+            throw new ValueAssertFailedException(desc, " gt " + exceptedValue, actualValue);
         }
     }
 }

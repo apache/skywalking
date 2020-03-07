@@ -18,28 +18,31 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.*;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 
-/**
- * @author wusheng
- */
 @DefaultImplementor
 public class ContextManagerExtendService implements BootService {
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
 
     }
 
-    @Override public void boot() {
+    @Override
+    public void boot() {
 
     }
 
-    @Override public void onComplete() {
+    @Override
+    public void onComplete() {
 
     }
 
-    @Override public void shutdown() {
+    @Override
+    public void shutdown() {
 
     }
 
@@ -51,7 +54,7 @@ public class ContextManagerExtendService implements BootService {
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             if (forceSampling || samplingService.trySampling()) {
-                context = new TracingContext();
+                context = new TracingContext(operationName);
             } else {
                 context = new IgnoredTracerContext();
             }

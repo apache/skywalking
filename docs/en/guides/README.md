@@ -90,6 +90,13 @@ We've given a simple example that verifies SkyWalking should work as expected in
 To put it simple, test controllers are basically tests that can be bound to the Maven `integration-test/verify` phase.
 They send **designed** requests to the instrumented service, and expect to get corresponding traces/metrics/metadata from the SkyWalking webapp GraphQL API.
 
+- Troubleshooting
+
+**NOTE:** Please verify the newly-added E2E test case locally first, however, if you find it passed locally but failed in the PR check status, make sure all the updated/newly-added files (especially those in submodules)
+are committed and included in that PR, or reset the git HEAD to the remote and verify locally again.
+
+There should be related logs when tests are failed, but if the OAP backend failed to start at all, there may be just logs saying "timeout", please verify locally again, and recheck the NOTE above.
+
 ### Project Extensions
 SkyWalking project supports many ways to extend existing features. If you are interesting in these ways,
 read the following guides.
@@ -134,6 +141,12 @@ miss any newly-added dependency:
 - Run the script in the root directory, it will print out all newly-added dependencies.
 - Check the LICENSE's and NOTICE's of those dependencies, if they can be included in an ASF project, add them in the `apm-dist/release-docs/{LICENSE,NOTICE}` file.
 - Add those dependencies' names to the `tools/dependencies/known-oap-backend-dependencies.txt` file (**alphabetical order**), the next run of `check-LICENSE.sh` should pass. 
+
+## Profile
+The performance profile is an enhancement feature in the APM system. We are using the thread dump to estimate the method execution time, rather than adding many local spans. In this way, the resource cost would be much less than using distributed tracing to locate slow method. This feature is suitable in the production environment. The following documents are important for developers to understand the key parts of this feature
+- [Profile data report procotol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided like other trace, JVM data through gRPC.
+- [Thread dump merging mechanism](backend-profile.md) introduces the merging mechanism, which helps the end users to understand the profile report.
+- [Exporter tool of profile raw data](backend-profile-export.md) introduces when the visualization doesn't work well through the official UI, how to package the original profile data, which helps the users report the issue.
 
 ## For release
 [Apache Release Guide](How-to-release.md) introduces to the committer team about doing official Apache version release, to avoid 

@@ -14,11 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openjdk:7
+FROM openjdk:8
 MAINTAINER zhangxin@apache.org
 
-ADD docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+WORKDIR /usr/local/skywalking/tools
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-RUN ["/bin/bash"]
+COPY run.sh /
+RUN chmod +x /run.sh
+
+COPY skywalking-validator-tools.jar /usr/local/skywalking/tools
+COPY skywalking-mock-collector.tar.gz /usr/local/skywalking/tools
+RUN tar -xvf skywalking-mock-collector.tar.gz -C /usr/local/skywalking/tools
+
+WORKDIR /usr/local/skywalking/scenario
+
+CMD ["/run.sh"]

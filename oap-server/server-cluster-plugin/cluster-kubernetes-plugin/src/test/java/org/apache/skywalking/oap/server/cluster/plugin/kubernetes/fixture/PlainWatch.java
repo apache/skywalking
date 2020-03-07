@@ -51,11 +51,12 @@ public class PlainWatch implements ReusableWatch<Event> {
         this.size = size;
     }
 
-    @Override public void initOrReset() {
+    @Override
+    public void initOrReset() {
         final Iterator<Event> internal = events.subList(count, events.size()).iterator();
         iterator = new Iterator<Event>() {
             public boolean hasNext() {
-                boolean result =  count < size && internal.hasNext();
+                boolean result = count < size && internal.hasNext();
                 if (!result) {
                     latch.countDown();
                 }
@@ -77,7 +78,8 @@ public class PlainWatch implements ReusableWatch<Event> {
         };
     }
 
-    @Override public Iterator<Event> iterator() {
+    @Override
+    public Iterator<Event> iterator() {
         return iterator;
     }
 

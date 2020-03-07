@@ -18,21 +18,22 @@
 
 package org.apache.skywalking.oap.server.library.client.grpc;
 
-import io.grpc.*;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCClient implements Client {
 
     private static final Logger logger = LoggerFactory.getLogger(GRPCClient.class);
 
-    @Getter private final String host;
+    @Getter
+    private final String host;
 
-    @Getter private final int port;
+    @Getter
+    private final int port;
 
     private ManagedChannel channel;
 
@@ -41,11 +42,13 @@ public class GRPCClient implements Client {
         this.port = port;
     }
 
-    @Override public void connect() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
+    @Override
+    public void connect() {
+        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
     }
 
-    @Override public void shutdown() {
+    @Override
+    public void shutdown() {
         try {
             channel.shutdownNow();
         } catch (Throwable t) {
@@ -57,7 +60,8 @@ public class GRPCClient implements Client {
         return channel;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return host + ":" + port;
     }
 }

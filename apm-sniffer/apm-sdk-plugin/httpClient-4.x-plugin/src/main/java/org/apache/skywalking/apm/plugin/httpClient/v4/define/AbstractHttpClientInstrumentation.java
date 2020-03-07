@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.httpClient.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,11 +27,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts
- * AbstractHttpClient#doExecute
- * by using {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
- *
- * @author zhangxin
+ * {@link AbstractHttpClientInstrumentation} presents that skywalking intercepts AbstractHttpClient#doExecute by using
+ * {@link HttpClientInstrumentation#INTERCEPT_CLASS}.
  */
 public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation {
 
@@ -44,8 +40,8 @@ public class AbstractHttpClientInstrumentation extends HttpClientInstrumentation
     }
 
     /**
-     * version 4.2, intercept method: execute, intercept
-     * public final HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
+     * version 4.2, intercept method: execute, intercept public final HttpResponse execute(HttpHost target, HttpRequest
+     * request, HttpContext context)
      */
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {

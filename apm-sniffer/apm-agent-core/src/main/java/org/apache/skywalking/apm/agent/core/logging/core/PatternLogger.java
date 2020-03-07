@@ -35,15 +35,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
- * A flexible Logger configurable with pattern string.
- * This is default implementation of {@link ILog}
- * This can parse a pattern to the List of converter with Parser.
- * We package LogEvent with message, level,timestamp ..., passing around to the List of converter to concat actually Log-String.
- *
- * @author alvin
+ * A flexible Logger configurable with pattern string. This is default implementation of {@link ILog} This can parse a
+ * pattern to the List of converter with Parser. We package LogEvent with message, level,timestamp ..., passing around
+ * to the List of converter to concat actually Log-String.
  */
 public class PatternLogger implements ILog {
-
 
     public static final Map<String, Class<? extends Converter>> DEFAULT_CONVERTER_MAP = new HashMap<String, Class<? extends Converter>>();
 
@@ -83,7 +79,6 @@ public class PatternLogger implements ILog {
         this.pattern = pattern;
         converters = new Parser(pattern, DEFAULT_CONVERTER_MAP).parse();
     }
-
 
     protected void logger(LogLevel level, String message, Throwable e) {
         WriterFactory.getLogWriter().write(format(level, message, e));
@@ -184,6 +179,12 @@ public class PatternLogger implements ILog {
         }
     }
 
+    @Override
+    public void debug(final Throwable t, final String format, final Object... arguments) {
+        if (isDebugEnable()) {
+            logger(LogLevel.DEBUG, replaceParam(format, arguments), t);
+        }
+    }
 
     String format(LogLevel level, String message, Throwable t) {
         LogEvent logEvent = new LogEvent(level, message, t, targetClass);

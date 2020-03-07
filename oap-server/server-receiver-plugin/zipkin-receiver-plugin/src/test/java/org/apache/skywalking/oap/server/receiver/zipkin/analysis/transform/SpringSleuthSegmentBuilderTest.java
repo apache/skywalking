@@ -20,21 +20,26 @@ package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import com.google.gson.JsonObject;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.core.register.NodeType;
-import org.apache.skywalking.oap.server.core.register.service.*;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.*;
-import org.junit.*;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.ZipkinTrace;
+import org.junit.Assert;
+import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
-/**
- * @author wusheng
- */
 public class SpringSleuthSegmentBuilderTest implements SegmentListener {
     private Map<String, Integer> applicationInstRegister = new HashMap<>();
     private Map<String, Integer> applicationRegister = new HashMap<>();
@@ -45,7 +50,8 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
     public void testTransform() throws Exception {
 
         IServiceInventoryRegister applicationIDService = new IServiceInventoryRegister() {
-            @Override public int getOrCreate(String serviceName, JsonObject properties) {
+            @Override
+            public int getOrCreate(String serviceName, JsonObject properties) {
                 String key = "AppCode:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
                     return applicationRegister.get(key);
@@ -56,7 +62,13 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
+            @Override
+            public int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties) {
+                return getOrCreate(serviceName, properties);
+            }
+
+            @Override
+            public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
                 String key = "Address:" + serviceName;
                 if (applicationRegister.containsKey(key)) {
                     return applicationRegister.get(key);
@@ -67,24 +79,29 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
+            @Override
+            public void update(int serviceId, NodeType nodeType, JsonObject properties) {
             }
 
-            @Override public void heartbeat(int serviceId, long heartBeatTime) {
+            @Override
+            public void heartbeat(int serviceId, long heartBeatTime) {
 
             }
 
-            @Override public void updateMapping(int serviceId, int mappingServiceId) {
+            @Override
+            public void updateMapping(int serviceId, int mappingServiceId) {
 
             }
 
-            @Override public void resetMapping(final int serviceId) {
+            @Override
+            public void resetMapping(final int serviceId) {
 
             }
         };
 
         IServiceInstanceInventoryRegister instanceIDService = new IServiceInstanceInventoryRegister() {
-            @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
+            @Override
+            public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
                 JsonObject osInfo) {
                 String key = "AppCode:" + serviceId + ",UUID:" + uuid;
                 if (applicationInstRegister.containsKey(key)) {
@@ -96,7 +113,8 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
+            @Override
+            public int getOrCreate(int serviceId, String serviceInstanceName, int addressId, long registerTime) {
                 String key = "VitualAppCode:" + serviceId + ",getAddress:" + addressId;
                 if (applicationInstRegister.containsKey(key)) {
                     return applicationInstRegister.get(key);
@@ -107,7 +125,23 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
                 }
             }
 
-            @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+            @Override
+            public void update(int serviceInstanceId, NodeType nodeType, JsonObject properties) {
+
+            }
+
+            @Override
+            public void heartbeat(int serviceInstanceId, long heartBeatTime) {
+
+            }
+
+            @Override
+            public void updateMapping(int serviceInstanceId, int mappingServiceInstanceId) {
+
+            }
+
+            @Override
+            public void resetMapping(int serviceInstanceId) {
 
             }
         };

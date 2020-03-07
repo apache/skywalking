@@ -18,21 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * Node type describe which kind of node of Service or Network address represents to.
- *
+ * <p>
  * The value comes from 'org.apache.skywalking.apm.network.language.agent.SpanLayer' at first place, but most likely it
  * will extend and be used directly from different sources, such as Mesh.
- *
- * @author wusheng
  */
 public enum NodeType {
     /**
      * <code>Unknown = 0;</code>
      */
-    Unknown(0),
+    Normal(0),
     /**
      * <code>Database = 1;</code>
      */
@@ -53,7 +52,10 @@ public enum NodeType {
      * <code>Cache = 5;</code>
      */
     Cache(5),
-    UNRECOGNIZED(-1);
+    /**
+     * <code>Browser = 6;</code>
+     */
+    Browser(6), UNRECOGNIZED(-1);
 
     private final int value;
 
@@ -68,7 +70,7 @@ public enum NodeType {
     public static NodeType get(int value) {
         switch (value) {
             case 0:
-                return Unknown;
+                return Normal;
             case 1:
                 return Database;
             case 2:
@@ -88,11 +90,25 @@ public enum NodeType {
 
     /**
      * Right now, spanLayerValue is exact same as NodeType value.
-     *
-     * @param spanLayerValue
-     * @return
      */
     public static NodeType fromSpanLayerValue(int spanLayerValue) {
         return get(spanLayerValue);
+    }
+
+    public static NodeType fromRegisterServiceType(ServiceType serviceType) {
+        switch (serviceType) {
+            case normal:
+                return Normal;
+            case database:
+                return Database;
+            case cache:
+                return Cache;
+            case mq:
+                return MQ;
+            case browser:
+                return Browser;
+            default:
+                return Normal;
+        }
     }
 }

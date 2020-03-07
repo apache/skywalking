@@ -16,23 +16,21 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.ids;
 
-import org.apache.skywalking.apm.network.language.agent.*;
+import java.util.Objects;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 
 /**
  * The <code>DistributedTraceId</code> presents a distributed call chain.
  * <p>
  * This call chain has a unique (service) entrance,
  * <p>
- * such as: Service : http://www.skywalking.com/cust/query, all the remote, called behind this service, rest remote,
- * db executions, are using the same <code>DistributedTraceId</code> even in different JVM.
+ * such as: Service : http://www.skywalking.com/cust/query, all the remote, called behind this service, rest remote, db
+ * executions, are using the same <code>DistributedTraceId</code> even in different JVM.
  * <p>
  * The <code>DistributedTraceId</code> contains only one string, and can NOT be reset, creating a new instance is the
  * only option.
- *
- * @author wusheng
  */
 public abstract class DistributedTraceId {
     private ID id;
@@ -59,8 +57,8 @@ public abstract class DistributedTraceId {
     }
 
     /**
-     * Compare the two <code>DistributedTraceId</code> by its {@link #id},
-     * even these two <code>DistributedTraceId</code>s are not the same instances.
+     * Compare the two <code>DistributedTraceId</code> by its {@link #id}, even these two
+     * <code>DistributedTraceId</code>s are not the same instances.
      *
      * @param o target <code>DistributedTraceId</code>
      * @return return if they have the same {@link #id}
@@ -72,9 +70,9 @@ public abstract class DistributedTraceId {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        DistributedTraceId id1 = (DistributedTraceId)o;
+        DistributedTraceId id1 = (DistributedTraceId) o;
 
-        return id != null ? id.equals(id1.id) : id1.id == null;
+        return Objects.equals(id, id1.id);
     }
 
     @Override

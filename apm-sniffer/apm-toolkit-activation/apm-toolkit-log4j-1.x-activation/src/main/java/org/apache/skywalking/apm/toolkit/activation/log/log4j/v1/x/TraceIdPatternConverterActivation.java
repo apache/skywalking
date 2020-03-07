@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.log.log4j.v1.x;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,12 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * Active the toolkit class "TraceIdPatternConverter".
- * Should not dependency or import any class in "skywalking-toolkit-log4j-1.x" module.
- * Activation's classloader is diff from "TraceIdPatternConverter",
- * using direct will trigger classloader issue.
- *
- * @author wusheng
+ * Active the toolkit class "TraceIdPatternConverter". Should not dependency or import any class in
+ * "skywalking-toolkit-log4j-1.x" module. Activation's classloader is diff from "TraceIdPatternConverter", using direct
+ * will trigger classloader issue.
  */
 public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -77,7 +73,8 @@ public class TraceIdPatternConverterActivation extends ClassInstanceMethodsEnhan
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

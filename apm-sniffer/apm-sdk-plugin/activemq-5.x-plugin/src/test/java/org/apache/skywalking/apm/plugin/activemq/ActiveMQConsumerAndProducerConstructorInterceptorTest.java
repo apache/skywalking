@@ -41,7 +41,6 @@ import java.security.cert.X509Certificate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-
 public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
 
     @Mock
@@ -51,16 +50,15 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
 
     private JMSStatsImpl jmsStats;
 
-
     @Mock
     private ActiveMQSession activeMQSession;
 
-    private SessionId  sessionId;
+    private SessionId sessionId;
 
+    public class TransportTest implements Transport {
 
-    public  class  TransportTest implements  Transport {
+        private String remoteAddress;
 
-        private  String remoteAddress;
         @Override
         public void oneway(Object o) throws IOException {
 
@@ -171,24 +169,27 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
         }
     }
 
-    public  class  TestConnection extends ActiveMQConnection {
+    public class TestConnection extends ActiveMQConnection {
 
-        public TestConnection(Transport transport, IdGenerator clientIdGenerator, IdGenerator connectionIdGenerator, JMSStatsImpl factoryStats) throws Exception {
+        public TestConnection(Transport transport, IdGenerator clientIdGenerator, IdGenerator connectionIdGenerator,
+            JMSStatsImpl factoryStats) throws Exception {
             super(transport, clientIdGenerator, connectionIdGenerator, factoryStats);
         }
     }
 
-    private class  TestActiveMQSession extends ActiveMQSession {
+    private class TestActiveMQSession extends ActiveMQSession {
 
-        public TestActiveMQSession(ActiveMQConnection connection, SessionId sessionId, int acknowledgeMode, boolean asyncDispatch, boolean sessionAsyncDispatch) throws JMSException {
+        public TestActiveMQSession(ActiveMQConnection connection, SessionId sessionId, int acknowledgeMode,
+            boolean asyncDispatch, boolean sessionAsyncDispatch) throws JMSException {
             super(connection, sessionId, acknowledgeMode, asyncDispatch, sessionAsyncDispatch);
         }
     }
 
-    private  ActiveMQConsumerConstructorInterceptor activeMQConsumerAndProducerConstructorInterceptor;
+    private ActiveMQConsumerConstructorInterceptor activeMQConsumerAndProducerConstructorInterceptor;
 
     private EnhancedInstance enhancedInstance = new EnhancedInstance() {
         private String test;
+
         @Override
         public Object getSkyWalkingDynamicField() {
             return test;
@@ -196,24 +197,25 @@ public class ActiveMQConsumerAndProducerConstructorInterceptorTest {
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            test = (String)value;
+            test = (String) value;
         }
     };
+
     @Before
     public void setUp() throws Exception {
-        TransportTest transport =  new TransportTest();
+        TransportTest transport = new TransportTest();
         transport.setRemoteAddress("tcp://127.0.0.1:61616");
-        idGenerator = new  IdGenerator("aaa");
+        idGenerator = new IdGenerator("aaa");
         jmsStats = new JMSStatsImpl();
-        activeMQConnection = new TestConnection(transport,idGenerator,idGenerator,jmsStats);
+        activeMQConnection = new TestConnection(transport, idGenerator, idGenerator, jmsStats);
         sessionId = new SessionId();
-        activeMQSession = new TestActiveMQSession(activeMQConnection,sessionId,1,true,true);
+        activeMQSession = new TestActiveMQSession(activeMQConnection, sessionId, 1, true, true);
     }
 
     @Test
     public void TestActiveMQConsumerAndProducerConstructorInterceptor() {
         activeMQConsumerAndProducerConstructorInterceptor = new ActiveMQConsumerConstructorInterceptor();
-        activeMQConsumerAndProducerConstructorInterceptor.onConstruct(enhancedInstance,new Object[] {activeMQSession});
+        activeMQConsumerAndProducerConstructorInterceptor.onConstruct(enhancedInstance, new Object[] {activeMQSession});
         assertThat((String) enhancedInstance.getSkyWalkingDynamicField(), is("127.0.0.1:61616"));
     }
 }

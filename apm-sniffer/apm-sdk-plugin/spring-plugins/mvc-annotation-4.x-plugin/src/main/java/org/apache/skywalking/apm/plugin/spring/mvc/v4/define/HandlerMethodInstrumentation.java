@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,8 +31,6 @@ import static org.apache.skywalking.apm.plugin.spring.mvc.commons.Constants.GET_
 /**
  * {@link HandlerMethodInstrumentation} intercept the <code>getBean</code> method in the
  * <code>org.springframework.web.method.HandlerMethod</code> class.
- *
- * @author zhangxin
  */
 public class HandlerMethodInstrumentation extends AbstractSpring4Instrumentation {
 

@@ -20,24 +20,23 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
 
     private final StorageBuilder<RegisterSource> storageBuilder;
 
-    RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
+    public RegisterEsDAO(ElasticSearchClient client, StorageBuilder<RegisterSource> storageBuilder) {
         super(client);
         this.storageBuilder = storageBuilder;
     }
 
-    @Override public RegisterSource get(String modelName, String id) throws IOException {
+    @Override
+    public RegisterSource get(String modelName, String id) throws IOException {
         GetResponse response = getClient().get(modelName, id);
         if (response.isExists()) {
             return storageBuilder.map2Data(response.getSource());
@@ -46,12 +45,14 @@ public class RegisterEsDAO extends EsDAO implements IRegisterDAO {
         }
     }
 
-    @Override public void forceInsert(String modelName, RegisterSource source) throws IOException {
+    @Override
+    public void forceInsert(String modelName, RegisterSource source) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceInsert(modelName, source.id(), builder);
     }
 
-    @Override public void forceUpdate(String modelName, RegisterSource source) throws IOException {
+    @Override
+    public void forceUpdate(String modelName, RegisterSource source) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(source));
         getClient().forceUpdate(modelName, source.id(), builder);
     }

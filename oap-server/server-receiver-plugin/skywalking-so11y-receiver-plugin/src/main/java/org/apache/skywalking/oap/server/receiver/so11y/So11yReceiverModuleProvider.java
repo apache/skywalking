@@ -21,6 +21,13 @@ package org.apache.skywalking.oap.server.receiver.so11y;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +37,18 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.source.GCPhrase;
+import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
@@ -39,21 +56,11 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
-
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingDouble;
 
 /**
  * Self observability receiver provider.
- *
- * @author gaohongtao
  */
 public class So11yReceiverModuleProvider extends ModuleProvider {
 
@@ -63,9 +70,15 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
 
     private static final int RUN_RATE_SECONDS = 5;
 
-    private final long[] lastNewGc = new long[]{0L, 0L};
+    private final long[] lastNewGc = new long[] {
+        0L,
+        0L
+    };
 
-    private final long[] lastOldGc = new long[]{0L, 0L};
+    private final long[] lastOldGc = new long[] {
+        0L,
+        0L
+    };
 
     private int serviceId;
 
@@ -80,7 +93,6 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
     private SourceReceiver sourceReceiver;
-
 
     @Override
     public String name() {
@@ -103,33 +115,38 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        serviceInventoryRegister = getManager().find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
-        serviceInstanceInventoryRegister = getManager().find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+        serviceInventoryRegister = getManager().find(CoreModule.NAME)
+                                               .provider()
+                                               .getService(IServiceInventoryRegister.class);
+        serviceInstanceInventoryRegister = getManager().find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(IServiceInstanceInventoryRegister.class);
         sourceReceiver = getManager().find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        MetricsCollector collector = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCollector.class);
-        Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder()
-                .setDaemon(true).setNameFormat("So11y-receiver-%s").build()).scheduleAtFixedRate(() -> {
-                    if (register()) {
-                        heartbeat();
-                    } else {
-                        return;
-                    }
-                    Iterable<MetricFamily> mfs = collector.collect();
-                    Map<String, MetricFamily> metricsIndex = new HashMap<>();
-                    for (MetricFamily each : mfs) {
-                        if (each.samples.size() < 1) {
-                            continue;
-                        }
-                        metricsIndex.put(each.name, each);
-                    }
-                    writeCpuUsage(metricsIndex);
-                    writeJvmMemory(metricsIndex);
-                    writeJvmMemoryPool(metricsIndex);
-                    writeGC(metricsIndex);
-                }, RUN_RATE_SECONDS, RUN_RATE_SECONDS, TimeUnit.SECONDS);
+        MetricsCollector collector = getManager().find(TelemetryModule.NAME)
+                                                 .provider()
+                                                 .getService(MetricsCollector.class);
+        Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setDaemon(true)
+                                                                             .setNameFormat("So11y-receiver-%s")
+                                                                             .build()).scheduleAtFixedRate(() -> {
+            if (register()) {
+                heartbeat();
+            } else {
+                return;
+            }
+            Iterable<MetricFamily> mfs = collector.collect();
+            Map<String, MetricFamily> metricsIndex = new HashMap<>();
+            for (MetricFamily each : mfs) {
+                if (each.samples.size() < 1) {
+                    continue;
+                }
+                metricsIndex.put(each.name, each);
+            }
+            writeCpuUsage(metricsIndex);
+            writeJvmMemory(metricsIndex);
+            writeJvmMemoryPool(metricsIndex);
+            writeGC(metricsIndex);
+        }, RUN_RATE_SECONDS, RUN_RATE_SECONDS, TimeUnit.SECONDS);
     }
-
-
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
@@ -138,7 +155,10 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME
+        };
     }
 
     private void writeGC(Map<String, MetricFamily> metricsIndex) {
@@ -147,141 +167,129 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         }
         List<String> newGC = ImmutableList.of("PS Scavenge", "ParNew", "G1 Young Generation", "Copy");
         List<String> oldGC = ImmutableList.of("PS MarkSweep", "ConcurrentMarkSweep", "G1 Old Generation", "MarkSweepCompact");
-        metricsIndex.get("jvm_gc_collection_seconds").samples.stream()
-                .map(sample -> {
-                    int index = Iterables.indexOf(sample.labelNames, i -> Objects.equals(i, "gc"));
-                    if (index < 0) {
-                        return null;
-                    }
-                    String gcPhrase = sample.labelValues.get(index);
-                    GCMetricType type = sample.name.contains("sum") ? GCMetricType.SUM : GCMetricType.COUNT;
-                    double value = type == GCMetricType.SUM ? sample.value * 1000 : sample.value;
-                    if (newGC.contains(gcPhrase)) {
-                        return new GCMetric(GCPhrase.NEW, type, value);
-                    } else if (oldGC.contains(gcPhrase)) {
-                        return new GCMetric(GCPhrase.OLD, type, value);
-                    }
-                    throw new RuntimeException(String.format("Unsupported gc phrase %s", gcPhrase));
-                })
-                .filter(Objects::nonNull)
-                .collect(groupingBy(GCMetric::getPhrase))
-                .forEach((gcPhrase, gcMetrics) -> {
-                    ServiceInstanceJVMGC gc = new ServiceInstanceJVMGC();
-                    gc.setId(serviceInstanceId);
-                    gc.setName(serviceInstanceName);
-                    gc.setServiceId(serviceId);
-                    gc.setServiceName(SERVICE_NAME);
-                    gc.setPhrase(gcPhrase);
-                    long[] lastGc = gcPhrase == GCPhrase.NEW ? lastNewGc : lastOldGc;
-                    gcMetrics.stream().filter(m -> m.type.equals(GCMetricType.COUNT)).findFirst().ifPresent(m -> {
-                        gc.setCount(m.getValue().longValue() - lastGc[0]);
-                        lastGc[0] = m.getValue().longValue();
-                    });
-                    gcMetrics.stream().filter(m -> m.type.equals(GCMetricType.SUM)).findFirst().ifPresent(m -> {
-                        gc.setTime(m.getValue().longValue() - lastGc[1]);
-                        lastGc[1] = m.getValue().longValue();
-                    });
-                    gc.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Write {} {}counts {}ms to {}", gc.getPhrase(), gc.getCount(), gc.getTime(), gc.getName());
-                    }
-                    sourceReceiver.receive(gc);
-                });
+        metricsIndex.get("jvm_gc_collection_seconds").samples.stream().map(sample -> {
+            int index = Iterables.indexOf(sample.labelNames, i -> Objects.equals(i, "gc"));
+            if (index < 0) {
+                return null;
+            }
+            String gcPhrase = sample.labelValues.get(index);
+            GCMetricType type = sample.name.contains("sum") ? GCMetricType.SUM : GCMetricType.COUNT;
+            double value = type == GCMetricType.SUM ? sample.value * 1000 : sample.value;
+            if (newGC.contains(gcPhrase)) {
+                return new GCMetric(GCPhrase.NEW, type, value);
+            } else if (oldGC.contains(gcPhrase)) {
+                return new GCMetric(GCPhrase.OLD, type, value);
+            }
+            throw new RuntimeException(String.format("Unsupported gc phrase %s", gcPhrase));
+        }).filter(Objects::nonNull).collect(groupingBy(GCMetric::getPhrase)).forEach((gcPhrase, gcMetrics) -> {
+            ServiceInstanceJVMGC gc = new ServiceInstanceJVMGC();
+            gc.setId(serviceInstanceId);
+            gc.setName(serviceInstanceName);
+            gc.setServiceId(serviceId);
+            gc.setServiceName(SERVICE_NAME);
+            gc.setPhrase(gcPhrase);
+            long[] lastGc = gcPhrase == GCPhrase.NEW ? lastNewGc : lastOldGc;
+            gcMetrics.stream().filter(m -> m.type.equals(GCMetricType.COUNT)).findFirst().ifPresent(m -> {
+                gc.setCount(m.getValue().longValue() - lastGc[0]);
+                lastGc[0] = m.getValue().longValue();
+            });
+            gcMetrics.stream().filter(m -> m.type.equals(GCMetricType.SUM)).findFirst().ifPresent(m -> {
+                gc.setTime(m.getValue().longValue() - lastGc[1]);
+                lastGc[1] = m.getValue().longValue();
+            });
+            gc.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Write {} {}counts {}ms to {}", gc.getPhrase(), gc.getCount(), gc.getTime(), gc.getName());
+            }
+            sourceReceiver.receive(gc);
+        });
     }
 
     private void writeJvmMemoryPool(Map<String, MetricFamily> metricsIndex) {
-        List<MetricSetter<ServiceInstanceJVMMemoryPool>> setterList = ImmutableList.of(
-                new MetricSetter<>("jvm_memory_pool_bytes_used", (m, v) -> m.setUsed(v.longValue())),
-                new MetricSetter<>("jvm_memory_pool_bytes_committed", (m, v) -> m.setCommitted(v.longValue())),
-                new MetricSetter<>("jvm_memory_pool_bytes_max", (m, v) -> m.setMax(v.longValue())),
-                new MetricSetter<>("jvm_memory_pool_bytes_init", (m, v) -> m.setInit(v.longValue())));
+        List<MetricSetter<ServiceInstanceJVMMemoryPool>> setterList = ImmutableList.of(new MetricSetter<>("jvm_memory_pool_bytes_used", (m, v) -> m
+            .setUsed(v.longValue())), new MetricSetter<>("jvm_memory_pool_bytes_committed", (m, v) -> m.setCommitted(v.longValue())), new MetricSetter<>("jvm_memory_pool_bytes_max", (m, v) -> m
+            .setMax(v.longValue())), new MetricSetter<>("jvm_memory_pool_bytes_init", (m, v) -> m.setInit(v.longValue())));
         if (setterList.stream().anyMatch(i -> !metricsIndex.containsKey(i.name))) {
             return;
         }
         Map<MemoryPoolType, ServiceInstanceJVMMemoryPool> poolMap = new HashMap<>();
         setterList.forEach(setter -> metricsIndex.get(setter.name).samples.stream()
-                .map(sample -> {
-                    int index = Iterables.indexOf(sample.labelNames, i -> Objects.equals(i, "pool"));
-                    if (index < 0) {
-                        return null;
-                    }
-                    String poolType = sample.labelValues.get(index);
-                    if (poolType.contains("Code")) {
-                        return new PoolMetric(MemoryPoolType.CODE_CACHE_USAGE, sample.value);
-                    } else if (poolType.contains("Eden")) {
-                        return new PoolMetric(MemoryPoolType.NEWGEN_USAGE, sample.value);
-                    } else if (poolType.contains("Survivor")) {
-                        return new PoolMetric(MemoryPoolType.SURVIVOR_USAGE, sample.value);
-                    } else if (poolType.contains("Old")) {
-                        return new PoolMetric(MemoryPoolType.OLDGEN_USAGE, sample.value);
-                    } else if (poolType.contains("Metaspace")) {
-                        return new PoolMetric(MemoryPoolType.METASPACE_USAGE, sample.value);
-                    } else if (poolType.contains("Perm") || poolType.contains("Compressed Class Space")) {
-                        return new PoolMetric(MemoryPoolType.PERMGEN_USAGE, sample.value);
-                    }
-                    throw new RuntimeException(String.format("Unknown pool type %s", poolType));
-                })
-                .filter(Objects::nonNull)
-                .collect(groupingBy(PoolMetric::getType, summingDouble(PoolMetric::getValue)))
-                .forEach((memoryPoolType, value) -> {
-                    if (!poolMap.containsKey(memoryPoolType)) {
-                        ServiceInstanceJVMMemoryPool pool = new ServiceInstanceJVMMemoryPool();
-                        pool.setId(serviceInstanceId);
-                        pool.setName(serviceInstanceName);
-                        pool.setServiceId(serviceId);
-                        pool.setServiceName(SERVICE_NAME);
-                        pool.setPoolType(memoryPoolType);
-                        pool.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                        poolMap.put(memoryPoolType, pool);
-                    }
-                    ServiceInstanceJVMMemoryPool pool = poolMap.get(memoryPoolType);
-                    setter.delegated.accept(pool, value);
-                }));
+                                                                          .map(sample -> {
+                                                                              int index = Iterables.indexOf(sample.labelNames, i -> Objects
+                                                                                  .equals(i, "pool"));
+                                                                              if (index < 0) {
+                                                                                  return null;
+                                                                              }
+                                                                              String poolType = sample.labelValues.get(index);
+                                                                              if (poolType.contains("Code")) {
+                                                                                  return new PoolMetric(MemoryPoolType.CODE_CACHE_USAGE, sample.value);
+                                                                              } else if (poolType.contains("Eden")) {
+                                                                                  return new PoolMetric(MemoryPoolType.NEWGEN_USAGE, sample.value);
+                                                                              } else if (poolType.contains("Survivor")) {
+                                                                                  return new PoolMetric(MemoryPoolType.SURVIVOR_USAGE, sample.value);
+                                                                              } else if (poolType.contains("Old")) {
+                                                                                  return new PoolMetric(MemoryPoolType.OLDGEN_USAGE, sample.value);
+                                                                              } else if (poolType.contains("Metaspace")) {
+                                                                                  return new PoolMetric(MemoryPoolType.METASPACE_USAGE, sample.value);
+                                                                              } else if (poolType.contains("Perm") || poolType
+                                                                                  .contains("Compressed Class Space")) {
+                                                                                  return new PoolMetric(MemoryPoolType.PERMGEN_USAGE, sample.value);
+                                                                              }
+                                                                              throw new RuntimeException(String.format("Unknown pool type %s", poolType));
+                                                                          })
+                                                                          .filter(Objects::nonNull)
+                                                                          .collect(groupingBy(PoolMetric::getType, summingDouble(PoolMetric::getValue)))
+                                                                          .forEach((memoryPoolType, value) -> {
+                                                                              if (!poolMap.containsKey(memoryPoolType)) {
+                                                                                  ServiceInstanceJVMMemoryPool pool = new ServiceInstanceJVMMemoryPool();
+                                                                                  pool.setId(serviceInstanceId);
+                                                                                  pool.setName(serviceInstanceName);
+                                                                                  pool.setServiceId(serviceId);
+                                                                                  pool.setServiceName(SERVICE_NAME);
+                                                                                  pool.setPoolType(memoryPoolType);
+                                                                                  pool.setTimeBucket(TimeBucket.getMinuteTimeBucket(System
+                                                                                      .currentTimeMillis()));
+                                                                                  poolMap.put(memoryPoolType, pool);
+                                                                              }
+                                                                              ServiceInstanceJVMMemoryPool pool = poolMap
+                                                                                  .get(memoryPoolType);
+                                                                              setter.delegated.accept(pool, value);
+                                                                          }));
         poolMap.values().forEach(p -> {
             if (logger.isDebugEnabled()) {
-                logger.debug("Write {} {}-{}-{}-{} to {}", p.getPoolType(),
-                        humanReadableByteCount(p.getInit(), false),
-                        humanReadableByteCount(p.getUsed(), false),
-                        humanReadableByteCount(p.getCommitted(), false),
-                        humanReadableByteCount(p.getMax(), false), p.getName());
+                logger.debug("Write {} {}-{}-{}-{} to {}", p.getPoolType(), humanReadableByteCount(p.getInit(), false), humanReadableByteCount(p
+                    .getUsed(), false), humanReadableByteCount(p.getCommitted(), false), humanReadableByteCount(p.getMax(), false), p
+                    .getName());
             }
             sourceReceiver.receive(p);
         });
     }
 
     private void writeJvmMemory(final Map<String, MetricFamily> metricsIndex) {
-        List<MetricSetter<ServiceInstanceJVMMemory>> setterList = ImmutableList.of(
-                new MetricSetter<>("jvm_memory_bytes_used", (m, v) -> m.setUsed(v.longValue())),
-                new MetricSetter<>("jvm_memory_bytes_committed", (m, v) -> m.setCommitted(v.longValue())),
-                new MetricSetter<>("jvm_memory_bytes_max", (m, v) -> m.setMax(v.longValue())),
-                new MetricSetter<>("jvm_memory_bytes_init", (m, v) -> m.setInit(v.longValue())));
+        List<MetricSetter<ServiceInstanceJVMMemory>> setterList = ImmutableList.of(new MetricSetter<>("jvm_memory_bytes_used", (m, v) -> m
+            .setUsed(v.longValue())), new MetricSetter<>("jvm_memory_bytes_committed", (m, v) -> m.setCommitted(v.longValue())), new MetricSetter<>("jvm_memory_bytes_max", (m, v) -> m
+            .setMax(v.longValue())), new MetricSetter<>("jvm_memory_bytes_init", (m, v) -> m.setInit(v.longValue())));
         if (setterList.stream().anyMatch(i -> !metricsIndex.containsKey(i.name))) {
             return;
         }
-        ImmutableList.of(createJVMMemory(true), createJVMMemory(false))
-                .forEach(memory -> {
-                    String area = memory.isHeapStatus() ? "heap" : "nonheap";
-                    setterList.forEach(setter -> {
-                        metricsIndex.get(setter.name).samples.stream()
-                                .filter(input -> {
-                                    int index = Iterables.indexOf(input.labelNames, i -> Objects.equals(i, "area"));
-                                    if (index < 0) {
-                                        return false;
-                                    }
-                                    return Objects.equals(input.labelValues.get(index), area);
-                                })
-                                .findFirst()
-                                .ifPresent(sample -> setter.delegated.accept(memory, sample.value));
-                    });
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Write {} {}-{}-{}-{} to {}", area,
-                                humanReadableByteCount(memory.getInit(), false),
-                                humanReadableByteCount(memory.getUsed(), false),
-                                humanReadableByteCount(memory.getCommitted(), false),
-                                humanReadableByteCount(memory.getMax(), false), memory.getName());
+        ImmutableList.of(createJVMMemory(true), createJVMMemory(false)).forEach(memory -> {
+            String area = memory.isHeapStatus() ? "heap" : "nonheap";
+            setterList.forEach(setter -> {
+                metricsIndex.get(setter.name).samples.stream().filter(input -> {
+                    int index = Iterables.indexOf(input.labelNames, i -> Objects.equals(i, "area"));
+                    if (index < 0) {
+                        return false;
                     }
-                    sourceReceiver.receive(memory);
-                });
+                    return Objects.equals(input.labelValues.get(index), area);
+                }).findFirst().ifPresent(sample -> setter.delegated.accept(memory, sample.value));
+            });
+            if (logger.isDebugEnabled()) {
+                logger.debug("Write {} {}-{}-{}-{} to {}", area, humanReadableByteCount(memory.getInit(), false), humanReadableByteCount(memory
+                    .getUsed(), false), humanReadableByteCount(memory.getCommitted(), false), humanReadableByteCount(memory
+                    .getMax(), false), memory.getName());
+            }
+            sourceReceiver.receive(memory);
+        });
     }
 
     private ServiceInstanceJVMMemory createJVMMemory(boolean isHeap) {
@@ -304,7 +312,8 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
             lastCpuSeconds = value;
             return;
         }
-        double percentage = (value - lastCpuSeconds) * 100 / (RUN_RATE_SECONDS * Runtime.getRuntime().availableProcessors());
+        double percentage = (value - lastCpuSeconds) * 100 / (RUN_RATE_SECONDS * Runtime.getRuntime()
+                                                                                        .availableProcessors());
         lastCpuSeconds = value;
         ServiceInstanceJVMCPU serviceInstanceJVMCPU = new ServiceInstanceJVMCPU();
         serviceInstanceJVMCPU.setId(serviceInstanceId);
@@ -316,7 +325,6 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         logger.debug("Write so11y cpu usage {} to {}", percentage, serviceInstanceName);
         sourceReceiver.receive(serviceInstanceJVMCPU);
     }
-
 
     private void heartbeat() {
         long now = System.currentTimeMillis();
@@ -332,8 +340,8 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         if (serviceId != Const.NONE && serviceInstanceId == Const.NONE) {
             serviceInstanceName = TelemetryRelatedContext.INSTANCE.getId();
             logger.debug("Register so11y service instance [{}].", serviceInstanceName);
-            serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName,
-                    System.currentTimeMillis(), null);
+            serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName, System
+                .currentTimeMillis(), null);
         }
         return serviceInstanceId != Const.NONE;
     }
@@ -349,7 +357,8 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
 
     private static String humanReadableByteCount(long bytes, boolean si) {
         int unit = si ? 1000 : 1024;
-        if (bytes < unit) return bytes + " B";
+        if (bytes < unit)
+            return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);

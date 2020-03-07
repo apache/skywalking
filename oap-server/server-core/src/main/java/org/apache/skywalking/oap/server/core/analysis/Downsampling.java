@@ -17,11 +17,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-/**
- * @author peng-yongsheng
- */
 public enum Downsampling {
-    None(0, ""), Second(1, "second"), Minute(2, "minute"), Hour(3, "hour"), Day(4, "day"), Month(5, "month");
+    /**
+     * None downsampling is for inventory
+     */
+    None(0, ""),
+    /**
+     * Second downsampling is not for metrics, but for record, profile and top n. Those are details but don't do
+     * aggregation, and still merge into day level in the persistence.
+     */
+    Second(1, "second"),
+    Minute(2, "minute"),
+    Hour(3, "hour"),
+    Day(4, "day"),
+    Month(5, "month");
 
     private final int value;
     private final String name;

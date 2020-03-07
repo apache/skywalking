@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 /**
  * The representation of logging events. This instance is pass around to the List of Converter.
- *
- * @author alvin
  */
 public class LogEvent {
 

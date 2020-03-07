@@ -21,21 +21,63 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface ITopologyQueryDAO extends Service {
+    /**
+     * Query {@link ServiceRelationServerSideMetrics} through the given conditions
+     */
+    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+                                                                  List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
+    /**
+     * Query {@link ServiceRelationClientSideMetrics} through the given conditions
+     */
+    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+                                                                  List<Integer> serviceIds) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB, List<Integer> serviceIds) throws IOException;
+    /**
+     * Query {@link ServiceRelationServerSideMetrics} globally, without given serviceIds
+     */
+    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
+                                                         long endTB) throws IOException;
 
-    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
+    /**
+     * Query {@link ServiceRelationClientSideMetrics} globally, without given serviceIds
+     */
+    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
+                                                         long endTB) throws IOException;
 
-    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB) throws IOException;
+    /**
+     * Query {@link ServiceInstanceRelationServerSideMetrics} through given conditions, including the specific
+     * clientServiceId and serverServiceId
+     */
+    List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId,
+                                                                 int serverServiceId,
+                                                                 Downsampling downsampling,
+                                                                 long startTB,
+                                                                 long endTB) throws IOException;
 
-    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB, long endTB, int destEndpointId) throws IOException;
+    /**
+     * Query {@link ServiceInstanceRelationClientSideMetrics} through given conditions, including the specific
+     * clientServiceId and serverServiceId
+     */
+    List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId,
+                                                                 int serverServiceId,
+                                                                 Downsampling downsampling,
+                                                                 long startTB,
+                                                                 long endTB) throws IOException;
+
+    /**
+     * Query the endpoint relationship. Endpoint dependency is not detected from server side agent.
+     */
+    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
+                                                                         long startTB,
+                                                                         long endTB,
+                                                                         int destEndpointId) throws IOException;
 }

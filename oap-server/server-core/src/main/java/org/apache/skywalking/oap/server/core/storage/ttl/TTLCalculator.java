@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.storage.ttl;
 import org.apache.skywalking.oap.server.core.DataTTLConfig;
 import org.joda.time.DateTime;
 
-/**
- * @author peng-yongsheng
- */
 public interface TTLCalculator {
 
     long timeBefore(DateTime currentTime, DataTTLConfig dataTTLConfig);

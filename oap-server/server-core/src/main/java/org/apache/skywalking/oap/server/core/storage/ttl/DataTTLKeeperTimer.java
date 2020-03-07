@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -34,13 +38,13 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 /**
- * @author peng-yongsheng
+ * TTL = Time To Live
+ *
+ * DataTTLKeeperTimer is an internal timer, it drives the {@link IHistoryDeleteDAO} to remove the expired data. TTL
+ * configurations are provided in {@link CoreModuleConfig}, some storage implementations, such as ES6/ES7, provides an
+ * override TTL, which could be more suitable for the implementation. No matter which TTL configurations are set, they
+ * are all driven by this timer.
  */
 public enum DataTTLKeeperTimer {
     INSTANCE;
@@ -54,11 +58,19 @@ public enum DataTTLKeeperTimer {
         this.moduleManager = moduleManager;
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
 
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-            new RunnableWithExceptionProtection(this::delete, t -> logger.error("Remove data in background failure.", t)),
-            moduleConfig.getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleAtFixedRate(
+                     new RunnableWithExceptionProtection(
+                         this::delete,
+                         t -> logger.error("Remove data in background failure.", t)
+                     ), moduleConfig
+                         .getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
     }
 
+    /**
+     * DataTTLKeeperTimer starts in every OAP node, but the deletion only work when it is as the first node in the OAP
+     * node list from {@link ClusterNodesQuery}.
+     */
     private void delete() {
         List<RemoteInstance> remoteInstances = clusterNodesQuery.queryRemoteNodes();
         if (CollectionUtils.isNotEmpty(remoteInstances) && !remoteInstances.get(0).getAddress().isSelf()) {
@@ -78,7 +90,10 @@ public enum DataTTLKeeperTimer {
 
     private void execute(Model model) {
         try {
-            moduleManager.find(StorageModule.NAME).provider().getService(IHistoryDeleteDAO.class).deleteHistory(model, Metrics.TIME_BUCKET);
+            moduleManager.find(StorageModule.NAME)
+                         .provider()
+                         .getService(IHistoryDeleteDAO.class)
+                         .deleteHistory(model, Metrics.TIME_BUCKET);
         } catch (IOException e) {
             logger.warn("History of {} delete failure", model.getName());
             logger.error(e.getMessage(), e);

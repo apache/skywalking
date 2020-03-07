@@ -18,18 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.register.module;
 
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterModule extends ModuleDefine {
 
     public RegisterModule() {
         super("receiver-register");
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         return new Class[0];
     }
 }

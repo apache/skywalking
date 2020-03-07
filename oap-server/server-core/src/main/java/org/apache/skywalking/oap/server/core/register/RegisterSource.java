@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.register;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * @author peng-yongsheng
+ * RegisterSource represents the metadata entity.
  */
 public abstract class RegisterSource extends StreamData implements StorageData {
 
@@ -33,10 +34,22 @@ public abstract class RegisterSource extends StreamData implements StorageData {
     public static final String HEARTBEAT_TIME = "heartbeat_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
 
-    @Getter @Setter @Column(columnName = SEQUENCE) private int sequence;
-    @Getter @Setter @Column(columnName = REGISTER_TIME) private long registerTime = 0L;
-    @Getter @Setter @Column(columnName = HEARTBEAT_TIME) private long heartbeatTime = 0L;
-    @Setter @Getter @Column(columnName = LAST_UPDATE_TIME) private long lastUpdateTime = 0L;
+    @Getter
+    @Setter
+    @Column(columnName = SEQUENCE)
+    private int sequence;
+    @Getter
+    @Setter
+    @Column(columnName = REGISTER_TIME)
+    private long registerTime = 0L;
+    @Getter
+    @Setter
+    @Column(columnName = HEARTBEAT_TIME)
+    private long heartbeatTime = 0L;
+    @Setter
+    @Getter
+    @Column(columnName = LAST_UPDATE_TIME)
+    private long lastUpdateTime = 0L;
 
     public boolean combine(RegisterSource registerSource) {
         boolean isChanged = false;

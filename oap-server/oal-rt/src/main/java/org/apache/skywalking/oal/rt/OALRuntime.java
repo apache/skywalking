@@ -74,8 +74,6 @@ import org.slf4j.LoggerFactory;
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
  * is loaded dynamically.
- *
- * @author wusheng
  */
 public class OALRuntime implements OALEngine {
     private static final Logger logger = LoggerFactory.getLogger(OALRuntime.class);
@@ -90,10 +88,22 @@ public class OALRuntime implements OALEngine {
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
     private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
-    private static final String[] METRICS_CLASS_METHODS =
-        {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toHour", "toDay", "toMonth"};
-    private static final String[] METRICS_BUILDER_CLASS_METHODS =
-        {"data2Map", "map2Data"};
+    private static final String[] METRICS_CLASS_METHODS = {
+        "id",
+        "hashCode",
+        "remoteHashCode",
+        "equals",
+        "serialize",
+        "deserialize",
+        "getMeta",
+        "toHour",
+        "toDay",
+        "toMonth"
+    };
+    private static final String[] METRICS_BUILDER_CLASS_METHODS = {
+        "data2Map",
+        "map2Data"
+    };
     private final ClassPool classPool;
     private ClassLoader currentClassLoader;
     private Configuration configuration;
@@ -115,15 +125,18 @@ public class OALRuntime implements OALEngine {
         openEngineDebug = !StringUtil.isEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
     }
 
-    @Override public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
+    @Override
+    public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
         this.streamAnnotationListener = listener;
     }
 
-    @Override public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
+    @Override
+    public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
         dispatcherDetectorListener = listener;
     }
 
-    @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
+    @Override
+    public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
         prepareRTTempFolder();
 
         this.currentClassLoader = currentClassLoader;
@@ -152,7 +165,8 @@ public class OALRuntime implements OALEngine {
         this.generateClassAtRuntime(oalScripts);
     }
 
-    @Override public void notifyAllListeners() throws ModuleStartException {
+    @Override
+    public void notifyAllListeners() throws ModuleStartException {
         metricsClasses.forEach(streamAnnotationListener::notify);
         for (Class dispatcherClass : dispatcherClasses) {
             try {
@@ -183,10 +197,6 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate metrics class, and inject it to classloader
-     *
-     * @param metricsStmt
-     * @return
-     * @throws OALCompileException
      */
     private Class generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
         String className = metricsClassName(metricsStmt, false);
@@ -226,7 +236,8 @@ public class OALRuntime implements OALEngine {
          */
         for (SourceColumn field : metricsStmt.getFieldsFromSource()) {
             try {
-                CtField newField = CtField.make("private " + field.getType().getName() + " " + field.getFieldName() + ";", metricsClass);
+                CtField newField = CtField.make("private " + field.getType()
+                                                                  .getName() + " " + field.getFieldName() + ";", metricsClass);
 
                 metricsClass.addField(newField);
 
@@ -302,9 +313,6 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate metrics class builder and inject it to classloader
-     *
-     * @param metricsStmt
-     * @throws OALCompileException
      */
     private void generateMetricsBuilderClass(AnalysisResult metricsStmt) throws OALCompileException {
         String className = metricsBuilderClassName(metricsStmt, false);
@@ -315,9 +323,6 @@ public class OALRuntime implements OALEngine {
             logger.error("Can't find StorageBuilder interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
-
-        ClassFile metricsClassClassFile = metricsBuilderClass.getClassFile();
-        ConstPool constPool = metricsClassClassFile.getConstPool();
 
         /**
          * Create empty construct
@@ -356,8 +361,6 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate SourceDispatcher class and inject it to classloader
-     *
-     * @throws OALCompileException
      */
     private Class generateDispatcherClass(String scopeName,
         DispatcherContext dispatcherContext) throws OALCompileException {
@@ -376,9 +379,8 @@ public class OALRuntime implements OALEngine {
             SignatureAttribute.ClassSignature dispatcherSignature = new SignatureAttribute.ClassSignature(null, null,
                 // Set interface and its generic params
                 new SignatureAttribute.ClassType[] {
-                    new SignatureAttribute.ClassType(SourceDispatcher.class.getCanonicalName(),
-                        new SignatureAttribute.TypeArgument[] {new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(sourceClassName))}
-                    )});
+                    new SignatureAttribute.ClassType(SourceDispatcher.class.getCanonicalName(), new SignatureAttribute.TypeArgument[] {new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(sourceClassName))})
+                });
 
             dispatcherClass.setGenericSignature(dispatcherSignature.encode());
         } catch (NotFoundException e) {

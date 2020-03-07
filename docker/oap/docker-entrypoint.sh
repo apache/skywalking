@@ -116,8 +116,10 @@ cat <<EOT >> ${var_application_file}
     bulkSize: \${SW_STORAGE_ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: \${SW_STORAGE_ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests
     concurrentRequests: \${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    resultWindowMaxSize: \${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: \${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
     segmentQueryMaxSize: \${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    profileTaskQueryMaxSize: \${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
 EOT
 }
 
@@ -136,7 +138,46 @@ generateStorageMySQL() {
     cat <<EOT >> ${var_application_file}
 storage:
   mysql:
-    metadataQueryMaxSize: \${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    properties:
+        jdbcUrl: \${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+        dataSource.user: \${SW_DATA_SOURCE_USER:root}
+        dataSource.password: \${SW_DATA_SOURCE_PASSWORD:root@1234}
+        dataSource.cachePrepStmts: \${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+        dataSource.prepStmtCacheSize: \${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+        dataSource.prepStmtCacheSqlLimit: \${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+        dataSource.useServerPrepStmts: \${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: \${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+EOT
+}
+
+generateStorageInfluxDB() {
+    cat <<EOT >> ${var_application_file}
+storage:
+  influx:
+    # Metadata storage provider configuration
+    metabaseType: \${SW_STORAGE_METABASE_TYPE:H2} # There are 2 options as Metabase provider, H2 or MySQL.
+    h2Props:
+      dataSourceClassName: \${SW_STORAGE_METABASE_DRIVER:org.h2.jdbcx.JdbcDataSource}
+      dataSource.url: \${SW_STORAGE_METABASE_URL:jdbc:h2:mem:skywalking-oap-db}
+      dataSource.user: \${SW_STORAGE_METABASE_USER:sa}
+      dataSource.password: \${SW_STORAGE_METABASE_PASSWORD:}
+    mysqlProps:
+      jdbcUrl: \${SW_STORAGE_METABASE_URL:"jdbc:mysql://localhost:3306/swtest"}
+      dataSource.user: \${SW_STORAGE_METABASE_USER:root}
+      dataSource.password: \${SW_STORAGE_METABASE_PASSWORD:root@1234}
+      dataSource.cachePrepStmts: \${SW_STORAGE_METABASE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: \${SW_STORAGE_METABASE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: \${SW_STORAGE_METABASE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: \${SW_STORAGE_METABASE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: \${SW_STORAGE_METABASE_QUERY_MAX_SIZE:5000}
+    # InfluxDB configuration
+    url: \${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
+    user: \${SW_STORAGE_INFLUXDB_USER:root}
+    password: \${SW_STORAGE_INFLUXDB_PASSWORD:}
+    database: \${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
+    actions: \${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
+    duration: \${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
+    fetchTaskLogMaxSize: \${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
 EOT
 }
 
@@ -188,6 +229,17 @@ configuration:
     #Retry Policy
     baseSleepTimeMs: \${SW_CONFIGURATION_ZOOKEEPER_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
     maxRetries: \${SW_CONFIGURATION_ZOOKEEPER_MAX_RETRIES:3}3 # max number of times to retry
+EOT
+}
+
+generateConfigurationGRPC() {
+    cat <<EOT >> ${var_application_file}
+configuration:
+  grpc:
+    host: \${SW_CONFIGURATION_GRPC_HOST:127.0.0.1}
+    port: \${SW_CONFIGURATION_GRPC_PORT:9555}
+    period: \${SW_CONFIGURATION_GRPC_PERIOD:60}
+    clusterName: \${SW_CONFIGURATION_GRPC_CLUSTER_NAME:"default"}
 EOT
 }
 
@@ -296,6 +348,7 @@ core:
     # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: \${SW_CORE_ENABLE_DATABASE_SESSION:true}
+    topNReportPeriod: \${SW_CORE_TOPN_REPORT_PERIOD:10}
 EOT
 
     # generate storage
@@ -308,15 +361,16 @@ EOT
     cat <<EOT >> ${var_application_file}
 receiver-sharing-server:
   default:
-   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.O}
+   restHost: \${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
    restPort: \${SW_RECEIVER_SHARING_REST_PORT:0}
    restContextPath: \${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
-   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.O}
+   gRPCHost: \${SW_RECEIVER_SHARING_GRPC_HOST:0.0.0.0}
    gRPCPort: \${SW_RECEIVER_SHARING_GRPC_PORT:0}
    maxConcurrentCallsPerConnection: \${SW_RECEIVER_SHARING_MAX_CONCURRENT_CALL:0}
    maxMessageSize: \${SW_RECEIVER_SHARING_MAX_MESSAGE_SIZE:0}
    gRPCThreadPoolSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:0}
    gRPCThreadPoolQueueSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:0}
+   authentication: \${SW_AUTHENTICATION:""}
 receiver-register:
   default:
 receiver-trace:
@@ -332,6 +386,8 @@ receiver-jvm:
 receiver-clr:
   default:
 receiver-so11y:
+  default:
+receiver-profile:
   default:
 service-mesh:
   default:
@@ -361,6 +417,7 @@ EOT
     nacos) generateConfigurationNacos;;
     zookeeper) generateConfigurationZookeeper;;
     consul) generateConfigurationConsul;;
+    grpc) generateConfigurationGRPC;;
     esac
 
     cat <<EOT >> ${var_application_file}
@@ -415,7 +472,14 @@ SW_CLUSTER=${SW_CLUSTER:-standalone}
 SW_STORAGE=${SW_STORAGE:-h2}
 SW_CONFIGURATION=${SW_CONFIGURATION:-none}
 SW_TELEMETRY=${SW_TELEMETRY:-none}
+EXT_LIB_DIR=/skywalking/ext-libs
+EXT_CONFIG_DIR=/skywalking/ext-config
 
+# If user wants to override application.yml, the one generated by docker-entrypoint.sh should be ignored.
+[[ -f ${EXT_CONFIG_DIR}/application.yml ]] && SW_L0AD_CONFIG_FILE_FROM_VOLUME=true
+
+# Override configuration files
+cp -vfR ${EXT_CONFIG_DIR}/ config/
 if [[ -z "$SW_L0AD_CONFIG_FILE_FROM_VOLUME" ]] || [[ "$SW_L0AD_CONFIG_FILE_FROM_VOLUME" != "true" ]]; then
     generateApplicationYaml
     echo "Generated application.yml"
@@ -426,6 +490,10 @@ fi
 
 CLASSPATH="config:$CLASSPATH"
 for i in oap-libs/*.jar
+do
+    CLASSPATH="$i:$CLASSPATH"
+done
+for i in ${EXT_LIB_DIR}/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
 done

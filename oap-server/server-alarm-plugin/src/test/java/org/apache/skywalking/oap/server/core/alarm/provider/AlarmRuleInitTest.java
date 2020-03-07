@@ -25,8 +25,9 @@ import org.junit.Test;
 public class AlarmRuleInitTest {
     @Test
     public void testInit() {
-        RulesReader reader = new RulesReader(this.getClass().getClassLoader()
-            .getResourceAsStream("alarm-settings.yml"));
+        RulesReader reader = new RulesReader(this.getClass()
+                                                 .getClassLoader()
+                                                 .getResourceAsStream("alarm-settings.yml"));
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();
@@ -34,9 +35,11 @@ public class AlarmRuleInitTest {
         Assert.assertEquals("85", ruleList.get(1).getThreshold());
         Assert.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
         Assert.assertEquals(0, ruleList.get(0).getIncludeNames().size());
+        Assert.assertEquals(0, ruleList.get(0).getExcludeNames().size());
         Assert.assertEquals("Successful rate of endpoint {name} is lower than 75%", ruleList.get(0).getMessage());
 
         Assert.assertEquals("service_b", ruleList.get(1).getIncludeNames().get(1));
+        Assert.assertEquals("service_c", ruleList.get(1).getExcludeNames().get(0));
         Assert.assertEquals("Alarm caused by Rule service_percent_rule", ruleList.get(1).getMessage());
 
         List<String> rulesWebhooks = rules.getWebhooks();

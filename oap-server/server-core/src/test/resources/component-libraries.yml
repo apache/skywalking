@@ -227,6 +227,28 @@ Light4J:
 Ehcache:
   id: 75
   languages: Java
+SocketIO:
+  id: 76
+  languages: Java
+rest-high-level-client:
+  id: 77
+  languages: Java
+spring-tx:
+  id: 78
+  languages: Java
+Armeria:
+  id: 79
+  languages: Java
+JdkThreading:
+  id: 80
+  languages: Java
+AvroServer:
+  id: 82
+  languages: Java
+AvroClient:
+  id: 83
+  languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -324,5 +346,6 @@ Component-Server-Mappings:
   Pomelo.EntityFrameworkCore.MySql: Mysql
   Npgsql.EntityFrameworkCore.PostgreSQL: PostgreSQL
   transport-client: Elasticsearch
+  rest-high-level-client: Elasticsearch
   SolrJ: Solr
   cassandra-java-driver: Cassandra

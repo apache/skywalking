@@ -29,9 +29,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author kezhenxu94
- */
 public class ConsulConfigurationTestProvider extends ModuleProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsulConfigurationTestProvider.class);
 
@@ -78,9 +75,9 @@ public class ConsulConfigurationTestProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         getManager().find(ConfigurationModule.NAME)
-                .provider()
-                .getService(DynamicConfigurationService.class)
-                .registerConfigChangeWatcher(watcher);
+                    .provider()
+                    .getService(DynamicConfigurationService.class)
+                    .registerConfigChangeWatcher(watcher);
     }
 
     @Override
@@ -90,7 +87,7 @@ public class ConsulConfigurationTestProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{
+        return new String[] {
             ConfigurationModule.NAME
         };
     }

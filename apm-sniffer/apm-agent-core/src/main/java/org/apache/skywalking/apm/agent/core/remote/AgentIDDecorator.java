@@ -37,13 +37,10 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 /**
  * Add agent version(Described in MANIFEST.MF) to the connection establish stage.
- *
- * @author wusheng
  */
 public class AgentIDDecorator implements ChannelDecorator {
     private static final ILog logger = LogManager.getLogger(AgentIDDecorator.class);
-    private static final Metadata.Key<String> AGENT_VERSION_HEAD_HEADER_NAME =
-        Metadata.Key.of("Agent-Version", Metadata.ASCII_STRING_MARSHALLER);
+    private static final Metadata.Key<String> AGENT_VERSION_HEAD_HEADER_NAME = Metadata.Key.of("Agent-Version", Metadata.ASCII_STRING_MARSHALLER);
     private String version = "UNKNOWN";
 
     public AgentIDDecorator() {
@@ -51,14 +48,15 @@ public class AgentIDDecorator implements ChannelDecorator {
             Enumeration<URL> resources = AgentIDDecorator.class.getClassLoader().getResources(JarFile.MANIFEST_NAME);
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
-                InputStream is = url.openStream();
-                if (is != null) {
-                    Manifest manifest = new Manifest(is);
-                    Attributes mainAttribs = manifest.getMainAttributes();
-                    String projectName = mainAttribs.getValue("Implementation-Vendor-Id");
-                    if (projectName != null) {
-                        if (projectName.equals("org.apache.skywalking")) {
-                            version = mainAttribs.getValue("Implementation-Version");
+                try (InputStream is = url.openStream()) {
+                    if (is != null) {
+                        Manifest manifest = new Manifest(is);
+                        Attributes mainAttribs = manifest.getMainAttributes();
+                        String projectName = mainAttribs.getValue("Implementation-Vendor-Id");
+                        if (projectName != null) {
+                            if ("org.apache.skywalking".equals(projectName)) {
+                                version = mainAttribs.getValue("Implementation-Version");
+                            }
                         }
                     }
                 }
@@ -68,7 +66,8 @@ public class AgentIDDecorator implements ChannelDecorator {
         }
     }
 
-    @Override public Channel build(Channel channel) {
+    @Override
+    public Channel build(Channel channel) {
         return ClientInterceptors.intercept(channel, new ClientInterceptor() {
             @Override
             public <REQ, RESP> ClientCall<REQ, RESP> interceptCall(MethodDescriptor<REQ, RESP> method,

@@ -18,17 +18,16 @@
 
 package org.apache.skywalking.apm.testcase.ehcache.v2;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Arrays;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 public class CaseServlet extends HttpServlet {
 
@@ -58,6 +57,14 @@ public class CaseServlet extends HttpServlet {
         } finally {
             cache.releaseReadLockOnKey(objectKey);
         }
+
+        // EhcacheCacheNameInterceptor
+        cacheManager.addCacheIfAbsent("testCache2");
+
+        Cache cloneCache = cacheManager.getCache("testCache2");
+
+        // EhcacheOperateElementInterceptor
+        cloneCache.put(el);
 
         PrintWriter printWriter = resp.getWriter();
         printWriter.write("success");

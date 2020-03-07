@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 
-/**
- * @author wusheng
- */
 public class ServiceMeshMetricDataDecorator {
     private ServiceMeshMetric origin;
     private ServiceMeshMetric rebuiltData;
@@ -63,9 +60,9 @@ public class ServiceMeshMetricDataDecorator {
         sourceServiceInstanceId = origin.getSourceServiceInstanceId();
         if (sourceServiceId != Const.NONE && sourceServiceInstanceId == Const.NONE) {
             sourceServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
-                .getOrCreate(sourceServiceId, origin.getSourceServiceInstance(), origin.getSourceServiceInstance(),
-                    origin.getEndTime(),
-                    getOSInfoForMesh(origin.getSourceServiceInstance()));
+                                                        .getOrCreate(sourceServiceId, origin.getSourceServiceInstance(), origin
+                                                            .getSourceServiceInstance(), origin.getEndTime(), getOSInfoForMesh(origin
+                                                            .getSourceServiceInstance()));
             if (sourceServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setSourceServiceInstanceId(sourceServiceInstanceId);
             } else {
@@ -74,7 +71,8 @@ public class ServiceMeshMetricDataDecorator {
         }
         destServiceId = origin.getDestServiceId();
         if (destServiceId == Const.NONE) {
-            destServiceId = CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(origin.getDestServiceName(), null);
+            destServiceId = CoreRegisterLinker.getServiceInventoryRegister()
+                                              .getOrCreate(origin.getDestServiceName(), null);
             if (destServiceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceId(destServiceId);
             } else {
@@ -84,9 +82,9 @@ public class ServiceMeshMetricDataDecorator {
         destServiceInstanceId = origin.getDestServiceInstanceId();
         if (destServiceId != Const.NONE && destServiceInstanceId == Const.NONE) {
             destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
-                .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin.getDestServiceInstance(),
-                    origin.getEndTime(),
-                    getOSInfoForMesh(origin.getDestServiceInstance()));
+                                                      .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin
+                                                          .getDestServiceInstance(), origin.getEndTime(), getOSInfoForMesh(origin
+                                                          .getDestServiceInstance()));
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
@@ -95,22 +93,14 @@ public class ServiceMeshMetricDataDecorator {
         }
         String endpoint = origin.getEndpoint();
 
+        // Service mesh doesn't register client side endpoint.
         DetectPoint point = origin.getDetectPoint();
-        if (DetectPoint.client.equals(point)) {
-            if (sourceServiceId != Const.NONE) {
-                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(sourceServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
-            }
-        } else {
+        if (DetectPoint.server.equals(point)) {
             if (destServiceId != Const.NONE) {
-                endpointId = CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(destServiceId, endpoint,
-                    org.apache.skywalking.oap.server.core.source.DetectPoint.fromNetworkProtocolDetectPoint(point));
+                endpointId = CoreRegisterLinker.getEndpointInventoryRegister()
+                                               .getOrCreate(destServiceId, endpoint, org.apache.skywalking.oap.server.core.source.DetectPoint
+                                                   .fromNetworkProtocolDetectPoint(point));
             }
-        }
-
-        if (endpointId != Const.NONE) {
-        } else {
-            isRegistered = false;
         }
 
         return isRegistered;

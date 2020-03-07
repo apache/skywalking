@@ -22,18 +22,37 @@
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
     <id>dist</id>
     <formats>
-        <format>zip</format>
         <format>tar.gz</format>
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/bin</directory>
+            <directory>${project.basedir}/../dist-material/bin</directory>
             <outputDirectory>/bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
                 <include>*.bat</include>
             </includes>
             <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../dist-material</directory>
+            <outputDirectory>/config</outputDirectory>
+            <includes>
+                <include>log4j2.xml</include>
+                <include>application.yml</include>
+                <include>alarm-settings.yml</include>
+                <include>alarm-settings-sample.yml</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
+            <includes>
+                <include>component-libraries.yml</include>
+                <include>official_analysis.oal</include>
+                <include>gateways.yml</include>
+                <include>service-apdex-threshold.yml</include>
+            </includes>
+            <outputDirectory>/config</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../oap-server/server-starter/target/skywalking-oap-assembly/skywalking-oap/config</directory>
@@ -56,6 +75,12 @@
             <outputDirectory>/agent</outputDirectory>
         </fileSet>
 
+        <!-- Profile exporter tools -->
+        <fileSet>
+            <directory>${project.basedir}/../tools/profile-exporter</directory>
+            <outputDirectory>/tools/profile-exporter</outputDirectory>
+        </fileSet>
+
         <!-- Release docs and licenses -->
         <fileSet>
             <directory>${project.basedir}/../</directory>
@@ -67,7 +92,7 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/release-docs</directory>
+            <directory>${project.basedir}/../dist-material/release-docs</directory>
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>

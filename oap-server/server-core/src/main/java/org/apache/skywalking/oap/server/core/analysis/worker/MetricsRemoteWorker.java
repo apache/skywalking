@@ -18,21 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * MetricsRemoteWorker forwards the metrics to the target OAP node.
  */
+@Slf4j
 public class MetricsRemoteWorker extends AbstractWorker<Metrics> {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetricsRemoteWorker.class);
-
     private final RemoteSenderService remoteSender;
     private final String remoteReceiverWorkerName;
 
@@ -42,11 +40,12 @@ public class MetricsRemoteWorker extends AbstractWorker<Metrics> {
         this.remoteReceiverWorkerName = remoteReceiverWorkerName;
     }
 
-    @Override public final void in(Metrics metrics) {
+    @Override
+    public final void in(Metrics metrics) {
         try {
             remoteSender.send(remoteReceiverWorkerName, metrics, Selector.HashCode);
         } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }

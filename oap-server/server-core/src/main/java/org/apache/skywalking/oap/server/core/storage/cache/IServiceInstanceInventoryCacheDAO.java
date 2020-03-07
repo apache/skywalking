@@ -18,12 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.cache;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-/**
- * @author peng-yongsheng
- */
 public interface IServiceInstanceInventoryCacheDAO extends DAO {
 
     ServiceInstanceInventory get(int serviceInstanceId);
@@ -31,4 +29,6 @@ public interface IServiceInstanceInventoryCacheDAO extends DAO {
     int getServiceInstanceId(int serviceId, String uuid);
 
     int getServiceInstanceId(int serviceId, int addressId);
+
+    List<ServiceInstanceInventory> loadLastUpdate(long lastUpdateTime);
 }

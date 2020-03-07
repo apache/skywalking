@@ -22,7 +22,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 
 /**
- * @author peng-yongsheng
+ * SpanListenerFactory implementation creates the listener instances when required. Every SpanListener could have its
+ * own creation factory.
  */
 public interface SpanListenerFactory {
     SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config);

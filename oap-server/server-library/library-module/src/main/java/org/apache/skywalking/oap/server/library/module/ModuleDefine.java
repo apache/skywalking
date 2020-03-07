@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A module definition.
- *
- * @author wu-sheng, peng-yongsheng
  */
 public abstract class ModuleDefine implements ModuleProviderHolder {
 
@@ -74,8 +72,10 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
                     loadedProvider.setManager(moduleManager);
                     loadedProvider.setModuleDefine(this);
                 } else {
-                    throw new DuplicateProviderException(this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider.getClass().getName() + "] provider already, "
-                        + provider.name() + "[" + provider.getClass().getName() + "] is defined as 2nd provider.");
+                    throw new DuplicateProviderException(this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider
+                        .getClass()
+                        .getName() + "] provider already, " + provider.name() + "[" + provider.getClass()
+                                                                                              .getName() + "] is defined as 2nd provider.");
                 }
             }
 
@@ -87,7 +87,8 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
 
         logger.info("Prepare the {} provider in {} module.", loadedProvider.name(), this.name());
         try {
-            copyProperties(loadedProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(loadedProvider.name()), this.name(), loadedProvider.name());
+            copyProperties(loadedProvider.createConfigBeanIfAbsent(), configuration.getProviderConfiguration(loadedProvider
+                .name()), this.name(), loadedProvider.name());
         } catch (IllegalAccessException e) {
             throw new ModuleConfigException(this.name() + " module config transport to config bean failure.", e);
         }
@@ -101,9 +102,8 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
         }
         Enumeration<?> propertyNames = src.propertyNames();
         while (propertyNames.hasMoreElements()) {
-            String propertyName = (String)propertyNames.nextElement();
+            String propertyName = (String) propertyNames.nextElement();
             Class<? extends ModuleConfig> destClass = dest.getClass();
-
             try {
                 Field field = getDeclaredField(destClass, propertyName);
                 field.setAccessible(true);
@@ -128,7 +128,8 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
         throw new NoSuchFieldException();
     }
 
-    @Override public final ModuleProvider provider() throws DuplicateProviderException, ProviderNotFoundException {
+    @Override
+    public final ModuleProvider provider() throws DuplicateProviderException, ProviderNotFoundException {
         if (loadedProvider == null) {
             throw new ProviderNotFoundException("There is no module provider in " + this.name() + " module!");
         }

@@ -18,39 +18,77 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceRelation extends Source {
 
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId) + Const.ID_SPLIT + String.valueOf(componentId);
+    @Override
+    public String getEntityId() {
+        return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId);
     }
 
-    @Getter @Setter private int sourceServiceInstanceId;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "source_service_id") private int sourceServiceId;
-    @Getter @Setter private String sourceServiceName;
-    @Getter @Setter private String sourceServiceInstanceName;
-    @Getter @Setter private int destServiceInstanceId;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_id") private int destServiceId;
-    @Getter @Setter private String destServiceName;
-    @Getter @Setter private String destServiceInstanceName;
-    @Getter @Setter private String endpoint;
-    @Getter @Setter private int componentId;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
-    @Getter @Setter private DetectPoint detectPoint;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_id")
+    private int sourceServiceInstanceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_id")
+    private int sourceServiceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
+    private String sourceServiceName;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
+    private String sourceServiceInstanceName;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_id")
+    private int destServiceInstanceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_id")
+    private int destServiceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_name", requireDynamicActive = true)
+    private String destServiceName;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_name", requireDynamicActive = true)
+    private String destServiceInstanceName;
+    @Getter
+    @Setter
+    private String endpoint;
+    @Getter
+    @Setter
+    private int componentId;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
+    @Getter
+    @Setter
+    private DetectPoint detectPoint;
 }

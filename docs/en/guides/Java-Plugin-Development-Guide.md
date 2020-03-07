@@ -279,9 +279,7 @@ As an interceptor for an instance method, the interceptor implements
 /**
  * A interceptor, which intercept method's invocation. The target methods will be defined in {@link
  * ClassEnhancePluginDefine}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
- *
- * @author wusheng
- */
+*/
 public interface InstanceMethodsAroundInterceptor {
     /**
      * called before target method invocation.
@@ -365,7 +363,7 @@ Please follow there steps:
 1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.
+1. Provide the automatic test cases. Learn `how to write the plugin test case` from this [doc](Plugin-test.md)
 1. Send the pull request and ask for review. 
-1. Provide the automatic test cases. 
-1. The plugin committers approve your plugins after automatic test cases provided and the tests passed in our CI.
+1. The plugin committers approve your plugins, plugin CI-with-IT, e2e and plugin tests passed.
 1. The plugin accepted by SkyWalking. 

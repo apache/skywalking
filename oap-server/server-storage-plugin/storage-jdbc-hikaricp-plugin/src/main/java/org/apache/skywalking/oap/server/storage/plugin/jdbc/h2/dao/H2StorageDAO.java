@@ -18,15 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
-import org.apache.skywalking.oap.server.core.storage.*;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
-/**
- * @author wusheng, peng-yongsheng
- */
 public class H2StorageDAO implements StorageDAO {
 
     private JDBCHikariCPClient h2Client;
@@ -35,15 +38,23 @@ public class H2StorageDAO implements StorageDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
+    @Override
+    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new H2MetricsDAO(h2Client, storageBuilder);
     }
 
-    @Override public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
+    @Override
+    public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
         return new H2RegisterDAO(h2Client, storageBuilder);
     }
 
-    @Override public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
+    @Override
+    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
         return new H2RecordDAO(h2Client, storageBuilder);
+    }
+
+    @Override
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
+        return new H2NoneStreamDAO(h2Client, storageBuilder);
     }
 }

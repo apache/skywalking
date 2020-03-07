@@ -20,12 +20,17 @@ package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.RefType;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author peng-yongsheng
- */
 class ServiceBMock {
 
     private final RegisterMock registerMock;
@@ -44,8 +49,12 @@ class ServiceBMock {
         SERVICE_INSTANCE_ID = registerMock.registerServiceInstance(SERVICE_ID, "pengysB");
     }
 
-    void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder traceId,
-        UniqueId.Builder segmentId, UniqueId.Builder parentTraceSegmentId, long startTimestamp, boolean isPrepare) {
+    void mock(StreamObserver<UpstreamSegment> streamObserver,
+              UniqueId.Builder traceId,
+              UniqueId.Builder segmentId,
+              UniqueId.Builder parentTraceSegmentId,
+              long startTimestamp,
+              boolean isPrepare) {
         UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
         upstreamSegment.addGlobalTraceIds(traceId);
         upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, parentTraceSegmentId, isPrepare));
@@ -54,11 +63,11 @@ class ServiceBMock {
     }
 
     private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId,
-        UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
-        TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
+                                     UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
+        SegmentObject.Builder segment = SegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationId(SERVICE_ID);
-        segment.setApplicationInstanceId(SERVICE_INSTANCE_ID);
+        segment.setServiceId(SERVICE_ID);
+        segment.setServiceInstanceId(SERVICE_INSTANCE_ID);
         segment.addSpans(createEntrySpan(startTimestamp, parentTraceSegmentId, isPrepare));
         segment.addSpans(createExitSpan(startTimestamp, isPrepare));
         segment.addSpans(createMQExitSpan(startTimestamp, isPrepare));
@@ -66,28 +75,28 @@ class ServiceBMock {
         return segment.build().toByteString();
     }
 
-    private TraceSegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
-        TraceSegmentReference.Builder reference = TraceSegmentReference.newBuilder();
+    private SegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
+        SegmentReference.Builder reference = SegmentReference.newBuilder();
         reference.setParentTraceSegmentId(parentTraceSegmentId);
-        reference.setParentApplicationInstanceId(ServiceAMock.SERVICE_INSTANCE_ID);
+        reference.setParentServiceInstanceId(ServiceAMock.SERVICE_INSTANCE_ID);
         reference.setParentSpanId(2);
-        reference.setEntryApplicationInstanceId(ServiceAMock.SERVICE_INSTANCE_ID);
+        reference.setEntryServiceInstanceId(ServiceAMock.SERVICE_INSTANCE_ID);
         reference.setRefType(RefType.CrossProcess);
 
         if (isPrepare) {
-            reference.setParentServiceName(ServiceAMock.REST_ENDPOINT);
+            reference.setParentEndpoint(ServiceAMock.REST_ENDPOINT);
             reference.setNetworkAddress(ServiceAMock.DUBBO_ADDRESS);
-            reference.setEntryServiceName(ServiceAMock.REST_ENDPOINT);
+            reference.setEntryEndpoint(ServiceAMock.REST_ENDPOINT);
         } else {
-            reference.setParentServiceId(2);
+            reference.setParentEndpointId(2);
             reference.setNetworkAddressId(2);
-            reference.setEntryServiceId(2);
+            reference.setEntryEndpointId(2);
         }
         return reference;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, UniqueId.Builder uniqueId, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createEntrySpan(long startTimestamp, UniqueId.Builder uniqueId, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
         span.setSpanLayer(SpanLayer.RPCFramework);
@@ -106,8 +115,8 @@ class ServiceBMock {
         return span;
     }
 
-    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(1);
         span.setSpanType(SpanType.Exit);
         span.setSpanLayer(SpanLayer.Database);
@@ -116,21 +125,24 @@ class ServiceBMock {
         span.setEndTime(startTimestamp + 1500);
         span.setComponentId(ComponentsDefine.MONGO_DRIVER.getId());
         span.setIsError(true);
-        span.addTags(KeyWithStringValue.newBuilder().setKey("db.statement").setValue("select * from database where complex = 1;").build());
-        span.addTags(KeyWithStringValue.newBuilder().setKey("db.type").setValue("mongodb").build());
+        span.addTags(KeyStringValuePair.newBuilder()
+                                       .setKey("db.statement")
+                                       .setValue("select * from database where complex = 1;")
+                                       .build());
+        span.addTags(KeyStringValuePair.newBuilder().setKey("db.type").setValue("mongodb").build());
 
+        span.setOperationName(
+            "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
         if (isPrepare) {
-            span.setOperationName("mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]");
             span.setPeer("localhost:27017");
         } else {
-            span.setOperationNameId(7);
             span.setPeerId(3);
         }
         return span;
     }
 
-    private SpanObject.Builder createMQExitSpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createMQExitSpan(long startTimestamp, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(2);
         span.setSpanType(SpanType.Exit);
         span.setSpanLayer(SpanLayer.MQ);
@@ -140,11 +152,10 @@ class ServiceBMock {
         span.setComponentId(ComponentsDefine.ROCKET_MQ_PRODUCER.getId());
         span.setIsError(false);
 
+        span.setOperationName(ROCKET_MQ_ENDPOINT);
         if (isPrepare) {
-            span.setOperationName(ROCKET_MQ_ENDPOINT);
             span.setPeer(ROCKET_MQ_ADDRESS);
         } else {
-            span.setOperationNameId(8);
             span.setPeerId(4);
         }
         return span;

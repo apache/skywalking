@@ -18,13 +18,28 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -37,27 +52,16 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import static java.util.Objects.nonNull;
 
 /**
- * Notice, in here, there are following concepts match
+ * MultiScopesSpanListener includes the most segment to source(s) logic.
  *
- * v5        |   v6
- *
- * 1. Application == Service 2. Server == Service Instance 3. Service == Endpoint
- *
- * @author peng-yongsheng, wusheng
+ * This listener traverses the whole segment.
  */
+@Slf4j
 public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(MultiScopesSpanListener.class);
 
     private final SourceReceiver sourceReceiver;
     private final ServiceInstanceInventoryCache instanceInventoryCache;
@@ -78,18 +82,37 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         this.entrySourceBuilders = new LinkedList<>();
         this.exitSourceBuilders = new LinkedList<>();
         this.slowDatabaseAccesses = new ArrayList<>(10);
-        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
-        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+        this.instanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                   .provider()
+                                                   .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.endpointInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                   .provider()
+                                                   .getService(EndpointInventoryCache.class);
+        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(NetworkAddressInventoryCache.class);
         this.config = config;
         this.traceId = null;
     }
 
-    @Override public boolean containsPoint(Point point) {
+    @Override
+    public boolean containsPoint(Point point) {
         return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.TraceIds.equals(point);
     }
 
+    /**
+     * All entry spans are transferred as the Service, Instance and Endpoint related sources. Entry spans are treated on
+     * the behalf of the observability status of the service reported these spans.
+     *
+     * Also, when face the MQ and uninstrumented Gateways, there is different logic to generate the relationship between
+     * services/instances rather than the normal RPC direct call. The reason is the same, we aren't expecting the agent
+     * installed in the MQ server, and Gateway may not have suitable agent. Any uninstrumented service if they have the
+     * capability to forward SkyWalking header through themselves, you could consider the uninstrumented configurations
+     * to make the topology works to be a whole.
+     */
     @Override
     public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         this.minuteTimeBucket = segmentCoreInfo.getMinuteTimeBucket();
@@ -98,19 +121,26 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                 ReferenceDecorator reference = spanDecorator.getRefs(i);
                 SourceBuilder sourceBuilder = new SourceBuilder();
-                sourceBuilder.setSourceEndpointId(reference.getParentEndpointId());
+                if (reference.getParentEndpointId() == Const.INEXISTENCE_ENDPOINT_ID) {
+                    sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
+                } else {
+                    sourceBuilder.setSourceEndpointId(reference.getParentEndpointId());
+                }
 
                 final int networkAddressId = reference.getNetworkAddressId();
                 final int serviceIdByPeerId = serviceInventoryCache.getServiceId(networkAddressId);
                 final String address = networkAddressInventoryCache.get(networkAddressId).getName();
 
-                if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ) || config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
-                    int instanceIdByPeerId = instanceInventoryCache.getServiceInstanceId(serviceIdByPeerId, networkAddressId);
+                if (spanDecorator.getSpanLayer().equals(SpanLayer.MQ) || config.getUninstrumentedGatewaysConfig()
+                                                                               .isAddressConfiguredAsGateway(address)) {
+                    int instanceIdByPeerId = instanceInventoryCache.getServiceInstanceId(
+                        serviceIdByPeerId, networkAddressId);
                     sourceBuilder.setSourceServiceInstanceId(instanceIdByPeerId);
                     sourceBuilder.setSourceServiceId(serviceIdByPeerId);
                 } else {
                     sourceBuilder.setSourceServiceInstanceId(reference.getParentServiceInstanceId());
-                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentServiceInstanceId()).getServiceId());
+                    sourceBuilder.setSourceServiceId(instanceInventoryCache.get(reference.getParentServiceInstanceId())
+                                                                           .getServiceId());
                 }
                 sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
                 sourceBuilder.setDestServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
@@ -137,7 +167,12 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         this.entrySpanDecorator = spanDecorator;
     }
 
-    @Override public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+    /**
+     * The exit span should be transferred to the service, instance and relationships from the client side detect
+     * point.
+     */
+    @Override
+    public void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
         if (this.minuteTimeBucket == 0) {
             this.minuteTimeBucket = segmentCoreInfo.getMinuteTimeBucket();
         }
@@ -151,16 +186,19 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         int destServiceId = serviceInventoryCache.getServiceId(peerId);
         int mappingServiceId = serviceInventoryCache.get(destServiceId).getMappingServiceId();
         int destInstanceId = instanceInventoryCache.getServiceInstanceId(destServiceId, peerId);
+        int mappingServiceInstanceId = instanceInventoryCache.get(destInstanceId).getMappingServiceInstanceId();
 
-        sourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
         sourceBuilder.setSourceServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
         sourceBuilder.setSourceServiceId(segmentCoreInfo.getServiceId());
-        sourceBuilder.setDestEndpointId(spanDecorator.getOperationNameId());
-        sourceBuilder.setDestServiceInstanceId(destInstanceId);
         if (Const.NONE == mappingServiceId) {
             sourceBuilder.setDestServiceId(destServiceId);
         } else {
             sourceBuilder.setDestServiceId(mappingServiceId);
+        }
+        if (Const.NONE == mappingServiceInstanceId) {
+            sourceBuilder.setDestServiceInstanceId(destInstanceId);
+        } else {
+            sourceBuilder.setDestServiceInstanceId(mappingServiceInstanceId);
         }
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);
         sourceBuilder.setComponentId(spanDecorator.getComponentId());
@@ -179,13 +217,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             for (KeyStringValuePair tag : spanDecorator.getAllTags()) {
                 if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
                     String sqlStatement = tag.getValue();
-                    if (!StringUtil.isEmpty(sqlStatement) && sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                        statement.setStatement(sqlStatement.substring(0,config.getMaxSlowSQLLength()));
-                    }
-                    else {
+                    if (StringUtil.isEmpty(sqlStatement)) {
+                        statement.setStatement("[No statement]/" + sourceBuilder.getDestEndpointName());
+                    } else if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
+                        statement.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
+                    } else {
                         statement.setStatement(sqlStatement);
                     }
-
                 } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
                     String dbType = tag.getValue();
                     DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
@@ -204,7 +242,7 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
     private void setPublicAttrs(SourceBuilder sourceBuilder, SpanDecorator spanDecorator) {
         long latency = spanDecorator.getEndTime() - spanDecorator.getStartTime();
-        sourceBuilder.setLatency((int)latency);
+        sourceBuilder.setLatency((int) latency);
         sourceBuilder.setResponseCode(Const.NONE);
         sourceBuilder.setStatus(!spanDecorator.getIsError());
 
@@ -221,14 +259,23 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         }
 
         sourceBuilder.setSourceServiceName(serviceInventoryCache.get(sourceBuilder.getSourceServiceId()).getName());
-        sourceBuilder.setSourceServiceInstanceName(instanceInventoryCache.get(sourceBuilder.getSourceServiceInstanceId()).getName());
-        sourceBuilder.setSourceEndpointName(endpointInventoryCache.get(sourceBuilder.getSourceEndpointId()).getName());
+        sourceBuilder.setSourceServiceInstanceName(
+            instanceInventoryCache.get(sourceBuilder.getSourceServiceInstanceId())
+                                  .getName());
+        if (sourceBuilder.getSourceEndpointId() != Const.NONE) {
+            sourceBuilder.setSourceEndpointName(endpointInventoryCache.get(sourceBuilder.getSourceEndpointId())
+                                                                      .getName());
+        }
         sourceBuilder.setDestServiceName(serviceInventoryCache.get(sourceBuilder.getDestServiceId()).getName());
-        sourceBuilder.setDestServiceInstanceName(instanceInventoryCache.get(sourceBuilder.getDestServiceInstanceId()).getName());
-        sourceBuilder.setDestEndpointName(endpointInventoryCache.get(sourceBuilder.getDestEndpointId()).getName());
+        sourceBuilder.setDestServiceInstanceName(instanceInventoryCache.get(sourceBuilder.getDestServiceInstanceId())
+                                                                       .getName());
+        if (sourceBuilder.getDestEndpointId() != Const.NONE) {
+            sourceBuilder.setDestEndpointName(endpointInventoryCache.get(sourceBuilder.getDestEndpointId()).getName());
+        }
     }
 
-    @Override public void build() {
+    @Override
+    public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
             entrySourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(entrySourceBuilder.toAll());
@@ -238,10 +285,13 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             sourceReceiver.receive(entrySourceBuilder.toServiceRelation());
             sourceReceiver.receive(entrySourceBuilder.toServiceInstanceRelation());
             EndpointRelation endpointRelation = entrySourceBuilder.toEndpointRelation();
-            /**
+            /*
              * Parent endpoint could be none, because in SkyWalking Cross Process Propagation Headers Protocol v2,
              * endpoint in ref could be empty, based on that, endpoint relation maybe can't be established.
              * So, I am making this source as optional.
+             *
+             * Also, since 6.6.0, source endpoint could be none, if this trace begins by an internal task(local span or exit span), such as Timer,
+             * rather than, normally begin as an entry span, like a RPC server side.
              */
             if (endpointRelation != null) {
                 sourceReceiver.receive(endpointRelation);
@@ -254,11 +304,19 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
             } else {
                 exitSourceBuilder.setSourceEndpointId(Const.USER_ENDPOINT_ID);
             }
-            exitSourceBuilder.setSourceEndpointName(endpointInventoryCache.get(exitSourceBuilder.getSourceEndpointId()).getName());
+            exitSourceBuilder.setSourceEndpointName(endpointInventoryCache.get(exitSourceBuilder.getSourceEndpointId())
+                                                                          .getName());
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
-            sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+
+            /*
+             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+             */
+            String sourceLanguage = instanceInventoryCache.getServiceInstanceLanguage(exitSourceBuilder.getSourceServiceInstanceId());
+            if (!config.getNoUpstreamRealAddressAgents().contains(sourceLanguage)) {
+                sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
                 sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
             }
@@ -267,17 +325,10 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
         slowDatabaseAccesses.forEach(sourceReceiver::receive);
     }
 
-    @Override public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+    @Override
+    public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
         if (traceId == null) {
-            StringBuilder traceIdBuilder = new StringBuilder();
-            for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                if (i == 0) {
-                    traceIdBuilder.append(uniqueId.getIdPartsList().get(i));
-                } else {
-                    traceIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-                }
-            }
-            traceId = traceIdBuilder.toString();
+            traceId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
         }
     }
 

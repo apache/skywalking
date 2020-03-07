@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.rocketMQ.v4;
 
 import java.lang.reflect.Method;
@@ -30,8 +29,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
  * {@link MessageOrderlyConsumeInterceptor} set the process status after the {@link
  * org.apache.rocketmq.client.consumer.listener.MessageListenerOrderly#consumeMessage(java.util.List,
  * org.apache.rocketmq.client.consumer.listener.ConsumeOrderlyContext)} method execute.
- *
- * @author zhang xin
  */
 public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInterceptor {
 
@@ -39,7 +36,7 @@ public class MessageOrderlyConsumeInterceptor extends AbstractMessageConsumeInte
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
 
-        ConsumeOrderlyStatus status = (ConsumeOrderlyStatus)ret;
+        ConsumeOrderlyStatus status = (ConsumeOrderlyStatus) ret;
         if (status == ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT) {
             AbstractSpan activeSpan = ContextManager.activeSpan();
             activeSpan.errorOccurred();

@@ -20,18 +20,18 @@ package org.apache.skywalking.oap.server.core.register.service;
 
 import com.google.gson.JsonObject;
 import java.util.Objects;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.register.*;
+import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class NetworkAddressInventoryRegister implements INetworkAddressInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
@@ -47,33 +47,41 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
         if (isNull(networkAddressInventoryCache)) {
-            this.networkAddressInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+            this.networkAddressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                                  .provider()
+                                                                  .getService(NetworkAddressInventoryCache.class);
         }
         return this.networkAddressInventoryCache;
     }
 
     private IServiceInventoryRegister getServiceInventoryRegister() {
         if (isNull(serviceInventoryRegister)) {
-            this.serviceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
+            this.serviceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME)
+                                                              .provider()
+                                                              .getService(IServiceInventoryRegister.class);
         }
         return this.serviceInventoryRegister;
     }
 
     private IServiceInstanceInventoryRegister getServiceInstanceInventoryRegister() {
         if (isNull(serviceInstanceInventoryRegister)) {
-            this.serviceInstanceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
+            this.serviceInstanceInventoryRegister = moduleDefineHolder.find(CoreModule.NAME)
+                                                                      .provider()
+                                                                      .getService(IServiceInstanceInventoryRegister.class);
         }
         return this.serviceInstanceInventoryRegister;
     }
 
-    @Override public int getOrCreate(String networkAddress, JsonObject properties) {
+    @Override
+    public int getOrCreate(String networkAddress, JsonObject properties) {
         int addressId = getNetworkAddressInventoryCache().getAddressId(networkAddress);
 
         if (addressId != Const.NONE) {
             int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress, properties);
 
             if (serviceId != Const.NONE) {
-                int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, addressId, System.currentTimeMillis());
+                int serviceInstanceId = getServiceInstanceInventoryRegister().getOrCreate(serviceId, networkAddress, addressId, System
+                    .currentTimeMillis());
 
                 if (serviceInstanceId != Const.NONE) {
                     return addressId;
@@ -93,11 +101,13 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         return Const.NONE;
     }
 
-    @Override public int get(String networkAddress) {
+    @Override
+    public int get(String networkAddress) {
         return getNetworkAddressInventoryCache().getAddressId(networkAddress);
     }
 
-    @Override public void heartbeat(int addressId, long heartBeatTime) {
+    @Override
+    public void heartbeat(int addressId, long heartBeatTime) {
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
         if (Objects.nonNull(networkAddress)) {
             networkAddress = networkAddress.getClone();
@@ -109,7 +119,8 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         }
     }
 
-    @Override public void update(int addressId, NodeType nodeType) {
+    @Override
+    public void update(int addressId, NodeType nodeType) {
         NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
 
         if (!this.compare(networkAddress, nodeType)) {

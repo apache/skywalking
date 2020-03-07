@@ -66,6 +66,7 @@ DB. But clearly, it doesn't fit the product env. In here, you could find what ot
 Choose the one you like, we are also welcome anyone to contribute new storage implementor,
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
+1. [Token authentication](backend-token-auth.md). You could add token authentication mechanisms to avoid `OAP` receiving untrusted data.  
 1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metrics accurate, only don't save some of traces
 in storage based on rate.
 1. Follow [slow DB statement threshold](slow-db-statement.md) config document to understand that, 
@@ -79,8 +80,7 @@ rules targeting the analysis oal metrics objects.
 scale and support high payload, you may need this. 
 1. [Metrics exporter](metrics-exporter.md). Use metrics data exporter to forward metrics data to 3rd party
 system.
-1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, they would be saved forever, you could 
-set the expired time for each dimension.
+1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, TTL settings affect the expired time of them.
 1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
 or 3rd party configuration management system.
 1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
@@ -115,3 +115,15 @@ which format process is timezone related.
   
 In default, SkyWalking OAP backend choose the OS default timezone.
 If you want to override it, please follow Java and OS documents to do so.
+
+#### How to query the storage directly from 3rd party tool?
+SkyWalking provides browser UI, CLI and GraphQL ways to support extensions. But some users may have the idea to query data 
+directly from the storage. Such as in ElasticSearch case, Kibana is a great tool to do this.
+
+In default, due to reduce memory, network and storage space usages, SkyWalking saves id(s) only in the entity and metadata saved in the
+`*_inventory` entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
+SkyWalking provide a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
+
+Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to open this feature.
+
+This feature wouldn't provide any new feature to the native SkyWalking scenarios, just for the 3rd party integration.

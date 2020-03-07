@@ -18,21 +18,45 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
+import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
- * @author peng-yongsheng
+ * Stream annotation represents a metadata definition. Include the key values of the distributed streaming calculation.
+ * See {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link InventoryStreamProcessor}, {@link
+ * TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Stream {
-
+    /**
+     * @return name of this stream definition.
+     */
     String name();
 
+    /**
+     * @return scope id, see {@link ScopeDeclaration}
+     */
     int scopeId();
 
+    /**
+     * @return the converter type between {@link StorageBuilder} and {@link Map} for persistence.
+     */
     Class<? extends StorageBuilder> builder();
 
+    /**
+     * @return the stream processor type, see {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link
+     * InventoryStreamProcessor}, {@link TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
+     */
     Class<? extends StreamProcessor> processor();
 }

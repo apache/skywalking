@@ -18,19 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * Thermodynamic metrics represents the calculator for heat map.
- *
+ * <p>
  * It groups the given collection of values by the given step and number of steps.
- *
+ * <p>
  * A heat map (or heatmap) is a graphical representation of data where the individual values contained in a matrix are
  * represented as colors.
- *
- * @author wusheng, peng-yongsheng
  */
 @MetricsFunction(functionName = "thermodynamic")
 public abstract class ThermodynamicMetrics extends GroupMetrics {
@@ -39,18 +41,26 @@ public abstract class ThermodynamicMetrics extends GroupMetrics {
     public static final String STEP = "step";
     public static final String NUM_OF_STEPS = "num_of_steps";
 
-    @Getter @Setter @Column(columnName = STEP) private int step = 0;
-    @Getter @Setter @Column(columnName = NUM_OF_STEPS) private int numOfSteps = 0;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP, isValue = true) private IntKeyLongValueHashMap detailGroup = new IntKeyLongValueHashMap(30);
+    @Getter
+    @Setter
+    @Column(columnName = STEP)
+    private int step = 0;
+    @Getter
+    @Setter
+    @Column(columnName = NUM_OF_STEPS)
+    private int numOfSteps = 0;
+    @Getter
+    @Setter
+    @Column(columnName = DETAIL_GROUP, isValue = true)
+    private IntKeyLongValueHashMap detailGroup = new IntKeyLongValueHashMap(30);
 
     /**
      * Data will be grouped in
-     *
+     * <p>
      * [0, step), [step, step * 2), ..., [step * (maxNumOfSteps - 1), step * maxNumOfSteps), [step * maxNumOfSteps,
      * MAX)
      *
-     * @param value
-     * @param step the size of each step. A positive integer.
+     * @param step          the size of each step. A positive integer.
      * @param maxNumOfSteps Steps are used to group incoming value.
      */
     @Entrance
@@ -78,7 +88,7 @@ public abstract class ThermodynamicMetrics extends GroupMetrics {
 
     @Override
     public void combine(Metrics metrics) {
-        ThermodynamicMetrics thermodynamicMetrics = (ThermodynamicMetrics)metrics;
+        ThermodynamicMetrics thermodynamicMetrics = (ThermodynamicMetrics) metrics;
         combine(thermodynamicMetrics.getDetailGroup(), this.detailGroup);
     }
 

@@ -21,13 +21,18 @@ package org.apache.skywalking.oap.server.receiver.envoy.als;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.util.JsonFormat;
 import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class K8sHTTPAnalysisTest {
 
@@ -89,7 +94,8 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
+                                                                            .getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, analysis.metrics.size());
 
@@ -106,7 +112,8 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
+                                                                            .getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, analysis.metrics.size());
 
@@ -123,7 +130,8 @@ public class K8sHTTPAnalysisTest {
             StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);
 
-            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
+            analysis.analysis(requestBuilder.getIdentifier(), requestBuilder.getHttpLogs()
+                                                                            .getLogEntry(0), Role.SIDECAR);
 
             Assert.assertEquals(1, analysis.metrics.size());
 
@@ -139,12 +147,7 @@ public class K8sHTTPAnalysisTest {
 
         @Override
         public void init(EnvoyMetricReceiverConfig config) {
-            getIpServiceMap().set(ImmutableMap.of(
-                    "10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"),
-                    "10.44.2.54", new ServiceMetaInfo("productpage", "productpage-Inst"),
-                    "10.44.6.66", new ServiceMetaInfo("detail", "detail-Inst"),
-                    "10.44.2.55", new ServiceMetaInfo("review", "detail-Inst")
-            ));
+            getIpServiceMap().set(ImmutableMap.of("10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"), "10.44.2.54", new ServiceMetaInfo("productpage", "productpage-Inst"), "10.44.6.66", new ServiceMetaInfo("detail", "detail-Inst"), "10.44.2.55", new ServiceMetaInfo("review", "detail-Inst")));
         }
 
         @Override

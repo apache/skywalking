@@ -18,57 +18,57 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 
 /**
  * The <code>StackBasedTracingSpan</code> represents a span with an inside stack construction.
- *
+ * <p>
  * This kind of span can start and finish multi times in a stack-like invoke line.
- *
- * @author wusheng
  */
 public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
     protected int stackDepth;
     protected String peer;
     protected int peerId;
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
+        super(spanId, parentSpanId, operationName, owner);
         this.stackDepth = 0;
         this.peer = null;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, int operationId) {
-        super(spanId, parentSpanId, operationId);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
+        super(spanId, parentSpanId, operationId, owner);
         this.stackDepth = 0;
         this.peer = null;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, int peerId) {
-        super(spanId, parentSpanId, operationId);
+    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, int peerId, TracingContext owner) {
+        super(spanId, parentSpanId, operationId, owner);
         this.peer = null;
         this.peerId = peerId;
     }
 
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, String peer) {
-        super(spanId, parentSpanId, operationId);
+    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, String peer, TracingContext owner) {
+        super(spanId, parentSpanId, operationId, owner);
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, String peer) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, String peer,
+                                    TracingContext owner) {
+        super(spanId, parentSpanId, operationName, owner);
         this.peer = peer;
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, int peerId) {
-        super(spanId, parentSpanId, operationName);
+    protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, int peerId,
+                                    TracingContext owner) {
+        super(spanId, parentSpanId, operationName, owner);
         this.peer = null;
         this.peerId = peerId;
     }
@@ -89,21 +89,16 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
     @Override
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
-            if (this.operationId == DictionaryUtil.nullValue()) {
-                this.operationId = (Integer)DictionaryManager.findEndpointSection()
-                    .findOrPrepare4Register(owner.getServiceId(), operationName, this.isEntry(), this.isExit())
-                    .doInCondition(
-                        new PossibleFound.FoundAndObtain() {
-                            @Override public Object doProcess(int value) {
-                                return value;
-                            }
-                        },
-                        new PossibleFound.NotFoundAndObtain() {
-                            @Override public Object doProcess() {
-                                return DictionaryUtil.nullValue();
-                            }
-                        }
-                    );
+            /*
+             * Since 6.6.0, only entry span requires the op name register, which is endpoint.
+             */
+            if (this.isEntry()) {
+                if (this.operationId == DictionaryUtil.nullValue()) {
+                    this.operationId =
+                        (Integer) DictionaryManager.findEndpointSection()
+                                                   .findOrPrepare4Register(owner.getServiceId(), operationName)
+                                                   .doInCondition(value -> value, DictionaryUtil::nullValue);
+                }
             }
             return super.finish(owner);
         } else {
@@ -111,18 +106,11 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
         }
     }
 
-    @Override public AbstractSpan setPeer(final String remotePeer) {
+    @Override
+    public AbstractSpan setPeer(final String remotePeer) {
         DictionaryManager.findNetworkAddressSection().find(remotePeer).doInCondition(
-            new PossibleFound.Found() {
-                @Override
-                public void doProcess(int remotePeerId) {
-                    peerId = remotePeerId;
-                }
-            }, new PossibleFound.NotFound() {
-                @Override
-                public void doProcess() {
-                    peer = remotePeer;
-                }
+            remotePeerId -> peerId = remotePeerId, () -> {
+                peer = remotePeer;
             }
         );
         return this;

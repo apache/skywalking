@@ -29,8 +29,6 @@ import lombok.Setter;
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)
  * automatically.
- *
- * @author wusheng
  */
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
@@ -53,6 +51,13 @@ public class ScopeDefaultColumn {
         String columnName();
 
         boolean isID() default false;
+
+        /**
+         * Dynamic active means this column is only activated through core setting explicitly.
+         *
+         * @return
+         */
+        boolean requireDynamicActive() default false;
     }
 
     @Target({ElementType.TYPE})

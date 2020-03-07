@@ -14,20 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.agent.tool.validator.entity;
 
-/**
- * Created by xin on 2017/7/15.
- */
 public interface SegmentRef {
 
-    String parentServiceId();
+    String parentEndpointId();
 
-    String parentServiceName();
+    String parentEndpointName();
 
     String networkAddressId();
 
-    String entryServiceId();
+    String entryEndpointId();
 
     String refType();
 
@@ -35,13 +33,13 @@ public interface SegmentRef {
 
     String parentTraceSegmentId();
 
-    String parentApplicationInstanceId();
+    String parentServiceInstanceId();
 
     String networkAddress();
 
-    String entryServiceName();
+    String entryEndpointName();
 
     void parentTraceSegmentId(String parentTraceSegmentId);
 
-    String entryApplicationInstanceId();
+    String entryServiceInstanceId();
 }

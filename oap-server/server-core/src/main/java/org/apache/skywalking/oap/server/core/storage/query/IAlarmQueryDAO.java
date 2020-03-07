@@ -22,9 +22,6 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.query.entity.Alarms;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-/**
- * @author peng-yongsheng
- */
 public interface IAlarmQueryDAO extends DAO {
 
     Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from, final long startTB,

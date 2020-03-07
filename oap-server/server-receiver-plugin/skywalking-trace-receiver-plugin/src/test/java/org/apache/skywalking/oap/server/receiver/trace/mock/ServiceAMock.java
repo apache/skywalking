@@ -20,12 +20,14 @@ package org.apache.skywalking.oap.server.receiver.trace.mock;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author peng-yongsheng
- */
 class ServiceAMock {
 
     static String REST_ENDPOINT = "/dubbox-case/case/dubbox-rest";
@@ -45,7 +47,7 @@ class ServiceAMock {
     }
 
     void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder traceId,
-        UniqueId.Builder segmentId, long startTimestamp, boolean isPrepare) {
+              UniqueId.Builder segmentId, long startTimestamp, boolean isPrepare) {
         UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
         upstreamSegment.addGlobalTraceIds(traceId);
         upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, isPrepare));
@@ -54,10 +56,10 @@ class ServiceAMock {
     }
 
     private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId, boolean isPrepare) {
-        TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
+        SegmentObject.Builder segment = SegmentObject.newBuilder();
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationId(SERVICE_ID);
-        segment.setApplicationInstanceId(SERVICE_INSTANCE_ID);
+        segment.setServiceId(SERVICE_ID);
+        segment.setServiceInstanceId(SERVICE_INSTANCE_ID);
         segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
         segment.addSpans(createLocalSpan(startTimestamp, isPrepare));
         segment.addSpans(createExitSpan(startTimestamp, isPrepare));
@@ -65,8 +67,8 @@ class ServiceAMock {
         return segment.build().toByteString();
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createEntrySpan(long startTimestamp, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
         span.setSpanLayer(SpanLayer.Http);
@@ -83,24 +85,20 @@ class ServiceAMock {
         return span;
     }
 
-    private SpanObject.Builder createLocalSpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createLocalSpan(long startTimestamp, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(1);
         span.setSpanType(SpanType.Local);
         span.setParentSpanId(0);
         span.setStartTime(startTimestamp + 100);
         span.setEndTime(startTimestamp + 500);
-        if (isPrepare) {
-            span.setOperationName("org.apache.skywalking.Local.do");
-        } else {
-            span.setOperationNameId(3);
-        }
+        span.setOperationName("org.apache.skywalking.Local.do");
         span.setIsError(false);
         return span;
     }
 
-    private SpanObject.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
-        SpanObject.Builder span = SpanObject.newBuilder();
+    private SpanObjectV2.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
+        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
         span.setSpanId(2);
         span.setSpanType(SpanType.Exit);
         span.setSpanLayer(SpanLayer.RPCFramework);
@@ -108,12 +106,11 @@ class ServiceAMock {
         span.setStartTime(startTimestamp + 120);
         span.setEndTime(startTimestamp + 5800);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
+        span.setOperationName(DUBBO_ENDPOINT);
         if (isPrepare) {
             span.setPeer(DUBBO_ADDRESS);
-            span.setOperationName(DUBBO_ENDPOINT);
         } else {
             span.setPeerId(2);
-            span.setOperationNameId(6);
         }
         span.setIsError(false);
         return span;

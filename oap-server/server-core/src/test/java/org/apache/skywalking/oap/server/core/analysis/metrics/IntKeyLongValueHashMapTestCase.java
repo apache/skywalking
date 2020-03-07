@@ -17,11 +17,10 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- * @author peng-yongsheng
- */
 public class IntKeyLongValueHashMapTestCase {
 
     private IntKeyLongValueHashMap intKeyLongValueHashMap;

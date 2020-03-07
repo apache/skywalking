@@ -84,7 +84,8 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.agent.cool_down_threshold=1</INSTRUMENTED_SERVICE_OPTS>
+                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.agent.cool_down_threshold=1
+                                    </INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
@@ -93,15 +94,9 @@
                                 </ports>
                                 <volumes>
                                     <bind>
-                                        <volume>
-                                            ${project.basedir}/../../../dist-for-agent-reboot/apache-skywalking-apm-bin:/sw
-                                        </volume>
-                                        <volume>
-                                            ${project.build.directory}:/home
-                                        </volume>
-                                        <volume>
-                                            ${project.basedir}/src/docker/rc.d:/rc.d:ro
-                                        </volume>
+                                        <volume>${sw.home}:/sw</volume>
+                                        <volume>${project.build.directory}:/home</volume>
+                                        <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                     </bind>
                                 </volumes>
                                 <wait>

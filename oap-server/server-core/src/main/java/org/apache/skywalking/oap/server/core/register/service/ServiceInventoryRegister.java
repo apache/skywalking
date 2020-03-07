@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.register.service;
 
 import com.google.gson.JsonObject;
+import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
@@ -30,13 +31,8 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
 import static java.util.Objects.isNull;
 
-/**
- * @author peng-yongsheng
- */
 public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceInventoryRegister.class);
@@ -50,12 +46,15 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
 
     private ServiceInventoryCache getServiceInventoryCache() {
         if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
+            this.serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                           .provider()
+                                                           .getService(ServiceInventoryCache.class);
         }
         return serviceInventoryCache;
     }
 
-    @Override public int getOrCreate(String serviceName, JsonObject properties) {
+    @Override
+    public int getOrCreate(String serviceName, NodeType nodeType, JsonObject properties) {
         int serviceId = getServiceInventoryCache().getServiceId(serviceName);
 
         if (serviceId == Const.NONE) {
@@ -67,6 +66,7 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
             long now = System.currentTimeMillis();
             serviceInventory.setRegisterTime(now);
             serviceInventory.setHeartbeatTime(now);
+            serviceInventory.setServiceNodeType(nodeType);
             serviceInventory.setMappingServiceId(Const.NONE);
             serviceInventory.setLastUpdateTime(now);
             serviceInventory.setProperties(properties);
@@ -76,7 +76,13 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceId;
     }
 
-    @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
+    @Override
+    public int getOrCreate(String serviceName, JsonObject properties) {
+        return getOrCreate(serviceName, NodeType.Normal, properties);
+    }
+
+    @Override
+    public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
         int serviceId = getServiceInventoryCache().getServiceId(addressId);
 
         if (serviceId == Const.NONE) {
@@ -95,7 +101,8 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         return serviceId;
     }
 
-    @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
+    @Override
+    public void update(int serviceId, NodeType nodeType, JsonObject properties) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
             if (properties != null || !compare(serviceInventory, nodeType)) {
@@ -111,7 +118,8 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         }
     }
 
-    @Override public void heartbeat(int serviceId, long heartBeatTime) {
+    @Override
+    public void heartbeat(int serviceId, long heartBeatTime) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
             serviceInventory = serviceInventory.getClone();
@@ -123,7 +131,8 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         }
     }
 
-    @Override public void updateMapping(int serviceId, int mappingServiceId) {
+    @Override
+    public void updateMapping(int serviceId, int mappingServiceId) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
             serviceInventory = serviceInventory.getClone();
@@ -136,7 +145,8 @@ public class ServiceInventoryRegister implements IServiceInventoryRegister {
         }
     }
 
-    @Override public void resetMapping(int serviceId) {
+    @Override
+    public void resetMapping(int serviceId) {
         ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
         if (Objects.nonNull(serviceInventory)) {
             if (serviceInventory.getMappingServiceId() != Const.NONE) {

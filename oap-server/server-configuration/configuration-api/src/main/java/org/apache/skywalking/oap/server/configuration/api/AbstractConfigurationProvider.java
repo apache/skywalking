@@ -18,37 +18,43 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 /**
  * The recommendation default base implementor of Configuration module. The real implementor could extend this provider
  * to make a new one, easily.
- *
- * @author wusheng
  */
 public abstract class AbstractConfigurationProvider extends ModuleProvider {
     private ConfigWatcherRegister configWatcherRegister;
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return ConfigurationModule.class;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         configWatcherRegister = initConfigReader();
         this.registerServiceImplementation(DynamicConfigurationService.class, configWatcherRegister);
     }
 
     protected abstract ConfigWatcherRegister initConfigReader() throws ModuleStartException;
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         configWatcherRegister.start();
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[0];
     }
 

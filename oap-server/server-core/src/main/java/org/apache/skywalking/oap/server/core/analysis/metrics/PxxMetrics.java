@@ -19,19 +19,20 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import java.util.Comparator;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * PxxMetrics is a parent metrics for p99/p95/p90/p75/p50 metrics. P(xx) metrics is also for P(xx) percentile.
- *
+ * <p>
  * A percentile (or a centile) is a measure used in statistics indicating the value below which a given percentage of
  * observations in a group of observations fall. For example, the 20th percentile is the value (or score) below which
  * 20% of the observations may be found.
- *
- * @author wusheng, peng-yongsheng
  */
 public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder {
 
@@ -39,9 +40,18 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
-    @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueHashMap detailGroup;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    private int value;
+    @Getter
+    @Setter
+    @Column(columnName = PRECISION)
+    private int precision;
+    @Getter
+    @Setter
+    @Column(columnName = DETAIL_GROUP)
+    private IntKeyLongValueHashMap detailGroup;
 
     private final int percentileRank;
     private boolean isCalculated;
@@ -70,7 +80,7 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
     public void combine(Metrics metrics) {
         this.isCalculated = false;
 
-        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
+        PxxMetrics pxxMetrics = (PxxMetrics) metrics;
         combine(pxxMetrics.getDetailGroup(), this.detailGroup);
     }
 
@@ -78,12 +88,13 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
     public final void calculate() {
 
         if (!isCalculated) {
-            int total = detailGroup.values().stream().mapToInt(element -> (int)element.getValue()).sum();
+            int total = detailGroup.values().stream().mapToInt(element -> (int) element.getValue()).sum();
             int roof = Math.round(total * percentileRank * 1.0f / 100);
 
             int count = 0;
             IntKeyLongValue[] sortedData = detailGroup.values().stream().sorted(new Comparator<IntKeyLongValue>() {
-                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
+                @Override
+                public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
                     return o1.getKey() - o2.getKey();
                 }
             }).toArray(IntKeyLongValue[]::new);
