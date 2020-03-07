@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import java.io.IOException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -43,6 +42,8 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+
+import java.io.IOException;
 
 public class TraceModuleProvider extends ModuleProvider {
 
