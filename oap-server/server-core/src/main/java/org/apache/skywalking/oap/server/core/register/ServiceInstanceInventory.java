@@ -94,6 +94,10 @@ public class ServiceInstanceInventory extends RegisterSource {
     @Getter
     private boolean resetServiceInstanceMapping = false;
 
+    @Setter
+    @Getter
+    private String language;
+
     public static String buildId(int serviceId, String uuid) {
         return serviceId + Const.ID_SPLIT + uuid + Const.ID_SPLIT + BooleanUtils.FALSE + Const.ID_SPLIT + Const.NONE;
     }

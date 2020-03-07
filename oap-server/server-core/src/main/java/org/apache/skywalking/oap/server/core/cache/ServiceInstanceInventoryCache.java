@@ -43,7 +43,6 @@ public class ServiceInstanceInventoryCache implements Service {
     private final Cache<Integer, ServiceInstanceInventory> serviceInstanceIdCache;
     private final Cache<String, Integer> serviceInstanceNameCache;
     private final Cache<String, Integer> addressIdCache;
-    private final Cache<Integer, String> languageCache;
     private final ModuleManager moduleManager;
     private IServiceInstanceInventoryCacheDAO cacheDAO;
 
@@ -68,10 +67,6 @@ public class ServiceInstanceInventoryCache implements Service {
             .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
             .build();
         addressIdCache = CacheBuilder.newBuilder()
-            .initialCapacity(initialCapacitySize)
-            .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
-            .build();
-        languageCache = CacheBuilder.newBuilder()
             .initialCapacity(initialCapacitySize)
             .maximumSize(moduleConfig.getMaxSizeOfServiceInstanceInventory())
             .build();
@@ -127,22 +122,23 @@ public class ServiceInstanceInventoryCache implements Service {
     }
 
     public String getServiceInstanceLanguage(int serviceInstanceId) {
-        String language = languageCache.getIfPresent(serviceInstanceId);
-        if (nonNull(language)) {
-            return language;
-        }
         ServiceInstanceInventory inventory = get(serviceInstanceId);
         if (isNull(inventory)) {
             return Const.EMPTY_STRING;
+        }
+        String language = inventory.getLanguage();
+        if (nonNull(language)) {
+            return language;
         }
         JsonObject properties = inventory.getProperties();
         for (String key : properties.keySet()) {
             if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
                 language = properties.get(key).getAsString();
-                languageCache.put(serviceInstanceId, language);
+                inventory.setLanguage(language);
                 return language;
             }
         }
-        return Const.EMPTY_STRING;
+        inventory.setLanguage(Const.UNKNOWN);
+        return Const.UNKNOWN;
     }
 }
