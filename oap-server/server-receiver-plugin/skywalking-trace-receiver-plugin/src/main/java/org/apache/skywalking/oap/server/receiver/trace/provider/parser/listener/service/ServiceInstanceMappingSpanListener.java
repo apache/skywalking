@@ -83,10 +83,13 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
                     ReferenceDecorator referenceDecorator = spanDecorator.getRefs(i);
                     String parentLanguage = serviceInstanceInventoryCache.getServiceInstanceLanguage(referenceDecorator.getParentServiceInstanceId());
-                    if (config.getNoUpstreamRealAddressAgentConfig().ignoreLanguage(parentLanguage)) {
+                    if (config.getNoUpstreamRealAddressAgents().contains(parentLanguage)) {
                         /*
                          * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
                          */
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} can not have the upstream real network address, ignore mapping. service instance id:{}", parentLanguage, referenceDecorator.getParentServiceInstanceId());
+                        }
                         continue;
                     }
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
@@ -123,7 +126,7 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
         serviceInstanceMappings.forEach(instanceMapping -> {
             if (log.isDebugEnabled()) {
                 log.debug(
-                    "service instance mapping listener build, service id: {}, mapping service id: {}", instanceMapping
+                    "service instance mapping listener build, service instance id: {}, mapping service instance id: {}", instanceMapping
                         .getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
             }
             serviceInstanceInventoryRegister.updateMapping(
@@ -131,7 +134,7 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
         });
         serviceInstancesToResetMapping.forEach(instanceId -> {
             if (log.isDebugEnabled()) {
-                log.debug("service instance mapping listener build, reset mapping of service id: {}", instanceId);
+                log.debug("service instance mapping listener build, reset mapping of service instance id: {}", instanceId);
             }
             serviceInstanceInventoryRegister.resetMapping(instanceId);
         });

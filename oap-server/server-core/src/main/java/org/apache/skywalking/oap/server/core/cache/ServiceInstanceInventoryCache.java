@@ -132,14 +132,15 @@ public class ServiceInstanceInventoryCache implements Service {
         String language = languageCache.getIfPresent(serviceInstanceId);
         if (isNull(language)) {
             ServiceInstanceInventory inventory = get(serviceInstanceId);
-            if (nonNull(inventory)) {
-                JsonObject properties = inventory.getProperties();
-                for (String key : properties.keySet()) {
-                    if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
-                        language = properties.get(key).getAsString().toLowerCase();
-                        languageCache.put(serviceInstanceId, language);
-                        return language;
-                    }
+            if (isNull(inventory)) {
+                return Const.EMPTY_STRING;
+            }
+            JsonObject properties = inventory.getProperties();
+            for (String key : properties.keySet()) {
+                if (key.equals(ServiceInstanceInventory.PropertyUtil.LANGUAGE)) {
+                    language = properties.get(key).getAsString();
+                    languageCache.put(serviceInstanceId, language);
+                    return language;
                 }
             }
         }

@@ -26,6 +26,8 @@ receiver-trace:
     bufferDataMaxFileSize: 500 # Unit is MB
     bufferFileCleanWhenRestart: false
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    noUpstreamRealAddressAgents: # The no upstream real address agents, service instance mapping and service instance client side relation are ignored.
+      - lua
 receiver-jvm:
   default:
 service-mesh:
