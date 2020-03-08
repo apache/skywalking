@@ -30,9 +30,10 @@
     </parent>
 
     <artifactId>jvm-container</artifactId>
-    <name>agent-test-jvm</name>
+    <name>name>SkyWalking JVM Runner Image</name>
 
     <properties>
         <skip.docker>false</skip.docker>
+        <docker.image.name>skywalking/agent-test-jvm</docker.image.name>
     </properties>
 </project>

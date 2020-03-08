@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
   - {feign-scenario: nq 0}
   instances:
   - {feign-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
                      /feign-scenario/case/feign-scenario, /feign-scenario/delete/1]
   heartbeat: []
 segmentItems:
-- applicationCode: feign-scenario
+- serviceName: feign-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

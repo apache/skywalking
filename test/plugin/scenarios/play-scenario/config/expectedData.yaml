@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {play-scenario: 2}
   instances:
     - {play-scenario: 1}
   operationNames:
     - play-scenario: ["/play-scenario/case/play-scenario/projects/{projectId}"]
 segmentItems:
-  - applicationCode: play-scenario
+  - serviceName: play-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

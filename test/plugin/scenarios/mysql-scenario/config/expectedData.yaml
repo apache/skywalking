@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {mysql-scenario: nq 0}
   instances:
     - {mysql-scenario: 1}
   operationNames:
     - mysql-scenario: [/mysql-scenario/case/healthCheck, /mysql-scenario/case/mysql-scenario]
 segmentItems:
-  - applicationCode: mysql-scenario
+  - serviceName: mysql-scenario
     segmentSize: ge 2
     segments:
       - segmentId: not null
