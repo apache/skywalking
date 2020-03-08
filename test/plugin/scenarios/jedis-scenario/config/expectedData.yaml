@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {jedis-scenario: 2}
   instances:
     - {jedis-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
     - jedis-scenario: [/jedis-scenario/case/jedis-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: jedis-scenario
+  - serviceName: jedis-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

@@ -214,7 +214,7 @@ as the version number, it will be changed in the test for every version.
 **Register verify description format**
 ```yml
 registryItems:
-  applications:
+  services:
   - APPLICATION_CODE: APPLICATION_ID(int)
   ...
   instances:
@@ -228,7 +228,7 @@ registryItems:
 
 | Field | Description
 | --- | ---
-| applications | The registered service codes. Normally, not 0 should be enough.
+| services | The registered service codes. Normally, not 0 should be enough.
 | instances | The number of service instances exists in this test case.
 | operationNames | All endpoint registered in this test case. Also means, the operation names of all entry spans.
 
@@ -237,7 +237,7 @@ registryItems:
 ```yml
 segments:
 -
-  applicationCode: APPLICATION_CODE(string)
+  serviceName: APPLICATION_CODE(string)
   segmentSize: SEGMENT_SIZE(int)
   segments:
   - segmentId: SEGMENT_ID(string)
@@ -248,7 +248,7 @@ segments:
 
 | Field |  Description
 | --- | ---  
-| applicationCode | Service code.
+| serviceName | Service code.
 | segmentSize | The number of segments is expected.
 | segmentId | trace ID.
 | spans | segment span list. Follow the next section to see how to describe every span.
@@ -446,7 +446,7 @@ HttpClient test case is running in Tomcat container, only one instance exists, s
 
 ```yml
 registryItems:
-  applications:
+  services:
   - {httpclient-case: nq 0}
   instances:
   - {httpclient-case: 1}
@@ -462,7 +462,7 @@ By following the flow of HttpClient case, there should be two segments created.
 
 ```yml
 segments:
-  - applicationCode: httpclient-case
+  - serviceName: httpclient-case
     segmentSize: ge 2 # Could have more than one health check segments, because, the dependency is not standby.
 ```
 
