@@ -32,6 +32,15 @@ public interface AbstractTracerContext {
     void inject(ContextCarrier carrier);
 
     /**
+     * Prepare for the cross-process propagation based on the given exit span. The given exit span should belong to the
+     * current context. How to initialize the carrier, depends on the implementation.
+     *
+     * @param carrier  to carry the context for crossing process.
+     * @param exitSpan to represent the scope of current injection.
+     */
+    void _inject(AbstractSpan exitSpan, ContextCarrier carrier);
+
+    /**
      * Build the reference between this segment and a cross-process segment. How to build, depends on the
      * implementation.
      *
@@ -82,7 +91,8 @@ public interface AbstractTracerContext {
      * Create an exit span
      *
      * @param operationName most likely a service name of remote
-     * @param remotePeer    the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
+     * @param remotePeer    the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.). Remote peer could be set
+     *                      later, but must be before injecting.
      * @return the span represent an exit point of this segment.
      */
     AbstractSpan createExitSpan(String operationName, String remotePeer);

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
@@ -33,22 +34,17 @@ import org.apache.skywalking.apm.network.trace.component.Component;
  * Such as: Dubbox - Apache Httpcomponent - ...(Remote) The <code>ExitSpan</code> represents the Dubbox span, and ignore
  * the httpcomponent span's info.
  */
-public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
-
+public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
     public ExitSpan(int spanId, int parentSpanId, String operationName, String peer, TracingContext owner) {
         super(spanId, parentSpanId, operationName, peer, owner);
     }
 
-    public ExitSpan(int spanId, int parentSpanId, int operationId, int peerId, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, peerId, owner);
-    }
-
-    public ExitSpan(int spanId, int parentSpanId, int operationId, String peer, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, peer, owner);
-    }
-
     public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId, TracingContext owner) {
         super(spanId, parentSpanId, operationName, peerId, owner);
+    }
+
+    public ExitSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
+        super(spanId, parentSpanId, operationName, owner);
     }
 
     /**
@@ -139,6 +135,11 @@ public class ExitSpan extends StackBasedTracingSpan implements WithPeerInfo {
     @Override
     public String getPeer() {
         return peer;
+    }
+
+    @Override
+    public void inject(final ContextCarrier carrier) {
+        this.owner._inject(this, carrier);
     }
 
     @Override

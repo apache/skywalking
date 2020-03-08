@@ -18,8 +18,15 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-public interface WithPeerInfo {
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+
+/**
+ * The exit span has some additional behaviours
+ */
+public interface ExitTypeSpan {
     int getPeerId();
 
     String getPeer();
+
+    void inject(ContextCarrier carrier);
 }
