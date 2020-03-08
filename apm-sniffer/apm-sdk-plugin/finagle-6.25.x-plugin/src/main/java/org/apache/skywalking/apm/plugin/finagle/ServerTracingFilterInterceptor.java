@@ -31,6 +31,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.FINAGLE;
+import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 
 public class ServerTracingFilterInterceptor extends AbstractInterceptor {
 
@@ -45,7 +46,7 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
         AbstractSpan span = null;
         if (Contexts.broadcast().contains(SWContextCarrier$.MODULE$)) {
             SWContextCarrier swContextCarrier = Contexts.broadcast().apply(SWContextCarrier$.MODULE$);
-            span = ContextManager.createEntrySpan(swContextCarrier.getOperationName(), swContextCarrier.carrier());
+            span = ContextManager.createEntrySpan(swContextCarrier.getOperationName(), swContextCarrier.getCarrier());
         } else {
             span = ContextManager.createEntrySpan("unknown", new ContextCarrier());
         }
@@ -53,12 +54,12 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
         span.setComponent(FINAGLE);
         SpanLayer.asRPCFramework(span);
 
-        enhancedInstance.setSkyWalkingDynamicField(span);
+        getLocalContextHolder().let(FinagleCtxs.SW_SPAN, span);
     }
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
-        final AbstractSpan finagleSpan = (AbstractSpan) enhancedInstance.getSkyWalkingDynamicField();
+        final AbstractSpan finagleSpan = getLocalContextHolder().remove(FinagleCtxs.SW_SPAN);
         finagleSpan.prepareForAsync();
         ContextManager.stopSpan(finagleSpan);
         ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {

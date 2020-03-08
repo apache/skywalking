@@ -23,20 +23,27 @@ import com.twitter.io.Buf
 import com.twitter.util.{Return, Try}
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier
 
-class SWContextCarrier(val carrier: ContextCarrier) {
+class SWContextCarrier() {
   private var operationName: String = ""
+  private var carrier: ContextCarrier = null;
 
   def setOperationName(op: String): Unit = {
     operationName = op
   }
 
+  def setContextCarrier(carrier: ContextCarrier): Unit = this.carrier = carrier;
+
   def getOperationName: String = operationName
+
+  def getCarrier(): ContextCarrier = carrier;
 }
 
 object SWContextCarrier extends Contexts.broadcast.Key[SWContextCarrier]("org.apache.skywalking.apm.plugin.finagle.SWContextCarrier") {
 
   def of(carrier: ContextCarrier): SWContextCarrier = {
-    new SWContextCarrier(carrier)
+    val sWContextCarrier = new SWContextCarrier()
+    sWContextCarrier.setContextCarrier(carrier)
+    sWContextCarrier
   }
 
   override def marshal(context: SWContextCarrier): Buf = {

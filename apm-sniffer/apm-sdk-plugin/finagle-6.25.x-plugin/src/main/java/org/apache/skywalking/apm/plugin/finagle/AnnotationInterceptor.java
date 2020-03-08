@@ -22,7 +22,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getContextCarrier;
+import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.tryInjectContext;
+import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 /**
@@ -63,14 +64,8 @@ public class AnnotationInterceptor {
                      * In server side, we don't need this annotation, because we can get op from Contexts.broadcast
                      * which comes from client.
                      */
-                    span.setOperationName(rpc);
-                }
-                SWContextCarrier swContextCarrier = getContextCarrier();
-                if (swContextCarrier != null) {
-                    /*
-                     * we are in the client side.
-                     */
-                    swContextCarrier.setOperationName(rpc);
+                    getLocalContextHolder().let(FinagleCtxs.RPC, rpc);
+                    tryInjectContext();
                 }
             }
         }

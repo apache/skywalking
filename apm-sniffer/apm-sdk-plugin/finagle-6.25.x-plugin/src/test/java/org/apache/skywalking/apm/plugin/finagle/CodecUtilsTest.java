@@ -43,7 +43,9 @@ public class CodecUtilsTest {
         swContextCarrier = makeSWContextCarrier();
         assertSwContextCarrier(swContextCarrier, CodecUtils.decode(CodecUtils.encode(swContextCarrier)));
 
-        swContextCarrier = new SWContextCarrier(new ContextCarrier());
+        ContextCarrier contextCarrier = new ContextCarrier();
+        swContextCarrier = new SWContextCarrier();
+        swContextCarrier.setContextCarrier(contextCarrier);
         assertSwContextCarrier(swContextCarrier, CodecUtils.decode(Bufs.EMPTY));
     }
 
@@ -54,7 +56,8 @@ public class CodecUtilsTest {
             next = next.next();
             next.setHeadValue(UUID.randomUUID().toString());
         }
-        SWContextCarrier swContextCarrier = new SWContextCarrier(contextCarrier);
+        SWContextCarrier swContextCarrier = new SWContextCarrier();
+        swContextCarrier.setContextCarrier(contextCarrier);
         swContextCarrier.setOperationName(UUID.randomUUID().toString());
         return swContextCarrier;
     }
@@ -62,12 +65,12 @@ public class CodecUtilsTest {
     private void assertSwContextCarrier(SWContextCarrier expected, SWContextCarrier actual) {
         assertThat(expected.getOperationName(), is(actual.getOperationName()));
         Map<String, String> data = new HashMap<>();
-        CarrierItem next = expected.carrier().items();
+        CarrierItem next = expected.getCarrier().items();
         while (next.hasNext()) {
             next = next.next();
             data.put(next.getHeadKey(), next.getHeadValue());
         }
-        next = actual.carrier().items();
+        next = actual.getCarrier().items();
         while (next.hasNext()) {
             next = next.next();
             assertThat(next.getHeadValue(), is(data.get(next.getHeadKey())));

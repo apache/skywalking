@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.finagle;
 
 import com.twitter.util.Future;
 import com.twitter.util.FutureEventListener;
-import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -44,19 +43,15 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
     @Override
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes,
                                  MethodInterceptResult methodInterceptResult) throws Throwable {
-        ContextCarrier contextCarrier = new ContextCarrier();
         /*
          * At this time, we can't know the operation name and peer address, so we just use placeholders here, the
          * operation name will be filled by {@link AnnotationInterceptor$Rpc} and the peer address will be filled by
          * {@link ClientDestTracingFilterInterceptor} later.
          */
-        AbstractSpan finagleSpan = ContextManager.createExitSpan("pending", contextCarrier, "");
+        AbstractSpan finagleSpan = ContextManager.createExitSpan("pending", "");
 
         finagleSpan.setComponent(FINAGLE);
         SpanLayer.asRPCFramework(finagleSpan);
-
-        ContextHolder marshlledContextHolder = getMarshalledContextHolder();
-        marshlledContextHolder.let(SWContextCarrier$.MODULE$, SWContextCarrier.of(contextCarrier));
 
         ContextHolder localContextHolder = getLocalContextHolder();
         localContextHolder.let(SW_SPAN, finagleSpan);

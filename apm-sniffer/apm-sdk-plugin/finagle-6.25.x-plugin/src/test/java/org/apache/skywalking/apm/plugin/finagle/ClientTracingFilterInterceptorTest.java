@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.finagle;
 import com.twitter.finagle.Address;
 import com.twitter.finagle.Addresses$;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.WithPeerInfo;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitTypeSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
@@ -62,7 +62,7 @@ public class ClientTracingFilterInterceptorTest extends AbstractTracingFilterTes
     @Override
     protected void assertSpan(AbstractTracingSpan span) {
         assertTrue(span.isExit());
-        assertThat(((WithPeerInfo) span).getPeer(), is(serverSocketAddress.getAddress().getHostAddress() + ":" + serverSocketAddress.getPort()));
+        assertThat(((ExitTypeSpan) span).getPeer(), is(serverSocketAddress.getAddress().getHostAddress() + ":" + serverSocketAddress.getPort()));
     }
 
     @Test

@@ -20,16 +20,14 @@ package org.apache.skywalking.apm.plugin.finagle;
 
 import com.twitter.finagle.Address;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.setPeerHost;
-import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getContextCarrier;
-import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
+import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.tryInjectContext;
+import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 
 /**
  * When we create exitspan in ClientTracingFilter, we can't know the remote address because the ClientTracingFilter
@@ -46,18 +44,13 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
     @Override
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
         String peer = (String) enhancedInstance.getSkyWalkingDynamicField();
-        AbstractSpan span = getSpan();
-        if (span != null) {
-            span.setPeer(peer);
-        }
-        SWContextCarrier swContextCarrier = getContextCarrier();
-        if (swContextCarrier != null) {
-            setPeerHost(swContextCarrier.carrier(), peer);
-        }
+        getLocalContextHolder().let(FinagleCtxs.PEER_HOST, peer);
+        tryInjectContext();
     }
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
+        getLocalContextHolder().remove(FinagleCtxs.PEER_HOST);
         return o;
     }
 

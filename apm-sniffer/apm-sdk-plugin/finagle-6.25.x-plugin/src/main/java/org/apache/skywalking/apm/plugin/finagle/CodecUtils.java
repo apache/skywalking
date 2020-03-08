@@ -54,7 +54,7 @@ public class CodecUtils {
         ByteArrayOutputStream bos = getBos();
         try (DataOutputStream dos = new DataOutputStream(bos)) {
             putString(dos, swContextCarrier.getOperationName());
-            CarrierItem next = swContextCarrier.carrier().items();
+            CarrierItem next = swContextCarrier.getCarrier().items();
             while (next.hasNext()) {
                 next = next.next();
                 if (next.getHeadKey() != null && next.getHeadValue() != null) {
@@ -72,7 +72,8 @@ public class CodecUtils {
 
     static SWContextCarrier decode(Buf buf) {
         ContextCarrier contextCarrier = new ContextCarrier();
-        SWContextCarrier swContextCarrier = new SWContextCarrier(contextCarrier);
+        SWContextCarrier swContextCarrier = new SWContextCarrier();
+        swContextCarrier.setContextCarrier(contextCarrier);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(Bufs.ownedByteArray(buf));
         String operationName = getNextString(byteBuffer);

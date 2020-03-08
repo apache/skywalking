@@ -114,7 +114,8 @@ public class ServerTracingFilterInterceptorTest extends AbstractTracingFilterTes
                         "Wwv-Iy90ZXN0RW50cnlTcGFu");
             }
         }
-        SWContextCarrier swContextCarrier = new SWContextCarrier(contextCarrier);
+        SWContextCarrier swContextCarrier = new SWContextCarrier();
+        swContextCarrier.setContextCarrier(contextCarrier);
         swContextCarrier.setOperationName(rpc);
         Contexts.broadcast().let(SWContextCarrier$.MODULE$, swContextCarrier, new AbstractFunction0<Void>() {
             @Override

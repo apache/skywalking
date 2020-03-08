@@ -19,9 +19,14 @@
 package org.apache.skywalking.apm.plugin.finagle;
 
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
+import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getMarshalledContextHolder;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.RPC;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getOperationName;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getPeerHost;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 /**
  * We need set peer host to {@link ContextCarrier} in {@link ClientDestTracingFilterInterceptor}, but there is no
@@ -29,24 +34,32 @@ import java.lang.reflect.Method;
  */
 class ContextCarrierHelper {
 
-    private static Method SET_PEERHOST_METHOD = null;
-
-    static {
-        try {
-            SET_PEERHOST_METHOD = ContextCarrier.class.getDeclaredMethod("setPeerHost", String.class);
-            SET_PEERHOST_METHOD.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            // ignore
+    static void tryInjectContext() {
+        String operationName = getOperationName();
+        if (operationName == null) {
+            return;
         }
+        String peer = getPeerHost();
+        if (peer == null) {
+            return;
     }
+        ExitSpan span = (ExitSpan) getSpan();
+        /*
+         * if peer and operationName is not null, we can ensure that span is not null
+         */
+        span.setPeer(peer);
+        span.setOperationName(operationName);
 
-    static void setPeerHost(ContextCarrier contextCarrier, String peer) {
-        if (SET_PEERHOST_METHOD != null) {
-            try {
-                SET_PEERHOST_METHOD.invoke(contextCarrier, peer);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                // ignore
-            }
-        }
+        ContextCarrier contextCarrier = new ContextCarrier();
+        span.inject(contextCarrier);
+
+        SWContextCarrier swContextCarrier = SWContextCarrier.of(contextCarrier);
+        swContextCarrier.setOperationName(operationName);
+        getMarshalledContextHolder().let(SWContextCarrier$.MODULE$, swContextCarrier);
+
+        /*
+         * clear contexts
+         */
+        getLocalContextHolder().remove(RPC);
     }
 }
