@@ -44,11 +44,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public void inject(final AbstractSpan exitSpan, final ContextCarrier carrier) {
-
-    }
-
-    @Override
     public void extract(ContextCarrier carrier) {
 
     }
