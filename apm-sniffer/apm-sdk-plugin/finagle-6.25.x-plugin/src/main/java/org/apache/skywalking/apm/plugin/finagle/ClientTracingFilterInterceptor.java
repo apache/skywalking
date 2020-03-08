@@ -36,16 +36,6 @@ import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.SW_SPAN;
 
 public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
-    private static class CacheObjects {
-        private ContextHolder marshlledContextHolder;
-        private ContextHolder localContextHolder;
-
-        private CacheObjects(ContextHolder marshlledContextHolder, ContextHolder localContextHolder) {
-            this.marshlledContextHolder = marshlledContextHolder;
-            this.localContextHolder = localContextHolder;
-        }
-    }
-
     @Override
     protected void onConstructImpl(EnhancedInstance objInst, Object[] allArguments) {
 
@@ -70,16 +60,13 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
         ContextHolder localContextHolder = getLocalContextHolder();
         localContextHolder.let(SW_SPAN, finagleSpan);
-
-        enhancedInstance.setSkyWalkingDynamicField(new CacheObjects(marshlledContextHolder, localContextHolder));
     }
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
-        CacheObjects cacheObjects = (CacheObjects) enhancedInstance.getSkyWalkingDynamicField();
 
-        final AbstractSpan finagleSpan = cacheObjects.localContextHolder.remove(SW_SPAN);
-        cacheObjects.marshlledContextHolder.remove(SWContextCarrier$.MODULE$);
+        final AbstractSpan finagleSpan = getLocalContextHolder().remove(SW_SPAN);
+        getMarshalledContextHolder().remove(SWContextCarrier$.MODULE$);
 
         finagleSpan.prepareForAsync();
         ContextManager.stopSpan(finagleSpan);

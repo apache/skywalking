@@ -18,14 +18,10 @@
 
 package org.apache.skywalking.apm.plugin.finagle;
 
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-import java.lang.reflect.Method;
-
-import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getContextCarrier;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
@@ -35,10 +31,10 @@ import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
  */
 public class AnnotationInterceptor {
 
-    abstract static class Abstract extends AbstractInterceptor {
+    abstract static class Abstract implements InstanceConstructorInterceptor {
 
         @Override
-        public void onConstructImpl(EnhancedInstance enhancedInstance, Object[] objects) {
+        public void onConstruct(EnhancedInstance enhancedInstance, Object[] objects) {
             onConstruct(enhancedInstance, objects, getSpan());
         }
 
@@ -56,32 +52,27 @@ public class AnnotationInterceptor {
         protected void onConstruct(EnhancedInstance enhancedInstance, Object[] objects, AbstractSpan span) {
             if (objects != null && objects.length == 1) {
                 String rpc = (String) objects[0];
-                if (span == null) {
-                    // in case the exitspan is created later
-                    getLocalContextHolder().let(FinagleCtxs.RPC, rpc);
-                } else {
+                if (span != null) {
+                    /*
+                     * The Rpc Annotation is created both in client side and server side, in server side, this
+                     * annotation is created only in finagle versions below 17.12.0.
+                     *
+                     * If the span is not null, which means we are in the client side, we just set op to the exitspan.
+                     *
+                     * If the span is null, which means we are in the server side with finagle version below 17.12.0.
+                     * In server side, we don't need this annotation, because we can get op from Contexts.broadcast
+                     * which comes from client.
+                     */
                     span.setOperationName(rpc);
                 }
                 SWContextCarrier swContextCarrier = getContextCarrier();
                 if (swContextCarrier != null) {
+                    /*
+                     * we are in the client side.
+                     */
                     swContextCarrier.setOperationName(rpc);
                 }
             }
-        }
-
-        @Override
-        protected void beforeMethodImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-
-        }
-
-        @Override
-        protected Object afterMethodImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-            return ret;
-        }
-
-        @Override
-        protected void handleMethodExceptionImpl(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-            ContextManager.activeSpan().errorOccurred().log(t);
         }
     }
 }
