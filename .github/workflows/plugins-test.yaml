@@ -272,7 +272,7 @@ jobs:
       - name: Run jedis 2.4.0-2.9.0 (18)
         run: bash test/plugin/run.sh jedis-scenario
 
-  Spring41x_SolrJ-Http:
+  Spring41x_Resttemplate-SolrJ-Http:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
