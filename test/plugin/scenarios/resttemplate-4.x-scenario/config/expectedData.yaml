@@ -14,19 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-    applications:
-    - {resttemplate-4.x-scenario: nq 0}
-    instances:
-    - {resttemplate-4.x-scenario: 1}
-    operationNames:
-    - resttemplate-4.x-scenario: [/resttemplate/case/resttemplate, /resttemplate/back]
+  applications:
+  - {resttemplate-4.x-scenario: nq 0}
+  instances:
+  - {resttemplate-4.x-scenario: 1}
+  operationNames:
+  - resttemplate-4.x-scenario: [/resttemplate/case/resttemplate, /resttemplate/back]
 segmentItems:
 - applicationCode: resttemplate-4.x-scenario
   segmentSize: ge 3
   segments:
   - segmentId: not null
     spans:
-      - operationName: /resttemplate/case/resttemplate
+      - operationName: /resttemplate/back
         operationId: 0
         parentSpanId: -1
         spanId: 0
@@ -40,8 +40,28 @@ segmentItems:
         peer: ''
         peerId: 0
         tags:
-        - {key: url, value: 'http://localhost:8080/resttemplate/case/resttemplate' }
+        - {key: url, value: 'http://127.0.0.1:8080/resttemplate/back' }
         - {key: http.method, value: GET }
+  - segmentId: not null
+    spans:
+      - operationName: /resttemplate/back
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: Http
+        startTime: nq 0
+        endTime: nq 0
+        componentId: not null
+        componentName: ''
+        isError: false
+        spanType: Entry
+        peer: ''
+        peerId: 0
+        tags:
+          - {key: url, value: 'http://127.0.0.1:8080/resttemplate/back' }
+          - {key: http.method, value: GET }
+  - segmentId: not null
+    spans:
       - operationName: /resttemplate/back
         operationId: 0
         parentSpanId: 0
@@ -87,9 +107,7 @@ segmentItems:
         tags:
           - {key: url, value: 'http://127.0.0.1:8080/resttemplate/back' }
           - {key: http.method, value: GET }
-  - segmentId: not null
-    spans:
-      - operationName: /resttemplate/back
+      - operationName: /resttemplate/case/resttemplate
         operationId: 0
         parentSpanId: -1
         spanId: 0
@@ -103,23 +121,5 @@ segmentItems:
         peer: ''
         peerId: 0
         tags:
-        - {key: url, value: 'http://127.0.0.1:8080/resttemplate/back' }
-        - {key: http.method, value: GET }
-  - segmentId: not null
-    spans:
-      - operationName: /resttemplate/back
-        operationId: 0
-        parentSpanId: -1
-        spanId: 0
-        spanLayer: Http
-        startTime: nq 0
-        endTime: nq 0
-        componentId: not null
-        componentName: ''
-        isError: false
-        spanType: Entry
-        peer: ''
-        peerId: 0
-        tags:
-          - {key: url, value: 'http://127.0.0.1:8080/resttemplate/back' }
+          - {key: url, value: 'http://localhost:8080/resttemplate/case/resttemplate' }
           - {key: http.method, value: GET }
