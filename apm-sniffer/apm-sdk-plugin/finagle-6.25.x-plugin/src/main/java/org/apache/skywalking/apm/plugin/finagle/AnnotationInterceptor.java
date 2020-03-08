@@ -58,10 +58,11 @@ public class AnnotationInterceptor {
                      * The Rpc Annotation is created both in client side and server side, in server side, this
                      * annotation is created only in finagle versions below 17.12.0.
                      *
-                     * If the span is not null, which means we are in the client side, we just set op to the exitspan.
+                     * If the span is not null, which means we are in the client side, we just set op name to the
+                     * exitspan.
                      *
                      * If the span is null, which means we are in the server side with finagle version below 17.12.0.
-                     * In server side, we don't need this annotation, because we can get op from Contexts.broadcast
+                     * In server side, we don't need this annotation, because we can get op name from Contexts.broadcast
                      * which comes from client.
                      */
                     getLocalContextHolder().let(FinagleCtxs.RPC, rpc);

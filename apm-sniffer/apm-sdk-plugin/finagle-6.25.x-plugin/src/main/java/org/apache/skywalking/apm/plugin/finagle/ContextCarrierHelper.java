@@ -28,12 +28,18 @@ import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getOperationN
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getPeerHost;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
-/**
- * We need set peer host to {@link ContextCarrier} in {@link ClientDestTracingFilterInterceptor}, but there is no
- * public method to do this, so we use this helper to achieve it.
- */
 class ContextCarrierHelper {
 
+    /**
+     * When we created {@link ExitSpan} in {@link ClientTracingFilterInterceptor}, we don't know the op name and peer
+     * information.
+     *
+     * In {@link ClientTracingFilterInterceptor}, we create {@link ExitSpan} without op name and peer information, and
+     * we use {@link AnnotationInterceptor.Rpc} and {@link ClientDestTracingFilterInterceptor} to put op name and
+     * peer information into LocalContext, but the order of these two interceptors are uncertain, so after each
+     * interceptor, we check if the op name and peer information are exists in LocalContext, if it exists, we set it
+     * to span and inject to contextCarrier.
+     */
     static void tryInjectContext() {
         String operationName = getOperationName();
         if (operationName == null) {
@@ -42,7 +48,7 @@ class ContextCarrierHelper {
         String peer = getPeerHost();
         if (peer == null) {
             return;
-    }
+        }
         ExitSpan span = (ExitSpan) getSpan();
         /*
          * if peer and operationName is not null, we can ensure that span is not null
