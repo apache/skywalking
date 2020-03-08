@@ -215,13 +215,13 @@ as the version number, it will be changed in the test for every version.
 ```yml
 registryItems:
   services:
-  - APPLICATION_CODE: APPLICATION_ID(int)
+  - { SERVICE_NAME: SERVICE_ID(int) }
   ...
   instances:
-  - APPLICATION_CODE: INSTANCE_COUNT(int)
+  - { SERVICE_CODE: INSTANCE_COUNT(int) }
   ...
   operationNames:
-  - APPLICATION_CODE: [ SPAN_OPERATION(string), ... ]
+  - SERVICE_CODE: [ ENTRY_SPAN_OPERATION(string), ... ]
   ...
 ```
 
@@ -230,14 +230,14 @@ registryItems:
 | --- | ---
 | services | The registered service codes. Normally, not 0 should be enough.
 | instances | The number of service instances exists in this test case.
-| operationNames | All endpoint registered in this test case. Also means, the operation names of all entry spans.
+| operationNames | Operation names of entry spans. Since 6.6.0, only these span name would do register, due to they are real endpoints.
 
 
 **Segment verify description format**
 ```yml
 segments:
 -
-  serviceName: APPLICATION_CODE(string)
+  serviceName: SERVICE_CODE(string)
   segmentSize: SEGMENT_SIZE(int)
   segments:
   - segmentId: SEGMENT_ID(string)
@@ -281,10 +281,14 @@ segments:
     - {
        parentSpanId: PARENT_SPAN_ID(int),
        parentTraceSegmentId: PARENT_TRACE_SEGMENT_ID(string),
-       entryServiceName: ENTRY_SERVICE_NAME(string),
+       entryServiceInstanceId: ENTRY_SERVICE_INSTANCE_ID(int)
+       parentServiceInstanceId: PARENT_SERVICE_INSTANCE_ID(int),
        networkAddress: NETWORK_ADDRESS(string),
-       parentServiceName: PARENT_SERVICE_NAME(string),
-       entryApplicationInstanceId: ENTRY_APPLICATION_INSTANCE_ID(int)
+       networkAddressId: NETWORK_ADDRESS_ID(int),
+       parentEndpoint: PARENT_ENDPOINT_NAME(string),
+       parentEndpointId: PARENT_ENDPOINT_ID(int),
+       entryEndpoint: ENTRY_ENDPOINT_NAME(string),
+       entryServiceInstanceId: ENTRY_ENDPOINT_ID(int),
      }
    ...
 ```
@@ -313,12 +317,10 @@ The verify description for SegmentRef,
 | Field | Description 
 |---- |---- 
 | parentSpanId | Parent SpanID, pointing to the span id in the parent segment.
-| parentTraceSegmentId | Parent SegmentID. Format is `${APPLICATION_CODE[SEGMENT_INDEX]}`, pointing to the index of parent service segment list. 
-| entryServiceName | Entrance service code of the whole distributed call chain. Such HttpClient entryServiceName is `/httpclient-case/case/httpclient` 
-| networkAddress | The peer value of parent exit span. 
-| parentServiceName | Parent service code.
-| entryApplicationInstanceId | Not 0 should be enough.
-
+| entryServiceInstanceId/parentServiceInstanceId | Not 0 should be enough
+| networkAddress/networkAddressId | The peer value of parent exit span. `networkAddressId` should be 0, as the mock tool doesn't do register for real.
+| parentEndpoint/parentEndpointId | The endpoint of parent/downstream service. Usually set `parentEndpoint` as literal string name, unless there is no parent endpoint, set `parentEndpointId` as -1.
+| entryEndpoint/entryServiceInstanceId | The endpoint of first service in the distributed chain. Usually set `entryEndpoint` as literal string name, unless there is no endpoint at the entry service, set `entryServiceInstanceId` as -1.
 
 ### startup.sh
 
