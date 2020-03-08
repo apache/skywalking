@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {${scenario_name}: 2}
   instances:
     - {${scenario_name}: 1}
@@ -22,6 +22,6 @@ registryItems:
     - ${scenario_name}: []
   heartbeat: []
 segmentItems:
-  - applicationCode: ${scenario_name}
+  - serviceName: ${scenario_name}
     segmentSize:
     segments:
