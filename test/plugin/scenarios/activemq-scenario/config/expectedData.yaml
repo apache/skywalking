@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {activemq-scenario: nq 0}
   instances:
     - {activemq-scenario: nq 0}
@@ -22,7 +22,7 @@ registryItems:
     - activemq-scenario: [ActiveMQ/Queue/test/Consumer, /activemq-scenario/case/activemq]
   heartbeat: []
 segmentItems:
-- applicationCode: activemq-scenario
+- serviceName: activemq-scenario
   segmentSize: ge 2
   segments:
   - segmentId: not null

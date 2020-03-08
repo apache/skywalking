@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {zookeeper-scenario: 2}
   instances:
     - {zookeeper-scenario: 1}
@@ -24,7 +24,7 @@ registryItems:
                            /zookeeper-scenario/case/healthCheck]
   heartbeat: []
 segmentItems:
-  - applicationCode: zookeeper-scenario
+  - serviceName: zookeeper-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
