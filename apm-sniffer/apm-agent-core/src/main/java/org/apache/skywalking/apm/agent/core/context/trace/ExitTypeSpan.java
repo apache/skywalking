@@ -28,5 +28,5 @@ public interface ExitTypeSpan {
 
     String getPeer();
 
-    void inject(ContextCarrier carrier);
+    ExitTypeSpan inject(ContextCarrier carrier);
 }

@@ -44,8 +44,8 @@ public class NoopExitSpan extends NoopSpan implements ExitTypeSpan {
     }
 
     @Override
-    public void inject(final ContextCarrier carrier) {
-
+    public NoopExitSpan inject(final ContextCarrier carrier) {
+        return this;
     }
 
     @Override

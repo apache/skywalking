@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitTypeSpan;
 
 /**
  * The <code>AbstractTracerContext</code> represents the tracer context manager.
@@ -33,12 +34,15 @@ public interface AbstractTracerContext {
 
     /**
      * Prepare for the cross-process propagation based on the given exit span. The given exit span should belong to the
-     * current context. How to initialize the carrier, depends on the implementation.
+     * current context.This method wouldn't be opened in {@link ContextManager} like {@link #inject(ContextCarrier)}, it
+     * is only supported to be called inside the {@link ExitTypeSpan#inject(ContextCarrier)}
+     *
+     * How to initialize the carrier, depends on the implementation.
      *
      * @param carrier  to carry the context for crossing process.
      * @param exitSpan to represent the scope of current injection.
      */
-    void _inject(AbstractSpan exitSpan, ContextCarrier carrier);
+    void inject(AbstractSpan exitSpan, ContextCarrier carrier);
 
     /**
      * Build the reference between this segment and a cross-process segment. How to build, depends on the

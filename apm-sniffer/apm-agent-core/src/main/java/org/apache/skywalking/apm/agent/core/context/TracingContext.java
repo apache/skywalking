@@ -134,7 +134,7 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void inject(ContextCarrier carrier) {
-        this._inject(this.activeSpan(), carrier);
+        this.inject(this.activeSpan(), carrier);
     }
 
     /**
@@ -145,10 +145,10 @@ public class TracingContext implements AbstractTracerContext {
      * @param carrier  to carry the context for crossing process.
      * @param exitSpan to represent the scope of current injection.
      * @throws IllegalStateException if (1) the span isn't an exit one. (2) doesn't include peer. Ref to {@link
-     *                               AbstractTracerContext#_inject(AbstractSpan, ContextCarrier)}
+     *                               AbstractTracerContext#inject(AbstractSpan, ContextCarrier)}
      */
     @Override
-    public void _inject(AbstractSpan exitSpan, ContextCarrier carrier) {
+    public void inject(AbstractSpan exitSpan, ContextCarrier carrier) {
         if (!exitSpan.isExit()) {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
