@@ -128,7 +128,7 @@ Input:
       "parentSpanId": 0,
       "componentId": 6000,
       "peer": "User Service Name-nginx:upstream_ip:port",
-      "spanLayer": "HTTP"
+      "spanLayer": "Http"
     },
     {
       "operationName": "/tier2/lb",
@@ -170,7 +170,7 @@ Input:
           "entryEndpoint": "/ingress"
         }
       ],
-      "spanLayer": "HTTP"
+      "spanLayer": "Http"
     }
   ],
   "serviceInstanceId": 1,
