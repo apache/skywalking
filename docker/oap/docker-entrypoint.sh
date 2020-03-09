@@ -385,8 +385,6 @@ receiver-jvm:
   default:
 receiver-clr:
   default:
-receiver-so11y:
-  default:
 receiver-profile:
   default:
 service-mesh:
