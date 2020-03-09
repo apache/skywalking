@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {hystrix-scenario: 2}
   instances:
     - {hystrix-scenario: 1}
@@ -22,7 +22,7 @@ registryItems:
     - hystrix-scenario: [/case/hystrix-scenario]
   heartbeat: []
 segmentItems:
-- applicationCode: hystrix-scenario
+- serviceName: hystrix-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

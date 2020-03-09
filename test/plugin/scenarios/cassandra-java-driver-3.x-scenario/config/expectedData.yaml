@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {cassandra-java-driver-3.x-scenario: 2}
   instances:
     - {cassandra-java-driver-3.x-scenario: 1}
@@ -22,7 +22,7 @@ registryItems:
     - cassandra-java-driver-3.x-scenario: [/cassandra-java-driver-3.x-scenario/case/cassandra]
   heartbeat: []
 segmentItems:
-  - applicationCode: cassandra-java-driver-3.x-scenario
+  - serviceName: cassandra-java-driver-3.x-scenario
     segmentSize: ge 1
     segments:
     - segmentId: not null

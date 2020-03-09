@@ -31,6 +31,8 @@ message ConfigurationRequest {
     // in case the remote configuration center implementation support
     // configuration management for multiple clusters.
     string clusterName = 1;
+    // The config UUID response from the config server side.
+    string uuid = 2;
 }
 
 message ConfigurationResponse {
@@ -42,6 +44,9 @@ message ConfigurationResponse {
     // If the config center wants to set the value to NULL or empty,
     // must set the name with empty value explicitly.
     repeated Config configTable = 1;
+    // UUID is literal string represents the content of the config table.
+    // If config table is unchanged, then could response the same uuid, and config table is not required.
+    string uuid = 2;
 }
 
 message Config {

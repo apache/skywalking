@@ -45,6 +45,7 @@
         <module>exporter</module>
         <module>server-configuration</module>
         <module>server-bootstrap</module>
+        <module>server-tools</module>
     </modules>
 
     <properties>
@@ -89,6 +90,7 @@
         <javaassist.version>3.25.0-GA</javaassist.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
+        <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
 
     </properties>
 
@@ -262,6 +264,13 @@
                 <artifactId>grpc-protobuf</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf-java-util.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>

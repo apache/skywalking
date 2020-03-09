@@ -65,7 +65,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public ConfigTable readConfig(Set<String> keys) {
+    public Optional<ConfigTable> readConfig(Set<String> keys) {
         removeUninterestedKeys(keys);
         registerKeyListeners(keys);
         final ConfigTable table = new ConfigTable();
@@ -81,7 +81,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             }
         }
 
-        return table;
+        return Optional.of(table);
     }
 
     private void registerKeyListeners(final Set<String> keys) {

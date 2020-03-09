@@ -45,6 +45,13 @@
             <artifactId>storage-elasticsearch7-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- profile exporter -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>tool-profile-snapshot-exporter-es7</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
