@@ -129,7 +129,7 @@ netty-handler-4.1.42.Final.jar
 netty-handler-proxy-4.1.42.Final.jar
 netty-resolver-4.1.42.Final.jar
 netty-resolver-dns-4.1.42.Final.jar
-netty-tcnative-boringssl-static-2.0.7.Final.jar
+netty-tcnative-boringssl-static-2.0.26.Final.jar
 netty-transport-4.1.42.Final.jar
 okhttp-2.7.5.jar
 okhttp-3.9.0.jar
