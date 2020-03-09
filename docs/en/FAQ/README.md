@@ -7,7 +7,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 ## Compiling
 * [Protoc plugin fails in maven build](Protoc-Plugin-Fails-When-Build.md)
 * [Required items could not be found, when import project into Eclipse](Import-Project-Eclipse-RequireItems-Exception.md)
-* [Maven compilation failure with error like python2 not found](maven-compile-npm-failure.md)
+* [Maven compilation failure with `python2 not found` error](maven-compile-npm-failure.md)
 
 ## Runtime
 * [Why metrics indexes(ElasticSearch) in Hour and Day precisions stop update after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)
