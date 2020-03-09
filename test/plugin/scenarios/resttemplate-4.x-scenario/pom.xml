@@ -29,10 +29,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>1.5.9.RELEASE</test.framework.version>
+        <test.framework.version>4.3.8.RELEASE</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
-        <lombok.version>1.18.10</lombok.version>
-        <log4j.version>2.8.1</log4j.version>
+        <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
     </properties>
 
     <name>skywalking-resttemplate-4.x-scenario</name>
@@ -42,7 +41,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>${test.framework.version}</version>
+            <version>${spring-boot.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>spring-boot-starter-logging</artifactId>
@@ -53,23 +52,23 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <version>${test.framework.version}</version>
+            <version>${spring-boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-web</artifactId>
+                    <groupId>org.springframework</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
+            <artifactId>spring-web</artifactId>
+            <groupId>org.springframework</groupId>
+            <version>${test.framework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-            <version>${test.framework.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-            <version>3.3.6</version>
+            <version>${spring-boot.version}</version>
         </dependency>
     </dependencies>
 
