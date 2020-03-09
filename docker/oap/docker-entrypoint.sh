@@ -333,6 +333,9 @@ core:
     restContextPath: \${SW_CORE_REST_CONTEXT_PATH:/}
     gRPCHost: \${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: \${SW_CORE_GRPC_PORT:11800}
+    gRPCSslEnabled: \${SW_CORE_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: \${SW_CORE_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: \${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
     downsampling:
     - Hour
     - Day

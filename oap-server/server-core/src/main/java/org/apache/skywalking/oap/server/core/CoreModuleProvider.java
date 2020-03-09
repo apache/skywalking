@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -166,7 +167,13 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
+        if (moduleConfig.isGRPCSslEnabled()) {
+            grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(),
+                                        Paths.get(moduleConfig.getGRPCSslCertChainPath()).toFile(),
+                                        Paths.get(moduleConfig.getGRPCSslKeyPath()).toFile());
+        } else {
+            grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
+        }
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());
         }
