@@ -42,8 +42,8 @@ Pay attention to key words such as `node-sass` and `Error: not found: python2`.
 
 ### Reason
 
-It has nothing to do with skywalking.   
-According to https://github.com/sass/node-sass/issues/1176, if you live in countries where requesting resources from `github` and `npmjs.org` is very slowly, some precompiled binaries for dependency `node-sass` will fail to be downloaded during `npm install`, then npm will try to compile them itself. That's why `python2` is needed.
+It has nothing to do with SkyWalking.   
+According to https://github.com/sass/node-sass/issues/1176, if you live in countries where requesting resources from `GitHub` and `npmjs.org` is very slowly, some precompiled binaries for dependency `node-sass` will fail to be downloaded during `npm install`, then npm will try to compile them itself. That's why `python2` is needed.
 
 ### Resolve
 #### 1. If you live in China, please edit `skywalking\apm-webapp\pom.xml`     
