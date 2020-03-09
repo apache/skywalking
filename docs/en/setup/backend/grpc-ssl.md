@@ -1,4 +1,4 @@
-#Support gRPC SSL transportation for OAP server
+# Support gRPC SSL transportation for OAP server
 
 For OAP communication we are currently using gRPC, a multi-platform RPC framework that uses protocol buffers for
 message serialization. The nice part about gRPC is that it promotes the use of SSL/TLS to authenticate and encrypt
@@ -30,4 +30,3 @@ gRPCSslCertChainPath: /path/to/server.crt
 ```
 
 If you port to java agent, refer to [TLS.md](../service-agent/java-agent/TLS.md) to config java agent to enable TLS.
-
