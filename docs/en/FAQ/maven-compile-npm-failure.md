@@ -46,7 +46,7 @@ It has nothing to do with SkyWalking.
 According to https://github.com/sass/node-sass/issues/1176, if you live in countries where requesting resources from `GitHub` and `npmjs.org` is very slowly, some precompiled binaries for dependency `node-sass` will fail to be downloaded during `npm install`, then npm will try to compile them itself. That's why `python2` is needed.
 
 ### Resolve
-#### 1. If you live in China, please edit `skywalking\apm-webapp\pom.xml`     
+#### 1. Use mirror. Such as in China, please edit `skywalking\apm-webapp\pom.xml`     
 Find
 ```
 <configuration>  
