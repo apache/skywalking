@@ -144,7 +144,7 @@ including
 
 V.P. and chair of the PMC is the secretary, take responsibility of initializing the board report.
 
-In the normal case, the new PMC member should be nominated from committer team. But this is forbidden, if the PMC could
+In the normal case, the new PMC member should be nominated from committer team. But becoming a PMC member directly is not forbidden, if the PMC could
 agree and be confidence that the candidate is ready, such as he/she has been a PMC member of another project, Apache member
 or Apache officer.
 
