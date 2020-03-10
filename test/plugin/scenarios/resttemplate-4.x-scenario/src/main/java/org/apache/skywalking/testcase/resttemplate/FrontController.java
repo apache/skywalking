@@ -23,8 +23,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
@@ -41,15 +41,15 @@ public class FrontController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @GetMapping("/healthcheck")
+    @RequestMapping(value = "/healthcheck", method = RequestMethod.GET)
     public String healthcheck() {
         return "Success";
     }
 
-    @GetMapping("/resttemplate")
+    @RequestMapping(value = "/resttemplate", method = RequestMethod.GET)
     public String front() {
-        asyncRequest("http://127.0.0.1:8080/resttemplate/back");
-        syncRequest("http://127.0.0.1:8080/resttemplate/back");
+        asyncRequest("http://127.0.0.1:8080/resttemplate-4.x-scenario/resttemplate/back");
+        syncRequest("http://127.0.0.1:8080/resttemplate-4.x-scenario/resttemplate/back");
         return "Success";
     }
 

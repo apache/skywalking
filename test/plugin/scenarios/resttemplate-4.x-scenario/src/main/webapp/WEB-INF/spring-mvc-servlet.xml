@@ -16,26 +16,15 @@
   ~ limitations under the License.
   ~
   -->
-<assembly
-    xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
-    <formats>
-        <format>zip</format>
-    </formats>
 
-    <fileSets>
-        <fileSet>
-            <directory>./bin</directory>
-            <fileMode>0775</fileMode>
-        </fileSet>
-    </fileSets>
-
-    <files>
-        <file>
-            <source>${project.build.directory}/resttemplate-4.x-scenario.jar</source>
-            <outputDirectory>./libs</outputDirectory>
-            <fileMode>0775</fileMode>
-        </file>
-    </files>
-</assembly>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                           http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    <context:component-scan base-package="org.apache.skywalking.testcase.resttemplate"/>
+    <mvc:annotation-driven/>
+</beans>

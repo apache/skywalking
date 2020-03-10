@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.testcase.resttemplate;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/resttemplate")
 public class BackController {
-    @GetMapping("/back")
+    @RequestMapping(value = "/back", method = RequestMethod.GET)
     public String back() {
         return "Hello back";
     }
