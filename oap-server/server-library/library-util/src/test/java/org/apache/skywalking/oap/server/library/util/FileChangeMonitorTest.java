@@ -42,6 +42,7 @@ public class FileChangeMonitorTest {
             @Override
             protected void contentChanged(final byte[] newContent) {
                 try {
+                    content.delete(0, content.length());
                     content.append(new String(newContent, 0, newContent.length, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -62,17 +63,24 @@ public class FileChangeMonitorTest {
         bos.write("test context".getBytes(Charset.forName("UTF-8")));
         bos.close();
 
-        int countDown = 10;
+        int countDown = 20;
         boolean notified = false;
+        boolean notified2 = false;
         while (countDown-- > 0) {
             if ("test context".equals(content.toString())) {
+                file = new File(FILE_NAME);
+                bos = new BufferedOutputStream(new FileOutputStream(file, true));
+                bos.write(" again".getBytes(Charset.forName("UTF-8")));
+                bos.close();
                 notified = true;
+            } else if ("test context again".equals(content.toString())) {
+                notified2 = true;
                 break;
             }
-            Thread.sleep(1000);
+            Thread.sleep(5000);
         }
-
         Assert.assertTrue(notified);
+        Assert.assertTrue(notified2);
     }
 
     @BeforeClass
