@@ -62,6 +62,7 @@ core:
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAPath: ${SW_CORE_GRPC_SSL_TRUSTED_CA_PATH:""}
     downsampling:
       - Hour
       - Day

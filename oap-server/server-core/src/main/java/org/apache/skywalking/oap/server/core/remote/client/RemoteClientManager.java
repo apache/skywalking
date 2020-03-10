@@ -20,6 +20,11 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import io.grpc.netty.GrpcSslContexts;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import java.nio.file.Paths;
+import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,9 +36,12 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -55,6 +63,8 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
+    private final boolean grpcSslEnabled;
+    private final String grpcSslTrustCAPath;
     private ClusterNodesQuery clusterNodesQuery;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
@@ -62,14 +72,20 @@ public class RemoteClientManager implements Service {
 
     /**
      * Initial the manager for all remote communication clients.
-     *
-     * @param moduleDefineHolder for looking up other modules
+     *  @param moduleDefineHolder for looking up other modules
      * @param remoteTimeout      for cluster internal communication, in second unit.
+     * @param grpcSslEnabled true: enable SSL between clusters, false: plain gRPC between the cluster.
+     * @param grpcSslTrustCAPath trust certificate authorities file path.
      */
-    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
+    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder,
+                               int remoteTimeout,
+                               final boolean grpcSslEnabled,
+                               final String grpcSslTrustCAPath) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.usingClients = ImmutableList.of();
         this.remoteTimeout = remoteTimeout;
+        this.grpcSslEnabled = grpcSslEnabled;
+        this.grpcSslTrustCAPath = grpcSslTrustCAPath;
     }
 
     public void start() {
@@ -197,7 +213,19 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         newRemoteClients.add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
+                        RemoteClient client;
+                        if (grpcSslEnabled) {
+                            SslContext sslContext;
+                            try {
+                                sslContext = GrpcSslContexts.forClient().trustManager(Paths.get(grpcSslTrustCAPath).toFile()).build();
+                            } catch (final SSLException e) {
+                                logger.error("Load CA file error", e);
+                                throw new IllegalArgumentException(e);
+                            }
+                            client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout, sslContext);
+                        } else {
+                            client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
+                        }
                         client.connect();
                         newRemoteClients.add(client);
                     }

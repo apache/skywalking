@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
+import java.nio.file.Paths;
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -80,6 +81,15 @@ public class SharingServerModuleProvider extends ModuleProvider {
         if (config.getGRPCPort() != 0) {
             grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(), config
                 .getGRPCPort());
+            if (config.isGRPCSslEnabled()) {
+                grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                                            config.getGRPCPort(),
+                                            Paths.get(config.getGRPCSslCertChainPath()).toFile(),
+                                            Paths.get(config.getGRPCSslKeyPath()).toFile());
+            } else {
+                grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
+                                            config.getGRPCPort());
+            }
             if (config.getMaxMessageSize() > 0) {
                 grpcServer.setMaxMessageSize(config.getMaxMessageSize());
             }

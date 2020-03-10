@@ -60,7 +60,7 @@ public class GRPCExporter extends MetricFormatter implements MetricValuesExportS
 
     public GRPCExporter(GRPCExporterSetting setting) {
         this.setting = setting;
-        GRPCClient client = new GRPCClient(setting.getTargetHost(), setting.getTargetPort());
+        GRPCClient client = new GRPCClient(setting.getTargetHost(), setting.getTargetPort(), sslContext);
         client.connect();
         ManagedChannel channel = client.getChannel();
         exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);

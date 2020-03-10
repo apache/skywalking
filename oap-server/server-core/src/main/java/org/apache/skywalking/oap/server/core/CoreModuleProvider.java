@@ -252,7 +252,8 @@ public class CoreModuleProvider extends ModuleProvider {
 
         annotationScan.registerListener(streamAnnotationListener);
 
-        this.remoteClientManager = new RemoteClientManager(getManager(), moduleConfig.getRemoteTimeout());
+        this.remoteClientManager = new RemoteClientManager(getManager(), moduleConfig.getRemoteTimeout(),
+                                                           moduleConfig.isGRPCSslEnabled(), moduleConfig.getGRPCSslTrustedCAPath());
         this.registerServiceImplementation(RemoteClientManager.class, remoteClientManager);
 
         MetricsStreamProcessor.getInstance().setEnableDatabaseSession(moduleConfig.isEnableDatabaseSession());

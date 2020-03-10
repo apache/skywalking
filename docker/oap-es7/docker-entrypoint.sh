@@ -335,6 +335,7 @@ core:
     gRPCSslEnabled: \${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: \${SW_CORE_GRPC_SSL_KEY_PATH:""}
     gRPCSslCertChainPath: \${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAPath: \${SW_CORE_GRPC_SSL_TRUSTED_CA_PATH:""}
     downsampling:
     - Hour
     - Day
@@ -373,6 +374,9 @@ receiver-sharing-server:
    gRPCThreadPoolSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_SIZE:0}
    gRPCThreadPoolQueueSize: \${SW_RECEIVER_SHARING_GRPC_THREAD_POOL_QUEUE_SIZE:0}
    authentication: \${SW_AUTHENTICATION:""}
+   gRPCSslEnabled: \${SW_RECEIVER_SHARING_GRPC_SSL_ENABLED:false}
+   gRPCSslKeyPath: \${SW_RECEIVER_SHARING_GRPC_SSL_KEY_PATH:""}
+   gRPCSslCertChainPath: \${SW_RECEIVER_SHARING_GRPC_SSL_CERT_CHAIN_PATH:""}
 receiver-register:
   default:
 receiver-trace:

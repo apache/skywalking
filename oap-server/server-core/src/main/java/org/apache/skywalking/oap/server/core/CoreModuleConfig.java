@@ -50,6 +50,8 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     private String gRPCSslCertChainPath;
     @Setter
+    private String gRPCSslTrustedCAPath;
+    @Setter
     private int maxConcurrentCallsPerConnection;
     @Setter
     private int maxMessageSize;

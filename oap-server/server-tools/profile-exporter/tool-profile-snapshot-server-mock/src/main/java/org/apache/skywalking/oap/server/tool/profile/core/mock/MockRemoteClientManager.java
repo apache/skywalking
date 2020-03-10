@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  */
 public class MockRemoteClientManager extends RemoteClientManager {
     public MockRemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
-        super(moduleDefineHolder, remoteTimeout);
+        super(moduleDefineHolder, remoteTimeout, moduleConfig.isGRPCSslEnabled(), moduleConfig.getGRPCSslTrustCAPath());
     }
 
     @Override

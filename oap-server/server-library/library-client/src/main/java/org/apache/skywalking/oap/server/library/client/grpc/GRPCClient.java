@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.library.client.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.handler.ssl.SslContext;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.slf4j.Logger;
@@ -35,16 +37,23 @@ public class GRPCClient implements Client {
     @Getter
     private final int port;
 
+    private final SslContext sslContext;
+
     private ManagedChannel channel;
 
-    public GRPCClient(String host, int port) {
+    public GRPCClient(String host, int port, final SslContext sslContext) {
         this.host = host;
         this.port = port;
+        this.sslContext = sslContext;
     }
 
     @Override
     public void connect() {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        if (sslContext == null) {
+            channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+            return;
+        }
+        channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
     }
 
     @Override

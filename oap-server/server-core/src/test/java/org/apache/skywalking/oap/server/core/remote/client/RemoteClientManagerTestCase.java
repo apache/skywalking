@@ -95,7 +95,8 @@ public class RemoteClientManagerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        this.clientManager = spy(new RemoteClientManager(moduleManager, 10));
+        this.clientManager = spy(new RemoteClientManager(moduleManager, 10, moduleConfig.isGRPCSslEnabled(),
+                                                         moduleConfig.getGRPCSslTrustCAPath()));
     }
 
     @Test
