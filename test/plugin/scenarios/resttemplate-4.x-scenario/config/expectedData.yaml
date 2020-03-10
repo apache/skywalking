@@ -19,11 +19,29 @@ registryItems:
   instances:
   - {resttemplate-4.x-scenario: 1}
   operationNames:
-  - resttemplate-4.x-scenario: [/resttemplate/case/resttemplate, /resttemplate/back]
+  - resttemplate-4.x-scenario: [/resttemplate/case/healthcheck, /resttemplate/case/resttemplate, /resttemplate/back]
 segmentItems:
 - serviceName: resttemplate-4.x-scenario
-  segmentSize: ge 3
+  segmentSize: ge 4
   segments:
+  - segmentId: not null
+    spans:
+    - operationName: /resttemplate/case/healthcheck
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: not null
+      componentName: ''
+      isError: false
+      spanType: Entry
+      peer: ''
+      peerId: 0
+      tags:
+      - {key: url, value: 'http://localhost:8080/resttemplate/case/healthcheck' }
+      - {key: http.method, value: GET }
   - segmentId: not null
     spans:
     - operationName: /resttemplate/back
