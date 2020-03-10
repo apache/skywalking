@@ -71,7 +71,9 @@ public class ClientTracingFilterInterceptorTest extends AbstractTracingFilterTes
         result.setValue(new Object());
         rpcInterceptor.onConstruct(null, new Object[]{rpc});
         clientDestTracingFilterInterceptor.onConstruct(enhancedClientDestTracingFilter, new Object[]{serverAddr});
+
         clientDestTracingFilterInterceptor.beforeMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, methodInterceptResult);
+        clientDestTracingFilterInterceptor.afterMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, result);
 
         clientTracingFilterInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 
@@ -85,6 +87,7 @@ public class ClientTracingFilterInterceptorTest extends AbstractTracingFilterTes
         rpcInterceptor.onConstruct(null, new Object[]{rpc});
         clientDestTracingFilterInterceptor.onConstruct(enhancedClientDestTracingFilter, new Object[]{serverAddr});
         clientDestTracingFilterInterceptor.beforeMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, methodInterceptResult);
+        clientDestTracingFilterInterceptor.afterMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, result);
 
         clientTracingFilterInterceptor.handleMethodException(enhancedInstance, null, allArguments, argumentTypes, new RuntimeException());
         clientTracingFilterInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
@@ -100,6 +103,7 @@ public class ClientTracingFilterInterceptorTest extends AbstractTracingFilterTes
         rpcInterceptor.onConstruct(null, new Object[]{rpc});
         clientDestTracingFilterInterceptor.onConstruct(enhancedClientDestTracingFilter, new Object[]{serverAddr});
         clientDestTracingFilterInterceptor.beforeMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, methodInterceptResult);
+        clientDestTracingFilterInterceptor.afterMethod(enhancedClientDestTracingFilter, null, allArguments, argumentTypes, result);
 
         clientTracingFilterInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, result);
 

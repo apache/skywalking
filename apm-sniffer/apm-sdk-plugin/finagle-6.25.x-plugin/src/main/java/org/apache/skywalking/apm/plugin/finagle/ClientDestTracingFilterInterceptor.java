@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.finagle;
 
 import com.twitter.finagle.Address;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
@@ -28,6 +29,7 @@ import java.net.InetSocketAddress;
 
 import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.tryInjectContext;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 /**
  * When we create exitspan in ClientTracingFilter, we can't know the remote address because the ClientTracingFilter
@@ -45,7 +47,7 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
         String peer = (String) enhancedInstance.getSkyWalkingDynamicField();
         getLocalContextHolder().let(FinagleCtxs.PEER_HOST, peer);
-        tryInjectContext();
+        tryInjectContext((ExitSpan) getSpan());
     }
 
     @Override

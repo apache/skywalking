@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.FINAGLE;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 public class ServerTracingFilterInterceptor extends AbstractInterceptor {
 
@@ -59,7 +60,8 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
-        final AbstractSpan finagleSpan = getLocalContextHolder().remove(FinagleCtxs.SW_SPAN);
+        final AbstractSpan finagleSpan = getSpan();
+        getLocalContextHolder().remove(FinagleCtxs.SW_SPAN);
         finagleSpan.prepareForAsync();
         ContextManager.stopSpan(finagleSpan);
         ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {

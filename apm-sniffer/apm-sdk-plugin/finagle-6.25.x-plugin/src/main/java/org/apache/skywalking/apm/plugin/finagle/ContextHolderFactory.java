@@ -24,142 +24,141 @@ import com.twitter.finagle.context.LocalContext;
 import com.twitter.finagle.context.MarshalledContext;
 import com.twitter.io.Buf;
 import com.twitter.util.Local;
-import scala.Option;
-import scala.Predef;
 import scala.Some;
 import scala.Some$;
-import scala.Tuple2;
-import scala.collection.JavaConverters;
-import scala.collection.JavaConverters$;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.LinkedList;
 
 /**
- * The implementation of {@link ContextHolder} depend on implementation of LocalContext and MarshalledContext of
+ * The implementation of {@link ContextHolder} depend on implementation detail of LocalContext and MarshalledContext of
  * finagle. To implement {@link ContextHolder}, we need know the actual data struct that the underlying Context use,
  * and use that data struct to impelment {@link ContextHolder#let(Object, Object)} and
  * {@link ContextHolder#remove(Object)}.
  */
-public class ContextHolderFactory {
+class ContextHolderFactory {
 
+    /*
+     * Below version 6.41.0(inclusive), this class is used to implement Context, above version 6.41.0, ImmutableMap
+     * is used. we check if this class is on the classpath, then we can know the actual data struct the underlying
+     * finagle used.
+     */
     private static final String CONTEXT_ENV_CLASS = "com.twitter.finagle.context.Context$Env";
 
-    enum ContextImplType {
-        /*
-         * Compatible with versions 6.41.0 and below
-         */
-        ENV,
-        /**
-         * Compatible with versions above 6.41.0
-         */
-        MAP;
-    }
-
-    private static ContextImplType CONTEXTIMPL_TYPE;
+    private static ContextHolder MARSHALLED_CONTEXT_HOLDER;
+    private static ContextHolder LOCAL_CONTEXT_HOLDER;
 
     static {
         try {
             Class.forName(CONTEXT_ENV_CLASS);
-            CONTEXTIMPL_TYPE = ContextImplType.ENV;
+            /*
+             * Compatible with versions 6.41.0 and below
+             */
+            MARSHALLED_CONTEXT_HOLDER = new EnvContextHolder(Contexts.broadcast());
+            LOCAL_CONTEXT_HOLDER = new EnvContextHolder(Contexts.local());
         } catch (ClassNotFoundException e) {
-            CONTEXTIMPL_TYPE = ContextImplType.MAP;
+            /*
+             * Compatible with versions above 6.41.0
+             */
+            LOCAL_CONTEXT_HOLDER = new MapLocalContextHolder(Contexts.local());
+            MARSHALLED_CONTEXT_HOLDER = new MapMarshalledContextHolder(Contexts.broadcast());
         }
     }
 
     static ContextHolder getMarshalledContextHolder() {
-        switch (CONTEXTIMPL_TYPE) {
-            case ENV:
-                return new EnvContextHolder(Contexts.broadcast());
-            case MAP:
-            default:
-                return new MapMarshalledContextHolder(Contexts.broadcast());
-        }
+        return MARSHALLED_CONTEXT_HOLDER;
     }
 
     static ContextHolder getLocalContextHolder() {
-        switch (CONTEXTIMPL_TYPE) {
-            case ENV:
-                return new EnvContextHolder(Contexts.local());
-            case MAP:
-            default:
-                return new MapLocalContextHolder(Contexts.local());
-        }
+        return LOCAL_CONTEXT_HOLDER;
     }
 
-    static abstract class AbstractContextHolder<T> extends ContextHolder {
+    static abstract class AbstractContextHolder<S> extends ContextHolder {
 
-        private static ConcurrentHashMap<Class<?>, Field> LOCAL_FIELDS = new ConcurrentHashMap<>();
-        private static ConcurrentHashMap<Class<?>, Method> LOCAL_VALUE_METHODS = new ConcurrentHashMap<>();
+        final Local<S> local;
+        final S initContext;
+        /**
+         * We push each let operation to the stack, when there is a remove operation, the key must be the same with
+         * key of let operation on the stack head.
+         */
+        private final ThreadLocal<LinkedList<Snapshot<S>>> snapshots;
 
-        protected final Local<T> local;
-        protected final T localValue;
+        static class Snapshot<S> {
+            /**
+             * key from let operation
+             */
+            private Object key;
+            /**
+             * value of {@link #local} before current let operation
+             */
+            private S saved;
+
+            private Snapshot(Object key, S saved) {
+                this.key = key;
+                this.saved = saved;
+            }
+        }
 
         AbstractContextHolder(Context context, String localFieldName) {
-            this.local = getLocal(context, getCachedLocalField(context, localFieldName));
-            this.localValue = getLocalValue(context, getCachedLocalValueMethod(context));
+            this.local = getLocal(context, localFieldName);
+            this.initContext = getInitContext(context);
+            this.snapshots = new ThreadLocal<LinkedList<Snapshot<S>>>() {
+                @Override
+                protected LinkedList<Snapshot<S>> initialValue() {
+                    return new LinkedList<>();
+                }
+            };
         }
 
+        @Override
+        void let(Object key, Object value) {
+            S currentContext = getCurrentContext();
+            snapshots.get().push(new Snapshot<>(key, currentContext));
+            local.update(getUpdatedContext(currentContext, key, value));
+        }
+
+        @Override
+        void remove(Object key) {
+            Snapshot<S> snapshot = snapshots.get().peek();
+            if (snapshot == null || !snapshot.key.equals(key)) {
+                throw new IllegalStateException(String.format("can't remove %s. the order of remove must be opposite with" +
+                        " let.", key));
+            }
+            local.update(snapshot.saved);
+            snapshots.get().pop();
+        }
+
+        private S getCurrentContext() {
+            if (local.apply().isDefined()) {
+                return local.apply().get();
+            }
+            return initContext;
+        }
+
+        abstract protected S getUpdatedContext(S currentContext, Object key, Object value);
+
         @SuppressWarnings("unchecked")
-        private Local<T> getLocal(Context context, Field localField) {
+        private Local<S> getLocal(Context context, String localFieldName) {
             try {
-                return (Local<T>) localField.get(context);
+                Field localField = context.getClass().getDeclaredField(localFieldName);
+                localField.setAccessible(true);
+                return (Local<S>) localField.get(context);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         @SuppressWarnings("unchecked")
-        private T getLocalValue(Context context, Method localValueMethod) {
+        private S getInitContext(Context context) {
             try {
-                return (T) localValueMethod.invoke(context);
+                Method method = context.getClass().getDeclaredMethod("env");
+                method.setAccessible(true);
+                return (S) method.invoke(context);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-
-        private Field getCachedLocalField(final Context context, final String localFieldName) {
-            return LOCAL_FIELDS.computeIfAbsent(context.getClass(), new Function<Class<?>, Field>() {
-                @Override
-                public Field apply(Class<?> aClass) {
-                    return getLocalField(context, localFieldName);
-                }
-            });
-        }
-
-        private Method getCachedLocalValueMethod(final Context context) {
-            return LOCAL_VALUE_METHODS.computeIfAbsent(context.getClass(), new Function<Class<?>, Method>() {
-                @Override
-                public Method apply(Class<?> aClass) {
-                    return getLocalValueMethod(context);
-                }
-            });
-        }
-    }
-
-    private static Field getLocalField(Context context, String localFieldName) {
-        try {
-            Field field = context.getClass().getDeclaredField(localFieldName);
-            field.setAccessible(true);
-            return field;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Method getLocalValueMethod(Context context) {
-        try {
-            Method method = context.getClass().getDeclaredMethod("env");
-            method.setAccessible(true);
-            return method;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -172,27 +171,8 @@ public class ContextHolderFactory {
         }
 
         @Override
-        void let(Object key, Object value) {
-            if (local.apply().isDefined()) {
-                local.update(local.apply().get().bound(key, value));
-            } else {
-                local.update(localValue.bound(key, value));
-            }
-        }
-
-        @Nullable
-        @Override
-        @SuppressWarnings("unchecked")
-        <T> T remove(Object key) {
-            if (local.apply().isDefined()) {
-                Context.Env env = local.apply().get();
-                Option<Object> option = env.get(key);
-                if (option.isDefined()) {
-                    local.update(env.cleared(key));
-                    return (T) option.get();
-                }
-            }
-            return null;
+        protected Context.Env getUpdatedContext(Context.Env currentContext, Object key, Object value) {
+            return currentContext.bound(key, value);
         }
     }
 
@@ -205,31 +185,9 @@ public class ContextHolderFactory {
         }
 
         @Override
-        public void let(Object key, Object value) {
+        protected scala.collection.immutable.Map<LocalContext.Key, Object> getUpdatedContext(scala.collection.immutable.Map<LocalContext.Key, Object> currentContext, Object key, Object value) {
             checkKeyType(key);
-            if (local.apply().isDefined()) {
-                local.update(local.apply().get().updated((LocalContext.Key) key, value));
-            } else {
-                local.update(localValue.updated((LocalContext.Key) key, value));
-            }
-        }
-
-        @Nullable
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T remove(Object key) {
-            checkKeyType(key);
-            if (local.apply().isDefined()) {
-                scala.collection.immutable.Map<LocalContext.Key, Object> map = local.apply().get();
-                if (map.contains((LocalContext.Key) key)) {
-                    Map<LocalContext.Key, Object> javaMap =
-                            new HashMap<>(JavaConverters$.MODULE$.mapAsJavaMapConverter(map).asJava());
-                    Object value = javaMap.remove((LocalContext.Key) key);
-                    local.update(toScalaMap(javaMap));
-                    return (T) value;
-                }
-            }
-            return null;
+            return currentContext.updated((LocalContext.Key) key, value);
         }
 
         private void checkKeyType(Object key) {
@@ -244,15 +202,12 @@ public class ContextHolderFactory {
         private static final String LOCAL_FIELD_NAME = "local";
 
         private static final Constructor REAL_CONSTRUCTOR;
-        private static final Field REAL_CONTENT_FIELD;
 
         static {
             try {
                 Class<?> clz = Class.forName(MarshalledContext.class.getName() + "$Real");
                 REAL_CONSTRUCTOR = clz.getDeclaredConstructor(MarshalledContext.class,
                         MarshalledContext.Key.class, Some.class);
-                REAL_CONTENT_FIELD = clz.getDeclaredField("content");
-                REAL_CONTENT_FIELD.setAccessible(true);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -263,39 +218,12 @@ public class ContextHolderFactory {
         }
 
         @Override
-        public void let(Object key, Object value) {
+        protected scala.collection.immutable.Map<Buf, Object> getUpdatedContext(scala.collection.immutable.Map<Buf, Object> currentContext, Object key, Object value) {
             checkKeyType(key);
             try {
                 MarshalledContext.Key marshalledContextKey = (MarshalledContext.Key) key;
                 Object real = REAL_CONSTRUCTOR.newInstance(Contexts.broadcast(), marshalledContextKey, Some$.MODULE$.apply(value));
-                if (local.apply().isDefined()) {
-                    local.update(local.apply().get().updated(marshalledContextKey.marshalId(), real));
-                } else {
-                    local.update(localValue.updated(marshalledContextKey.marshalId(), real));
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Nullable
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T remove(Object key) {
-            checkKeyType(key);
-            try {
-                MarshalledContext.Key marshalledContextKey = (MarshalledContext.Key) key;
-                if (local.apply().isDefined()) {
-                    scala.collection.immutable.Map<Buf, Object> map = local.apply().get();
-                    if (map.contains(marshalledContextKey.marshalId())) {
-                        Map<Buf, Object> javaMap =
-                                new HashMap<>(JavaConverters$.MODULE$.mapAsJavaMapConverter(map).asJava());
-                        Object value = javaMap.remove(marshalledContextKey.marshalId());
-                        local.update(toScalaMap(javaMap));
-                        return (T) value;
-                    }
-                }
-                return null;
+                return currentContext.updated(marshalledContextKey.marshalId(), real);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -306,9 +234,5 @@ public class ContextHolderFactory {
                 throw new IllegalArgumentException("key should be subclass of MarshalledContext.Key");
             }
         }
-    }
-
-    private static <A, B> scala.collection.immutable.Map<A, B> toScalaMap(Map<A, B> m) {
-        return JavaConverters.mapAsScalaMapConverter(m).asScala().toMap(Predef.<Tuple2<A, B>>conforms());
     }
 }

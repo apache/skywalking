@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.finagle;
 
-import javax.annotation.Nullable;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 
 /**
  * <h3> Finagle context usage </h3>
@@ -50,11 +50,41 @@ import javax.annotation.Nullable;
  *
  * So we use ContextHolder to achieve this, the {@link #let(Object, Object)} and {@link #remove(Object)} methos split
  * the function of <pre>let(key, value, (Function0) fn)</pre> into two methods.
+ *
+ * <h3> ContextHolder usage </h3>
+ *
+ * 1. For each let operation, there MUST be a corresponding remove operaton.
+ * 2. The order of remove operation MUST be the opposite of the order of let operation, that is, first let last remove
+ * 3. This class can ONLY be used in subclasses of {@link InstanceMethodsAroundInterceptor}, and the let method can
+ * ONLY called in {@link InstanceMethodsAroundInterceptor#beforeMethod}, the remove method can ONLY be called in
+ * {@link InstanceMethodsAroundInterceptor#afterMethod}.
+ *
+ * <pre>{@code
+ * class Interceptor implements InstanceMethodsAroundInterceptor {
+ *
+ *     @Override
+ *     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+ *                              MethodInterceptResult result) throws Throwable {
+ *         ContextHolder contextHolder = ...;
+ *         contextHolder.let(key1, value1);
+ *         contextHolder.let(key2, value2);
+ *         contextHolder.let(key3, value3);
+ *     }
+ *
+ *     @Override
+ *     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+ *                              Object ret) throws Throwable {
+ *         ContextHolder contextHolder = ...;
+ *         contextHolder.remove(key3);
+ *         contextHolder.remove(key2);
+ *         contextHolder.remove(key1);
+ *         return afterMethodImpl(objInst, method, allArguments, argumentsTypes, ret);
+ *     }
+ * }}</pre>
  */
 abstract class ContextHolder {
 
     abstract void let(Object key, Object value);
 
-    @Nullable
-    abstract <T> T remove(Object key);
+    abstract void remove(Object key);
 }

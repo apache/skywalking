@@ -50,6 +50,23 @@ public class CodecUtils {
         return bos;
     }
 
+    /**
+     * Encodes the swContextCarrier to byte array.
+     *
+     * SWContextCarrier consists of some strings, such as operation name, {@link CarrierItem#getHeadKey()},
+     * {@link CarrierItem#getHeadValue()}. We encode each string to byte array by
+     * {@link #encodeStringToBytes(String)}, then assemble these byte arrays in a certain order, each byte array has
+     * a fixed length of 4 bytes before it to record the length. The format as follow:
+     *
+     * |length of following byte array,4 byte|byte array|length of following byte array,4 byte|byte array|...
+     *
+     * The first byte array is operation name, followed by byte array of the key of first {@code CarrierItem},
+     * followed by byte array of the value of first {@code CarrierItem}, followed by byte array of second {@code
+     * CarrierItem}, and so on.
+     *
+     * @param swContextCarrier the swContextCarrier to encode
+     * @return
+     */
     static Buf encode(SWContextCarrier swContextCarrier) {
         ByteArrayOutputStream bos = getBos();
         try (DataOutputStream dos = new DataOutputStream(bos)) {
@@ -70,6 +87,20 @@ public class CodecUtils {
         return Bufs.EMPTY;
     }
 
+    /**
+     * Decodes byte array to SWContextCarrier.
+     *
+     * First we read 4 bytes from byte array, composing them into an int value n, and read the following n bytes,
+     * decodes them to a string by {@link #decodeStringFromBytes(byte[])}, and so on.
+     *
+     * The first string is operation name, other strings are a list pair of key and value, can be translated to
+     * {@link ContextCarrier}
+     *
+     * For convenient, we use {@link ByteBuffer} to wrap byte array.
+     *
+     * @param buf the byte array to decode
+     * @return
+     */
     static SWContextCarrier decode(Buf buf) {
         ContextCarrier contextCarrier = new ContextCarrier();
         SWContextCarrier swContextCarrier = new SWContextCarrier();

@@ -29,15 +29,12 @@ class FinagleCtxs {
 
     static LocalContext.Key<AbstractSpan> SW_SPAN = null;
 
-    static LocalContext.Key<String> RPC = null;
-
     static LocalContext.Key<String> PEER_HOST = null;
 
     static {
         try {
             Constructor constructor = LocalContext.Key.class.getConstructor(LocalContext.class);
             SW_SPAN = (LocalContext.Key<AbstractSpan>) constructor.newInstance(Contexts.local());
-            RPC = (LocalContext.Key<String>) constructor.newInstance(Contexts.local());
             PEER_HOST = (LocalContext.Key<String>) constructor.newInstance(Contexts.local());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -54,7 +51,7 @@ class FinagleCtxs {
     }
 
     @Nullable
-    static SWContextCarrier getContextCarrier() {
+    static SWContextCarrier getSWContextCarrier() {
         if (Contexts.broadcast().contains(SWContextCarrier$.MODULE$)) {
             SWContextCarrier swContextCarrier = Contexts.broadcast().apply(SWContextCarrier$.MODULE$);
             return swContextCarrier;
@@ -67,15 +64,6 @@ class FinagleCtxs {
         if (Contexts.local().contains(PEER_HOST)) {
             String peerHost = Contexts.local().apply(PEER_HOST);
             return peerHost;
-        }
-        return null;
-    }
-
-    @Nullable
-    static String getOperationName() {
-        if (Contexts.local().contains(RPC)) {
-            String rpc = Contexts.local().apply(RPC);
-            return rpc;
         }
         return null;
     }

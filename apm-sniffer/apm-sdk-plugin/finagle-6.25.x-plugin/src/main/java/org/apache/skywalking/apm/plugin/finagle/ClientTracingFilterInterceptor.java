@@ -29,9 +29,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.FINAGLE;
+import static org.apache.skywalking.apm.plugin.finagle.Constants.PENDING_OP_NAME;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getMarshalledContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.SW_SPAN;
+import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
@@ -48,19 +50,20 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
          * operation name will be filled by {@link AnnotationInterceptor$Rpc} and the peer address will be filled by
          * {@link ClientDestTracingFilterInterceptor} later.
          */
-        AbstractSpan finagleSpan = ContextManager.createExitSpan("pending", "");
+        AbstractSpan finagleSpan = ContextManager.createExitSpan(PENDING_OP_NAME, "");
 
         finagleSpan.setComponent(FINAGLE);
         SpanLayer.asRPCFramework(finagleSpan);
 
-        ContextHolder localContextHolder = getLocalContextHolder();
-        localContextHolder.let(SW_SPAN, finagleSpan);
+        getLocalContextHolder().let(SW_SPAN, finagleSpan);
+        getMarshalledContextHolder().let(SWContextCarrier$.MODULE$, new SWContextCarrier());
     }
 
     @Override
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
 
-        final AbstractSpan finagleSpan = getLocalContextHolder().remove(SW_SPAN);
+        final AbstractSpan finagleSpan = getSpan();
+        getLocalContextHolder().remove(SW_SPAN);
         getMarshalledContextHolder().remove(SWContextCarrier$.MODULE$);
 
         finagleSpan.prepareForAsync();

@@ -19,11 +19,11 @@
 package org.apache.skywalking.apm.plugin.finagle;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
 import static org.apache.skywalking.apm.plugin.finagle.ContextCarrierHelper.tryInjectContext;
-import static org.apache.skywalking.apm.plugin.finagle.ContextHolderFactory.getLocalContextHolder;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getSpan;
 
 /**
@@ -53,7 +53,7 @@ public class AnnotationInterceptor {
         protected void onConstruct(EnhancedInstance enhancedInstance, Object[] objects, AbstractSpan span) {
             if (objects != null && objects.length == 1) {
                 String rpc = (String) objects[0];
-                if (span != null) {
+                if (span != null && span.isExit()) {
                     /*
                      * The Rpc Annotation is created both in client side and server side, in server side, this
                      * annotation is created only in finagle versions below 17.12.0.
@@ -65,8 +65,8 @@ public class AnnotationInterceptor {
                      * In server side, we don't need this annotation, because we can get op name from Contexts.broadcast
                      * which comes from client.
                      */
-                    getLocalContextHolder().let(FinagleCtxs.RPC, rpc);
-                    tryInjectContext();
+                    span.setOperationName(rpc);
+                    tryInjectContext((ExitSpan) span);
                 }
             }
         }
