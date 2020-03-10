@@ -355,6 +355,7 @@ EOT
     elasticsearch) generateStorageElastisearch;;
     h2) generateStorageH2;;
     mysql) generateStorageMySQL;;
+    influxdb) generateStorageInfluxDB;;
     esac
 
     cat <<EOT >> ${var_application_file}
@@ -383,8 +384,6 @@ receiver-trace:
 receiver-jvm:
   default:
 receiver-clr:
-  default:
-receiver-so11y:
   default:
 service-mesh:
   default:
