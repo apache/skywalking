@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -46,10 +47,9 @@ import org.slf4j.LoggerFactory;
  * override TTL, which could be more suitable for the implementation. No matter which TTL configurations are set, they
  * are all driven by this timer.
  */
+@Slf4j
 public enum DataTTLKeeperTimer {
     INSTANCE;
-
-    private static final Logger logger = LoggerFactory.getLogger(DataTTLKeeperTimer.class);
 
     private ModuleManager moduleManager;
     private ClusterNodesQuery clusterNodesQuery;
@@ -62,7 +62,7 @@ public enum DataTTLKeeperTimer {
                  .scheduleAtFixedRate(
                      new RunnableWithExceptionProtection(
                          this::delete,
-                         t -> logger.error("Remove data in background failure.", t)
+                         t -> log.error("Remove data in background failure.", t)
                      ), moduleConfig
                          .getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
     }
@@ -74,11 +74,11 @@ public enum DataTTLKeeperTimer {
     private void delete() {
         List<RemoteInstance> remoteInstances = clusterNodesQuery.queryRemoteNodes();
         if (CollectionUtils.isNotEmpty(remoteInstances) && !remoteInstances.get(0).getAddress().isSelf()) {
-            logger.info("The selected first getAddress is {}. Skip.", remoteInstances.get(0).toString());
+            log.info("The selected first getAddress is {}. Skip.", remoteInstances.get(0).toString());
             return;
         }
 
-        logger.info("Beginning to remove expired metrics from the storage.");
+        log.info("Beginning to remove expired metrics from the storage.");
         IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
         List<Model> models = modelGetter.getModels();
         models.forEach(model -> {
@@ -95,8 +95,8 @@ public enum DataTTLKeeperTimer {
                          .getService(IHistoryDeleteDAO.class)
                          .deleteHistory(model, Metrics.TIME_BUCKET);
         } catch (IOException e) {
-            logger.warn("History of {} delete failure", model.getName());
-            logger.error(e.getMessage(), e);
+            log.warn("History of {} delete failure", model.getName());
+            log.error(e.getMessage(), e);
         }
     }
 }
