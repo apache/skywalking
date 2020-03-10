@@ -9,24 +9,36 @@ You can follow below steps to enable this feature
 ## Creating SSL/TLS Certificates
 
 It seems like step one is to generate certificates and key files for encrypting communication. I thought this would be
-fairly straightforward using `openssl` from the command line, However, it may be simpler to use
-[certstrap](https://github.com/square/certstrap), a simple certificate manager written in Go by the folks at Square.
-The app avoids dealing with `openssl`, but has a very simple workflow: create a certificate authority, sign certificates
-with it.
+fairly straightforward using `openssl` from the command line.
 
-After signing the certificates of OAP server, we should convert private key to a PKCS8 format before placing it into the host.
+Use this [script](../../../../../tools/TLS/tls_key_generate.sh) if you are not familiar with how to generate key files.
 
-```
-$ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in server.key -out server-key.pem
-```
+We need below files:
+ - `server.pem` a private RSA key to sign and authenticate the public key.
+ - `server.crt` self-signed X.509 public keys for distribution.
+ - `ca.crt` a certificate authority public key for a client to validate the server's certificate.
 
 ## Config OAP server 
 
 You can enable gRPC SSL by add following lines to `application.yml/core/default`.
 ```json
 gRPCSslEnabled: true
-gRPCSslKeyPath: /path/to/server-key.pem
+gRPCSslKeyPath: /path/to/server.pem
+gRPCSslCertChainPath: /path/to/server.crt
+gRPCSslTrustedCAPath: /path/to/ca.crt
+```
+
+`gRPCSslKeyPath` and `gRPCSslCertChainPath` are loaded by OAP server to encrypt the communication. `gRPCSslTrustedCAPath`
+helps gRPC client to verify server certificates in cluster mode.
+
+If you enable `sharding-server` to ingest data from external, add following lines to `application.yml/receiver-sharing-server/default`:
+
+```json
+gRPCSslEnabled: true
+gRPCSslKeyPath: /path/to/server.pem
 gRPCSslCertChainPath: /path/to/server.crt
 ```
+
+Because `sharding-server` only receives data from external, so it doesn't need CA at all.
 
 If you port to java agent, refer to [TLS.md](../service-agent/java-agent/TLS.md) to config java agent to enable TLS.
