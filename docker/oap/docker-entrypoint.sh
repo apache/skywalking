@@ -360,6 +360,7 @@ EOT
     elasticsearch) generateStorageElastisearch;;
     h2) generateStorageH2;;
     mysql) generateStorageMySQL;;
+    influxdb) generateStorageInfluxDB;;
     esac
 
     cat <<EOT >> ${var_application_file}
