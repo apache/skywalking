@@ -18,15 +18,15 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class FileChangeMonitorTest {
@@ -38,13 +38,13 @@ public class FileChangeMonitorTest {
         StringBuilder content = new StringBuilder();
         FileChangeMonitor monitor = new FileChangeMonitor(
             FILE_NAME, true, 1, new FileChangeMonitor.ContentChangedNotifier() {
+
             @Override
-            public void newFileContent(final InputStream readableStream) throws IOException {
-                BufferedInputStream bis = new BufferedInputStream(readableStream);
-                byte[] bytes = new byte[1024];
-                int len = 0;
-                while ((len = bis.read(bytes)) != -1) {
-                    content.append(new String(bytes, 0, len));
+            protected void contentChanged(final byte[] newContent) {
+                try {
+                    content.append(new String(newContent, 0, newContent.length, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -75,6 +75,7 @@ public class FileChangeMonitorTest {
         Assert.assertTrue(notified);
     }
 
+    @BeforeClass
     @AfterClass
     public static void cleanup() {
         File file = new File(FILE_NAME);

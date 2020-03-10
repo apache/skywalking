@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -64,7 +66,7 @@ public class FileChangeMonitor {
     /**
      * The notifier when file content changed.
      */
-    private final ContentChangedNotifier notifier;
+    private final FileChangedNotifier notifier;
     /**
      * The timestamp when last time do status checked.
      */
@@ -111,7 +113,7 @@ public class FileChangeMonitor {
 
             if (lastModified != lastModifiedTimestamp) {
                 try (FileInputStream fileInputStream = new FileInputStream(targetFile)) {
-                    notifier.newFileContent(fileInputStream);
+                    notifier.fileChanged(fileInputStream);
                 } catch (FileNotFoundException e) {
                     log.error("The existed file turns to missing, watch file=" + filePath, e);
                 } catch (IOException e) {
@@ -137,20 +139,50 @@ public class FileChangeMonitor {
     }
 
     /**
-     * The callback when file name changed.
+     * The callback when file changed.
      */
-    public interface ContentChangedNotifier {
+    public interface FileChangedNotifier {
         /**
          * Notify the new content by providing the file input stream
          *
          * @param readableStream points to the new content
          * @throws IOException if error happens during reading.
          */
-        void newFileContent(InputStream readableStream) throws IOException;
+        void fileChanged(InputStream readableStream) throws IOException;
 
         /**
          * Notify the event of file not found.
          */
         void fileNotFound();
+    }
+
+    /**
+     * An implementation of {@link FileChangedNotifier}, it only triggers the notification with binary content changes,
+     * rather than simple file modified timestamp changed.
+     */
+    public static abstract class ContentChangedNotifier implements FileChangedNotifier {
+        private byte[] fileContent = null;
+
+        @Override
+        public void fileChanged(final InputStream readableStream) throws IOException {
+            byte[] b = new byte[1024];
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            int c;
+            while ((c = readableStream.read(b)) != -1) {
+                os.write(b, 0, c);
+            }
+            byte[] newContent = os.toByteArray();
+            if (!Arrays.equals(newContent, fileContent)) {
+                fileContent = newContent;
+                this.contentChanged(newContent);
+            }
+        }
+
+        /**
+         * Notify when the content are changed.
+         *
+         * @param newContent in the file.
+         */
+        protected abstract void contentChanged(byte[] newContent);
     }
 }
