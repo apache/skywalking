@@ -24,60 +24,58 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class FileChangeMonitorTest {
+public class MultipleFilesChangeMonitorTest {
     private static String FILE_NAME = "FileChangeMonitorTest.tmp";
 
     @Test
     public void test() throws InterruptedException, IOException {
-        final boolean[] fileNotFoundDetected = {false};
         StringBuilder content = new StringBuilder();
-        FileChangeMonitor monitor = new FileChangeMonitor(
-            FILE_NAME, true, 1, new FileChangeMonitor.ContentChangedNotifier() {
+        MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
+            1, new MultipleFilesChangeMonitor.FilesChangedNotifier() {
 
             @Override
-            protected void contentChanged(final byte[] newContent) {
+            public void filesChanged(final List<byte[]> readableContents) {
+                Assert.assertEquals(2, readableContents.size());
+                Assert.assertNull(readableContents.get(1));
                 try {
                     content.delete(0, content.length());
-                    content.append(new String(newContent, 0, newContent.length, "UTF-8"));
+                    content.append(new String(readableContents.get(0), 0, readableContents.get(0).length, "UTF-8"));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
             }
-
-            @Override
-            public void fileNotFound() {
-                fileNotFoundDetected[0] = true;
-            }
-        });
+        }, FILE_NAME, "XXXX_NOT_EXIST.SW");
 
         monitor.start();
-        Assert.assertTrue(fileNotFoundDetected[0]);
 
         File file = new File(FILE_NAME);
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
         bos.write("test context".getBytes(Charset.forName("UTF-8")));
+        bos.flush();
         bos.close();
 
-        int countDown = 20;
+        int countDown = 40;
         boolean notified = false;
         boolean notified2 = false;
         while (countDown-- > 0) {
             if ("test context".equals(content.toString())) {
                 file = new File(FILE_NAME);
-                bos = new BufferedOutputStream(new FileOutputStream(file, true));
-                bos.write(" again".getBytes(Charset.forName("UTF-8")));
+                bos = new BufferedOutputStream(new FileOutputStream(file));
+                bos.write("test context again".getBytes(Charset.forName("UTF-8")));
+                bos.flush();
                 bos.close();
                 notified = true;
             } else if ("test context again".equals(content.toString())) {
                 notified2 = true;
                 break;
             }
-            Thread.sleep(5000);
+            Thread.sleep(500);
         }
         Assert.assertTrue(notified);
         Assert.assertTrue(notified2);
