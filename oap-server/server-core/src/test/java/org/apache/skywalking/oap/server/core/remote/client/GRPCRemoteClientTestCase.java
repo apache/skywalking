@@ -101,7 +101,7 @@ public class GRPCRemoteClientTestCase {
         grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
 
         Address address = new Address("not-important", 11, false);
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10, sslContextBuilder));
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10, null));
         remoteClient.connect();
 
         doReturn(grpcServerRule.getChannel()).when(remoteClient).getChannel();

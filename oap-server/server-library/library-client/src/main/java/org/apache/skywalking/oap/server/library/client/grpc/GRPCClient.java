@@ -37,13 +37,17 @@ public class GRPCClient implements Client {
     @Getter
     private final int port;
 
-    private final SslContext sslContext;
+    private SslContext sslContext;
 
     private ManagedChannel channel;
 
-    public GRPCClient(String host, int port, final SslContext sslContext) {
+    public GRPCClient(String host, int port) {
         this.host = host;
         this.port = port;
+    }
+
+    public GRPCClient(String host, int port, final SslContext sslContext) {
+        this(host, port);
         this.sslContext = sslContext;
     }
 

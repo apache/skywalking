@@ -49,7 +49,7 @@ public class GRPCCallback implements AlarmCallback {
         alarmSetting = alarmRulesWatcher.getGrpchookSetting();
 
         if (alarmSetting != null && !alarmSetting.isEmptySetting()) {
-            grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sslContext);
+            grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
             grpcClient.connect();
             alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
         }
@@ -155,7 +155,7 @@ public class GRPCCallback implements AlarmCallback {
             if (grpcClient != null) {
                 grpcClient.shutdown();
             }
-            grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort(), sslContext);
+            grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
             grpcClient.connect();
             alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
         }
