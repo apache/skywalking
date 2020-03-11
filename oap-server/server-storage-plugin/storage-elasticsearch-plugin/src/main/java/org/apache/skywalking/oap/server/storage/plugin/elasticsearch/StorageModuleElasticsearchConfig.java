@@ -49,6 +49,11 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String user;
     @Setter
     private String password;
+    /**
+     * Secrets management file includes the username, password, which are managed by 3rd party tool.
+     */
+    @Getter
+    private String secretsManagementFile;
     @Getter
     @Setter
     String trustStorePath;
@@ -75,7 +80,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      *
      * Same as {@link #enablePackedDownsampling} this config doesn't affects month level data. Because usually, no one
      * keeps the observability data in several months.
-     *
      */
     @Getter
     private int dayStep = 1;

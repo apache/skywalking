@@ -100,7 +100,11 @@ public class MultipleFilesChangeMonitor {
             watchedFiles.forEach(file -> {
                 contents.add(file.fileContent);
             });
-            notifier.filesChanged(contents);
+            try {
+                notifier.filesChanged(contents);
+            } catch (Exception e) {
+                log.error("Files=" + this + " notification process failure.", e);
+            }
         }
     }
 
@@ -170,7 +174,7 @@ public class MultipleFilesChangeMonitor {
          *
          * @param readableContents include the new contents. NULL if the file doesn't exist.
          */
-        void filesChanged(List<byte[]> readableContents);
+        void filesChanged(List<byte[]> readableContents) throws Exception;
     }
 
     /**

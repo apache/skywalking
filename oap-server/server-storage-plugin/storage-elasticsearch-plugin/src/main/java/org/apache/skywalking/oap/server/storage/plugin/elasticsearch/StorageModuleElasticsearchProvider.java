@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -26,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
@@ -60,6 +62,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsDAO;
@@ -117,6 +120,27 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         if (config.getDayStep() > 1) {
             TimeSeriesUtils.setDAY_STEP(config.getDayStep());
         }
+
+        if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
+            MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
+                10, new MultipleFilesChangeMonitor.FilesChangedNotifier() {
+                @Override
+                public void filesChanged(final List<byte[]> readableContents) throws IOException {
+                    final byte[] secretsFileContent = readableContents.get(0);
+                    if (secretsFileContent == null) {
+                        return;
+                    }
+                    Properties userAndPass = new Properties();
+                    userAndPass.load(new ByteArrayInputStream(secretsFileContent));
+                    userAndPass.getProperty("username")
+                }
+            }, config.getSecretsManagementFile());
+            /**
+             * By leveraging the sync update check feature when startup.
+             */
+            monitor.start();
+        }
+
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
