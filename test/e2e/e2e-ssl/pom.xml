@@ -83,7 +83,7 @@
                             <alias>${e2e.container.name.prefix}</alias>
                             <run>
                                 <env>
-                                    <SW_AGENT_AUTHENTICATION>test-token</SW_AGENT_AUTHENTICATION>
+                                    <SW_COLLECTOR_BACKEND_SERVICE>host.docker.internal:11800</SW_COLLECTOR_BACKEND_SERVICE>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
                                 </env>
                                 <ports>
@@ -95,6 +95,9 @@
                                         <volume>${sw.home}:/sw</volume>
                                         <volume>${project.build.directory}:/home</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
+                                        <volume>${project.basedir}/src/docker/certs:/sw/certs:ro</volume>
+                                        <volume>${project.basedir}/src/docker/ca:/sw/agent/ca:ro</volume>
+                                        <volume>${project.basedir}/src/docker/hosts:/etc/hosts:ro</volume>
                                     </bind>
                                 </volumes>
                                 <wait>
