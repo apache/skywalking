@@ -119,6 +119,13 @@ public class ElasticSearchClient implements Client {
     @Override
     public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
         List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Throwable t) {
+                log.error("ElasticSearch client reconnection fails based on new config", t);
+            }
+        }
         client = createClient(hosts);
         client.ping();
     }

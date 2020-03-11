@@ -123,18 +123,22 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-                10, new MultipleFilesChangeMonitor.FilesChangedNotifier() {
-                @Override
-                public void filesChanged(final List<byte[]> readableContents) throws IOException {
+                10, readableContents -> {
                     final byte[] secretsFileContent = readableContents.get(0);
                     if (secretsFileContent == null) {
                         return;
                     }
                     Properties userAndPass = new Properties();
                     userAndPass.load(new ByteArrayInputStream(secretsFileContent));
-                    userAndPass.getProperty("username")
-                }
-            }, config.getSecretsManagementFile());
+                    config.setUser(userAndPass.getProperty("user"));
+                    config.setPassword(userAndPass.getProperty("password"));
+
+                    if (elasticSearchClient == null) {
+                        //In the startup process, we just need to change the username/password
+                    } else {
+                        elasticSearchClient.connect();
+                    }
+                }, config.getSecretsManagementFile());
             /**
              * By leveraging the sync update check feature when startup.
              */
