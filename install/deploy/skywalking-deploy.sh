@@ -65,6 +65,8 @@ for component in $NEED_CHECK_PREFIX"oap" ; do
   sleep 60
   kubectl get deploy -o wide -n $DPELOY_NAMESPACE
   kubectl describe pod/`kubectl get pod -n $DPELOY_NAMESPACE  | grep skywalking-oap | awk '{print $1}'` -n $DPELOY_NAMESPACE
+  kubectl get deploy skywalking-skywalking-oap -oyaml -n $DPELOY_NAMESPACE
+  kubectl get pod `kubectl get pod -n $DPELOY_NAMESPACE  | grep skywalking-oap | awk '{print $1}'` -n $DPELOY_NAMESPACE -oyaml
   kubectl logs `kubectl get pod -n $DPELOY_NAMESPACE | grep skywalking-oap | awk '{print $1}'` -f -n $DPELOY_NAMESPACE
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
 done
