@@ -135,7 +135,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 secrets.load(new ByteArrayInputStream(secretsFileContent));
                 config.setUser(secrets.getProperty("user", null));
                 config.setPassword(secrets.getProperty("password", null));
-                config.setTrustStorePass((secrets.getProperty("trustStorePass", null)));
+                config.setTrustStorePass(secrets.getProperty("trustStorePass", null));
 
                 if (elasticSearchClient == null) {
                     //In the startup process, we just need to change the username/password
