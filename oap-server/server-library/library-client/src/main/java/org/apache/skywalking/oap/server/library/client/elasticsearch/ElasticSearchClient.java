@@ -98,7 +98,7 @@ public class ElasticSearchClient implements Client {
     private final String user;
     private final String password;
     private final List<IndexNameConverter> indexNameConverters;
-    protected RestHighLevelClient client;
+    protected volatile RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,

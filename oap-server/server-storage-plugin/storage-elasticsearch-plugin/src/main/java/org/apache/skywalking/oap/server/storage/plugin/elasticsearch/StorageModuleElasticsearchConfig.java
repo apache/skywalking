@@ -45,8 +45,14 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int concurrentRequests = 2;
     @Setter
     private int syncBulkActions = 3;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
     @Setter
     private String user;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
     @Setter
     private String password;
     /**
@@ -56,10 +62,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private String secretsManagementFile;
     @Getter
     @Setter
-    String trustStorePath;
+    private String trustStorePath;
+    /**
+     * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
+     */
     @Getter
     @Setter
-    String trustStorePass;
+    private String trustStorePass;
     /**
      * If this is ON, downsampling indexes(hour and day precisions) merged into minute precision. In this case, only
      * {@link #minuteMetricsDataTTL} works for minute, hour and day.

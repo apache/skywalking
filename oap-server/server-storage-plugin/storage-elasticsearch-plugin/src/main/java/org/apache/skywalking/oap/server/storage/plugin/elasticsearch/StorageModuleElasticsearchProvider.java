@@ -87,6 +87,9 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Topol
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
 
+/**
+ * The storage provider for ElasticSearch 6.
+ */
 public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     protected final StorageModuleElasticsearchConfig config;
@@ -124,21 +127,22 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
                 10, readableContents -> {
-                    final byte[] secretsFileContent = readableContents.get(0);
-                    if (secretsFileContent == null) {
-                        return;
-                    }
-                    Properties userAndPass = new Properties();
-                    userAndPass.load(new ByteArrayInputStream(secretsFileContent));
-                    config.setUser(userAndPass.getProperty("user"));
-                    config.setPassword(userAndPass.getProperty("password"));
+                final byte[] secretsFileContent = readableContents.get(0);
+                if (secretsFileContent == null) {
+                    return;
+                }
+                Properties secrets = new Properties();
+                secrets.load(new ByteArrayInputStream(secretsFileContent));
+                config.setUser(secrets.getProperty("user", null));
+                config.setPassword(secrets.getProperty("password", null));
+                config.setTrustStorePass((secrets.getProperty("trustStorePass", null)));
 
-                    if (elasticSearchClient == null) {
-                        //In the startup process, we just need to change the username/password
-                    } else {
-                        elasticSearchClient.connect();
-                    }
-                }, config.getSecretsManagementFile());
+                if (elasticSearchClient == null) {
+                    //In the startup process, we just need to change the username/password
+                } else {
+                    elasticSearchClient.connect();
+                }
+            }, config.getSecretsManagementFile(), config.getTrustStorePass());
             /**
              * By leveraging the sync update check feature when startup.
              */

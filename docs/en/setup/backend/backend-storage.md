@@ -107,7 +107,8 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
-
+- File at `trustStorePath` is being monitored, once it is changed, the ElasticSearch client will do reconnecting.
+- `trustStorePass` could be changed on the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
@@ -125,17 +126,18 @@ Such as, if dayStep == 11,
 
 NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
-### Secrets Management File Of ElasticSearch Username and Password 
+### Secrets Management File Of ElasticSearch Authentication
 The value of `secretsManagementFile` should point to the secrets management file absolute path. 
-The file includes username and password of ElasticSearch server in the properties format.
+The file includes username, password and JKS password of ElasticSearch server in the properties format.
 ```properties
 user=xxx
 password=yyy
+trustStorePass=zzz
 ```
 
-The major difference between using `user/password` configs in the `application.yaml` and this file is, this file is being watched by the OAP server. 
+The major difference between using `user, password, trustStorePass` configs in the `application.yaml` and this file is, this file is being watched by the OAP server. 
 Once it is changed manually or through 3rd party tool, such as [Vault](https://github.com/hashicorp/vault), 
-the storage provider will use the new username and password to establish the connection and close the old one. If the information exist in the file,
+the storage provider will use the new username, password and JKS password to establish the connection and close the old one. If the information exist in the file,
 the `user/password` will be overrided.
 
 ### Advanced Configurations For Elasticsearch Index

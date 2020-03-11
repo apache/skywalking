@@ -81,6 +81,9 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.Trac
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider.indexNameConverters;
 
+/**
+ * The storage provider for ElasticSearch 7.
+ */
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
@@ -118,17 +121,18 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
                 if (secretsFileContent == null) {
                     return;
                 }
-                Properties userAndPass = new Properties();
-                userAndPass.load(new ByteArrayInputStream(secretsFileContent));
-                config.setUser(userAndPass.getProperty("user"));
-                config.setPassword(userAndPass.getProperty("password"));
+                Properties secrets = new Properties();
+                secrets.load(new ByteArrayInputStream(secretsFileContent));
+                config.setUser(secrets.getProperty("user", null));
+                config.setPassword(secrets.getProperty("password", null));
+                config.setTrustStorePass((secrets.getProperty("trustStorePass", null)));
 
                 if (elasticSearch7Client == null) {
                     //In the startup process, we just need to change the username/password
                 } else {
                     elasticSearch7Client.connect();
                 }
-            }, config.getSecretsManagementFile());
+            }, config.getSecretsManagementFile(), config.getTrustStorePass());
             /**
              * By leveraging the sync update check feature when startup.
              */
