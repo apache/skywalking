@@ -1,0 +1,3 @@
+<Configure class="org.eclipse.jetty.webapp.WebAppContext">
+    <Set name="contextPath">/</Set>
+</Configure>
