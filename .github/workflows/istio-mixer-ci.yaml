@@ -43,14 +43,14 @@ jobs:
         run: |
           bash ${SCRIPTS_DIR}/pre.sh
           mkdir -p ${LOG_DIR}
+      - name: Compile all and Build docker image
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - name: Start minikube
         run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
       - name: Wating minikube ready
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
-      - name: Compile all and Build docker image
-        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - name: Istio install
         run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
       - name: SW And ES install
