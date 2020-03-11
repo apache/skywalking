@@ -88,7 +88,7 @@ public class ProfileAnalyzer {
         }).flatMap(Collection::stream).map(ProfileStack::deserialize).distinct().collect(Collectors.toList());
 
         // analyze
-        analyzation.setTrees(analyze(stacks));
+        analyzation.getTrees().addAll(analyze(stacks));
 
         return analyzation;
     }
