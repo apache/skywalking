@@ -25,8 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/resttemplate")
 public class BackController {
-    @RequestMapping(value = "/back", method = RequestMethod.GET)
-    public String back() {
+    @RequestMapping(value = "/syncback", method = RequestMethod.GET)
+    public String syncBack() {
+        return "Hello back";
+    }
+
+    @RequestMapping(value = "/asyncback", method = RequestMethod.GET)
+    public String asyncBack() {
         return "Hello back";
     }
 }

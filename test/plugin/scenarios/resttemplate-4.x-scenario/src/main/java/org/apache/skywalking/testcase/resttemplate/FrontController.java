@@ -48,8 +48,8 @@ public class FrontController {
 
     @RequestMapping(value = "/resttemplate", method = RequestMethod.GET)
     public String front() {
-        asyncRequest("http://localhost:8080/resttemplate/back");
-        syncRequest("http://localhost:8080/resttemplate/back");
+        asyncRequest("http://localhost:8080/resttemplate-4.x-scenario/resttemplate/asyncback");
+        syncRequest("http://localhost:8080/resttemplate-4.x-scenario/resttemplate/syncback");
         return "Success";
     }
 
