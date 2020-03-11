@@ -175,6 +175,9 @@ storage:
 receiver-sharing-server:
   default:
     authentication: ${SW_AUTHENTICATION:""}
+    gRPCSslEnabled: ${SW_RECEIVER_SHARING_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_RECEIVER_SHARING_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_RECEIVER_SHARING_GRPC_SSL_CERT_CHAIN_PATH:""}
 receiver-register:
   default:
 receiver-trace:

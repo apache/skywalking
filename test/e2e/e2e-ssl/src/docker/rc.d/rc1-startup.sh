@@ -16,11 +16,11 @@
 # limitations under the License.
 
 echo 'starting OAP server...' \
-#    && SW_CORE_GRPC_SSL_ENABLED="true" \
-#    && SW_CORE_GRPC_SSL_KEY_PATH="${SW_HOME}/certs/server-key.pem" \
-#    && SW_CORE_GRPC_SSL_CERT_CHAIN_PATH="${SW_HOME}/certs/server.crt" \
-#    && SW_CORE_GRPC_SSL_TRUSTED_CA_PATH="${SW_HOME}/certs/ca.crt" \
-     start_oap 'init'
+    && export SW_CORE_GRPC_SSL_ENABLED=true \
+    && export SW_CORE_GRPC_SSL_KEY_PATH="${SW_HOME}/certs/server-key.pem" \
+    && export SW_CORE_GRPC_SSL_CERT_CHAIN_PATH="${SW_HOME}/certs/server.crt" \
+    && export SW_CORE_GRPC_SSL_TRUSTED_CA_PATH="${SW_HOME}/certs/ca.crt" \
+    && start_oap 'init'
 
 echo 'starting Web app...' \
     && start_webapp '0.0.0.0' 8080
@@ -42,7 +42,11 @@ fi
 
 echo "SkyWalking e2e container is ready for tests"
 
+cat ${OAP_LOG_DIR}/*
+
 tail -f ${OAP_LOG_DIR}/* \
         ${WEBAPP_LOG_DIR}/* \
         ${SERVICE_LOG}/* \
         ${ES_HOME}/logs/stdout.log
+
+cat ${OAP_LOG_DIR}/*

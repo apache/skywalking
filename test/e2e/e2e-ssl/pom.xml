@@ -96,7 +96,7 @@
                                         <volume>${project.build.directory}:/home</volume>
                                         <volume>${project.basedir}/src/docker/rc.d:/rc.d:ro</volume>
                                         <volume>${project.basedir}/src/docker/certs:/sw/certs:ro</volume>
-<!--                                        <volume>${project.basedir}/src/docker/ca:/sw/agent/ca:ro</volume>-->
+                                        <volume>${project.basedir}/src/docker/ca:/sw/agent/ca:ro</volume>
                                         <volume>${project.basedir}/src/docker/hosts:/etc/hosts:ro</volume>
                                     </bind>
                                 </volumes>
