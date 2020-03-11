@@ -58,6 +58,7 @@ jobs:
       - name: Bookinfo demo install
         run: bash ${INSTALL_SCRIPTS_DIR}/demo-deploy.sh
       - uses: actions/upload-artifact@v1.0.0
+        if: always()
         with:
           name: logs
           path: /tmp/skywalking
