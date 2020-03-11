@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.profile.analyze;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.Data;
 import org.apache.skywalking.apm.network.language.profile.ThreadStack;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -55,5 +57,18 @@ public class ProfileStack implements Comparable<ProfileStack> {
     @Override
     public int compareTo(ProfileStack o) {
         return Ints.compare(sequence, o.sequence);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileStack that = (ProfileStack) o;
+        return sequence == that.sequence;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sequence);
     }
 }
