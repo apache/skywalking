@@ -154,4 +154,6 @@ public class ComponentsDefine {
     public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "AvroClient");
 
     public static final OfficialComponent UNDERTOW = new OfficialComponent(84, "Undertow");
+
+    public static final OfficialComponent FINAGLE = new OfficialComponent(85, "Finagle");
 }
