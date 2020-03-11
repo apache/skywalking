@@ -79,6 +79,12 @@ public class TracingContext implements AbstractTracerContext {
      * LinkedList#getLast()} instead of {@link #pop()}, {@link #push(AbstractSpan)}, {@link #peek()}
      */
     private LinkedList<AbstractSpan> activeSpanStack = new LinkedList<>();
+    /**
+     * @since 7.0.0 SkyWalking support lazy injection through {@link ExitTypeSpan#inject(ContextCarrier)}. Due to that,
+     * the {@link #activeSpanStack} could be blank by then, this is a pointer forever to the first span, even the main
+     * thread tracing has been finished.
+     */
+    private AbstractSpan firstSpan = null;
 
     /**
      * A counter for the next span.
@@ -636,6 +642,9 @@ public class TracingContext implements AbstractTracerContext {
      * @param span the {@code span} to push
      */
     private AbstractSpan push(AbstractSpan span) {
+        if (firstSpan == null) {
+            firstSpan = span;
+        }
         activeSpanStack.addLast(span);
         return span;
     }
@@ -651,7 +660,7 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private AbstractSpan first() {
-        return activeSpanStack.getFirst();
+        return firstSpan;
     }
 
     private boolean isLimitMechanismWorking() {
