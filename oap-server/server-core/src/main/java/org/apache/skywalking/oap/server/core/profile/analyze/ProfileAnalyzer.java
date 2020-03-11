@@ -85,7 +85,7 @@ public class ProfileAnalyzer {
                 LOGGER.warn(e.getMessage(), e);
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
             }
-        }).flatMap(Collection::stream).map(ProfileStack::deserialize).collect(Collectors.toList());
+        }).flatMap(Collection::stream).map(ProfileStack::deserialize).distinct().collect(Collectors.toList());
 
         // analyze
         analyzation.setTrees(analyze(stacks));
