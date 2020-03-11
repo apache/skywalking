@@ -64,7 +64,9 @@ helm -n $DPELOY_NAMESPACE install skywalking skywalking --set oap.istio.adapter.
 for component in $NEED_CHECK_PREFIX"oap" ; do
   sleep 60
   kubectl get deploy -o wide -n $DPELOY_NAMESPACE
-  docker images
+  echo "-------------------------------------------------"
+  docker images | grep skywalking
+  echo "-------------------------------------------------"
   kubectl describe pod/`kubectl get pod -n $DPELOY_NAMESPACE  | grep skywalking-oap | awk '{print $1}'` -n $DPELOY_NAMESPACE
   kubectl logs `kubectl get pod -n $DPELOY_NAMESPACE | grep skywalking-oap | awk '{print $1}'` -f -n $DPELOY_NAMESPACE
   kubectl -n ${DPELOY_NAMESPACE} wait $component --for condition=available --timeout=600s
