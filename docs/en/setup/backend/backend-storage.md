@@ -126,8 +126,8 @@ Such as, if dayStep == 11,
 NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
 
 ### Secrets Management File Of ElasticSearch Username and Password 
-The value of `secretsManagementFile` should point to the secrets management file is the file including username and password of ElasticSearch server. 
-The file uses the properties format.
+The value of `secretsManagementFile` should point to the secrets management file absolute path. 
+The file includes username and password of ElasticSearch server in the properties format.
 ```properties
 user=xxx
 password=yyy
