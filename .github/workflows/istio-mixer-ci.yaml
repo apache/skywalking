@@ -56,7 +56,9 @@ jobs:
       - name: Istio install
         run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
       - name: SW And ES install
-        run: bash ${INSTALL_SCRIPTS_DIR}/skywalking-deploy.sh
+        run: |
+         cat ${LOG_DIR}/minikube-start-log.txt
+         bash ${INSTALL_SCRIPTS_DIR}/skywalking-deploy.sh
       - name: Bookinfo demo install
         run: bash ${INSTALL_SCRIPTS_DIR}/demo-deploy.sh
       - uses: actions/upload-artifact@v1.0.0
