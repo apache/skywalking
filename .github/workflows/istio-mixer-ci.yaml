@@ -44,7 +44,7 @@ jobs:
           bash ${SCRIPTS_DIR}/pre.sh
           mkdir -p ${LOG_DIR}
       - name: Start minikube
-        run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
+        run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 & ;${LOG_DIR}/minikube-start-log.txt
       - name: Wating minikube ready
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
