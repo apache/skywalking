@@ -25,7 +25,7 @@ oap:
   image:
     repository: apache/skywalking-oap-server
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Never
   ports:
     grpc: 11800
     rest: 12800
