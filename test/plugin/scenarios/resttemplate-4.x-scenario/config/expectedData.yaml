@@ -40,7 +40,7 @@ segmentItems:
       peer: ''
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/healthcheck' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/case/healthcheck' }
       - {key: http.method, value: GET }
   - segmentId: not null
     spans:
@@ -58,7 +58,7 @@ segmentItems:
       peer: ''
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/back' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/back' }
       - {key: http.method, value: GET }
       refs:
       - {parentEndpointId: 0, parentEndpoint: /resttemplate/case/resttemplate,
@@ -82,7 +82,7 @@ segmentItems:
       peer: ''
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/back' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/back' }
       - {key: http.method, value: GET }
       refs:
       - {parentEndpointId: 0, parentEndpoint: /resttemplate/case/resttemplate,
@@ -106,7 +106,7 @@ segmentItems:
       peer: 127.0.0.1:8080
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/back' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/back' }
       - {key: http.method, value: GET }
     - operationName: future/get:/resttemplate/back
       operationId: 0
@@ -135,7 +135,7 @@ segmentItems:
       peer: 127.0.0.1:8080
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/back' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/back' }
       - {key: http.method, value: GET }
     - operationName: /resttemplate/case/resttemplate
       operationId: 0
@@ -151,5 +151,5 @@ segmentItems:
       peer: ''
       peerId: 0
       tags:
-      - {key: url, value: 'http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/resttemplate' }
+      - {key: url, value: 'http://localhost:8080/resttemplate/case/resttemplate' }
       - {key: http.method, value: GET }
