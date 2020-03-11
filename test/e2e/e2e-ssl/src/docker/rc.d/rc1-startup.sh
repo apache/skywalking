@@ -16,11 +16,11 @@
 # limitations under the License.
 
 echo 'starting OAP server...' \
-    && SW_CORE_GRPC_SSL_ENABLED="true" \
-    && SW_CORE_GRPC_SSL_KEY_PATH="${SW_HOME}/certs/server-key.pem" \
-    && SW_CORE_GRPC_SSL_CERT_CHAIN_PATH="${SW_HOME}/certs/server.crt" \
-    && SW_CORE_GRPC_SSL_TRUSTED_CA_PATH="${SW_HOME}/certs/ca.crt" \
-    && start_oap 'init'
+#    && SW_CORE_GRPC_SSL_ENABLED="true" \
+#    && SW_CORE_GRPC_SSL_KEY_PATH="${SW_HOME}/certs/server-key.pem" \
+#    && SW_CORE_GRPC_SSL_CERT_CHAIN_PATH="${SW_HOME}/certs/server.crt" \
+#    && SW_CORE_GRPC_SSL_TRUSTED_CA_PATH="${SW_HOME}/certs/ca.crt" \
+     start_oap 'init'
 
 echo 'starting Web app...' \
     && start_webapp '0.0.0.0' 8080
