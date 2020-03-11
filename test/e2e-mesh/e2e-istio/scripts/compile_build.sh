@@ -29,4 +29,5 @@ git submodule update
 
 SKIP_TEST=true make build.all && make docker.oap -e TAG=$TAG
 
+echo "**********************************"
 docker images | grep skywalking
