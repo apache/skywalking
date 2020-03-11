@@ -20,7 +20,7 @@ on:
   pull_request:
   push:
     branches:
-      - master
+      - oap-ssl
     tags:
       - 'v*'
 
