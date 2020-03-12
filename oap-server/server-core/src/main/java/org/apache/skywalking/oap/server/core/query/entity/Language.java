@@ -19,5 +19,5 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 public enum Language {
-    UNKNOWN, JAVA, DOTNET, NODEJS, PYTHON, RUBY, GO, LUA
+    UNKNOWN, JAVA, DOTNET, NODEJS, PYTHON, RUBY, GO, LUA, PHP
 }
