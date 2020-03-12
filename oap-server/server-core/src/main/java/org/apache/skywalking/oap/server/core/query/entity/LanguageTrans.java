@@ -37,6 +37,8 @@ public enum LanguageTrans {
                 return Language.GO;
             case "lua":
                 return Language.LUA;
+            case "php":
+                return Language.PHP;
             default:
                 return Language.UNKNOWN;
         }
