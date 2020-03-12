@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,4 +34,7 @@ public class ProfileAnalyzation {
     // thread stack dump analyze trees
     private List<ProfileStackTree> trees;
 
+    public ProfileAnalyzation() {
+        this.trees = new ArrayList<>();
+    }
 }
