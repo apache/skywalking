@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {shardingsphere-4.x-RC1-RC2-scenario: nq 0}
   instances:
     - {shardingsphere-4.x-RC1-RC2-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
     - shardingsphere-4.x-RC1-RC2-scenario: [/shardingsphere-4.x-RC1-RC2-scenario/case/execute]
   heartbeat: []
 segmentItems:
-  - applicationCode: shardingsphere-4.x-RC1-RC2-scenario
+  - serviceName: shardingsphere-4.x-RC1-RC2-scenario
     segmentSize: not null
     segments:
       - segmentId: not null

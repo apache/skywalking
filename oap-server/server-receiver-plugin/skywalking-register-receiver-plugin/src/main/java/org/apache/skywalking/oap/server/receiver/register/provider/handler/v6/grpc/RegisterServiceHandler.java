@@ -156,7 +156,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                         instanceProperties.addProperty(OS_NAME, property.getValue());
                         break;
                     case LANGUAGE:
-                        instanceProperties.addProperty(LANGUAGE, property.getValue());
+                        instanceProperties.addProperty(LANGUAGE, property.getValue().toLowerCase());
                         break;
                     case "ipv4":
                         ipv4s.add(property.getValue());

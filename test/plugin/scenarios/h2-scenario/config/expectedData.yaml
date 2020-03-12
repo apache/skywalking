@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {h2-scenario: 2}
   instances:
     - {h2-scenario: 1}
@@ -22,7 +22,7 @@ registryItems:
     - h2-scenario: [/h2-scenario/case/h2-scenario]
   heartbeat: []
 segmentItems:
-  - applicationCode: h2-scenario
+  - serviceName: h2-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null
