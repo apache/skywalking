@@ -85,6 +85,7 @@
                                 <env>
                                     <SW_COLLECTOR_BACKEND_SERVICE>host.docker.internal:11800</SW_COLLECTOR_BACKEND_SERVICE>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
+                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.logging.dir=/tmp/logs/agent</INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
@@ -98,6 +99,7 @@
                                         <volume>${project.basedir}/src/docker/certs:/sw/certs:ro</volume>
                                         <volume>${project.basedir}/src/docker/ca:/sw/agent/ca:ro</volume>
                                         <volume>${project.basedir}/src/docker/hosts:/etc/hosts:ro</volume>
+                                        <volume>/tmp/logs:/tmp/logs:rw</volume>
                                     </bind>
                                 </volumes>
                                 <wait>

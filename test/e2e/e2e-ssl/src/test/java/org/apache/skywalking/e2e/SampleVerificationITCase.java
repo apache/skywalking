@@ -92,7 +92,7 @@ public class SampleVerificationITCase {
         instrumentedServiceUrl = "http://" + instrumentedServiceHost + ":" + instrumentedServicePort;
     }
 
-    @Test(timeout = 10 * 60 * 1000)
+    @Test(timeout = 2 * 60 * 1000)
     @DirtiesContext
     public void verify() throws Exception {
         final LocalDateTime minutesAgo = LocalDateTime.now(ZoneOffset.UTC);

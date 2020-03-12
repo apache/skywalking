@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cat /etc/hosts
+
 echo 'starting OAP server...' \
     && export SW_CORE_GRPC_SSL_ENABLED=true \
     && export SW_CORE_GRPC_SSL_KEY_PATH="${SW_HOME}/certs/server-key.pem" \
@@ -42,10 +44,7 @@ fi
 
 echo "SkyWalking e2e container is ready for tests"
 
-cat ${OAP_LOG_DIR}/*
-
 tail -f ${OAP_LOG_DIR}/* \
         ${WEBAPP_LOG_DIR}/* \
         ${SERVICE_LOG}/* \
-        /tmp/logs/agent/* \
         ${ES_HOME}/logs/stdout.log
