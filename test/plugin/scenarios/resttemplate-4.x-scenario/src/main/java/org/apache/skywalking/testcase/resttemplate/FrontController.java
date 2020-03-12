@@ -41,7 +41,7 @@ public class FrontController {
     @Autowired
     private RestTemplate restTemplate;
 
-    @RequestMapping(value = "/healthcheck", method = RequestMethod.GET)
+    @RequestMapping(value = "/healthcheck")
     public String healthcheck() {
         return "Success";
     }
@@ -53,7 +53,7 @@ public class FrontController {
         return "Success";
     }
 
-    public String asyncRequest(String url) {
+    private String asyncRequest(String url) {
 
         ListenableFuture<ResponseEntity<String>> forEntity = asyncRestTemplate.getForEntity(url, String.class);
 
@@ -66,7 +66,7 @@ public class FrontController {
         return "Success";
     }
 
-    public String syncRequest(String url) {
+    private String syncRequest(String url) {
         restTemplate.getForObject(url, String.class);
 
         return "Success";
