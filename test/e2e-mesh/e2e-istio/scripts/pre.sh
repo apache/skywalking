@@ -28,7 +28,7 @@ fi
 
 MINIKUBEVERESION=$2
 if [[ "${MINIKUBEVERESION}" == "" ]]; then
-    MINIKUBEVERESION="minikube-v1.4.0"
+    MINIKUBEVERESION="minikube-v1.8.0"
 fi
 
 K8SVERSION=$3
@@ -80,4 +80,4 @@ sudo add-apt-repository \
    stable"
 sudo apt-get update
 sudo apt-cache madison docker-ce
-sudo apt-get install -y docker-ce=5:18.09.1~3-0~ubuntu-xenial docker-ce-cli=5:18.09.1~3-0~ubuntu-xenial containerd.io
+sudo apt-get install -y docker-ce=5:19.03.8~3-0~ubuntu-xenial docker-ce-cli=5:19.03.8~3-0~ubuntu-xenial containerd.io
