@@ -12,7 +12,7 @@ or providing commercial products including Apache SkyWalking.
 1. Anheuser-Busch InBev 百威英博
 1. Agricultural Bank of China 中国农业银行
 1. Aihuishou.com 爱回收网 http://www.aihuishou.com/
-1. Alibaba Cloud, 阿里云, http://aliyun.com 
+1. Alibaba Cloud, 阿里云, http://aliyun.com
 1. Anxin Insurance. 安心财产保险有限责任公司 https://www.95303.com
 1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
@@ -45,13 +45,13 @@ or providing commercial products including Apache SkyWalking.
 1. Deppon Logistics Co Ltd 德邦物流 https://www.deppon.com/
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
-1. DiDi 滴滴出行 
+1. DiDi 滴滴出行
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Enmonster 怪兽充电 http://www.enmonster.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
 1. fangdd.com 房多多 https://www.fangdd.com
 1. fullgoal.com.cn 富国基金管理有限公司 https://www.fullgoal.com.cn/
-1. GTrace System. (No company provided) 
+1. GTrace System. (No company provided)
 1. GSX Techedu Inc. 跟谁学 https://www.genshuixue.com
 1. Gdeng.cn 深圳谷登科技有限公司 http://www.gdeng.cn/
 1. GOME 国美 https://www.gome.com.cn/
@@ -92,8 +92,8 @@ or providing commercial products including Apache SkyWalking.
 1. Oriente. https://oriente.com/
 1. Peking University 北京大学
 1. Ping An Technology / Ping An Insurance 平安科技
-1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com 
-1. qiniu.com 七牛云 http://qiniu.com 
+1. Primeton.com 普元信息技术股份有限公司 http://www.primeton.com
+1. qiniu.com 七牛云 http://qiniu.com
 1. Qingyidai.com 轻易贷 https://www.qingyidai.com/
 1. Qsdjf.com 浙江钱宝网络科技有限公司 https://www.qsdjf.com/index.html
 1. Qk365.com 上海青客电子商务有限公司 https://www.qk365.com
@@ -149,9 +149,10 @@ or providing commercial products including Apache SkyWalking.
 1. zbj.com 猪八戒 https://www.zbj.com/
 1. zhaopin.com 智联招聘 https://www.zhaopin.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
+1. KubeSphere https://kubesphere.io
 
 # Use Cases
-## Alibaba and Alibaba Cloud 
+## Alibaba and Alibaba Cloud
 Alibaba products including [Cloud DevOps product](https://cn.aliyun.com/product/yunxiao) are under SkyWalking monitoring.
 
 Alibaba Cloud supports SkyWalking agents and formats in Tracing Analysis cloud service.
@@ -163,7 +164,7 @@ Integrated in the microservices architecture support platform.
 Use SkyWalking and [SkyAPM .net agent](https://github.com/SkyAPM/SkyAPM-dotnet) in the CMBChina Mall project.
 
 ## China Mobile
-China Mobile Suzhou Research Center, CMSS, integrated SkyWalking as the APM component in China Mobile PAAS. 
+China Mobile Suzhou Research Center, CMSS, integrated SkyWalking as the APM component in China Mobile PAAS.
 
 ## ke.com
 Deploy SkyWalking in production environments.
@@ -173,8 +174,8 @@ Deploy SkyWalking in production environments.
 Support 60+ Instances, Over 300k Calls Per Minute, Over 50k Spans Per Second
 
 ## guazi.com
-Guazi.com uses SkyWalking monitoring 270+ services, 
-including topology + metrics analysis, and collecting 1.1+ billion traces per day with 100% sampling. 
+Guazi.com uses SkyWalking monitoring 270+ services,
+including topology + metrics analysis, and collecting 1.1+ billion traces per day with 100% sampling.
 
 Plan is 1k+ services and 5 billion traces per day.
 
