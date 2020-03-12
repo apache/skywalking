@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -94,9 +95,12 @@ public class ElasticSearchClient implements Client {
     protected final String clusterNodes;
     protected final String protocol;
     private final String trustStorePath;
-    private final String trustStorePass;
-    private final String user;
-    private final String password;
+    @Setter
+    private volatile String trustStorePass;
+    @Setter
+    private volatile String user;
+    @Setter
+    private volatile String password;
     private final List<IndexNameConverter> indexNameConverters;
     protected volatile RestHighLevelClient client;
 

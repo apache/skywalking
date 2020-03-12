@@ -130,6 +130,10 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
                 if (elasticSearch7Client == null) {
                     //In the startup process, we just need to change the username/password
                 } else {
+                    // The client has connected, updates the config and connects again.
+                    elasticSearch7Client.setUser(config.getUser());
+                    elasticSearch7Client.setPassword(config.getPassword());
+                    elasticSearch7Client.setTrustStorePass(config.getTrustStorePass());
                     elasticSearch7Client.connect();
                 }
             }, config.getSecretsManagementFile(), config.getTrustStorePass());

@@ -138,8 +138,12 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 config.setTrustStorePass(secrets.getProperty("trustStorePass", null));
 
                 if (elasticSearchClient == null) {
-                    //In the startup process, we just need to change the username/password
+                    // In the startup process, we just need to change the username/password
                 } else {
+                    // The client has connected, updates the config and connects again.
+                    elasticSearchClient.setUser(config.getUser());
+                    elasticSearchClient.setPassword(config.getPassword());
+                    elasticSearchClient.setTrustStorePass(config.getTrustStorePass());
                     elasticSearchClient.connect();
                 }
             }, config.getSecretsManagementFile(), config.getTrustStorePass());
