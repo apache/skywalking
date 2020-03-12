@@ -47,6 +47,5 @@ cat ${OAP_LOG_DIR}/*
 tail -f ${OAP_LOG_DIR}/* \
         ${WEBAPP_LOG_DIR}/* \
         ${SERVICE_LOG}/* \
+        /tmp/logs/agent/* \
         ${ES_HOME}/logs/stdout.log
-
-cat ${OAP_LOG_DIR}/*
