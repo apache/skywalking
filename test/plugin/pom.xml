@@ -32,8 +32,7 @@
 
     <modules>
         <module>runner-helper</module>
-        <module>validator</module>
-        <module>mock-collector</module>
+        <module>agent-test-tools</module>
         <module>containers</module>
     </modules>
 

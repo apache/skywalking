@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
   - { grpc-scenario: 2 }
   instances:
   - { grpc-scenario: 1 }
@@ -22,7 +22,7 @@ registryItems:
   - grpc-scenario: [Greeter.sayHello, GreeterBlocking.sayHello, GreeterBlockingError.sayHello, /grpc-scenario/case/grpc-scenario]
   heartbeat: []
 segmentItems:
-- applicationCode: grpc-scenario
+- serviceName: grpc-scenario
   segmentSize: gt 10
   segments:
   - segmentId: not null

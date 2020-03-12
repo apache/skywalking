@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
   - {rabbitmq-scenario: nq 0}
   instances:
   - {rabbitmq-scenario: 1}
   operationNames:
   - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq, RabbitMQ/Topic/Queue/test/Consumer]
 segmentItems:
-- applicationCode: rabbitmq-scenario
+- serviceName: rabbitmq-scenario
   segmentSize: gt 2
   segments:
   - segmentId: not null

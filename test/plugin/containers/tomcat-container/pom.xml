@@ -30,11 +30,11 @@
     </parent>
 
     <artifactId>tomcat-container</artifactId>
-    <name>agent-test-tomcat</name>
+    <name>name>SkyWalking Tomcat Runner Image</name>
 
     <properties>
         <skip.docker>false</skip.docker>
+        <docker.image.name>skywalking/agent-test-tomcat</docker.image.name>
     </properties>
-
 
 </project>

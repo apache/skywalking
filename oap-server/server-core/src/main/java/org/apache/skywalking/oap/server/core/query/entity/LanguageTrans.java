@@ -33,6 +33,12 @@ public enum LanguageTrans {
                 return Language.PYTHON;
             case "ruby":
                 return Language.RUBY;
+            case "go":
+                return Language.GO;
+            case "lua":
+                return Language.LUA;
+            case "php":
+                return Language.PHP;
             default:
                 return Language.UNKNOWN;
         }

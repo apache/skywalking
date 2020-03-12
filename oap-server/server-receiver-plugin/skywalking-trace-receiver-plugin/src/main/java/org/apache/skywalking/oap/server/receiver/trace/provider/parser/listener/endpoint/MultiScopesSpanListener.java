@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
@@ -58,6 +60,7 @@ import static java.util.Objects.nonNull;
  *
  * This listener traverses the whole segment.
  */
+@Slf4j
 public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListener, GlobalTraceIdsListener {
 
     private final SourceReceiver sourceReceiver;
@@ -306,7 +309,14 @@ public class MultiScopesSpanListener implements EntrySpanListener, ExitSpanListe
 
             exitSourceBuilder.setTimeBucket(minuteTimeBucket);
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
-            sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+
+            /*
+             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+             */
+            String sourceLanguage = instanceInventoryCache.getServiceInstanceLanguage(exitSourceBuilder.getSourceServiceInstanceId());
+            if (!config.getNoUpstreamRealAddressAgents().contains(sourceLanguage)) {
+                sourceReceiver.receive(exitSourceBuilder.toServiceInstanceRelation());
+            }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
                 sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
             }

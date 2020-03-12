@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-    applications:
+    services:
     - {httpasyncclient-scenario: nq 0}
     instances:
     - {httpasyncclient-scenario: 1}
     operationNames:
     - httpasyncclient-scenario: [/httpasyncclient/case/httpasyncclient, /httpasyncclient/back]
 segmentItems:
-- applicationCode: httpasyncclient-scenario
+- serviceName: httpasyncclient-scenario
   segmentSize: ge 4
   segments:
   - segmentId: not null
