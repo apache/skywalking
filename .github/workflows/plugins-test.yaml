@@ -278,7 +278,7 @@ jobs:
       - name: Run finagle 17.10.0-20.1.0
         run: bash test/plugin/run.sh finagle-17.10.x-scenario
 
-  Spring41x_SolrJ-Http:
+  Spring41x_Resttemplate-SolrJ-Http:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -306,6 +306,8 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run spring 4.1.x-4.2.x (20)
         run: bash test/plugin/run.sh spring-4.1.x-scenario
+      - name: Run resttemplate 4.0.0.RELEASE-4.3.26.RELEASE (57)
+        run: bash test/plugin/run.sh resttemplate-4.x-scenario
       - name: Run solrj 7.x (12)
         run: bash test/plugin/run.sh solrj-7.x-scenario
       - name: Run httpclient 2.0-3.1 (5)
