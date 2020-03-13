@@ -135,7 +135,7 @@ password=yyy
 trustStorePass=zzz
 ```
 
-The major difference between using `user, password, trustStorePass` configs in the `application.yaml` and this file is, this file is being watched by the OAP server. 
+The major difference between using `user, password, trustStorePass` configs in the `application.yaml` file is, the **Secrets Management File** is being watched by the OAP server. 
 Once it is changed manually or through 3rd party tool, such as [Vault](https://github.com/hashicorp/vault), 
 the storage provider will use the new username, password and JKS password to establish the connection and close the old one. If the information exist in the file,
 the `user/password` will be overrided.
