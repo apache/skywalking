@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.struts2.ServletActionContext;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
@@ -34,6 +35,15 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 public class Struts2Interceptor implements InstanceMethodsAroundInterceptor {
+
+    private static boolean IS_SERVLET_GET_STATUS_METHOD_EXIST;
+    private static final String SERVLET_RESPONSE_CLASS = "javax.servlet.http.HttpServletResponse";
+    private static final String GET_STATUS_METHOD = "getStatus";
+
+    static {
+        IS_SERVLET_GET_STATUS_METHOD_EXIST = MethodUtil.isMethodExist(Struts2Interceptor.class.getClassLoader(), SERVLET_RESPONSE_CLASS, GET_STATUS_METHOD);
+    }
+
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
@@ -59,7 +69,7 @@ public class Struts2Interceptor implements InstanceMethodsAroundInterceptor {
         HttpServletResponse response = ServletActionContext.getResponse();
 
         AbstractSpan span = ContextManager.activeSpan();
-        if (response.getStatus() >= 400) {
+        if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }

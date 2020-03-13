@@ -18,11 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Properties;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -52,6 +54,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
@@ -78,6 +81,9 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.Trac
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider.indexNameConverters;
 
+/**
+ * The storage provider for ElasticSearch 7.
+ */
 public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     protected final StorageModuleElasticsearch7Config config;
@@ -108,6 +114,35 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         if (!StringUtil.isEmpty(config.getNameSpace())) {
             config.setNameSpace(config.getNameSpace().toLowerCase());
         }
+        if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
+            MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
+                10, readableContents -> {
+                final byte[] secretsFileContent = readableContents.get(0);
+                if (secretsFileContent == null) {
+                    return;
+                }
+                Properties secrets = new Properties();
+                secrets.load(new ByteArrayInputStream(secretsFileContent));
+                config.setUser(secrets.getProperty("user", null));
+                config.setPassword(secrets.getProperty("password", null));
+                config.setTrustStorePass(secrets.getProperty("trustStorePass", null));
+
+                if (elasticSearch7Client == null) {
+                    //In the startup process, we just need to change the username/password
+                } else {
+                    // The client has connected, updates the config and connects again.
+                    elasticSearch7Client.setUser(config.getUser());
+                    elasticSearch7Client.setPassword(config.getPassword());
+                    elasticSearch7Client.setTrustStorePass(config.getTrustStorePass());
+                    elasticSearch7Client.connect();
+                }
+            }, config.getSecretsManagementFile(), config.getTrustStorePass());
+            /**
+             * By leveraging the sync update check feature when startup.
+             */
+            monitor.start();
+        }
+
         elasticSearch7Client = new ElasticSearch7Client(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
