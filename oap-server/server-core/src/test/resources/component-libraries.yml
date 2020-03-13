@@ -248,6 +248,9 @@ AvroServer:
 AvroClient:
   id: 83
   languages: Java
+Finagle:
+  id: 85
+  languages: Java,Scala
 
 
 # .NET/.NET Core components

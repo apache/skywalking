@@ -239,7 +239,7 @@ jobs:
       - name: Run kotlin coroutine 1.0.1-1.3.3 (4)
         run: bash test/plugin/run.sh kotlin-coroutine-scenario
 
-  Ehcache_Undertow_Jedis:
+  Ehcache_Undertow_Jedis_Finagle:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
@@ -271,6 +271,12 @@ jobs:
         run: bash test/plugin/run.sh undertow-scenario
       - name: Run jedis 2.4.0-2.9.0 (18)
         run: bash test/plugin/run.sh jedis-scenario
+      - name: Run finagle 6.25.0-6.43.0
+        run: bash test/plugin/run.sh finagle-6.25.x-scenario
+      - name: Run finagle 6.44.0-7.1.0
+        run: bash test/plugin/run.sh finagle-6.44.x-scenario
+      - name: Run finagle 17.10.0-20.1.0
+        run: bash test/plugin/run.sh finagle-17.10.x-scenario
 
   Spring41x_SolrJ-Http:
     runs-on: ubuntu-18.04

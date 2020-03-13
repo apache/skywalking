@@ -303,7 +303,7 @@ generateApplicationYaml() {
 
     validateVariables "SW_CLUSTER" "$SW_CLUSTER" "standalone zookeeper kubernetes consul etcd nacos"
 
-    validateVariables "SW_STORAGE" "$SW_STORAGE" "elasticsearch h2 mysql"
+    validateVariables "SW_STORAGE" "$SW_STORAGE" "elasticsearch h2 mysql influxdb"
 
     validateVariables "SW_CONFIGURATION" "$SW_CONFIGURATION" "none apollo nacos zookeeper"
 

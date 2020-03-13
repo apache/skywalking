@@ -38,8 +38,6 @@ storage:
 
 For now, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as follows:
 
-Setting fragment example
-
 ```yaml
 storage:
   elasticsearch:
@@ -69,6 +67,9 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
+
+In order to use ElasticSearch 7, comment/remove the section `storage/elasticsearch` and find the corresponding config section(`storage/elasticsearch7`),
+uncomment to enable it.
 
 ### Downsampling Data Packing
 
