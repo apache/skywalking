@@ -60,21 +60,18 @@ public class GRPCRemoteClient implements RemoteClient {
     private CounterMetrics remoteOutErrorCounter;
     private int remoteTimeout;
 
-    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address, int channelSize, int bufferSize,
-                            int remoteTimeout, final SslContext sslContext) {
-        this(moduleDefineHolder, address, channelSize, bufferSize, remoteTimeout);
-        this.sslContext = sslContext;
-    }
-
     public GRPCRemoteClient(final ModuleDefineHolder moduleDefineHolder,
                             final Address address,
                             final int channelSize,
                             final int bufferSize,
-                            final int remoteTimeout) {
+                            final int remoteTimeout,
+                            final SslContext sslContext) {
+
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
         this.remoteTimeout = remoteTimeout;
+        this.sslContext = sslContext;
 
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                              .provider()

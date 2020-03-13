@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  */
 public class MockRemoteClientManager extends RemoteClientManager {
     public MockRemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
-        super(moduleDefineHolder, remoteTimeout, false, null);
+        super(moduleDefineHolder, remoteTimeout);
     }
 
     @Override

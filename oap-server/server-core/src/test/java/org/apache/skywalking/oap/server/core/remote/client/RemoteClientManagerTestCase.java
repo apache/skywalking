@@ -95,8 +95,7 @@ public class RemoteClientManagerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        this.clientManager = spy(new RemoteClientManager(moduleManager, 10, false,
-                                                         ""));
+        this.clientManager = spy(new RemoteClientManager(moduleManager, 10));
     }
 
     @Test

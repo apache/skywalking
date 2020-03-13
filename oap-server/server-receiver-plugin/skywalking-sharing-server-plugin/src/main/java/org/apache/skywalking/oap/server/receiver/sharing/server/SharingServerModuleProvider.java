@@ -79,8 +79,6 @@ public class SharingServerModuleProvider extends ModuleProvider {
         }
 
         if (config.getGRPCPort() != 0) {
-            grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(), config
-                .getGRPCPort());
             if (config.isGRPCSslEnabled()) {
                 grpcServer = new GRPCServer(Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
                                             config.getGRPCPort(),
