@@ -44,6 +44,7 @@ storage:
     # nameSpace: ${SW_NAMESPACE:""}
     # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     # password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
+    # secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:""}
     #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
     enablePackedDownsampling: ${SW_STORAGE_ENABLE_PACKED_DOWNSAMPLING:true} # Hour and Day metrics will be merged into minute index.
@@ -106,7 +107,8 @@ storage:
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
 ```
-
+- File at `trustStorePath` is being monitored, once it is changed, the ElasticSearch client will do reconnecting.
+- `trustStorePass` could be changed on the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
 
 ### Data TTL
 TTL in ElasticSearch overrides the settings of core, read [ElasticSearch section in TTL document](ttl.md#elasticsearch-6-storage-ttl)
@@ -123,6 +125,20 @@ Such as, if dayStep == 11,
 1. data in [2000-01-12, 2000-01-22] will be merged into the index-20000112.
 
 NOTICE, TTL deletion would be affected by these. You should set an extra more dayStep in your TTL. Such as you want to TTL == 30 days and dayStep == 10, you actually need to set TTL = 40;
+
+### Secrets Management File Of ElasticSearch Authentication
+The value of `secretsManagementFile` should point to the secrets management file absolute path. 
+The file includes username, password and JKS password of ElasticSearch server in the properties format.
+```properties
+user=xxx
+password=yyy
+trustStorePass=zzz
+```
+
+The major difference between using `user, password, trustStorePass` configs in the `application.yaml` file is, the **Secrets Management File** is being watched by the OAP server. 
+Once it is changed manually or through 3rd party tool, such as [Vault](https://github.com/hashicorp/vault), 
+the storage provider will use the new username, password and JKS password to establish the connection and close the old one. If the information exist in the file,
+the `user/password` will be overrided.
 
 ### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
