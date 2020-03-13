@@ -38,6 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -94,11 +95,14 @@ public class ElasticSearchClient implements Client {
     protected final String clusterNodes;
     protected final String protocol;
     private final String trustStorePath;
-    private final String trustStorePass;
-    private final String user;
-    private final String password;
+    @Setter
+    private volatile String trustStorePass;
+    @Setter
+    private volatile String user;
+    @Setter
+    private volatile String password;
     private final List<IndexNameConverter> indexNameConverters;
-    protected RestHighLevelClient client;
+    protected volatile RestHighLevelClient client;
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,
@@ -119,6 +123,13 @@ public class ElasticSearchClient implements Client {
     @Override
     public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
         List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Throwable t) {
+                log.error("ElasticSearch client reconnection fails based on new config", t);
+            }
+        }
         client = createClient(hosts);
         client.ping();
     }

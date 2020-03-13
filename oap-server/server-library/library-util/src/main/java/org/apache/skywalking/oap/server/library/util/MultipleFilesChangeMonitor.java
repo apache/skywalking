@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * MultipleFilesChangeMonitor provides the capability to detect file or multiple files changed. It provide second level
@@ -68,7 +69,8 @@ public class MultipleFilesChangeMonitor {
      *
      * @param watchingPeriodInSec The check period.
      * @param notifier            to accept the file changed notification.
-     * @param files               to be monitored.
+     * @param files               to be monitored. If an element of list is NULL, the virtual(NULL) file is treated
+     *                            unchangeable.
      */
     public MultipleFilesChangeMonitor(long watchingPeriodInSec,
                                       FilesChangedNotifier notifier,
@@ -77,7 +79,12 @@ public class MultipleFilesChangeMonitor {
         this.watchingPeriodInSec = watchingPeriodInSec;
         this.notifier = notifier;
         for (final String file : files) {
-            WatchedFile monitor = new WatchedFile(file);
+            WatchedFile monitor;
+            if (StringUtil.isEmpty(file)) {
+                monitor = new NoopWatchedFile();
+            } else {
+                monitor = new WatchedFile(file);
+            }
             watchedFiles.add(monitor);
         }
     }
@@ -100,7 +107,11 @@ public class MultipleFilesChangeMonitor {
             watchedFiles.forEach(file -> {
                 contents.add(file.fileContent);
             });
-            notifier.filesChanged(contents);
+            try {
+                notifier.filesChanged(contents);
+            } catch (Exception e) {
+                log.error("Files=" + this + " notification process failure.", e);
+            }
         }
     }
 
@@ -170,7 +181,7 @@ public class MultipleFilesChangeMonitor {
          *
          * @param readableContents include the new contents. NULL if the file doesn't exist.
          */
-        void filesChanged(List<byte[]> readableContents);
+        void filesChanged(List<byte[]> readableContents) throws Exception;
     }
 
     /**
@@ -237,6 +248,20 @@ public class MultipleFilesChangeMonitor {
                 }
                 return false;
             }
+        }
+    }
+
+    private static class NoopWatchedFile extends WatchedFile {
+        public NoopWatchedFile() {
+            super(null);
+        }
+
+        /**
+         * @return false, as an noop file never changes.
+         */
+        @Override
+        boolean detectContentChanged() {
+            return false;
         }
     }
 }
