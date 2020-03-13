@@ -1,0 +1,24 @@
+Please answer these questions before submitting your issue.
+
+- Why do you submit this issue?
+- [ ] Question or discussion
+- [ ] Bug
+- [ ] Requirement
+- [ ] Feature or performance improvement
+
+___
+### Question
+- What do you want to know?
+
+___
+### Bug
+- Which version of SkyWalking, OS and JRE?
+
+- Which company or project?
+
+- What happen?
+If possible, provide a way for reproducing the error. e.g. demo application, component version.
+
+___
+### Requirement or improvement
+- Please describe about your requirements or improvement suggestions.

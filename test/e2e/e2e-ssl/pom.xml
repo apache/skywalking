@@ -83,9 +83,8 @@
                             <alias>${e2e.container.name.prefix}</alias>
                             <run>
                                 <env>
-                                    <SW_COLLECTOR_BACKEND_SERVICE>host.docker.internal:11800</SW_COLLECTOR_BACKEND_SERVICE>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.logging.dir=/tmp/logs/agent</INSTRUMENTED_SERVICE_OPTS>
+                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.collector.backend_service=host.docker.internal:11800 -Dskywalking.logging.dir=/tmp/logs/agent</INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
