@@ -1,6 +1,11 @@
 # Backend storage
-SkyWalking storage is pluggable, we have provided the following storage solutions, you could easily 
-use is by changing the `application.yml`
+SkyWalking storage is pluggable, we have provided the following storage solutions, you could easily
+use one of them by specifying it as the `selector` in the `application.yml`：
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:elasticsearch7}
+```
 
 Native supported storage
 - H2
@@ -21,6 +26,7 @@ you could set the target to H2 in **Embedded**, **Server** and **Mixed** modes.
 Setting fragment example
 ```yaml
 storage:
+  selector: ${SW_STORAGE:h2}
   h2:
     driver: org.h2.jdbcx.JdbcDataSource
     url: jdbc:h2:mem:skywalking-oap-db
@@ -40,6 +46,7 @@ For now, ElasticSearch 6 and ElasticSearch 7 share the same configurations, as f
 
 ```yaml
 storage:
+  selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
     # nameSpace: ${SW_NAMESPACE:""}
     # user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
@@ -86,6 +93,7 @@ example:
 
 ```yaml
 storage:
+  selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
     # nameSpace: ${SW_NAMESPACE:""}
     user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
@@ -173,6 +181,7 @@ This implementation shares most of `elasticsearch`, just extend to support zipki
 It has all same configs.
 ```yaml
 storage:
+  selector: ${SW_STORAGE:zipkin-elasticsearch}
   zipkin-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
@@ -197,6 +206,7 @@ This implementation shares most of `elasticsearch`, just extend to support zipki
 It has all same configs.
 ```yaml
 storage:
+  selector: ${SW_STORAGE:jaeger-elasticsearch}
   jaeger-elasticsearch:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
@@ -233,6 +243,7 @@ Please download MySQL driver by yourself. Copy the connection driver jar to `oap
 
 ```yaml
 storage:
+  selector: ${SW_STORAGE:mysql}
   mysql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
@@ -253,6 +264,7 @@ Active TiDB as storage, set storage provider to **mysql**.
 
 ```yaml
 storage:
+  selector: ${SW_STORAGE:mysql}
   mysql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
@@ -272,7 +284,8 @@ InfluxDB as storage since SkyWalking 7.0. It depends on `H2/MySQL` storage-plugi
 
 ```yaml
 storage:
-  influx:
+  selector: ${SW_STORAGE:influxdb}
+  influxdb:
     # Metadata storage provider configuration
     metabaseType: ${SW_STORAGE_METABASE_TYPE:H2} # There are 2 options as Metabase provider, H2 or MySQL.
     h2Props:

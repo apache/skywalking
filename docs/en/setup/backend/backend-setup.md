@@ -14,26 +14,43 @@ End user can switch or assemble the collector features by their own requirements
 
 So, in `application.yml`, there are three levels.
 1. **Level 1**, module name. Meaning this module is active in running mode.
-1. **Level 2**, provider name. Set the provider of the module.
+1. **Level 2**, provider option list and provider selector. Available providers are listed here with a selector to indicate which one will actually take effect,
+if there is only one provider listed, the `selector` is optional and can be omitted.
 1. **Level 3**. settings of the provider.
 
 Example:
+
 ```yaml
-core:
-  default:
-    restHost: 0.0.0.0
-    restPort: 12800
-    restContextPath: /
-    gRPCHost: 0.0.0.0
-    gRPCPort: 11800
+storage:
+  selector: mysql # the mysql storage will actually be activated, while the h2 storage takes no effect
+  h2:
+    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+    user: ${SW_STORAGE_H2_USER:sa}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+  mysql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+  # other configurations
 ```
-1. **core** is the module.
-1. **default** is the default implementor of core module.
-1. `restHost`, `restPort`, ... `gRPCHost` are all setting items of the implementor.
+
+1. **`core`** is the module.
+1. **`selector`** selects one out of the all providers listed below, the unselected ones take no effect as if they were deleted.
+1. **`default`** is the default implementor of core module.
+1. `driver`, `url`, ... `metadataQueryMaxSize` are all setting items of the implementor.
 
 At the same time, modules includes required and optional, the required modules provide the skeleton of backend,
-even modularization supported pluggable, remove those modules are meaningless. We highly recommend you don't try to
-change APIs of those modules, unless you understand SkyWalking project and its codes very well.
+even modularization supported pluggable, removing those modules are meaningless, for optional modules, some of them have
+a provider implementation called `none`, meaning it only provides a shell with no actual logic, typically such as telemetry.
+Setting `-` to the `selector` means this whole module will be excluded at runtime.
+We highly recommend you don't try to change APIs of those modules, unless you understand SkyWalking project and its codes very well.
 
 List the required modules here
 1. **Core**. Do basic and major skeleton of all data analysis and stream dispatch.
