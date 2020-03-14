@@ -84,7 +84,7 @@
                             <run>
                                 <env>
                                     <INSTRUMENTED_SERVICE>${project.build.finalName}.jar</INSTRUMENTED_SERVICE>
-                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.collector.backend_service=host.docker.internal:11800 -Dskywalking.logging.dir=/tmp/logs/agent</INSTRUMENTED_SERVICE_OPTS>
+                                    <INSTRUMENTED_SERVICE_OPTS>-Dskywalking.collector.backend_service=oap.skywalking:11800 -Dskywalking.logging.dir=/tmp/logs/agent</INSTRUMENTED_SERVICE_OPTS>
                                 </env>
                                 <ports>
                                     <port>+webapp.host:webapp.port:8080</port>
