@@ -16,9 +16,8 @@ Original value raw data `{"userKey1","userValue1","userKey2":"userValue2"}` stri
 Recommended implementation in different language API.
 
 1. `CorrelationContext#set` and `CorrelationContext#get` are recommended to write and read the correlation context, with key/value string.
-1. The key should be added if it is inexistence.
+1. The key should be added if it is absent.
 1. The later the write should override the prev value.
 1. The number of all keys should less than 3, and the length of each value should be less than 128 bytes.
 1. The context should be propageted when across thread and across process like do tracing context propagation.
-
 
