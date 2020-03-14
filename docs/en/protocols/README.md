@@ -10,15 +10,9 @@ There are two types of protocols list here.
 They also related to the probe group, for understand that, look [Concepts and Designs](../concepts-and-designs/README.md) document.
 These groups are **Language based native agent protocol**, **Service Mesh protocol** and **3rd-party instrument protocol**.
 
-## Register Protocol
-Include service, service instance, network address and endpoint meta data register.
-Purposes of register are
-1. For service, network address and endpoint, register returns the unique ID of register object, usually an integer. Probe
-can use that to represent the literal String for data compression. Further, some protocols accept IDs only.
-1. For service instance, register returns a new unique ID for every new instance. Every service instance register must contain the 
-service ID.
- 
-
+### Register Protocol
+Register protocol is shared in `Language based native agent protocol`[Required] and `Service Mesh probe protocol`[Optional]. 
+Service, Service Instance, Network address and Endpoint could do register to get an unique integer ID to replace the literal string name and attributes. The probe could use IDs to reduce the cost of memory and network bandwidth. Service and Instance register are required in the language agent. All other cases, register are optional.
 
 ### Language based native agent protocol
 There is two types of protocols to make language agents work in distributed environments.
@@ -29,11 +23,12 @@ with this specific request.
 compatible backend. 
 
 [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
-in-wire context propagation, started in 6.0.0-beta release, older protocol is no longer supported.
+in-wire context propagation, started in 6.0.0-beta release, v1 is no longer supported.
 
 Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2.
-[SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) define the communication way and format between agent and backend.
+[SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) defines the communication way and format between agent and backend.
 
+* [Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation additional and optional protocols. Please read SkyWalking language agents documentations to see whether it is supported. This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol v2`. SkyWalking javaagent begins to support this since 7.1.0.
 
 ### Service Mesh probe protocol
 The probe in sidecar or proxy could use this protocol to send data to backendEnd. This service provided by gRPC, requires 
