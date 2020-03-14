@@ -13,4 +13,4 @@ Recommended implementation in different language API.
 1. The key should be added if it is absent.
 1. The later writes should override the previous value.
 1. The total number of all keys should be less than 3, and the length of each value should be less than 128 bytes.
-1. The context should be propagated as well when tracing context is propagated across threads and processes..
+1. The context should be propagated as well when tracing context is propagated across threads and processes.
