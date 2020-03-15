@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
 
 /**
- * @author yi.liang
  * date 2020.02.13 20:50
  */
 public class TransportClientEnhanceInfo {

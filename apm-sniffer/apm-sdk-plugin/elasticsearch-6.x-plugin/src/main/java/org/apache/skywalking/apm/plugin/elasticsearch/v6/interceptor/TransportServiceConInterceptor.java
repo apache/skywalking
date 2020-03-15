@@ -25,15 +25,13 @@ import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportAddressCache;
 import org.elasticsearch.common.settings.Settings;
 
 /**
- * @author yi.liang
- * @since JDK1.8
  * date 2020.02.13 20:50
  */
-public class TransportServiceInterceptor implements InstanceConstructorInterceptor {
+public class TransportServiceConInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        Settings settings = (Settings)allArguments[0];
+        Settings settings = (Settings) allArguments[0];
         String clusterName = settings.get("cluster.name");
 
         TransportClientEnhanceInfo transportClientEnhanceInfo = new TransportClientEnhanceInfo();

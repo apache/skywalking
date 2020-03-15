@@ -29,7 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentType
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @author yi.liang
  * date 2020.02.13 22:29
  */
 public class TransportClientNodesServiceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
@@ -37,6 +36,7 @@ public class TransportClientNodesServiceInstrumentation extends ClassInstanceMet
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.TransportClientNodesServiceInterceptor";
     public static final String ADD_TRANSPORT_ADDRESSES_INTERCEPTOR = INTERCEPTOR_CLASS + "$AddTransportAddressesInterceptor";
     public static final String REMOVE_TRANSPORT_ADDRESS_INTERCEPTOR = INTERCEPTOR_CLASS + "$RemoveTransportAddressInterceptor";
+    public static final String EXECUTE_INTERCEPTOR = INTERCEPTOR_CLASS + "$ExecuteInterceptor";
 
     public static final String ENHANCE_CLASS = "org.elasticsearch.client.transport.TransportClientNodesService";
 
@@ -78,6 +78,19 @@ public class TransportClientNodesServiceInstrumentation extends ClassInstanceMet
 
                 @Override public String getMethodsInterceptor() {
                     return REMOVE_TRANSPORT_ADDRESS_INTERCEPTOR;
+                }
+
+                @Override public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute");
+                }
+
+                @Override public String getMethodsInterceptor() {
+                    return EXECUTE_INTERCEPTOR;
                 }
 
                 @Override public boolean isOverrideArgs() {

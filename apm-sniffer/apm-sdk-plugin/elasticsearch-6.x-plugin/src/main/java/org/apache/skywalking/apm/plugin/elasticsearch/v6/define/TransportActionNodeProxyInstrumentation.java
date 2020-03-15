@@ -31,13 +31,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- /**
- * @author yi.liang
  * date 2020.02.13 20:32
  */
 public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginDefine {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.TransportActionNodeProxyInterceptor";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.TransportActionNodeProxyExecuteMethodsInterceptor";
     public static final String ENHANC_CLASS = "org.elasticsearch.action.TransportActionNodeProxy";
 
     @Override

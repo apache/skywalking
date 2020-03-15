@@ -24,13 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author yi.liang
  * date 2020.02.13 20:50
  */
 public class TransportAddressCache {
 
     private List<TransportAddress> transportAddresses = new ArrayList<TransportAddress>();
-    private String transportAddressesStr;
+    private String transportAddressesStr = "";
 
     public synchronized void addDiscoveryNode(TransportAddress... transportAddress) {
         transportAddresses.addAll(Arrays.asList(transportAddress));

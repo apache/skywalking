@@ -30,8 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- /**
- * @author yi.liang
  * date 2020.02.13 17:29
  */
 public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine {
@@ -52,7 +50,7 @@ public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.AdapterActionFutureInterceptor";
+                    return "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.AdapterActionFutureActionGetMethodsInterceptor";
                 }
 
                 @Override

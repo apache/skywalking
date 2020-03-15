@@ -40,12 +40,11 @@ import org.elasticsearch.cluster.node.DiscoveryNode;
 import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
-import static org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants.*;
 
 /**
- * @author oatiz.
+ * date 2020.02.13 20:50
  */
-public class TransportActionNodeProxyInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
+public class TransportActionNodeProxyExecuteMethodsInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
@@ -54,12 +53,12 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
         TransportClientEnhanceInfo enhanceInfo = (TransportClientEnhanceInfo) objInst.getSkyWalkingDynamicField();
         ActionRequest request = (ActionRequest) allArguments[1];
         String opType = request.getClass().getSimpleName();
-        String operationName = DB_TYPE + "/" + opType;
+        String operationName = Constants.DB_TYPE + "/" + opType;
         AbstractSpan span = ContextManager.createExitSpan(operationName, enhanceInfo.transportAddresses());
         span.setComponent(ComponentsDefine.TRANSPORT_CLIENT);
-        Tags.DB_TYPE.set(span, DB_TYPE);
+        Tags.DB_TYPE.set(span, Constants.DB_TYPE);
         Tags.DB_INSTANCE.set(span, enhanceInfo.getClusterName());
-        span.tag(ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
+        span.tag(Constants.ES_NODE, ((DiscoveryNode) allArguments[0]).getAddress().toString());
         parseRequestInfo(request, span);
 
         SpanLayer.asDB(span);
@@ -84,75 +83,69 @@ public class TransportActionNodeProxyInterceptor implements InstanceConstructorI
         objInst.setSkyWalkingDynamicField(actions.getSkyWalkingDynamicField());
     }
 
-
     private void parseRequestInfo(ActionRequest request, AbstractSpan span) {
         // search request
         if (request instanceof SearchRequest) {
-            parseSearchRequest(request, span);
+            parseSearchRequest((SearchRequest) request, span);
             return;
         }
         // get request
         if (request instanceof GetRequest) {
-            parseGetRequest(request, span);
+            parseGetRequest((GetRequest) request, span);
             return;
         }
         // index request
         if (request instanceof IndexRequest) {
-            parseIndexRequest(request, span);
+            parseIndexRequest((IndexRequest) request, span);
             return;
         }
         // update request
         if (request instanceof UpdateRequest) {
-            parseUpdateRequest(request, span);
+            parseUpdateRequest((UpdateRequest) request, span);
             return;
         }
         // delete request
         if (request instanceof DeleteRequest) {
-            parseDeleteRequest(request, span);
+            parseDeleteRequest((DeleteRequest) request, span);
             return;
         }
     }
 
-    private void parseSearchRequest(ActionRequest request, AbstractSpan span) {
-        SearchRequest searchRequest = (SearchRequest) request;
-        span.tag(ES_INDEX, StringUtil.join(',', searchRequest.indices()));
-        span.tag(ES_TYPE, StringUtil.join(',', searchRequest.types()));
+    private void parseSearchRequest(SearchRequest searchRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, StringUtil.join(',', searchRequest.indices()));
+        span.tag(Constants.ES_TYPE, StringUtil.join(',', searchRequest.types()));
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, searchRequest.toString());
         }
     }
 
-    private void parseGetRequest(ActionRequest request, AbstractSpan span) {
-        GetRequest getRequest = (GetRequest) request;
-        span.tag(ES_INDEX, getRequest.index());
-        span.tag(ES_TYPE, getRequest.type());
+    private void parseGetRequest(GetRequest getRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, getRequest.index());
+        span.tag(Constants.ES_TYPE, getRequest.type());
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, getRequest.toString());
         }
     }
 
-    private void parseIndexRequest(ActionRequest request, AbstractSpan span) {
-        IndexRequest indexRequest = (IndexRequest) request;
-        span.tag(ES_INDEX, indexRequest.index());
-        span.tag(ES_TYPE, indexRequest.type());
+    private void parseIndexRequest(IndexRequest indexRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, indexRequest.index());
+        span.tag(Constants.ES_TYPE, indexRequest.type());
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, indexRequest.toString());
         }
     }
 
-    private void parseUpdateRequest(ActionRequest request, AbstractSpan span) {
-        UpdateRequest updateRequest = (UpdateRequest) request;
-        span.tag(ES_INDEX, updateRequest.index());
-        span.tag(ES_TYPE, updateRequest.type());
+    private void parseUpdateRequest(UpdateRequest updateRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, updateRequest.index());
+        span.tag(Constants.ES_TYPE, updateRequest.type());
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, updateRequest.toString());
         }
     }
 
-    private void parseDeleteRequest(ActionRequest request, AbstractSpan span) {
-        DeleteRequest deleteRequest = (DeleteRequest) request;
-        span.tag(ES_INDEX, deleteRequest.index());
-        span.tag(ES_TYPE, deleteRequest.type());
+    private void parseDeleteRequest(DeleteRequest deleteRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, deleteRequest.index());
+        span.tag(Constants.ES_TYPE, deleteRequest.type());
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, deleteRequest.toString());
         }

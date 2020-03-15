@@ -24,13 +24,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceInfo;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportAddressCache;
+import org.elasticsearch.action.support.AdapterActionFuture;
 import org.elasticsearch.common.transport.TransportAddress;
 
 import java.lang.reflect.Method;
 
 /**
- * @author yi.liang
- * @since JDK1.8
  * date 2020.02.13 20:50
  */
 public class TransportClientNodesServiceInterceptor implements InstanceConstructorInterceptor {
@@ -92,6 +91,29 @@ public class TransportClientNodesServiceInterceptor implements InstanceConstruct
         @Override
         public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                           Class<?>[] argumentsTypes, Throwable t) {
+
+        }
+    }
+
+    public static class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
+
+        @Override
+        public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+
+            // tracking AdapterActionFuture.actionGet
+            if (allArguments.length >= 2 && allArguments[1] instanceof AdapterActionFuture) {
+                AdapterActionFuture actionFuture = (AdapterActionFuture) allArguments[1];
+                ((EnhancedInstance) actionFuture).setSkyWalkingDynamicField(true);
+            }
+        }
+
+        @Override
+        public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+            return null;
+        }
+
+        @Override
+        public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
 
         }
     }
