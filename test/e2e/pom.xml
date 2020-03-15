@@ -45,6 +45,7 @@
         <module>e2e-profile</module>
         <module>e2e-protocol</module>
         <module>e2e-http-api-with-nginx-lua</module>
+        <module>e2e-ssl</module>
     </modules>
 
     <properties>

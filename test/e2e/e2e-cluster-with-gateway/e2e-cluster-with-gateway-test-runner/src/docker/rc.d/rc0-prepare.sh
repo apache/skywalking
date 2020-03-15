@@ -20,8 +20,6 @@ if test "${MODE}" = "cluster"; then
 
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
-        && gawk -f /clusterize.awk application.yml > clusterized_app.yml \
-        && mv clusterized_app.yml application.yml \
         && echo '
 gateways:
   - name: proxy0

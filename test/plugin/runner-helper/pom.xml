@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runner-helper</artifactId>
-    <name>plugin-runner-helper</name>
+    <name>SkyWalking Plugin Test Runner Helper</name>
 
     <dependencies>
         <dependency>

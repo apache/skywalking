@@ -44,6 +44,14 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     private int gRPCPort;
     @Setter
+    private boolean gRPCSslEnabled = false;
+    @Setter
+    private String gRPCSslKeyPath;
+    @Setter
+    private String gRPCSslCertChainPath;
+    @Setter
+    private String gRPCSslTrustedCAPath;
+    @Setter
     private int maxConcurrentCallsPerConnection;
     @Setter
     private int maxMessageSize;

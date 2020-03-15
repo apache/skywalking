@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.io.IOException;
 import org.apache.skywalking.apm.network.common.Command;
 import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
@@ -42,7 +43,7 @@ public class ProtoBufJsonUtilsTest {
             "      \"parentSpanId\": 0,\n" +
             "      \"componentId\": 6000,\n" +
             "      \"peer\": \"User Service Name-nginx:upstream_ip:port\",\n" +
-            "      \"spanLayer\": \"HTTP\"\n" +
+            "      \"spanLayer\": \"Http\"\n" +
             "    },\n" +
             "    {\n" +
             "      \"operationName\": \"/tier2/lb\",\n" +
@@ -83,7 +84,7 @@ public class ProtoBufJsonUtilsTest {
             "          \"entryEndpoint\": \"/ingress\"\n" +
             "        }\n" +
             "      ],\n" +
-            "      \"spanLayer\": \"HTTP\"\n" +
+            "      \"spanLayer\": \"Http\"\n" +
             "    }\n" +
             "  ],\n" +
             "  \"serviceInstanceId\": 1,\n" +
@@ -116,6 +117,7 @@ public class ProtoBufJsonUtilsTest {
             ProtoBufJsonUtils.fromJSON(json, segBuilder);
             SegmentObject segmentObject = segBuilder.build();
             Assert.assertEquals(2, segmentObject.getSpansCount());
+            Assert.assertEquals(SpanLayer.Http, segmentObject.getSpans(0).getSpanLayer());
         } catch (IOException e) {
             e.printStackTrace();
         }

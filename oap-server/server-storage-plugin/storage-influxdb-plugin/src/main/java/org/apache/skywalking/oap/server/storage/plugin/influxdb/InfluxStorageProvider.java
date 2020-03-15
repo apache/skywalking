@@ -86,7 +86,7 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public String name() {
-        return "influx";
+        return "influxdb";
     }
 
     @Override

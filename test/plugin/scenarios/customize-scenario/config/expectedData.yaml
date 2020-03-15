@@ -15,14 +15,14 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {customize-scenario: nq 0}
   instances:
     - {customize-scenario: 1}
   operationNames:
     - customize-scenario: [/case/customize]
 segmentItems:
-  - applicationCode: customize-scenario
+  - serviceName: customize-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null
