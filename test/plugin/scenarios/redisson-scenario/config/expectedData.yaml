@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {redisson-scenario: 2}
   instances:
     - {redisson-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
     - redisson-scenario: [/case/healthCheck, /case/redisson-case]
   heartbeat: []
 segmentItems:
-  - applicationCode: redisson-scenario
+  - serviceName: redisson-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -62,13 +63,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ *
+ */
+@Slf4j
 public class ElasticSearch7Client extends ElasticSearchClient {
-
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearch7Client.class);
-
     public ElasticSearch7Client(final String clusterNodes,
                                 final String protocol,
                                 final String trustStorePath,
@@ -84,6 +84,13 @@ public class ElasticSearch7Client extends ElasticSearchClient {
 
     @Override
     public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Throwable t) {
+                log.error("ElasticSearch7 client reconnection fails based on new config", t);
+            }
+        }
         List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
         client = createClient(hosts);
         client.ping(RequestOptions.DEFAULT);
@@ -94,7 +101,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
 
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
-        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -105,7 +112,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         request.settings(settings);
         request.mapping(mapping);
         CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
-        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -127,7 +134,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         }
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         AcknowledgedResponse response = client.indices().delete(request, RequestOptions.DEFAULT);
-        logger.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -234,7 +241,7 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         deleteByQueryRequest.setAbortOnVersionConflict(false);
         deleteByQueryRequest.setQuery(QueryBuilders.rangeQuery(timeBucketColumnName).lte(endTimeBucket));
         BulkByScrollResponse bulkByScrollResponse = client.deleteByQuery(deleteByQueryRequest, RequestOptions.DEFAULT);
-        logger.debug(
+        log.debug(
             "delete indexName: {}, by query request: {}, response: {}", indexName, deleteByQueryRequest,
             bulkByScrollResponse
         );
@@ -248,9 +255,9 @@ public class ElasticSearch7Client extends ElasticSearchClient {
         try {
             int size = request.requests().size();
             BulkResponse responses = client.bulk(request, RequestOptions.DEFAULT);
-            logger.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+            log.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 

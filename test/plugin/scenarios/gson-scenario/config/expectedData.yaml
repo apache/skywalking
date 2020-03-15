@@ -14,14 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {gson-scenario: nq 0}
   instances:
     - {gson-scenario: nq 0}
   operationNames:
     - gson-scenario: [/gson-scenario/case/gson-scenario]
 segmentItems:
-- applicationCode: gson-scenario
+- serviceName: gson-scenario
   segmentSize: ge 2
   segments:
   - segmentId: nq 0

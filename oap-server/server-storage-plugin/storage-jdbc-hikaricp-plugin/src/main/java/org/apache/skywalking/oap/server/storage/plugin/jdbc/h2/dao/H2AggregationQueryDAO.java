@@ -101,19 +101,13 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
         List<TopNEntity> topNEntities = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
-
-                try {
-                    while (resultSet.next()) {
-                        TopNEntity topNEntity = new TopNEntity();
-                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                        topNEntity.setValue(resultSet.getLong("value"));
-                        topNEntities.add(topNEntity);
-                    }
-                } catch (SQLException e) {
-                    throw new IOException(e);
-                }
+        try (Connection connection = h2Client.getConnection();
+             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
+            while (resultSet.next()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
+                topNEntity.setValue(resultSet.getLong("value"));
+                topNEntities.add(topNEntity);
             }
         } catch (SQLException e) {
             throw new IOException(e);

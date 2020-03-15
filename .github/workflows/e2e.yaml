@@ -58,6 +58,13 @@ jobs:
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-reboot
       - name: Agent Auth Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-auth
+      - name: Agent and OAP SSL Tests(JDK8)
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ssl
+      - uses: actions/upload-artifact@v1.0.0
+        if: always()
+        with:
+          name: logs
+          path: /tmp/logs
 
   Cluster:
     runs-on: ubuntu-latest
@@ -87,15 +94,15 @@ jobs:
       - name: Cluster Tests (InfluxDB/ZK/JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=influxdb
       - name: Cluster With Gateway Tests (ES6/ZK/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster-with-gateway/e2e-cluster-with-gateway-test-runner
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster-with-gateway/e2e-cluster-with-gateway-test-runner --storage=elasticsearch
       - name: Cluster Tests (ES7/ZK/JDK8)
         run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=elasticsearch
       - name: TTL ES Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es --storage=elasticsearch
       - name: TTL ES7 Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es
+        run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es --storage=elasticsearch7
       - name: TTL InfluxDB Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-influxdb
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-influxdb --storage=influxdb
 
   Compatibilities:
     runs-on: ubuntu-latest

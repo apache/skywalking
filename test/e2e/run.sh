@@ -69,10 +69,16 @@ do
   # so we give each test a separate distribution folder here
   mkdir -p "$test_case" && tar -zxf dist/${DIST_PACKAGE} -C "$test_case"
 
+  SW_STORAGE=${storage}
+  if [[ ${storage} = "elasticsearch" && ${ES_VERSION} =~ ^7 ]]; then
+    SW_STORAGE=elasticsearch7
+  fi
+
   ./mvnw --batch-mode -Dbuild.id="${BUILD_ID:-local}" \
          -De2e.container.version="${E2E_VERSION}" \
          -Delasticsearch.version="${ES_VERSION}" \
          -Dsw.home="${base_dir}/$test_case/${DIST_PACKAGE//.tar.gz/}" \
+         -DSW_STORAGE=${SW_STORAGE} \
          `if [ ! -z "${storage}" ] ; then echo -P"${storage}"; fi` \
          -f test/e2e/pom.xml -pl "$test_case" -am verify
 

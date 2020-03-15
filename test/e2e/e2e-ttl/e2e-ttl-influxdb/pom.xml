@@ -94,6 +94,7 @@
                             <run>
                                 <env>
                                     <MODE>standalone</MODE>
+                                    <SW_STORAGE>${SW_STORAGE}</SW_STORAGE>
                                     <SW_STORAGE_INFLUXDB_URL>http://${e2e.container.name.prefix}-influxdb:8086</SW_STORAGE_INFLUXDB_URL>
                                 </env>
                                 <dependsOn>

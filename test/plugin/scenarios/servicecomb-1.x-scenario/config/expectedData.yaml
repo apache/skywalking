@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {servicecomb-1.x-scenario: 2}
   instances:
     - {servicecomb-1.x-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
     - servicecomb-1.x-scenario: [codefirst.codeFirstSpringmvcHelloClient.say, codefirst.codeFirstHello.sayHi]
   heartbeat: []
 segmentItems:
-  - applicationCode: servicecomb-1.x-scenario
+  - serviceName: servicecomb-1.x-scenario
     segmentSize: gt 2
     segments:
       - segmentId: not null

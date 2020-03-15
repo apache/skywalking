@@ -42,6 +42,7 @@
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
+  * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0

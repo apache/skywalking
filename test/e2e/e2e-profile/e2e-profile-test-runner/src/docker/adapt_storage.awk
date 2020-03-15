@@ -40,7 +40,7 @@ BEGIN {
             } else if (ENVIRON["STORAGE"] ~ /^h2.*$/) {
                 in_storage_type_section=$0 ~ /^#?\s+h2:$/
             } else if (ENVIRON["STORAGE"] ~ /^influx.*$/) {
-                in_storage_type_section=$0 ~ /^#?\s+influx:$/
+                in_storage_type_section=$0 ~ /^#?\s+influxdb:$/
             }
         } else {
             in_storage_type_section=$0 ~ /^#?\s{4}/

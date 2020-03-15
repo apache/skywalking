@@ -114,10 +114,12 @@
                             <run>
                                 <env>
                                     <MODE>cluster</MODE>
+                                    <SW_STORAGE>${SW_STORAGE}</SW_STORAGE>
                                     <ES_VERSION>${elasticsearch.version}</ES_VERSION>
                                     <SW_STORAGE_ES_CLUSTER_NODES>
                                         ${e2e.container.name.prefix}-elasticsearch:9200
                                     </SW_STORAGE_ES_CLUSTER_NODES>
+                                    <SW_CLUSTER>zookeeper</SW_CLUSTER>
                                     <SW_CLUSTER_ZK_HOST_PORT>
                                         ${e2e.container.name.prefix}-zookeeper:2181
                                     </SW_CLUSTER_ZK_HOST_PORT>

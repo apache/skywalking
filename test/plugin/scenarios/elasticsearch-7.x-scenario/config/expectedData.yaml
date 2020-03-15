@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
   - {elasticsearch-7.x-scenario: nq 0}
   instances:
   - {elasticsearch-7.x-scenario: 1}
@@ -22,7 +22,7 @@ registryItems:
   - elasticsearch-7.x-scenario: [/elasticsearch-case/case/elasticsearch]
   heartbeat: []
 segmentItems:
-- applicationCode: elasticsearch-7.x-scenario
+- serviceName: elasticsearch-7.x-scenario
   segmentSize: ge 1
   segments:
   - segmentId: not null

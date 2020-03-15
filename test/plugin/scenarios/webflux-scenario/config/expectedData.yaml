@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {webflux-projectB-scenario: nq 0}
     - {webflux-projectA-scenario: nq 0}
   instances:
@@ -26,7 +26,7 @@ registryItems:
     - webflux-projectA-scenario: [/projectA/testcase]
   heartbeat: []
 segmentItems:
-  - applicationCode: webflux-projectB-scenario
+  - serviceName: webflux-projectB-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null
@@ -221,7 +221,7 @@ segmentItems:
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 8, parentTraceSegmentId: not null,
                  parentServiceInstanceId: not null, networkAddress: 'localhost:18080', entryEndpoint: /projectA/testcase,
                  entryServiceInstanceId: not null}
-  - applicationCode: webflux-projectA-scenario
+  - serviceName: webflux-projectA-scenario
     segmentSize: nq 0
     segments:
       - segmentId: not null

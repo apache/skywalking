@@ -100,7 +100,7 @@ function startMinikubeNone() {
 
   sudo -E minikube config set WantUpdateNotification false
   sudo -E minikube config set WantReportErrorPrompt false
-  sudo -E minikube start --kubernetes-version=${K8S_VER#k8s-} --vm-driver=none
+  sudo -E minikube start --kubernetes-version=${K8S_VER#k8s-} --driver=none
 }
 
 function stopMinikube() {
