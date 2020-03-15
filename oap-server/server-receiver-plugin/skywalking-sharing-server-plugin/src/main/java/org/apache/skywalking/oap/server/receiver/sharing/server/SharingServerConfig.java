@@ -41,4 +41,7 @@ public class SharingServerConfig extends ModuleConfig {
     private int gRPCThreadPoolSize;
     private int gRPCThreadPoolQueueSize;
     private String authentication;
+    private boolean gRPCSslEnabled = false;
+    private String gRPCSslKeyPath;
+    private String gRPCSslCertChainPath;
 }

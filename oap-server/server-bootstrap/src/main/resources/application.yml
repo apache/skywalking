@@ -58,6 +58,10 @@ core:
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
+    gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAPath: ${SW_CORE_GRPC_SSL_TRUSTED_CA_PATH:""}
     downsampling:
       - Hour
       - Day
@@ -173,6 +177,9 @@ storage:
 receiver-sharing-server:
   default:
     authentication: ${SW_AUTHENTICATION:""}
+    gRPCSslEnabled: ${SW_RECEIVER_SHARING_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_RECEIVER_SHARING_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_RECEIVER_SHARING_GRPC_SSL_CERT_CHAIN_PATH:""}
 receiver-register:
   default:
 receiver-trace:

@@ -58,6 +58,13 @@ jobs:
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-reboot
       - name: Agent Auth Tests(JDK8)
         run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-auth
+      - name: Agent and OAP SSL Tests(JDK8)
+        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ssl
+      - uses: actions/upload-artifact@v1.0.0
+        if: always()
+        with:
+          name: logs
+          path: /tmp/logs
 
   Cluster:
     runs-on: ubuntu-latest
