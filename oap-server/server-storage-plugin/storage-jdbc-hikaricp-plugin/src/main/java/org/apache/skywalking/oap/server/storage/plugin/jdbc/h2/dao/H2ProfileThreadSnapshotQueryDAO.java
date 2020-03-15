@@ -79,9 +79,8 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         // search traces
         sql = new StringBuilder();
         sql.append("select * from ").append(SegmentRecord.INDEX_NAME).append(" where ");
-        sql.append(" 1=1 ");
         for (int i = 0; i < segments.size(); i++) {
-            sql.append(" and ").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
+            sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
         }
         sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append(SortOrder.DESC);
 
