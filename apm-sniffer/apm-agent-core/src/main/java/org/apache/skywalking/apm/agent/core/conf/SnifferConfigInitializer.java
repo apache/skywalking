@@ -76,6 +76,7 @@ public class SnifferConfigInitializer {
             logger.error(e, "Failed to read the system properties.");
         }
 
+        agentOptions = StringUtil.trim(agentOptions, ',');
         if (!StringUtil.isEmpty(agentOptions)) {
             try {
                 agentOptions = agentOptions.trim();
