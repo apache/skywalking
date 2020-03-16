@@ -48,7 +48,7 @@ public class ApplicationConfiguration {
     /**
      * The configurations about a certain module.
      */
-    public class ModuleConfiguration {
+    public static class ModuleConfiguration {
         private HashMap<String, ProviderConfiguration> providers = new HashMap<>();
 
         private ModuleConfiguration() {
@@ -72,7 +72,7 @@ public class ApplicationConfiguration {
     /**
      * The configuration about a certain provider of a module.
      */
-    public class ProviderConfiguration {
+    public static class ProviderConfiguration {
         private Properties properties;
 
         ProviderConfiguration(Properties properties) {

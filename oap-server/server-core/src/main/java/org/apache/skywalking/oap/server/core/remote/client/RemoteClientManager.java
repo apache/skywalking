@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import io.grpc.netty.GrpcSslContexts;
+import io.netty.handler.ssl.SslContext;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +59,7 @@ public class RemoteClientManager implements Service {
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
+    private SslContext sslContext;
     private ClusterNodesQuery clusterNodesQuery;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
@@ -62,11 +67,29 @@ public class RemoteClientManager implements Service {
 
     /**
      * Initial the manager for all remote communication clients.
-     *
      * @param moduleDefineHolder for looking up other modules
      * @param remoteTimeout      for cluster internal communication, in second unit.
+     * @param trustedCAFile         SslContext to verify server certificates.
      */
-    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
+    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder,
+                               int remoteTimeout,
+                               File trustedCAFile) {
+        this(moduleDefineHolder, remoteTimeout);
+        try {
+            sslContext = GrpcSslContexts.forClient().trustManager(trustedCAFile).build();
+        } catch (SSLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * Initial the manager for all remote communication clients.
+     *
+     * Initial the manager for all remote communication clients.
+     *  @param moduleDefineHolder for looking up other modules
+     * @param remoteTimeout      for cluster internal communication, in second unit.
+     */
+    public RemoteClientManager(final ModuleDefineHolder moduleDefineHolder, final int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.usingClients = ImmutableList.of();
         this.remoteTimeout = remoteTimeout;
@@ -197,7 +220,8 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         newRemoteClients.add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
+                        RemoteClient client;
+                        client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout, sslContext);
                         client.connect();
                         newRemoteClients.add(client);
                     }

@@ -33,6 +33,7 @@ public class ApplicationConfigLoaderTestCase {
 
     @Before
     public void setUp() throws ConfigFileNotFoundException {
+        System.setProperty("SW_STORAGE", "mysql");
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
         applicationConfiguration = configLoader.load();
     }
