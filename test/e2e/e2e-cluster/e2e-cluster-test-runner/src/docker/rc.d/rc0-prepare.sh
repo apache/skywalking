@@ -29,8 +29,6 @@ if test "${MODE}" = "cluster"; then
 
     # substitute application.yml to be capable of cluster mode
     cd ${SW_HOME}/config \
-        && gawk -f /clusterize.awk application.yml > clusterized_app.yml \
-        && mv clusterized_app.yml application.yml \
         && sed '/<Loggers>/a<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig" level="DEBUG"/>\
         \n<logger name="org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service.ServiceMappingSpanListener" level="DEBUG"/>' log4j2.xml > log4j2debuggable.xml \
         && mv log4j2debuggable.xml log4j2.xml

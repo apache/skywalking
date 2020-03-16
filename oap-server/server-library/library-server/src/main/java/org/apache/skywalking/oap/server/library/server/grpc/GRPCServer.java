@@ -84,8 +84,7 @@ public class GRPCServer implements Server {
      * @param privateKeyFile `server.pem` file
      */
     public GRPCServer(String host, int port, File certChainFile, File privateKeyFile) {
-        this.host = host;
-        this.port = port;
+        this(host, port);
         this.certChainFile = certChainFile;
         this.privateKeyFile = privateKeyFile;
         this.sslContextBuilder = SslContextBuilder.forServer(certChainFile, privateKeyFile);
