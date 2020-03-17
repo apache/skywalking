@@ -161,7 +161,7 @@ jobs:
         run: bash test/plugin/run.sh feign-scenario
       - name: Run springcloud feign 1.1.x (8)
         run: bash test/plugin/run.sh spring-cloud-feign-1.1.x-scenario
-      - name: Run springcloud feign 1.2.x-1.4.x(Except 1.3.3) (22)
+      - name: Run springcloud feign 1.2.x-1.4.x (23)
         run: bash test/plugin/run.sh spring-cloud-feign-1.2.x-scenario
       - name: Run springcloud feign 2.x (14)
         run: bash test/plugin/run.sh spring-cloud-feign-2.x-scenario

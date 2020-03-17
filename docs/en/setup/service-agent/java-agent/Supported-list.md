@@ -17,7 +17,7 @@
   * [Netty SocketIO](https://github.com/mrniko/netty-socketio) 1.x
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
-  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-openfeign) 1.1.x, 1.2.x, 1.3.x(Except 1.3.3), 1.4.x, 2.x
+  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-openfeign) 1.1.x -> 2.x
   * [Okhttp](https://github.com/square/okhttp) 3.x
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 2.0 -> 3.1, 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
