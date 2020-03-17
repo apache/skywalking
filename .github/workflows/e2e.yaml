@@ -24,132 +24,80 @@ on:
     tags:
       - 'v*'
 
+env:
+  SKIP_TEST: true
+  SW_AGENT_JDK_VERSION: 8
+
 jobs:
-  Single:
+  FeatureGroup01:
+    name: Feature
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        case: [auth, compatibility, ssl]
+    env:
+      SW_SIMPLE_CASE: ${{ matrix.case }}
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
-      - name: checkout submodules
+      - name: Checkout Submodules
         shell: bash
         run: |
           git submodule sync --recursive
           git -c protocol.version=2 submodule update --init --force --recursive --depth=1
-      - name: Set environment
-        run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-      - name: Compile & Install Test Codes
-        run: |
-          ./mvnw --batch-mode checkstyle:check apache-rat:check
-          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
-      - name: Single Node Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-single-service
-      - name: Single Node Tests(InfluxDB/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-influxdb
-      - name: Single Node Tests(MySQL/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-mysql
-      - name: Single Node Tests(JDK9)
-        run: export E2E_VERSION=jdk9-1.5 && bash -x test/e2e/run.sh e2e-single-service
-      - name: Single Node Tests(JDK11)
-        run: export E2E_VERSION=jdk11-1.5 && bash -x test/e2e/run.sh e2e-single-service
-      - name: Single Node Tests(JDK12)
-        run: export E2E_VERSION=jdk12-1.5 && bash -x test/e2e/run.sh e2e-single-service
-      - name: Agent Reboot Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-reboot
-      - name: Agent Auth Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-agent-auth
-      - name: Agent and OAP SSL Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ssl
-      - uses: actions/upload-artifact@v1.0.0
-        if: always()
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: ${{ matrix.case }}
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
+      - uses: actions/upload-artifact@v1
+        if: failure()
         with:
           name: logs
-          path: /tmp/logs
+          path: logs
 
-  Cluster:
+  FeatureGroup02:
+    name: Agent Reboot & Lua Nginx
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
           git submodule sync --recursive
           git -c protocol.version=2 submodule update --init --force --recursive --depth=1
-      - uses: actions/cache@v1
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: Nginx Lua
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.LuaE2E
+      - name: Agent Reboot
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.AgentRebootE2E
+      - uses: actions/upload-artifact@v1
+        if: failure()
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Set environment
-        run: export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-      - name: Compile & Install Test Codes
-        run: |
-          ./mvnw --batch-mode checkstyle:check apache-rat:check
-          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
-      - name: Cluster Tests (ES6/ZK/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=elasticsearch
-      - name: Cluster Tests (InfluxDB/ZK/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=influxdb
-      - name: Cluster With Gateway Tests (ES6/ZK/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-cluster-with-gateway/e2e-cluster-with-gateway-test-runner --storage=elasticsearch
-      - name: Cluster Tests (ES7/ZK/JDK8)
-        run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-cluster/e2e-cluster-test-runner --storage=elasticsearch
-      - name: TTL ES Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es --storage=elasticsearch
-      - name: TTL ES7 Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-es --storage=elasticsearch7
-      - name: TTL InfluxDB Tests(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-ttl/e2e-ttl-influxdb --storage=influxdb
+          name: logs
+          path: logs
 
-  Compatibilities:
+  Gateway:
+    name: Gateway
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
           git submodule sync --recursive
           git -c protocol.version=2 submodule update --init --force --recursive --depth=1
-      - name: Set environment
-        run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-      - name: Compile & Install Test Codes
-        run: |
-          ./mvnw --batch-mode checkstyle:check apache-rat:check
-          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
-      - name: 6.x Agents & 7.x Backend
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-6.x-agent-7.x-oap-compatibility
-      - name: Http API with Nginx Lua Tests In Single Node Mode(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-http-api-with-nginx-lua
-
-  Profile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
-      - name: Set environment
-        run: export MAVEN_OPTS='-Dmaven.repo.local=~/.m2/repository -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-      - name: Compile & Install Test Codes
-        run: |
-          ./mvnw --batch-mode checkstyle:check apache-rat:check
-          ./mvnw --batch-mode -Dcheckstyle.skip -Drat.skip -T2 -Dmaven.compile.fork -Dmaven.compiler.maxmem=3072 -DskipTests clean install
-          ./mvnw --batch-mode -f test/e2e/pom.xml -pl e2e-base clean install
-      - name: Profile Tests H2(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=h2
-      - name: Profile Tests MySQL(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=mysql
-      - name: Profile Tests ES6(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=elasticsearch
-      - name: Profile Tests InfluxDB(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=influxdb
-      - name: Profile Tests ES7(JDK8)
-        run: export E2E_VERSION=jdk8-1.5 DIST_PACKAGE=apache-skywalking-apm-bin-es7.tar.gz ES_VERSION=7.4.2 && bash -x test/e2e/run.sh e2e-profile/e2e-profile-test-runner --storage=elasticsearch
+      - name: Compile and Build
+        run: make docker
+      - name: Copy dist package
+        run: cp -R dist test/e2e/
+      - name: Uninstrumnented gateway
+        run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.GatewayE2E
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: logs
+          path: logs
