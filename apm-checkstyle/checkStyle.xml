@@ -120,12 +120,12 @@
         </module>
 
         <module name="ImportControl">
-            <property name="file" value="apm-checkstyle/importControl.xml"/>
+            <property name="file" value="${import.control}"/>
             <property name="path" value="apm-sniffer/(apm-sdk-plugin|bootstrap-plugins|optional-plugins)/.+/src/main/.+Instrumentation.java$"/>
         </module>
 
         <module name="ImportControl">
-            <property name="file" value="apm-checkstyle/importControl.xml"/>
+            <property name="file" value="${import.control}"/>
             <property name="path" value="apm-sniffer/apm-toolkit-activation/.+/src/main/.+Activation.java$"/>
         </module>
     </module>
