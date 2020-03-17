@@ -354,9 +354,8 @@ public class TracingContext implements AbstractTracerContext {
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
             /**
-             * Only add the profiling recheck on change entry span operationId/Name.
-             * Because Change name only happen on entry span.
-             * Exit and local span will check need profiling on construct the context.
+             * Only add the profiling recheck on creating entry span,
+             * as the operation name could be overrided.
              */
             profilingRecheck(parentSpan, operationName);
             entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
