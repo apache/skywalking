@@ -195,7 +195,7 @@
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <com.google.protobuf.protoc.version>3.3.0</com.google.protobuf.protoc.version>
         <protoc-gen-grpc-java.plugin.version>1.8.0</protoc-gen-grpc-java.plugin.version>
-        <netty-tcnative-boringssl-static.version>2.0.25.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
 
         <!-- Plugin versions -->
         <docker.plugin.version>0.4.13</docker.plugin.version>
@@ -464,6 +464,10 @@
                         <!-- generated file from test agent plugin scenarios -->
                         <exclude>**/test/plugin/workspace/**</exclude>
 
+                        <!-- TSL relevant files for e2e test -->
+                        <exclude>**/*.crt</exclude>
+                        <exclude>**/*.pem</exclude>
+
                         <exclude>.m2/**</exclude>
                     </excludes>
                 </configuration>
@@ -557,6 +561,9 @@
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java
                     </excludes>
+                    <propertyExpansion>
+                        import.control=apm-checkstyle/importControl.xml
+                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>

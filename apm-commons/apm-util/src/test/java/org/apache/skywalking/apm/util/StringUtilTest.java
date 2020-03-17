@@ -57,4 +57,11 @@ public class StringUtilTest {
         Assert.assertEquals(2, StringUtil.cut(shortStr, 10).length());
     }
 
+    @Test
+    public void testTrim() {
+        Assert.assertEquals(StringUtil.trim("aaabcdefaaa", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("bcdef", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("abcdef", 'a'), "bcdef");
+        Assert.assertEquals(StringUtil.trim("abcdef", 'f'), "abcde");
+    }
 }

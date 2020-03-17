@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import io.netty.handler.ssl.SslContext;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +52,7 @@ public class GRPCRemoteClient implements RemoteClient {
     private final int bufferSize;
     private final Address address;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
+    private SslContext sslContext;
     private GRPCClient client;
     private DataCarrier<RemoteMessage> carrier;
     private boolean isConnect;
@@ -58,23 +60,29 @@ public class GRPCRemoteClient implements RemoteClient {
     private CounterMetrics remoteOutErrorCounter;
     private int remoteTimeout;
 
-    public GRPCRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address, int channelSize, int bufferSize,
-        int remoteTimeout) {
+    public GRPCRemoteClient(final ModuleDefineHolder moduleDefineHolder,
+                            final Address address,
+                            final int channelSize,
+                            final int bufferSize,
+                            final int remoteTimeout,
+                            final SslContext sslContext) {
+
         this.address = address;
         this.channelSize = channelSize;
         this.bufferSize = bufferSize;
         this.remoteTimeout = remoteTimeout;
+        this.sslContext = sslContext;
 
         remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                              .provider()
                                              .getService(MetricsCreator.class)
                                              .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
-                                                 .toString(), "N"));
+                                                                                                                                                                                                                 .toString(), "N"));
         remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                                   .provider()
                                                   .getService(MetricsCreator.class)
                                                   .createCounter("remote_out_error_count", "The error number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
-                                                      .toString(), "N"));
+                                                                                                                                                                                                                                  .toString(), "N"));
     }
 
     @Override
@@ -99,7 +107,7 @@ public class GRPCRemoteClient implements RemoteClient {
         if (Objects.isNull(client)) {
             synchronized (GRPCRemoteClient.class) {
                 if (Objects.isNull(client)) {
-                    this.client = new GRPCClient(address.getHost(), address.getPort());
+                    this.client = new GRPCClient(address.getHost(), address.getPort(), sslContext);
                 }
             }
         }

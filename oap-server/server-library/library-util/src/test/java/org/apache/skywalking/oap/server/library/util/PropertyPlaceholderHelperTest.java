@@ -47,11 +47,13 @@ public class PropertyPlaceholderHelperTest {
     @Before
     public void init() throws FileNotFoundException {
         Reader applicationReader = ResourceUtils.read("application.yml");
-        Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
+        Map<String, Map<String, Object>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
         if (CollectionUtils.isNotEmpty(moduleConfig)) {
             moduleConfig.forEach((moduleName, providerConfig) -> {
+                selectConfig(providerConfig);
                 if (providerConfig.size() > 0) {
-                    providerConfig.forEach((name, propertiesConfig) -> {
+                    providerConfig.forEach((name, config) -> {
+                        final Map<String, ?> propertiesConfig = (Map<String, ?>) config;
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> properties.put(key, value));
                         }
@@ -92,4 +94,18 @@ public class PropertyPlaceholderHelperTest {
         //revert environment variables changes after the test for safe.
         environmentVariables.clear("REST_HOST");
     }
+
+    private void selectConfig(final Map<String, Object> configuration) {
+        if (configuration.size() <= 1) {
+            return;
+        }
+        if (configuration.containsKey("selector")) {
+            final String selector = (String) configuration.get("selector");
+            final String resolvedSelector = PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(
+                selector, System.getProperties()
+            );
+            configuration.entrySet().removeIf(e -> !resolvedSelector.equals(e.getKey()));
+        }
+    }
+
 }
