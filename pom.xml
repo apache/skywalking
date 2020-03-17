@@ -561,6 +561,9 @@
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java
                     </excludes>
+                    <propertyExpansion>
+                        import.control=apm-checkstyle/importControl.xml
+                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>
