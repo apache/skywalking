@@ -30,7 +30,11 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceInfo;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.junit.Assert;
@@ -51,9 +55,6 @@ import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-/**
- * date 2020.03.15 21:02
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
@@ -70,8 +71,20 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
     @Mock
     private DiscoveryNode discoveryNode;
 
+//    @Mock
+//    private SearchRequest searchRequest;
+
     @Mock
     private GetRequest getRequest;
+
+    @Mock
+    private IndexRequest indexRequest;
+
+    @Mock
+    private UpdateRequest updateRequest;
+
+    @Mock
+    private DeleteRequest deleteRequest;
 
     @Mock
     private TransportClientEnhanceInfo enhanceInfo;
@@ -85,8 +98,24 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         TransportAddress transportAddress = new TransportAddress(inetSocketAddress);
         when(discoveryNode.getAddress()).thenReturn(transportAddress);
 
-        when(enhanceInfo.transportAddresses()).thenReturn("122.122.122.122:9300;");
+        when(enhanceInfo.transportAddresses()).thenReturn("122.122.122.122:9300");
+        when(enhanceInfo.getClusterName()).thenReturn("skywalking-es");
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(enhanceInfo);
+
+//        when(searchRequest.indices()).thenReturn(new String[]{"endpoint"});
+//        when(searchRequest.types()).thenReturn(new String[]{"searchType"});
+
+        when(getRequest.index()).thenReturn("endpoint");
+        when(getRequest.type()).thenReturn("getType");
+
+        when(indexRequest.index()).thenReturn("endpoint");
+        when(indexRequest.type()).thenReturn("indexType");
+
+        when(updateRequest.index()).thenReturn("endpoint");
+        when(updateRequest.type()).thenReturn("updateType");
+
+        when(deleteRequest.index()).thenReturn("endpoint");
+        when(deleteRequest.type()).thenReturn("deleteType");
 
         interceptor = new TransportActionNodeProxyExecuteMethodsInterceptor();
     }
@@ -130,7 +159,34 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
     }
 
     @Test
-    public void testMethodsAround() throws Throwable {
+    public void testGetRequest() throws Throwable {
+
+        AbstractTracingSpan getSpan = getSpan();
+        assertGetSpan(getSpan, getRequest);
+    }
+
+    @Test
+    public void testIndexRequest() throws Throwable {
+
+        AbstractTracingSpan getSpan = getSpan();
+        assertGetSpan(getSpan, getRequest);
+    }
+
+    @Test
+    public void testUpdateRequest() throws Throwable {
+
+        AbstractTracingSpan getSpan = getSpan();
+        assertGetSpan(getSpan, getRequest);
+    }
+
+    @Test
+    public void testDeleteRequest() throws Throwable {
+
+        AbstractTracingSpan getSpan = getSpan();
+        assertGetSpan(getSpan, getRequest);
+    }
+
+    private AbstractTracingSpan getSpan() throws Throwable {
         TRACE_DSL = true;
         Object[] allArguments = new Object[]{discoveryNode, getRequest};
 
@@ -140,9 +196,8 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         List<TraceSegment> traceSegmentList = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegmentList.size(), is(1));
         TraceSegment traceSegment = traceSegmentList.get(0);
+        return SegmentHelper.getSpans(traceSegment).get(0);
 
-        AbstractTracingSpan getSpan = SegmentHelper.getSpans(traceSegment).get(0);
-        assertGetSpan(getSpan, getRequest);
     }
 
     private void assertGetSpan(AbstractTracingSpan getSpan, Object ret) {
@@ -153,7 +208,25 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         assertThat(SpanHelper.getComponentId(span), is(TRANSPORT_CLIENT.getId()));
 
         List<TagValuePair> tags = SpanHelper.getTags(span);
-        Assert.assertTrue(tags.size() > 4);
+        assertThat(tags.get(0).getValue(), is("Elasticsearch"));
+        assertThat(tags.get(1).getValue(), is("skywalking-es"));
+        assertThat(tags.get(2).getValue(), is("122.122.122.122:9300"));
+        if (ret instanceof SearchRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
+            assertThat(tags.get(4).getValue(), is("searchType"));
+        } else if (ret instanceof GetRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
+            assertThat(tags.get(4).getValue(), is("getType"));
+        } else if (ret instanceof IndexRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
+            assertThat(tags.get(4).getValue(), is("indexType"));
+        } else if (ret instanceof UpdateRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
+            assertThat(tags.get(4).getValue(), is("updateType"));
+        } else if (ret instanceof DeleteRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
+            assertThat(tags.get(4).getValue(), is("deleteType"));
+        }
 
     }
 

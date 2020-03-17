@@ -22,10 +22,8 @@ import org.elasticsearch.common.transport.TransportAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * date 2020.02.13 20:50
- */
 public class TransportAddressCache {
 
     private List<TransportAddress> transportAddresses = new ArrayList<TransportAddress>();
@@ -50,12 +48,11 @@ public class TransportAddressCache {
     }
 
     private String format() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (TransportAddress node : transportAddresses) {
-            stringBuilder.append(node.getAddress()).append(":").append(node.getPort()).append(";");
-        }
-
-        return stringBuilder.toString();
+        return String.join(","
+                , transportAddresses.stream()
+                        .map(x -> String.format("%s:%s", x.getAddress(), x.getPort()))
+                        .collect(Collectors.toList())
+        );
     }
 
     public String transportAddress() {

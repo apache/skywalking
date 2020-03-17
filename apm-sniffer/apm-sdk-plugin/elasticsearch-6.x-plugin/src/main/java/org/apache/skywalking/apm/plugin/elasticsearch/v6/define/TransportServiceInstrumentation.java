@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
+import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
@@ -70,6 +71,6 @@ public class TransportServiceInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{"org.elasticsearch.common.document.DocumentField"};
+        return new String[]{Constants.TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES};
     }
 }

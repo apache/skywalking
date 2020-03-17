@@ -29,9 +29,6 @@ import org.elasticsearch.common.transport.TransportAddress;
 
 import java.lang.reflect.Method;
 
-/**
- * date 2020.02.13 20:50
- */
 public class TransportClientNodesServiceInterceptor implements InstanceConstructorInterceptor {
 
     @Override

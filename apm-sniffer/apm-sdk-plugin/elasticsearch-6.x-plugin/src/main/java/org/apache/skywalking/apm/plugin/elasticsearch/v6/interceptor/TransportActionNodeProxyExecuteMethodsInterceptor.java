@@ -41,9 +41,6 @@ import java.lang.reflect.Method;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
 
-/**
- * date 2020.02.13 20:50
- */
 public class TransportActionNodeProxyExecuteMethodsInterceptor implements InstanceConstructorInterceptor, InstanceMethodsAroundInterceptor {
 
     @Override

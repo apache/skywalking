@@ -24,9 +24,6 @@ import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceI
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportAddressCache;
 import org.elasticsearch.common.settings.Settings;
 
-/**
- * date 2020.02.13 20:50
- */
 public class TransportServiceConInterceptor implements InstanceConstructorInterceptor {
 
     @Override
