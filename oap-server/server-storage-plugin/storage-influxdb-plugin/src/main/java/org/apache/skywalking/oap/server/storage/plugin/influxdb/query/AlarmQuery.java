@@ -64,7 +64,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
                        .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
         }
         if (!Strings.isNullOrEmpty(keyword)) {
-            recallQuery.and(contains(AlarmRecord.ALARM_MESSAGE, keyword.replaceAll("/", "\\/")));
+            recallQuery.and(contains(AlarmRecord.ALARM_MESSAGE, keyword.replaceAll("/", "\\\\/")));
         }
         if (Objects.nonNull(scopeId)) {
             recallQuery.and(eq(AlarmRecord.SCOPE, scopeId));
