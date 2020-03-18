@@ -55,7 +55,7 @@ Profile is an interaction feature. It provides the method level performance diag
 
 To start the profile analysis, user need to create the profile task
 
-<img src="http://skywalking.apache.org/ui-doc/7.0.0/profile-create.png"/>
+<img src="http://skywalking.apache.org/ui-doc/7.0.0/profile-create.png" width="220px"/>
 
 1. Select the specific service. 
 1. Set the endpoint name. This endpoint name typically is the operation name of the first span. Find this on the trace 

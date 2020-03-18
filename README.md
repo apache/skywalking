@@ -45,10 +45,10 @@ including
 
 
 # Document
-- [7.x Documents, dev version](docs/README.md).
-- [7.0.0 Documents](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
-- [6.6 Documents](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
-- [6.5 Documents](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+- [7.x Documentation, dev version](docs/README.md).
+- [7.0.0 Documentation](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
+- [6.6 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+- [6.5 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
 
 The documentation links works after the official release.
 
