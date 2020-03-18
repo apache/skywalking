@@ -45,10 +45,12 @@ including
 
 
 # Document
-- [7.x Documents](docs/README.md).
-- [6.x Documents](https://github.com/apache/skywalking/blob/6.x/docs/README.md).
+- [7.x Documents, dev version](docs/README.md).
+- [7.0.0 Documents](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
+- [6.6 Documents](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+- [6.5 Documents](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
 
-
+The documentation links works after the official release.
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
