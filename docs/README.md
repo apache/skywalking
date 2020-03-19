@@ -5,7 +5,9 @@ From here you can learn all about **SkyWalking**’s architecture, how to deploy
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 
-- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course. 
+- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course.
+
+- [UI Introduction](en/ui/README.md). Introduce the UI usage and features. 
 
 - [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. Here, you can find how to start contributing.
 
@@ -84,6 +86,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
+* [UI Introduction](en/ui/README.md). Introduce the UI usage and features.
 * [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can find how to start contributing.
   * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
   * [Process to become official Apache SkyWalking Committer](en/guides/asf/committer.md). How to become an official committer or PMC member.
