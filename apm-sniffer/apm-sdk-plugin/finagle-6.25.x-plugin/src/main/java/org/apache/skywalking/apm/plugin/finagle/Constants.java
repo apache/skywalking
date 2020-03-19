@@ -21,4 +21,6 @@ package org.apache.skywalking.apm.plugin.finagle;
 public class Constants {
 
     public static final String PENDING_OP_NAME = "pending";
+
+    public static final SWContextCarrier EMPTY_SWCONTEXTCARRIER = new SWContextCarrier();
 }
