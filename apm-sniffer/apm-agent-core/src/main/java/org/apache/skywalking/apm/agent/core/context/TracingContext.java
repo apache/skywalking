@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
+import org.apache.skywalking.apm.agent.core.profile.ThreadProfiler;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -106,9 +107,9 @@ public class TracingContext implements AbstractTracerContext {
     private final long createTime;
 
     /**
-     * profiling status
+     * profiling data
      */
-    private volatile boolean profiling;
+    private volatile ThreadProfiler profiler;
 
     /**
      * Initialize all fields with default value.
@@ -128,7 +129,7 @@ public class TracingContext implements AbstractTracerContext {
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        this.profiling = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+        this.profiler = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -509,6 +510,11 @@ public class TracingContext implements AbstractTracerContext {
         finish();
     }
 
+    @Override
+    public ThreadProfiler profiler() {
+        return this.profiler;
+    }
+
     /**
      * Re-check current trace need profiling, encase third part plugin change the operation name.
      *
@@ -521,7 +527,7 @@ public class TracingContext implements AbstractTracerContext {
             return;
         }
 
-        profiling = PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
+        profiler = PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
     }
 
     /**
@@ -686,10 +692,6 @@ public class TracingContext implements AbstractTracerContext {
 
     public long createTime() {
         return this.createTime;
-    }
-
-    public boolean isProfiling() {
-        return this.profiling;
     }
 
 }

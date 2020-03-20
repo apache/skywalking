@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.catalina.connector.Request;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -37,6 +38,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.profile.ProfilingStatus;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -83,31 +85,25 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         SpanLayer.asHttp(span);
 
         if (Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
-            final Map<String, String[]> parameterMap = new HashMap<>();
-            final org.apache.coyote.Request coyoteRequest = request.getCoyoteRequest();
-            final Parameters parameters = coyoteRequest.getParameters();
-            for (final Enumeration<String> names = parameters.getParameterNames(); names.hasMoreElements(); ) {
-                final String name = names.nextElement();
-                parameterMap.put(name, parameters.getParameterValues(name));
-            }
-
-            if (!parameterMap.isEmpty()) {
-                String tagValue = CollectionUtil.toString(parameterMap);
-                tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
-                Tags.HTTP.PARAMS.set(span, tagValue);
-            }
+            collectHttpParam(request, span);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        Request request = (Request) allArguments[0];
         HttpServletResponse response = (HttpServletResponse) allArguments[1];
 
         AbstractSpan span = ContextManager.activeSpan();
         if (IS_SERVLET_GET_STATUS_METHOD_EXIST && response.getStatus() >= 400) {
             span.errorOccurred();
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
+        }
+        // Active HTTP parameter collection automatically in the profiling context.
+        // https://github.com/apache/skywalking/issues/4542
+        if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && Objects.equals(ProfilingStatus.PROFILING, ContextManager.getProfilingStatus())) {
+            collectHttpParam(request, span);
         }
         ContextManager.stopSpan();
         ContextManager.getRuntimeContext().remove(Constants.FORWARD_REQUEST_FLAG);
@@ -120,5 +116,21 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         AbstractSpan span = ContextManager.activeSpan();
         span.log(t);
         span.errorOccurred();
+    }
+
+    private void collectHttpParam(Request request, AbstractSpan span) {
+        final Map<String, String[]> parameterMap = new HashMap<>();
+        final org.apache.coyote.Request coyoteRequest = request.getCoyoteRequest();
+        final Parameters parameters = coyoteRequest.getParameters();
+        for (final Enumeration<String> names = parameters.getParameterNames(); names.hasMoreElements(); ) {
+            final String name = names.nextElement();
+            parameterMap.put(name, parameters.getParameterValues(name));
+        }
+
+        if (!parameterMap.isEmpty()) {
+            String tagValue = CollectionUtil.toString(parameterMap);
+            tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
+            Tags.HTTP.PARAMS.set(span, tagValue);
+        }
     }
 }

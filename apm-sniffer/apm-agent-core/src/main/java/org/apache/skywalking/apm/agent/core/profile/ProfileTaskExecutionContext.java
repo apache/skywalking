@@ -74,45 +74,45 @@ public class ProfileTaskExecutionContext {
      *
      * @return is add profile success
      */
-    public boolean attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ThreadProfiler attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // check has available slot
         final int usingSlotCount = currentProfilingCount.get();
         if (usingSlotCount >= Config.Profile.MAX_PARALLEL) {
-            return false;
+            return null;
         }
 
         // check first operation name matches
         if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
-            return false;
+            return null;
         }
 
         // if out limit started profiling count then stop add profiling
         if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
-            return false;
+            return null;
         }
 
         // try to occupy slot
         if (!currentProfilingCount.compareAndSet(usingSlotCount, usingSlotCount + 1)) {
-            return false;
+            return null;
         }
 
         final ThreadProfiler threadProfiler = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
         int slotLength = profilingSegmentSlots.length();
         for (int slot = 0; slot < slotLength; slot++) {
             if (profilingSegmentSlots.compareAndSet(slot, null, threadProfiler)) {
-                break;
+                return threadProfiler;
             }
         }
-        return true;
+        return null;
     }
 
     /**
      * profiling recheck
      */
-    public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ThreadProfiler profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // if started, keep profiling
-        if (tracingContext.isProfiling()) {
-            return true;
+        if (tracingContext.profiler() != null) {
+            return tracingContext.profiler();
         }
 
         return attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);

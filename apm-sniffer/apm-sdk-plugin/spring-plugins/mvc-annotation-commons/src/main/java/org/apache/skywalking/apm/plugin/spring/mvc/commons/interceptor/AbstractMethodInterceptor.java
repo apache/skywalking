@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -32,6 +33,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.agent.core.profile.ProfilingStatus;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -109,12 +111,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 SpanLayer.asHttp(span);
 
                 if (Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
-                    final Map<String, String[]> parameterMap = request.getParameterMap();
-                    if (parameterMap != null && !parameterMap.isEmpty()) {
-                        String tagValue = CollectionUtil.toString(parameterMap);
-                        tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
-                        Tags.HTTP.PARAMS.set(span, tagValue);
-                    }
+                    collectHttpParam(request, span);
                 }
 
                 stackDepth = new StackDepth();
@@ -185,6 +182,12 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
             }
 
+            // Active HTTP parameter collection automatically in the profiling context.
+            // https://github.com/apache/skywalking/issues/4542
+            if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && Objects.equals(ProfilingStatus.PROFILING, ContextManager.getProfilingStatus())) {
+                collectHttpParam(request, span);
+            }
+
             ContextManager.stopSpan();
         }
 
@@ -195,5 +198,14 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private void collectHttpParam(HttpServletRequest request, AbstractSpan span) {
+        final Map<String, String[]> parameterMap = request.getParameterMap();
+        if (parameterMap != null && !parameterMap.isEmpty()) {
+            String tagValue = CollectionUtil.toString(parameterMap);
+            tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
+            Tags.HTTP.PARAMS.set(span, tagValue);
+        }
     }
 }

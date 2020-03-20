@@ -91,11 +91,11 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * check and add {@link TracingContext} profiling
      */
-    public boolean addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ThreadProfiler addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
-            return false;
+            return null;
         }
 
         return executionContext.attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);
@@ -104,11 +104,11 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * Re-check current trace need profiling, in case that third-party plugins change the operation name.
      */
-    public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ThreadProfiler profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
-            return false;
+            return null;
         }
 
         return executionContext.profilingRecheck(tracingContext, traceSegmentId, firstSpanOPName);
@@ -247,7 +247,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     @Override
     public void afterMainThreadFinish(TracingContext tracingContext) {
-        if (tracingContext.isProfiling()) {
+        if (tracingContext.profiler() != null) {
             // stop profiling tracing context
             ProfileTaskExecutionContext currentExecutionContext = taskExecutionContext.get();
             if (currentExecutionContext != null) {

@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.profile.ThreadProfiler;
 
 /**
  * The <code>AbstractTracerContext</code> represents the tracer context manager.
@@ -114,5 +115,11 @@ public interface AbstractTracerContext {
      * @param span to be stopped.
      */
     void asyncStop(AsyncSpan span);
+
+    /**
+     * Get current context profiler
+     * @return null if not profiling
+     */
+    ThreadProfiler profiler();
 
 }

@@ -26,6 +26,8 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.profile.ProfilingStatus;
+import org.apache.skywalking.apm.agent.core.profile.ThreadProfiler;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -223,5 +225,18 @@ public class ContextManager implements BootService {
         }
 
         return runtimeContext;
+    }
+
+    /**
+     * Get current context profiling status
+     * @return
+     */
+    public static ProfilingStatus getProfilingStatus() {
+        final AbstractTracerContext context = get();
+        if (context == null) {
+            return null;
+        }
+        final ThreadProfiler profiler = context.profiler();
+        return profiler != null ? profiler.profilingStatus() : null;
     }
 }
