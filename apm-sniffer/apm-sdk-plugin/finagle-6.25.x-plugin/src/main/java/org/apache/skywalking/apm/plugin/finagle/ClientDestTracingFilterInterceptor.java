@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.finagle;
 
 import com.twitter.finagle.Address;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
@@ -47,7 +46,7 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
     public void beforeMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
         String peer = (String) enhancedInstance.getSkyWalkingDynamicField();
         getLocalContextHolder().let(FinagleCtxs.PEER_HOST, peer);
-        tryInjectContext((ExitSpan) getSpan());
+        tryInjectContext(getSpan());
     }
 
     @Override
