@@ -29,6 +29,7 @@ import org.apache.skywalking.e2e.verification.AbstractMatcher;
 public class ProfiledSpanTagMatcher extends AbstractMatcher<ProfiledSpanTag> {
     private String key;
     private String value;
+
     @Override
     public void verify(ProfiledSpanTag profiledSpanTag) {
         if (value == null) {
