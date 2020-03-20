@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.util.StringUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -32,6 +33,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.skywalking.apm.plugin.finagle.Constants.EMPTY_SWCONTEXTCARRIER;
 
 public class CodecUtils {
 
@@ -68,21 +71,24 @@ public class CodecUtils {
      * @return
      */
     static Buf encode(SWContextCarrier swContextCarrier) {
-        ByteArrayOutputStream bos = getBos();
-        try (DataOutputStream dos = new DataOutputStream(bos)) {
-            putString(dos, swContextCarrier.getOperationName());
-            CarrierItem next = swContextCarrier.getCarrier().items();
-            while (next.hasNext()) {
-                next = next.next();
-                if (next.getHeadKey() != null && next.getHeadValue() != null) {
-                    putString(dos, next.getHeadKey());
-                    putString(dos, next.getHeadValue());
+        if (StringUtil.isNotEmpty(swContextCarrier.getOperationName())
+                && swContextCarrier.getCarrier() != null) {
+            ByteArrayOutputStream bos = getBos();
+            try (DataOutputStream dos = new DataOutputStream(bos)) {
+                putString(dos, swContextCarrier.getOperationName());
+                CarrierItem next = swContextCarrier.getCarrier().items();
+                while (next.hasNext()) {
+                    next = next.next();
+                    if (next.getHeadKey() != null && next.getHeadValue() != null) {
+                        putString(dos, next.getHeadKey());
+                        putString(dos, next.getHeadValue());
+                    }
                 }
+                bos.flush();
+                return Bufs.ownedBuf(bos.toByteArray());
+            } catch (Exception e) {
+                LOGGER.error("encode swContextCarrier exception.", e);
             }
-            bos.flush();
-            return Bufs.ownedBuf(bos.toByteArray());
-        } catch (Exception e) {
-            LOGGER.error("encode swContextCarrier exception.", e);
         }
         return Bufs.EMPTY;
     }
@@ -102,23 +108,32 @@ public class CodecUtils {
      * @return
      */
     static SWContextCarrier decode(Buf buf) {
-        ContextCarrier contextCarrier = new ContextCarrier();
-        SWContextCarrier swContextCarrier = new SWContextCarrier();
-        swContextCarrier.setContextCarrier(contextCarrier);
+        try {
+            byte[] bytes = Bufs.ownedByteArray(buf);
+            if (bytes == null || bytes.length == 0) {
+                return EMPTY_SWCONTEXTCARRIER;
+            }
+            ContextCarrier contextCarrier = new ContextCarrier();
+            SWContextCarrier swContextCarrier = new SWContextCarrier();
+            swContextCarrier.setContextCarrier(contextCarrier);
 
-        ByteBuffer byteBuffer = ByteBuffer.wrap(Bufs.ownedByteArray(buf));
-        String operationName = getNextString(byteBuffer);
-        if (operationName != null) {
-            swContextCarrier.setOperationName(operationName);
-        }
+            ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+            String operationName = getNextString(byteBuffer);
+            if (operationName != null) {
+                swContextCarrier.setOperationName(operationName);
+            }
 
-        Map<String, String> data = readToMap(byteBuffer);
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(data.get(next.getHeadKey()));
+            Map<String, String> data = readToMap(byteBuffer);
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(data.get(next.getHeadKey()));
+            }
+            return swContextCarrier;
+        } catch (Exception e) {
+            LOGGER.error("decode swContextCarrier exception.", e);
         }
-        return swContextCarrier;
+        return EMPTY_SWCONTEXTCARRIER;
     }
 
     private static void putString(DataOutputStream dos, String value) throws IOException {
