@@ -29,7 +29,7 @@
     <artifactId>apm-spring-cloud-feign-1.x-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <!-- only support spring cloud feign 1.1.x, 1.2.x, 1.3.x -->
+    <!-- only support spring cloud feign 1.1.x, 1.2.x, 1.3.x 1.4.x-->
     <name>spring-cloud-feign-1.x-plugin</name>
     <url>http://maven.apache.org</url>
 
