@@ -63,7 +63,7 @@ public class ThreadProfiler {
         if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask()
                                                                                        .getMinDurationThreshold()) {
             this.profilingStartTime = System.currentTimeMillis();
-            this.tracingContext.profilingStatus().updateStatus(ProfileStatus.PROFILING);
+            this.tracingContext.profileStatus().updateStatus(ProfileStatus.PROFILING);
         }
     }
 
@@ -71,7 +71,7 @@ public class ThreadProfiler {
      * Stop profiling status
      */
     public void stopProfiling() {
-        this.tracingContext.profilingStatus().updateStatus(ProfileStatus.STOPPED);
+        this.tracingContext.profileStatus().updateStatus(ProfileStatus.STOPPED);
     }
 
     /**

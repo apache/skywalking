@@ -247,7 +247,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     @Override
     public void afterMainThreadFinish(TracingContext tracingContext) {
-        if (tracingContext.profilingStatus().isBeingWatched()) {
+        if (tracingContext.profileStatus().isBeingWatched()) {
             // stop profiling tracing context
             ProfileTaskExecutionContext currentExecutionContext = taskExecutionContext.get();
             if (currentExecutionContext != null) {

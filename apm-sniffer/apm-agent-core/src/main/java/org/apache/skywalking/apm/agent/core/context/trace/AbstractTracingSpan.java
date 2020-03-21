@@ -361,6 +361,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     @Override
     public boolean isProfiling() {
-        return this.owner.profilingStatus().isProfiling();
+        return this.owner.profileStatus().isProfiling();
     }
 }

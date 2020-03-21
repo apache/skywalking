@@ -107,9 +107,9 @@ public class TracingContext implements AbstractTracerContext {
     private final long createTime;
 
     /**
-     * profiling status
+     * profile status
      */
-    private final ProfileStatusReference profilingStatus;
+    private final ProfileStatusReference profileStatus;
 
     /**
      * Initialize all fields with default value.
@@ -129,7 +129,7 @@ public class TracingContext implements AbstractTracerContext {
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        this.profilingStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+        this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -689,7 +689,7 @@ public class TracingContext implements AbstractTracerContext {
         return this.createTime;
     }
 
-    public ProfileStatusReference profilingStatus() {
-        return this.profilingStatus;
+    public ProfileStatusReference profileStatus() {
+        return this.profileStatus;
     }
 }

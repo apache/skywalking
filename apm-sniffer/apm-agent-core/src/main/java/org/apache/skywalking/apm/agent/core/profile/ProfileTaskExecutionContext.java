@@ -111,12 +111,12 @@ public class ProfileTaskExecutionContext {
      */
     public void profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // if started, keep profiling
-        if (tracingContext.profilingStatus().isBeingWatched()) {
+        if (tracingContext.profileStatus().isBeingWatched()) {
             return;
         }
 
         // update profiling status
-        tracingContext.profilingStatus().updateStatus(attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName).get());
+        tracingContext.profileStatus().updateStatus(attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName).get());
     }
 
     /**
