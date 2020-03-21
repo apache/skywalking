@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
-import org.apache.skywalking.apm.agent.core.profile.ThreadProfiler;
 
 /**
  * The <code>IgnoredTracerContext</code> represent a context should be ignored. So it just maintains the stack with an
@@ -104,11 +103,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     @Override
     public void asyncStop(AsyncSpan span) {
 
-    }
-
-    @Override
-    public ThreadProfiler profiler() {
-        return null;
     }
 
     public static class ListenerManager {

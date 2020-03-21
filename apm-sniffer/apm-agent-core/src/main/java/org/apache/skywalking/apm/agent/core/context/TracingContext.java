@@ -39,8 +39,8 @@ import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.profile.ProfileStatusReference;
 import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
-import org.apache.skywalking.apm.agent.core.profile.ThreadProfiler;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
@@ -107,9 +107,9 @@ public class TracingContext implements AbstractTracerContext {
     private final long createTime;
 
     /**
-     * profiling data
+     * profiling status
      */
-    private volatile ThreadProfiler profiler;
+    private final ProfileStatusReference profilingStatus;
 
     /**
      * Initialize all fields with default value.
@@ -129,7 +129,7 @@ public class TracingContext implements AbstractTracerContext {
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        this.profiler = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+        this.profilingStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
@@ -510,11 +510,6 @@ public class TracingContext implements AbstractTracerContext {
         finish();
     }
 
-    @Override
-    public ThreadProfiler profiler() {
-        return this.profiler;
-    }
-
     /**
      * Re-check current trace need profiling, encase third part plugin change the operation name.
      *
@@ -527,7 +522,7 @@ public class TracingContext implements AbstractTracerContext {
             return;
         }
 
-        profiler = PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
+        PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
     }
 
     /**
@@ -694,4 +689,7 @@ public class TracingContext implements AbstractTracerContext {
         return this.createTime;
     }
 
+    public ProfileStatusReference profilingStatus() {
+        return this.profilingStatus;
+    }
 }

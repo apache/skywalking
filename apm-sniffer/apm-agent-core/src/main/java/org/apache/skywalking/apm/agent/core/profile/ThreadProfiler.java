@@ -42,7 +42,7 @@ public class ThreadProfiler {
     private long profilingMaxTimeMills;
 
     // after min duration threshold check, it will start dump
-    private ProfilingStatus profilingStatus = ProfilingStatus.READY;
+    private final ProfileStatusReference profilingStatus;
     // thread dump sequence
     private int dumpSequence = 0;
 
@@ -52,6 +52,7 @@ public class ThreadProfiler {
         this.traceSegmentId = traceSegmentId;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
+        this.profilingStatus = ProfileStatusReference.createWithPadding();
         this.profilingMaxTimeMills = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
     }
 
@@ -62,7 +63,7 @@ public class ThreadProfiler {
         if (System.currentTimeMillis() - tracingContext.createTime() > executionContext.getTask()
                                                                                        .getMinDurationThreshold()) {
             this.profilingStartTime = System.currentTimeMillis();
-            this.profilingStatus = ProfilingStatus.PROFILING;
+            this.tracingContext.profilingStatus().updateStatus(ProfileStatus.PROFILING);
         }
     }
 
@@ -70,7 +71,7 @@ public class ThreadProfiler {
      * Stop profiling status
      */
     public void stopProfiling() {
-        this.profilingStatus = ProfilingStatus.STOPPED;
+        this.tracingContext.profilingStatus().updateStatus(ProfileStatus.STOPPED);
     }
 
     /**
@@ -145,7 +146,7 @@ public class ThreadProfiler {
         return tracingContext;
     }
 
-    public ProfilingStatus profilingStatus() {
+    public ProfileStatusReference profilingStatus() {
         return profilingStatus;
     }
 

@@ -26,7 +26,7 @@ spans:
       - key: http.method
         value: POST
       - key: http.params
-        value: "test=[1]"
+        value: "e2e=[true]"
   - spanId: 1
     parentSpanId: 0
     serviceCode: not null

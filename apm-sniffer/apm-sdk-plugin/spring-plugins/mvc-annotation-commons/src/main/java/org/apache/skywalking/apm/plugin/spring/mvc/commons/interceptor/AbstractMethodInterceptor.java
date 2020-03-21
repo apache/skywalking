@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.plugin.spring.mvc.commons.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -33,7 +32,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.agent.core.profile.ProfilingStatus;
 import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
@@ -184,7 +182,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
 
             // Active HTTP parameter collection automatically in the profiling context.
             // https://github.com/apache/skywalking/issues/4542
-            if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && Objects.equals(ProfilingStatus.PROFILING, ContextManager.getProfilingStatus())) {
+            if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
                 collectHttpParam(request, span);
             }
 

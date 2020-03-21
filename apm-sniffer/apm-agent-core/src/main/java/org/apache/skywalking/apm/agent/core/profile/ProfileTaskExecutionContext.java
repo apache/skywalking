@@ -74,48 +74,49 @@ public class ProfileTaskExecutionContext {
      *
      * @return is add profile success
      */
-    public ThreadProfiler attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ProfileStatusReference attemptProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // check has available slot
         final int usingSlotCount = currentProfilingCount.get();
         if (usingSlotCount >= Config.Profile.MAX_PARALLEL) {
-            return null;
+            return ProfileStatusReference.createWithNone();
         }
 
         // check first operation name matches
         if (!Objects.equals(task.getFistSpanOPName(), firstSpanOPName)) {
-            return null;
+            return ProfileStatusReference.createWithNone();
         }
 
         // if out limit started profiling count then stop add profiling
         if (totalStartedProfilingCount.get() > task.getMaxSamplingCount()) {
-            return null;
+            return ProfileStatusReference.createWithNone();
         }
 
         // try to occupy slot
         if (!currentProfilingCount.compareAndSet(usingSlotCount, usingSlotCount + 1)) {
-            return null;
+            return ProfileStatusReference.createWithNone();
         }
 
         final ThreadProfiler threadProfiler = new ThreadProfiler(tracingContext, traceSegmentId, Thread.currentThread(), this);
         int slotLength = profilingSegmentSlots.length();
         for (int slot = 0; slot < slotLength; slot++) {
             if (profilingSegmentSlots.compareAndSet(slot, null, threadProfiler)) {
-                return threadProfiler;
+                return threadProfiler.profilingStatus();
             }
         }
-        return null;
+        return ProfileStatusReference.createWithNone();
     }
 
     /**
      * profiling recheck
      */
-    public ThreadProfiler profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public void profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // if started, keep profiling
-        if (tracingContext.profiler() != null) {
-            return tracingContext.profiler();
+        if (tracingContext.profilingStatus().isBeingWatched()) {
+            return;
         }
 
-        return attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);
+        // update profiling status
+        tracingContext.profilingStatus().updateStatus(attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName).get());
     }
 
     /**
