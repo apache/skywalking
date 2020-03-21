@@ -41,14 +41,10 @@ public class H2ProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     }
 
     @Override
-    public List<ProfileTaskLog> getTaskLogList(String taskId) throws IOException {
+    public List<ProfileTaskLog> getTaskLogList() throws IOException {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(1);
         sql.append("select * from ").append(ProfileTaskLogRecord.INDEX_NAME).append(" where 1=1 ");
-
-        if (taskId != null) {
-            sql.append(" and ").append(ProfileTaskLogRecord.TASK_ID).append(" = ?");
-        }
 
         sql.append("ORDER BY ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" DESC ");
 
