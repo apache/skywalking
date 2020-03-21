@@ -32,7 +32,6 @@ public class ProfileStatusReference {
 
     /**
      * Create with not watching
-     * @return
      */
     public static ProfileStatusReference createWithNone() {
         return new ProfileStatusReference(ProfileStatus.NONE);
@@ -40,10 +39,9 @@ public class ProfileStatusReference {
 
     /**
      * Create with padding to profile
-     * @return
      */
     public static ProfileStatusReference createWithPadding() {
-        return new ProfileStatusReference(ProfileStatus.PADDING);
+        return new ProfileStatusReference(ProfileStatus.PENDING);
     }
 
     public ProfileStatus get() {

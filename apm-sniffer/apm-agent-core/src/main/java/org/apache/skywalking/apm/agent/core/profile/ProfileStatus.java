@@ -31,7 +31,7 @@ public enum ProfileStatus {
      * Prepare to profile, when {@link ProfileTask#getMinDurationThreshold()} is reached,
      * the status will be changed to profiling, and the thread snapshot will be started
      */
-    PADDING,
+    PENDING,
 
     /**
      * Profile operation has been started, and dump thread snapshot will continue

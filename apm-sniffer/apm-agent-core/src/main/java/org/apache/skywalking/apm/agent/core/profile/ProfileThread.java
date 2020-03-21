@@ -83,7 +83,7 @@ public class ProfileThread implements Runnable {
 
                 switch (currentProfiler.profilingStatus().get()) {
 
-                    case PADDING:
+                    case PENDING:
                         // check tracing context running time
                         currentProfiler.startProfilingIfNeed();
                         break;

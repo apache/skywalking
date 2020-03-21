@@ -129,8 +129,6 @@ public interface AbstractSpan extends AsyncSpan {
 
     /**
      * Check current context has profiling
-     *
-     * @return
      */
     boolean isProfiling();
 }
