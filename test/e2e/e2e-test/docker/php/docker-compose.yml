@@ -30,12 +30,10 @@ services:
       timeout: 60s
       retries: 120
 
-  php:
+  php-shadow:
     image: skyapm/skywalking-php:latest
     networks:
-      e2e:
-        aliases:
-          - php
+      - e2e
     expose:
       - 8080
     environment:
@@ -44,27 +42,25 @@ services:
       oap:
         condition: service_healthy
     volumes:
-      - ../php/index.php:/opt/www/index.php
-      - ../php/php.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
+      - ./index.php:/opt/www/index.php
+      - ./php-shadow.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
-  php-shadow:
+  php:
     image: skyapm/skywalking-php:latest
     networks:
-      e2e:
-        aliases:
-          - php-shadow
+      - e2e
     expose:
       - 8080
     environment:
       - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap:11800
     depends_on:
-      php:
+      php-shadow:
         condition: service_started
       oap:
         condition: service_healthy
     volumes:
-      - ../php/index.php:/opt/www/index.php
-      - ../php/php-shadow.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
+      - ./index.php:/opt/www/index.php
+      - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   ui:
     image: skywalking/ui:latest
