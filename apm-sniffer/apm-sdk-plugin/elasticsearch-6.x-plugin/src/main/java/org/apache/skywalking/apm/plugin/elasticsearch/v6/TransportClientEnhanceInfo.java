@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
-
 public class TransportClientEnhanceInfo {
     /**
      * elasticsearch cluster name
