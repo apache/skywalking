@@ -38,9 +38,9 @@ public class ProfileStatusReference {
     }
 
     /**
-     * Create with padding to profile
+     * Create with pending to profile
      */
-    public static ProfileStatusReference createWithPadding() {
+    public static ProfileStatusReference createWithPending() {
         return new ProfileStatusReference(ProfileStatus.PENDING);
     }
 
@@ -48,6 +48,9 @@ public class ProfileStatusReference {
         return this.status;
     }
 
+    /**
+     * The profile monitoring is watching, wait for some profile conditions.
+     */
     public boolean isBeingWatched() {
         return this.status != ProfileStatus.NONE;
     }

@@ -99,7 +99,6 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         // Active HTTP parameter collection automatically in the profiling context.
-        // https://github.com/apache/skywalking/issues/4542
         if (!Config.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
             collectHttpParam(request, span);
         }

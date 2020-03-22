@@ -181,7 +181,6 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             }
 
             // Active HTTP parameter collection automatically in the profiling context.
-            // https://github.com/apache/skywalking/issues/4542
             if (!Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS && span.isProfiling()) {
                 collectHttpParam(request, span);
             }

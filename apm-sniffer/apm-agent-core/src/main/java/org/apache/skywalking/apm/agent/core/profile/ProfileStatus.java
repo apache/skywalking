@@ -23,24 +23,24 @@ package org.apache.skywalking.apm.agent.core.profile;
  */
 public enum ProfileStatus {
     /**
-     * Profile not required
+     * No profile
      */
     NONE,
 
     /**
-     * Prepare to profile, when {@link ProfileTask#getMinDurationThreshold()} is reached,
-     * the status will be changed to profiling, and the thread snapshot will be started
+     * Prepare to profile, until {@link ProfileTask#getMinDurationThreshold()} reached,
+     * Once the status changed to profiling, the thread snapshot is officially started
      */
     PENDING,
 
     /**
-     * Profile operation has been started, and dump thread snapshot will continue
+     * Profile operation has been started.
      */
     PROFILING,
 
     /**
-     * The current {@link org.apache.skywalking.apm.agent.core.context.TracingContext} has finished executing,
-     * or the current thread cannot take a thread snapshot operation again
+     * The current {@link org.apache.skywalking.apm.agent.core.context.TracingContext} has finished,
+     * or the current thread isn't available.
      */
     STOPPED
 }

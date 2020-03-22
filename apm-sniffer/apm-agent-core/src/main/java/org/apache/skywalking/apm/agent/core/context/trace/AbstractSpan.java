@@ -128,7 +128,7 @@ public interface AbstractSpan extends AsyncSpan {
     AbstractSpan setPeer(String remotePeer);
 
     /**
-     * Check current context has profiling
+     * @return true if the span's owner(tracing context main thread) is been profiled.
      */
     boolean isProfiling();
 }
