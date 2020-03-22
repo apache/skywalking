@@ -30,9 +30,7 @@ public interface IProfileTaskLogQueryDAO extends DAO {
 
     /**
      * search all task log list in appoint profile task id
-     *
-     * @param taskId profile task id, maybe null
      */
-    List<ProfileTaskLog> getTaskLogList(final String taskId) throws IOException;
+    List<ProfileTaskLog> getTaskLogList() throws IOException;
 
 }

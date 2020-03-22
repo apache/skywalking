@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
@@ -35,7 +34,6 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -49,7 +47,7 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
     }
 
     @Override
-    public List<ProfileTaskLog> getTaskLogList(String taskId) throws IOException {
+    public List<ProfileTaskLog> getTaskLogList() throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
             .function("top", ProfileTaskLogRecord.OPERATION_TIME, fetchTaskLogMaxSize)
             .column("id")
@@ -59,10 +57,6 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
             .column(ProfileTaskLogRecord.OPERATION_TYPE)
             .from(client.getDatabase(), ProfileTaskLogRecord.INDEX_NAME)
             .where();
-
-        if (StringUtil.isNotEmpty(taskId)) {
-            query.and(eq(ProfileTaskLogRecord.TASK_ID, taskId));
-        }
 
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
