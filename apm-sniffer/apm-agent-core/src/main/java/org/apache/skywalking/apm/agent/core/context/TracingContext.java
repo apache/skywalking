@@ -353,6 +353,11 @@ public class TracingContext implements AbstractTracerContext {
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
+            /**
+             * Only add the profiling recheck on creating entry span,
+             * as the operation name could be overrided.
+             */
+            profilingRecheck(parentSpan, operationName);
             entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
                                                                .findOnly(segment.getServiceId(), operationName)
                                                                .doInCondition(

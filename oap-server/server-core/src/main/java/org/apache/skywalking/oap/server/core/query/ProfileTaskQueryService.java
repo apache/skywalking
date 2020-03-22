@@ -162,7 +162,7 @@ public class ProfileTaskQueryService implements Service {
         final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, null, null, null);
 
         // query all and filter on task to match logs
-        List<ProfileTaskLog> taskLogList = getProfileTaskLogQueryDAO().getTaskLogList(null);
+        List<ProfileTaskLog> taskLogList = getProfileTaskLogQueryDAO().getTaskLogList();
         if (taskLogList == null) {
             taskLogList = Collections.emptyList();
         }
