@@ -169,7 +169,7 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
         final Map<String, String> user = ImmutableMap.of(
             "name", "SkyWalking", "enableProfiling", String.valueOf(needProfiling)
         );
-        return restTemplate.postForEntity(instrumentedServiceUrl + "/profile/users", user, String.class);
+        return restTemplate.postForEntity(instrumentedServiceUrl + "/profile/users?e2e=true", user, String.class);
     }
 
     private void verifyProfiledSegment(String taskId) throws Exception {
