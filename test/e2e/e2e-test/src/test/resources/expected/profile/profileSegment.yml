@@ -20,27 +20,62 @@ spans:
     startTime: gt 0
     endTime: gt 0
     endpointName: /profile/users
+    tags:
+      - key: url
+        value: not null
+      - key: http.method
+        value: POST
+      - key: http.params
+        value: "e2e=[true]"
   - spanId: 1
     parentSpanId: 0
     serviceCode: not null
     startTime: gt 0
     endTime: gt 0
     endpointName: H2/JDBI/PreparedStatement/executeQuery
+    tags:
+      - key: db.type
+        value: sql
+      - key: db.instance
+        value: testdb
+      - key: db.statement
+        value: "call next value for hibernate_sequence"
   - spanId: 2
     parentSpanId: 0
     serviceCode: not null
     startTime: gt 0
     endTime: gt 0
     endpointName: H2/JDBI/PreparedStatement/executeUpdate
+    tags:
+      - key: db.type
+        value: sql
+      - key: db.instance
+        value: testdb
+      - key: db.statement
+        value: "insert into user (name, id) values (?, ?)"
   - spanId: 3
     parentSpanId: 0
     serviceCode: not null
     startTime: gt 0
     endTime: gt 0
     endpointName: H2/JDBI/Connection/commit
+    tags:
+      - key: db.type
+        value: sql
+      - key: db.instance
+        value: testdb
+      - key: db.statement
+        value:
   - spanId: 4
     parentSpanId: 0
     serviceCode: not null
     startTime: gt 0
     endTime: gt 0
     endpointName: H2/JDBI/Connection/commit
+    tags:
+      - key: db.type
+        value: sql
+      - key: db.instance
+        value: testdb
+      - key: db.statement
+        value:

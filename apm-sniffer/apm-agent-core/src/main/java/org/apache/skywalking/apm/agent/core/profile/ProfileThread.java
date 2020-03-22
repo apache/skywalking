@@ -81,9 +81,9 @@ public class ProfileThread implements Runnable {
                     continue;
                 }
 
-                switch (currentProfiler.profilingStatus()) {
+                switch (currentProfiler.profilingStatus().get()) {
 
-                    case READY:
+                    case PENDING:
                         // check tracing context running time
                         currentProfiler.startProfilingIfNeed();
                         break;

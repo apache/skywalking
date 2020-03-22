@@ -23,39 +23,20 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
-import java.util.Comparator;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ProfiledSpanMatcher extends AbstractMatcher<ProfiledSpan> {
-    private String spanId;
-    private String parentSpanId;
-    private String serviceCode;
-    private String startTime;
-    private String endTime;
-    private String endpointName;
-    private List<ProfiledSpanTagMatcher> tags;
+public class ProfiledSpanTagMatcher extends AbstractMatcher<ProfiledSpanTag> {
+    private String key;
+    private String value;
 
     @Override
-    public void verify(ProfiledSpan span) {
-        doVerify(spanId, span.getSpanId());
-        doVerify(parentSpanId, span.getParentSpanId());
-        doVerify(serviceCode, span.getServiceCode());
-        doVerify(startTime, span.getStartTime());
-        doVerify(endTime, span.getEndTime());
-        doVerify(endpointName, span.getEndpointName());
-
-        assertThat(tags).hasSameSizeAs(span.getTags());
-
-        tags.sort(Comparator.comparing(ProfiledSpanTagMatcher::getKey));
-        span.getTags().sort(Comparator.comparing(ProfiledSpanTag::getKey));
-
-        for (int i = 0; i < tags.size(); i++) {
-            tags.get(i).verify(span.getTags().get(i));
+    public void verify(ProfiledSpanTag profiledSpanTag) {
+        if (value == null) {
+            value = "";
         }
+
+        doVerify(key, profiledSpanTag.getKey());
+        doVerify(value, profiledSpanTag.getValue());
     }
 }

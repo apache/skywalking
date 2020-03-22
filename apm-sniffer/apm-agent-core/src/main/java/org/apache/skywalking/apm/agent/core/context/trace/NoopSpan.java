@@ -130,6 +130,11 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override
+    public boolean isProfiling() {
+        return false;
+    }
+
+    @Override
     public AbstractSpan prepareForAsync() {
         return this;
     }

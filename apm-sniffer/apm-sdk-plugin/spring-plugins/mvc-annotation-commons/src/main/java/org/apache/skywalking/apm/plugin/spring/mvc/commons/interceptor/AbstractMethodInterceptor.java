@@ -109,12 +109,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 SpanLayer.asHttp(span);
 
                 if (Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
-                    final Map<String, String[]> parameterMap = request.getParameterMap();
-                    if (parameterMap != null && !parameterMap.isEmpty()) {
-                        String tagValue = CollectionUtil.toString(parameterMap);
-                        tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
-                        Tags.HTTP.PARAMS.set(span, tagValue);
-                    }
+                    collectHttpParam(request, span);
                 }
 
                 stackDepth = new StackDepth();
@@ -185,6 +180,11 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 ContextManager.getRuntimeContext().remove(CONTROLLER_METHOD_STACK_DEPTH);
             }
 
+            // Active HTTP parameter collection automatically in the profiling context.
+            if (!Config.Plugin.SpringMVC.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+                collectHttpParam(request, span);
+            }
+
             ContextManager.stopSpan();
         }
 
@@ -195,5 +195,14 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
+    }
+
+    private void collectHttpParam(HttpServletRequest request, AbstractSpan span) {
+        final Map<String, String[]> parameterMap = request.getParameterMap();
+        if (parameterMap != null && !parameterMap.isEmpty()) {
+            String tagValue = CollectionUtil.toString(parameterMap);
+            tagValue = Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ? StringUtil.cut(tagValue, Config.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
+            Tags.HTTP.PARAMS.set(span, tagValue);
+        }
     }
 }
