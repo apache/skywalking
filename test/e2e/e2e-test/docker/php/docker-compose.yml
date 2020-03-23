@@ -42,11 +42,11 @@ services:
       oap:
         condition: service_healthy
     volumes:
-      - ./index.php:/opt/www/index.php
+      - ./index.php:/var/www/html/index.php
       - ./php-shadow.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   php:
-    image: skyapm/skywalking-php:latest
+    image: skyapm/skywalking-php:v3.2.8
     networks:
       - e2e
     expose:
@@ -59,7 +59,7 @@ services:
       oap:
         condition: service_healthy
     volumes:
-      - ./index.php:/opt/www/index.php
+      - ./index.php:/var/www/html/index.php
       - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   ui:

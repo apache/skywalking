@@ -218,7 +218,7 @@ public class PHPE2E extends SkyWalkingTestAdapter {
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
-            if (!endpoint.getLabel().equals("/info") || !endpoint.getLabel().equals("/php/info")) {
+            if (!endpoint.getLabel().equals("/php/call") || !endpoint.getLabel().equals("/php/info")) {
                 continue;
             }
             for (final String metricName : ALL_ENDPOINT_METRICS) {

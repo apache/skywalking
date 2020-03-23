@@ -23,5 +23,5 @@ instances:
         value: not null
       - name: process_no
         value: gt 0
-      - name: ipV4s
+      - name: ipv4s
         value: not null
