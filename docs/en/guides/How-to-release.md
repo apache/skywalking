@@ -266,7 +266,7 @@ version a.b.c(last release). The notable changes since x.y.z include:
 3. ...
 
 Please refer to the change log for the complete list of changes:
-https://github.com/apache/skywalking/blob/v7.0.0/CHANGES.md
+https://github.com/apache/skywalking/blob/vx.y.z/CHANGES.md
 
 Apache SkyWalking website:
 http://skywalking.apache.org/
