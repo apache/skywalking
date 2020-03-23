@@ -31,7 +31,7 @@ services:
       retries: 120
 
   php-shadow:
-    image: skyapm/skywalking-php:latest
+    image: skyapm/skywalking-php:v3.2.8
     networks:
       - e2e
     expose:
