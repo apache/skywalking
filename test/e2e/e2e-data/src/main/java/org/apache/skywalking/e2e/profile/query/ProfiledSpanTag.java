@@ -18,25 +18,12 @@
 
 package org.apache.skywalking.e2e.profile.query;
 
-import com.google.common.primitives.Ints;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.List;
-
 @Data
 @ToString
-public class ProfiledSpan implements Comparable<ProfiledSpan> {
-    private String spanId;
-    private String parentSpanId;
-    private String serviceCode;
-    private String startTime;
-    private String endTime;
-    private String endpointName;
-    private List<ProfiledSpanTag> tags;
-
-    @Override
-    public int compareTo(ProfiledSpan o) {
-        return Ints.compare(Integer.parseInt(spanId), Integer.parseInt(o.spanId));
-    }
+public class ProfiledSpanTag {
+    private String key;
+    private String value;
 }

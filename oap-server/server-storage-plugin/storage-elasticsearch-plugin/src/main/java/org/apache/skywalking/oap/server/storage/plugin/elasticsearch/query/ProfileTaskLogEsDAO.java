@@ -45,15 +45,11 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
     }
 
     @Override
-    public List<ProfileTaskLog> getTaskLogList(String taskId) throws IOException {
+    public List<ProfileTaskLog> getTaskLogList() throws IOException {
         final SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
-
-        if (taskId != null) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskLogRecord.TASK_ID, taskId));
-        }
 
         sourceBuilder.sort(ProfileTaskLogRecord.OPERATION_TIME, SortOrder.DESC);
         sourceBuilder.size(queryMaxSize);

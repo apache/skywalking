@@ -19,7 +19,7 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
-- Root cause analysis
+- Root cause analysis. Profile the code on the runtime.
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
 - Slow services and endpoints detected

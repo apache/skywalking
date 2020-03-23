@@ -18,6 +18,9 @@
     segment: getProfiledSegment(segmentId: $segmentId) {
         spans {
            spanId parentSpanId serviceCode startTime endTime endpointName type peer component isError layer
+           tags {
+               key value
+           }
         }
     }
   }",
