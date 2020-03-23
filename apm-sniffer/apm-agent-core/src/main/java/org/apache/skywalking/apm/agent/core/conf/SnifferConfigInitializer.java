@@ -18,6 +18,16 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -26,19 +36,14 @@ import org.apache.skywalking.apm.util.ConfigInitializer;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import java.io.*;
-import java.util.*;
-
 /**
  * The <code>SnifferConfigInitializer</code> initializes all configs in several way.
- *
- * @author wusheng
  */
 public class SnifferConfigInitializer {
     private static final ILog logger = LogManager.getLogger(SnifferConfigInitializer.class);
-    private static String SPECIFIED_CONFIG_PATH = "skywalking_config";
-    private static String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
-    private static String ENV_KEY_PREFIX = "skywalking.";
+    private static final String SPECIFIED_CONFIG_PATH = "skywalking_config";
+    private static final String DEFAULT_CONFIG_FILE_NAME = "/config/agent.config";
+    private static final String ENV_KEY_PREFIX = "skywalking.";
     private static boolean IS_INIT_COMPLETED = false;
 
     /**
@@ -46,22 +51,18 @@ public class SnifferConfigInitializer {
      * specified agent config path is not set , the agent will try to locate `agent.config`, which should be in the
      * /config directory of agent package.
      * <p>
-     * Also try to override the config by system.properties. All the keys in this place should
-     * start with {@link #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override
-     * `agent.service_name` in config file.
+     * Also try to override the config by system.properties. All the keys in this place should start with {@link
+     * #ENV_KEY_PREFIX}. e.g. in env `skywalking.agent.service_name=yourAppName` to override `agent.service_name` in
+     * config file.
      * <p>
      * At the end, `agent.service_name` and `collector.servers` must not be blank.
      */
-    public static void initialize(String agentOptions) throws ConfigNotFoundException, AgentPackageNotFoundException {
-        InputStreamReader configFileStream;
-
-        try {
-            configFileStream = loadConfig();
+    public static void initialize(String agentOptions) {
+        try (final InputStreamReader configFileStream = loadConfig()) {
             Properties properties = new Properties();
             properties.load(configFileStream);
             for (String key : properties.stringPropertyNames()) {
-                String value = (String)properties.get(key);
-                //replace the key's value. properties.replace(key,value) in jdk8+
+                String value = (String) properties.get(key);
                 properties.put(key, PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value, properties));
             }
             ConfigInitializer.initialize(properties, Config.class);
@@ -75,6 +76,7 @@ public class SnifferConfigInitializer {
             logger.error(e, "Failed to read the system properties.");
         }
 
+        agentOptions = StringUtil.trim(agentOptions, ',');
         if (!StringUtil.isEmpty(agentOptions)) {
             try {
                 agentOptions = agentOptions.trim();
@@ -114,8 +116,8 @@ public class SnifferConfigInitializer {
     }
 
     private static List<List<String>> parseAgentOptions(String agentOptions) {
-        List<List<String>> options = new ArrayList<List<String>>();
-        List<String> terms = new ArrayList<String>();
+        List<List<String>> options = new ArrayList<>();
+        List<String> terms = new ArrayList<>();
         boolean isInQuotes = false;
         StringBuilder currentTerm = new StringBuilder();
         for (char c : agentOptions.toCharArray()) {
@@ -129,7 +131,7 @@ public class SnifferConfigInitializer {
                 currentTerm = new StringBuilder();
 
                 options.add(terms);
-                terms = new ArrayList<String>();
+                terms = new ArrayList<>();
             } else {
                 currentTerm.append(c);
             }
@@ -145,18 +147,15 @@ public class SnifferConfigInitializer {
     }
 
     /**
-     * Override the config by system properties. The property key must start with `skywalking`, the result should be as same
-     * as in `agent.config`
+     * Override the config by system properties. The property key must start with `skywalking`, the result should be as
+     * same as in `agent.config`
      * <p>
      * such as: Property key of `agent.service_name` should be `skywalking.agent.service_name`
-     *
      */
     private static void overrideConfigBySystemProp() throws IllegalAccessException {
         Properties properties = new Properties();
         Properties systemProperties = System.getProperties();
-        Iterator<Map.Entry<Object, Object>> entryIterator = systemProperties.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry<Object, Object> prop = entryIterator.next();
+        for (final Map.Entry<Object, Object> prop : systemProperties.entrySet()) {
             String key = prop.getKey().toString();
             if (key.startsWith(ENV_KEY_PREFIX)) {
                 String realKey = key.substring(ENV_KEY_PREFIX.length());
@@ -174,20 +173,17 @@ public class SnifferConfigInitializer {
      *
      * @return the config file {@link InputStream}, or null if not needEnhance.
      */
-    private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException, ConfigReadFailedException {
-
-        String specifiedConfigPath = System.getProperties().getProperty(SPECIFIED_CONFIG_PATH);
+    private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException {
+        String specifiedConfigPath = System.getProperty(SPECIFIED_CONFIG_PATH);
         File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
 
         if (configFile.exists() && configFile.isFile()) {
             try {
                 logger.info("Config file found in {}.", configFile);
 
-                return new InputStreamReader(new FileInputStream(configFile), "UTF-8");
+                return new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
                 throw new ConfigNotFoundException("Failed to load agent.config", e);
-            } catch (UnsupportedEncodingException e) {
-                throw new ConfigReadFailedException("Failed to load agent.config", e);
             }
         }
         throw new ConfigNotFoundException("Failed to load agent.config.");

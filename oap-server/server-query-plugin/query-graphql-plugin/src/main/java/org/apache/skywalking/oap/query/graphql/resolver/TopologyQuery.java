@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
@@ -28,11 +31,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceTopolog
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
-
-/**
- * @author peng-yongsheng
- */
 public class TopologyQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
@@ -53,27 +51,41 @@ public class TopologyQuery implements GraphQLQueryResolver {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getGlobalTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getQueryService().getGlobalTopology(
+            StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
     public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getServiceTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, serviceId);
+        List<Integer> selectedServiceList = new ArrayList<>(1);
+        selectedServiceList.add(serviceId);
+        return this.getServicesTopology(selectedServiceList, duration);
     }
 
-    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId, final Duration duration) throws IOException {
+    public Topology getServicesTopology(final List<Integer> serviceIds, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getServiceInstanceTopology(clientServiceId, serverServiceId, StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        return getQueryService().getServiceTopology(
+            StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, serviceIds);
+    }
+
+    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId,
+                                                              final Duration duration) throws IOException {
+        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+
+        return getQueryService().getServiceInstanceTopology(
+            clientServiceId, serverServiceId, StepToDownsampling.transform(duration
+                                                                               .getStep()), startTimeBucket,
+            endTimeBucket
+        );
     }
 
     public Topology getEndpointTopology(final int endpointId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
-        return getQueryService().getEndpointTopology(StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, endpointId);
+        return getQueryService().getEndpointTopology(
+            StepToDownsampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, endpointId);
     }
 }

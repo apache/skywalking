@@ -16,10 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-public class NoopExitSpan extends NoopSpan implements WithPeerInfo {
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+
+public class NoopExitSpan extends NoopSpan implements ExitTypeSpan {
 
     private String peer;
     private int peerId;
@@ -40,6 +41,11 @@ public class NoopExitSpan extends NoopSpan implements WithPeerInfo {
     @Override
     public String getPeer() {
         return peer;
+    }
+
+    @Override
+    public NoopExitSpan inject(final ContextCarrier carrier) {
+        return this;
     }
 
     @Override

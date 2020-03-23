@@ -41,6 +41,7 @@ import org.apache.skywalking.apm.agent.core.os.OSUtil;
 import org.apache.skywalking.apm.network.common.Commands;
 import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 import org.apache.skywalking.apm.network.register.v2.Service;
 import org.apache.skywalking.apm.network.register.v2.ServiceInstance;
@@ -55,9 +56,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
-/**
- * @author wusheng
- */
 @DefaultImplementor
 public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
     private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
@@ -84,38 +82,42 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
     }
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         ServiceManager.INSTANCE.findService(GRPCChannelManager.class).addChannelListener(this);
 
-        INSTANCE_UUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID) ? UUID.randomUUID().toString()
-            .replaceAll("-", "") : Config.Agent.INSTANCE_UUID;
+        INSTANCE_UUID = StringUtil.isEmpty(Config.Agent.INSTANCE_UUID)
+            ? UUID.randomUUID().toString().replaceAll("-", "")
+            : Config.Agent.INSTANCE_UUID;
 
-        SERVICE_INSTANCE_PROPERTIES = new ArrayList<KeyStringValuePair>();
+        SERVICE_INSTANCE_PROPERTIES = new ArrayList<>();
 
         for (String key : Config.Agent.INSTANCE_PROPERTIES.keySet()) {
             SERVICE_INSTANCE_PROPERTIES.add(KeyStringValuePair.newBuilder()
-                .setKey(key).setValue(Config.Agent.INSTANCE_PROPERTIES.get(key)).build());
+                                                              .setKey(key)
+                                                              .setValue(Config.Agent.INSTANCE_PROPERTIES.get(key))
+                                                              .build());
         }
     }
 
     @Override
-    public void boot() throws Throwable {
-        applicationRegisterFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("ServiceAndEndpointRegisterClient"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override
-                public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL, TimeUnit.SECONDS);
+    public void boot() {
+        applicationRegisterFuture = Executors.newSingleThreadScheduledExecutor(
+            new DefaultNamedThreadFactory("ServiceAndEndpointRegisterClient")
+        ).scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(
+                this,
+                t -> logger.error("unexpected exception.", t)
+            ), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL,
+            TimeUnit.SECONDS
+        );
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         applicationRegisterFuture.cancel(true);
     }
 
@@ -140,8 +142,17 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
             try {
                 if (RemoteDownstreamConfig.Agent.SERVICE_ID == DictionaryUtil.nullValue()) {
                     if (registerBlockingStub != null) {
-                        ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS).doServiceRegister(
-                            Services.newBuilder().addServices(Service.newBuilder().setServiceName(Config.Agent.SERVICE_NAME)).build());
+                        ServiceRegisterMapping serviceRegisterMapping = registerBlockingStub.withDeadlineAfter(
+                            GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                        ).doServiceRegister(
+                            Services.newBuilder()
+                                    .addServices(
+                                        Service
+                                            .newBuilder()
+                                            .setServiceName(Config.Agent.SERVICE_NAME)
+                                            .setType(ServiceType.normal))
+                                    .build()
+                        );
                         if (serviceRegisterMapping != null) {
                             for (KeyIntValuePair registered : serviceRegisterMapping.getServicesList()) {
                                 if (Config.Agent.SERVICE_NAME.equals(registered.getKey())) {
@@ -155,16 +166,20 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                     if (registerBlockingStub != null) {
                         if (RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID == DictionaryUtil.nullValue()) {
 
-                            ServiceInstanceRegisterMapping instanceMapping = registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
-                                    .doServiceInstanceRegister(ServiceInstances.newBuilder()
-                                .addInstances(
-                                    ServiceInstance.newBuilder()
-                                        .setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
-                                        .setInstanceUUID(INSTANCE_UUID)
-                                        .setTime(System.currentTimeMillis())
-                                        .addAllProperties(OSUtil.buildOSInfo())
-                                        .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
-                                ).build());
+                            ServiceInstanceRegisterMapping instanceMapping = registerBlockingStub.withDeadlineAfter(
+                                GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                            ).doServiceInstanceRegister(
+                                ServiceInstances
+                                    .newBuilder()
+                                    .addInstances(
+                                        ServiceInstance
+                                            .newBuilder()
+                                            .setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
+                                            .setInstanceUUID(INSTANCE_UUID)
+                                            .setTime(System.currentTimeMillis())
+                                            .addAllProperties(OSUtil.buildOSInfo())
+                                            .addAllProperties(SERVICE_INSTANCE_PROPERTIES))
+                                    .build());
                             for (KeyIntValuePair serviceInstance : instanceMapping.getServiceInstancesList()) {
                                 if (INSTANCE_UUID.equals(serviceInstance.getKey())) {
                                     int serviceInstanceId = serviceInstance.getValue();
@@ -175,15 +190,19 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
                                 }
                             }
                         } else {
-                            final Commands commands = serviceInstancePingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
-                                .doPing(ServiceInstancePingPkg.newBuilder()
-                                .setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
-                                .setTime(System.currentTimeMillis())
-                                .setServiceInstanceUUID(INSTANCE_UUID)
-                                .build());
+                            final Commands commands = serviceInstancePingStub.withDeadlineAfter(
+                                GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
+                            ).doPing(ServiceInstancePingPkg.newBuilder()
+                                                           .setServiceInstanceId(
+                                                               RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID)
+                                                           .setTime(System.currentTimeMillis())
+                                                           .setServiceInstanceUUID(INSTANCE_UUID)
+                                                           .build());
 
-                            NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
-                            EndpointNameDictionary.INSTANCE.syncRemoteDictionary(registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
+                            NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(
+                                registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
+                            EndpointNameDictionary.INSTANCE.syncRemoteDictionary(
+                                registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
                             ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                         }
                     }

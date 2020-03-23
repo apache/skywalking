@@ -1,11 +1,13 @@
 # Welcome
-**Here are SkyWalking 6 official documents. You're welcome to join us.**
+**Here are SkyWalking 7 official documents. You're welcome to join us.**
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, and develop based on SkyWalking contributions guidelines.
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 
-- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course. 
+- [Setup](en/setup/README.md). Guides for installing SkyWalking in different scenarios. As a platform, it provides several ways to provide observability, including monitoring and alarm of course.
+
+- [UI Introduction](en/ui/README.md). Introduce the UI usage and features. 
 
 - [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. Here, you can find how to start contributing.
 
@@ -17,6 +19,8 @@ From here you can learn all about **SkyWalking**’s architecture, how to deploy
 In addition, you might find these links interesting:
 
 - The latest and old releases are all available at [Apache SkyWalking release page](http://skywalking.apache.org/downloads/). The change logs are [here](../CHANGES.md).
+
+- [SkyWalking WIKI](https://cwiki.apache.org/confluence/display/SKYWALKING/Home) hosts the context of some changes and events.
 
 - Up-to-date overview of SkyWalking module [call flow](https://sourcespy.com/github/skywalking/xx-omcalls-.html) and [hierarchy](https://sourcespy.com/github/skywalking/xx-omhierarchy-.html) including ability to analize each module individually.
 
@@ -82,6 +86,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Uninstrumented Gateways](en/setup/backend/uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins, to reflect the delegation in topology graph.
     * [UI setup document](en/setup/backend/ui-setup.md).
     * [CLI setup document](https://github.com/apache/skywalking-cli).
+* [UI Introduction](en/ui/README.md). Introduce the UI usage and features.
 * [Contributing Guides](en/guides/README.md). Guides are for PMC member, committer or new contributor. At here, you can find how to start contributing.
   * [Contact us](en/guides/README.md#contact-us). Guide users about how to contact the official committer team or communicate with the project community.
   * [Process to become official Apache SkyWalking Committer](en/guides/asf/committer.md). How to become an official committer or PMC member.
@@ -89,16 +94,5 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
   * [Agent plugin development guide](en/guides/Java-Plugin-Development-Guide.md). Guide developers to write their plugin, and follow [plugin test requirements](en/guides/Plugin-test.md) when you push the plugin to the upstream.
 * [Protocols](en/protocols/README.md). Protocols show the communication ways between agents/probes and backend. Anyone interested in uplink telemetry data should definitely read this.
 * [FAQs](en/FAQ/README.md). A manifest of already known setup problems, secondary developments experiments. When you are facing a problem, check here first.
-
-
-___
-### Users from 5.x
-
-SkyWalking 5.x is still supported by the community. For the users planning to upgrade from 5.x to 6.x, you should know some definitions of concepts changed.
-
-The most important two changed concepts are:
-
-1. Application (in 5.x) is changed to **Service** (in 6.x), also Application Instance is changed to **Service Instance**.
-2. Service (in 5.x) is changed to **Endpoint** (in 6.x).
 
 

@@ -32,19 +32,25 @@ jobs:
   build:
     runs-on: ubuntu-16.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - name: Prepare enviroment
         run: |
           bash ${SCRIPTS_DIR}/pre.sh
           mkdir -p ${LOG_DIR}
+      - name: Compile all and Build docker image
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - name: Start minikube
         run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
       - name: Wating minikube ready
         run: bash ${SCRIPTS_DIR}/minikube.sh wait
       - name: Setup tunnel
         run: minikube tunnel --log_dir=${LOG_DIR} &
-      - name: Compile all and Build docker image
-        run: bash ${SCRIPTS_DIR}/compile_build.sh
       - name: Istio install
         run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
       - name: SW And ES install
@@ -52,6 +58,7 @@ jobs:
       - name: Bookinfo demo install
         run: bash ${INSTALL_SCRIPTS_DIR}/demo-deploy.sh
       - uses: actions/upload-artifact@v1.0.0
+        if: always()
         with:
           name: logs
           path: /tmp/skywalking

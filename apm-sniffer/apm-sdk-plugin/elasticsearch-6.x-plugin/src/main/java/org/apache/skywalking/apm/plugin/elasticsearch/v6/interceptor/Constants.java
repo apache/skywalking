@@ -15,11 +15,9 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-/**
- * @author aderm
- */
 public class Constants {
     //interceptor class
     public static final String REST_HIGH_LEVEL_CLIENT_CON_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientConInterceptor";
@@ -30,6 +28,10 @@ public class Constants {
     public static final String REST_HIGH_LEVEL_CLIENT_UPDATE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientUpdateMethodsInterceptor";
     public static final String REST_HIGH_LEVEL_CLIENT_INDEX_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndexMethodsInterceptor";
     public static final String REST_HIGH_LEVEL_CLIENT_INDICES_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndicesMethodsInterceptor";
+    public static final String REST_HIGH_LEVEL_CLIENT_CLUSTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientClusterMethodsInterceptor";
+    public static final String CLUSTER_CLIENT_HEALTH_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.ClusterClientHealthMethodsInterceptor";
+    public static final String CLUSTER_CLIENT_GET_SETTINGS_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.ClusterClientGetSettingsMethodsInterceptor";
+    public static final String CLUSTER_CLIENT_PUT_SETTINGS_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.ClusterClientPutSettingsMethodsInterceptor";
 
     //es operator name
     public static final String CREATE_OPERATOR_NAME = "Elasticsearch/CreateRequest";
@@ -38,6 +40,9 @@ public class Constants {
     public static final String INDEX_OPERATOR_NAME = "Elasticsearch/IndexRequest";
     public static final String SEARCH_OPERATOR_NAME = "Elasticsearch/SearchRequest";
     public static final String UPDATE_OPERATOR_NAME = "Elasticsearch/UpdateRequest";
+    public static final String CLUSTER_HEALTH_NAME = "Elasticsearch/Health";
+    public static final String CLUSTER_GET_SETTINGS_NAME = "Elasticsearch/GetSettings";
+    public static final String CLUSTER_PUT_SETTINGS_NAME = "Elasticsearch/PutSettings";
 
     public static final String DB_TYPE = "Elasticsearch";
 }

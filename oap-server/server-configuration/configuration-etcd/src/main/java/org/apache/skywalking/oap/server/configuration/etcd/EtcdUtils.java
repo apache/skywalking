@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * a util for etcd serverAddr parse.
- *
- * @author Alan Lau
  */
 public class EtcdUtils {
 

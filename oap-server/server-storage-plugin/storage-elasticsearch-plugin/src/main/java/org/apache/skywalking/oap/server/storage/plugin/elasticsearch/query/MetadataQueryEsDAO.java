@@ -56,9 +56,6 @@ import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInve
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.OS_NAME;
 import static org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory.PropertyUtil.PROCESS_NO;
 
-/**
- * @author peng-yongsheng
- */
 public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
@@ -69,33 +66,37 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         this.queryMaxSize = queryMaxSize;
     }
 
-    @Override public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
+    @Override
+    public int numOfService(long startTimestamp, long endTimestamp) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits();
+        return (int) response.getHits().getTotalHits();
     }
 
-    @Override public int numOfEndpoint() throws IOException {
+    @Override
+    public int numOfEndpoint() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+        boolQueryBuilder.must()
+                        .add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
         SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
-        return (int)response.getHits().getTotalHits();
+        return (int) response.getHits().getTotalHits();
     }
 
     @Override
@@ -107,7 +108,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
 
-        return (int)response.getHits().getTotalHits();
+        return (int) response.getHits().getTotalHits();
     }
 
     @Override
@@ -118,6 +119,25 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
+
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(queryMaxSize);
+
+        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
+
+        return buildServices(response);
+    }
+
+    @Override
+    public List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
+
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Browser.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(queryMaxSize);
@@ -143,9 +163,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
             Database database = new Database();
-            database.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
-            database.setName((String)sourceAsMap.get(ServiceInventory.NAME));
-            String propertiesString = (String)sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
+            database.setId(((Number) sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
+            database.setName((String) sourceAsMap.get(ServiceInventory.NAME));
+            String propertiesString = (String) sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                 if (properties.has(ServiceInventory.PropertyUtil.DATABASE)) {
@@ -159,13 +179,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return databases;
     }
 
-    @Override public List<Service> searchServices(long startTimestamp, long endTimestamp,
-        String keyword) throws IOException {
+    @Override
+    public List<Service> searchServices(long startTimestamp, long endTimestamp, String keyword) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
         if (!Strings.isNullOrEmpty(keyword)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(ServiceInventory.NAME);
@@ -184,16 +205,16 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         GetResponse response = getClient().get(ServiceInventory.INDEX_NAME, ServiceInventory.buildId(serviceCode));
         if (response.isExists()) {
             Service service = new Service();
-            service.setId(((Number)response.getSource().get(ServiceInventory.SEQUENCE)).intValue());
-            service.setName((String)response.getSource().get(ServiceInventory.NAME));
+            service.setId(((Number) response.getSource().get(ServiceInventory.SEQUENCE)).intValue());
+            service.setName((String) response.getSource().get(ServiceInventory.NAME));
             return service;
         } else {
             return null;
         }
     }
 
-    @Override public List<Endpoint> searchEndpoint(String keyword, String serviceId,
-        int limit) throws IOException {
+    @Override
+    public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -204,7 +225,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             boolQueryBuilder.must().add(QueryBuilders.matchQuery(matchCName, keyword));
         }
 
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+        boolQueryBuilder.must()
+                        .add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(limit);
@@ -216,15 +238,16 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
             Endpoint endpoint = new Endpoint();
-            endpoint.setId(((Number)sourceAsMap.get(EndpointInventory.SEQUENCE)).intValue());
-            endpoint.setName((String)sourceAsMap.get(EndpointInventory.NAME));
+            endpoint.setId(((Number) sourceAsMap.get(EndpointInventory.SEQUENCE)).intValue());
+            endpoint.setName((String) sourceAsMap.get(EndpointInventory.NAME));
             endpoints.add(endpoint);
         }
 
         return endpoints;
     }
 
-    @Override public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
+    @Override
+    public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
         String serviceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -244,10 +267,10 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
             ServiceInstance serviceInstance = new ServiceInstance();
             serviceInstance.setId(String.valueOf(sourceAsMap.get(ServiceInstanceInventory.SEQUENCE)));
-            serviceInstance.setName((String)sourceAsMap.get(ServiceInstanceInventory.NAME));
-            serviceInstance.setInstanceUUID((String)sourceAsMap.get(ServiceInstanceInventory.INSTANCE_UUID));
+            serviceInstance.setName((String) sourceAsMap.get(ServiceInstanceInventory.NAME));
+            serviceInstance.setInstanceUUID((String) sourceAsMap.get(ServiceInstanceInventory.INSTANCE_UUID));
 
-            String propertiesString = (String)sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
+            String propertiesString = (String) sourceAsMap.get(ServiceInstanceInventory.PROPERTIES);
             if (!Strings.isNullOrEmpty(propertiesString)) {
                 JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
                 for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
@@ -262,9 +285,11 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     } else if (key.equals(PROCESS_NO)) {
                         serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, value));
                     } else if (key.equals(IPV4S)) {
-                        List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S).getAsString());
+                        List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S)
+                                                                                                              .getAsString());
                         for (String ipv4 : ipv4s) {
-                            serviceInstance.getAttributes().add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
+                            serviceInstance.getAttributes()
+                                           .add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));
                         }
                     } else {
                         serviceInstance.getAttributes().add(new Attribute(key, value));
@@ -284,8 +309,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
             Service service = new Service();
-            service.setId(((Number)sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
-            service.setName((String)sourceAsMap.get(ServiceInventory.NAME));
+            service.setId(((Number) sourceAsMap.get(ServiceInventory.SEQUENCE)).intValue());
+            service.setName((String) sourceAsMap.get(ServiceInventory.NAME));
             services.add(service);
         }
 

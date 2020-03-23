@@ -20,10 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
-/**
- * @author peng-yongsheng
- * @author kezhenxu94
- */
 public class ElasticSearch7UpdateRequest extends UpdateRequest implements org.apache.skywalking.oap.server.library.client.request.UpdateRequest {
 
     public ElasticSearch7UpdateRequest(String index, String id) {

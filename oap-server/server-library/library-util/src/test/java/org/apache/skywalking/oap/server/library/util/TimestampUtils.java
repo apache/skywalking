@@ -20,11 +20,9 @@ package org.apache.skywalking.oap.server.library.util;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class TimestampUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(TimestampUtils.class);

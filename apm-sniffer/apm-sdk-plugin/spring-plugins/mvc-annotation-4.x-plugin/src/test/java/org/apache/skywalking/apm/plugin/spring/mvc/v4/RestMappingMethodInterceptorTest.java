@@ -104,15 +104,22 @@ public class RestMappingMethodInterceptorTest {
         when(response.getStatus()).thenReturn(200);
         when(nativeWebRequest.getNativeResponse()).thenReturn(response);
 
-        arguments = new Object[] {request, response};
-        argumentType = new Class[] {request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
 
     }
 
     @Test
     public void testGetMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("getRequestURL");
@@ -136,7 +143,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPostMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("postRequestURL");
@@ -161,7 +169,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPutMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("putRequestURL");
@@ -186,7 +195,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testDeleteMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("deleteRequestURL");
@@ -211,7 +221,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPatchMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("patchRequestURL");
@@ -235,7 +246,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testDummy() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("dummy");
@@ -260,7 +272,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testWithOccurException() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("getRequestURL");

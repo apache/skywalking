@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.configuration.consul;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Test;
 
-/**
- * @author kezhenxu94
- */
 public class ConsulConfigurationProviderTest {
 
     @Test(expected = ModuleStartException.class)

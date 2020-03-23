@@ -47,11 +47,13 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
-/**
- * @author Alan Lau
- */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({EtcdKeysResponse.class, EtcdUtils.class, EtcdClient.class, URI.class})
+@PrepareForTest({
+    EtcdKeysResponse.class,
+    EtcdUtils.class,
+    EtcdClient.class,
+    URI.class
+})
 @PowerMockIgnore({"javax.management.*"})
 public class EtcdConfigWatcherRegisterTest {
 
@@ -119,7 +121,7 @@ public class EtcdConfigWatcherRegisterTest {
         when(node1.getKey()).thenReturn("/skywalking/testKey");
         when(node1.getValue()).thenReturn("testVal");
 
-        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2));
+        final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(testKey1, testKey2)).get();
 
         assertEquals(2, configTable.getItems().size());
         Map<String, String> kvs = new HashMap<>();

@@ -15,9 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -31,16 +33,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 /**
- *
  * {@link RestHighLevelClientInstrumentation} enhance the constructor method without argument in
  * <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientConInterceptor</code>
- * also enhance the <code>performRequestAndParseEntity</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor</code>,
- * also enhance the <code>get getAsync search searchAsync index indexAsync update updateAsync</code> method in <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientGetMethodsInterceptor
- * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientSearchMethodsInterceptor org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndexMethodsInterceptor
+ * also enhance the <code>performRequestAndParseEntity</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code>
+ * by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.IndicesClientCreateMethodsInterceptor</code>,
+ * also enhance the <code>get getAsync search searchAsync index indexAsync update updateAsync</code> method in
+ * <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientGetMethodsInterceptor
+ * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientSearchMethodsInterceptor
+ * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndexMethodsInterceptor
  * org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientUpdateMethodsInterceptor</code>,
- * also enhance the <code>indices</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndicesMethodsInterceptor</code>
- *
- * @author aderm
+ * also enhance the <code>indices</code> method in <code>org.elasticsearch.client.RestHighLevelClient</code> by
+ * <code>org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientIndicesMethodsInterceptor</code>
  */
 public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine {
 
@@ -57,7 +60,7 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgumentWithType(0, "org.elasticsearch.client.RestClientBuilder");
+                    return takesArguments(1);
                 }
 
                 @Override
@@ -160,6 +163,22 @@ public class RestHighLevelClientInstrumentation extends ClassEnhancePluginDefine
                 @Override
                 public String getMethodsInterceptor() {
                     return Constants.REST_HIGH_LEVEL_CLIENT_INDICES_METHODS_INTERCEPTOR;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("cluster");
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return Constants.REST_HIGH_LEVEL_CLIENT_CLUSTER_METHODS_INTERCEPTOR;
                 }
 
                 @Override

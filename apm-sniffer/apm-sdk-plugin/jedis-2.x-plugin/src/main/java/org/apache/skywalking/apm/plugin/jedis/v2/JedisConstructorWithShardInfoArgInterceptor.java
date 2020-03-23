@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -28,7 +27,7 @@ public class JedisConstructorWithShardInfoArgInterceptor implements InstanceCons
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         String redisConnInfo;
-        JedisShardInfo shardInfo = (JedisShardInfo)allArguments[0];
+        JedisShardInfo shardInfo = (JedisShardInfo) allArguments[0];
         redisConnInfo = shardInfo.getHost() + ":" + shardInfo.getPort();
         objInst.setSkyWalkingDynamicField(redisConnInfo);
     }

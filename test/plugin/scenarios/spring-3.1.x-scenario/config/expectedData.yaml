@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {spring-3.1.x-scenario: 2}
   instances:
     - {spring-3.1.x-scenario: 1}
@@ -24,7 +24,7 @@ registryItems:
                               '{PUT}/update/{id}']
   heartbeat: []
 segmentItems:
-  - applicationCode: spring-3.1.x-scenario
+  - serviceName: spring-3.1.x-scenario
     segmentSize: ge 7
     segments:
       - segmentId: not null
@@ -274,6 +274,10 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/spring-3.1.x-scenario/case/resttemplate'}
               - {key: http.method, value: GET}
+              - key: http.params
+                value: |-
+                  q1=[v1]
+                  chinese=[中文]
       - segmentId: not null
         spans:
           - operationName: '{PUT}/update/{id}'

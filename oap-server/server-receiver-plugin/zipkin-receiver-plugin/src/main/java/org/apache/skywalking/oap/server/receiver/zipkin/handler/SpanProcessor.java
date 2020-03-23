@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.oap.server.core.cache.*;
+import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.ZipkinSkyWalkingTransfer;
@@ -36,8 +39,7 @@ public class SpanProcessor {
     private EndpointInventoryCache endpointInventoryCache;
     private int encode;
 
-    public SpanProcessor(SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache,
+    public SpanProcessor(SourceReceiver receiver, ServiceInventoryCache serviceInventoryCache,
         EndpointInventoryCache endpointInventoryCache, int encode) {
         this.receiver = receiver;
         this.serviceInventoryCache = serviceInventoryCache;

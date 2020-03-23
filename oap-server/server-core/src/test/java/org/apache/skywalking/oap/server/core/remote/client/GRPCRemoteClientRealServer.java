@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCRemoteClientRealServer {
 
     public static void main(String[] args) throws ServerException, InterruptedException {

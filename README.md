@@ -19,7 +19,7 @@ in Cloud Native architecture.
 The core features are following.
 
 - Service, service instance, endpoint metrics analysis
-- Root cause analysis
+- Root cause analysis. Profile the code on the runtime.
 - Service topology map analysis
 - Service, service instance and endpoint dependency analysis
 - Slow services and endpoints detected
@@ -35,17 +35,22 @@ SkyWalking supports to collect telemetry (traces and metrics) data from multiple
 and multiple formats,
 including
 1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents in SkyWalking format
-1. Manual-instrument [Go agent](https://github.com/tetratelabs/go2sky) in SkyWalking format.
-1. Istio telemetry format
-1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh
+1. [Go agent](https://github.com/tetratelabs/go2sky).
+1. [LUA agent](https://github.com/apache/skywalking-nginx-lua), especially for Nginx, OpenResty.
+1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh. 
+1. Istio telemetry format.
 1. Envoy Metrics Service format.
 1. Zipkin v1/v2 format.
 1. Jaeger gRPC format.
 
 
 # Document
-- [6.x Documents](docs/README.md).
+- [7.x Documentation, dev version](docs/README.md).
+- [7.0.0 Documentation](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
+- [6.6 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+- [6.5 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
 
+The documentation links works after the official release.
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.

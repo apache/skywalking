@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.concurrent.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,38 +31,41 @@ import static org.apache.skywalking.apm.plugin.spring.concurrent.match.SuccessCa
 /**
  * {@link SuccessCallbackInstrumentation} enhance the <code>onSuccess</code> method that class inherited
  * <code>org.springframework.util.concurrent.SuccessCallback</code> by <code>SuccessCallbackInterceptor</code>.
- *
- * @author zhangxin
  */
 public class SuccessCallbackInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String SUCCESS_CALLBACK_INTERCEPTOR =
-        "org.apache.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor";
+    public static final String SUCCESS_CALLBACK_INTERCEPTOR = "org.apache.skywalking.apm.plugin.spring.concurrent.SuccessCallbackInterceptor";
     public static final String SUCCESS_METHOD_NAME = "onSuccess";
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(SUCCESS_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SUCCESS_CALLBACK_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return successCallbackMatch();
     }
 }

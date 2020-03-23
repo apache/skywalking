@@ -30,20 +30,19 @@ import org.apache.skywalking.apm.agent.core.conf.Constants;
 
 /**
  * Detect the `/ca` folder in agent package, if `ca.crt` exists, start TLS (no mutual auth).
- *
- * @author wusheng
  */
 public class TLSChannelBuilder implements ChannelBuilder<NettyChannelBuilder> {
     private static String CA_FILE_NAME = "ca" + Constants.PATH_SEPARATOR + "ca.crt";
 
-    @Override public NettyChannelBuilder build(
+    @Override
+    public NettyChannelBuilder build(
         NettyChannelBuilder managedChannelBuilder) throws AgentPackageNotFoundException, SSLException {
         File caFile = new File(AgentPackagePath.getPath(), CA_FILE_NAME);
         if (caFile.exists() && caFile.isFile()) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
             builder.trustManager(caFile);
             managedChannelBuilder = managedChannelBuilder.negotiationType(NegotiationType.TLS)
-                .sslContext(builder.build());
+                                                         .sslContext(builder.build());
         }
         return managedChannelBuilder;
     }

@@ -26,17 +26,13 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 
 /**
  * Analysis source metrics from ALS
- *
- * @author wusheng
  */
 public interface ALSHTTPAnalysis {
     String name();
 
     void init(EnvoyMetricReceiverConfig config);
 
-    List<Source> analysis(StreamAccessLogsMessage.Identifier identifier,
-        HTTPAccessLogEntry entry, Role role);
+    List<Source> analysis(StreamAccessLogsMessage.Identifier identifier, HTTPAccessLogEntry entry, Role role);
 
-    Role identify(StreamAccessLogsMessage.Identifier alsIdentifier,
-        Role prev);
+    Role identify(StreamAccessLogsMessage.Identifier alsIdentifier, Role prev);
 }

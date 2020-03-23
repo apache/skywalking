@@ -29,9 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author oatiz.
- */
 public class PlainListenableActionFutureInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
@@ -41,7 +38,7 @@ public class PlainListenableActionFutureInstrumentation extends ClassEnhancePlug
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

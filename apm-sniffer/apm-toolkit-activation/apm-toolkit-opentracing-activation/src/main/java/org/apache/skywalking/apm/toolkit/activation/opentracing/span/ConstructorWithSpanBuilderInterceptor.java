@@ -16,9 +16,9 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.span;
 
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
@@ -31,7 +31,7 @@ public class ConstructorWithSpanBuilderInterceptor implements InstanceConstructo
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        SkywalkingSpanBuilder spanBuilder = (SkywalkingSpanBuilder)allArguments[0];
+        SkywalkingSpanBuilder spanBuilder = (SkywalkingSpanBuilder) allArguments[0];
 
         AbstractSpan span;
         if (spanBuilder.isEntry()) {
@@ -43,7 +43,7 @@ public class ConstructorWithSpanBuilderInterceptor implements InstanceConstructo
         }
 
         for (Tag tag : spanBuilder.getTags()) {
-            span.tag(tag.getKey(), tag.getValue());
+            span.tag(Tags.ofKey(tag.getKey()), tag.getValue());
         }
         span.setComponent(spanBuilder.getComponentName());
         if (spanBuilder.isError()) {

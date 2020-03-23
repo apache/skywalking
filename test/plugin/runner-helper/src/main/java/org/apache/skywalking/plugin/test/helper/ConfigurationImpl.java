@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper;
 
 import com.google.common.base.Strings;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Collections;
+import java.util.List;
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.util.StringUtils;
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 
 public class ConfigurationImpl implements IConfiguration {
     private CaseConfiguration configuration;
@@ -51,13 +53,14 @@ public class ConfigurationImpl implements IConfiguration {
         return System.getProperty("agent.dir");
     }
 
-    @Override public RunningType runningType() {
-        return (configuration.getDependencies() != null && configuration.getDependencies().size() > 0) ?
-            RunningType.DockerCompose :
-            RunningType.Container;
+    @Override
+    public RunningType runningType() {
+        return (configuration.getDependencies() != null && configuration.getDependencies()
+                                                                        .size() > 0) ? RunningType.DockerCompose : RunningType.Container;
     }
 
-    @Override public ScenarioRunningScriptGenerator scenarioGenerator() {
+    @Override
+    public ScenarioRunningScriptGenerator scenarioGenerator() {
         switch (runningType()) {
             case DockerCompose:
                 return new DockerComposeRunningGenerator();
@@ -68,27 +71,33 @@ public class ConfigurationImpl implements IConfiguration {
         }
     }
 
-    @Override public CaseConfiguration caseConfiguration() {
+    @Override
+    public CaseConfiguration caseConfiguration() {
         return this.configuration;
     }
 
-    @Override public String scenarioName() {
+    @Override
+    public String scenarioName() {
         return System.getProperty("scenario.name");
     }
 
-    @Override public String scenarioVersion() {
+    @Override
+    public String scenarioVersion() {
         return System.getProperty("scenario.version");
     }
 
-    @Override public String testFramework() {
+    @Override
+    public String testFramework() {
         return this.configuration.getFramework();
     }
 
-    @Override public String entryService() {
+    @Override
+    public String entryService() {
         return this.configuration.getEntryService();
     }
 
-    @Override public String healthCheck() {
+    @Override
+    public String healthCheck() {
         return this.configuration.getHealthCheck();
     }
 
@@ -97,12 +106,24 @@ public class ConfigurationImpl implements IConfiguration {
         return this.configuration.getStartScript();
     }
 
-    @Override public String dockerImageName() {
+    @Override
+    public String catalinaOpts() {
+        List<String> environment = this.configuration.getEnvironment() != null ? this.configuration.getEnvironment() : Collections
+            .emptyList();
+        return environment.stream()
+                          .filter(it -> it.startsWith("CATALINA_OPTS="))
+                          .findFirst()
+                          .orElse("")
+                          .replaceAll("^CATALINA_OPTS=", "");
+    }
+
+    @Override
+    public String dockerImageName() {
         switch (this.configuration.getType().toLowerCase()) {
-        case "tomcat" :
-            return "skywalking/agent-test-tomcat";
-        case "jvm" :
-            return "skywalking/agent-test-jvm";
+            case "tomcat":
+                return "skywalking/agent-test-tomcat";
+            case "jvm":
+                return "skywalking/agent-test-jvm";
         }
 
         throw new RuntimeException("Illegal type!");
@@ -123,11 +144,13 @@ public class ConfigurationImpl implements IConfiguration {
         return (scenarioName() + "-" + scenarioVersion() + "-" + dockerImageVersion()).toLowerCase();
     }
 
-    @Override public String scenarioHome() {
+    @Override
+    public String scenarioHome() {
         return this.scenarioHome;
     }
 
-    @Override public String outputDir(){
+    @Override
+    public String outputDir() {
         return System.getProperty("output.dir");
     }
 

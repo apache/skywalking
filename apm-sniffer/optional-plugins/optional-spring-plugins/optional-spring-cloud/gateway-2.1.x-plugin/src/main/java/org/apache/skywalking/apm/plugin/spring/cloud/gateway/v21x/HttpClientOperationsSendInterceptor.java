@@ -36,15 +36,11 @@ import reactor.netty.http.client.HttpClientRequest;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-
-/**
- * @author zhaoyuguang
- */
 public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         SWTransmitter transmitter = (SWTransmitter) objInst.getSkyWalkingDynamicField();
         if (transmitter != null) {
             HttpClientRequest request = (HttpClientRequest) objInst;
@@ -75,15 +71,14 @@ public class HttpClientOperationsSendInterceptor implements InstanceMethodsAroun
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
-
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
+import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -29,11 +31,6 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.io.IOException;
-
-/**
- * @author peng-yongsheng
- */
 public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
     public MetadataQueryEs7DAO(final ElasticSearchClient client, final int queryMaxSize) {
@@ -48,6 +45,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
 
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
@@ -62,7 +60,8 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+        boolQueryBuilder.must()
+                        .add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);

@@ -68,8 +68,6 @@ public class Channels<T> {
     /**
      * override the strategy at runtime. Notice, this will override several channels one by one. So, when running
      * setStrategy, each channel may use different BufferStrategy
-     *
-     * @param strategy
      */
     public void setStrategy(BufferStrategy strategy) {
         for (QueueBuffer<T> buffer : bufferChannels) {
@@ -79,8 +77,6 @@ public class Channels<T> {
 
     /**
      * get channelSize
-     *
-     * @return
      */
     public int getChannelSize() {
         return this.bufferChannels.length;

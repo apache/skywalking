@@ -18,32 +18,30 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.util.Properties;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * @author panjuan
- */
 public class ApplicationConfigLoaderTestCase {
-    
+
     private ApplicationConfiguration applicationConfiguration;
-    
+
     @Before
     public void setUp() throws ConfigFileNotFoundException {
+        System.setProperty("SW_STORAGE", "mysql");
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
         applicationConfiguration = configLoader.load();
     }
 
     @Test
     public void testLoadConfig() {
-        Properties providerConfig = applicationConfiguration.getModuleConfiguration("storage").getProviderConfiguration("mysql");
+        Properties providerConfig = applicationConfiguration.getModuleConfiguration("storage")
+                                                            .getProviderConfiguration("mysql");
         assertThat(providerConfig.get("metadataQueryMaxSize"), is(5000));
         assertThat(providerConfig.get("properties"), instanceOf(Properties.class));
         Properties properties = (Properties) providerConfig.get("properties");

@@ -20,25 +20,131 @@ package org.apache.skywalking.oap.server.core.analysis;
 import java.util.Calendar;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
-/**
- * @author peng-yongsheng
- */
 public class TimeBucket {
 
     /**
      * Record time bucket format in Second Unit.
      *
      * @param time Timestamp
-     * @return time in second format.
+     * @return time in second format
      */
     public static long getRecordTimeBucket(long time) {
         return getTimeBucket(time, Downsampling.Second);
     }
 
+    /**
+     * Record time bucket format in Minute Unit.
+     *
+     * @param time Timestamp
+     * @return time in minute format
+     */
     public static long getMinuteTimeBucket(long time) {
         return getTimeBucket(time, Downsampling.Minute);
     }
 
+    /**
+     * Convert TimeBucket to Timestamp in millisecond.
+     *
+     * @param timeBucket long
+     * @return timestamp in millisecond unit
+     */
+    public static long getTimestamp(long timeBucket) {
+        if (isSecondBucket(timeBucket)) {
+            return getTimestamp(timeBucket, Downsampling.Second);
+        } else if (isMinuteBucket(timeBucket)) {
+            return getTimestamp(timeBucket, Downsampling.Minute);
+        } else if (isHourBucket(timeBucket)) {
+            return getTimestamp(timeBucket, Downsampling.Hour);
+        } else if (isDayBucket(timeBucket)) {
+            return getTimestamp(timeBucket, Downsampling.Day);
+        } else if (isMonthBucket(timeBucket)) {
+            return getTimestamp(timeBucket, Downsampling.Month);
+        } else {
+            throw new UnexpectedException("Unknown downsampling value.");
+        }
+    }
+
+    /**
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmmss", so which means the TimeBucket must be between
+     * 10000000000000 and 99999999999999.
+     */
+    public static boolean isSecondBucket(long timeBucket) {
+        return timeBucket < 99999999999999L && timeBucket > 10000000000000L;
+    }
+
+    /**
+     * The format of timeBucket in minute Unit is "yyyyMMddHHmm", so which means the TimeBucket must be between
+     * 100000000000 and 999999999999.
+     */
+    public static boolean isMinuteBucket(long timeBucket) {
+        return timeBucket < 999999999999L && timeBucket > 100000000000L;
+    }
+
+    /**
+     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket must be between 1000000000 and
+     * 9999999999.
+     */
+    public static boolean isHourBucket(long timeBucket) {
+        return timeBucket < 9999999999L && timeBucket > 1000000000L;
+    }
+
+    /**
+     * The format of timeBucket in day Unit is "yyyyMMdd", so which means the TimeBucket must be between 10000000 and
+     * 99999999.
+     */
+    public static boolean isDayBucket(long timeBucket) {
+        return timeBucket < 99999999L && timeBucket > 10000000L;
+    }
+
+    /**
+     * The format of timeBucket in month Unit is "yyyyMM", so which means the TimeBucket must be between 100000 and
+     * 999999.
+     */
+    public static boolean isMonthBucket(long timeBucket) {
+        return timeBucket < 999999L && timeBucket > 100000L;
+    }
+
+    /**
+     * Convert TimeBucket to Timestamp in millisecond.
+     *
+     * @param timeBucket   long
+     * @param downsampling Downsampling
+     * @return timestamp in millisecond unit
+     */
+    public static long getTimestamp(long timeBucket, Downsampling downsampling) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(0);
+        switch (downsampling) {
+            case Second:
+                calendar.set(Calendar.SECOND, (int) (timeBucket % 100));
+                timeBucket /= 100;
+            case Minute:
+                calendar.set(Calendar.MINUTE, (int) (timeBucket % 100));
+                timeBucket /= 100;
+            case Hour:
+                calendar.set(Calendar.HOUR_OF_DAY, (int) (timeBucket % 100));
+                timeBucket /= 100;
+            case Day:
+                calendar.set(Calendar.DAY_OF_MONTH, (int) (timeBucket % 100));
+                timeBucket /= 100;
+            case Month:
+                calendar.set(Calendar.MONTH, (int) (timeBucket % 100) - 1);
+                calendar.set(Calendar.YEAR, (int) (timeBucket / 100));
+                break;
+            default:
+                throw new UnexpectedException("Unknown downsampling value.");
+        }
+
+        return calendar.getTimeInMillis();
+    }
+
+    /**
+     * Record time bucket format in Downsampling Unit.
+     *
+     * @param time         Timestamp
+     * @param downsampling Downsampling
+     * @return time in downsampling format
+     */
     public static long getTimeBucket(long time, Downsampling downsampling) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);

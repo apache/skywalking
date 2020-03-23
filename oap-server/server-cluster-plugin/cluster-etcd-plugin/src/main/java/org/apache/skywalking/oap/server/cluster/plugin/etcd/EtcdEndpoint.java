@@ -24,16 +24,20 @@ import lombok.Setter;
 
 /**
  * an instance json to register to etcd.
- *
- * @author Alan Lau
  */
 public class EtcdEndpoint implements Serializable {
 
-    @Setter @Getter private String serviceName;
+    @Setter
+    @Getter
+    private String serviceName;
 
-    @Setter @Getter private String host;
+    @Setter
+    @Getter
+    private String host;
 
-    @Setter @Getter private int port;
+    @Setter
+    @Getter
+    private int port;
 
     public EtcdEndpoint(Builder builder) {
         setServiceName(builder.serviceName);

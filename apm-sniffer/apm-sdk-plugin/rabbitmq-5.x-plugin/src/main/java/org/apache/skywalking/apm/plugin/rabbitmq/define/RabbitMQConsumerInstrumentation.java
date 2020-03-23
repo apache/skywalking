@@ -35,18 +35,21 @@ public class RabbitMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public static final String ENHANCE_CLASS_PRODUCER = "com.rabbitmq.client.Consumer";
     public static final String ENHANCE_METHOD_DISPATCH = "handleDelivery";
     public static final String INTERCEPTOR_CONSTRUCTOR = "org.apache.skywalking.apm.plugin.rabbitmq.RabbitMQProducerAndConsumerConstructorInterceptor";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgumentWithType(0,"com.rabbitmq.client.impl.AMQConnection");
-                    }
-
-                    @Override public String getConstructorInterceptor() {
-                        return INTERCEPTOR_CONSTRUCTOR;
-                    }
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return takesArgumentWithType(0, "com.rabbitmq.client.impl.AMQConnection");
                 }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return INTERCEPTOR_CONSTRUCTOR;
+                }
+            }
         };
     }
 
@@ -54,19 +57,21 @@ public class RabbitMQConsumerInstrumentation extends ClassInstanceMethodsEnhance
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new DeclaredInstanceMethodsInterceptPoint() {
-                    @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD_DISPATCH).and(takesArgumentWithType(2,"com.rabbitmq.client.AMQP$BasicProperties"));
-                    }
-
-
-                    @Override public String getMethodsInterceptor() {
-                        return INTERCEPTOR_CLASS;
-                    }
-
-                    @Override public boolean isOverrideArgs() {
-                        return false;
-                    }
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_METHOD_DISPATCH).and(takesArgumentWithType(2, "com.rabbitmq.client.AMQP$BasicProperties"));
                 }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 

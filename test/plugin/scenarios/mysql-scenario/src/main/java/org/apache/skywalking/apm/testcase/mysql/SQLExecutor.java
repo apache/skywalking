@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SQLExecutor {
+public class SQLExecutor implements AutoCloseable {
     private Connection connection;
 
     public SQLExecutor() throws SQLException {
@@ -60,5 +60,10 @@ public class SQLExecutor {
         if (this.connection != null) {
             this.connection.close();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        closeConnection();
     }
 }

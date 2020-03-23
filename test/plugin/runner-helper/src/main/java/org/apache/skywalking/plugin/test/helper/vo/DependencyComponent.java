@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper.vo;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class DependencyComponent {
     private String image;
     private String hostname;
     private String version;
+    private boolean removeOnExit = false;
     private List<String> startScript;
     private List<String> links;
     private List<String> expose;
@@ -108,5 +110,13 @@ public class DependencyComponent {
 
     public void setStartScript(List<String> startScript) {
         this.startScript = startScript;
+    }
+
+    public boolean getRemoveOnExit() {
+        return removeOnExit;
+    }
+
+    public void setRemoveOnExit(final boolean removeOnExit) {
+        this.removeOnExit = removeOnExit;
     }
 }

@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.configuration.apollo;
 
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author kezhenxu94
- */
 public class ApolloConfigurationCenterSettings extends ModuleConfig {
     private String apolloCluster = "default";
     private String apolloMeta;
@@ -89,9 +86,7 @@ public class ApolloConfigurationCenterSettings extends ModuleConfig {
     }
 
     public String toString() {
-        return "ApolloConfigurationCenterSettings(" +
-            "apolloCluster=" + this.getApolloCluster() +
-            ", clusterName=" + this.getClusterName() +
-            ", period=" + this.getPeriod() + ")";
+        return "ApolloConfigurationCenterSettings(" + "apolloCluster=" + this.getApolloCluster() + ", clusterName=" + this
+            .getClusterName() + ", period=" + this.getPeriod() + ")";
     }
 }

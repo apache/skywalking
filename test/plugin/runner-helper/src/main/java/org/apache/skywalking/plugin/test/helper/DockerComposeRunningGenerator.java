@@ -14,17 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper;
 
 import com.google.common.collect.Lists;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.skywalking.plugin.test.helper.vo.DependencyComponent;
-import org.apache.skywalking.plugin.test.helper.vo.DockerService;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,6 +30,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.skywalking.plugin.test.helper.vo.DependencyComponent;
+import org.apache.skywalking.plugin.test.helper.vo.DockerService;
 
 public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
     private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
@@ -70,8 +70,8 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         });
 
         root.put("links", links);
-        root.put("services", convertDockerServices(configuration.scenarioVersion(),
-                configuration.caseConfiguration().getDependencies()));
+        root.put("services", convertDockerServices(configuration.scenarioVersion(), configuration.caseConfiguration()
+                                                                                                 .getDependencies()));
 
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_28);
         try {
@@ -84,20 +84,20 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             // never to do this
         }
         try {
-            cfg.getTemplate("docker-compose.template").process(root, new FileWriter(new File(configuration.outputDir(),
-                    "docker-compose.yml")));
+            cfg.getTemplate("docker-compose.template")
+               .process(root, new FileWriter(new File(configuration.outputDir(), "docker-compose.yml")));
         } catch (TemplateException | IOException e) {
             logger.error(e);
         }
     }
 
-    protected List<DockerService> convertDockerServices(final String version, Map<String, DependencyComponent> componentMap) {
+    protected List<DockerService> convertDockerServices(final String version,
+                                                        Map<String, DependencyComponent> componentMap) {
         ArrayList<DockerService> services = Lists.newArrayList();
         componentMap.forEach((name, dependency) -> {
             DockerService service = new DockerService();
 
-            String imageName = dependency.getImage()
-                    .replace("${CASE_SERVER_IMAGE_VERSION}", version);
+            String imageName = dependency.getImage().replace("${CASE_SERVER_IMAGE_VERSION}", version);
             service.setName(name);
             service.setImageName(imageName);
             service.setExpose(dependency.getExpose());
@@ -108,6 +108,7 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
             service.setEntrypoint(dependency.getEntrypoint());
             service.setHealthcheck(dependency.getHealthcheck());
             service.setEnvironment(dependency.getEnvironment());
+            service.setRemoveOnExit(dependency.getRemoveOnExit());
             services.add(service);
         });
         return services;
@@ -124,6 +125,17 @@ public class DockerComposeRunningGenerator extends AbstractRunningGenerator {
         root.put("docker_compose_file", docker_compose_file);
         root.put("build_id", configuration.dockerImageVersion());
         root.put("docker_container_name", configuration.dockerContainerName());
+
+        StringBuilder removeImagesScript = new StringBuilder();
+        configuration.caseConfiguration().getDependencies().forEach((name, service) -> {
+            if (service.getRemoveOnExit()) {
+                removeImagesScript.append("docker rmi ")
+                                  .append(service.getImage().replace("${CASE_SERVER_IMAGE_VERSION}", configuration.scenarioVersion()))
+                                  .append(System.lineSeparator());
+            }
+        });
+        root.put("removeImagesScript", removeImagesScript.toString());
+
         StringWriter out = null;
 
         try {

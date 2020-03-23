@@ -131,7 +131,7 @@ netty-handler-4.1.42.Final.jar
 netty-handler-proxy-4.1.42.Final.jar
 netty-resolver-4.1.42.Final.jar
 netty-resolver-dns-4.1.42.Final.jar
-netty-tcnative-boringssl-static-2.0.7.Final.jar
+netty-tcnative-boringssl-static-2.0.26.Final.jar
 netty-transport-4.1.42.Final.jar
 okhttp-2.7.5.jar
 okhttp-3.9.0.jar
@@ -142,7 +142,8 @@ opencensus-contrib-grpc-metrics-0.24.0.jar
 parent-join-client-7.0.0.jar
 perfmark-api-0.19.0.jar
 proto-google-common-protos-1.12.0.jar
-protobuf-java-3.4.0.jar
+protobuf-java-3.11.4.jar
+protobuf-java-util-3.11.4.jar
 rank-eval-client-7.0.0.jar
 reactive-streams-1.0.2.jar
 reflectasm-1.11.7.jar
@@ -159,3 +160,8 @@ sundr-core-0.9.2.jar
 swagger-annotations-1.5.12.jar
 t-digest-3.2.jar
 zookeeper-3.4.10.jar
+converter-moshi-2.5.0.jar
+influxdb-java-2.15.jar
+logging-interceptor-3.13.1.jar
+moshi-1.5.0.jar
+msgpack-core-0.8.16.jar

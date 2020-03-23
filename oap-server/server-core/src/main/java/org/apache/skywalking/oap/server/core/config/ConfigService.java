@@ -19,12 +19,10 @@
 package org.apache.skywalking.oap.server.core.config;
 
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.*;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.DataTTLConfig;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author wusheng
- */
 @Getter
 public class ConfigService implements Service {
     private final String gRPCHost;

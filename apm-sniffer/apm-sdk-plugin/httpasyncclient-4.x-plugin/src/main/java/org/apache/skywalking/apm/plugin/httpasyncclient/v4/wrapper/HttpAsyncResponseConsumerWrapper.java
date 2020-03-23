@@ -32,10 +32,8 @@ import java.io.IOException;
 import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequestCompleteInterceptor.CONTEXT_LOCAL;
 
 /**
- * a wrapper for {@link HttpAsyncResponseConsumer} so we can be notified when the
- * current response(every response will callback the wrapper) received maybe completed or canceled,or failed.
- *
- * @author lican
+ * a wrapper for {@link HttpAsyncResponseConsumer} so we can be notified when the current response(every response will
+ * callback the wrapper) received maybe completed or canceled,or failed.
  */
 public class HttpAsyncResponseConsumerWrapper<T> implements HttpAsyncResponseConsumer<T> {
 

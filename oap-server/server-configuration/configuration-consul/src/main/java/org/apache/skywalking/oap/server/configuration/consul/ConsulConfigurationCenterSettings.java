@@ -22,9 +22,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author kezhenxu94
- */
 public class ConsulConfigurationCenterSettings extends ModuleConfig {
     @Getter
     @Setter
@@ -33,4 +30,8 @@ public class ConsulConfigurationCenterSettings extends ModuleConfig {
     @Getter
     @Setter
     private String hostAndPorts;
+
+    @Getter
+    @Setter
+    private String aclToken;
 }

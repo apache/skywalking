@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {httpclient-3.x-scenario: 2}
   instances:
     - {httpclient-3.x-scenario: 1}
@@ -23,7 +23,7 @@ registryItems:
                                 /httpclient-3.x-scenario/case/context-propagate]
   heartbeat: []
 segmentItems:
-  - applicationCode: httpclient-3.x-scenario
+  - serviceName: httpclient-3.x-scenario
     segmentSize: ge 3
     segments:
       - segmentId: not null
@@ -84,3 +84,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/httpclient-3.x-scenario/case/httpclient'}
               - {key: http.method, value: GET}
+              - key: http.params
+                value: |-
+                  q1=[v1]
+                  chinese=[中文]

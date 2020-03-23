@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -28,20 +32,18 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.KAFKA_CONSUMER;
 import static org.hamcrest.CoreMatchers.is;
@@ -62,12 +64,14 @@ public class KafkaConsumerInterceptorTest {
     private KafkaConsumerInterceptor consumerInterceptor;
 
     private EnhancedInstance consumerInstance = new EnhancedInstance() {
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
 
@@ -75,7 +79,6 @@ public class KafkaConsumerInterceptorTest {
 
     @Before
     public void setUp() {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         consumerInterceptor = new KafkaConsumerInterceptor();
         consumerEnhanceRequiredInfo = new ConsumerEnhanceRequiredInfo();
 
@@ -93,14 +96,11 @@ public class KafkaConsumerInterceptorTest {
         TopicPartition topicPartition = new TopicPartition("test", 1);
         List<ConsumerRecord> records = new ArrayList<ConsumerRecord>();
         ConsumerRecord consumerRecord = new ConsumerRecord("test", 1, 0, "1", "1");
-        consumerRecord.headers().add("sw3", "1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#testEntrySpan|#AQA*#AQA*Et0We0tQNQA*".getBytes());
+        consumerRecord.headers()
+                      .add(SW6CarrierItem.HEADER_NAME, "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-I3Rlc3RFbnRyeVNwYW4="
+                          .getBytes());
         records.add(consumerRecord);
         messages.put(topicPartition, records);
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
     }
 
     @Test

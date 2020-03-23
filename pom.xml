@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>7.0.0-SNAPSHOT</version>
+    <version>7.1.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -186,6 +186,7 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.12</junit.version>
         <mockito-all.version>1.10.19</mockito-all.version>
+        <lombok.version>1.18.10</lombok.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.26.0</grpc.version>
@@ -193,7 +194,7 @@
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
         <com.google.protobuf.protoc.version>3.3.0</com.google.protobuf.protoc.version>
         <protoc-gen-grpc-java.plugin.version>1.8.0</protoc-gen-grpc-java.plugin.version>
-        <netty-tcnative-boringssl-static.version>2.0.25.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
 
         <!-- Plugin versions -->
         <docker.plugin.version>0.4.13</docker.plugin.version>
@@ -217,6 +218,7 @@
         <jmh.version>1.21</jmh.version>
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
     </properties>
 
     <dependencies>
@@ -246,6 +248,12 @@
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -377,6 +385,22 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>${apache-rat-plugin.version}</version>
                 <configuration>
+                    <excludeSubProjects>false</excludeSubProjects>
+                    <addDefaultLicenseMatchers>false</addDefaultLicenseMatchers>
+                    <licenses>
+                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                            <licenseFamilyCategory>AL20</licenseFamilyCategory>
+                            <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
+                            <patterns>
+                                <pattern>Licensed to the Apache Software Foundation (ASF)</pattern>
+                            </patterns>
+                        </license>
+                    </licenses>
+                    <licenseFamilies>
+                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            <familyName>Apache License, 2.0</familyName>
+                        </licenseFamily>
+                    </licenseFamilies>
                     <excludes>
                         <exclude>**/target/**</exclude>
                         <exclude>**/licenses/**</exclude>
@@ -393,10 +417,15 @@
                         <exclude>**/.vscode/**</exclude>
                         <exclude>**/.factorypath</exclude>
 
+                        <!-- Docker compose envrioment variables file -->
+                        <excludes>**/.env/**</excludes>
+
                         <!-- UI IDE configs -->
                         <exclude>**/skywalking-ui/.editorconfig</exclude>
                         <!-- UI ignore -->
                         <exclude>**/skywalking-ui/.browserslistrc</exclude>
+                        <!-- UI prettier config -->
+                        <exclude>**/skywalking-ui/.prettierrc</exclude>
 
                         <!-- git files -->
                         <exclude>**/.gitignore</exclude>
@@ -433,6 +462,7 @@
                         <exclude>**/src/main/proto/google/**</exclude>
                         <exclude>**/src/main/proto/istio/**</exclude>
                         <exclude>**/src/main/proto/jaeger/**</exclude>
+                        <exclude>**/src/main/proto/mixer/**</exclude>
                         <exclude>**/src/main/proto/policy/**</exclude>
                         <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
@@ -443,9 +473,16 @@
                         <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
 
                         <!-- Maven Wrapper generated files -->
-                        <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>.mvn/wrapper/**</exclude>
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
+
+                        <!-- generated file from test agent plugin scenarios -->
+                        <exclude>**/test/plugin/workspace/**</exclude>
+
+                        <!-- TSL relevant files for e2e test -->
+                        <exclude>**/*.crt</exclude>
+                        <exclude>**/*.pem</exclude>
 
                         <exclude>.m2/**</exclude>
                     </excludes>
@@ -516,7 +553,7 @@
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <failsOnError>true</failsOnError>
+                    <failOnViolation>${checkstyle.fails.on.error}</failOnViolation>
                     <sourceDirectories>
                         <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
                         <sourceDirectory>${project.build.testSourceDirectory}</sourceDirectory>
@@ -540,6 +577,9 @@
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java
                     </excludes>
+                    <propertyExpansion>
+                        import.control=apm-checkstyle/importControl.xml
+                    </propertyExpansion>
                 </configuration>
                 <executions>
                     <execution>
@@ -561,8 +601,8 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <quiet>true</quiet>
                     <formats>
-                      <format>html</format>
-                      <format>xml</format>
+                        <format>html</format>
+                        <format>xml</format>
                     </formats>
                     <instrumentation>
                         <ignoreTrivial>true</ignoreTrivial>

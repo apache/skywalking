@@ -18,15 +18,20 @@
 
 package org.apache.skywalking.oap.server.library.buffer;
 
-import com.google.protobuf.*;
-import java.io.*;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Parser;
+import java.io.File;
+import java.io.IOException;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * DataStream provides the open APIs for the local file based cache system.
+ *
+ * @param <MESSAGE_TYPE> type of data in the cache file.
  */
 class DataStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
@@ -34,8 +39,10 @@ class DataStream<MESSAGE_TYPE extends GeneratedMessageV3> {
 
     private final File directory;
     private final OffsetStream offsetStream;
-    @Getter private final DataStreamReader<MESSAGE_TYPE> reader;
-    @Getter private final DataStreamWriter<MESSAGE_TYPE> writer;
+    @Getter
+    private final DataStreamReader<MESSAGE_TYPE> reader;
+    @Getter
+    private final DataStreamWriter<MESSAGE_TYPE> writer;
     private boolean initialized = false;
 
     DataStream(File directory, int dataFileMaxSize, int offsetFileMaxSize, Parser<MESSAGE_TYPE> parser,

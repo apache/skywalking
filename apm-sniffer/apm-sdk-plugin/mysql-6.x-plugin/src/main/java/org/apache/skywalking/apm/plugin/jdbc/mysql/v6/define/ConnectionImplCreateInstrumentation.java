@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,8 +29,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance} for mysql client version 6.x
- *
- * @author dingshaocheng lican
  */
 public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 
@@ -43,10 +40,9 @@ public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrument
 
     private static final String GET_INSTANCE_OLD_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.v6.ConnectionCreateOldInterceptor";
 
-
     @Override
     public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
-        return new StaticMethodsInterceptPoint[]{
+        return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {

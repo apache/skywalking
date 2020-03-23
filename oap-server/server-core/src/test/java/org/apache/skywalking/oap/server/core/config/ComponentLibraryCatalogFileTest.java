@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.core.config;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class ComponentLibraryCatalogFileTest {
     @Test
     public void testInitAndSettings() {

@@ -38,6 +38,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
@@ -83,33 +85,37 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * ElasticSearchClient connects to the ES server by using ES client APIs.
  */
+@Slf4j
 public class ElasticSearchClient implements Client {
-
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchClient.class);
-
     public static final String TYPE = "type";
     protected final String clusterNodes;
     protected final String protocol;
     private final String trustStorePath;
-    private final String trustStorePass;
-    private final String namespace;
-    private final String user;
-    private final String password;
-    protected RestHighLevelClient client;
+    @Setter
+    private volatile String trustStorePass;
+    @Setter
+    private volatile String user;
+    @Setter
+    private volatile String password;
+    private final List<IndexNameConverter> indexNameConverters;
+    protected volatile RestHighLevelClient client;
 
-    public ElasticSearchClient(String clusterNodes, String protocol, String trustStorePath, String trustStorePass,
-        String namespace, String user, String password) {
+    public ElasticSearchClient(String clusterNodes,
+                               String protocol,
+                               String trustStorePath,
+                               String trustStorePass,
+                               String user,
+                               String password,
+                               List<IndexNameConverter> indexNameConverters) {
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
-        this.namespace = namespace;
         this.user = user;
         this.password = password;
+        this.indexNameConverters = indexNameConverters;
         this.trustStorePath = trustStorePath;
         this.trustStorePass = trustStorePass;
     }
@@ -117,11 +123,19 @@ public class ElasticSearchClient implements Client {
     @Override
     public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
         List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
+        if (client != null) {
+            try {
+                client.close();
+            } catch (Throwable t) {
+                log.error("ElasticSearch client reconnection fails based on new config", t);
+            }
+        }
         client = createClient(hosts);
         client.ping();
     }
 
-    protected RestHighLevelClient createClient(final List<HttpHost> pairsList) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException {
+    protected RestHighLevelClient createClient(
+        final List<HttpHost> pairsList) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException {
         RestClientBuilder builder;
         if (StringUtil.isNotEmpty(user) && StringUtil.isNotEmpty(password)) {
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -129,17 +143,21 @@ public class ElasticSearchClient implements Client {
 
             if (StringUtil.isEmpty(trustStorePath)) {
                 builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
-                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+                                    .setHttpClientConfigCallback(
+                                        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(
+                                            credentialsProvider));
             } else {
                 KeyStore truststore = KeyStore.getInstance("jks");
                 try (InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
                     truststore.load(is, trustStorePass.toCharArray());
                 }
-                SSLContextBuilder sslBuilder = SSLContexts.custom()
-                    .loadTrustMaterial(truststore, null);
+                SSLContextBuilder sslBuilder = SSLContexts.custom().loadTrustMaterial(truststore, null);
                 final SSLContext sslContext = sslBuilder.build();
                 builder = RestClient.builder(pairsList.toArray(new HttpHost[0]))
-                    .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider).setSSLContext(sslContext));
+                                    .setHttpClientConfigCallback(
+                                        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(
+                                            credentialsProvider)
+                                                                              .setSSLContext(sslContext));
             }
         } else {
             builder = RestClient.builder(pairsList.toArray(new HttpHost[0]));
@@ -148,13 +166,14 @@ public class ElasticSearchClient implements Client {
         return new RestHighLevelClient(builder);
     }
 
-    @Override public void shutdown() throws IOException {
+    @Override
+    public void shutdown() throws IOException {
         client.close();
     }
 
     public static List<HttpHost> parseClusterNodes(String protocol, String nodes) {
         List<HttpHost> httpHosts = new LinkedList<>();
-        logger.info("elasticsearch cluster nodes: {}", nodes);
+        log.info("elasticsearch cluster nodes: {}", nodes);
         List<String> nodesSplit = Splitter.on(",").omitEmptyStrings().splitToList(nodes);
 
         for (String node : nodesSplit) {
@@ -171,18 +190,19 @@ public class ElasticSearchClient implements Client {
 
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         CreateIndexResponse response = client.indices().create(request);
-        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
-    public boolean createIndex(String indexName, Map<String, Object> settings, Map<String, Object> mapping) throws IOException {
+    public boolean createIndex(String indexName, Map<String, Object> settings,
+                               Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         Gson gson = new Gson();
         request.settings(gson.toJson(settings), XContentType.JSON);
         request.mapping(TYPE, gson.toJson(mapping), XContentType.JSON);
         CreateIndexResponse response = client.indices().create(request);
-        logger.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("create {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -193,7 +213,7 @@ public class ElasticSearchClient implements Client {
             Gson gson = new Gson();
             InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
             JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
-            logger.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
+            log.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
             return new ArrayList<>(responseJson.keySet());
         }
         return Collections.emptyList();
@@ -227,7 +247,7 @@ public class ElasticSearchClient implements Client {
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         DeleteIndexResponse response;
         response = client.indices().delete(request);
-        logger.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
+        log.debug("delete {} index finished, isAcknowledged: {}", indexName, response.isAcknowledged());
         return response.isAcknowledged();
     }
 
@@ -249,11 +269,13 @@ public class ElasticSearchClient implements Client {
         } else if (statusCode == HttpStatus.SC_NOT_FOUND) {
             return false;
         } else {
-            throw new IOException("The response status code of template exists request should be 200 or 404, but it is " + statusCode);
+            throw new IOException(
+                "The response status code of template exists request should be 200 or 404, but it is " + statusCode);
         }
     }
 
-    public boolean createTemplate(String indexName, Map<String, Object> settings, Map<String, Object> mapping) throws IOException {
+    public boolean createTemplate(String indexName, Map<String, Object> settings,
+                                  Map<String, Object> mapping) throws IOException {
         indexName = formatIndexName(indexName);
 
         String[] patterns = new String[] {indexName + "-*"};
@@ -269,14 +291,17 @@ public class ElasticSearchClient implements Client {
 
         HttpEntity entity = new NStringEntity(new Gson().toJson(template), ContentType.APPLICATION_JSON);
 
-        Response response = client.getLowLevelClient().performRequest(HttpPut.METHOD_NAME, "/_template/" + indexName, Collections.emptyMap(), entity);
+        Response response = client.getLowLevelClient()
+                                  .performRequest(
+                                      HttpPut.METHOD_NAME, "/_template/" + indexName, Collections.emptyMap(), entity);
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
     public boolean deleteTemplate(String indexName) throws IOException {
         indexName = formatIndexName(indexName);
 
-        Response response = client.getLowLevelClient().performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
+        Response response = client.getLowLevelClient()
+                                  .performRequest(HttpDelete.METHOD_NAME, "/_template/" + indexName);
         return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
     }
 
@@ -310,14 +335,16 @@ public class ElasticSearchClient implements Client {
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
-        org.elasticsearch.action.update.UpdateRequest  request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(indexName, id, source);
+        org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
+            indexName, id, source);
         request.version(version);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         client.update(request);
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
-        org.elasticsearch.action.update.UpdateRequest  request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(indexName, id, source);
+        org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
+            indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
         client.update(request);
     }
@@ -335,18 +362,12 @@ public class ElasticSearchClient implements Client {
     public int delete(String indexName, String timeBucketColumnName, long endTimeBucket) throws IOException {
         indexName = formatIndexName(indexName);
         Map<String, String> params = Collections.singletonMap("conflicts", "proceed");
-        String jsonString = "{" +
-            "  \"query\": {" +
-            "    \"range\": {" +
-            "      \"" + timeBucketColumnName + "\": {" +
-            "        \"lte\": " + endTimeBucket +
-            "      }" +
-            "    }" +
-            "  }" +
-            "}";
+        String jsonString = "{" + "  \"query\": {" + "    \"range\": {" + "      \"" + timeBucketColumnName + "\": {" + "        \"lte\": " + endTimeBucket + "      }" + "    }" + "  }" + "}";
         HttpEntity entity = new NStringEntity(jsonString, ContentType.APPLICATION_JSON);
-        Response response = client.getLowLevelClient().performRequest(HttpPost.METHOD_NAME, "/" + indexName + "/_delete_by_query", params, entity);
-        logger.debug("delete indexName: {}, jsonString : {}", indexName, jsonString);
+        Response response = client.getLowLevelClient()
+                                  .performRequest(
+                                      HttpPost.METHOD_NAME, "/" + indexName + "/_delete_by_query", params, entity);
+        log.debug("delete indexName: {}, jsonString : {}", indexName, jsonString);
         return response.getStatusLine().getStatusCode();
     }
 
@@ -357,9 +378,9 @@ public class ElasticSearchClient implements Client {
         try {
             int size = request.requests().size();
             BulkResponse responses = client.bulk(request);
-            logger.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
+            log.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -367,40 +388,46 @@ public class ElasticSearchClient implements Client {
         BulkProcessor.Listener listener = createBulkListener();
 
         return BulkProcessor.builder(client::bulkAsync, listener)
-            .setBulkActions(bulkActions)
-            .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
-            .setConcurrentRequests(concurrentRequests)
-            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
-            .build();
+                            .setBulkActions(bulkActions)
+                            .setFlushInterval(TimeValue.timeValueSeconds(flushInterval))
+                            .setConcurrentRequests(concurrentRequests)
+                            .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(100), 3))
+                            .build();
     }
 
     protected BulkProcessor.Listener createBulkListener() {
         return new BulkProcessor.Listener() {
-                @Override
-                public void beforeBulk(long executionId, BulkRequest request) {
-                    int numberOfActions = request.numberOfActions();
-                    logger.debug("Executing bulk [{}] with {} requests", executionId, numberOfActions);
-                }
+            @Override
+            public void beforeBulk(long executionId, BulkRequest request) {
+                int numberOfActions = request.numberOfActions();
+                log.debug("Executing bulk [{}] with {} requests", executionId, numberOfActions);
+            }
 
-                @Override
-                public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
-                    if (response.hasFailures()) {
-                        logger.warn("Bulk [{}] executed with failures", executionId);
-                    } else {
-                        logger.info("Bulk execution id [{}] completed in {} milliseconds, size: {}", executionId, response.getTook().getMillis(), request.requests().size());
-                    }
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
+                if (response.hasFailures()) {
+                    log.warn("Bulk [{}] executed with failures", executionId);
+                } else {
+                    log.info(
+                        "Bulk execution id [{}] completed in {} milliseconds, size: {}", executionId, response.getTook()
+                                                                                                              .getMillis(),
+                        request
+                            .requests()
+                            .size()
+                    );
                 }
+            }
 
-                @Override
-                public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
-                    logger.error("Failed to execute bulk", failure);
-                }
-            };
+            @Override
+            public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
+                log.error("Failed to execute bulk", failure);
+            }
+        };
     }
 
     public String formatIndexName(String indexName) {
-        if (StringUtil.isNotEmpty(namespace)) {
-            return namespace + "_" + indexName;
+        for (final IndexNameConverter indexNameConverter : indexNameConverters) {
+            indexName = indexNameConverter.convert(indexName);
         }
         return indexName;
     }

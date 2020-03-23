@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -44,6 +44,7 @@
         <module>exporter</module>
         <module>server-configuration</module>
         <module>server-bootstrap</module>
+        <module>server-tools</module>
     </modules>
 
     <properties>
@@ -56,9 +57,8 @@
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
-        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
+        <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
         <jetty.version>9.4.2.v20170220</jetty.version>
-        <lombok.version>1.18.0</lombok.version>
         <h2.version>1.4.196</h2.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-io.version>2.6</commons-io.version>
@@ -89,6 +89,7 @@
         <javaassist.version>3.25.0-GA</javaassist.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
+        <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
 
     </properties>
 
@@ -118,10 +119,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -266,6 +263,13 @@
                 <artifactId>grpc-protobuf</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf-java-util.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
@@ -309,12 +313,6 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>

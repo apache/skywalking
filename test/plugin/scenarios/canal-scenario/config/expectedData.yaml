@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 registryItems:
-  applications:
+  services:
     - {canal-scenario: 2}
   instances:
     - {canal-scenario: 1}
@@ -22,7 +22,7 @@ registryItems:
     - canal-scenario: [/canal-scenario/case/canal-case]
   heartbeat: []
 segmentItems:
-  - applicationCode: canal-scenario
+  - serviceName: canal-scenario
     segmentSize: gt 1
     segments:
       - segmentId: not null

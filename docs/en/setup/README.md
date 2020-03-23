@@ -14,7 +14,9 @@ If you have any issues, please check that your issue is not already described in
 
 - [Java agent](service-agent/java-agent/README.md). Introduces how to install java agent to your service, without any impact in your code.
 
-The following agents and SDKs are compatible with the SkyWalking's samples formats and protocols, but are maintained by 3rd-parties.
+- [LUA agent](https://github.com/apache/skywalking-nginx-lua). Introduce how to install the lua agent in Nginx + LUA module or OpenResty.
+
+The following agents and SDKs are compatible with the SkyWalking's data formats and network protocols, but are maintained by 3rd-parties.
 You can go to their project repositories for additional info about guides and releases.
 
 - [SkyAPM .NET Core agent](https://github.com/SkyAPM/SkyAPM-dotnet). See .NET Core agent project document for more details.
@@ -44,3 +46,6 @@ Follow [backend and UI setup document](backend/backend-ui-setup.md) to understan
 ## Changes log
 
 Backend, UI and Java agent changes are available [here](../../../CHANGES.md).
+
+## Upgrade FAQ
+[6.x version upgrade FAQ](../FAQ/v6-version-upgrade.md) introduces the recommendation ways to do SkyWalking upgrade.

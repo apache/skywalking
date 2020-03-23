@@ -18,34 +18,38 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
  * by default settings in application-default.yml.
- *
+ * <p>
  * At last, override setting by system.properties and system.envs if the key matches moduleName.provideName.settingKey.
- *
- * @author peng-yongsheng, wusheng
  */
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
 
+    private static final String DISABLE_SELECTOR = "-";
+    private static final String SELECTOR = "selector";
+
     private final Yaml yaml = new Yaml();
 
-    @Override public ApplicationConfiguration load() throws ConfigFileNotFoundException {
+    @Override
+    public ApplicationConfiguration load() throws ConfigFileNotFoundException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         this.loadConfig(configuration);
         this.overrideConfigBySystemEnv(configuration);
@@ -56,15 +60,17 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     private void loadConfig(ApplicationConfiguration configuration) throws ConfigFileNotFoundException {
         try {
             Reader applicationReader = ResourceUtils.read("application.yml");
-            Map<String, Map<String, Map<String, ?>>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
+            Map<String, Map<String, Object>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
             if (CollectionUtils.isNotEmpty(moduleConfig)) {
+                selectConfig(moduleConfig);
                 moduleConfig.forEach((moduleName, providerConfig) -> {
                     if (providerConfig.size() > 0) {
                         logger.info("Get a module define from application.yml, module name: {}", moduleName);
                         ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
-                        providerConfig.forEach((providerName, propertiesConfig) -> {
+                        providerConfig.forEach((providerName, config) -> {
                             logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, providerName);
-                            Properties properties = new Properties();
+                            final Map<String, ?> propertiesConfig = (Map<String, ?>) config;
+                            final Properties properties = new Properties();
                             if (propertiesConfig != null) {
                                 propertiesConfig.forEach((propertyName, propertyValue) -> {
                                     if (propertyValue instanceof Map) {
@@ -91,8 +97,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             throw new ConfigFileNotFoundException(e.getMessage(), e);
         }
     }
-    
-    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target, final Object providerName) {
+
+    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target,
+        final Object providerName) {
         final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(propertyValue + "", target));
         if (replaceValue != null) {
             target.replace(propertyName, replaceValue);
@@ -104,6 +111,48 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         for (Map.Entry<Object, Object> prop : System.getProperties().entrySet()) {
             overrideModuleSettings(configuration, prop.getKey().toString(), prop.getValue().toString());
         }
+    }
+
+    private void selectConfig(final Map<String, Map<String, Object>> moduleConfiguration) {
+        final Set<String> modulesWithoutProvider = new HashSet<>();
+        for (final Map.Entry<String, Map<String, Object>> entry : moduleConfiguration.entrySet()) {
+            final String moduleName = entry.getKey();
+            final Map<String, Object> providerConfig = entry.getValue();
+            if (!providerConfig.containsKey(SELECTOR)) {
+                continue;
+            }
+            final String selector = (String) providerConfig.get(SELECTOR);
+            final String resolvedSelector = PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(
+                selector, System.getProperties()
+            );
+            providerConfig.entrySet().removeIf(e -> !resolvedSelector.equals(e.getKey()));
+
+            if (!providerConfig.isEmpty()) {
+                continue;
+            }
+
+            if (!DISABLE_SELECTOR.equals(resolvedSelector)) {
+                throw new ProviderNotFoundException(
+                    "no provider found for module " + moduleName + ", " +
+                        "if you're sure it's not required module and want to remove it, " +
+                        "set the selector to -"
+                );
+            }
+
+            // now the module can be safely removed
+            modulesWithoutProvider.add(moduleName);
+        }
+
+        moduleConfiguration.entrySet().removeIf(e -> {
+            final String module = e.getKey();
+            final boolean shouldBeRemoved = modulesWithoutProvider.contains(module);
+
+            if (shouldBeRemoved) {
+                logger.info("Remove module {} without any provider", module);
+            }
+
+            return shouldBeRemoved;
+        });
     }
 
     private void overrideModuleSettings(ApplicationConfiguration configuration, String key, String value) {
@@ -144,7 +193,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             return;
         }
 
-        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}",
-            settingKey, value, providerName, moduleName, "System.properties");
+        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}", settingKey, value, providerName, moduleName, "System.properties");
     }
 }

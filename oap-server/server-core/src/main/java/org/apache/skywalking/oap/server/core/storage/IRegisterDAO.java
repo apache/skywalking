@@ -22,13 +22,23 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 
 /**
- * @author peng-yongsheng
+ * DAO specifically for {@link RegisterSource} implementations.
  */
 public interface IRegisterDAO extends DAO {
-    
+    /**
+     * Read the RegisterSource by the given ID.
+     *
+     * @return RegisterSource instance or NULL if id doesn't exist.
+     */
     RegisterSource get(String modelName, String id) throws IOException;
 
+    /**
+     * Do a blocking insert operation.
+     */
     void forceInsert(String modelName, RegisterSource source) throws IOException;
 
+    /**
+     * Do a blocking update operation.
+     */
     void forceUpdate(String modelName, RegisterSource source) throws IOException;
 }

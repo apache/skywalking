@@ -18,6 +18,7 @@
 
 package test.org.apache.skywalking.apm.testcase.resttemplate;
 
+import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -29,8 +30,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import test.org.apache.skywalking.apm.testcase.entity.User;
-
-import java.io.IOException;
 
 @RestController
 public class RestTemplateController {
@@ -66,15 +65,21 @@ public class RestTemplateController {
         response = new OkHttpClient().newCall(inheritRequest).execute();
         logger.info(response.toString());
 
+        Request implRequestMappingRequest = new Request.Builder().url(url + "/impl/requestmapping").build();
+        response = new OkHttpClient().newCall(implRequestMappingRequest).execute();
+        logger.info(response.toString());
+
+        Request implRestMappingRequest = new Request.Builder().url(url + "/impl/restmapping").build();
+        response = new OkHttpClient().newCall(implRestMappingRequest).execute();
+        logger.info(response.toString());
+
         return SUCCESS;
     }
-
 
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
         return SUCCESS;
     }
-
 
 }

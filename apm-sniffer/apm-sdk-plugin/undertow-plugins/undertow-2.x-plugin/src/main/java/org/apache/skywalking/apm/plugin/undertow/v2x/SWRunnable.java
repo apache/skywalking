@@ -23,9 +23,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author zhangwei
- */
 public class SWRunnable implements Runnable {
 
     private static final String OPERATION_NAME = "UndertowDispatch";

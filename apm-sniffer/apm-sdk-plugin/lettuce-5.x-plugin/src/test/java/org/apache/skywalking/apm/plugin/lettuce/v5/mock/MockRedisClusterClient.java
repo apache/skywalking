@@ -20,10 +20,6 @@ package org.apache.skywalking.apm.plugin.lettuce.v5.mock;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
-/**
- * @author zhaoyuguang
- */
-
 public class MockRedisClusterClient implements EnhancedInstance {
 
     private Object ms;

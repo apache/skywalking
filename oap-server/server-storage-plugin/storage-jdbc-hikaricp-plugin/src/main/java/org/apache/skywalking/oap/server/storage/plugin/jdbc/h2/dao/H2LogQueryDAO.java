@@ -46,10 +46,6 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 
-/**
- * @author wusheng
- * @author panjuan
- */
 public class H2LogQueryDAO implements ILogQueryDAO {
     private JDBCHikariCPClient h2Client;
 
@@ -58,9 +54,8 @@ public class H2LogQueryDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, LogState state,
-        String stateCode, Pagination paging, int from, int limit, long startSecondTB,
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+        LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
         long endSecondTB) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
@@ -105,7 +100,8 @@ public class H2LogQueryDAO implements ILogQueryDAO {
         Logs logs = new Logs();
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(connection, buildCountStatement(sql.toString()), parameters
+                .toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     logs.setTotal(resultSet.getInt("total"));
                 }

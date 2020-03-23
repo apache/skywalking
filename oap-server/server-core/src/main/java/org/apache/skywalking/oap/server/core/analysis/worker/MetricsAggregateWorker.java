@@ -18,20 +18,29 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
-import org.apache.skywalking.apm.commons.datacarrier.consumer.*;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * MetricsAggregateWorker provides an in-memory metrics merging capability. This aggregation is called L1 aggregation,
+ * it merges the data just after the receiver analysis. The metrics belonging to the same entity, metrics type and time
+ * bucket, the L1 aggregation will merge them into one metrics object to reduce the unnecessary memory and network
+ * payload.
  */
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
@@ -42,14 +51,16 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private final MergeDataCache<Metrics> mergeDataCache;
     private CounterMetrics aggregationCounter;
 
-    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker, String modelName) {
+    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
+                           String modelName) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergeDataCache<>();
         String name = "METRICS_L1_AGGREGATION";
         this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
+            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
@@ -57,12 +68,17 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         }
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer(this));
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        aggregationCounter = metricsCreator.createCounter("metrics_aggregation", "The number of rows in aggregation",
-            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min"));
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        aggregationCounter = metricsCreator.createCounter(
+            "metrics_aggregation", "The number of rows in aggregation",
+            new MetricsTag.Keys("metricName", "level", "dimensionality"), new MetricsTag.Values(modelName, "1", "min")
+        );
     }
 
-    @Override public final void in(Metrics metrics) {
+    @Override
+    public final void in(Metrics metrics) {
         metrics.resetEndOfBatch();
         dataCarrier.produce(metrics);
     }
@@ -115,11 +131,13 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             this.aggregator = aggregator;
         }
 
-        @Override public void init() {
+        @Override
+        public void init() {
 
         }
 
-        @Override public void consume(List<Metrics> data) {
+        @Override
+        public void consume(List<Metrics> data) {
             Iterator<Metrics> inputIterator = data.iterator();
 
             int i = 0;
@@ -133,11 +151,13 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             }
         }
 
-        @Override public void onError(List<Metrics> data, Throwable t) {
+        @Override
+        public void onError(List<Metrics> data, Throwable t) {
             logger.error(t.getMessage(), t);
         }
 
-        @Override public void onExit() {
+        @Override
+        public void onExit() {
         }
     }
 }

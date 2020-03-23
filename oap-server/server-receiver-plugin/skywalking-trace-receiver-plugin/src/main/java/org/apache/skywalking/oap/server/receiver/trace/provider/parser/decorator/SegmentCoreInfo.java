@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.apm.network.ProtocolVersion;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
 public class SegmentCoreInfo {
@@ -34,5 +33,5 @@ public class SegmentCoreInfo {
     private boolean isError;
     private long minuteTimeBucket;
     private byte[] dataBinary;
-    private boolean isV2;
+    private ProtocolVersion version;
 }

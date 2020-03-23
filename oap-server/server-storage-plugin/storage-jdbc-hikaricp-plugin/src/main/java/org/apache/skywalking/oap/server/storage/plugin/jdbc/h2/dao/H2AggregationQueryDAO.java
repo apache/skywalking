@@ -37,10 +37,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author wusheng
- * @author panjuan
- */
 public class H2AggregationQueryDAO implements IAggregationQueryDAO {
 
     @Getter(AccessLevel.PROTECTED)
@@ -56,14 +52,15 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
-    @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
+    @Override
+    public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
         Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName,
-        int topN, Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
+        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=?");
             conditions.add(serviceId);
@@ -76,8 +73,9 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
-    @Override public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName,
-        int topN, Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+    @Override
+    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
+        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(EndpointInventory.SERVICE_ID).append("=?");
             conditions.add(serviceId);
@@ -85,12 +83,17 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Downsampling downsampling,
-                                      long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
+        long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
         StringBuilder sql = new StringBuilder();
         List<Object> conditions = new ArrayList<>(10);
-        sql.append("select * from (select avg(").append(valueCName).append(") value,").append(Metrics.ENTITY_ID).append(" from ")
-                .append(indexName).append(" where ");
+        sql.append("select * from (select avg(")
+           .append(valueCName)
+           .append(") value,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from ")
+           .append(indexName)
+           .append(" where ");
         this.setTimeRangeCondition(sql, conditions, startTB, endTB);
         if (appender != null) {
             appender.append(sql, conditions);
@@ -98,19 +101,13 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
         sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(") order by value ").append(order.equals(Order.ASC) ? "asc" : "desc").append(" limit ").append(topN);
         List<TopNEntity> topNEntities = new ArrayList<>();
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
-            
-                try {
-                    while (resultSet.next()) {
-                        TopNEntity topNEntity = new TopNEntity();
-                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                        topNEntity.setValue(resultSet.getLong("value"));
-                        topNEntities.add(topNEntity);
-                    }
-                } catch (SQLException e) {
-                    throw new IOException(e);
-                }
+        try (Connection connection = h2Client.getConnection();
+             ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), conditions.toArray(new Object[0]))) {
+            while (resultSet.next()) {
+                TopNEntity topNEntity = new TopNEntity();
+                topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
+                topNEntity.setValue(resultSet.getLong("value"));
+                topNEntities.add(topNEntity);
             }
         } catch (SQLException e) {
             throw new IOException(e);

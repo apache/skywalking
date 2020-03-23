@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runner-helper</artifactId>
-    <name>plugin-runner-helper</name>
+    <name>SkyWalking Plugin Test Runner Helper</name>
 
     <dependencies>
         <dependency>
@@ -73,7 +73,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>org.apache.skywalking.plugin.test.helper.Main</Main-Class>
                                     </manifestEntries>

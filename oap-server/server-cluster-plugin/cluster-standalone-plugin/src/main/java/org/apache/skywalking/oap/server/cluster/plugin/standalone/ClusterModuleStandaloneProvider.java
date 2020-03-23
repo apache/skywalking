@@ -28,9 +28,6 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterModuleStandaloneProvider.class);
@@ -39,28 +36,34 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
         super();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "standalone";
     }
 
-    @Override public Class module() {
+    @Override
+    public Class module() {
         return ClusterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException {
         StandaloneManager standaloneManager = new StandaloneManager();
         this.registerServiceImplementation(ClusterRegister.class, standaloneManager);
         this.registerServiceImplementation(ClusterNodesQuery.class, standaloneManager);
     }
 
-    @Override public void start() throws ModuleStartException {
+    @Override
+    public void start() throws ModuleStartException {
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
     }
 
     @Override

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.opentracing;
 
 import io.opentracing.ActiveSpan;
@@ -30,9 +29,6 @@ import io.opentracing.tag.Tags;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author wusheng
- */
 public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
     private List<Tag> tags = new LinkedList<Tag>();
     private String operationName;
@@ -66,10 +62,6 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     /**
      * Ignore the reference type. the span always the entry or has a parent span.
-     *
-     * @param referenceType
-     * @param referencedContext
-     * @return
      */
     @Override
     public Tracer.SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
@@ -94,8 +86,9 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
                 isEntry = false;
                 isExit = false;
             }
-        } else if (Tags.PEER_HOST_IPV4.getKey().equals(key) || Tags.PEER_HOST_IPV6.getKey().equals(key)
-                || Tags.PEER_HOSTNAME.getKey().equals(key)) {
+        } else if (Tags.PEER_HOST_IPV4.getKey().equals(key) || Tags.PEER_HOST_IPV6.getKey()
+                                                                                  .equals(key) || Tags.PEER_HOSTNAME.getKey()
+                                                                                                                    .equals(key)) {
             peer = value;
         } else if (Tags.PEER_SERVICE.getKey().equals(key)) {
             operationName = value;

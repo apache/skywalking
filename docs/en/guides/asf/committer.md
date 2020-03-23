@@ -121,11 +121,11 @@ Notice, if never got your GitHub invitation? Visit github.com/apache to see if y
 If you want others could see you are in the Apache GitHub org, you need to go to [Apache GitHub org people page](https://github.com/orgs/apache/people), 
 search for yourself, and choose `Organization visibility` to `Public`.
 
-### Committer right, duty and responsibility
+### Committer rights, duties and responsibilities
 SkyWalking project doesn't require the continue contributions after you become a committer, but we hope and truly want you could.
 
 Being a committer, you could
-1. Review and merge the pull request to the master branch in the Apache repo. For new committer, we hope you could request some senior committer to recheck the pull request.
+1. Review and merge the pull request to the master branch in the Apache repo. A pull request often contains multiple commits. Those commits **must be squashed and merged** into a single commit **with explanatory comments**. For new committer, we hope you could request some senior committer to recheck the pull request.
 1. Create and push codes to new branch in the Apache repo.
 1. Follow the [Release process](../How-to-release.md) to process new release. Of course, you need to ask committer team
 to confirm it is the right time to release.
@@ -144,7 +144,7 @@ including
 
 V.P. and chair of the PMC is the secretary, take responsibility of initializing the board report.
 
-In the normal case, the new PMC member should be nominated from committer team. But this is forbidden, if the PMC could
+In the normal case, the new PMC member should be nominated from committer team. But becoming a PMC member directly is not forbidden, if the PMC could
 agree and be confidence that the candidate is ready, such as he/she has been a PMC member of another project, Apache member
 or Apache officer.
 

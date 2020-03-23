@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
 public class Call {

@@ -18,14 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
+@ToString
 public class Rules {
     private List<AlarmRule> rules;
     private List<String> webhooks;
+    private GRPCAlarmSetting grpchookSetting;
 
     public Rules() {
         this.rules = new ArrayList<>();

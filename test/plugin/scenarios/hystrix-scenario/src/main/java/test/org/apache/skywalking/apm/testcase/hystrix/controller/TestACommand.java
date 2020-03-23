@@ -30,11 +30,8 @@ public class TestACommand extends HystrixCommand<String> {
 
     protected TestACommand(String name) {
         super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("TestACommand"))
-            .andCommandPropertiesDefaults(
-                HystrixCommandProperties.Setter()
-                    .withExecutionTimeoutInMilliseconds(1000)
-            )
-        );
+                    .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                                                                          .withExecutionTimeoutInMilliseconds(1000)));
         this.name = name;
     }
 

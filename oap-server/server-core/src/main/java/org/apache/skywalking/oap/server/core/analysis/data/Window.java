@@ -21,7 +21,12 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author peng-yongsheng
+ * Data cache window. Window holds two data collections(A and B). They are switchable based on outside command. In any
+ * time, one collection is accepting the input data, and the other is immutable.
+ *
+ * This window makes sure there is not concurrency read-write situation.
+ *
+ * @param <DATA> type in the Window and internal collection.
  */
 public abstract class Window<DATA> {
 

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v6.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
@@ -26,8 +25,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMa
 
 /**
  * {@link DriverInstrumentation} presents that skywalking intercepts {@link com.mysql.jdbc.Driver}.
- *
- * @author zhangxin
  */
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
     @Override

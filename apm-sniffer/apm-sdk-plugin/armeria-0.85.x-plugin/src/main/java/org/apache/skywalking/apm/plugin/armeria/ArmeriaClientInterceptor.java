@@ -17,15 +17,14 @@
 
 package org.apache.skywalking.apm.plugin.armeria;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-
 import com.linecorp.armeria.client.Clients;
 import com.linecorp.armeria.common.HttpHeadersBuilder;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.util.SafeCloseable;
 import io.netty.util.AsciiString;
+import java.lang.reflect.Method;
+import java.net.URI;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -36,9 +35,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author kezhenxu94
- */
 public abstract class ArmeriaClientInterceptor implements InstanceMethodsAroundInterceptor {
     private static final String KEY_SAFE_CLOSEABLE = "SAFE_CLOSEABLE";
 
@@ -74,12 +70,8 @@ public abstract class ArmeriaClientInterceptor implements InstanceMethodsAroundI
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+                                      final Class<?>[] argumentsTypes, final Throwable t) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

@@ -16,15 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -32,17 +31,10 @@ import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Tags;
 
-/**
- * @author kezhenxu94
- */
 public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
-    public void beforeMethod(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final MethodInterceptResult result) {
+    public void beforeMethod(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final MethodInterceptResult result) {
 
         if (!ContextManager.isActive()) {
             return;
@@ -54,18 +46,16 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         final Tags tags = method.getAnnotation(Tags.class);
         if (tags != null && tags.value().length > 0) {
             for (final Tag tag : tags.value()) {
-                tagSpan(activeSpan, tag, context);
+                if (!TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagParamsSpan(activeSpan, context, tag);
+                }
             }
         }
 
         final Tag tag = method.getAnnotation(Tag.class);
-        if (tag != null) {
-            tagSpan(activeSpan, tag, context);
+        if (tag != null && !TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagParamsSpan(activeSpan, context, tag);
         }
-    }
-
-    private void tagSpan(final AbstractSpan span, final Tag tag, final Map<String, Object> context) {
-        new StringTag(tag.key()).set(span, CustomizeExpression.parseExpression(tag.value(), context));
     }
 
     @Override
@@ -75,16 +65,29 @@ public class TagAnnotationMethodInterceptor implements InstanceMethodsAroundInte
         final Object[] allArguments,
         final Class<?>[] argumentsTypes,
         final Object ret) {
+        if (ret == null || !ContextManager.isActive()) {
+            return ret;
+        }
+        final AbstractSpan localSpan = ContextManager.activeSpan();
+        final Map<String, Object> context = CustomizeExpression.evaluationReturnContext(ret);
+        final Tags tags = method.getAnnotation(Tags.class);
+        if (tags != null && tags.value().length > 0) {
+            for (final Tag tag : tags.value()) {
+                if (TagUtil.isReturnTag(tag.value())) {
+                    TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+                }
+            }
+        }
+        final Tag tag = method.getAnnotation(Tag.class);
+        if (tag != null && TagUtil.isReturnTag(tag.value())) {
+            TagUtil.tagReturnSpanSpan(localSpan, context, tag);
+        }
         return ret;
     }
 
     @Override
-    public void handleMethodException(
-        final EnhancedInstance objInst,
-        final Method method,
-        final Object[] allArguments,
-        final Class<?>[] argumentsTypes,
-        final Throwable t) {
+    public void handleMethodException(final EnhancedInstance objInst, final Method method, final Object[] allArguments,
+        final Class<?>[] argumentsTypes, final Throwable t) {
         if (ContextManager.isActive()) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }

@@ -30,9 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-/**
- * @author peng-yongsheng
- */
 public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     /**
@@ -45,49 +42,60 @@ public class RealCallInstrumentation extends ClassInstanceMethodsEnhancePluginDe
      */
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.okhttp.v3.RealCallInterceptor";
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
-    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return INTERCEPT_CLASS;
                 }
             }
         };
     }
 
-    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("enqueue").and(takesArguments(1));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return "org.apache.skywalking.apm.plugin.okhttp.v3.EnqueueInterceptor";
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

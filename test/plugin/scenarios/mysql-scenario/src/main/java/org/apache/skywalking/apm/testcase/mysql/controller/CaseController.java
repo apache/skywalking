@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.apm.testcase.mysql.controller;
 
-import java.sql.SQLException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.testcase.mysql.SQLExecutor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/case")
@@ -34,9 +35,7 @@ public class CaseController {
 
     private static final String SUCCESS = "Success";
 
-    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" +
-        "id VARCHAR(1) PRIMARY KEY, \n" +
-        "value VARCHAR(1) NOT NULL)";
+    private static final String CREATE_TABLE_SQL = "CREATE TABLE test_007(\n" + "id VARCHAR(1) PRIMARY KEY, \n" + "value VARCHAR(1) NOT NULL)";
     private static final String INSERT_DATA_SQL = "INSERT INTO test_007(id, value) VALUES(?,?)";
     private static final String QUERY_DATA_SQL = "SELECT id, value FROM test_007 WHERE id=?";
     private static final String DELETE_DATA_SQL = "DELETE FROM test_007 WHERE id=?";
@@ -44,32 +43,24 @@ public class CaseController {
 
     @RequestMapping("/mysql-scenario")
     @ResponseBody
-    public String testcase() {
-        SQLExecutor sqlExecute = null;
-        try {
-            sqlExecute = new SQLExecutor();
+    public String testcase() throws Exception {
+        try (SQLExecutor sqlExecute = new SQLExecutor()) {
             sqlExecute.createTable(CREATE_TABLE_SQL);
             sqlExecute.insertData(INSERT_DATA_SQL, "1", "1");
             sqlExecute.dropTable(DROP_TABLE_SQL);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             logger.error("Failed to execute sql.", e);
-        } finally {
-            if (sqlExecute != null) {
-                try {
-                    sqlExecute.closeConnection();
-                } catch (SQLException e) {
-                    logger.error("Failed to close connection.", e);
-                }
-            }
+            throw e;
         }
-
         return SUCCESS;
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
-    public String healthCheck() {
-        // your codes
+    public String healthCheck() throws Exception {
+        try (SQLExecutor sqlExecutor = new SQLExecutor()) {
+            // ignore
+        }
         return SUCCESS;
     }
 

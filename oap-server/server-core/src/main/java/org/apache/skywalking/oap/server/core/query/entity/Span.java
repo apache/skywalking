@@ -18,33 +18,48 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import java.util.*;
-import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 public class Span {
-    @Setter private String traceId;
-    @Setter private String segmentId;
-    @Setter private int spanId;
-    @Setter private int parentSpanId;
+    @Setter
+    private String traceId;
+    @Setter
+    private String segmentId;
+    @Setter
+    private int spanId;
+    @Setter
+    private int parentSpanId;
     private final List<Ref> refs;
-    @Setter private String serviceCode;
-    @Setter private long startTime;
-    @Setter private long endTime;
-    @Setter private String endpointName;
-    @Setter private String type;
-    @Setter private String peer;
-    @Setter private String component;
-    @Setter private boolean isError;
-    @Setter private String layer;
+    @Setter
+    private String serviceCode;
+    @Setter
+    private long startTime;
+    @Setter
+    private long endTime;
+    @Setter
+    private String endpointName;
+    @Setter
+    private String type;
+    @Setter
+    private String peer;
+    @Setter
+    private String component;
+    @Setter
+    private boolean isError;
+    @Setter
+    private String layer;
     private final List<KeyValue> tags;
     private final List<LogEntity> logs;
-    @Setter private boolean isRoot;
-    @Setter private String segmentSpanId;
-    @Setter private String segmentParentSpanId;
+    @Setter
+    private boolean isRoot;
+    @Setter
+    private String segmentSpanId;
+    @Setter
+    private String segmentParentSpanId;
 
     public Span() {
         this.refs = new ArrayList<>();

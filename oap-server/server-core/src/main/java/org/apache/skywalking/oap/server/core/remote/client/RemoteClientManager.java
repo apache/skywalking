@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import io.grpc.netty.GrpcSslContexts;
+import io.netty.handler.ssl.SslContext;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,14 +53,13 @@ import org.slf4j.LoggerFactory;
 /**
  * This class manages the connections between OAP servers. There is a task schedule that will automatically query a
  * server list from the cluster module. Such as Zookeeper cluster module or Kubernetes cluster module.
- *
- * @author peng-yongsheng
  */
 public class RemoteClientManager implements Service {
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteClientManager.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
+    private SslContext sslContext;
     private ClusterNodesQuery clusterNodesQuery;
     private volatile List<RemoteClient> usingClients;
     private GaugeMetrics gauge;
@@ -64,11 +67,29 @@ public class RemoteClientManager implements Service {
 
     /**
      * Initial the manager for all remote communication clients.
-     *
      * @param moduleDefineHolder for looking up other modules
      * @param remoteTimeout      for cluster internal communication, in second unit.
+     * @param trustedCAFile         SslContext to verify server certificates.
      */
-    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder, int remoteTimeout) {
+    public RemoteClientManager(ModuleDefineHolder moduleDefineHolder,
+                               int remoteTimeout,
+                               File trustedCAFile) {
+        this(moduleDefineHolder, remoteTimeout);
+        try {
+            sslContext = GrpcSslContexts.forClient().trustManager(trustedCAFile).build();
+        } catch (SSLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * Initial the manager for all remote communication clients.
+     *
+     * Initial the manager for all remote communication clients.
+     *  @param moduleDefineHolder for looking up other modules
+     * @param remoteTimeout      for cluster internal communication, in second unit.
+     */
+    public RemoteClientManager(final ModuleDefineHolder moduleDefineHolder, final int remoteTimeout) {
         this.moduleDefineHolder = moduleDefineHolder;
         this.usingClients = ImmutableList.of();
         this.remoteTimeout = remoteTimeout;
@@ -84,15 +105,18 @@ public class RemoteClientManager implements Service {
      */
     void refresh() {
         if (gauge == null) {
-            gauge = moduleDefineHolder.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class)
-                .createGauge("cluster_size", "Cluster size of current oap node",
-                    MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+            gauge = moduleDefineHolder.find(TelemetryModule.NAME)
+                                      .provider()
+                                      .getService(MetricsCreator.class)
+                                      .createGauge("cluster_size", "Cluster size of current oap node", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
         }
         try {
             if (Objects.isNull(clusterNodesQuery)) {
                 synchronized (RemoteClientManager.class) {
                     if (Objects.isNull(clusterNodesQuery)) {
-                        this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
+                        this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME)
+                                                                   .provider()
+                                                                   .getService(ClusterNodesQuery.class);
                     }
                 }
             }
@@ -169,16 +193,17 @@ public class RemoteClientManager implements Service {
      */
     private void reBuildRemoteClients(List<RemoteInstance> remoteInstances) {
         final Map<Address, RemoteClientAction> remoteClientCollection = this.usingClients.stream()
-            .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
+                                                                                         .collect(Collectors.toMap(RemoteClient::getAddress, client -> new RemoteClientAction(client, Action.Close)));
 
         final Map<Address, RemoteClientAction> latestRemoteClients = remoteInstances.stream()
-            .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
+                                                                                    .collect(Collectors.toMap(RemoteInstance::getAddress, remote -> new RemoteClientAction(null, Action.Create)));
 
         final Set<Address> unChangeAddresses = Sets.intersection(remoteClientCollection.keySet(), latestRemoteClients.keySet());
 
         unChangeAddresses.stream()
-            .filter(remoteClientCollection::containsKey)
-            .forEach(unChangeAddress -> remoteClientCollection.get(unChangeAddress).setAction(Action.Unchanged));
+                         .filter(remoteClientCollection::containsKey)
+                         .forEach(unChangeAddress -> remoteClientCollection.get(unChangeAddress)
+                                                                           .setAction(Action.Unchanged));
 
         // make the latestRemoteClients including the new clients only
         unChangeAddresses.forEach(latestRemoteClients::remove);
@@ -195,7 +220,8 @@ public class RemoteClientManager implements Service {
                         RemoteClient client = new SelfRemoteClient(moduleDefineHolder, address);
                         newRemoteClients.add(client);
                     } else {
-                        RemoteClient client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout);
+                        RemoteClient client;
+                        client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout, sslContext);
                         client.connect();
                         newRemoteClients.add(client);
                     }
@@ -208,9 +234,9 @@ public class RemoteClientManager implements Service {
         this.usingClients = ImmutableList.copyOf(newRemoteClients);
 
         remoteClientCollection.values()
-            .stream()
-            .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
-            .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
+                              .stream()
+                              .filter(remoteClientAction -> remoteClientAction.getAction().equals(Action.Close))
+                              .forEach(remoteClientAction -> remoteClientAction.getRemoteClient().close());
     }
 
     private boolean compare(List<RemoteInstance> remoteInstances) {

@@ -22,9 +22,6 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-/**
- * @author peng-yongsheng
- */
 public interface IServiceInventoryCacheDAO extends DAO {
 
     int getServiceId(String serviceName);

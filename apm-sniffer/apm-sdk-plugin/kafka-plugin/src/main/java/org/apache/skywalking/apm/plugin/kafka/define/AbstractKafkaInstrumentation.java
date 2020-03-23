@@ -22,7 +22,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 
 public abstract class AbstractKafkaInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected String[] witnessClasses() {
-        return new String[]{"org.apache.kafka.clients.ApiVersions"};
+    @Override
+    protected String[] witnessClasses() {
+        return new String[] {"org.apache.kafka.clients.ApiVersions"};
     }
 }

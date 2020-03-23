@@ -21,7 +21,8 @@ package org.apache.skywalking.oal.rt.parser;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
 public class MetricsHolder {
@@ -35,16 +36,21 @@ public class MetricsHolder {
 
             if (aClass.isAnnotationPresent(MetricsFunction.class)) {
                 MetricsFunction metricsFunction = aClass.getAnnotation(MetricsFunction.class);
-                REGISTER.put(metricsFunction.functionName(), (Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics>)aClass);
+                REGISTER.put(
+                    metricsFunction.functionName(),
+                    (Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics>) aClass
+                );
             }
         }
     }
 
-    public static Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> find(String functionName) {
+    public static Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> find(
+        String functionName) {
         String func = functionName;
-        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = REGISTER.get(func);
+        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = REGISTER.get(
+            func);
         if (metricsClass == null) {
-            throw new IllegalArgumentException("Can't find metrics.");
+            throw new IllegalArgumentException("Can't find metrics, " + func);
         }
         return metricsClass;
     }

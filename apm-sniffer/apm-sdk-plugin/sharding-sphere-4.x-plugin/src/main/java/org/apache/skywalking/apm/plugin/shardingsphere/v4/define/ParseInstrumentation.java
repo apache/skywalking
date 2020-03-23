@@ -30,29 +30,27 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.route.router.sharding.ParsingSQLRouter}.
- *
- * @author zhangyonglun
  */
 public class ParseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    
+
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.route.router.sharding.ParsingSQLRouter";
-    
+
     private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4.ParseInterceptor";
-    
+
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("parse");
                 }
-                
+
                 @Override
                 public String getMethodsInterceptor() {
                     return EXECUTE_INTERCEPTOR_CLASS;
                 }
-                
+
                 @Override
                 public boolean isOverrideArgs() {
                     return false;
@@ -60,12 +58,12 @@ public class ParseInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             }
         };
     }
-    
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
-    
+
     @Override
     protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);

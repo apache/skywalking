@@ -39,12 +39,16 @@ ActiveSpan.debug("Test-debug-Msg");
 
 /**
  * The codes below will generate a span,
- * and two tags, keys are `tag1` and `tag2`, values are the passed-in parameters, respectively
+ * and two types of tags, 
+      one type tag: keys are `tag1` and `tag2`, values are the passed-in parameters, respectively, 
+      the other type tag: keys are `username`  and `age`, values are the return value in User, respectively
  */
 @Trace
 @Tag(key = "tag1", value = "arg[0]")
 @Tag(key = "tag2", value = "arg[1]")
-public void methodYouWantToTrace(String param1, String param2) {
+@Tag(key = "username", value = "returnedObj.username")
+@Tag(key = "age", value = "returnedObj.age")
+public User methodYouWantToTrace(String param1, String param2) {
     // ...
 }
 ```

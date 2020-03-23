@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -30,24 +31,24 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author zhangwei
+ * Service Instance mapping basically is as same as the service mapping. The network address fetched from the propagated
+ * context is the alias for the specific service instance. This is just more detailed mapping setup.
+ * <p>
+ * Read {@link ServiceMappingSpanListener}.
  */
+@Slf4j
 public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceMappingSpanListener.class);
-
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
     private final TraceServiceModuleConfig config;
     private final ServiceInventoryCache serviceInventoryCache;
@@ -57,31 +58,53 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
     private final List<Integer> serviceInstancesToResetMapping = new ArrayList<>();
 
     public ServiceInstanceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
-        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(NetworkAddressInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+            .provider()
+            .getService(ServiceInstanceInventoryCache.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+            .provider()
+            .getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
+            .provider()
+            .getService(IServiceInstanceInventoryRegister.class);
+        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
+            .provider()
+            .getService(NetworkAddressInventoryCache.class);
         this.config = config;
     }
 
     @Override
     public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("service instance mapping listener parse reference");
+        if (log.isDebugEnabled()) {
+            log.debug("service instance mapping listener parse reference");
         }
         if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
             if (spanDecorator.getRefsCount() > 0) {
                 for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
+                    ReferenceDecorator referenceDecorator = spanDecorator.getRefs(i);
+                    String parentLanguage = serviceInstanceInventoryCache.getServiceInstanceLanguage(referenceDecorator.getParentServiceInstanceId());
+                    if (config.getNoUpstreamRealAddressAgents().contains(parentLanguage)) {
+                        /*
+                         * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+                         */
+                        continue;
+                    }
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
                     String address = networkAddressInventoryCache.get(networkAddressId).getName();
-                    int serviceInstanceId = serviceInstanceInventoryCache.getServiceInstanceId(serviceInventoryCache.getServiceId(networkAddressId), networkAddressId);
+                    int serviceInstanceId = serviceInstanceInventoryCache.getServiceInstanceId(
+                        serviceInventoryCache.getServiceId(networkAddressId), networkAddressId);
 
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("{} is configured as gateway, will reset its mapping service instance id", serviceInstanceId);
+                        if (log.isDebugEnabled()) {
+                            log.debug(
+                                "{} is configured as gateway, will reset its mapping service instance id",
+                                serviceInstanceId
+                            );
                         }
-                        ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
-                        if (instanceInventory.getMappingServiceInstanceId() != Const.NONE && !serviceInstancesToResetMapping.contains(serviceInstanceId)) {
+                        ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(
+                            serviceInstanceId);
+                        if (instanceInventory.getMappingServiceInstanceId() != Const.NONE && !serviceInstancesToResetMapping
+                            .contains(serviceInstanceId)) {
                             serviceInstancesToResetMapping.add(serviceInstanceId);
                         }
                     } else {
@@ -98,14 +121,17 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
     @Override
     public void build() {
         serviceInstanceMappings.forEach(instanceMapping -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("service instance mapping listener build, service id: {}, mapping service id: {}", instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "service instance mapping listener build, service instance id: {}, mapping service instance id: {}", instanceMapping
+                        .getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
             }
-            serviceInstanceInventoryRegister.updateMapping(instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
+            serviceInstanceInventoryRegister.updateMapping(
+                instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
         });
         serviceInstancesToResetMapping.forEach(instanceId -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("service instance mapping listener build, reset mapping of service id: {}", instanceId);
+            if (log.isDebugEnabled()) {
+                log.debug("service instance mapping listener build, reset mapping of service instance id: {}", instanceId);
             }
             serviceInstanceInventoryRegister.resetMapping(instanceId);
         });

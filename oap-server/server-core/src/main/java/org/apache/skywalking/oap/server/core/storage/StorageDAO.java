@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * @author peng-yongsheng
+ * StorageDAO is a DAO factory for storage layer. Provide the implementations of typical DAO interfaces.
  */
 public interface StorageDAO extends Service {
 

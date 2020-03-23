@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.agent.core.context;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
@@ -29,42 +29,45 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
 import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitTypeSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LocalSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopExitSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.context.trace.WithPeerInfo;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.PossibleFound;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.profile.ProfileStatusReference;
+import org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * The <code>TracingContext</code> represents a core tracing logic controller. It build the final {@link
  * TracingContext}, by the stack mechanism, which is similar with the codes work.
- *
+ * <p>
  * In opentracing concept, it means, all spans in a segment tracing context(thread) are CHILD_OF relationship, but no
  * FOLLOW_OF.
- *
+ * <p>
  * In skywalking core concept, FOLLOW_OF is an abstract concept when cross-process MQ or cross-thread async/batch tasks
  * happen, we used {@link TraceSegmentRef} for these scenarios. Check {@link TraceSegmentRef} which is from {@link
  * ContextCarrier} or {@link ContextSnapshot}.
- *
- * @author wusheng
- * @author zhang xin
  */
 public class TracingContext implements AbstractTracerContext {
     private static final ILog logger = LogManager.getLogger(TracingContext.class);
     private long lastWarningTimestamp = 0;
 
     /**
-     * @see {@link SamplingService}
+     * @see ProfileTaskExecutionService
      */
-    private SamplingService samplingService;
+    private static ProfileTaskExecutionService PROFILE_TASK_EXECUTION_SERVICE;
+
+    /**
+     * @see SamplingService
+     */
+    private static SamplingService SAMPLING_SERVICE;
 
     /**
      * The final {@link TraceSegment}, which includes all finished spans.
@@ -76,7 +79,13 @@ public class TracingContext implements AbstractTracerContext {
      * storage-structure. <p> I use {@link LinkedList#removeLast()}, {@link LinkedList#addLast(Object)} and {@link
      * LinkedList#getLast()} instead of {@link #pop()}, {@link #push(AbstractSpan)}, {@link #peek()}
      */
-    private LinkedList<AbstractSpan> activeSpanStack = new LinkedList<AbstractSpan>();
+    private LinkedList<AbstractSpan> activeSpanStack = new LinkedList<>();
+    /**
+     * @since 7.0.0 SkyWalking support lazy injection through {@link ExitTypeSpan#inject(ContextCarrier)}. Due to that,
+     * the {@link #activeSpanStack} could be blank by then, this is a pointer forever to the first span, even the main
+     * thread tracing has been finished.
+     */
+    private AbstractSpan firstSpan = null;
 
     /**
      * A counter for the next span.
@@ -86,43 +95,78 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * The counter indicates
      */
-    private volatile AtomicInteger asyncSpanCounter;
+    @SuppressWarnings("unused") // updated by ASYNC_SPAN_COUNTER_UPDATER
+    private volatile int asyncSpanCounter;
+    private static final AtomicIntegerFieldUpdater<TracingContext> ASYNC_SPAN_COUNTER_UPDATER =
+        AtomicIntegerFieldUpdater.newUpdater(TracingContext.class, "asyncSpanCounter");
     private volatile boolean isRunningInAsyncMode;
     private volatile ReentrantLock asyncFinishLock;
 
     private volatile boolean running;
 
+    private final long createTime;
+
+    /**
+     * profile status
+     */
+    private final ProfileStatusReference profileStatus;
+
     /**
      * Initialize all fields with default value.
      */
-    TracingContext() {
+    TracingContext(String firstOPName) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
-        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
+        createTime = System.currentTimeMillis();
         running = true;
+
+        if (SAMPLING_SERVICE == null) {
+            SAMPLING_SERVICE = ServiceManager.INSTANCE.findService(SamplingService.class);
+        }
+
+        // profiling status
+        if (PROFILE_TASK_EXECUTION_SERVICE == null) {
+            PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
+        }
+        this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
     }
 
     /**
      * Inject the context into the given carrier, only when the active span is an exit one.
      *
      * @param carrier to carry the context for crossing process.
-     * @throws IllegalStateException if the active span isn't an exit one. Ref to {@link
-     * AbstractTracerContext#inject(ContextCarrier)}
+     * @throws IllegalStateException if (1) the active span isn't an exit one. (2) doesn't include peer. Ref to {@link
+     *                               AbstractTracerContext#inject(ContextCarrier)}
      */
     @Override
     public void inject(ContextCarrier carrier) {
-        AbstractSpan span = this.activeSpan();
-        if (!span.isExit()) {
+        this.inject(this.activeSpan(), carrier);
+    }
+
+    /**
+     * Inject the context into the given carrier and given span, only when the active span is an exit one. This method
+     * wouldn't be opened in {@link ContextManager} like {@link #inject(ContextCarrier)}, it is only supported to be
+     * called inside the {@link ExitTypeSpan#inject(ContextCarrier)}
+     *
+     * @param carrier  to carry the context for crossing process.
+     * @param exitSpan to represent the scope of current injection.
+     * @throws IllegalStateException if (1) the span isn't an exit one. (2) doesn't include peer.
+     */
+    public void inject(AbstractSpan exitSpan, ContextCarrier carrier) {
+        if (!exitSpan.isExit()) {
             throw new IllegalStateException("Inject can be done only in Exit Span");
         }
 
-        WithPeerInfo spanWithPeer = (WithPeerInfo)span;
+        ExitTypeSpan spanWithPeer = (ExitTypeSpan) exitSpan;
         String peer = spanWithPeer.getPeer();
         int peerId = spanWithPeer.getPeerId();
+        if (StringUtil.isEmpty(peer) && DictionaryUtil.isNull(peerId)) {
+            throw new IllegalStateException("Exit span doesn't include meaningful peer information.");
+        }
 
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
-        carrier.setSpanId(span.getSpanId());
+        carrier.setSpanId(exitSpan.getSpanId());
 
         carrier.setParentServiceInstanceId(segment.getApplicationInstanceId());
 
@@ -147,7 +191,7 @@ public class TracingContext implements AbstractTracerContext {
             entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
             if (firstSpan.isEntry()) {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -163,7 +207,7 @@ public class TracingContext implements AbstractTracerContext {
             if (!StringUtil.isEmpty(operationName)) {
                 carrier.setEntryEndpointName(operationName);
             } else {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -177,7 +221,7 @@ public class TracingContext implements AbstractTracerContext {
             if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
                 carrier.setParentEndpointName(firstSpanOperationName);
             } else {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -193,8 +237,7 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * Extract the carrier to build the reference for the pre segment.
      *
-     * @param carrier carried the context from a cross-process segment. Ref to {@link
-     * AbstractTracerContext#extract(ContextCarrier)}
+     * @param carrier carried the context from a cross-process segment. Ref to {@link AbstractTracerContext#extract(ContextCarrier)}
      */
     @Override
     public void extract(ContextCarrier carrier) {
@@ -215,9 +258,8 @@ public class TracingContext implements AbstractTracerContext {
     @Override
     public ContextSnapshot capture() {
         List<TraceSegmentRef> refs = this.segment.getRefs();
-        ContextSnapshot snapshot = new ContextSnapshot(segment.getTraceSegmentId(),
-            activeSpan().getSpanId(),
-            segment.getRelatedGlobalTraces());
+        ContextSnapshot snapshot = new ContextSnapshot(
+            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces());
         int entryOperationId;
         String entryOperationName = "";
         int entryApplicationInstanceId;
@@ -234,7 +276,7 @@ public class TracingContext implements AbstractTracerContext {
                 entryOperationId = firstSpan.getOperationId();
                 entryOperationName = firstSpanOperationName;
             } else {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -248,7 +290,7 @@ public class TracingContext implements AbstractTracerContext {
             if (!StringUtil.isEmpty(entryOperationName)) {
                 snapshot.setEntryOperationName(entryOperationName);
             } else {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -262,7 +304,7 @@ public class TracingContext implements AbstractTracerContext {
             if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
                 snapshot.setParentOperationName(firstSpanOperationName);
             } else {
-                /**
+                /*
                  * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
                  * rather than an endpoint.
                  */
@@ -308,33 +350,34 @@ public class TracingContext implements AbstractTracerContext {
             return push(span);
         }
         AbstractSpan entrySpan;
+        TracingContext owner = this;
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
-                .findOnly(segment.getServiceId(), operationName)
-                .doInCondition(new PossibleFound.FoundAndObtain() {
-                    @Override public Object doProcess(int operationId) {
-                        return parentSpan.setOperationId(operationId);
-                    }
-                }, new PossibleFound.NotFoundAndObtain() {
-                    @Override public Object doProcess() {
-                        return parentSpan.setOperationName(operationName);
-                    }
-                });
+            /**
+             * Only add the profiling recheck on creating entry span,
+             * as the operation name could be overrided.
+             */
+            profilingRecheck(parentSpan, operationName);
+            entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
+                                                               .findOnly(segment.getServiceId(), operationName)
+                                                               .doInCondition(
+                                                                   parentSpan::setOperationId, () -> parentSpan
+                                                                       .setOperationName(operationName));
             return entrySpan.start();
         } else {
-            entrySpan = (AbstractTracingSpan)DictionaryManager.findEndpointSection()
-                .findOnly(segment.getServiceId(), operationName)
-                .doInCondition(new PossibleFound.FoundAndObtain() {
-                    @Override public Object doProcess(int operationId) {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationId);
-                    }
-                }, new PossibleFound.NotFoundAndObtain() {
-                    @Override public Object doProcess() {
-                        return new EntrySpan(spanIdGenerator++, parentSpanId, operationName);
-                    }
-                });
+            entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
+                                                               .findOnly(segment.getServiceId(), operationName)
+                                                               .doInCondition(
+                                                                   operationId -> new EntrySpan(spanIdGenerator++,
+                                                                                                parentSpanId,
+                                                                                                operationId, owner
+                                                                   ), () -> {
+                                                                       return new EntrySpan(
+                                                                           spanIdGenerator++, parentSpanId,
+                                                                           operationName, owner
+                                                                       );
+                                                                   });
             entrySpan.start();
             return push(entrySpan);
         }
@@ -354,11 +397,11 @@ public class TracingContext implements AbstractTracerContext {
         }
         AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-        /**
+        /*
          * From v6.0.0-beta, local span doesn't do op name register.
          * All op name register is related to entry and exit spans only.
          */
-        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName);
+        AbstractTracingSpan span = new LocalSpan(spanIdGenerator++, parentSpanId, operationName, this);
         span.start();
         return push(span);
     }
@@ -367,7 +410,8 @@ public class TracingContext implements AbstractTracerContext {
      * Create an exit span
      *
      * @param operationName most likely a service name of remote
-     * @param remotePeer the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
+     * @param remotePeer    the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.). Remote peer could be set
+     *                      later, but must be before injecting.
      * @return the span represent an exit point of this segment.
      * @see ExitSpan
      */
@@ -380,24 +424,26 @@ public class TracingContext implements AbstractTracerContext {
 
         AbstractSpan exitSpan;
         AbstractSpan parentSpan = peek();
+        TracingContext owner = this;
         if (parentSpan != null && parentSpan.isExit()) {
             exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            exitSpan = (AbstractSpan)DictionaryManager.findNetworkAddressSection()
-                .find(remotePeer).doInCondition(
-                    new PossibleFound.FoundAndObtain() {
-                        @Override
-                        public Object doProcess(final int peerId) {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, peerId);
-                        }
-                    },
-                    new PossibleFound.NotFoundAndObtain() {
-                        @Override
-                        public Object doProcess() {
-                            return new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer);
-                        }
-                    });
+            if (StringUtil.isEmpty(remotePeer)) {
+                exitSpan = new ExitSpan(spanIdGenerator++, parentSpanId, operationName, owner);
+            } else {
+                exitSpan = (AbstractSpan) DictionaryManager.findNetworkAddressSection()
+                                                           .find(remotePeer)
+                                                           .doInCondition(
+                                                               peerId -> new ExitSpan(spanIdGenerator++, parentSpanId,
+                                                                                      operationName, peerId, owner
+                                                               ), () -> {
+                                                                   return new ExitSpan(
+                                                                       spanIdGenerator++, parentSpanId, operationName,
+                                                                       remotePeer, owner
+                                                                   );
+                                                               });
+            }
             push(exitSpan);
         }
         exitSpan.start();
@@ -427,7 +473,7 @@ public class TracingContext implements AbstractTracerContext {
         AbstractSpan lastSpan = peek();
         if (lastSpan == span) {
             if (lastSpan instanceof AbstractTracingSpan) {
-                AbstractTracingSpan toFinishSpan = (AbstractTracingSpan)lastSpan;
+                AbstractTracingSpan toFinishSpan = (AbstractTracingSpan) lastSpan;
                 if (toFinishSpan.finish(segment)) {
                     pop();
                 }
@@ -443,35 +489,60 @@ public class TracingContext implements AbstractTracerContext {
         return activeSpanStack.isEmpty();
     }
 
-    @Override public AbstractTracerContext awaitFinishAsync() {
+    @Override
+    public AbstractTracerContext awaitFinishAsync() {
         if (!isRunningInAsyncMode) {
             synchronized (this) {
                 if (!isRunningInAsyncMode) {
                     asyncFinishLock = new ReentrantLock();
-                    asyncSpanCounter = new AtomicInteger(0);
+                    ASYNC_SPAN_COUNTER_UPDATER.set(this, 0);
                     isRunningInAsyncMode = true;
                 }
             }
         }
-        asyncSpanCounter.addAndGet(1);
+        ASYNC_SPAN_COUNTER_UPDATER.incrementAndGet(this);
         return this;
     }
 
-    @Override public void asyncStop(AsyncSpan span) {
-        asyncSpanCounter.addAndGet(-1);
+    @Override
+    public void asyncStop(AsyncSpan span) {
+        ASYNC_SPAN_COUNTER_UPDATER.decrementAndGet(this);
         finish();
     }
 
     /**
+     * Re-check current trace need profiling, encase third part plugin change the operation name.
+     *
+     * @param span          current modify span
+     * @param operationName change to operation name
+     */
+    public void profilingRecheck(AbstractSpan span, String operationName) {
+        // only recheck first span
+        if (span.getSpanId() != 0) {
+            return;
+        }
+
+        PROFILE_TASK_EXECUTION_SERVICE.profilingRecheck(this, segment.getTraceSegmentId(), operationName);
+    }
+
+    /**
      * Finish this context, and notify all {@link TracingContextListener}s, managed by {@link
-     * TracingContext.ListenerManager}
+     * TracingContext.ListenerManager} and {@link TracingContext.TracingThreadListenerManager}
      */
     private void finish() {
         if (isRunningInAsyncMode) {
             asyncFinishLock.lock();
         }
         try {
-            if (activeSpanStack.isEmpty() && running && (!isRunningInAsyncMode || asyncSpanCounter.get() == 0)) {
+            boolean isFinishedInMainThread = activeSpanStack.isEmpty() && running;
+            if (isFinishedInMainThread) {
+                /*
+                 * Notify after tracing finished in the main thread.
+                 */
+                TracingThreadListenerManager.notifyFinish(this);
+            }
+
+            if (isFinishedInMainThread && (!isRunningInAsyncMode || asyncSpanCounter == 0)) {
                 TraceSegment finishedSegment = segment.finish(isLimitMechanismWorking());
                 /*
                  * Recheck the segment if the segment contains only one span.
@@ -480,7 +551,7 @@ public class TracingContext implements AbstractTracerContext {
                  * @see {@link #createSpan(String, long, boolean)}
                  */
                 if (!segment.hasRef() && segment.isSingleSpanSegment()) {
-                    if (!samplingService.trySampling()) {
+                    if (!SAMPLING_SERVICE.trySampling()) {
                         finishedSegment.setIgnore(true);
                     }
                 }
@@ -510,7 +581,7 @@ public class TracingContext implements AbstractTracerContext {
      * when the <code>TracingContext</code> finished, and {@link #segment} is ready for further process.
      */
     public static class ListenerManager {
-        private static List<TracingContextListener> LISTENERS = new LinkedList<TracingContextListener>();
+        private static List<TracingContextListener> LISTENERS = new LinkedList<>();
 
         /**
          * Add the given {@link TracingContextListener} to {@link #LISTENERS} list.
@@ -526,7 +597,7 @@ public class TracingContext implements AbstractTracerContext {
          * trigger {@link TracingContext.ListenerManager} to notify all {@link #LISTENERS} 's {@link
          * TracingContextListener#afterFinished(TraceSegment)}
          *
-         * @param finishedSegment
+         * @param finishedSegment the segment that has finished
          */
         static void notifyFinish(TraceSegment finishedSegment) {
             for (TracingContextListener listener : LISTENERS) {
@@ -544,6 +615,27 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     /**
+     * The <code>ListenerManager</code> represents an event notify for every registered listener, which are notified
+     */
+    public static class TracingThreadListenerManager {
+        private static List<TracingThreadListener> LISTENERS = new LinkedList<>();
+
+        public static synchronized void add(TracingThreadListener listener) {
+            LISTENERS.add(listener);
+        }
+
+        static void notifyFinish(TracingContext finishedContext) {
+            for (TracingThreadListener listener : LISTENERS) {
+                listener.afterMainThreadFinish(finishedContext);
+            }
+        }
+
+        public static synchronized void remove(TracingThreadListener listener) {
+            LISTENERS.remove(listener);
+        }
+    }
+
+    /**
      * @return the top element of 'ActiveSpanStack', and remove it.
      */
     private AbstractSpan pop() {
@@ -553,9 +645,12 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * Add a new Span at the top of 'ActiveSpanStack'
      *
-     * @param span
+     * @param span the {@code span} to push
      */
     private AbstractSpan push(AbstractSpan span) {
+        if (firstSpan == null) {
+            firstSpan = span;
+        }
         activeSpanStack.addLast(span);
         return span;
     }
@@ -571,20 +666,30 @@ public class TracingContext implements AbstractTracerContext {
     }
 
     private AbstractSpan first() {
-        return activeSpanStack.getFirst();
+        return firstSpan;
     }
 
     private boolean isLimitMechanismWorking() {
         if (spanIdGenerator >= Config.Agent.SPAN_LIMIT_PER_SEGMENT) {
             long currentTimeMillis = System.currentTimeMillis();
             if (currentTimeMillis - lastWarningTimestamp > 30 * 1000) {
-                logger.warn(new RuntimeException("Shadow tracing context. Thread dump"), "More than {} spans required to create",
-                    Config.Agent.SPAN_LIMIT_PER_SEGMENT);
+                logger.warn(
+                    new RuntimeException("Shadow tracing context. Thread dump"),
+                    "More than {} spans required to create", Config.Agent.SPAN_LIMIT_PER_SEGMENT
+                );
                 lastWarningTimestamp = currentTimeMillis;
             }
             return true;
         } else {
             return false;
         }
+    }
+
+    public long createTime() {
+        return this.createTime;
+    }
+
+    public ProfileStatusReference profileStatus() {
+        return this.profileStatus;
     }
 }

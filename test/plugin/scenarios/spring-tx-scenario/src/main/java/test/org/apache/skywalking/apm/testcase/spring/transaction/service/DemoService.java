@@ -15,11 +15,8 @@
  * limitations under the License.
  *
  */
-package test.org.apache.skywalking.apm.testcase.spring.transaction.service;
 
-/**
- * @author zhaoyuguang
- */
+package test.org.apache.skywalking.apm.testcase.spring.transaction.service;
 
 public interface DemoService {
 

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
@@ -24,8 +23,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 /**
  * {@link URLParser#parser(String)} support parse the connection url, such as Mysql, Oracle, H2 Database. But there are
  * some url cannot be parsed, such as Oracle connection url with multiple host.
- *
- * @author zhangxin
  */
 public class URLParser {
 

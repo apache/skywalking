@@ -18,10 +18,17 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-import java.util.*;
-import org.apache.skywalking.apm.agent.core.context.*;
-import org.apache.skywalking.apm.agent.core.context.tag.*;
-import org.apache.skywalking.apm.agent.core.context.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
+import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
@@ -30,8 +37,6 @@ import org.apache.skywalking.apm.network.trace.component.Component;
 /**
  * The <code>AbstractTracingSpan</code> represents a group of {@link AbstractSpan} implementations, which belongs a real
  * distributed trace.
- *
- * @author wusheng
  */
 public abstract class AbstractTracingSpan implements AbstractSpan {
     protected int spanId;
@@ -48,7 +53,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * The flag represents whether the span has been async stopped
      */
     private volatile boolean isAsyncStopped = false;
-    protected volatile AbstractTracerContext context;
+
+    /**
+     * The context to which the span belongs
+     */
+    protected final TracingContext owner;
 
     /**
      * The start time of this Span.
@@ -79,35 +88,38 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      */
     protected List<TraceSegmentRef> refs;
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         this.operationName = operationName;
         this.operationId = DictionaryUtil.nullValue();
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.owner = owner;
     }
 
-    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId) {
+    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
         this.operationName = null;
         this.operationId = operationId;
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
+        this.owner = owner;
     }
 
     /**
      * Set a key:value tag on the Span.
+     * <p>
+     * {@inheritDoc}
      *
      * @return this Span instance, for chaining
      */
     @Override
-    @Deprecated
     public AbstractTracingSpan tag(String key, String value) {
-        return tag(new StringTag(key), value);
+        return tag(Tags.ofKey(key), value);
     }
 
     @Override
-    public AbstractTracingSpan tag(AbstractTag tag, String value) {
+    public AbstractTracingSpan tag(AbstractTag<?> tag, String value) {
         if (tags == null) {
-            tags = new ArrayList<TagValuePair>(8);
+            tags = new ArrayList<>(8);
         }
 
         if (tag.isCanOverwrite()) {
@@ -150,27 +162,25 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan log(Throwable t) {
         if (logs == null) {
-            logs = new LinkedList<LogDataEntity>();
+            logs = new LinkedList<>();
         }
-        logs.add(new LogDataEntity.Builder()
-            .add(new KeyValuePair("event", "error"))
-            .add(new KeyValuePair("error.kind", t.getClass().getName()))
-            .add(new KeyValuePair("message", t.getMessage()))
-            .add(new KeyValuePair("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000)))
-            .build(System.currentTimeMillis()));
+        logs.add(new LogDataEntity.Builder().add(new KeyValuePair("event", "error"))
+                                            .add(new KeyValuePair("error.kind", t.getClass().getName()))
+                                            .add(new KeyValuePair("message", t.getMessage()))
+                                            .add(new KeyValuePair("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000)))
+                                            .build(System.currentTimeMillis()));
         return this;
     }
 
     /**
      * Record a common log with multi fields, for supporting opentracing-java
      *
-     * @param fields
      * @return the Span, for chaining
      */
     @Override
     public AbstractTracingSpan log(long timestampMicroseconds, Map<String, ?> fields) {
         if (logs == null) {
-            logs = new LinkedList<LogDataEntity>();
+            logs = new LinkedList<>();
         }
         LogDataEntity.Builder builder = new LogDataEntity.Builder();
         for (Map.Entry<String, ?> entry : fields.entrySet()) {
@@ -196,7 +206,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      * Set the operation name, just because these is not compress dictionary value for this name. Use the entire string
      * temporarily, the agent will compress this name in async mode.
      *
-     * @param operationName
      * @return span instance, for chaining.
      */
     @Override
@@ -209,7 +218,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * Set the operation id, which compress by the name.
      *
-     * @param operationId
      * @return span instance, for chaining.
      */
     @Override
@@ -243,7 +251,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * Set the component of this span, with internal supported. Highly recommend to use this way.
      *
-     * @param component
      * @return span instance, for chaining.
      */
     @Override
@@ -255,7 +262,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     /**
      * Set the component name. By using this, cost more memory and network.
      *
-     * @param componentName
      * @return span instance, for chaining.
      */
     @Override
@@ -319,25 +325,28 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return spanBuilder;
     }
 
-    @Override public void ref(TraceSegmentRef ref) {
+    @Override
+    public void ref(TraceSegmentRef ref) {
         if (refs == null) {
-            refs = new LinkedList<TraceSegmentRef>();
+            refs = new LinkedList<>();
         }
         if (!refs.contains(ref)) {
             refs.add(ref);
         }
     }
 
-    @Override public AbstractSpan prepareForAsync() {
+    @Override
+    public AbstractSpan prepareForAsync() {
         if (isInAsyncMode) {
             throw new RuntimeException("Prepare for async repeatedly. Span is already in async mode.");
         }
-        context = ContextManager.awaitFinishAsync(this);
+        ContextManager.awaitFinishAsync(this);
         isInAsyncMode = true;
         return this;
     }
 
-    @Override public AbstractSpan asyncFinish() {
+    @Override
+    public AbstractSpan asyncFinish() {
         if (!isInAsyncMode) {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
@@ -345,8 +354,13 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             throw new RuntimeException("Can not do async finish for the span repeately.");
         }
         this.endTime = System.currentTimeMillis();
-        context.asyncStop(this);
+        owner.asyncStop(this);
         isAsyncStopped = true;
         return this;
+    }
+
+    @Override
+    public boolean isProfiling() {
+        return this.owner.profileStatus().isProfiling();
     }
 }

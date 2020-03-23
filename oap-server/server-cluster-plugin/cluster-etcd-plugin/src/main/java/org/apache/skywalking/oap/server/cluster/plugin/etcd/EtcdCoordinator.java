@@ -37,9 +37,6 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Alan Lau
- */
 public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     private static final Logger logger = LoggerFactory.getLogger(EtcdCoordinator.class);
 
@@ -61,7 +58,8 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         this.serviceName = config.getServiceName();
     }
 
-    @Override public List<RemoteInstance> queryRemoteNodes() {
+    @Override
+    public List<RemoteInstance> queryRemoteNodes() {
 
         List<RemoteInstance> res = new ArrayList<>();
         try {
@@ -87,7 +85,8 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         return res;
     }
 
-    @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
+    @Override
+    public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
 
         if (needUsingInternalAddr()) {
             remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
@@ -96,7 +95,10 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
         this.selfAddress = remoteInstance.getAddress();
         TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
 
-        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName).host(selfAddress.getHost()).port(selfAddress.getPort()).build();
+        EtcdEndpoint endpoint = new EtcdEndpoint.Builder().serviceName(serviceName)
+                                                          .host(selfAddress.getHost())
+                                                          .port(selfAddress.getPort())
+                                                          .build();
         try {
             client.putDir(serviceName).send();
             String key = buildKey(serviceName, selfAddress, remoteInstance);
@@ -126,7 +128,11 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     }
 
     private String buildKey(String serviceName, Address address, RemoteInstance instance) {
-        return new StringBuilder(serviceName).append("/").append(address.getHost()).append("_").append(instance.hashCode()).toString();
+        return new StringBuilder(serviceName).append("/")
+                                             .append(address.getHost())
+                                             .append("_")
+                                             .append(instance.hashCode())
+                                             .toString();
     }
 
     private boolean needUsingInternalAddr() {

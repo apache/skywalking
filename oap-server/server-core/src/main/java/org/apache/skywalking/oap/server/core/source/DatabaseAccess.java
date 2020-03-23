@@ -18,13 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.DATABASE_ACCESS;
 
-/**
- * @author: liuhaoyang
- */
 @ScopeDeclaration(id = DATABASE_ACCESS, name = "DatabaseAccess")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class DatabaseAccess extends Source {
@@ -39,9 +37,20 @@ public class DatabaseAccess extends Source {
         return String.valueOf(id);
     }
 
-    @Getter @Setter private long id;
-    @Getter @Setter private String name;
-    @Getter @Setter private int databaseTypeId;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
+    @Getter
+    @Setter
+    private long id;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+    @Getter
+    @Setter
+    private int databaseTypeId;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
 }

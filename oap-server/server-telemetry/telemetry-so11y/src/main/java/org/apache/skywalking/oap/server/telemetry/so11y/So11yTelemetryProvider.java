@@ -20,17 +20,18 @@ package org.apache.skywalking.oap.server.telemetry.so11y;
 
 import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
-import org.apache.skywalking.oap.server.library.module.*;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
-import java.io.IOException;
-
 /**
  * Self observability telemetry provider.
- *
- * @author gaohongtao
  */
 public class So11yTelemetryProvider extends ModuleProvider {
     private So11yConfig config;
@@ -39,19 +40,23 @@ public class So11yTelemetryProvider extends ModuleProvider {
         config = new So11yConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "so11y";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return TelemetryModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(MetricsCreator.class, new So11yMetricsCreator());
         this.registerServiceImplementation(MetricsCollector.class, new So11yMetricsCollector());
         if (config.isPrometheusExporterEnabled()) {
@@ -64,14 +69,17 @@ public class So11yTelemetryProvider extends ModuleProvider {
         DefaultExports.initialize();
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[0];
     }
 }

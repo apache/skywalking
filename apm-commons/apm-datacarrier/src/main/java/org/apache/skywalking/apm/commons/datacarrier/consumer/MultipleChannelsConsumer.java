@@ -26,8 +26,6 @@ import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 /**
  * MultipleChannelsConsumer represent a single consumer thread, but support multiple channels with their {@link
  * IConsumer}s
- *
- * @author wusheng
  */
 public class MultipleChannelsConsumer extends Thread {
     private volatile boolean running;
@@ -91,9 +89,6 @@ public class MultipleChannelsConsumer extends Thread {
 
     /**
      * Add a new target channels.
-     *
-     * @param channels
-     * @param consumer
      */
     public void addNewTarget(Channels channels, IConsumer consumer) {
         Group group = new Group(channels, consumer);

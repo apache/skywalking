@@ -19,58 +19,66 @@
 package org.apache.skywalking.oap.server.receiver.register.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.server.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.grpc.*;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v5.rest.*;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.*;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.RegisterServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstancePingServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstanceRegisterServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceRegisterServletHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
-/**
- * @author peng-yongsheng
- */
 public class RegisterModuleProvider extends ModuleProvider {
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return RegisterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() {
+    @Override
+    public void prepare() {
     }
 
-    @Override public void start() {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new ApplicationRegisterHandler(getManager()));
-        grpcHandlerRegister.addHandler(new InstanceDiscoveryServiceHandler(getManager()));
-        grpcHandlerRegister.addHandler(new ServiceNameDiscoveryHandler(getManager()));
-        grpcHandlerRegister.addHandler(new NetworkAddressRegisterServiceHandler(getManager()));
-
-        // v2
+    @Override
+    public void start() {
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
 
-        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(JettyHandlerRegister.class);
-        jettyHandlerRegister.addHandler(new ApplicationRegisterServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new InstanceDiscoveryServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new InstanceHeartBeatServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new NetworkAddressRegisterServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new ServiceNameDiscoveryServiceHandler(getManager()));
+        JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                                .provider()
+                                                                .getService(JettyHandlerRegister.class);
+        jettyHandlerRegister.addHandler(new ServiceRegisterServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ServiceInstanceRegisterServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ServiceInstancePingServletHandler(getManager()));
     }
 
-    @Override public void notifyAfterCompleted() {
+    @Override
+    public void notifyAfterCompleted() {
 
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            CoreModule.NAME,
+            SharingServerModule.NAME
+        };
     }
 }

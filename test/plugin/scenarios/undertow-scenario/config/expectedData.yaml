@@ -15,7 +15,7 @@
 # limitations under the License.
 
 registryItems:
-  applications:
+  services:
     - {undertow-scenario: 2}
   instances:
     - {undertow-scenario: 1}
@@ -24,7 +24,7 @@ registryItems:
                           '/undertow-routing-scenario/case/{context}']
   heartbeat: []
 segmentItems:
-  - applicationCode: undertow-scenario
+  - serviceName: undertow-scenario
     segmentSize: gt 5
     segments:
       - segmentId: not null
@@ -36,7 +36,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -54,7 +54,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -77,7 +77,7 @@ segmentItems:
             spanLayer: Http
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Entry
@@ -116,7 +116,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Local
@@ -152,7 +152,7 @@ segmentItems:
             spanLayer: Unknown
             startTime: nq 0
             endTime: nq 0
-            componentId: 49
+            componentId: 84
             componentName: ''
             isError: false
             spanType: Local

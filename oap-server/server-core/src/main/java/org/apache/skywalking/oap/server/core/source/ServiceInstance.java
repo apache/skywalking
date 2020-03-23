@@ -18,32 +18,53 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstance extends Source {
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.SERVICE_INSTANCE;
     }
 
-    @Override public String getEntityId() {
+    @Override
+    public String getEntityId() {
         return String.valueOf(id);
     }
 
-    @Getter @Setter private int id;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
-    @Getter @Setter private String name;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter private String endpointName;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
+    @Getter
+    @Setter
+    private int id;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    private int serviceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
+    private String serviceName;
+    @Getter
+    @Setter
+    private String endpointName;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
 }

@@ -32,16 +32,20 @@ jobs:
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
+          ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
           CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
@@ -52,16 +56,20 @@ jobs:
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
           set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist" clean verify install
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
@@ -70,13 +78,17 @@ jobs:
     strategy:
       fail-fast: true
     steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: true
+      - uses: actions/checkout@v2
+      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
       - uses: actions/setup-java@v1
         with:
           java-version: 8
       - name: 'Install & Test'
         run: |
           export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw -P"agent,backend,ui,dist" clean verify install
+          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install

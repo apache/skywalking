@@ -217,6 +217,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
     Apache: fastjson 1.2.47:  https://github.com/alibaba/fastjson, Apache 2.0
+    Apache: netty-tcnative-boringssl-static 2.0.26:  https://github.com/netty/netty-tcnative, Apache 2.0
 
 ========================================================================
 Apache 2.0 licenses
@@ -323,7 +324,10 @@ The text of each license is the standard Apache 2.0 license.
     etcd4j 2.17.0: https://github.com/jurmous/etcd4j Apache 2.0
     javaassist 3.25.0-GA: https://github.com/jboss-javassist/javassist Apache 2.0
     jackson-module-afterburner 2.9.5: https://github.com/FasterXML/jackson-modules-base, Apache 2.0
-    perfmark-api 0.19.0: https://github.com/perfmark/perfmark
+    perfmark-api 0.19.0: https://github.com/perfmark/perfmark, Apache 2.0
+    moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
+    logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
+    msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -341,6 +345,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
     minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
+    influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
 
 ========================================================================
 MIT licenses
@@ -424,13 +429,13 @@ popper.js	1.14.7:	https://github.com/FezVrasta/popper.js	MIT
 vue-datepicker-local	1.0.19:	https://github.com/weifeiyue/vue-datepicker-local	MIT
 vue-js-modal	1.3.31:	https://github.com/euvl/vue-js-modal	MIT
 lodash	4.17.15:	https://github.com/lodash/lodash	MIT
-elementui 2.12:  https://github.com/ElemeFE/element
 
 ========================================
 Apache 2.0 licenses
 ========================================
 echarts	4.1.0:	https://github.com/apache/incubator-echarts	Apache-2.0
 Material Icons 3.0.1 https://github.com/google/material-design-icons Apache-2.0
+
 ========================================
 BSD licenses
 ========================================

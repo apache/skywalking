@@ -14,26 +14,43 @@ End user can switch or assemble the collector features by their own requirements
 
 So, in `application.yml`, there are three levels.
 1. **Level 1**, module name. Meaning this module is active in running mode.
-1. **Level 2**, provider name. Set the provider of the module.
+1. **Level 2**, provider option list and provider selector. Available providers are listed here with a selector to indicate which one will actually take effect,
+if there is only one provider listed, the `selector` is optional and can be omitted.
 1. **Level 3**. settings of the provider.
 
 Example:
+
 ```yaml
-core:
-  default:
-    restHost: 0.0.0.0
-    restPort: 12800
-    restContextPath: /
-    gRPCHost: 0.0.0.0
-    gRPCPort: 11800
+storage:
+  selector: mysql # the mysql storage will actually be activated, while the h2 storage takes no effect
+  h2:
+    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
+    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
+    user: ${SW_STORAGE_H2_USER:sa}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+  mysql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+  # other configurations
 ```
-1. **core** is the module.
-1. **default** is the default implementor of core module.
-1. `restHost`, `restPort`, ... `gRPCHost` are all setting items of the implementor.
+
+1. **`core`** is the module.
+1. **`selector`** selects one out of the all providers listed below, the unselected ones take no effect as if they were deleted.
+1. **`default`** is the default implementor of core module.
+1. `driver`, `url`, ... `metadataQueryMaxSize` are all setting items of the implementor.
 
 At the same time, modules includes required and optional, the required modules provide the skeleton of backend,
-even modularization supported pluggable, remove those modules are meaningless. We highly recommend you don't try to
-change APIs of those modules, unless you understand SkyWalking project and its codes very well.
+even modularization supported pluggable, removing those modules are meaningless, for optional modules, some of them have
+a provider implementation called `none`, meaning it only provides a shell with no actual logic, typically such as telemetry.
+Setting `-` to the `selector` means this whole module will be excluded at runtime.
+We highly recommend you don't try to change APIs of those modules, unless you understand SkyWalking project and its codes very well.
 
 List the required modules here
 1. **Core**. Do basic and major skeleton of all data analysis and stream dispatch.
@@ -66,6 +83,7 @@ DB. But clearly, it doesn't fit the product env. In here, you could find what ot
 Choose the one you like, we are also welcome anyone to contribute new storage implementor,
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
+1. [Token authentication](backend-token-auth.md). You could add token authentication mechanisms to avoid `OAP` receiving untrusted data.  
 1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metrics accurate, only don't save some of traces
 in storage based on rate.
 1. Follow [slow DB statement threshold](slow-db-statement.md) config document to understand that, 
@@ -79,12 +97,12 @@ rules targeting the analysis oal metrics objects.
 scale and support high payload, you may need this. 
 1. [Metrics exporter](metrics-exporter.md). Use metrics data exporter to forward metrics data to 3rd party
 system.
-1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, they would be saved forever, you could 
-set the expired time for each dimension.
+1. [Time To Live (TTL)](ttl.md). Metrics and trace are time series data, TTL settings affect the expired time of them.
 1. [Dynamic Configuration](dynamic-config.md). Make configuration of OAP changed dynamic, from remote service
 or 3rd party configuration management system.
 1. [Uninstrumented Gateways](uninstrumented-gateways.md). Configure gateways/proxies that are not supported by SkyWalking agent plugins,
 to reflect the delegation in topology graph.
+1. [Apdex threshold](apdex-threshold.md). Configure the thresholds for different services if Apdex calculation is activated in the OAL.
 
 ## Telemetry for backend
 OAP backend cluster itself underlying is a distributed streaming process system. For helping the Ops team,
@@ -115,3 +133,15 @@ which format process is timezone related.
   
 In default, SkyWalking OAP backend choose the OS default timezone.
 If you want to override it, please follow Java and OS documents to do so.
+
+#### How to query the storage directly from 3rd party tool?
+SkyWalking provides browser UI, CLI and GraphQL ways to support extensions. But some users may have the idea to query data 
+directly from the storage. Such as in ElasticSearch case, Kibana is a great tool to do this.
+
+In default, due to reduce memory, network and storage space usages, SkyWalking saves id(s) only in the entity and metadata saved in the
+`*_inventory` entities only. But these tools usually don't support nested query, or don't work conveniently. In this special case,
+SkyWalking provide a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
+
+Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to open this feature.
+
+This feature wouldn't provide any new feature to the native SkyWalking scenarios, just for the 3rd party integration.

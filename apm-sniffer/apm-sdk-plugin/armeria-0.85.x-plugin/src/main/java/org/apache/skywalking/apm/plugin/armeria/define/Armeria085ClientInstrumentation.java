@@ -30,7 +30,7 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * @author kezhenxu94
+ * Instruments Armeria client 0.85.x
  */
 public class Armeria085ClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "com.linecorp.armeria.client.UserClient";
@@ -48,17 +48,16 @@ public class Armeria085ClientInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .and(takesArguments(7))
-                        .and(takesArgument(0, named("io.netty.channel.EventLoop")))
-                        .and(takesArgument(1, named("com.linecorp.armeria.common.HttpMethod")))
-                        .and(takesArgument(2, named("java.lang.String")))
-                        .and(takesArgument(3, named("java.lang.String")))
-                        .and(takesArgument(4, named("java.lang.String")));
+                    return named("execute").and(takesArguments(7))
+                                           .and(takesArgument(0, named("io.netty.channel.EventLoop")))
+                                           .and(takesArgument(1, named("com.linecorp.armeria.common.HttpMethod")))
+                                           .and(takesArgument(2, named("java.lang.String")))
+                                           .and(takesArgument(3, named("java.lang.String")))
+                                           .and(takesArgument(4, named("java.lang.String")));
                 }
 
                 @Override
@@ -81,7 +80,7 @@ public class Armeria085ClientInstrumentation extends ClassInstanceMethodsEnhance
      */
     @Override
     protected String[] witnessClasses() {
-        return new String[]{
+        return new String[] {
             "com.linecorp.armeria.common.AbstractHttpHeadersBuilder"
         };
     }

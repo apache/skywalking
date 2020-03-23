@@ -26,29 +26,24 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-
-/**
- * @author zhaoyuguang
- */
 public class DoSubmitMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         if (ContextManager.isActive()) {
             allArguments[0] = new SWCallable((Callable) allArguments[0], ContextManager.capture());
         }
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
-
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 }

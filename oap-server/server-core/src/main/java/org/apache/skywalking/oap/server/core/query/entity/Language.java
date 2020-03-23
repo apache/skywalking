@@ -18,14 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-/**
- * @author peng-yongsheng
- */
 public enum Language {
-    UNKNOWN,
-    JAVA,
-    DOTNET,
-    NODEJS,
-    PYTHON,
-    RUBY
+    UNKNOWN, JAVA, DOTNET, NODEJS, PYTHON, RUBY, GO, LUA, PHP
 }

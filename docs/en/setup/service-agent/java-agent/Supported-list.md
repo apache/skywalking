@@ -17,7 +17,7 @@
   * [Netty SocketIO](https://github.com/mrniko/netty-socketio) 1.x
 * HTTP Client
   * [Feign](https://github.com/OpenFeign/feign) 9.x
-  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-netflix/tree/master/spring-cloud-starter-feign) 1.1.x, 1.2.x, 1.3.x
+  * [Netflix Spring Cloud Feign](https://github.com/spring-cloud/spring-cloud-openfeign) 1.1.x -> 2.x
   * [Okhttp](https://github.com/square/okhttp) 3.x
   * [Apache httpcomponent HttpClient](http://hc.apache.org/) 2.0 -> 3.1, 4.2, 4.3
   * [Spring RestTemplete](https://github.com/spring-projects/spring-framework) 4.x
@@ -40,7 +40,9 @@
   * [gRPC](https://github.com/grpc/grpc-java) 1.x
   * [Apache ServiceComb Java Chassis](https://github.com/apache/servicecomb-java-chassis) 0.1 -> 0.5,1.x
   * [SOFARPC](https://github.com/alipay/sofa-rpc) 5.4.0
-  * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.97.0
+  * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
+  * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
+  * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -52,14 +54,14 @@
     * [Jedis](https://github.com/xetorthio/jedis) 2.x
     * [Redisson](https://github.com/redisson/redisson) Easy Java Redis client 3.5.2+
     * [Lettuce](https://github.com/lettuce-io/lettuce-core) 5.x
-  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14, 3.4.0-3.5.0, 3.7.x-3.11.1
+  * [MongoDB Java Driver](https://github.com/mongodb/mongo-java-driver) 2.13-2.14, 3.4.0-3.11.1
   * Memcached Client
     * [Spymemcached](https://github.com/couchbase/spymemcached) 2.x
     * [Xmemcached](https://github.com/killme2008/xmemcached) 2.x
   * [Elasticsearch](https://github.com/elastic/elasticsearch)
     * [transport-client](https://github.com/elastic/elasticsearch/tree/master/client/transport) 5.2.x-5.6.x
     * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.7/index.html) 6.7.1-6.8.4
-    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.0
+    * [rest-high-level-client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.0/java-rest-high.html) 7.0.0-7.5.2
   * [Solr](https://github.com/apache/lucene-solr/)
     * [SolrJ](https://github.com/apache/lucene-solr/tree/master/solr/solrj) 7.x
   * [Cassandra](https://github.com/apache/cassandra) 3.x
@@ -86,6 +88,8 @@
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
+* Kotlin
+  * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
 
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 

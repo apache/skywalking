@@ -78,11 +78,9 @@ property key | Description | Default |
 `agent.span_limit_per_segment`|The max number of spans in a single segment. Through this config item, SkyWalking keep your application memory cost estimated.|300 |
 `agent.ignore_suffix`|If the operation name of the first span is included in this set, this segment should be ignored.|Not set|
 `agent.is_open_debugging_class`|If true, skywalking agent will save all instrumented classes files in `/debugging` folder. SkyWalking team may ask for these files in order to resolve compatible problem.|Not set|
-`agent.active_v2_header`|Active V2 header in default.|`true`|
 `agent.instance_uuid` |Instance uuid is the identity of an instance, SkyWalking treat same instance uuid as one instance.if empty, SkyWalking agent will generate an 32-bit uuid. Using `NAME:` as UUID prefix could set the customized instance name. Such as, set it as `NAME:SVR-INSTANCE-A`,  `SVR-INSTANCE-A` is the instance name. Otherwise, use `ServiceName`-pid:`id`@`hostname` as the instance name. |`""`|
 `agent.instance_properties[key]=value` | Add service instance custom properties. | Not set|
 `agent.cause_exception_depth`|How depth the agent goes, when log all cause exceptions.|`5`|
-`agent.active_v1_header `|Deactivate V1 header in default.|`false`|
 `agent.cool_down_threshold `|How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset command.|`10`|
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 500 is not recommended.|`500`|
@@ -90,6 +88,7 @@ property key | Description | Default |
 `collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
+`collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
 `logging.level`|The log level. Default is debug.|`DEBUG`|
 `logging.file_name`|Log file name.|`skywalking-api.log`|
 `logging.output`| Log output. Default is FILE. Use CONSOLE means output to stdout. |`FILE`|
@@ -102,6 +101,11 @@ property key | Description | Default |
 `buffer.buffer_size`|The buffer size.|`300`|
 `dictionary.service_code_buffer_size`|The buffer size of application codes and peer|`10 * 10000`|
 `dictionary.endpoint_name_buffer_size`|The buffer size of endpoint names and peer|`1000 * 10000`|
+`profile.active`|If true, skywalking agent will enable profile when user create a new profile task. Otherwise disable profile.|`true`|
+`profile.max_parallel`|Parallel monitor segment count|`5`|
+`profile.duration`|Max monitor segment time(minutes), if current segment monitor time out of limit, then stop it.|`10`|
+`profile.dump_max_stack_depth`|Max dump thread stack depth|`500`|
+`profile.snapshot_transport_buffer_size`|Snapshot transport to backend buffer size|`50`|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|
@@ -118,6 +122,9 @@ property key | Description | Default |
 `plugin.opgroup.*`|Support operation name customize group rules in different plugins. Read [Group rule supported plugins](op_name_group_rule.md)|Not set|
 `plugin.springtransaction.simplify_transaction_definition_name`|If true, the transaction definition name will be simplified.|false|
 `plugin.jdkthreading.threading_class_prefixes` | Threading classes (`java.lang.Runnable` and `java.util.concurrent.Callable`) and their subclasses, including anonymous inner classes whose name match any one of the `THREADING_CLASS_PREFIXES` (splitted by `,`) will be instrumented, make sure to only specify as narrow prefixes as what you're expecting to instrument, (`java.` and `javax.` will be ignored due to safety issues) | Not set |
+`plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. Also, activate implicitly in the profiled trace. | `false` |
+`plugin.springmvc.collect_http_params`| This config item controls that whether the SpringMVC plugin should collect the parameters of the request, when your Spring application is based on Tomcat, consider only setting either `plugin.tomcat.collect_http_params` or `plugin.springmvc.collect_http_params`. Also, activate implicitly in the profiled trace. | `false` |
+`plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -132,6 +139,7 @@ Now, we have the following known optional plugins.
 * [Customize enhance](Customize-enhance-trace.md) Trace methods based on description files, rather than write plugin or change source codes.
 * Plugin of Spring Cloud Gateway 2.1.x in optional plugin folder. Please only active this plugin when you install agent in Spring Gateway. spring-cloud-gateway-2.x-plugin and spring-webflux-5.x-plugin are both required.
 * Plugin of Spring Transaction in optional plugin folder. The reason of being optional plugin is, many local span are generated, which also spend more CPU, memory and network.
+* [Plugin of Kotlin coroutine](agent-optional-plugins/Kotlin-Coroutine-plugin.md) provides the tracing across coroutines automatically. As it will add local spans to all across routines scenarios, Please assess the performance impact.
 
 ## Bootstrap class plugins
 All bootstrap plugins are optional, due to unexpected risk. Bootstrap plugins are provided in `bootstrap-plugins` folder.

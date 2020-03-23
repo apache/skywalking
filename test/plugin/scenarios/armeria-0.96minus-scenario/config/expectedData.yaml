@@ -16,7 +16,7 @@
 
 
 registryItems:
-  applications:
+  services:
     - {'armeria-0.96minus-scenario': 2}
   instances:
     - {'armeria-0.96minus-scenario': 1}
@@ -24,7 +24,7 @@ registryItems:
     - 'armeria-0.96minus-scenario': [/greet/skywalking]
   heartbeat: []
 segmentItems:
-  - applicationCode: armeria-0.96minus-scenario
+  - serviceName: armeria-0.96minus-scenario
     segmentSize: ge 2
     segments:
       - segmentId: not null
@@ -83,3 +83,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/greet/skywalking'}
               - {key: http.method, value: GET}
+              - key: http.params
+                value: |-
+                  q1=[v1]
+                  chinese=[中文]

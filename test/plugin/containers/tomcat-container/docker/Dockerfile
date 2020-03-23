@@ -18,10 +18,12 @@ FROM tomcat:8.5.42-jdk8-openjdk
 MAINTAINER zhangxin@apache.org
 WORKDIR /usr/local/skywalking/tools
 
+ENV CATALINA_OPTS ""
+
 COPY run.sh /
 COPY catalina.sh /usr/local/tomcat/bin/
 
-COPY skywalking-validator-tools.jar /usr/local/skywalking/tools
+COPY validator.jar /usr/local/skywalking/tools/skywalking-validator-tools.jar
 COPY skywalking-mock-collector.tar.gz /usr/local/skywalking/tools
 RUN tar -xvf skywalking-mock-collector.tar.gz -C /usr/local/skywalking/tools
 

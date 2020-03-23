@@ -69,6 +69,7 @@ export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
     -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
+    -Dskywalking.agent.authentication=test-token
     -Xms256m -Xmx256m ${agent_opts}"
 exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
 

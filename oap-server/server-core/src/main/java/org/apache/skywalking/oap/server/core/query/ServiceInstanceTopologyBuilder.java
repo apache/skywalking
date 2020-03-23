@@ -18,29 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceNode;
+import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceTopology;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import static java.util.Objects.isNull;
 
-/**
- * @author zhangwei
- */
 @Slf4j
 public class ServiceInstanceTopologyBuilder {
 
@@ -49,12 +47,19 @@ public class ServiceInstanceTopologyBuilder {
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME).provider().getService(IComponentLibraryCatalogService.class);
+        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(ServiceInventoryCache.class);
+        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(ServiceInstanceInventoryCache.class);
+        this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                           .provider()
+                                                           .getService(IComponentLibraryCatalogService.class);
     }
 
-    ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls, List<Call.CallDetail> serviceInstanceRelationServerCalls) {
+    ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,
+        List<Call.CallDetail> serviceInstanceRelationServerCalls) {
         filterZeroSourceOrTargetReference(serviceInstanceRelationClientCalls);
         filterZeroSourceOrTargetReference(serviceInstanceRelationServerCalls);
 
@@ -83,7 +88,8 @@ public class ServiceInstanceTopologyBuilder {
                 ServiceInventory targetService = serviceInventoryCache.get(targetInstance.getServiceId());
                 nodes.put(targetInstance.getSequence(), buildNode(targetService, targetInstance));
                 if (BooleanUtils.valueToBoolean(targetInstance.getIsAddress())) {
-                    nodes.get(targetInstance.getSequence()).setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+                    nodes.get(targetInstance.getSequence())
+                         .setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
@@ -171,7 +177,8 @@ public class ServiceInstanceTopologyBuilder {
             }
 
             if (nodes.containsKey(targetInstance.getSequence())) {
-                nodes.get(targetInstance.getSequence()).setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+                nodes.get(targetInstance.getSequence())
+                     .setType(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
             }
         }
 
@@ -181,7 +188,8 @@ public class ServiceInstanceTopologyBuilder {
         return topology;
     }
 
-    private ServiceInstanceNode buildNode(ServiceInventory serviceInventory, ServiceInstanceInventory instanceInventory) {
+    private ServiceInstanceNode buildNode(ServiceInventory serviceInventory,
+        ServiceInstanceInventory instanceInventory) {
         ServiceInstanceNode instanceNode = new ServiceInstanceNode();
         instanceNode.setId(instanceInventory.getSequence());
         instanceNode.setName(instanceInventory.getName());

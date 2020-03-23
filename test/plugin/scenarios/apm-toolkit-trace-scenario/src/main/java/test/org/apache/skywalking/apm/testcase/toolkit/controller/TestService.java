@@ -18,24 +18,20 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
-import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
-import org.apache.skywalking.apm.toolkit.trace.CallableWrapper;
-import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
-import org.apache.skywalking.apm.toolkit.trace.SupplierWrapper;
-import org.apache.skywalking.apm.toolkit.trace.Tag;
-import org.apache.skywalking.apm.toolkit.trace.Tags;
-import org.apache.skywalking.apm.toolkit.trace.Trace;
-import org.springframework.stereotype.Component;
-
+import org.apache.skywalking.apm.toolkit.model.User;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Supplier;
+import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
+import org.apache.skywalking.apm.toolkit.trace.CallableWrapper;
+import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
+import org.apache.skywalking.apm.toolkit.trace.SupplierWrapper;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
+import org.springframework.stereotype.Component;
 
-/**
- * @author caoyixiong
- */
 @Component
 public class TestService {
 
@@ -78,11 +74,15 @@ public class TestService {
     }
 
     @Trace
+    @Tag(key = "username", value = "returnedObj.username")
+    public User testTagAnnotationReturnInfo(final String username, final Integer age) {
+        return new User(username, age);
+    }
+    @Trace
     @Tag(key = "testTag", value = "arg[0]")
     public void testInfo(final String testInfoParam) {
         ActiveSpan.info("TestInfoMsg");
     }
-
 
     public void asyncRunnable(Runnable runnable) {
         SERVICE.submit(RunnableWrapper.of(runnable));
@@ -93,7 +93,7 @@ public class TestService {
     }
 
     public void asyncSupplier(Supplier<Boolean> supplier) {
-    	CompletableFuture.supplyAsync(SupplierWrapper.of(supplier));
+        CompletableFuture.supplyAsync(SupplierWrapper.of(supplier));
     }
 
 }

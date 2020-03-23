@@ -18,18 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * In MySQL, use a row lock of LOCK table.
- *
- * @author wusheng, peng-yongsheng
  */
 public class H2RegisterLockDAO implements IRegisterLockDAO {
 
@@ -41,7 +42,8 @@ public class H2RegisterLockDAO implements IRegisterLockDAO {
         this.h2Client = h2Client;
     }
 
-    @Override public int getId(int scopeId, RegisterSource registerSource) {
+    @Override
+    public int getId(int scopeId, RegisterSource registerSource) {
         try (Connection connection = h2Client.getTransactionConnection()) {
             ResultSet resultSet = h2Client.executeQuery(connection, "select sequence from " + H2RegisterLockInstaller.LOCK_TABLE_NAME + " where id = " + scopeId + " for update");
             while (resultSet.next()) {

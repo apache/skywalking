@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>7.0.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -86,6 +86,8 @@
         <module>httpclient-3.x-plugin</module>
         <module>play-2.x-plugin</module>
         <module>lettuce-5.x-plugin</module>
+        <module>avro-plugin</module>
+        <module>finagle-6.25.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

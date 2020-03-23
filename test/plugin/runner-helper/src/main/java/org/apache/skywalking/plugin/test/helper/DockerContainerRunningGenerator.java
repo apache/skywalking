@@ -14,15 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.skywalking.plugin.test.helper;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+package org.apache.skywalking.plugin.test.helper;
 
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
     private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
@@ -45,6 +45,7 @@ public class DockerContainerRunningGenerator extends AbstractRunningGenerator {
         root.put("scenario_version", configuration.scenarioVersion());
         root.put("health_check", configuration.healthCheck());
         root.put("start_script", configuration.startScript());
+        root.put("catalina_opts", configuration.catalinaOpts());
         root.put("entry_service", configuration.entryService());
         root.put("test_framework", configuration.testFramework());
         root.put("docker_image_name", configuration.dockerImageName());

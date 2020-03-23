@@ -20,12 +20,10 @@ package org.apache.skywalking.oap.server.core.source;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.HTTP_ACCESS_LOG;
 
-/**
- * @author wusheng
- */
 @ScopeDeclaration(id = HTTP_ACCESS_LOG, name = "HTTPAccessLog")
 public class HTTPAccessLog extends AbstractLog {
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return HTTP_ACCESS_LOG;
     }
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
 import com.google.common.base.Strings;
@@ -28,12 +29,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Created by dengming, 2019.05.02
- */
 public class ZookeeperCoordinatorTest {
 
     private ClusterModuleZookeeperConfig config = new ClusterModuleZookeeperConfig();

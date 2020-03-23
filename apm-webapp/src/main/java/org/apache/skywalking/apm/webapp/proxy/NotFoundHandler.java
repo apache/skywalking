@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.apm.webapp.proxy;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -27,24 +29,21 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
 /**
  * NotFoundHandler handles the single page application url routing.
- *
- * @author gaohongtao
  */
 @ControllerAdvice
 public class NotFoundHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<String> renderDefaultPage() {
         try {
-            String body = StreamUtils.copyToString(new ClassPathResource("/public/index.html").getInputStream(), Charset.defaultCharset());
+            String body = StreamUtils.copyToString(new ClassPathResource("/public/index.html").getInputStream(), Charset
+                .defaultCharset());
             return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(body);
         } catch (final IOException e) {
             LoggerFactory.getLogger(NotFoundHandler.class).error("err", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("There was an error completing the action.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("There was an error completing the action.");
         }
     }
 }

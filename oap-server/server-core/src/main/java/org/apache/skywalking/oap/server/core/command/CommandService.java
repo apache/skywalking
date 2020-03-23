@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.command;
 
+import java.util.UUID;
+import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-import java.util.UUID;
-
 /**
- * @author kezhenxu94
+ * CommandService represents the command creation factory. All commands for downstream agents should be created here.
  */
 public class CommandService implements Service {
     private final ModuleManager moduleManager;
@@ -34,12 +35,21 @@ public class CommandService implements Service {
         this.moduleManager = moduleManager;
     }
 
-    public ServiceResetCommand newResetCommand(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
+    public ServiceResetCommand newResetCommand(final int serviceInstanceId, final long time,
+                                               final String serviceInstanceUUID) {
         final String serialNumber = generateSerialNumber(serviceInstanceId, time, serviceInstanceUUID);
         return new ServiceResetCommand(serialNumber);
     }
 
-    private String generateSerialNumber(final int serviceInstanceId, final long time, final String serviceInstanceUUID) {
+    public ProfileTaskCommand newProfileTaskCommand(ProfileTask task) {
+        final String serialNumber = UUID.randomUUID().toString();
+        return new ProfileTaskCommand(
+            serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task
+            .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+    }
+
+    private String generateSerialNumber(final int serviceInstanceId, final long time,
+                                        final String serviceInstanceUUID) {
         return UUID.randomUUID().toString(); // Simply generate a uuid without taking care of the parameters
     }
 }

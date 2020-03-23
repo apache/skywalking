@@ -22,12 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
 
-/**
- * @author peng-yongsheng
- */
 public class SegmentParserListenerManager implements ISegmentParserListenerManager {
 
-    private List<SpanListenerFactory> spanListenerFactories;
+    private final List<SpanListenerFactory> spanListenerFactories;
 
     public SegmentParserListenerManager() {
         this.spanListenerFactories = new LinkedList<>();

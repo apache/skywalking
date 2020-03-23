@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
@@ -29,7 +30,15 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
-import org.apache.skywalking.oap.server.core.query.*;
+import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
+import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
+import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricQueryService;
+import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
+import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
+import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
+import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
@@ -47,7 +56,7 @@ import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * @author peng-yongsheng
+ * Core module definition. Define all open services to other modules.
  */
 public class CoreModule extends ModuleDefine {
 
@@ -57,7 +66,8 @@ public class CoreModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         List<Class> classes = new ArrayList<>();
         classes.add(ConfigService.class);
         classes.add(DownsamplingConfigService.class);
@@ -82,6 +92,7 @@ public class CoreModule extends ModuleDefine {
     private void addProfileService(List<Class> classes) {
         classes.add(ProfileTaskMutationService.class);
         classes.add(ProfileTaskQueryService.class);
+        classes.add(ProfileTaskCache.class);
     }
 
     private void addQueryService(List<Class> classes) {
