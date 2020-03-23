@@ -91,11 +91,11 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * check and add {@link TracingContext} profiling
      */
-    public boolean addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ProfileStatusReference addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
-            return false;
+            return ProfileStatusReference.createWithNone();
         }
 
         return executionContext.attemptProfiling(tracingContext, traceSegmentId, firstSpanOPName);
@@ -104,14 +104,14 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * Re-check current trace need profiling, in case that third-party plugins change the operation name.
      */
-    public boolean profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public void profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
-            return false;
+            return;
         }
 
-        return executionContext.profilingRecheck(tracingContext, traceSegmentId, firstSpanOPName);
+        executionContext.profilingRecheck(tracingContext, traceSegmentId, firstSpanOPName);
     }
 
     /**
@@ -247,7 +247,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
 
     @Override
     public void afterMainThreadFinish(TracingContext tracingContext) {
-        if (tracingContext.isProfiling()) {
+        if (tracingContext.profileStatus().isBeingWatched()) {
             // stop profiling tracing context
             ProfileTaskExecutionContext currentExecutionContext = taskExecutionContext.get();
             if (currentExecutionContext != null) {
