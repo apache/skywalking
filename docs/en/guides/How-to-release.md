@@ -242,35 +242,46 @@ enter your apache password
 We only publish Apache mirror path as release info.
 4. Public asc and sha512 locate in `https://www.apache.org/dist/skywalking/x.y.z/xxx`
 5. Public KEYS pointing to  `https://www.apache.org/dist/skywalking/KEYS`
-6. Send ANNOUNCE mail to `dev@skywalking.apache.org`.
+6. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
+links. Links could be found by following above rules(3)-(6).
+7. Add a release event on website homepage and even page. Announce the public release with changelog or key features.
+8. Send ANNOUNCE mail to `dev@skywalking.apache.org`, `	announce@apache.org`, the sender should use Apache mail.
 ```
-Mail title: [ANNOUNCE] Release Apache SkyWalking version x.y.z
+Mail title: [ANNOUNCE] Apache SkyWalking x.y.z released
 
 Mail content:
 Hi all,
 
 Apache SkyWalking Team is glad to announce the first release of Apache SkyWalking x.y.z.
 
-SkyWalking: APM (application performance monitor) tool for distributed systems, 
-especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures. 
+SkyWalking: APM (application performance monitor) tool for distributed systems,
+especially designed for microservices, cloud native and container-based (Docker, Kubernetes, Mesos) architectures.
 
-Vote Thread: 
+This release contains a number of new features, bug fixes and improvements compared to
+version a.b.c(last release). The notable changes since x.y.z include:
 
-Download Links : http://skywalking.apache.org/downloads/
+(Highlight key changes)
+1. ...
+2. ...
+3. ...
 
-Release Notes : https://github.com/apache/skywalking/blob/x.y.z/CHANGES.md
+Please refer to the change log for the complete list of changes:
+https://github.com/apache/skywalking/blob/v7.0.0/CHANGES.md
 
-Website: http://skywalking.apache.org/
+Apache Tomcat website:
+http://skywalking.apache.org/
+
+Downloads:
+http://skywalking.apache.org/downloads/
+
+Twitter:
+https://twitter.com/ASFSkyWalking
 
 SkyWalking Resources:
+- GitHub: https://github.com/apache/skywalking
 - Issue: https://github.com/apache/skywalking/issues
 - Mailing list: dev@skywalkiing.apache.org
-- Documents: https://github.com/apache/skywalking/blob/x.y.z/docs/README.md
 
 
 - Apache SkyWalking Team
 ```
-
-7. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
-links. Links could be found by following above rules(3)-(6).
-8. Add a release event on website homepage and even page. Announce the public release with changelog or key features.
