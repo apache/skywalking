@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.apm.toolkit.trace;
 
+import java.util.Optional;
+
 /**
  * Propagate the custom data in the tracing context.
  */
@@ -25,19 +27,19 @@ public class CorrelationContext {
     /**
      * Try to get the custom value from trace context.
      *
-     * @return custom data, if not found, return empty {@link String}
+     * @return custom data value.
      */
-    public static String get(String key) {
-        return "";
+    public static Optional<String> get(String key) {
+        return Optional.empty();
     }
 
     /**
      * Setting the custom key/value into trace context.
      *
-     * @return setting result. It will return error message when setting error, usually it failed because out of the setting limit.
+     * @return not empty when override the previous value.
      */
-    public static CorrelationSettingResult set(String key, String value) {
-        return new CorrelationSettingResult(null, null);
+    public static Optional<String> set(String key, String value) {
+        return Optional.empty();
     }
 
 }

@@ -397,13 +397,13 @@ public class Config {
 
     public static class Correlation {
         /**
-         * Max key count in the correlation context.
+         * Max element count in the correlation context.
          */
-        public static int KEY_COUNT = 3;
+        public static int ELEMENT_MAX_NUMBER = 3;
 
         /**
          * Max value length in each key.
          */
-        public static int VALUE_LENGTH = 128;
+        public static int VALUE_MAX_LENGTH = 128;
     }
 }

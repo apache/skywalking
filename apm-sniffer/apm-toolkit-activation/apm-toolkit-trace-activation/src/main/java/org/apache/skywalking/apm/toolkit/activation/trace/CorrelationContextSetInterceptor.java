@@ -18,14 +18,13 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.CorrelationContext;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
-import org.apache.skywalking.apm.toolkit.trace.CorrelationSettingResult;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class CorrelationContextSetInterceptor implements StaticMethodsAroundInterceptor {
 
@@ -35,9 +34,9 @@ public class CorrelationContextSetInterceptor implements StaticMethodsAroundInte
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
         final String key = (String) allArguments[0];
         final String value = (String) allArguments[1];
-        final CorrelationContext.SettingResult settingResult = ContextManager.getCorrelationContext().set(key, value);
+        final Optional<String> previous = ContextManager.getCorrelationContext().set(key, value);
 
-        result.defineReturnValue(new CorrelationSettingResult(settingResult.errorMessage(), settingResult.previousData()));
+        result.defineReturnValue(previous);
     }
 
     @Override

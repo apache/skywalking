@@ -18,28 +18,19 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Optional;
 
 public class CorrelationContextTest {
 
     @Before
     public void setupConfig() {
-        Config.Correlation.KEY_COUNT = 2;
-        Config.Correlation.VALUE_LENGTH = 8;
-
-        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        ServiceManager.INSTANCE.shutdown();
+        Config.Correlation.ELEMENT_MAX_NUMBER = 2;
+        Config.Correlation.VALUE_MAX_LENGTH = 8;
     }
 
     @Test
@@ -47,40 +38,34 @@ public class CorrelationContextTest {
         final CorrelationContext context = new CorrelationContext();
 
         // manual set
-        CorrelationContext.SettingResult settingResult = context.set("test1", "t1");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNull(settingResult.errorMessage());
-        Assert.assertNull(settingResult.previousData());
+        Optional<String> previous = context.set("test1", "t1");
+        Assert.assertNotNull(previous);
+        Assert.assertFalse(previous.isPresent());
 
         // set with replace old value
-        settingResult = context.set("test1", "t1New");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNull(settingResult.errorMessage());
-        Assert.assertEquals("t1", settingResult.previousData());
+        previous = context.set("test1", "t1New");
+        Assert.assertNotNull(previous);
+        Assert.assertEquals("t1", previous.get());
 
         // manual set
-        settingResult = context.set("test2", "t2");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNull(settingResult.errorMessage());
-        Assert.assertNull(settingResult.previousData());
+        previous = context.set("test2", "t2");
+        Assert.assertNotNull(previous);
+        Assert.assertFalse(previous.isPresent());
 
         // out of key count
-        settingResult = context.set("test3", "t3");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNotNull(settingResult.errorMessage());
-        Assert.assertNull(settingResult.previousData());
+        previous = context.set("test3", "t3");
+        Assert.assertNotNull(previous);
+        Assert.assertFalse(previous.isPresent());
 
         // key not null
-        settingResult = context.set(null, "t3");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNotNull(settingResult.errorMessage());
-        Assert.assertNull(settingResult.previousData());
+        previous = context.set(null, "t3");
+        Assert.assertNotNull(previous);
+        Assert.assertFalse(previous.isPresent());
 
         // out of value length
-        settingResult = context.set(null, "123456789");
-        Assert.assertNotNull(settingResult);
-        Assert.assertNotNull(settingResult.errorMessage());
-        Assert.assertNull(settingResult.previousData());
+        previous = context.set(null, "123456789");
+        Assert.assertNotNull(previous);
+        Assert.assertFalse(previous.isPresent());
     }
 
     @Test
@@ -89,12 +74,12 @@ public class CorrelationContextTest {
         context.set("test1", "t1");
 
         // manual get
-        Assert.assertEquals("t1", context.get("test1"));
+        Assert.assertEquals("t1", context.get("test1").get());
         // ket if null
-        Assert.assertEquals("", context.get(null));
+        Assert.assertNull(context.get(null).orElse(null));
         // value if null
         context.set("test2", null);
-        Assert.assertEquals("", context.get("test2"));
+        Assert.assertEquals("", context.get("test2").get());
     }
 
     @Test
@@ -120,20 +105,20 @@ public class CorrelationContextTest {
         // manual
         CorrelationContext context = new CorrelationContext();
         context.deserialize("dGVzdDE=:dDE=,dGVzdDI=:dDI=");
-        Assert.assertEquals("t1", context.get("test1"));
-        Assert.assertEquals("t2", context.get("test2"));
+        Assert.assertEquals("t1", context.get("test1").get());
+        Assert.assertEquals("t2", context.get("test2").get());
 
         // empty value
         context = new CorrelationContext();
         context.deserialize("dGVzdDE=:");
-        Assert.assertEquals("", context.get("test1"));
+        Assert.assertEquals("", context.get("test1").get());
 
         // empty string
         context = new CorrelationContext();
         context.deserialize("");
-        Assert.assertEquals("", context.get("test1"));
+        Assert.assertNull(context.get("test1").orElse(null));
         context.deserialize(null);
-        Assert.assertEquals("", context.get("test1"));
+        Assert.assertNull(context.get("test1").orElse(null));
     }
 
 }

@@ -57,7 +57,7 @@ public class ContextSnapshot {
         if (distributedTraceIds != null) {
             this.primaryDistributedTraceId = distributedTraceIds.get(0);
         }
-        this.correlationContext = correlationContext;
+        this.correlationContext = correlationContext.clone();
     }
 
     public void setEntryOperationName(String entryOperationName) {

@@ -125,8 +125,8 @@ property key | Description | Default |
 `plugin.tomcat.collect_http_params`| This config item controls that whether the Tomcat plugin should collect the parameters of the request. Also, activate implicitly in the profiled trace. | `false` |
 `plugin.springmvc.collect_http_params`| This config item controls that whether the SpringMVC plugin should collect the parameters of the request, when your Spring application is based on Tomcat, consider only setting either `plugin.tomcat.collect_http_params` or `plugin.springmvc.collect_http_params`. Also, activate implicitly in the profiled trace. | `false` |
 `plugin.http.http_params_length_threshold`| When `COLLECT_HTTP_PARAMS` is enabled, how many characters to keep and send to the OAP backend, use negative values to keep and send the complete parameters, NB. this config item is added for the sake of performance.  | `1024` |
-`correlation.key_count`|Correlation max key count in tracing context|`3`|
-`correlation.value_length`|Correlation max value length in the every key|`128`|
+`correlation.element_max_number`|Correlation max element count in the correlation context.|`3`|
+`correlation.value_max_length`|Correlation max value length in each key.|`128`|
 
 ## Optional Plugins
 Java agent plugins are all pluggable. Optional plugins could be provided in `optional-plugins` folder under agent or 3rd party repositories.
@@ -160,9 +160,8 @@ Now, we have the following known bootstrap plugins.
     * If you want to use OpenTracing Java APIs, try [SkyWalking OpenTracing compatible tracer](Opentracing.md). More details you could find at http://opentracing.io
     * If you want to print trace context(e.g. traceId) in your logs, choose the log frameworks, [log4j](Application-toolkit-log4j-1.x.md), 
 [log4j2](Application-toolkit-log4j-2.x.md), [logback](Application-toolkit-logback-1.x.md)
-    * If you want to use annotations or SkyWalking native APIs to read context, try [SkyWalking manual APIs](Application-toolkit-trace.md)
+    * If you want your codes interact with SkyWalking agent, including `getting trace id`, `set tags`, etc.. Try [SkyWalking manual APIs](Application-toolkit-trace.md).
     * If you want to continue traces across thread manually, use [across thread solution APIs](Application-toolkit-trace-cross-thread.md).
-    * If you want to cross process correlation your custom data, use [Correlation solution APIs](Application-toolkit-correlation.md).
 * If you want to specify the path of your agent.config file. Read [set config file through system properties](Specified-agent-config.md)
 
 ## Plugin Development Guide

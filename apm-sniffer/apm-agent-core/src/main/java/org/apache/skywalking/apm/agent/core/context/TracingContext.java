@@ -237,7 +237,7 @@ public class TracingContext implements AbstractTracerContext {
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
 
-        carrier.getCorrelationContext().resetFrom(this.correlationContext);
+        this.correlationContext.inject(carrier);
     }
 
     /**
@@ -255,7 +255,7 @@ public class TracingContext implements AbstractTracerContext {
             span.ref(ref);
         }
 
-        this.correlationContext.resetFrom(carrier.getCorrelationContext());
+        this.correlationContext.extract(carrier);
     }
 
     /**
@@ -335,7 +335,7 @@ public class TracingContext implements AbstractTracerContext {
         this.segment.ref(segmentRef);
         this.activeSpan().ref(segmentRef);
         this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
-        this.correlationContext.resetFrom(snapshot.getCorrelationContext());
+        this.correlationContext.continued(snapshot);
     }
 
     /**

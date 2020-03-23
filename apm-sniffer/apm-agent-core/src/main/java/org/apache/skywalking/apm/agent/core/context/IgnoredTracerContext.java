@@ -43,12 +43,12 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     @Override
     public void inject(ContextCarrier carrier) {
-        carrier.getCorrelationContext().resetFrom(this.correlationContext);
+        this.correlationContext.inject(carrier);
     }
 
     @Override
     public void extract(ContextCarrier carrier) {
-        this.correlationContext.resetFrom(carrier.getCorrelationContext());
+        this.correlationContext.extract(carrier);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     @Override
     public void continued(ContextSnapshot snapshot) {
-        this.correlationContext.resetFrom(snapshot.getCorrelationContext());
+        this.correlationContext.continued(snapshot);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class CorrelationContextGetInterceptor implements StaticMethodsAroundInterceptor {
 
@@ -32,7 +33,7 @@ public class CorrelationContextGetInterceptor implements StaticMethodsAroundInte
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
         final String key = (String) allArguments[0];
-        final String data = ContextManager.getCorrelationContext().get(key);
+        final Optional<String> data = ContextManager.getCorrelationContext().get(key);
 
         result.defineReturnValue(data);
     }

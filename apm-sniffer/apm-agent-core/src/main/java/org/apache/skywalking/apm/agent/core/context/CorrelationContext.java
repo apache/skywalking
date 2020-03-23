@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.util.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -32,49 +33,48 @@ import java.util.stream.Collectors;
  */
 public class CorrelationContext {
 
-    private volatile Map<String, String> data;
+    private final Map<String, String> data;
 
     public CorrelationContext() {
         this.data = new HashMap<>(0);
     }
 
-    public SettingResult set(String key, String value) {
+    public Optional<String> set(String key, String value) {
         // key must not null
         if (key == null) {
-            return SettingResult.buildWithSettingError("Key Cannot be null");
+            return Optional.empty();
         }
         if (value == null) {
             value = "";
         }
 
         // check value length
-        if (value.length() > Config.Correlation.VALUE_LENGTH) {
-            return SettingResult.buildWithSettingError("Out out correlation value length limit");
+        if (value.length() > Config.Correlation.VALUE_MAX_LENGTH) {
+            return Optional.empty();
         }
 
         // already contain key
         if (data.containsKey(key)) {
             final String previousValue = data.put(key, value);
-            return SettingResult.buildWithSuccess(previousValue);
+            return Optional.of(previousValue);
         }
 
         // check keys count
-        if (data.size() >= Config.Correlation.KEY_COUNT) {
-            return SettingResult.buildWithSettingError("Out out correlation key count limit");
+        if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
+            return Optional.empty();
         }
 
         // setting
         data.put(key, value);
-        return SettingResult.buildWithSuccess(null);
+        return Optional.empty();
     }
 
-    public String get(String key) {
+    public Optional<String> get(String key) {
         if (key == null) {
-            return "";
+            return Optional.empty();
         }
 
-        final String value = data.get(key);
-        return value == null ? "" : value;
+        return Optional.ofNullable(data.get(key));
     }
 
     /**
@@ -109,44 +109,30 @@ public class CorrelationContext {
     }
 
     /**
-     * Reset correlation context from other context
+     * Prepare for the cross-process propagation. Inject the {@link #data} into {@link ContextCarrier#getCorrelationContext()}
      */
-    public void resetFrom(CorrelationContext context) {
-        this.data = context.data;
+    void inject(ContextCarrier carrier) {
+        carrier.getCorrelationContext().data.putAll(this.data);
     }
 
-    public static class SettingResult {
-        private String errorMessage;
-        private String previous;
+    /**
+     * Extra the {@link ContextCarrier#getCorrelationContext()} into this context.
+     */
+    void extract(ContextCarrier carrier) {
+        this.data.putAll(carrier.getCorrelationContext().data);
+    }
 
-        SettingResult(String errorMessage, String previous) {
-            this.errorMessage = errorMessage;
-            this.previous = previous;
-        }
+    /**
+     * Clone the context data, work for capture to cross-thread.
+     */
+    public CorrelationContext clone() {
+        final CorrelationContext context = new CorrelationContext();
+        context.data.putAll(this.data);
+        return context;
+    }
 
-        /**
-         * Building setting success
-         *
-         * @param previous previous value when override
-         */
-        public static SettingResult buildWithSuccess(String previous) {
-            return new SettingResult(null, previous);
-        }
-
-        /**
-         * Building setting error
-         */
-        public static SettingResult buildWithSettingError(String errorMessage) {
-            return new SettingResult(errorMessage, null);
-        }
-
-        public String errorMessage() {
-            return errorMessage;
-        }
-
-        public String previousData() {
-            return previous;
-        }
+    void continued(ContextSnapshot snapshot) {
+        this.data.putAll(snapshot.getCorrelationContext().data);
     }
 
     @Override
