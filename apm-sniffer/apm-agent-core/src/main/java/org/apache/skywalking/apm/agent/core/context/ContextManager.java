@@ -225,4 +225,13 @@ public class ContextManager implements BootService {
         return runtimeContext;
     }
 
+    public static CorrelationContext getCorrelationContext() {
+        final AbstractTracerContext tracerContext = get();
+        if (tracerContext == null) {
+            return null;
+        }
+
+        return tracerContext.getCorrelationContext();
+    }
+
 }

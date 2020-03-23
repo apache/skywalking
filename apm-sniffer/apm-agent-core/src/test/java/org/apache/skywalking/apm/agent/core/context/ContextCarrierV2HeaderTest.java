@@ -34,7 +34,13 @@ public class ContextCarrierV2HeaderTest {
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw--");
+            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+                next.setHeadValue("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw--");
+            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+                next.setHeadValue("dGVzdA==:dHJ1ZQ==");
+            } else {
+                throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
+            }
         }
 
         Assert.assertTrue(contextCarrier.isValid());
@@ -55,6 +61,8 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setEntryEndpointName("/portal");
         contextCarrier.setParentEndpointId(123);
 
+        contextCarrier.getCorrelationContext().set("test", "true");
+
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
@@ -63,13 +71,30 @@ public class ContextCarrierV2HeaderTest {
              *
              * "1-3.4.5-1.2.3-4-1-1-#127.0.0.1:8080-#/portal-123"
              */
-            Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+                /**
+                 * customKey:customValue
+                 *
+                 * "test:true"
+                 */
+                Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
+            } else {
+                throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
+            }
         }
 
         next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
+            } else {
+                throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
+            }
         }
 
         Assert.assertTrue(contextCarrier.isValid());
@@ -90,18 +115,33 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setEntryEndpointName("/portal");
         contextCarrier.setParentEndpointId(123);
 
+        contextCarrier.getCorrelationContext().set("test", "true");
+
         CarrierItem next = contextCarrier.items();
-        String headerValue = null;
+        String sw6HeaderValue = null;
+        String correlationHeaderValue = null;
         while (next.hasNext()) {
             next = next.next();
-            headerValue = next.getHeadValue();
+            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+                sw6HeaderValue = next.getHeadValue();
+            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+                correlationHeaderValue = next.getHeadValue();
+            } else {
+                throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
+            }
         }
 
         ContextCarrier contextCarrier2 = new ContextCarrier();
         next = contextCarrier2.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue(headerValue);
+            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+                next.setHeadValue(sw6HeaderValue);
+            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+                next.setHeadValue(correlationHeaderValue);
+            } else {
+                throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
+            }
         }
 
         Assert.assertTrue(contextCarrier2.isValid());
@@ -112,5 +152,6 @@ public class ContextCarrierV2HeaderTest {
         Assert.assertEquals(contextCarrier.getEntryEndpointName(), contextCarrier2.getEntryEndpointName());
         Assert.assertEquals(contextCarrier.getEntryServiceInstanceId(), contextCarrier2.getEntryServiceInstanceId());
         Assert.assertEquals(contextCarrier.getParentServiceInstanceId(), contextCarrier2.getParentServiceInstanceId());
+        Assert.assertEquals(contextCarrier.getCorrelationContext(), contextCarrier2.getCorrelationContext());
     }
 }

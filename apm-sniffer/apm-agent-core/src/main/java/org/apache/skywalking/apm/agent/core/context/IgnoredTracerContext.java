@@ -32,30 +32,33 @@ import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 public class IgnoredTracerContext implements AbstractTracerContext {
     private static final NoopSpan NOOP_SPAN = new NoopSpan();
 
+    private final CorrelationContext correlationContext;
+
     private int stackDepth;
 
     public IgnoredTracerContext() {
         this.stackDepth = 0;
+        this.correlationContext = new CorrelationContext();
     }
 
     @Override
     public void inject(ContextCarrier carrier) {
-
+        carrier.getCorrelationContext().resetFrom(this.correlationContext);
     }
 
     @Override
     public void extract(ContextCarrier carrier) {
-
+        this.correlationContext.resetFrom(carrier.getCorrelationContext());
     }
 
     @Override
     public ContextSnapshot capture() {
-        return new ContextSnapshot(null, -1, null);
+        return new ContextSnapshot(null, -1, null, correlationContext);
     }
 
     @Override
     public void continued(ContextSnapshot snapshot) {
-
+        this.correlationContext.resetFrom(snapshot.getCorrelationContext());
     }
 
     @Override
@@ -103,6 +106,11 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     @Override
     public void asyncStop(AsyncSpan span) {
 
+    }
+
+    @Override
+    public CorrelationContext getCorrelationContext() {
+        return this.correlationContext;
     }
 
     public static class ListenerManager {

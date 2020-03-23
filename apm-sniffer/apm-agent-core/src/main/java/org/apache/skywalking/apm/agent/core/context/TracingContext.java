@@ -111,6 +111,8 @@ public class TracingContext implements AbstractTracerContext {
      */
     private final ProfileStatusReference profileStatus;
 
+    private final CorrelationContext correlationContext;
+
     /**
      * Initialize all fields with default value.
      */
@@ -130,6 +132,8 @@ public class TracingContext implements AbstractTracerContext {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
         this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+
+        this.correlationContext = new CorrelationContext();
     }
 
     /**
@@ -232,6 +236,8 @@ public class TracingContext implements AbstractTracerContext {
         }
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
+
+        carrier.getCorrelationContext().resetFrom(this.correlationContext);
     }
 
     /**
@@ -248,6 +254,8 @@ public class TracingContext implements AbstractTracerContext {
         if (span instanceof EntrySpan) {
             span.ref(ref);
         }
+
+        this.correlationContext.resetFrom(carrier.getCorrelationContext());
     }
 
     /**
@@ -259,7 +267,7 @@ public class TracingContext implements AbstractTracerContext {
     public ContextSnapshot capture() {
         List<TraceSegmentRef> refs = this.segment.getRefs();
         ContextSnapshot snapshot = new ContextSnapshot(
-            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces());
+            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces(), this.correlationContext);
         int entryOperationId;
         String entryOperationName = "";
         int entryApplicationInstanceId;
@@ -327,6 +335,7 @@ public class TracingContext implements AbstractTracerContext {
         this.segment.ref(segmentRef);
         this.activeSpan().ref(segmentRef);
         this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
+        this.correlationContext.resetFrom(snapshot.getCorrelationContext());
     }
 
     /**
@@ -508,6 +517,11 @@ public class TracingContext implements AbstractTracerContext {
     public void asyncStop(AsyncSpan span) {
         ASYNC_SPAN_COUNTER_UPDATER.decrementAndGet(this);
         finish();
+    }
+
+    @Override
+    public CorrelationContext getCorrelationContext() {
+        return this.correlationContext;
     }
 
     /**
