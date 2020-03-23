@@ -80,6 +80,9 @@ have been highlighted.
 
 <img src="http://skywalking.apache.org/ui-doc/7.0.0/profile-result.png"/>
 
+### Advanced features
+1. Since 7.1.0, the profiled trace collects the HTTP request parameters for Tomcat and SpringMVC Controller automatically.
+
 ## Alarm
 Alarm page lists all triggered alarm. Read the backend setup documentation to know how to set up the alarm rule or integrate
 with 3rd party system.
