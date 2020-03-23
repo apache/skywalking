@@ -84,19 +84,19 @@ public class TestController {
 
     @RequestMapping("/asyncVisit/runnable")
     public String asyncVisitRunnable() {
-        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY));
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY).orElse(""));
         return SUCCESS;
     }
 
     @RequestMapping("/asyncVisit/callable")
     public String asyncVisitCallable() {
-        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY));
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY).orElse(""));
         return SUCCESS;
     }
 
     @RequestMapping("/asyncVisit/supplier")
     public String asyncVisitSupplier() {
-        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY));
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, CorrelationContext.get(CORRELATION_CONTEXT_KEY).orElse(""));
         return SUCCESS;
     }
 
