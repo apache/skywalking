@@ -176,7 +176,6 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/tool-kit'}
               - {key: http.method, value: GET}
-              - {key: correlation, value: correlationValueTest}
       - segmentId: not null
         spans:
           - operationName: /case/asyncVisit/callable
