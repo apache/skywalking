@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceInfo;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -87,6 +88,9 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
     private DeleteRequest deleteRequest;
 
     @Mock
+    private DeleteIndexRequest deleteIndexRequest;
+
+    @Mock
     private TransportClientEnhanceInfo enhanceInfo;
 
     private TransportActionNodeProxyExecuteMethodsInterceptor interceptor;
@@ -116,6 +120,8 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
 
         when(deleteRequest.index()).thenReturn("endpoint");
         when(deleteRequest.type()).thenReturn("deleteType");
+
+        when(deleteIndexRequest.indices()).thenReturn(new String[]{"endpoint"});
 
         interceptor = new TransportActionNodeProxyExecuteMethodsInterceptor();
     }
@@ -226,6 +232,8 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         } else if (ret instanceof DeleteRequest) {
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("deleteType"));
+        } else if (ret instanceof DeleteIndexRequest) {
+            assertThat(tags.get(3).getValue(), is("endpoint"));
         }
 
     }

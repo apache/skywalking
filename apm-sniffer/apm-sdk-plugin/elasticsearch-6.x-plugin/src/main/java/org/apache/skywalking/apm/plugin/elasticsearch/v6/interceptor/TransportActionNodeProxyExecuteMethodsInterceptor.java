@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceInfo;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -106,6 +107,11 @@ public class TransportActionNodeProxyExecuteMethodsInterceptor implements Instan
             parseDeleteRequest((DeleteRequest) request, span);
             return;
         }
+        // delete index request
+        if (request instanceof DeleteIndexRequest) {
+            parseDeleteIndexRequest((DeleteIndexRequest) request, span);
+            return;
+        }
     }
 
     private void parseSearchRequest(SearchRequest searchRequest, AbstractSpan span) {
@@ -146,5 +152,9 @@ public class TransportActionNodeProxyExecuteMethodsInterceptor implements Instan
         if (TRACE_DSL) {
             Tags.DB_STATEMENT.set(span, deleteRequest.toString());
         }
+    }
+
+    private void parseDeleteIndexRequest(DeleteIndexRequest deleteIndexRequest, AbstractSpan span) {
+        span.tag(Constants.ES_INDEX, String.join(",", deleteIndexRequest.indices()));
     }
 }
