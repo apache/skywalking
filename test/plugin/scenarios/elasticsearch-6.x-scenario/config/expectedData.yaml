@@ -261,5 +261,5 @@ segmentItems:
         peer: ''
         peerId: 0
         tags:
-          - {key: url, value: 'http://localhost:8080/elasticsearch-case/case/elasticsearch'}
+          - {key: url, value: 'http://localhost:8080/elasticsearch-case/transport-case/elasticsearch'}
           - {key: http.method, value: GET}
