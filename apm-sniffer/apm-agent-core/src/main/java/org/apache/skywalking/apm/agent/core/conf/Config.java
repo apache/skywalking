@@ -402,7 +402,7 @@ public class Config {
         public static int ELEMENT_MAX_NUMBER = 3;
 
         /**
-         * Max value length in each key.
+         * Max value length of each element.
          */
         public static int VALUE_MAX_LENGTH = 128;
     }

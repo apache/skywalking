@@ -53,7 +53,7 @@ public User methodYouWantToTrace(String param1, String param2) {
 }
 ```
 
-* Use `CorrelationContext.set()` API to setting custom data in tracing context. Please follow [the agent configuration](README.md#table-of-agent-configuration-properties) to get more setting limit.
+* Use `CorrelationContext.set()` API to setting custom data in tracing context. 
 ```java
 optional<String> previous = CorrelationContext.set("customKey", "customValue");
 ```
@@ -62,4 +62,4 @@ optional<String> previous = CorrelationContext.set("customKey", "customValue");
 ```java
 optional<String> value = CorrelationContext.get("customKey");
 ```
-
+CorrelationContext configuration descriptions could be found in the [the agent configuration](README.md#table-of-agent-configuration-properties) documentation, with `correlation.` as the prefix.

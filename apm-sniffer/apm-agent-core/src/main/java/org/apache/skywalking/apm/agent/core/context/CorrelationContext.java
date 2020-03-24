@@ -36,7 +36,7 @@ public class CorrelationContext {
     private final Map<String, String> data;
 
     public CorrelationContext() {
-        this.data = new HashMap<>(0);
+        this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
     }
 
     public Optional<String> set(String key, String value) {

@@ -45,6 +45,5 @@ public class CorrelationContextGetInterceptor implements StaticMethodsAroundInte
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
-        logger.error("Failed to get correlation value.", t);
     }
 }

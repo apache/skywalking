@@ -46,6 +46,5 @@ public class CorrelationContextSetInterceptor implements StaticMethodsAroundInte
 
     @Override
     public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
-        logger.error("Failed to setting correlation.", t);
     }
 }

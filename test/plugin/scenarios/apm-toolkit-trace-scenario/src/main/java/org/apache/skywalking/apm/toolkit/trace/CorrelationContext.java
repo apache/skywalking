@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.toolkit.trace;
 import java.util.Optional;
 
 /**
- * Propagate the custom data in the tracing context.
+ * CorrelationContext is the interactive API for end user to put/set custom data.
  */
 public class CorrelationContext {
 
@@ -36,7 +36,7 @@ public class CorrelationContext {
     /**
      * Setting the custom key/value into trace context.
      *
-     * @return not empty when override the previous value.
+     * @return previous value if it exists.
      */
     public static Optional<String> set(String key, String value) {
         return Optional.empty();
