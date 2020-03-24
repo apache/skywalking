@@ -41,7 +41,7 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
     public static final String ENHANCE_GET_CORRELATION_METHOD = "getCorrelation";
     public static final String INTERCEPT_GET_CORRELATION_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.CorrelationContextGetInterceptor";
     public static final String ENHANCE_PUT_CORRELATION_METHOD = "putCorrelation";
-    public static final String INTERCEPT_PUT_CORRELATION_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.CorrelationContextSetInterceptor";
+    public static final String INTERCEPT_PUT_CORRELATION_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.CorrelationContextPutInterceptor";
 
     /**
      * @return the target class, which needs active.
