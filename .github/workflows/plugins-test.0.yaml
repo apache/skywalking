@@ -1,0 +1,82 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PluginsTest
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/plugins-test*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!docs/**'
+      - '!oap-server/**'
+
+jobs:
+  PluginsTest:
+    name: Plugin
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        case:
+          - { name: 'activemq-scenario', title: 'ActiveMQ 5.10.0-5.15.4 (22)' }
+          - { name: 'apm-toolkit-trace-scenario', title: 'apm-toolkit-trace (1)' }
+          - { name: 'armeria-0.96minus-scenario', title: 'Armeria 0.63.0-0.95.0 (20)' }
+          - { name: 'armeria-0.96plus-scenario', title: 'Armeria 0.96.0-0.97.0 (2)' }
+          - { name: 'avro-scenario', title: 'Avro 1.7.0-1.8.2 (10)' }
+          - { name: 'canal-scenario', title: 'Canal 1.0.24-1.1.2 (5)' }
+          - { name: 'cassandra-java-driver-3.x-scenario', title: 'Cassandra 3.7.0-3.7.2 (3)' }
+          - { name: 'customize-scenario', title: 'customize (1)' }
+          - { name: 'dubbo-2.5.x-scenario', title: 'Dubbo 2.5.x-2.6.x (10)' }
+          - { name: 'dubbo-2.7.x-scenario', title: 'Dubbo 2.7.x (4)' }
+          - { name: 'ehcache-2.x-scenario', title: 'Ehcache 2.8.x-2.10.x (19)' }
+          - { name: 'elasticsearch-5.x-scenario', title: 'ElasticSearch 5.x (3)' }
+          - { name: 'elasticsearch-6.x-scenario', title: 'ElasticSearch 6.7.1-6.8.4 (7)' }
+          - { name: 'elasticsearch-7.x-scenario', title: 'ElasticSearch 7.0.0-7.5.2 (14)' }
+          - { name: 'feign-scenario', title: 'Feign 9.0.0-9.5.1 (8)' }
+          - { name: 'finagle-17.10.x-scenario', title: 'Finagle 17.10.0-20.1.0' }
+          - { name: 'finagle-6.25.x-scenario', title: 'Finagle 6.25.0-6.43.0' }
+          - { name: 'finagle-6.44.x-scenario', title: 'Finagle 6.44.0-7.1.0' }
+          - { name: 'gateway-scenario', title: 'Spring-Cloud-Gateway 2.1.x (3)' }
+          - { name: 'grpc-scenario', title: 'gRPC 1.6.0-1.25.0 (22)' }
+          - { name: 'gson-scenario', title: 'Gson (7)' }
+    steps:
+      - uses: actions/checkout@v2
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+      - name: Build Docker image
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+      - name: ${{ matrix.case.title }}
+        run: bash test/plugin/run.sh ${{ matrix.case.name }}
