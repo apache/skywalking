@@ -147,6 +147,7 @@ segmentItems:
           - {key: node.address, value: not null}
           - {key: es.indices, value: not null}
           - {key: es.types, value: not null}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/actionGet
         operationId: 0
         parentSpanId: 0
@@ -162,6 +163,7 @@ segmentItems:
         peerId: 0
         tags:
           - {key: db.type, value: Elasticsearch}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/GetRequest
         operationId: 0
         parentSpanId: 0
@@ -181,6 +183,7 @@ segmentItems:
           - {key: node.address, value: not null}
           - {key: es.indices, value: not null}
           - {key: es.types, value: not null}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/SearchRequest
         operationId: 0
         parentSpanId: 0
@@ -200,6 +203,7 @@ segmentItems:
           - {key: node.address, value: not null}
           - {key: es.indices, value: not null}
           - {key: es.types, value: not null}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/UpdateRequest
         operationId: 0
         parentSpanId: 0
@@ -219,6 +223,7 @@ segmentItems:
           - {key: node.address, value: not null}
           - {key: es.indices, value: not null}
           - {key: es.types, value: not null}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/DeleteRequest
         operationId: 0
         parentSpanId: 0
@@ -238,6 +243,7 @@ segmentItems:
           - {key: node.address, value: not null}
           - {key: es.indices, value: not null}
           - {key: es.types, value: not null}
+          - {key: db.statement, value: not null}
       - operationName: Elasticsearch/DeleteIndexRequest
         operationId: 0
         parentSpanId: 0
@@ -255,8 +261,7 @@ segmentItems:
           - {key: db.type, value: Elasticsearch}
           - {key: db.instance, value: not null}
           - {key: node.address, value: not null}
-          - {key: es.indices, value: ''}
-          - {key: es.types, value: ''}
+          - {key: es.indices, value: not null}
       - operationName: /elasticsearch-case/case/elasticsearch
         operationId: 0
         parentSpanId: -1
