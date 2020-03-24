@@ -46,7 +46,7 @@ public class TraceContext {
     }
 
     /**
-     * Setting the custom key/value into trace context.
+     * Put the custom key/value into trace context.
      *
      * @return previous value if it exists.
      */

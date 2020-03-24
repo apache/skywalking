@@ -41,16 +41,16 @@ public class TraceContext {
      *
      * @return custom data value.
      */
-    public static Optional<String> get(String key) {
+    public static Optional<String> getCorrelation(String key) {
         return Optional.empty();
     }
 
     /**
-     * Setting the custom key/value into trace context.
+     * Put the custom key/value into trace context.
      *
      * @return previous value if it exists.
      */
-    public static Optional<String> set(String key, String value) {
+    public static Optional<String> putCorrelation(String key, String value) {
         return Optional.empty();
     }
 
