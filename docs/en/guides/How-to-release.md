@@ -244,7 +244,7 @@ We only publish Apache mirror path as release info.
 5. Public KEYS pointing to  `https://www.apache.org/dist/skywalking/KEYS`
 6. Update website download page. http://skywalking.apache.org/downloads/ . Include new download source, distribution, sha512, asc and document
 links. Links could be found by following above rules(3)-(6).
-7. Add a release event on website homepage and even page. Announce the public release with changelog or key features.
+7. Add a release event on website homepage and event page. Announce the public release with changelog or key features.
 8. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`, the sender should use Apache email account.
 ```
 Mail title: [ANNOUNCE] Apache SkyWalking x.y.z released
