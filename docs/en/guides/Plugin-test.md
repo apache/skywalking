@@ -1,11 +1,11 @@
 # Plugin automatic test framework
 
-Plugin test frameworks is designed for verifying the plugin function and compatible status. As there are dozens of plugins and
-hundreds versions need to be verified, it is impossible to do manually.
+Plugin test framework is designed for verifying the plugins' function and compatible status. As there are dozens of plugins and
+hundreds of versions need to be verified, it is impossible to do manually.
 The test framework uses container based tech stack, requires a set of real services with agent installed, then the test mock
-OAP backend is running to check the segment and register data sent from agents.
+OAP backend is running to check the segments and register data sent from agents.
 
-Every plugin maintained in the main repo is required having its test cases, also matching the versions in the supported list doc. 
+Every plugin maintained in the main repo requires corresponding test cases, also matching the versions in the supported list doc.
 
 ## Environment Requirements
 
@@ -559,41 +559,23 @@ rather than recompiling it every time.
 
 Use `${SKYWALKING_HOME}/test/plugin/run.sh -h` to know more command options.
 
-If the local test passed, then you could add it to `.github/workflows/plugins-test.yaml` file, which will drive the tests running on the Github Action of official SkyWalking repository. Please check the prev agent related PRs, and add your case to the fastest group, in order to make the whole test finished as soon as possible.
+If the local test passed, then you could add it to `.github/workflows/plugins-test.<n>.yaml` file, which will drive the tests running on the Github Actions of official SkyWalking repository.
+Based on your plugin's name, please add the test case into file `.github/workflows/plugins-test.<n>.yaml`, by alphabetical orders.
 
-Every test case is a Github Action Step. Please use the scenario name, version range and version number to combine the name,
-take the existing one as a reference. 
+Every test case is a Github Actions Job. Please use the `<scenario name> + <version range> + (<supported version count>)` as the Job `title`, and the scenario directory as the Job `name`,
+mostly you'll just need to decide which file (`plugins-test.<n>.yaml`) to add your test case, and simply put one line (as follows) in it, take the existed cases as examples.
 
-For example:
-
-Here is a group named 'Kafka'. The latest step is Kafka scenario.
-```
-  Kafka:
+```yaml
+jobs:
+  PluginsTest:
+    name: Plugin
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     strategy:
       fail-fast: true
-    steps:
-      - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 8
-      - name: Build SkyWalking Agent
-        run: ./mvnw clean package -DskipTests -Pagent >/dev/null
-      - name: Build the Docker image
-        run: ./mvnw -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
-      - name: Run kafka 0.11.0.0-2.3.0 (16)
-        run: bash test/plugin/run.sh kafka-scenario
+      matrix:
+        case:
+          # ...
+          - { name: '<your case name>', title: '<PluginName, i.e. Spring> (<Supported Version Count, i.e 12>)' } # <<== insert one line by alphabetical orders
+          # ...
 ```
