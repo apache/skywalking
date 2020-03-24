@@ -80,7 +80,7 @@ jobs:
           name: logs
           path: logs
 
-  Gateway:
+  FeatureGroup03:
     name: Gateway
     runs-on: ubuntu-latest
     steps:

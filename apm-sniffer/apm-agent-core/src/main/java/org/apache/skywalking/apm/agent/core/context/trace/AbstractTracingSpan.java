@@ -358,4 +358,9 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         isAsyncStopped = true;
         return this;
     }
+
+    @Override
+    public boolean isProfiling() {
+        return this.owner.profileStatus().isProfiling();
+    }
 }

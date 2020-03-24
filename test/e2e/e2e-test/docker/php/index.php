@@ -1,3 +1,4 @@
+<?php
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,18 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  "query":"query getProfiledSegment($segmentId: String!) {
-    segment: getProfiledSegment(segmentId: $segmentId) {
-        spans {
-           spanId parentSpanId serviceCode startTime endTime endpointName type peer component isError layer
-           tags {
-               key value
-           }
-        }
-    }
-  }",
-  "variables": {
-    "segmentId": "{segmentId}"
-  }
+$uri = $_SERVER['REQUEST_URI'];
+
+if($uri == '/php/info') {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://php-shadow:8080/php/call");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $output = curl_exec($ch);
+    curl_close($ch);
 }

@@ -13,18 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{
-  "query":"query getProfiledSegment($segmentId: String!) {
-    segment: getProfiledSegment(segmentId: $segmentId) {
-        spans {
-           spanId parentSpanId serviceCode startTime endTime endpointName type peer component isError layer
-           tags {
-               key value
-           }
-        }
-    }
-  }",
-  "variables": {
-    "segmentId": "{segmentId}"
-  }
-}
+instances:
+  - key: 2
+    label: not null
+    attributes:
+      - name: os_name
+        value: not null
+      - name: host_name
+        value: not null
+      - name: process_no
+        value: gt 0
+      - name: ipv4s
+        value: not null
