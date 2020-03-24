@@ -1,5 +1,6 @@
-#!/usr/bin/env bash
-# Licensed to the SkyAPM under one
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
@@ -15,12 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Host Database
-#
-# localhost is used to configure the loopback interface
-# when the system is booting.  Do not change this entry.
-##
-127.0.0.1	localhost
-255.255.255.255	broadcasthost
-::1             localhost
-127.0.0.1   oap.skywalking
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/spring-cloud-feign-1.2.x-scenario.jar &

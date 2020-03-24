@@ -19,7 +19,9 @@
 package org.apache.skywalking.apm.plugin.finagle;
 
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.ExitTypeSpan;
 
 import static org.apache.skywalking.apm.plugin.finagle.Constants.PENDING_OP_NAME;
 import static org.apache.skywalking.apm.plugin.finagle.FinagleCtxs.getPeerHost;
@@ -34,23 +36,28 @@ class ContextCarrierHelper {
      * interceptor, we check if the op name and peer information are exists in LocalContext, if it exists, we set it
      * to span and inject to contextCarrier.
      */
-    static void tryInjectContext(ExitSpan span) {
-        String operationName = span.getOperationName();
-        if (PENDING_OP_NAME.equals(operationName)) {
-            return;
-        }
-        String peer = getPeerHost();
-        if (peer == null) {
-            return;
-        }
-        span.setPeer(peer);
+    static void tryInjectContext(AbstractSpan span) {
+        /*
+         * this may be a {@link NoopSpan}.
+         */
+        if (span != null && span.isExit()) {
+            String operationName = span.getOperationName();
+            if (PENDING_OP_NAME.equals(operationName)) {
+                return;
+            }
+            String peer = getPeerHost();
+            if (peer == null) {
+                return;
+            }
+            span.setPeer(peer);
 
-        ContextCarrier contextCarrier = new ContextCarrier();
-        span.inject(contextCarrier);
+            ContextCarrier contextCarrier = new ContextCarrier();
+            ((ExitTypeSpan) span).inject(contextCarrier);
 
-        SWContextCarrier swContextCarrier = getSWContextCarrier();
-        // we can ensure swContextCarrier is not null here
-        swContextCarrier.setContextCarrier(contextCarrier);
-        swContextCarrier.setOperationName(operationName);
+            SWContextCarrier swContextCarrier = getSWContextCarrier();
+            // we can ensure swContextCarrier is not null here
+            swContextCarrier.setContextCarrier(contextCarrier);
+            swContextCarrier.setOperationName(operationName);
+        }
     }
 }

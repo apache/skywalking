@@ -23,6 +23,11 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
+import java.util.Comparator;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -33,6 +38,7 @@ public class ProfiledSpanMatcher extends AbstractMatcher<ProfiledSpan> {
     private String startTime;
     private String endTime;
     private String endpointName;
+    private List<ProfiledSpanTagMatcher> tags;
 
     @Override
     public void verify(ProfiledSpan span) {
@@ -42,5 +48,14 @@ public class ProfiledSpanMatcher extends AbstractMatcher<ProfiledSpan> {
         doVerify(startTime, span.getStartTime());
         doVerify(endTime, span.getEndTime());
         doVerify(endpointName, span.getEndpointName());
+
+        assertThat(tags).hasSameSizeAs(span.getTags());
+
+        tags.sort(Comparator.comparing(ProfiledSpanTagMatcher::getKey));
+        span.getTags().sort(Comparator.comparing(ProfiledSpanTag::getKey));
+
+        for (int i = 0; i < tags.size(); i++) {
+            tags.get(i).verify(span.getTags().get(i));
+        }
     }
 }

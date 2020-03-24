@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.plugin.finagle;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.ExitSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
@@ -66,7 +65,7 @@ public class AnnotationInterceptor {
                      * which comes from client.
                      */
                     span.setOperationName(rpc);
-                    tryInjectContext((ExitSpan) span);
+                    tryInjectContext(span);
                 }
             }
         }

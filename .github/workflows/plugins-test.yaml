@@ -26,6 +26,7 @@ on:
       - 'test/plugin/**'
       - 'apm-application-toolkit/**'
       - '.github/workflows/plugins-test.yaml'
+      - '!test/e2e/**'
 
 jobs:
   Spring_Dubbo:
@@ -159,6 +160,12 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local >/dev/null
       - name: Run feign 9.0.0-9.5.1 (8)
         run: bash test/plugin/run.sh feign-scenario
+      - name: Run springcloud feign 1.1.x (8)
+        run: bash test/plugin/run.sh spring-cloud-feign-1.1.x-scenario
+      - name: Run springcloud feign 1.2.x-1.4.x (23)
+        run: bash test/plugin/run.sh spring-cloud-feign-1.2.x-scenario
+      - name: Run springcloud feign 2.x (14)
+        run: bash test/plugin/run.sh spring-cloud-feign-2.x-scenario
       - name: Run customize (1)
         run: bash test/plugin/run.sh customize-scenario
       - name: Run canal 1.0.24-1.1.2 (5)

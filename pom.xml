@@ -385,6 +385,22 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>${apache-rat-plugin.version}</version>
                 <configuration>
+                    <excludeSubProjects>false</excludeSubProjects>
+                    <addDefaultLicenseMatchers>false</addDefaultLicenseMatchers>
+                    <licenses>
+                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                            <licenseFamilyCategory>AL20</licenseFamilyCategory>
+                            <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
+                            <patterns>
+                                <pattern>Licensed to the Apache Software Foundation (ASF)</pattern>
+                            </patterns>
+                        </license>
+                    </licenses>
+                    <licenseFamilies>
+                        <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+                            <familyName>Apache License, 2.0</familyName>
+                        </licenseFamily>
+                    </licenseFamilies>
                     <excludes>
                         <exclude>**/target/**</exclude>
                         <exclude>**/licenses/**</exclude>
@@ -446,6 +462,7 @@
                         <exclude>**/src/main/proto/google/**</exclude>
                         <exclude>**/src/main/proto/istio/**</exclude>
                         <exclude>**/src/main/proto/jaeger/**</exclude>
+                        <exclude>**/src/main/proto/mixer/**</exclude>
                         <exclude>**/src/main/proto/policy/**</exclude>
                         <exclude>**/src/main/proto/prometheus/client_model/metrics.proto</exclude>
                         <exclude>**/src/main/proto/protoc-gen-swagger/**</exclude>
@@ -456,7 +473,7 @@
                         <exclude>**/src/main/resources/code-templates/*/*.ftl</exclude>
 
                         <!-- Maven Wrapper generated files -->
-                        <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
+                        <exclude>.mvn/wrapper/**</exclude>
                         <exclude>tools/dependencies/known-oap-backend-dependencies.txt</exclude>
                         <exclude>apm-checkstyle/CHECKSTYLE_HEAD</exclude>
 

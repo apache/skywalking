@@ -278,7 +278,7 @@ The text of each license is the standard Apache 2.0 license.
     instrumentation-api 0.4.3: https://github.com/google/instrumentation-java, Apache 2.0
     jackson-annotations 2.8.0: https://github.com/FasterXML/jackson-annotations, Apache 2.0
     jackson-core 2.8.8: https://github.com/FasterXML/jackson-core, Apache 2.0
-    jackson-databind 2.8.8: https://github.com/FasterXML/jackson-databind, Apache 2.0
+    jackson-databind 2.9.10: https://github.com/FasterXML/jackson-databind, Apache 2.0
     jackson-dataformat 2.8.6: https://github.com/FasterXML/jackson-dataformats-binary, Apache 2.0
     jackson-datatype-jdk8 2.8.8: https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.8.8, Apache 2.0
     jackson-module-kotlin 2.8.8: http://kotlinlang.org, Apache 2.0

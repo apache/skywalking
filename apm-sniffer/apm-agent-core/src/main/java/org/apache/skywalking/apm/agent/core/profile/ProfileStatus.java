@@ -18,11 +18,29 @@
 
 package org.apache.skywalking.apm.agent.core.profile;
 
-public enum ProfilingStatus {
+/**
+ * Profile status, include entire profile cycle
+ */
+public enum ProfileStatus {
+    /**
+     * No profile
+     */
+    NONE,
 
-    READY,
+    /**
+     * Prepare to profile, until {@link ProfileTask#getMinDurationThreshold()} reached,
+     * Once the status changed to profiling, the thread snapshot is officially started
+     */
+    PENDING,
 
+    /**
+     * Profile operation has been started.
+     */
     PROFILING,
 
+    /**
+     * The current {@link org.apache.skywalking.apm.agent.core.context.TracingContext} has finished,
+     * or the current thread isn't available.
+     */
     STOPPED
 }

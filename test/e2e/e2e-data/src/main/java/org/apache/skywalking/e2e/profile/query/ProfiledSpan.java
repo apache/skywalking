@@ -22,6 +22,8 @@ import com.google.common.primitives.Ints;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.List;
+
 @Data
 @ToString
 public class ProfiledSpan implements Comparable<ProfiledSpan> {
@@ -31,6 +33,7 @@ public class ProfiledSpan implements Comparable<ProfiledSpan> {
     private String startTime;
     private String endTime;
     private String endpointName;
+    private List<ProfiledSpanTag> tags;
 
     @Override
     public int compareTo(ProfiledSpan o) {
