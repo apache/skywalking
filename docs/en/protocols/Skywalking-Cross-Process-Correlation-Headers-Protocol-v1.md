@@ -9,7 +9,7 @@ Cross Process Correlation Header key is `sw7-correlation`. The value is the `enc
 ## Recommendations of language APIs
 Recommended implementation in different language API.
 
-1. `CorrelationContext#set` and `CorrelationContext#get` are recommended to write and read the correlation context, with key/value string.
+1. `TraceContext#putCorrelation` and `TraceContext#getCorrelation` are recommended to write and read the correlation context, with key/value string.
 1. The key should be added if it is absent.
 1. The later writes should override the previous value.
 1. The total number of all keys should be less than 3, and the length of each value should be less than 128 bytes.

@@ -38,32 +38,32 @@ public class CorrelationContextTest {
         final CorrelationContext context = new CorrelationContext();
 
         // manual set
-        Optional<String> previous = context.set("test1", "t1");
+        Optional<String> previous = context.put("test1", "t1");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
 
         // set with replace old value
-        previous = context.set("test1", "t1New");
+        previous = context.put("test1", "t1New");
         Assert.assertNotNull(previous);
         Assert.assertEquals("t1", previous.get());
 
         // manual set
-        previous = context.set("test2", "t2");
+        previous = context.put("test2", "t2");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
 
         // out of key count
-        previous = context.set("test3", "t3");
+        previous = context.put("test3", "t3");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
 
         // key not null
-        previous = context.set(null, "t3");
+        previous = context.put(null, "t3");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
 
         // out of value length
-        previous = context.set(null, "123456789");
+        previous = context.put(null, "123456789");
         Assert.assertNotNull(previous);
         Assert.assertFalse(previous.isPresent());
     }
@@ -71,14 +71,14 @@ public class CorrelationContextTest {
     @Test
     public void testGet() {
         final CorrelationContext context = new CorrelationContext();
-        context.set("test1", "t1");
+        context.put("test1", "t1");
 
         // manual get
         Assert.assertEquals("t1", context.get("test1").get());
         // ket if null
         Assert.assertNull(context.get(null).orElse(null));
         // value if null
-        context.set("test2", null);
+        context.put("test2", null);
         Assert.assertNull(context.get("test2").orElse(null));
     }
 
@@ -86,13 +86,13 @@ public class CorrelationContextTest {
     public void testSerialize() {
         // manual
         CorrelationContext context = new CorrelationContext();
-        context.set("test1", "t1");
-        context.set("test2", "t2");
+        context.put("test1", "t1");
+        context.put("test2", "t2");
         Assert.assertEquals("dGVzdDE=:dDE=,dGVzdDI=:dDI=", context.serialize());
 
         // empty value
         context = new CorrelationContext();
-        context.set("test1", null);
+        context.put("test1", null);
         Assert.assertEquals("", context.serialize());
 
         // empty

@@ -61,7 +61,7 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setEntryEndpointName("/portal");
         contextCarrier.setParentEndpointId(123);
 
-        contextCarrier.getCorrelationContext().set("test", "true");
+        contextCarrier.getCorrelationContext().put("test", "true");
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
@@ -115,7 +115,7 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setEntryEndpointName("/portal");
         contextCarrier.setParentEndpointId(123);
 
-        contextCarrier.getCorrelationContext().set("test", "true");
+        contextCarrier.getCorrelationContext().put("test", "true");
 
         CarrierItem next = contextCarrier.items();
         String sw6HeaderValue = null;

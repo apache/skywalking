@@ -39,7 +39,7 @@ public class CorrelationContext {
         this.data = new HashMap<>(Config.Correlation.ELEMENT_MAX_NUMBER);
     }
 
-    public Optional<String> set(String key, String value) {
+    public Optional<String> put(String key, String value) {
         // key must not null
         if (key == null) {
             return Optional.empty();
