@@ -79,7 +79,7 @@ public class CorrelationContextTest {
         Assert.assertNull(context.get(null).orElse(null));
         // value if null
         context.set("test2", null);
-        Assert.assertEquals("", context.get("test2").get());
+        Assert.assertNull(context.get("test2").orElse(null));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class CorrelationContextTest {
         // empty value
         context = new CorrelationContext();
         context.set("test1", null);
-        Assert.assertEquals("dGVzdDE=:", context.serialize());
+        Assert.assertEquals("", context.serialize());
 
         // empty
         context = new CorrelationContext();
