@@ -1,0 +1,87 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PluginsTest
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/plugins-test*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!docs/**'
+      - '!oap-server/**'
+
+jobs:
+  PluginsTest:
+    name: Plugin
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        case:
+          - { name: 'okhttp-scenario', title: 'OKHttp 3.0.x-3.14.x (34)' }
+          - { name: 'play-scenario', title: 'Play! Framework' }
+          - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
+          - { name: 'postgresql-scenario', title: 'PostgreSQL 9.2.x-9.4.x (36)' }
+          - { name: 'pulsar-scenario', title: 'Pulsar 2.2.0-2.4.1 (7)' }
+          - { name: 'rabbitmq-scenario', title: 'RabbitMQ (12)' }
+          - { name: 'redisson-scenario', title: 'Redisson 3.x (37)' }
+          - { name: 'resttemplate-4.x-scenario', title: 'RestTemplate 4.0.0.RELEASE-4.3.26.RELEASE (57)' }
+          - { name: 'servicecomb-0.x-scenario', title: 'ServiceComb 0.x (5)' }
+          - { name: 'servicecomb-1.x-scenario', title: 'ServiceComb 1.x (5)' }
+          - { name: 'shardingsphere-3.x-scenario', title: 'ShardingSphere 3.0.0 (1)' }
+          - { name: 'shardingsphere-4.x-RC1-RC2-scenario', title: 'ShardingSphere 4.0.0-RC1-4.0.0-RC2 (2)' }
+          - { name: 'shardingsphere-4.x-RC3-scenario', title: 'ShardingSphere 4.0.0-RC3 (1)' }
+          - { name: 'sofarpc-scenario', title: 'SofaRPC 5.4.0-5.6.2 (23)' }
+          - { name: 'solrj-7.x-scenario', title: 'SolrJ 7.x (12)' }
+          - { name: 'spring-3.0.x-scenario', title: 'Spring 3.0.x (8)' }
+          - { name: 'spring-3.1.x-scenario', title: 'Spring 3.1.x-4.0.x (25)' }
+          - { name: 'spring-4.1.x-scenario', title: 'Spring 4.1.x-4.2.x (20)' }
+          - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
+          - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
+          - { name: 'spring-cloud-feign-1.1.x-scenario', title: 'SpringCloud Feign 1.1.x (8)' }
+          - { name: 'spring-cloud-feign-1.2.x-scenario', title: 'SpringCloud Feign 1.2.x-1.4.x (23)' }
+          - { name: 'spring-cloud-feign-2.x-scenario', title: 'SpringCloud Feign 2.x (14)' }
+          - { name: 'spring-tx-scenario', title: 'Spring-tx 4.x+ (10)' }
+          - { name: 'struts2.3-scenario', title: 'Struts2.3 (35)' }
+          - { name: 'struts2.5-scenario', title: 'Struts2.5 (14)' }
+    steps:
+      - uses: actions/checkout@v2
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+      - name: Build Docker image
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+      - name: ${{ matrix.case.title }}
+        run: bash test/plugin/run.sh ${{ matrix.case.name }}
