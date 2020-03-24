@@ -18,8 +18,6 @@
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 
@@ -27,8 +25,6 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 public class CorrelationContextGetInterceptor implements StaticMethodsAroundInterceptor {
-
-    private ILog logger = LogManager.getLogger(CorrelationContextGetInterceptor.class);
 
     @Override
     public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
