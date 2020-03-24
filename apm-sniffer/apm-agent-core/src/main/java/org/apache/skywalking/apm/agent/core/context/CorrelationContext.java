@@ -44,8 +44,10 @@ public class CorrelationContext {
         if (key == null) {
             return Optional.empty();
         }
-        if (value == null) {
-            value = "";
+
+        // remove and return previous value when value is empty
+        if (StringUtil.isEmpty(value)) {
+            return Optional.ofNullable(data.remove(key));
         }
 
         // check value length
@@ -101,6 +103,10 @@ public class CorrelationContext {
         }
 
         for (String perData : value.split(",")) {
+            // Only data with limited count of elements can be added
+            if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
+                break;
+            }
             final String[] parts = perData.split(":");
             String perDataKey = parts[0];
             String perDataValue = parts.length > 1 ? parts[1] : "";
@@ -119,7 +125,15 @@ public class CorrelationContext {
      * Extra the {@link ContextCarrier#getCorrelationContext()} into this context.
      */
     void extract(ContextCarrier carrier) {
-        this.data.putAll(carrier.getCorrelationContext().data);
+        final Map<String, String> carrierCorrelationContext = carrier.getCorrelationContext().data;
+        for (Map.Entry<String, String> entry : carrierCorrelationContext.entrySet()) {
+            // Only data with limited count of elements can be added
+            if (data.size() >= Config.Correlation.ELEMENT_MAX_NUMBER) {
+                break;
+            }
+
+            this.data.put(entry.getKey(), entry.getValue());
+        }
     }
 
     /**

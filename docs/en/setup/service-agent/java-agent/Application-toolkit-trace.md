@@ -57,6 +57,7 @@ public User methodYouWantToTrace(String param1, String param2) {
 ```java
 Optional<String> previous = CorrelationContext.set("customKey", "customValue");
 ```
+CorrelationContext will remove the item when the value is `null` or empty.
 
 * Use `CorrelationContext.get()` API to get custom data.
 ```java
