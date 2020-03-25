@@ -170,7 +170,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         List<Call.CallDetail> calls = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, "select " + Metrics.ENTITY_ID + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and " + (isSourceId ? sourceCName : destCName) + "=?" + " group by " + Metrics.ENTITY_ID, conditions)) {
-                buildCalls(resultSet, calls, isSourceId);
+                buildEndpointCalls(resultSet, calls, isSourceId);
             }
         } catch (SQLException e) {
             throw new IOException(e);
@@ -183,16 +183,37 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
+            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
 
-            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), DetectPoint.SERVER.ordinal()));
-            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), DetectPoint.SERVER.ordinal()));
+            call.setSource(String.valueOf(relationDefine.getSource()));
+            call.setTarget(String.valueOf(relationDefine.getDest()));
             call.setComponentId(relationDefine.getComponentId());
             if (isClientSide) {
                 call.setDetectPoint(DetectPoint.CLIENT);
             } else {
                 call.setDetectPoint(DetectPoint.SERVER);
             }
+            call.generateID();
+            calls.add(call);
+        }
+    }
+
+    private void buildEndpointCalls(ResultSet resultSet, List<Call.CallDetail> calls,
+                            boolean isClientSide) throws SQLException {
+        while (resultSet.next()) {
+            Call.CallDetail call = new Call.CallDetail();
+            String entityId = resultSet.getString(Metrics.ENTITY_ID);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
+
+            if (isClientSide) {
+                call.setDetectPoint(DetectPoint.CLIENT);
+            } else {
+                call.setDetectPoint(DetectPoint.SERVER);
+            }
+            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), call.getDetectPoint()));
+            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), call.getDetectPoint()));
+            call.setComponentId(relationDefine.getComponentId());
+
             call.generateID();
             calls.add(call);
         }

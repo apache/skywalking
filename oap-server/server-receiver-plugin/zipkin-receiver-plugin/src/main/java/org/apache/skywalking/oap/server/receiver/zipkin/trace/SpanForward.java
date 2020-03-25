@@ -76,7 +76,7 @@ public class SpanForward {
                 case SERVER:
                 case CONSUMER:
                     if (!StringUtil.isEmpty(spanName) && serviceId != Const.NONE) {
-                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName, DetectPoint.SERVER.ordinal());
+                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName, DetectPoint.SERVER.value());
                         if (endpointId != Const.NONE) {
                             zipkinSpan.setEndpointId(endpointId);
                         } else if (config.isRegisterZipkinEndpoint()) {

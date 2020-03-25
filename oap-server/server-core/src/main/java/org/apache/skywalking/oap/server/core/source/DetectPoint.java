@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.SpanType;
 
+@RequiredArgsConstructor
 public enum DetectPoint {
-    SERVER, CLIENT, PROXY, UNRECOGNIZED;
+    SERVER(0), CLIENT(1), PROXY(2), UNRECOGNIZED(3);
+
+    private final int value;
 
     public static DetectPoint fromSpanType(SpanType spanType) {
         switch (spanType) {
@@ -48,5 +52,22 @@ public enum DetectPoint {
             default:
                 return UNRECOGNIZED;
         }
+    }
+
+    public static DetectPoint valueOf(int value) {
+        switch (value) {
+            case 0:
+                return SERVER;
+            case 1:
+                return CLIENT;
+            case 2:
+                return PROXY;
+            default:
+                return UNRECOGNIZED;
+        }
+    }
+
+    public int value() {
+        return this.value;
     }
 }

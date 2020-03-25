@@ -22,14 +22,17 @@ import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -37,7 +40,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_TRAFFIC;
 
 @ScopeDeclaration(id = ENDPOINT_TRAFFIC, name = "EndpointTraffic")
-@Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC, builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
+@Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC,
+    builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class,
+    supportDownSampling = false)
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";
@@ -62,7 +67,15 @@ public class EndpointTraffic extends Metrics {
     @Column(columnName = DETECT_POINT)
     private int detectPoint;
 
-    public static String buildId(int serviceId, String endpointName, int detectPoint) {
+    public static String buildId(int serviceId, String endpointName, DetectPoint detectPoint) {
+        return buildId(serviceId, endpointName, detectPoint.value());
+    }
+
+    public static String buildId(EndpointTraffic endpointTraffic) {
+        return buildId(endpointTraffic.serviceId, endpointTraffic.name, endpointTraffic.detectPoint);
+    }
+
+    private static String buildId(int serviceId, String endpointName, int detectPoint) {
         return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
     }
 
@@ -70,25 +83,38 @@ public class EndpointTraffic extends Metrics {
      * @param id in the storage of endpoint traffic
      * @return [serviceId, endpointName, detectPoint]
      */
-    public static String[] splitID(String id) {
+    public static EndpointID splitID(String id) {
         final String[] strings = id.split(Const.ID_PARSER_SPLIT);
         if (strings.length != 3) {
             throw new UnexpectedException("Can't split endpoint id into 3 parts, " + id);
         }
-        return strings;
+        return new EndpointID(
+            Integer.parseInt(strings[0]), strings[1], DetectPoint.valueOf(Integer.parseInt(strings[2])));
+    }
+
+    @RequiredArgsConstructor
+    public static class EndpointID {
+        @Getter
+        private final int serviceId;
+        @Getter
+        private final String endpointName;
+        @Getter
+        private final DetectPoint detectPoint;
     }
 
     @Override
     public String id() {
-        return buildId(serviceId, name, detectPoint);
+        // Downgrade the time bucket to day level only.
+        // supportDownSampling == false for this entity.
+        String splitJointId = String.valueOf(getTimeBucket());
+        splitJointId += Const.ID_SPLIT + entityId;
+        return splitJointId;
     }
 
     @Override
     public int hashCode() {
         int result = 17;
-        result = 31 * result + serviceId;
-        result = 31 * result + name.hashCode();
-        result = 31 * result + detectPoint;
+        result = 31 * result + entityId.hashCode();
         return result;
     }
 
@@ -119,6 +145,16 @@ public class EndpointTraffic extends Metrics {
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
+    }
+
+    /**
+     * Only accept the minute level time bucket and convert it to day level.
+     */
+    @Override
+    public void setTimeBucket(long timeBucket) {
+        if (TimeBucket.isMinuteBucket(timeBucket)) {
+            super.setTimeBucket(timeBucket / 10000);
+        }
     }
 
     @Override

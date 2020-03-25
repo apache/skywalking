@@ -48,7 +48,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
+        String endpointName, int serviceId, int serviceInstanceId, String endpointId, String traceId, int limit, int from,
         TraceState traceState, QueryOrder queryOrder) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
@@ -82,7 +82,7 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             sql.append(" and ").append(SegmentRecord.SERVICE_INSTANCE_ID).append(" = ?");
             parameters.add(serviceInstanceId);
         }
-        if (endpointId != 0) {
+        if (!Strings.isNullOrEmpty(endpointId)) {
             sql.append(" and ").append(SegmentRecord.ENDPOINT_ID).append(" = ?");
             parameters.add(endpointId);
         }

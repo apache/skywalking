@@ -122,7 +122,7 @@ public class AggregationQueryService implements Service {
             indName, ValueColumnMetadata.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
 
         for (TopNEntity entity : topNEntities) {
-            entity.setName(EndpointTraffic.splitID(entity.getId())[1]);
+            entity.setName(EndpointTraffic.splitID(entity.getId()).getEndpointName());
         }
         return topNEntities;
     }
@@ -138,7 +138,7 @@ public class AggregationQueryService implements Service {
             serviceId, indName, ValueColumnMetadata.INSTANCE
                 .getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            entity.setName(EndpointTraffic.splitID(entity.getId())[1]);
+            entity.setName(EndpointTraffic.splitID(entity.getId()).getEndpointName());
         }
         return topNEntities;
     }

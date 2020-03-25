@@ -60,16 +60,14 @@ public class ServiceInstanceTopologyBuilder {
 
     ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,
         List<Call.CallDetail> serviceInstanceRelationServerCalls) {
-        filterZeroSourceOrTargetReference(serviceInstanceRelationClientCalls);
-        filterZeroSourceOrTargetReference(serviceInstanceRelationServerCalls);
 
         Map<Integer, ServiceInstanceNode> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
         for (Call.CallDetail clientCall : serviceInstanceRelationClientCalls) {
-            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(clientCall.getSource());
-            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(clientCall.getTarget());
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(Integer.parseInt(clientCall.getSource()));
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(Integer.parseInt(clientCall.getTarget()));
 
             if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
@@ -113,8 +111,8 @@ public class ServiceInstanceTopologyBuilder {
         }
 
         for (Call.CallDetail serverCall : serviceInstanceRelationServerCalls) {
-            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(serverCall.getSource());
-            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(serverCall.getTarget());
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(Integer.parseInt(serverCall.getSource()));
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(Integer.parseInt(serverCall.getTarget()));
 
             if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
@@ -201,14 +199,5 @@ public class ServiceInstanceTopologyBuilder {
             instanceNode.setReal(true);
         }
         return instanceNode;
-    }
-
-    private void filterZeroSourceOrTargetReference(List<Call.CallDetail> serviceRelationClientCalls) {
-        for (int i = serviceRelationClientCalls.size() - 1; i >= 0; i--) {
-            Call.CallDetail call = serviceRelationClientCalls.get(i);
-            if (call.getSource() == 0 || call.getTarget() == 0) {
-                serviceRelationClientCalls.remove(i);
-            }
-        }
     }
 }

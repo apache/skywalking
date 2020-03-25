@@ -30,7 +30,7 @@ public abstract class AbstractLog extends Source {
     private long timestamp;
     private int serviceId;
     private int serviceInstanceId;
-    private int endpointId;
+    private String endpointName;
     private String traceId;
     private int isError;
     private String statusCode;

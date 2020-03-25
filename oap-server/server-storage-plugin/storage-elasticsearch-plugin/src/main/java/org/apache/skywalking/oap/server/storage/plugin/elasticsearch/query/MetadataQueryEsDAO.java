@@ -26,13 +26,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.query.entity.Attribute;
 import org.apache.skywalking.oap.server.core.query.entity.Database;
 import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
 import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
 import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -83,6 +84,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         return (int) response.getHits().getTotalHits();
     }
 
+    /**
+     * @since 7.0.0, as EndpointInventory has been replaced by EndpointTraffic. This is not an accurate number anymore.
+     */
     @Override
     public int numOfEndpoint() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -90,7 +94,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         boolQueryBuilder.must()
-                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
@@ -226,10 +230,15 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         }
 
         boolQueryBuilder.must()
-                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(limit);
+        /**
+         * Query the dataset by a larger limit condition and distinct in the memory,
+         * in order to avoid the storage level distinct.
+         * This is a match query only, don't need 100% accurate.
+         */
+        sourceBuilder.size(limit * 7);
 
         SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, sourceBuilder);
 
@@ -237,18 +246,22 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
 
+            final EndpointTraffic endpointTraffic = new EndpointTraffic.Builder().map2Data(sourceAsMap);
+
             Endpoint endpoint = new Endpoint();
-            endpoint.setId(((Number) sourceAsMap.get(EndpointTraffic.SEQUENCE)).intValue());
+            endpoint.setId(EndpointTraffic.buildId(endpointTraffic));
             endpoint.setName((String) sourceAsMap.get(EndpointTraffic.NAME));
             endpoints.add(endpoint);
         }
 
-        return endpoints;
+        final List<Endpoint> endpointList = endpoints.stream().distinct().collect(Collectors.toList());
+
+        return endpointList.size() > limit ? endpointList.subList(0, limit) : endpointList;
     }
 
     @Override
     public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
-        String serviceId) throws IOException {
+                                                     String serviceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -285,8 +298,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     } else if (key.equals(PROCESS_NO)) {
                         serviceInstance.getAttributes().add(new Attribute(PROCESS_NO, value));
                     } else if (key.equals(IPV4S)) {
-                        List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(properties.get(IPV4S)
-                                                                                                              .getAsString());
+                        List<String> ipv4s = ServiceInstanceInventory.PropertyUtil.ipv4sDeserialize(
+                            properties.get(IPV4S)
+                                      .getAsString());
                         for (String ipv4 : ipv4s) {
                             serviceInstance.getAttributes()
                                            .add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S, ipv4));

@@ -63,7 +63,7 @@ public class TraceQuery implements ITraceQueryDAO {
                                        String endpointName,
                                        int serviceId,
                                        int serviceInstanceId,
-                                       int endpointId,
+                                       String endpointId,
                                        String traceId,
                                        int limit,
                                        int from,
@@ -106,7 +106,7 @@ public class TraceQuery implements ITraceQueryDAO {
         if (serviceInstanceId != 0) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != 0) {
+        if (!com.google.common.base.Strings.isNullOrEmpty(endpointId)) {
             recallQuery.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {

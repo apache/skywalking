@@ -23,9 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
 
@@ -39,7 +37,6 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator
 @Slf4j
 public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private static ReferenceIdExchanger EXCHANGER;
-    private final IEndpointTrafficGenerator endpointInventoryRegister;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
@@ -51,9 +48,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     }
 
     private ReferenceIdExchanger(ModuleManager moduleManager) {
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(IEndpointTrafficGenerator.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -62,64 +56,12 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
                                                           .getService(ServiceInstanceInventoryCache.class);
     }
 
+    /**
+     * @since 7.1.0 Endpoint doesn't register anymore. Therefore, exchange of ref only relates to the network address only.
+     */
     @Override
     public boolean exchange(ReferenceDecorator standardBuilder, int serviceId) {
         boolean exchanged = true;
-
-        if (standardBuilder.getEntryEndpointId() == 0) {
-            String entryEndpointName = Strings.isNullOrEmpty(
-                standardBuilder.getEntryEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
-                .getEntryEndpointName();
-            int entryServiceId = serviceInstanceInventoryCache.get(standardBuilder.getEntryServiceInstanceId())
-                                                              .getServiceId();
-            int entryEndpointId = getEndpointId(entryServiceId, entryEndpointName);
-            if (entryEndpointId == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                        "entry endpoint name: {} from service id: {} exchange failed", entryEndpointName,
-                        entryServiceId
-                    );
-                }
-
-                exchanged = false;
-            } else {
-                standardBuilder.toBuilder();
-                standardBuilder.setEntryEndpointId(entryEndpointId);
-                standardBuilder.setEntryEndpointName(Const.EMPTY_STRING);
-            }
-        } else {
-            /**
-             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
-             */
-        }
-
-        if (standardBuilder.getParentEndpointId() == 0) {
-            String parentEndpointName = Strings.isNullOrEmpty(
-                standardBuilder.getParentEndpointName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
-                .getParentEndpointName();
-            int parentServiceId = serviceInstanceInventoryCache.get(standardBuilder.getParentServiceInstanceId())
-                                                               .getServiceId();
-            int parentEndpointId = getEndpointId(parentServiceId, parentEndpointName);
-
-            if (parentEndpointId == 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                        "parent endpoint name: {} from service id: {} exchange failed", parentEndpointName,
-                        parentServiceId
-                    );
-                }
-
-                exchanged = false;
-            } else {
-                standardBuilder.toBuilder();
-                standardBuilder.setParentEndpointId(parentEndpointId);
-                standardBuilder.setParentEndpointName(Const.EMPTY_STRING);
-            }
-        } else {
-            /**
-             * Since 6.6.0, endpoint id could be -1, as it is not an endpoint. Such as local span and exist span.
-             */
-        }
 
         if (standardBuilder.getNetworkAddressId() == 0 && !Strings.isNullOrEmpty(standardBuilder.getNetworkAddress())) {
             int networkAddressId = networkAddressInventoryRegister.getOrCreate(
@@ -141,17 +83,5 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
             }
         }
         return exchanged;
-    }
-
-    /**
-     * @since 6.6.0 The endpoint in the ref should be server endpoint only. The agent will/should use `-1`, when it can't
-     * find the endpoint of entry span in the current tracing context when build the ref.
-     * @since 5.0 Endpoint in ref could be local or exit span's operation name. Especially if it is local span operation
-     * name, * exchange may not happen at agent, such as Java agent, then put literal endpoint string in the header,
-     * Need to try * to get the id by assuming the endpoint name is detected at server, local or client. * <p> * If
-     * agent does the exchange, then always use endpoint id.
-     */
-    private int getEndpointId(int serviceId, String endpointName) {
-        return endpointInventoryRegister.generate(serviceId, endpointName, DetectPoint.SERVER);
     }
 }

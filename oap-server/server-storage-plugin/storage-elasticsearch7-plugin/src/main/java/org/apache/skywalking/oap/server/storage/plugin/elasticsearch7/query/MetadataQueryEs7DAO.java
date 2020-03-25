@@ -54,6 +54,9 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         return (int) response.getHits().getTotalHits().value;
     }
 
+    /**
+     * @since 7.0.0, as EndpointInventory has been replaced by EndpointTraffic. This is not an accurate number anymore.
+     */
     @Override
     public int numOfEndpoint() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -61,7 +64,7 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         boolQueryBuilder.must()
-                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);

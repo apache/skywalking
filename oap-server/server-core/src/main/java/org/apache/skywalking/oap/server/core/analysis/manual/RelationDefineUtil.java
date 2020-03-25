@@ -21,13 +21,16 @@ package org.apache.skywalking.oap.server.core.analysis.manual;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public class RelationDefineUtil {
+    /**
+     * @return the service or instance relationship string id.
+     */
     public static String buildEntityId(RelationDefine define) {
-        return String.valueOf(define.source) + Const.ID_SPLIT + String.valueOf(
-            define.dest) + Const.ID_SPLIT + String.valueOf(define.componentId);
+        return define.source + Const.ID_SPLIT + define.dest + Const.ID_SPLIT + define.componentId;
     }
 
     /**
@@ -41,6 +44,9 @@ public class RelationDefineUtil {
         return new RelationDefine(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     }
 
+    /**
+     * @return the endpoint relationship string id.
+     */
     public static String buildEndpointEntityId(EndpointRelationDefine define) {
         return define.sourceServiceId
             + Const.ID_SPLIT
@@ -67,37 +73,21 @@ public class RelationDefineUtil {
         );
     }
 
+    @RequiredArgsConstructor
     @Getter
     public static class RelationDefine {
-        private int source;
-        private int dest;
-        private int componentId;
-
-        public RelationDefine(int source, int dest, int componentId) {
-            this.source = source;
-            this.dest = dest;
-            this.componentId = componentId;
-        }
+        private final int source;
+        private final int dest;
+        private final int componentId;
     }
 
+    @RequiredArgsConstructor
     @Getter
     public static class EndpointRelationDefine {
-        private int sourceServiceId;
-        private String source;
-        private int destServiceId;
-        private String dest;
-        private int componentId;
-
-        public EndpointRelationDefine(final int sourceServiceId,
-                                      final String source,
-                                      final int destServiceId,
-                                      final String dest,
-                                      final int componentId) {
-            this.sourceServiceId = sourceServiceId;
-            this.source = source;
-            this.destServiceId = destServiceId;
-            this.dest = dest;
-            this.componentId = componentId;
-        }
+        private final int sourceServiceId;
+        private final String source;
+        private final int destServiceId;
+        private final String dest;
+        private final int componentId;
     }
 }

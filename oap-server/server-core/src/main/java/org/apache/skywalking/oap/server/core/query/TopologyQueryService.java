@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Node;
@@ -184,7 +185,8 @@ public class TopologyQueryService implements Service {
     private Node buildEndpointNode(String endpointId) {
         Node node = new Node();
         node.setId(endpointId);
-        node.setName(getEndpointInventoryCache().get(endpointId).getName());
+        final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(endpointId);
+        node.setName(endpointID.getEndpointName());
         node.setType(Const.EMPTY_STRING);
         node.setReal(true);
         return node;

@@ -100,7 +100,7 @@ public class TraceQueryService implements Service {
 
     public TraceBrief queryBasicTraces(final int serviceId,
                                        final int serviceInstanceId,
-                                       final int endpointId,
+                                       final String endpointId,
                                        final String traceId,
                                        final String endpointName,
                                        final int minTraceDuration,

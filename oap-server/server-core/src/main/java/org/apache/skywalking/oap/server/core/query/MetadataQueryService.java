@@ -102,12 +102,12 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
-        final String[] strings = EndpointTraffic.splitID(endpointId);
-        int serviceId = Integer.parseInt(strings[0]);
+        final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(endpointId);
+        int serviceId = endpointID.getServiceId();
 
         EndpointInfo endpointInfo = new EndpointInfo();
         endpointInfo.setId(endpointId);
-        endpointInfo.setName(strings[1]);
+        endpointInfo.setName(endpointID.getEndpointName());
         endpointInfo.setServiceId(serviceId);
         endpointInfo.setServiceName(getServiceInventoryCache().get(serviceId).getName());
         return endpointInfo;

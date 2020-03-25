@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -30,9 +28,7 @@ public class CoreRegisterLinker {
     private static volatile ModuleManager MODULE_MANAGER;
     private static volatile IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
     private static volatile IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
-    private static volatile IEndpointTrafficGenerator ENDPOINT_INVENTORY_REGISTER;
     private static volatile ServiceInventoryCache SERVICE_INVENTORY_CACHE;
-    private static volatile EndpointInventoryCache ENDPOINT_INVENTORY_CACHE;
 
     public static void setModuleManager(ModuleManager moduleManager) {
         CoreRegisterLinker.MODULE_MANAGER = moduleManager;
@@ -56,15 +52,6 @@ public class CoreRegisterLinker {
         return SERVICE_INSTANCE_INVENTORY_REGISTER;
     }
 
-    public static IEndpointTrafficGenerator getEndpointInventoryRegister() {
-        if (ENDPOINT_INVENTORY_REGISTER == null) {
-            ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME)
-                                                        .provider()
-                                                        .getService(IEndpointTrafficGenerator.class);
-        }
-        return ENDPOINT_INVENTORY_REGISTER;
-    }
-
     public static ServiceInventoryCache getServiceInventoryCache() {
         if (SERVICE_INVENTORY_CACHE == null) {
             SERVICE_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME)
@@ -72,14 +59,5 @@ public class CoreRegisterLinker {
                                                     .getService(ServiceInventoryCache.class);
         }
         return SERVICE_INVENTORY_CACHE;
-    }
-
-    public static EndpointInventoryCache getEndpointInventoryCache() {
-        if (ENDPOINT_INVENTORY_CACHE == null) {
-            ENDPOINT_INVENTORY_CACHE = MODULE_MANAGER.find(CoreModule.NAME)
-                                                     .provider()
-                                                     .getService(EndpointInventoryCache.class);
-        }
-        return ENDPOINT_INVENTORY_CACHE;
     }
 }
