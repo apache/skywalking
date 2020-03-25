@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.toolkit.trace;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -31,6 +32,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(Tags.class)
 public @interface Tag {
     /**
      * @return the key of the tag to be injected into the current active span
