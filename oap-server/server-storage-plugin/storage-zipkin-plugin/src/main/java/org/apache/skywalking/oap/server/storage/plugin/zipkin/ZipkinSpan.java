@@ -56,7 +56,7 @@ public class ZipkinSpan extends Source {
     private String endpointName;
     @Setter
     @Getter
-    private int endpointId;
+    private String endpointId;
     @Setter
     @Getter
     private long startTime;

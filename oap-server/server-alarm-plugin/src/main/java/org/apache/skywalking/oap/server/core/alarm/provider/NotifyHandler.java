@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
@@ -31,6 +30,7 @@ import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
@@ -72,7 +72,7 @@ public class NotifyHandler implements MetricsNotify {
             ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
             ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
             serviceMetaInAlarm.setMetricsName(meta.getMetricsName());
-            serviceMetaInAlarm.setId(serviceId);
+            serviceMetaInAlarm.setId(String.valueOf(serviceId));
             serviceMetaInAlarm.setName(serviceInventory.getName());
             metaInAlarm = serviceMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
@@ -80,23 +80,18 @@ public class NotifyHandler implements MetricsNotify {
             ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
             ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
             instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
-            instanceMetaInAlarm.setId(serviceInstanceId);
+            instanceMetaInAlarm.setId(String.valueOf(serviceInstanceId));
             instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
             endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
 
-            final String[] serviceIdAndEndpointName = meta.getId().split(Const.ID_PARSER_SPLIT);
-            if (serviceIdAndEndpointName.length != 2) {
-                log.warn("Can't endpoint ID {} into two parts.", meta);
-            }
+            final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(meta.getId());
+            ServiceInventory serviceInventory = serviceInventoryCache.get(endpointID.getServiceId());
+            String textName = endpointID.getEndpointName() + " in " + serviceInventory.getName();
 
-            int serviceId = Integer.parseInt(serviceIdAndEndpointName[0]);
-            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
-
-            String textName = serviceIdAndEndpointName[1] + " in " + serviceInventory.getName();
-
+            endpointMetaInAlarm.setId(meta.getId());
             endpointMetaInAlarm.setName(textName);
             metaInAlarm = endpointMetaInAlarm;
         } else {

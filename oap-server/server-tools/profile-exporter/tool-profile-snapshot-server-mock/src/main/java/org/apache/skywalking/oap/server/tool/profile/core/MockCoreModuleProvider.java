@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.tool.profile.core;
 
+import java.io.IOException;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -41,8 +42,6 @@ import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.EndpointTrafficGeneratorGenerator;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -73,9 +72,6 @@ import org.apache.skywalking.oap.server.tool.profile.core.mock.MockRemoteClientM
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockSourceReceiver;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockStreamAnnotationListener;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockWorkerInstancesService;
-
-import java.io.IOException;
-import java.util.Collections;
 
 public class MockCoreModuleProvider extends CoreModuleProvider {
 
@@ -117,12 +113,14 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
-        this.registerServiceImplementation(DownsamplingConfigService.class, new DownsamplingConfigService(Collections.emptyList()));
+        this.registerServiceImplementation(
+            DownsamplingConfigService.class, new DownsamplingConfigService(Collections.emptyList()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new MockGRPCHandlerRegister());
         this.registerServiceImplementation(JettyHandlerRegister.class, new MockJettyHandlerRegister());
 
-        this.registerServiceImplementation(IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());
+        this.registerServiceImplementation(
+            IComponentLibraryCatalogService.class, new MockComponentLibraryCatalogService());
 
         this.registerServiceImplementation(SourceReceiver.class, new MockSourceReceiver());
 
@@ -135,17 +133,19 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(IModelGetter.class, storageModels);
         this.registerServiceImplementation(IModelOverride.class, storageModels);
 
-        this.registerServiceImplementation(ServiceInventoryCache.class, new ServiceInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            ServiceInventoryCache.class, new ServiceInventoryCache(getManager(), moduleConfig));
         this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
 
-        this.registerServiceImplementation(ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
+        this.registerServiceImplementation(
+            ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
 
-        this.registerServiceImplementation(EndpointInventoryCache.class, new EndpointInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(IEndpointTrafficGenerator.class, new EndpointTrafficGeneratorGenerator(getManager()));
-
-        this.registerServiceImplementation(NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
+        this.registerServiceImplementation(
+            NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
 
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
@@ -184,7 +184,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-                TelemetryModule.NAME
+            TelemetryModule.NAME
         };
     }
 }

@@ -67,8 +67,8 @@ public class LogQuery implements ILogQueryDAO {
                           LogState state, String stateCode, Pagination paging, int from, int limit,
                           long startTB, long endTB) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select().regex("*::field")
-            .from(client.getDatabase(), metricName)
-            .where();
+                                                              .from(client.getDatabase(), metricName)
+                                                              .where();
         if (serviceId != Const.NONE) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
         }
@@ -135,7 +135,7 @@ public class LogQuery implements ILogQueryDAO {
                 log.setContent((String) data.get(CONTENT));
                 log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));
 
-                log.setEndpointName(data.get(ENDPOINT_NAME));
+                log.setEndpointName((String) data.get(ENDPOINT_NAME));
                 log.setTraceId((String) data.get(TRACE_ID));
                 log.setTimestamp((String) data.get(TIMESTAMP));
 

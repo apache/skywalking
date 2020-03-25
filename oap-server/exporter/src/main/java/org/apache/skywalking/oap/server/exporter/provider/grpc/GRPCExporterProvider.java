@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
@@ -67,7 +66,6 @@ public class GRPCExporterProvider extends ModuleProvider {
         ModuleServiceHolder serviceHolder = getManager().find(CoreModule.NAME).provider();
         exporter.setServiceInventoryCache(serviceHolder.getService(ServiceInventoryCache.class));
         exporter.setServiceInstanceInventoryCache(serviceHolder.getService(ServiceInstanceInventoryCache.class));
-        exporter.setEndpointInventoryCache(serviceHolder.getService(EndpointInventoryCache.class));
 
         exporter.initSubscriptionList();
     }

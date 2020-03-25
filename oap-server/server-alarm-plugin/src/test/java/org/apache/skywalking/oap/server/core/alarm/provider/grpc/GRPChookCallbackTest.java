@@ -66,8 +66,8 @@ public class GRPChookCallbackTest {
 
     private void mockAlarmMessage() {
         AlarmMessage alarmMessage = new AlarmMessage();
-        alarmMessage.setId0(1);
-        alarmMessage.setId1(2);
+        alarmMessage.setId0("1");
+        alarmMessage.setId1("2");
         alarmMessage.setScope(Scope.Service.name());
         alarmMessage.setName("mock alarm message");
         alarmMessage.setAlarmMessage("message");

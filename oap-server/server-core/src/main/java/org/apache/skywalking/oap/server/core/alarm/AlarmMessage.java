@@ -34,8 +34,8 @@ public class AlarmMessage {
     private int scopeId;
     private String scope;
     private String name;
-    private int id0;
-    private int id1;
+    private String id0;
+    private String id1;
     private String ruleName;
     private String alarmMessage;
     private long startTime;

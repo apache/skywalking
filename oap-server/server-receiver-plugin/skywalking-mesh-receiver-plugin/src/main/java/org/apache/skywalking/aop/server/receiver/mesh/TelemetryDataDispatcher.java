@@ -78,7 +78,8 @@ public class TelemetryDataDispatcher {
     }
 
     public static void preProcess(ServiceMeshMetric data) {
-        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() : SERVICE_CACHE.get(data.getDestServiceId())
+        String service = data.getDestServiceId() == Const.NONE ? data.getDestServiceName() : SERVICE_CACHE.get(
+            data.getDestServiceId())
                                                                                                           .getName();
         String endpointName = data.getEndpoint();
         StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
@@ -134,11 +135,13 @@ public class TelemetryDataDispatcher {
             if (Objects.nonNull(serviceInstanceInventory)) {
                 if (metrics.getEndTime() - serviceInstanceInventory.getHeartbeatTime() > heartbeatCycle) {
                     // trigger heartbeat every 10s.
-                    SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(metrics.getSourceServiceInstanceId(), metrics.getEndTime());
+                    SERVICE_INSTANCE_INVENTORY_REGISTER.heartbeat(
+                        metrics.getSourceServiceInstanceId(), metrics.getEndTime());
                     SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
                 }
             } else {
-                logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
+                logger.warn(
+                    "Can't found service by service instance id from cache, service instance id is: {}", instanceId);
             }
         }
 
@@ -152,7 +155,8 @@ public class TelemetryDataDispatcher {
                 SERVICE_INVENTORY_REGISTER.heartbeat(serviceInstanceInventory.getServiceId(), metrics.getEndTime());
             }
         } else {
-            logger.warn("Can't found service by service instance id from cache, service instance id is: {}", instanceId);
+            logger.warn(
+                "Can't found service by service instance id from cache, service instance id is: {}", instanceId);
         }
     }
 
@@ -161,7 +165,8 @@ public class TelemetryDataDispatcher {
         All all = new All();
         all.setTimeBucket(minuteTimeBucket);
         all.setName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
-        all.setServiceInstanceName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        all.setServiceInstanceName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
         all.setEndpointName(metrics.getEndpoint());
         all.setLatency(metrics.getLatency());
         all.setStatus(metrics.getStatus());
@@ -177,7 +182,8 @@ public class TelemetryDataDispatcher {
         service.setTimeBucket(minuteTimeBucket);
         service.setId(metrics.getDestServiceId());
         service.setName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
-        service.setServiceInstanceName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        service.setServiceInstanceName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());
         service.setStatus(metrics.getStatus());
@@ -192,13 +198,16 @@ public class TelemetryDataDispatcher {
         ServiceRelation serviceRelation = new ServiceRelation();
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceId(metrics.getSourceServiceId());
-        serviceRelation.setSourceServiceName(getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
-        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
-            .getSourceServiceInstance()));
+        serviceRelation.setSourceServiceName(
+            getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
+        serviceRelation.setSourceServiceInstanceName(
+            getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
+                .getSourceServiceInstance()));
 
         serviceRelation.setDestServiceId(metrics.getDestServiceId());
         serviceRelation.setDestServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
-        serviceRelation.setDestServiceInstanceName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        serviceRelation.setDestServiceInstanceName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
 
         serviceRelation.setEndpoint(metrics.getEndpoint());
         serviceRelation.setLatency(metrics.getLatency());
@@ -216,7 +225,8 @@ public class TelemetryDataDispatcher {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setTimeBucket(minuteTimeBucket);
         serviceInstance.setId(metrics.getDestServiceInstanceId());
-        serviceInstance.setName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        serviceInstance.setName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
         serviceInstance.setServiceId(metrics.getDestServiceId());
         serviceInstance.setServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
         serviceInstance.setEndpointName(metrics.getEndpoint());
@@ -233,13 +243,16 @@ public class TelemetryDataDispatcher {
         ServiceInstanceRelation serviceRelation = new ServiceInstanceRelation();
         serviceRelation.setTimeBucket(minuteTimeBucket);
         serviceRelation.setSourceServiceInstanceId(metrics.getSourceServiceInstanceId());
-        serviceRelation.setSourceServiceInstanceName(getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
-            .getSourceServiceInstance()));
+        serviceRelation.setSourceServiceInstanceName(
+            getServiceInstanceName(metrics.getSourceServiceInstanceId(), metrics
+                .getSourceServiceInstance()));
         serviceRelation.setSourceServiceId(metrics.getSourceServiceId());
-        serviceRelation.setSourceServiceName(getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
+        serviceRelation.setSourceServiceName(
+            getServiceName(metrics.getSourceServiceId(), metrics.getSourceServiceName()));
 
         serviceRelation.setDestServiceInstanceId(metrics.getDestServiceInstanceId());
-        serviceRelation.setDestServiceInstanceName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        serviceRelation.setDestServiceInstanceName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
         serviceRelation.setDestServiceId(metrics.getDestServiceId());
         serviceRelation.setDestServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
 
@@ -255,10 +268,6 @@ public class TelemetryDataDispatcher {
     }
 
     private static void toEndpoint(ServiceMeshMetricDataDecorator decorator, long minuteTimeBucket) {
-        if (decorator.getEndpointId() == Const.NONE) {
-            logger.warn("Received service mesh data {} with an id == 0", decorator);
-            return;
-        }
         ServiceMeshMetric metrics = decorator.getMetric();
         Endpoint endpoint = new Endpoint();
         endpoint.setTimeBucket(minuteTimeBucket);
@@ -266,7 +275,8 @@ public class TelemetryDataDispatcher {
         endpoint.setServiceId(metrics.getDestServiceId());
         endpoint.setServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));
         endpoint.setServiceInstanceId(metrics.getDestServiceInstanceId());
-        endpoint.setServiceInstanceName(getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
+        endpoint.setServiceInstanceName(
+            getServiceInstanceName(metrics.getDestServiceInstanceId(), metrics.getDestServiceInstance()));
 
         endpoint.setLatency(metrics.getLatency());
         endpoint.setStatus(metrics.getStatus());

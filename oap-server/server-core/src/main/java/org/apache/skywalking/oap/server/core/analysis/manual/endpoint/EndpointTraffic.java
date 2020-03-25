@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
 import com.google.common.base.Strings;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -76,7 +78,10 @@ public class EndpointTraffic extends Metrics {
     }
 
     private static String buildId(int serviceId, String endpointName, int detectPoint) {
-        return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
+        return serviceId + Const.ID_SPLIT
+            + new String(
+            Base64.getEncoder().encode(endpointName.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+            + Const.ID_SPLIT + detectPoint;
     }
 
     /**
@@ -89,7 +94,9 @@ public class EndpointTraffic extends Metrics {
             throw new UnexpectedException("Can't split endpoint id into 3 parts, " + id);
         }
         return new EndpointID(
-            Integer.parseInt(strings[0]), strings[1], DetectPoint.valueOf(Integer.parseInt(strings[2])));
+            Integer.parseInt(strings[0]), new String(Base64.getDecoder().decode(strings[1]), StandardCharsets.UTF_8),
+            DetectPoint.valueOf(Integer.parseInt(strings[2]))
+        );
     }
 
     @RequiredArgsConstructor

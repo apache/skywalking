@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -38,15 +38,13 @@ public class SpanForward {
     private ZipkinReceiverConfig config;
     private SourceReceiver receiver;
     private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
     private int encode;
 
     public SpanForward(ZipkinReceiverConfig config, SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache, EndpointInventoryCache endpointInventoryCache, int encode) {
+                       ServiceInventoryCache serviceInventoryCache, int encode) {
         this.config = config;
         this.receiver = receiver;
         this.serviceInventoryCache = serviceInventoryCache;
-        this.endpointInventoryCache = endpointInventoryCache;
         this.encode = encode;
     }
 
@@ -76,13 +74,7 @@ public class SpanForward {
                 case SERVER:
                 case CONSUMER:
                     if (!StringUtil.isEmpty(spanName) && serviceId != Const.NONE) {
-                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName, DetectPoint.SERVER.value());
-                        if (endpointId != Const.NONE) {
-                            zipkinSpan.setEndpointId(endpointId);
-                        } else if (config.isRegisterZipkinEndpoint()) {
-                            CoreRegisterLinker.getEndpointInventoryRegister()
-                                              .generate(serviceId, spanName, DetectPoint.SERVER);
-                        }
+                        zipkinSpan.setEndpointId(EndpointTraffic.buildId(serviceId, spanName, DetectPoint.SERVER));
                     }
             }
             if (!StringUtil.isEmpty(spanName)) {

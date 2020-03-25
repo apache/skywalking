@@ -36,12 +36,12 @@ public abstract class MetaInAlarm {
      *
      * @return the primary id.
      */
-    public abstract int getId0();
+    public abstract String getId0();
 
     /**
      * Only exist in multiple IDs case, Such as ServiceRelation, id1 represents the dest service id
      */
-    public abstract int getId1();
+    public abstract String getId1();
 
     @Override
     public boolean equals(Object o) {

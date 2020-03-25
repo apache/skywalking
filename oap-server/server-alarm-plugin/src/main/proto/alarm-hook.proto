@@ -30,8 +30,8 @@ message AlarmMessage {
     int64 scopeId = 1;
     string scope = 2;
     string name = 3;
-    int64 id0 = 4;
-    int64 id1 = 5;
+    string id0 = 4;
+    string id1 = 5;
     string ruleName = 6;
     string alarmMessage = 7;
     int64 startTime = 8;

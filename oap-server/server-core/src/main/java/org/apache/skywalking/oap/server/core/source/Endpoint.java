@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
@@ -40,12 +38,12 @@ public class Endpoint extends Source {
      */
     @Override
     public String getEntityId() {
-        return serviceId + Const.ID_SPLIT + Base64.getEncoder().encode(name.getBytes(StandardCharsets.UTF_8));
+        return EndpointTraffic.buildId(serviceId, name, DetectPoint.SERVER);
     }
 
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name")
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter
@@ -53,7 +51,7 @@ public class Endpoint extends Source {
     private int serviceId;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_name")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     @Getter
     @Setter

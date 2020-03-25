@@ -97,8 +97,8 @@ Example as following
 	"scopeId": 1, 
         "scope": "SERVICE",
         "name": "serviceA", 
-	"id0": 12,  
-	"id1": 0,  
+	"id0": "12",  
+	"id1": "",  
         "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage xxxx",
 	"startTime": 1560524171000
@@ -106,8 +106,8 @@ Example as following
 	"scopeId": 1,
         "scope": "SERVICE",
         "name": "serviceB",
-	"id0": 23,
-	"id1": 0,
+	"id0": "23",
+	"id1": "",
         "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage yyy",
 	"startTime": 1560524171000
@@ -124,8 +124,8 @@ message AlarmMessage {
     int64 scopeId = 1;
     string scope = 2;
     string name = 3;
-    int64 id0 = 4;
-    int64 id1 = 5;
+    string id0 = 4;
+    string id1 = 5;
     string ruleName = 6;
     string alarmMessage = 7;
     int64 startTime = 8;

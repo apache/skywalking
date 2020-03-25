@@ -19,7 +19,6 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import com.google.gson.JsonObject;
-import org.apache.skywalking.apm.network.common.DetectPoint;
 import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
@@ -30,7 +29,6 @@ public class ServiceMeshMetricDataDecorator {
     private ServiceMeshMetric origin;
     private ServiceMeshMetric rebuiltData;
     private ServiceMeshMetric.Builder newDataBuilder;
-    private int endpointId;
 
     public ServiceMeshMetricDataDecorator(ServiceMeshMetric origin) {
         this.origin = origin;
@@ -60,9 +58,12 @@ public class ServiceMeshMetricDataDecorator {
         sourceServiceInstanceId = origin.getSourceServiceInstanceId();
         if (sourceServiceId != Const.NONE && sourceServiceInstanceId == Const.NONE) {
             sourceServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
-                                                        .getOrCreate(sourceServiceId, origin.getSourceServiceInstance(), origin
-                                                            .getSourceServiceInstance(), origin.getEndTime(), getOSInfoForMesh(origin
-                                                            .getSourceServiceInstance()));
+                                                        .getOrCreate(
+                                                            sourceServiceId, origin.getSourceServiceInstance(), origin
+                                                                .getSourceServiceInstance(), origin.getEndTime(),
+                                                            getOSInfoForMesh(origin
+                                                                                 .getSourceServiceInstance())
+                                                        );
             if (sourceServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setSourceServiceInstanceId(sourceServiceInstanceId);
             } else {
@@ -82,9 +83,12 @@ public class ServiceMeshMetricDataDecorator {
         destServiceInstanceId = origin.getDestServiceInstanceId();
         if (destServiceId != Const.NONE && destServiceInstanceId == Const.NONE) {
             destServiceInstanceId = CoreRegisterLinker.getServiceInstanceInventoryRegister()
-                                                      .getOrCreate(destServiceId, origin.getDestServiceInstance(), origin
-                                                          .getDestServiceInstance(), origin.getEndTime(), getOSInfoForMesh(origin
-                                                          .getDestServiceInstance()));
+                                                      .getOrCreate(
+                                                          destServiceId, origin.getDestServiceInstance(), origin
+                                                              .getDestServiceInstance(), origin.getEndTime(),
+                                                          getOSInfoForMesh(origin
+                                                                               .getDestServiceInstance())
+                                                      );
             if (destServiceInstanceId != Const.NONE) {
                 getNewDataBuilder().setDestServiceInstanceId(destServiceInstanceId);
             } else {
@@ -104,10 +108,6 @@ public class ServiceMeshMetricDataDecorator {
         } else {
             return origin;
         }
-    }
-
-    public int getEndpointId() {
-        return endpointId;
     }
 
     private ServiceMeshMetric.Builder getNewDataBuilder() {
