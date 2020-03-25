@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.EndpointInventoryCacheEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -37,13 +37,13 @@ public class EndpointInventoryCacheEs7DAO extends EndpointInventoryCacheEsDAO {
     }
 
     @Override
-    public EndpointInventory get(int endpointId) {
+    public EndpointTraffic get(int endpointId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointTraffic.SEQUENCE, endpointId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().getTotalHits().value == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.CacheUpdateTimer;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -55,8 +54,6 @@ import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.EndpointInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -170,7 +167,8 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isGRPCSslEnabled()) {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(),
                                         Paths.get(moduleConfig.getGRPCSslCertChainPath()).toFile(),
-                                        Paths.get(moduleConfig.getGRPCSslKeyPath()).toFile());
+                                        Paths.get(moduleConfig.getGRPCSslKeyPath()).toFile()
+            );
         } else {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
         }
@@ -223,11 +221,6 @@ public class CoreModuleProvider extends ModuleProvider {
             IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
 
         this.registerServiceImplementation(
-            EndpointInventoryCache.class, new EndpointInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(
-            IEndpointInventoryRegister.class, new EndpointInventoryRegister(getManager()));
-
-        this.registerServiceImplementation(
             NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
         this.registerServiceImplementation(
             INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
@@ -254,7 +247,9 @@ public class CoreModuleProvider extends ModuleProvider {
 
         if (moduleConfig.isGRPCSslEnabled()) {
             this.remoteClientManager = new RemoteClientManager(getManager(), moduleConfig.getRemoteTimeout(),
-                                                               Paths.get(moduleConfig.getGRPCSslTrustedCAPath()).toFile());
+                                                               Paths.get(moduleConfig.getGRPCSslTrustedCAPath())
+                                                                    .toFile()
+            );
         } else {
             this.remoteClientManager = new RemoteClientManager(getManager(), moduleConfig.getRemoteTimeout());
         }

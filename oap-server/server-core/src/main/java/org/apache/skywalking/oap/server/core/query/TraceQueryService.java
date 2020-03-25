@@ -30,7 +30,6 @@ import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -44,7 +43,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Span;
 import org.apache.skywalking.oap.server.core.query.entity.Trace;
 import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.entity.TraceState;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -59,7 +57,6 @@ public class TraceQueryService implements Service {
     private final ModuleManager moduleManager;
     private ITraceQueryDAO traceQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
@@ -83,15 +80,6 @@ public class TraceQueryService implements Service {
         return serviceInventoryCache;
     }
 
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
-    }
-
     private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
         if (networkAddressInventoryCache == null) {
             this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
@@ -110,14 +98,25 @@ public class TraceQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public TraceBrief queryBasicTraces(final int serviceId, final int serviceInstanceId, final int endpointId,
-        final String traceId, final String endpointName, final int minTraceDuration, int maxTraceDuration,
-        final TraceState traceState, final QueryOrder queryOrder, final Pagination paging, final long startTB,
-        final long endTB) throws IOException {
+    public TraceBrief queryBasicTraces(final int serviceId,
+                                       final int serviceInstanceId,
+                                       final int endpointId,
+                                       final String traceId,
+                                       final String endpointName,
+                                       final int minTraceDuration,
+                                       int maxTraceDuration,
+                                       final TraceState traceState,
+                                       final QueryOrder queryOrder,
+                                       final Pagination paging,
+                                       final long startTB,
+                                       final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        return getTraceQueryDAO().queryBasicTraces(startTB, endTB, minTraceDuration, maxTraceDuration, endpointName, serviceId, serviceInstanceId, endpointId, traceId, page
-            .getLimit(), page.getFrom(), traceState, queryOrder);
+        return getTraceQueryDAO().queryBasicTraces(
+            startTB, endTB, minTraceDuration, maxTraceDuration, endpointName, serviceId, serviceInstanceId, endpointId,
+            traceId, page
+                .getLimit(), page.getFrom(), traceState, queryOrder
+        );
     }
 
     public Trace queryTrace(final String traceId) throws IOException {
@@ -131,7 +130,9 @@ public class TraceQueryService implements Service {
                 if (nonNull(segment)) {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
                     trace.getSpans()
-                         .addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(), segmentObject.getSpansList()));
+                         .addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(),
+                                                 segmentObject.getSpansList()
+                         ));
                 }
             }
         }
@@ -156,7 +157,7 @@ public class TraceQueryService implements Service {
     }
 
     private List<Span> buildSpanV2List(String traceId, String segmentId, int serviceId,
-        List<SpanObjectV2> spanObjects) {
+                                       List<SpanObjectV2> spanObjects) {
         List<Span> spans = new ArrayList<>();
 
         spanObjects.forEach(spanObject -> {
@@ -183,16 +184,7 @@ public class TraceQueryService implements Service {
                 span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
             }
 
-            String endpointName = spanObject.getOperationName();
-            if (spanObject.getOperationNameId() != 0) {
-                EndpointInventory endpointInventory = getEndpointInventoryCache().get(spanObject.getOperationNameId());
-                if (nonNull(endpointInventory)) {
-                    endpointName = endpointInventory.getName();
-                } else {
-                    endpointName = Const.EMPTY_STRING;
-                }
-            }
-            span.setEndpointName(endpointName);
+            span.setEndpointName(spanObject.getOperationName());
 
             final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
             if (serviceInventory != null) {
@@ -228,7 +220,8 @@ public class TraceQueryService implements Service {
                                                        .collect(Collectors.joining("."));
                 ref.setParentSegmentId(parentSegmentId);
 
-                span.setSegmentParentSpanId(ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());
+                span.setSegmentParentSpanId(
+                    ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());
 
                 span.getRefs().add(ref);
             });

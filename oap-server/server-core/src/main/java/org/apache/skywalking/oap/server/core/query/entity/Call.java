@@ -29,8 +29,8 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 @Getter
 @Setter
 public class Call {
-    private Integer source;
-    private Integer target;
+    private String source;
+    private String target;
     private List<String> sourceComponents;
     private List<String> targetComponents;
     private String id;
@@ -45,11 +45,11 @@ public class Call {
         detectPoints = new ArrayList<>();
     }
 
-    public void setSource(int source) {
+    public void setSource(String source) {
         this.source = source;
     }
 
-    public void setTarget(int target) {
+    public void setTarget(String target) {
         this.target = target;
     }
 
@@ -84,8 +84,8 @@ public class Call {
     public static class CallDetail {
         @Setter(AccessLevel.PRIVATE)
         private String id;
-        private Integer source;
-        private Integer target;
+        private String source;
+        private String target;
         private DetectPoint detectPoint;
         private Integer componentId;
 

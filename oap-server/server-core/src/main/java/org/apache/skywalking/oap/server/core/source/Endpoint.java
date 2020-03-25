@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
@@ -32,17 +35,17 @@ public class Endpoint extends Source {
         return DefaultScopeDefine.ENDPOINT;
     }
 
+    /**
+     * @since 7.1.0 SkyWalking doesn't do endpoint register. Use name directly.
+     */
     @Override
     public String getEntityId() {
-        return String.valueOf(id);
+        return serviceId + Const.ID_SPLIT + Base64.getEncoder().encode(name.getBytes(StandardCharsets.UTF_8));
     }
 
     @Getter
     @Setter
-    private int id;
-    @Getter
-    @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "name")
     private String name;
     @Getter
     @Setter
@@ -50,7 +53,7 @@ public class Endpoint extends Source {
     private int serviceId;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name")
     private String serviceName;
     @Getter
     @Setter

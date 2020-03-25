@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -36,7 +36,7 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
 
     private static final Logger logger = LoggerFactory.getLogger(EndpointInventoryCacheEsDAO.class);
 
-    protected final EndpointInventory.Builder builder = new EndpointInventory.Builder();
+    protected final EndpointTraffic.Builder builder = new EndpointTraffic.Builder();
 
     public EndpointInventoryCacheEsDAO(ElasticSearchClient client) {
         super(client);
@@ -45,8 +45,8 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
     @Override
     public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
         try {
-            String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
-            GetResponse response = getClient().get(EndpointInventory.INDEX_NAME, id);
+            String id = EndpointTraffic.buildId(serviceId, endpointName, detectPoint);
+            GetResponse response = getClient().get(EndpointTraffic.INDEX_NAME, id);
             if (response.isExists()) {
                 return (int) response.getSource().getOrDefault(RegisterSource.SEQUENCE, 0);
             } else {
@@ -59,13 +59,13 @@ public class EndpointInventoryCacheEsDAO extends EsDAO implements IEndpointInven
     }
 
     @Override
-    public EndpointInventory get(int endpointId) {
+    public EndpointTraffic get(int endpointId) {
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointInventory.SEQUENCE, endpointId));
+            searchSourceBuilder.query(QueryBuilders.termQuery(EndpointTraffic.SEQUENCE, endpointId));
             searchSourceBuilder.size(1);
 
-            SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, searchSourceBuilder);
             if (response.getHits().totalHits == 1) {
                 SearchHit searchHit = response.getHits().getAt(0);
                 return builder.map2Data(searchHit.getSourceAsMap());

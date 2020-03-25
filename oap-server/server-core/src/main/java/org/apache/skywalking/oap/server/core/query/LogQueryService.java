@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.query.entity.LogState;
@@ -38,7 +37,6 @@ public class LogQueryService implements Service {
     private ILogQueryDAO logQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
 
     public LogQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -69,21 +67,21 @@ public class LogQueryService implements Service {
         return serviceInstanceInventoryCache;
     }
 
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
-    }
-
-    public Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-        LogState state, String stateCode, Pagination paging, final long startTB, final long endTB) throws IOException {
+    public Logs queryLogs(final String metricName,
+                          int serviceId,
+                          int serviceInstanceId,
+                          int endpointId,
+                          String traceId,
+                          LogState state,
+                          String stateCode,
+                          Pagination paging,
+                          final long startTB,
+                          final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        Logs logs = getLogQueryDAO().queryLogs(metricName, serviceId, serviceInstanceId, endpointId, traceId, state, stateCode, paging, page
-            .getFrom(), page.getLimit(), startTB, endTB);
+        Logs logs = getLogQueryDAO().queryLogs(
+            metricName, serviceId, serviceInstanceId, endpointId, traceId, state, stateCode, paging, page
+                .getFrom(), page.getLimit(), startTB, endTB);
         logs.getLogs().forEach(log -> {
             if (log.getServiceId() != Const.NONE) {
                 log.setServiceName(getServiceInventoryCache().get(log.getServiceId()).getName());
@@ -92,9 +90,7 @@ public class LogQueryService implements Service {
                 log.setServiceInstanceName(getServiceInstanceInventoryCache().get(log.getServiceInstanceId())
                                                                              .getName());
             }
-            if (log.getEndpointId() != Const.NONE) {
-                log.setEndpointName(getEndpointInventoryCache().get(log.getEndpointId()).getName());
-            }
+            log.setEndpointName(log.getEndpointName());
         });
         return logs;
     }

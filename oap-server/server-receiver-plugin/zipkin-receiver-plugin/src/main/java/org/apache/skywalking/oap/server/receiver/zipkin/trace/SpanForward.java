@@ -81,7 +81,7 @@ public class SpanForward {
                             zipkinSpan.setEndpointId(endpointId);
                         } else if (config.isRegisterZipkinEndpoint()) {
                             CoreRegisterLinker.getEndpointInventoryRegister()
-                                              .getOrCreate(serviceId, spanName, DetectPoint.SERVER);
+                                              .generate(serviceId, spanName, DetectPoint.SERVER);
                         }
                     }
             }

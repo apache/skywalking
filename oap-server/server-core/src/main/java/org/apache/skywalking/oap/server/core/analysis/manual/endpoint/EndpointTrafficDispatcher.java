@@ -16,16 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register.service;
+package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.source.Endpoint;
 
-public interface IEndpointInventoryRegister extends Service {
+public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
 
-    int getOrCreate(int serviceId, String endpointName, DetectPoint detectPoint);
+    @Override
+    public void dispatch(final Endpoint source) {
+        generateTraffic(source);
+    }
 
-    int get(int serviceId, String endpointName, DetectPoint detectPoint);
-
-    void heartbeat(int endpointId, long heartBeatTime);
+    public void generateTraffic(final Endpoint source) {
+        EndpointTraffic traffic = new EndpointTraffic();
+        traffic.setName(source.getName());
+        traffic.setServiceId(source.getServiceId());
+        traffic.setDetectPoint(DetectPoint.SERVER.ordinal());
+        traffic.setEntityId(source.getEntityId());
+        MetricsStreamProcessor.getInstance().in(traffic);
+    }
 }

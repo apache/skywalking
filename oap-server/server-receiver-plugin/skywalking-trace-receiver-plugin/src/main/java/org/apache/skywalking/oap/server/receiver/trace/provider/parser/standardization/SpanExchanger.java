@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -54,7 +54,7 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCacheDAO;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private final IEndpointInventoryRegister endpointInventoryRegister;
+    private final IEndpointTrafficGenerator endpointInventoryRegister;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
@@ -80,7 +80,7 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
                                                              .getService(IServiceInstanceInventoryRegister.class);
         this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                       .provider()
-                                                      .getService(IEndpointInventoryRegister.class);
+                                                      .getService(IEndpointTrafficGenerator.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -163,7 +163,7 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
                 String endpointName = Strings.isNullOrEmpty(
                     standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
                     .getOperationName();
-                int endpointId = endpointInventoryRegister.getOrCreate(
+                int endpointId = endpointInventoryRegister.generate(
                     serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder
                                                                           .getSpanType()));
 

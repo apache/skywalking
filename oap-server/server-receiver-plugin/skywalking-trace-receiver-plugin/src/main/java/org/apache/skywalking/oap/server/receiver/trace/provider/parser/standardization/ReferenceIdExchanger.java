@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator
 @Slf4j
 public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private static ReferenceIdExchanger EXCHANGER;
-    private final IEndpointInventoryRegister endpointInventoryRegister;
+    private final IEndpointTrafficGenerator endpointInventoryRegister;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
@@ -53,7 +53,7 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
     private ReferenceIdExchanger(ModuleManager moduleManager) {
         this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                       .provider()
-                                                      .getService(IEndpointInventoryRegister.class);
+                                                      .getService(IEndpointTrafficGenerator.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -152,6 +152,6 @@ public class ReferenceIdExchanger implements IdExchanger<ReferenceDecorator> {
      * agent does the exchange, then always use endpoint id.
      */
     private int getEndpointId(int serviceId, String endpointName) {
-        return endpointInventoryRegister.getOrCreate(serviceId, endpointName, DetectPoint.SERVER);
+        return endpointInventoryRegister.generate(serviceId, endpointName, DetectPoint.SERVER);
     }
 }

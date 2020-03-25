@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
 import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
 import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -91,8 +91,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     public int numOfEndpoint() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
-        sql.append("select count(*) num from ").append(EndpointInventory.INDEX_NAME).append(" where ");
-        sql.append(EndpointInventory.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
+        sql.append("select count(*) num from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
+        sql.append(EndpointTraffic.DETECT_POINT).append("=").append(DetectPoint.SERVER.ordinal());
 
         return getNum(sql, condition);
     }
@@ -238,13 +238,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(EndpointInventory.INDEX_NAME).append(" where ");
-        sql.append(EndpointInventory.SERVICE_ID).append("=?");
+        sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
+        sql.append(EndpointTraffic.SERVICE_ID).append("=?");
         condition.add(serviceId);
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointInventory.NAME).append(" like '%").append(keyword).append("%' ");
+            sql.append(" and ").append(EndpointTraffic.NAME).append(" like '%").append(keyword).append("%' ");
         }
-        sql.append(" and ").append(EndpointInventory.DETECT_POINT).append(" = ?");
+        sql.append(" and ").append(EndpointTraffic.DETECT_POINT).append(" = ?");
         condition.add(DetectPoint.SERVER.ordinal());
         sql.append(" limit ").append(limit);
 
@@ -254,8 +254,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
 
                 while (resultSet.next()) {
                     Endpoint endpoint = new Endpoint();
-                    endpoint.setId(resultSet.getInt(EndpointInventory.SEQUENCE));
-                    endpoint.setName(resultSet.getString(EndpointInventory.NAME));
+                    endpoint.setId(resultSet.getInt(EndpointTraffic.SEQUENCE));
+                    endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
                     endpoints.add(endpoint);
                 }
             }

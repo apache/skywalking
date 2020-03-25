@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
@@ -32,19 +34,17 @@ import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@Slf4j
 public class NotifyHandler implements MetricsNotify {
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
 
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
@@ -60,7 +60,8 @@ public class NotifyHandler implements MetricsNotify {
         MetricsMetaInfo meta = withMetadata.getMeta();
         int scope = meta.getScope();
 
-        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(scope) && !DefaultScopeDefine
+        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(
+            scope) && !DefaultScopeDefine
             .inEndpointCatalog(scope)) {
             return;
         }
@@ -83,16 +84,18 @@ public class NotifyHandler implements MetricsNotify {
             instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
-            int endpointId = Integer.parseInt(meta.getId());
-            EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
             endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
-            endpointMetaInAlarm.setId(endpointId);
 
-            int serviceId = endpointInventory.getServiceId();
+            final String[] serviceIdAndEndpointName = meta.getId().split(Const.ID_PARSER_SPLIT);
+            if (serviceIdAndEndpointName.length != 2) {
+                log.warn("Can't endpoint ID {} into two parts.", meta);
+            }
+
+            int serviceId = Integer.parseInt(serviceIdAndEndpointName[0]);
             ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
 
-            String textName = endpointInventory.getName() + " in " + serviceInventory.getName();
+            String textName = serviceIdAndEndpointName[1] + " in " + serviceInventory.getName();
 
             endpointMetaInAlarm.setName(textName);
             metaInAlarm = endpointMetaInAlarm;
@@ -120,8 +123,5 @@ public class NotifyHandler implements MetricsNotify {
         serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
                                                      .provider()
                                                      .getService(ServiceInstanceInventoryCache.class);
-        endpointInventoryCache = moduleManager.find(CoreModule.NAME)
-                                              .provider()
-                                              .getService(EndpointInventoryCache.class);
     }
 }

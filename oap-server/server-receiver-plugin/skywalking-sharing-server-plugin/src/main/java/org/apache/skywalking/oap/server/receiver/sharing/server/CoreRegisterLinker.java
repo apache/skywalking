@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.sharing.server;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -30,7 +30,7 @@ public class CoreRegisterLinker {
     private static volatile ModuleManager MODULE_MANAGER;
     private static volatile IServiceInventoryRegister SERVICE_INVENTORY_REGISTER;
     private static volatile IServiceInstanceInventoryRegister SERVICE_INSTANCE_INVENTORY_REGISTER;
-    private static volatile IEndpointInventoryRegister ENDPOINT_INVENTORY_REGISTER;
+    private static volatile IEndpointTrafficGenerator ENDPOINT_INVENTORY_REGISTER;
     private static volatile ServiceInventoryCache SERVICE_INVENTORY_CACHE;
     private static volatile EndpointInventoryCache ENDPOINT_INVENTORY_CACHE;
 
@@ -56,11 +56,11 @@ public class CoreRegisterLinker {
         return SERVICE_INSTANCE_INVENTORY_REGISTER;
     }
 
-    public static IEndpointInventoryRegister getEndpointInventoryRegister() {
+    public static IEndpointTrafficGenerator getEndpointInventoryRegister() {
         if (ENDPOINT_INVENTORY_REGISTER == null) {
             ENDPOINT_INVENTORY_REGISTER = MODULE_MANAGER.find(CoreModule.NAME)
                                                         .provider()
-                                                        .getService(IEndpointInventoryRegister.class);
+                                                        .getService(IEndpointTrafficGenerator.class);
         }
         return ENDPOINT_INVENTORY_REGISTER;
     }

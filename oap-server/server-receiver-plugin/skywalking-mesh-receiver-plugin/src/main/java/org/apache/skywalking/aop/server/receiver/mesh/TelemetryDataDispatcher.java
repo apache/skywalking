@@ -262,7 +262,6 @@ public class TelemetryDataDispatcher {
         ServiceMeshMetric metrics = decorator.getMetric();
         Endpoint endpoint = new Endpoint();
         endpoint.setTimeBucket(minuteTimeBucket);
-        endpoint.setId(decorator.getEndpointId());
         endpoint.setName(metrics.getEndpoint());
         endpoint.setServiceId(metrics.getDestServiceId());
         endpoint.setServiceName(getServiceName(metrics.getDestServiceId(), metrics.getDestServiceName()));

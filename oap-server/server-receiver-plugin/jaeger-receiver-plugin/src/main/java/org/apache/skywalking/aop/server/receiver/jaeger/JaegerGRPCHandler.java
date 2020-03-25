@@ -124,7 +124,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
                                                                    .ordinal());
                             if (endpointId != Const.NONE) {
                                 CoreRegisterLinker.getEndpointInventoryRegister()
-                                                  .getOrCreate(finalServiceId, endpointName, DetectPoint.SERVER);
+                                                  .generate(finalServiceId, endpointName, DetectPoint.SERVER);
                             }
                         }
                     }

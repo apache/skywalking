@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.storage.cache;
 
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IEndpointInventoryCacheDAO extends DAO {
 
     int getEndpointId(int serviceId, String endpointName, int detectPoint);
 
-    EndpointInventory get(int endpointId);
+    EndpointTraffic get(int endpointId);
 }

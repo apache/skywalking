@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register;
+package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
 import com.google.common.base.Strings;
 import java.util.HashMap;
@@ -24,26 +24,31 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_TRAFFIC;
 
-@ScopeDeclaration(id = ENDPOINT_INVENTORY, name = "EndpointInventory")
-@Stream(name = EndpointInventory.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_INVENTORY, builder = EndpointInventory.Builder.class, processor = InventoryStreamProcessor.class)
-public class EndpointInventory extends RegisterSource {
+@ScopeDeclaration(id = ENDPOINT_TRAFFIC, name = "EndpointTraffic")
+@Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC, builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
+public class EndpointTraffic extends Metrics {
 
-    public static final String INDEX_NAME = "endpoint_inventory";
+    public static final String INDEX_NAME = "endpoint_traffic";
 
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";
     public static final String DETECT_POINT = "detect_point";
 
+    @Setter
+    @Getter
+    private String entityId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
@@ -59,6 +64,18 @@ public class EndpointInventory extends RegisterSource {
 
     public static String buildId(int serviceId, String endpointName, int detectPoint) {
         return serviceId + Const.ID_SPLIT + endpointName + Const.ID_SPLIT + detectPoint;
+    }
+
+    /**
+     * @param id in the storage of endpoint traffic
+     * @return [serviceId, endpointName, detectPoint]
+     */
+    public static String[] splitID(String id) {
+        final String[] strings = id.split(Const.ID_PARSER_SPLIT);
+        if (strings.length != 3) {
+            throw new UnexpectedException("Can't split endpoint id into 3 parts, " + id);
+        }
+        return strings;
     }
 
     @Override
@@ -84,7 +101,7 @@ public class EndpointInventory extends RegisterSource {
         if (getClass() != obj.getClass())
             return false;
 
-        EndpointInventory source = (EndpointInventory) obj;
+        EndpointTraffic source = (EndpointTraffic) obj;
         if (serviceId != source.getServiceId())
             return false;
         if (!name.equals(source.getName()))
@@ -95,13 +112,10 @@ public class EndpointInventory extends RegisterSource {
     @Override
     public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.addDataIntegers(getSequence());
         remoteBuilder.addDataIntegers(serviceId);
         remoteBuilder.addDataIntegers(detectPoint);
 
-        remoteBuilder.addDataLongs(getRegisterTime());
-        remoteBuilder.addDataLongs(getHeartbeatTime());
-        remoteBuilder.addDataLongs(getLastUpdateTime());
+        remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
@@ -109,47 +123,67 @@ public class EndpointInventory extends RegisterSource {
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setSequence(remoteData.getDataIntegers(0));
-        setServiceId(remoteData.getDataIntegers(1));
-        setDetectPoint(remoteData.getDataIntegers(2));
+        setServiceId(remoteData.getDataIntegers(0));
+        setDetectPoint(remoteData.getDataIntegers(1));
 
-        setRegisterTime(remoteData.getDataLongs(0));
-        setHeartbeatTime(remoteData.getDataLongs(1));
-        setLastUpdateTime(remoteData.getDataLongs(2));
+        setTimeBucket(remoteData.getDataLongs(0));
 
         setName(remoteData.getDataStrings(0));
     }
 
     @Override
     public int remoteHashCode() {
-        return 0;
+        int result = 17;
+        result = 31 * result + serviceId;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + detectPoint;
+        return result;
     }
 
-    public static class Builder implements StorageBuilder<EndpointInventory> {
+    @Override
+    public void combine(final Metrics metrics) {
+
+    }
+
+    @Override
+    public void calculate() {
+
+    }
+
+    @Override
+    public Metrics toHour() {
+        return null;
+    }
+
+    @Override
+    public Metrics toDay() {
+        return null;
+    }
+
+    @Override
+    public Metrics toMonth() {
+        return null;
+    }
+
+    public static class Builder implements StorageBuilder<EndpointTraffic> {
 
         @Override
-        public EndpointInventory map2Data(Map<String, Object> dbMap) {
-            EndpointInventory inventory = new EndpointInventory();
-            inventory.setSequence(((Number) dbMap.get(SEQUENCE)).intValue());
+        public EndpointTraffic map2Data(Map<String, Object> dbMap) {
+            EndpointTraffic inventory = new EndpointTraffic();
             inventory.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
             inventory.setName((String) dbMap.get(NAME));
             inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
-            inventory.setRegisterTime(((Number) dbMap.get(REGISTER_TIME)).longValue());
-            inventory.setHeartbeatTime(((Number) dbMap.get(HEARTBEAT_TIME)).longValue());
-            inventory.setLastUpdateTime(((Number) dbMap.get(LAST_UPDATE_TIME)).longValue());
+            inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return inventory;
         }
 
         @Override
-        public Map<String, Object> data2Map(EndpointInventory storageData) {
+        public Map<String, Object> data2Map(EndpointTraffic storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put(SEQUENCE, storageData.getSequence());
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());
             map.put(DETECT_POINT, storageData.getDetectPoint());
-            map.put(REGISTER_TIME, storageData.getRegisterTime());
-            map.put(HEARTBEAT_TIME, storageData.getHeartbeatTime());
-            map.put(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
     }

@@ -45,7 +45,7 @@ import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
+import org.apache.skywalking.oap.server.core.register.service.IEndpointTrafficGenerator;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -76,7 +76,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private final IEndpointInventoryRegister inventoryService;
+    private final IEndpointTrafficGenerator inventoryService;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
     public RegisterServiceHandler(ModuleManager moduleManager) {
@@ -94,7 +94,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
                                                              .getService(IServiceInstanceInventoryRegister.class);
         this.inventoryService = moduleManager.find(CoreModule.NAME)
                                              .provider()
-                                             .getService(IEndpointInventoryRegister.class);
+                                             .getService(IEndpointTrafficGenerator.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -209,7 +209,7 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
 
             DetectPoint detectPoint = DetectPoint.fromNetworkProtocolDetectPoint(endpoint.getFrom());
             if (DetectPoint.SERVER.equals(detectPoint)) {
-                int endpointId = inventoryService.getOrCreate(serviceId, endpointName, detectPoint);
+                int endpointId = inventoryService.generate(serviceId, endpointName, detectPoint);
 
                 if (endpointId != Const.NONE) {
                     builder.addElements(EndpointMappingElement.newBuilder()

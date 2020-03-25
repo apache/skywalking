@@ -38,34 +38,12 @@ public class ReferenceDecorator implements StandardBuilder {
         this.isOrigin = false;
     }
 
-    public int getEntryEndpointId() {
-        if (isOrigin) {
-            return referenceObjectV2.getEntryEndpointId();
-        } else {
-            return referenceBuilderV2.getEntryEndpointId();
-        }
-    }
-
-    public void setEntryEndpointId(int value) {
-        if (isOrigin) {
-            toBuilder();
-        }
-        referenceBuilderV2.setEntryEndpointId(value);
-    }
-
     public String getEntryEndpointName() {
         if (isOrigin) {
             return referenceObjectV2.getEntryEndpoint();
         } else {
             return referenceBuilderV2.getEntryEndpoint();
         }
-    }
-
-    public void setEntryEndpointName(String value) {
-        if (isOrigin) {
-            toBuilder();
-        }
-        referenceBuilderV2.setEntryEndpoint(value);
     }
 
     public int getEntryServiceInstanceId() {
@@ -84,34 +62,12 @@ public class ReferenceDecorator implements StandardBuilder {
         }
     }
 
-    public int getParentEndpointId() {
-        if (isOrigin) {
-            return referenceObjectV2.getParentEndpointId();
-        } else {
-            return referenceBuilderV2.getParentEndpointId();
-        }
-    }
-
-    public void setParentEndpointId(int value) {
-        if (isOrigin) {
-            toBuilder();
-        }
-        referenceBuilderV2.setParentEndpointId(value);
-    }
-
     public String getParentEndpointName() {
         if (isOrigin) {
             return referenceObjectV2.getParentEndpoint();
         } else {
             return referenceBuilderV2.getParentEndpoint();
         }
-    }
-
-    public void setParentEndpointName(String value) {
-        if (isOrigin) {
-            toBuilder();
-        }
-        referenceBuilderV2.setParentEndpoint(value);
     }
 
     public int getNetworkAddressId() {

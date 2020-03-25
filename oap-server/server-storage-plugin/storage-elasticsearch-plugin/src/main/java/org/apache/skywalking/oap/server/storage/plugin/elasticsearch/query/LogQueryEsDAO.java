@@ -49,8 +49,8 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
 
     @Override
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
-        LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
-        long endSecondTB) throws IOException {
+                          LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
+                          long endSecondTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -69,7 +69,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                             .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (endpointId != Const.NONE) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_NAME, endpointId));
         }
         if (!Strings.isNullOrEmpty(stateCode)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.STATUS_CODE, stateCode));
@@ -79,10 +79,13 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
         }
         if (LogState.ERROR.equals(state)) {
             boolQueryBuilder.must()
-                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
+                            .add(
+                                QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(true)));
         } else if (LogState.SUCCESS.equals(state)) {
             boolQueryBuilder.must()
-                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR, BooleanUtils.booleanToValue(false)));
+                            .add(QueryBuilders.termQuery(AbstractLogRecord.IS_ERROR,
+                                                         BooleanUtils.booleanToValue(false)
+                            ));
         }
 
         sourceBuilder.size(limit);
@@ -98,12 +101,13 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             log.setServiceId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID)).intValue());
             log.setServiceInstanceId(((Number) searchHit.getSourceAsMap()
                                                         .get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
-            log.setEndpointId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID)).intValue());
+            log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
             log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
                                                                         .get(AbstractLogRecord.IS_ERROR)).intValue()));
             log.setStatusCode((String) searchHit.getSourceAsMap().get(AbstractLogRecord.STATUS_CODE));
             log.setContentType(ContentType.instanceOf(((Number) searchHit.getSourceAsMap()
-                                                                         .get(AbstractLogRecord.CONTENT_TYPE)).intValue()));
+                                                                         .get(
+                                                                             AbstractLogRecord.CONTENT_TYPE)).intValue()));
             log.setContent((String) searchHit.getSourceAsMap().get(AbstractLogRecord.CONTENT));
 
             logs.getLogs().add(log);

@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.slf4j.Logger;
@@ -35,14 +35,14 @@ public class H2EndpointInventoryCacheDAO extends H2SQLExecutor implements IEndpo
 
     @Override
     public int getEndpointId(int serviceId, String endpointName, int detectPoint) {
-        String id = EndpointInventory.buildId(serviceId, endpointName, detectPoint);
-        return getEntityIDByID(h2Client, EndpointInventory.SEQUENCE, EndpointInventory.INDEX_NAME, id);
+        String id = EndpointTraffic.buildId(serviceId, endpointName, detectPoint);
+        return getEntityIDByID(h2Client, EndpointTraffic.SEQUENCE, EndpointTraffic.INDEX_NAME, id);
     }
 
     @Override
-    public EndpointInventory get(int endpointId) {
+    public EndpointTraffic get(int endpointId) {
         try {
-            return (EndpointInventory) getByColumn(h2Client, EndpointInventory.INDEX_NAME, EndpointInventory.SEQUENCE, endpointId, new EndpointInventory.Builder());
+            return (EndpointTraffic) getByColumn(h2Client, EndpointTraffic.INDEX_NAME, EndpointTraffic.SEQUENCE, endpointId, new EndpointTraffic.Builder());
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
             return null;

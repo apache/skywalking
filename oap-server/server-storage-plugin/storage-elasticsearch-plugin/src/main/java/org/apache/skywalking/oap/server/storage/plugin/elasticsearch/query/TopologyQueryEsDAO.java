@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -192,9 +193,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(serviceIdBoolQuery);
         serviceIdBoolQuery.should()
-                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
+                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId));
         serviceIdBoolQuery.should()
-                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
+                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
 
         sourceBuilder.query(boolQuery);
 
@@ -212,10 +213,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
             String entityId = entityBucket.getKeyAsString();
 
-            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setSource(relationDefine.getSource());
-            call.setTarget(relationDefine.getDest());
+            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), DetectPoint.SERVER.ordinal()));
+            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), DetectPoint.SERVER.ordinal()));
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
             call.generateID();

@@ -25,6 +25,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -160,21 +161,21 @@ public class TopologyQuery implements ITopologyQueryDAO {
             measurement,
             startTB,
             endTB,
-            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT,
             Collections.emptyList()
         );
-        query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
+        query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
 
         WhereQueryImpl query2 = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
-            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT,
             Collections.emptyList()
         );
-        query2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
+        query2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId));
 
         List<Call.CallDetail> calls = buildCalls(query, DetectPoint.SERVER);
         calls.addAll(buildCalls(query2, DetectPoint.CLIENT));
@@ -243,10 +244,10 @@ public class TopologyQuery implements ITopologyQueryDAO {
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = (String) values.get(1);
-            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
 
-            call.setSource(relationDefine.getSource());
-            call.setTarget(relationDefine.getDest());
+            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), DetectPoint.SERVER.ordinal()));
+            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), DetectPoint.SERVER.ordinal()));
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
             call.generateID();

@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Node {
-    private int id;
+    private String id;
     private String name;
     private String type;
     private boolean isReal;

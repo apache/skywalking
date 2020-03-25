@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -96,8 +96,8 @@ public class NotifyHandlerTest {
         when(DefaultScopeDefine.inEndpointCatalog(0)).thenReturn(true);
 
         String endpointInventoryName = "endpoint-inventory-name";
-        EndpointInventory endpointInventory = mock(EndpointInventory.class);
-        when(endpointInventory.getName()).thenReturn(endpointInventoryName);
+        EndpointTraffic endpointTraffic = mock(EndpointTraffic.class);
+        when(endpointTraffic.getName()).thenReturn(endpointInventoryName);
 
         String serviceInventoryName = "service-inventory-name";
         ServiceInventory serviceInventory = mock(ServiceInventory.class);
@@ -105,7 +105,7 @@ public class NotifyHandlerTest {
 
         when(serviceInventoryCache.get(anyInt())).thenReturn(serviceInventory);
 
-        when(endpointInventoryCache.get(anyInt())).thenReturn(endpointInventory);
+        when(endpointInventoryCache.get(anyInt())).thenReturn(endpointTraffic);
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 

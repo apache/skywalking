@@ -91,17 +91,6 @@ public class ServiceMeshMetricDataDecorator {
                 isRegistered = false;
             }
         }
-        String endpoint = origin.getEndpoint();
-
-        // Service mesh doesn't register client side endpoint.
-        DetectPoint point = origin.getDetectPoint();
-        if (DetectPoint.server.equals(point)) {
-            if (destServiceId != Const.NONE) {
-                endpointId = CoreRegisterLinker.getEndpointInventoryRegister()
-                                               .getOrCreate(destServiceId, endpoint, org.apache.skywalking.oap.server.core.source.DetectPoint
-                                                   .fromNetworkProtocolDetectPoint(point));
-            }
-        }
 
         return isRegistered;
     }

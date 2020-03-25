@@ -29,7 +29,6 @@ public class Log {
     private String serviceInstanceName;
     private int serviceInstanceId;
     private String endpointName;
-    private int endpointId;
     private String traceId;
     private String timestamp;
     private boolean isError;

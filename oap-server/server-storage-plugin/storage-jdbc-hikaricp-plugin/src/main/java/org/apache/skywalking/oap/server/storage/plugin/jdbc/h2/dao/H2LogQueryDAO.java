@@ -39,7 +39,7 @@ import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
-import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_INSTANCE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
@@ -78,7 +78,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
             parameters.add(serviceInstanceId);
         }
         if (endpointId != Const.NONE) {
-            sql.append(" and ").append(AbstractLogRecord.ENDPOINT_ID).append(" = ?");
+            sql.append(" and ").append(AbstractLogRecord.ENDPOINT_NAME).append(" = ?");
             parameters.add(endpointId);
         }
         if (!Strings.isNullOrEmpty(stateCode)) {
@@ -114,7 +114,7 @@ public class H2LogQueryDAO implements ILogQueryDAO {
                     Log log = new Log();
                     log.setServiceId(resultSet.getInt(SERVICE_ID));
                     log.setServiceInstanceId(resultSet.getInt(SERVICE_INSTANCE_ID));
-                    log.setEndpointId(resultSet.getInt(ENDPOINT_ID));
+                    log.setEndpointName(resultSet.getString(ENDPOINT_NAME));
                     log.setTraceId(resultSet.getString(TRACE_ID));
                     log.setTimestamp(resultSet.getString(TIMESTAMP));
                     log.setStatusCode(resultSet.getString(STATUS_CODE));

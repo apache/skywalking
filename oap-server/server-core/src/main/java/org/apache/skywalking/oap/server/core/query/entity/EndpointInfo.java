@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EndpointInfo {
-    private int id;
+    private String id;
     private String name;
     private int serviceId;
     private String serviceName;

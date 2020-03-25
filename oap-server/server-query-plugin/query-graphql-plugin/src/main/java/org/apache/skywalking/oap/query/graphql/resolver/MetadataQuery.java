@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.entity.ClusterBrief;
@@ -77,7 +78,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<Service> searchServices(final Duration duration,
-        final String keyword) throws IOException, ParseException {
+                                        final String keyword) throws IOException, ParseException {
         long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
         long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
@@ -89,7 +90,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<ServiceInstance> getServiceInstances(final Duration duration,
-        final String serviceId) throws IOException, ParseException {
+                                                     final String serviceId) throws IOException, ParseException {
         long startTimestamp = DurationUtils.INSTANCE.startTimeToTimestamp(duration.getStep(), duration.getStart());
         long endTimestamp = DurationUtils.INSTANCE.endTimeToTimestamp(duration.getStep(), duration.getEnd());
 
@@ -97,11 +98,12 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
-        final int limit) throws IOException {
+                                         final int limit) throws IOException {
         return getMetadataQueryService().searchEndpoint(keyword, serviceId, limit);
     }
 
-    public EndpointInfo getEndpointInfo(final int endpointId) throws IOException {
+
+    public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
         return getMetadataQueryService().getEndpointInfo(endpointId);
     }
 
