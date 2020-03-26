@@ -104,6 +104,7 @@ or providing commercial products including Apache SkyWalking.
 1. Rongjinbao. 深圳融金宝互联网金融服务有限公司. http://www.rjb777.com
 1. Safedog. 安全狗. http://www.safedog.cn/
 1. servingcloud.com 盈佳云创科技(深圳)有限公司 http://www.servingcloud.com/
+1. SF Express 顺丰速运 https://www.sf-express.com/
 1. Shouqi Limousine & chauffeur Group 首约科技(北京)有限公司. https://www.01zhuanche.com/
 1. shuaibaoshop.com 宁波鲸灵网络科技有限公司 http://www.shuaibaoshop.com/
 1. shuyun.com 杭州数云信息技术有限公司 http://www.shuyun.com/
@@ -151,7 +152,6 @@ or providing commercial products including Apache SkyWalking.
 1. zbj.com 猪八戒 https://www.zbj.com/
 1. zhaopin.com 智联招聘 https://www.zhaopin.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. sf-express.com 顺丰速运 https://www.sf-express.com/
 
 # Use Cases
 ## Alibaba and Alibaba Cloud
