@@ -145,7 +145,7 @@ or providing commercial products including Apache SkyWalking.
 1. Yonghui Superstores Co., Ltd. 永辉超市 http://www.yonghui.com.cn
 1. Yonyou 用友
 1. Youzan.com 杭州有赞科技有限公司 http://www.youzan.com/
-1. yunda56.com 韵达快运 http://www.yunda56.com/
+1. Yunda Express 韵达快运 http://www.yunda56.com/
 1. Yunnan Airport Group Co.,Ltd. 云南机场集团
 1. yxt 云学堂 http://www.yxt.com/
 1. zbj.com 猪八戒 https://www.zbj.com/
