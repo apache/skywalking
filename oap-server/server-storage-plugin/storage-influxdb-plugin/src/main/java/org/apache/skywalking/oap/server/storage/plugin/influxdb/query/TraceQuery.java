@@ -41,10 +41,10 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
 
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.regex;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -98,7 +98,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(lte(SegmentRecord.LATENCY, maxDuration));
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            recallQuery.and(regex(SegmentRecord.ENDPOINT_NAME, "/" + endpointName.replaceAll("/", "\\\\/") + "/"));
+            recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName));
         }
         if (serviceId != 0) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));

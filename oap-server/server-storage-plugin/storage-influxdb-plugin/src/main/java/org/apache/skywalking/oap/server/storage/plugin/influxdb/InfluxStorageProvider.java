@@ -56,6 +56,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.H2Inst
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.MySQLInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
@@ -64,7 +65,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThr
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
@@ -120,7 +120,7 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(client));
         this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
+            IMetadataQueryDAO.class, new InfluxMetadataQueryDAO(influxClient, client, config.getMetadataQueryMaxSize()));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
