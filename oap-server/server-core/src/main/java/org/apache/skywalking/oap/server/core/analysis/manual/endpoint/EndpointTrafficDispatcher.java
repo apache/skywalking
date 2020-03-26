@@ -36,7 +36,6 @@ public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
         traffic.setDetectPoint(DetectPoint.SERVER.value());
-        traffic.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }
