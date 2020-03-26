@@ -115,4 +115,8 @@ public interface AbstractTracerContext {
      */
     void asyncStop(AsyncSpan span);
 
+    /**
+     * Get current correlation context
+     */
+    CorrelationContext getCorrelationContext();
 }

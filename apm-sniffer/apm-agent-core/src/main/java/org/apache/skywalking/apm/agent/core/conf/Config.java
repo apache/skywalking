@@ -396,4 +396,16 @@ public class Config {
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
         }
     }
+
+    public static class Correlation {
+        /**
+         * Max element count in the correlation context.
+         */
+        public static int ELEMENT_MAX_NUMBER = 3;
+
+        /**
+         * Max value length of each element.
+         */
+        public static int VALUE_MAX_LENGTH = 128;
+    }
 }
