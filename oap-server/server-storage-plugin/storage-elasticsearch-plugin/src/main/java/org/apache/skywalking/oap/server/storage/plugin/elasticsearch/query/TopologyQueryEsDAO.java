@@ -265,7 +265,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
             String entityId = entityBucket.getKeyAsString();
 
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(
                 entityId);
             Call.CallDetail call = new Call.CallDetail();
             call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(),

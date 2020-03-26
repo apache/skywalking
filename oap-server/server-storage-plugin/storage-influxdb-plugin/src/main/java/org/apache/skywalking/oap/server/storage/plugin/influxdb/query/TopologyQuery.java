@@ -271,7 +271,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = (String) values.get(1);
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(entityId);
 
             call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), detectPoint));
             call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), detectPoint));

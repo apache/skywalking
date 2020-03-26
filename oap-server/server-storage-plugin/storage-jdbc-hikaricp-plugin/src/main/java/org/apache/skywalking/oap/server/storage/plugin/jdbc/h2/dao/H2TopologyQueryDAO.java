@@ -203,7 +203,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointEntityId(entityId);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(entityId);
 
             if (isClientSide) {
                 call.setDetectPoint(DetectPoint.CLIENT);

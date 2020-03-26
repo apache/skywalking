@@ -38,7 +38,7 @@ public class EndpointRelation extends Source {
      */
     @Override
     public String getEntityId() {
-        return RelationDefineUtil.buildEndpointEntityId(new RelationDefineUtil.EndpointRelationDefine(
+        return RelationDefineUtil.buildEndpointRelationEntityId(new RelationDefineUtil.EndpointRelationDefine(
             serviceId, endpoint, childServiceId, childEndpoint, componentId
         ));
     }

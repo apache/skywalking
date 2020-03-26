@@ -47,22 +47,24 @@ public class RelationDefineUtil {
     /**
      * @return the endpoint relationship string id.
      */
-    public static String buildEndpointEntityId(EndpointRelationDefine define) {
+    public static String buildEndpointRelationEntityId(EndpointRelationDefine define) {
         return define.sourceServiceId
             + Const.ID_SPLIT
-            + Base64.getEncoder().encode(define.source.getBytes(StandardCharsets.UTF_8))
+            + new String(
+            Base64.getEncoder().encode(define.source.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
             + Const.ID_SPLIT
             + define.destServiceId
             + Const.ID_SPLIT
-            + Base64.getEncoder().encode(define.dest.getBytes(StandardCharsets.UTF_8))
+            + new String(
+            Base64.getEncoder().encode(define.dest.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
             + Const.ID_SPLIT
             + define.componentId;
     }
 
-    public static EndpointRelationDefine splitEndpointEntityId(String entityId) {
+    public static EndpointRelationDefine splitEndpointRelationEntityId(String entityId) {
         String[] parts = entityId.split(Const.ID_SPLIT);
         if (parts.length != 5) {
-            throw new UnexpectedException("Illegal Service/Endpoint Relation entity id, " + entityId);
+            throw new UnexpectedException("Illegal endpoint Relation entity id, " + entityId);
         }
         return new EndpointRelationDefine(
             Integer.parseInt(parts[0]),
