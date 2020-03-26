@@ -80,7 +80,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
             if (SEGMENT == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
-                if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID))
+                if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID)
+                    || name.getName().equals(SegmentRecord.ENDPOINT_NAME)
+                    || name.getName().equals(SegmentRecord.ENDPOINT_ID))
                     return "VARCHAR(300)";
                 if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
                     return "MEDIUMTEXT";
