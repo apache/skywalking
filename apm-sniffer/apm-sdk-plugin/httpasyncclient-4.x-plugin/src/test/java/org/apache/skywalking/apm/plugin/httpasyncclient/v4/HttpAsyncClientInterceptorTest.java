@@ -191,7 +191,7 @@ public class HttpAsyncClientInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(findNeedSegemnt());
         assertHttpSpan(spans.get(0));
-        verify(requestWrapper).setHeader(anyString(), anyString());
+        verify(requestWrapper, times(2)).setHeader(anyString(), anyString());
 
     }
 
