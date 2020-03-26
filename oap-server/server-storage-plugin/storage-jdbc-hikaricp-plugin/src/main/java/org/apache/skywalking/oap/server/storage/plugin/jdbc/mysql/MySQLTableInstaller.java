@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 import java.sql.Connection;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
@@ -37,13 +39,12 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_TRAFFIC;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SEGMENT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_LOG;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROFILE_TASK_SEGMENT_SNAPSHOT;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -111,6 +112,8 @@ public class MySQLTableInstaller extends H2TableInstaller {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
             case NETWORK_ADDRESS:
+                createInventoryIndexes(client, model);
+                return;
             case SEGMENT:
                 createSegmentIndexes(client, model);
                 return;
@@ -134,36 +137,36 @@ public class MySQLTableInstaller extends H2TableInstaller {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TASK_ID_SEQUENCE ");
             tableIndexSQL.append("ON ")
-                    .append(model.getName())
-                    .append("(")
-                    .append(ProfileThreadSnapshotRecord.TASK_ID)
-                    .append(", ")
-                    .append(ProfileThreadSnapshotRecord.SEQUENCE)
-                    .append(")");
+                         .append(model.getName())
+                         .append("(")
+                         .append(ProfileThreadSnapshotRecord.TASK_ID)
+                         .append(", ")
+                         .append(ProfileThreadSnapshotRecord.SEQUENCE)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
 
             // query by segment id, sequence
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_SEGMENT_ID_SEQUENCE ");
             tableIndexSQL.append("ON ")
-                    .append(model.getName())
-                    .append("(")
-                    .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
-                    .append(", ")
-                    .append(ProfileThreadSnapshotRecord.SEQUENCE)
-                    .append(")");
+                         .append(model.getName())
+                         .append("(")
+                         .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+                         .append(", ")
+                         .append(ProfileThreadSnapshotRecord.SEQUENCE)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
 
             // query by segment id, dump time
             tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_SEGMENT_ID_DUMP_TIME ");
             tableIndexSQL.append("ON ")
-                    .append(model.getName())
-                    .append("(")
-                    .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
-                    .append(", ")
-                    .append(ProfileThreadSnapshotRecord.DUMP_TIME)
-                    .append(")");
+                         .append(model.getName())
+                         .append("(")
+                         .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+                         .append(", ")
+                         .append(ProfileThreadSnapshotRecord.DUMP_TIME)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
@@ -176,10 +179,10 @@ public class MySQLTableInstaller extends H2TableInstaller {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase()).append("_TASK_ID ");
             tableIndexSQL.append("ON ")
-                    .append(model.getName())
-                    .append("(")
-                    .append(ProfileTaskLogRecord.TASK_ID)
-                    .append(")");
+                         .append(model.getName())
+                         .append("(")
+                         .append(ProfileTaskLogRecord.TASK_ID)
+                         .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
@@ -193,7 +196,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
             tableIndexSQL.append("ON ")
                          .append(model.getName())
                          .append("(")
-                         .append(SegmentRecord.TIME_BUCKET)
+                         .append(Metrics.TIME_BUCKET)
                          .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
@@ -208,7 +211,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
             tableIndexSQL.append("ON ")
                          .append(model.getName())
                          .append("(")
-                         .append(SegmentRecord.TIME_BUCKET)
+                         .append(AlarmRecord.TIME_BUCKET)
                          .append(")");
             createIndex(client, connection, model, tableIndexSQL);
         } catch (JDBCClientException | SQLException e) {
