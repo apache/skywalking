@@ -111,9 +111,6 @@ public class MySQLTableInstaller extends H2TableInstaller {
             case SERVICE_INVENTORY:
             case SERVICE_INSTANCE_INVENTORY:
             case NETWORK_ADDRESS:
-            case ENDPOINT_TRAFFIC:
-                createInventoryIndexes(client, model);
-                return;
             case SEGMENT:
                 createSegmentIndexes(client, model);
                 return;
