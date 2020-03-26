@@ -31,6 +31,7 @@ jobs:
   StoragePlugins:
     name: Storage
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       matrix:
         storage: ['mysql', 'es6', 'es7', 'influxdb']
@@ -57,6 +58,7 @@ jobs:
 
   Storage:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     needs: [StoragePlugins]
     steps:
       - name: To pass or not pass

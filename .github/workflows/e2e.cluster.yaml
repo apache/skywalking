@@ -30,6 +30,7 @@ env:
 jobs:
   CoordinatorsStorage:
     name: Coordinators & Storage
+    timeout-minutes: 90
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,6 +60,7 @@ jobs:
 
   Cluster:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     needs: [CoordinatorsStorage]
     steps:
       - name: Call me by your name

@@ -31,6 +31,7 @@ jobs:
   Profiling:
     name: Profiling
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       matrix:
         storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb']
