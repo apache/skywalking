@@ -30,6 +30,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.plugin.elasticsearch.v6.TransportClientEnhanceInfo;
+import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
@@ -72,9 +73,6 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
     @Mock
     private DiscoveryNode discoveryNode;
 
-//    @Mock
-//    private SearchRequest searchRequest;
-
     @Mock
     private GetRequest getRequest;
 
@@ -105,9 +103,6 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         when(enhanceInfo.transportAddresses()).thenReturn("122.122.122.122:9300");
         when(enhanceInfo.getClusterName()).thenReturn("skywalking-es");
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn(enhanceInfo);
-
-//        when(searchRequest.indices()).thenReturn(new String[]{"endpoint"});
-//        when(searchRequest.types()).thenReturn(new String[]{"searchType"});
 
         when(getRequest.index()).thenReturn("endpoint");
         when(getRequest.type()).thenReturn("getType");
@@ -167,34 +162,41 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
     @Test
     public void testGetRequest() throws Throwable {
 
-        AbstractTracingSpan getSpan = getSpan();
+        AbstractTracingSpan getSpan = getSpan(getRequest);
         assertGetSpan(getSpan, getRequest);
     }
 
     @Test
     public void testIndexRequest() throws Throwable {
 
-        AbstractTracingSpan getSpan = getSpan();
-        assertGetSpan(getSpan, getRequest);
+        AbstractTracingSpan getSpan = getSpan(indexRequest);
+        assertGetSpan(getSpan, indexRequest);
     }
 
     @Test
     public void testUpdateRequest() throws Throwable {
 
-        AbstractTracingSpan getSpan = getSpan();
-        assertGetSpan(getSpan, getRequest);
+        AbstractTracingSpan getSpan = getSpan(updateRequest);
+        assertGetSpan(getSpan, updateRequest);
     }
 
     @Test
     public void testDeleteRequest() throws Throwable {
 
-        AbstractTracingSpan getSpan = getSpan();
-        assertGetSpan(getSpan, getRequest);
+        AbstractTracingSpan getSpan = getSpan(deleteRequest);
+        assertGetSpan(getSpan, deleteRequest);
     }
 
-    private AbstractTracingSpan getSpan() throws Throwable {
+    @Test
+    public void testDeleteIndexRequest() throws Throwable {
+
+        AbstractTracingSpan getSpan = getSpan(deleteIndexRequest);
+        assertGetSpan(getSpan, deleteIndexRequest);
+    }
+
+    private AbstractTracingSpan getSpan(ActionRequest actionRequest) throws Throwable {
         TRACE_DSL = true;
-        Object[] allArguments = new Object[]{discoveryNode, getRequest};
+        Object[] allArguments = new Object[]{discoveryNode, actionRequest};
 
         interceptor.beforeMethod(enhancedInstance, null, allArguments, null, null);
         interceptor.afterMethod(enhancedInstance, null, allArguments, null, null);
@@ -210,7 +212,6 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         assertThat(getSpan instanceof ExitSpan, is(true));
 
         ExitSpan span = (ExitSpan) getSpan;
-        assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/GetRequest"));
         assertThat(SpanHelper.getComponentId(span), is(TRANSPORT_CLIENT.getId()));
 
         List<TagValuePair> tags = SpanHelper.getTags(span);
@@ -218,21 +219,27 @@ public class TransportActionNodeProxyExecuteMethodsInterceptorTest {
         assertThat(tags.get(1).getValue(), is("skywalking-es"));
         assertThat(tags.get(2).getValue(), is("122.122.122.122:9300"));
         if (ret instanceof SearchRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/SearchRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("searchType"));
         } else if (ret instanceof GetRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/GetRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("getType"));
         } else if (ret instanceof IndexRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/IndexRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("indexType"));
         } else if (ret instanceof UpdateRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/UpdateRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("updateType"));
         } else if (ret instanceof DeleteRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/DeleteRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
             assertThat(tags.get(4).getValue(), is("deleteType"));
         } else if (ret instanceof DeleteIndexRequest) {
+            assertThat(span.getOperationName().split("[$$]")[0], is("Elasticsearch/DeleteIndexRequest"));
             assertThat(tags.get(3).getValue(), is("endpoint"));
         }
 

@@ -30,9 +30,6 @@ import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * date 2020.02.13 17:29
- */
 public class AdapterActionFutureInstrumentation extends ClassEnhancePluginDefine {
 
     @Override
