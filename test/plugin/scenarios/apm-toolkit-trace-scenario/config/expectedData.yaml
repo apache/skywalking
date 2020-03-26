@@ -194,6 +194,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable'}
               - {key: http.method, value: GET}
+              - {key: correlation, value: correlationValueTest}
             refs:
               - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
@@ -289,6 +290,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/runnable'}
               - {key: http.method, value: GET}
+              - {key: correlation, value: correlationValueTest}
             refs:
               - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
@@ -348,6 +350,7 @@ segmentItems:
             tags:
               - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
               - {key: http.method, value: GET}
+              - {key: correlation, value: correlationValueTest}
             refs:
               - {parentEndpointId: -1, parentEndpoint: '',
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
