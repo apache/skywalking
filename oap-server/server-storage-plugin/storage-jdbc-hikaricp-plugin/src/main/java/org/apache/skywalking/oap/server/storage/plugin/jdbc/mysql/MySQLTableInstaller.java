@@ -85,11 +85,12 @@ public class MySQLTableInstaller extends H2TableInstaller {
                 if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
                     return "MEDIUMTEXT";
                 }
-            }
-            if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
+            } else if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
                 if (name.getName().equals(ProfileTaskLogRecord.TASK_ID)) {
                     return "VARCHAR(300)";
                 }
+            } else if (Metrics.ENTITY_ID.equals(name.getName())) {
+                return "VARCHAR(512)";
             }
             return "VARCHAR(2000)";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
