@@ -31,6 +31,7 @@ public class HTTPAccessLogDispatcher implements SourceDispatcher<HTTPAccessLog> 
         record.setTimeBucket(source.getTimeBucket());
         record.setServiceId(source.getServiceId());
         record.setServiceInstanceId(source.getServiceInstanceId());
+        record.setEndpointId(source.getEndpointId());
         record.setEndpointName(source.getEndpointName());
         record.setTraceId(source.getTraceId());
         record.setIsError(source.getIsError());

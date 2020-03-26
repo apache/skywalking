@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -48,7 +49,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
                           LogState state, String stateCode, Pagination paging, int from, int limit, long startSecondTB,
                           long endSecondTB) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -68,8 +69,8 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             boolQueryBuilder.must()
                             .add(QueryBuilders.termQuery(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != Const.NONE) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_NAME, endpointId));
+        if (StringUtil.isNotEmpty(endpointId)) {
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(stateCode)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(AbstractLogRecord.STATUS_CODE, stateCode));
@@ -101,6 +102,7 @@ public class LogQueryEs7DAO extends EsDAO implements ILogQueryDAO {
             log.setServiceId(((Number) searchHit.getSourceAsMap().get(AbstractLogRecord.SERVICE_ID)).intValue());
             log.setServiceInstanceId(((Number) searchHit.getSourceAsMap()
                                                         .get(AbstractLogRecord.SERVICE_INSTANCE_ID)).intValue());
+            log.setEndpointId((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_ID));
             log.setEndpointName((String) searchHit.getSourceAsMap().get(AbstractLogRecord.ENDPOINT_NAME));
             log.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
                                                                         .get(AbstractLogRecord.IS_ERROR)).intValue()));

@@ -33,6 +33,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
     public static final String ENDPOINT_NAME = "endpoint_name";
+    public static final String ENDPOINT_ID = "endpoint_id";
     public static final String TRACE_ID = "trace_id";
     public static final String IS_ERROR = "is_error";
     public static final String STATUS_CODE = "status_code";
@@ -48,6 +49,10 @@ public abstract class AbstractLogRecord extends Record {
     @Getter
     @Column(columnName = SERVICE_INSTANCE_ID)
     private int serviceInstanceId;
+    @Setter
+    @Getter
+    @Column(columnName = ENDPOINT_ID)
+    private String endpointId;
     @Setter
     @Getter
     @Column(columnName = ENDPOINT_NAME)
@@ -86,6 +91,7 @@ public abstract class AbstractLogRecord extends Record {
         protected void map2Data(T record, Map<String, Object> dbMap) {
             record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
             record.setServiceInstanceId(((Number) dbMap.get(SERVICE_INSTANCE_ID)).intValue());
+            record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
             record.setTraceId((String) dbMap.get(TRACE_ID));
@@ -101,6 +107,7 @@ public abstract class AbstractLogRecord extends Record {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, record.getServiceId());
             map.put(SERVICE_INSTANCE_ID, record.getServiceInstanceId());
+            map.put(ENDPOINT_ID, record.getEndpointId());
             map.put(ENDPOINT_NAME, record.getEndpointName());
             map.put(TRACE_ID, record.getTraceId());
             map.put(IS_ERROR, record.getIsError());

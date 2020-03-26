@@ -70,7 +70,7 @@ public class LogQueryService implements Service {
     public Logs queryLogs(final String metricName,
                           int serviceId,
                           int serviceInstanceId,
-                          int endpointId,
+                          String endpointId,
                           String traceId,
                           LogState state,
                           String stateCode,
@@ -90,7 +90,7 @@ public class LogQueryService implements Service {
                 log.setServiceInstanceName(getServiceInstanceInventoryCache().get(log.getServiceInstanceId())
                                                                              .getName());
             }
-            log.setEndpointName(log.getEndpointName());
+            log.setEndpointId(log.getEndpointId());
         });
         return logs;
     }

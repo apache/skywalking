@@ -28,6 +28,7 @@ public class Log {
     private int serviceId;
     private String serviceInstanceName;
     private int serviceInstanceId;
+    private String endpointId;
     private String endpointName;
     private String traceId;
     private String timestamp;

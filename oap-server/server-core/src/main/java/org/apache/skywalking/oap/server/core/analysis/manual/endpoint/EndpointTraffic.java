@@ -29,7 +29,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -113,7 +112,7 @@ public class EndpointTraffic extends Metrics {
     public String id() {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
-        String splitJointId = String.valueOf(getTimeBucket());
+        String splitJointId = String.valueOf(getTimeBucket() / 10000);
         splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
     }
@@ -151,17 +150,8 @@ public class EndpointTraffic extends Metrics {
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
+        remoteBuilder.addDataStrings(Strings.isNullOrEmpty(entityId) ? Const.EMPTY_STRING : entityId);
         return remoteBuilder;
-    }
-
-    /**
-     * Only accept the minute level time bucket and convert it to day level.
-     */
-    @Override
-    public void setTimeBucket(long timeBucket) {
-        if (TimeBucket.isMinuteBucket(timeBucket)) {
-            super.setTimeBucket(timeBucket / 10000);
-        }
     }
 
     @Override
@@ -172,6 +162,7 @@ public class EndpointTraffic extends Metrics {
         setTimeBucket(remoteData.getDataLongs(0));
 
         setName(remoteData.getDataStrings(0));
+        setEntityId(remoteData.getDataStrings(1));
     }
 
     @Override
@@ -215,6 +206,7 @@ public class EndpointTraffic extends Metrics {
             EndpointTraffic inventory = new EndpointTraffic();
             inventory.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
             inventory.setName((String) dbMap.get(NAME));
+            inventory.setEntityId((String) dbMap.get(ENTITY_ID));
             inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
             inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return inventory;
@@ -225,6 +217,7 @@ public class EndpointTraffic extends Metrics {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());
+            map.put(ENTITY_ID, storageData.getEntityId());
             map.put(DETECT_POINT, storageData.getDetectPoint());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;

@@ -32,6 +32,7 @@ public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
 
     public void generateTraffic(final Endpoint source) {
         EndpointTraffic traffic = new EndpointTraffic();
+        traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
         traffic.setDetectPoint(DetectPoint.SERVER.value());

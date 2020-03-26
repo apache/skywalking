@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ContentType;
@@ -42,6 +43,7 @@ import org.influxdb.querybuilder.clauses.ConjunctionClause;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_NAME;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.IS_ERROR;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.SERVICE_ID;
@@ -63,7 +65,7 @@ public class LogQuery implements ILogQueryDAO {
     }
 
     @Override
-    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+    public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
                           LogState state, String stateCode, Pagination paging, int from, int limit,
                           long startTB, long endTB) throws IOException {
         WhereQueryImpl<SelectQueryImpl> recallQuery = select().regex("*::field")
@@ -75,8 +77,8 @@ public class LogQuery implements ILogQueryDAO {
         if (serviceInstanceId != Const.NONE) {
             recallQuery.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != Const.NONE) {
-            recallQuery.and(eq(ENDPOINT_NAME, endpointId));
+        if (StringUtil.isNotEmpty(endpointId)) {
+            recallQuery.and(eq(ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
             recallQuery.and(eq(TRACE_ID, traceId));
@@ -103,7 +105,7 @@ public class LogQuery implements ILogQueryDAO {
             recallQuery.limit(limit);
         }
 
-        SelectQueryImpl countQuery = select().count(ENDPOINT_NAME).from(client.getDatabase(), metricName);
+        SelectQueryImpl countQuery = select().count(ENDPOINT_ID).from(client.getDatabase(), metricName);
         for (ConjunctionClause clause : recallQuery.getClauses()) {
             countQuery.where(clause);
         }
@@ -135,6 +137,7 @@ public class LogQuery implements ILogQueryDAO {
                 log.setContent((String) data.get(CONTENT));
                 log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));
 
+                log.setEndpointId((String) data.get(ENDPOINT_ID));
                 log.setEndpointName((String) data.get(ENDPOINT_NAME));
                 log.setTraceId((String) data.get(TRACE_ID));
                 log.setTimestamp((String) data.get(TIMESTAMP));
