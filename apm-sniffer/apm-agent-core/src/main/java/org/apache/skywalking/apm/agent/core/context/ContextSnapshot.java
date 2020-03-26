@@ -49,12 +49,15 @@ public class ContextSnapshot {
 
     private int entryApplicationInstanceId = DictionaryUtil.nullValue();
 
-    ContextSnapshot(ID traceSegmentId, int spanId, List<DistributedTraceId> distributedTraceIds) {
+    private CorrelationContext correlationContext;
+
+    ContextSnapshot(ID traceSegmentId, int spanId, List<DistributedTraceId> distributedTraceIds, CorrelationContext correlationContext) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
         if (distributedTraceIds != null) {
             this.primaryDistributedTraceId = distributedTraceIds.get(0);
         }
+        this.correlationContext = correlationContext.clone();
     }
 
     public void setEntryOperationName(String entryOperationName) {
@@ -107,5 +110,9 @@ public class ContextSnapshot {
 
     public boolean isFromCurrent() {
         return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
+    }
+
+    public CorrelationContext getCorrelationContext() {
+        return correlationContext;
     }
 }
