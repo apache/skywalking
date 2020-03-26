@@ -79,20 +79,20 @@ public class MySQLTableInstaller extends H2TableInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            if (SEGMENT == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
-                if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID)
-                    || name.getName().equals(SegmentRecord.ENDPOINT_NAME)
-                    || name.getName().equals(SegmentRecord.ENDPOINT_ID))
-                    return "VARCHAR(300)";
-                if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
-                    return "MEDIUMTEXT";
-                }
-            } else if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
+            if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID)) {
+                return "VARCHAR(150)";
+            }
+            if (Metrics.ENTITY_ID.equals(name.getName())) {
+                return "VARCHAR(512)";
+            }
+            if (SegmentRecord.ENDPOINT_NAME.equals(name.getName()) || SegmentRecord.ENDPOINT_ID.equals(
+                name.getName())) {
+                return "VARCHAR(200)";
+            }
+            if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
                 if (name.getName().equals(ProfileTaskLogRecord.TASK_ID)) {
                     return "VARCHAR(300)";
                 }
-            } else if (Metrics.ENTITY_ID.equals(name.getName())) {
-                return "VARCHAR(512)";
             }
             return "VARCHAR(2000)";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
@@ -138,7 +138,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         try (Connection connection = client.getConnection()) {
             // query by task id, sequence
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(model.getName().toUpperCase()).append("_TASK_ID_SEQUENCE ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_A ");
             tableIndexSQL.append("ON ")
                          .append(model.getName())
                          .append("(")
