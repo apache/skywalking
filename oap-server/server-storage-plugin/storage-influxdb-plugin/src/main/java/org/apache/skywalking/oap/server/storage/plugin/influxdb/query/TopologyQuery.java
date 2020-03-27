@@ -76,7 +76,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                          List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         WhereQueryImpl query = buildServiceCallsQuery(
-            measurement,TopologyQuery
+            measurement,
             startTB,
             endTB,
             ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
