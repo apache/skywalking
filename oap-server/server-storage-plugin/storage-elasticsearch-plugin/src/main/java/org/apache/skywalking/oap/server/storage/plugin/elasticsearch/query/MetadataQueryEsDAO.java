@@ -218,7 +218,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
+    public List<Endpoint> searchEndpoint(String keyword, int serviceId, int limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();

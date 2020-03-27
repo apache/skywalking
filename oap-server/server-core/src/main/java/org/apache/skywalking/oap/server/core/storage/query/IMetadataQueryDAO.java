@@ -45,7 +45,7 @@ public interface IMetadataQueryDAO extends DAO {
 
     Service searchService(final String serviceCode) throws IOException;
 
-    List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
+    List<Endpoint> searchEndpoint(final String keyword, final int serviceId, final int limit) throws IOException;
 
     List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
         final String serviceId) throws IOException;

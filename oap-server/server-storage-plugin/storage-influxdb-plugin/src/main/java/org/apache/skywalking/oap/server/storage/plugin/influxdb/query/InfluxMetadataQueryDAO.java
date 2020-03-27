@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -72,7 +73,7 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
 
     @Override
     public List<Endpoint> searchEndpoint(final String keyword,
-                                         final String serviceId,
+                                         final int serviceId,
                                          final int limit) throws IOException {
         final String endpointName = '\"' + EndpointTraffic.NAME + '\"';
 
@@ -82,9 +83,9 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
             .column(EndpointTraffic.DETECT_POINT)
             .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where();
-        endpointQuery.where(eq(EndpointTraffic.SERVICE_ID, serviceId));
+        endpointQuery.where(eq(MetricsDAO.TAG_ENDPOINT_OWNER_SERVICE, serviceId));
         if (!Strings.isNullOrEmpty(keyword)) {
-            endpointQuery.where(contains(endpointName, keyword));
+            endpointQuery.where(contains(MetricsDAO.TAG_ENDPOINT_NAME, keyword.replaceAll("/", "////")));
         }
         endpointQuery.limit(limit);
 
