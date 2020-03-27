@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -76,7 +75,7 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
                                          final String serviceId,
                                          final int limit) throws IOException {
         final String endpointName = '\"' + EndpointTraffic.NAME + '\"';
-        
+
         WhereQueryImpl<SelectQueryImpl> endpointQuery = select()
             .column(EndpointTraffic.SERVICE_ID)
             .column(endpointName)
