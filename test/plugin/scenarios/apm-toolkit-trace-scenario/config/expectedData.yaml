@@ -193,7 +193,7 @@ segmentItems:
               - {key: http.method, value: GET}
               - {key: correlation, value: correlationValueTest}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /case/tool-kit,
+              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}

@@ -17,7 +17,7 @@ registryItems:
   services:
     - {canal-scenario: 2}
   instances:
-    - {canal-scenario: 1
+    - {canal-scenario: 1}
   heartbeat: []
 segmentItems:
   - serviceName: canal-scenario
