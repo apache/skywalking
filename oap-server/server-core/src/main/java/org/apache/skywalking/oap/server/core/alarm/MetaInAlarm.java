@@ -50,7 +50,7 @@ public abstract class MetaInAlarm {
         if (o == null || getClass() != o.getClass())
             return false;
         MetaInAlarm that = (MetaInAlarm) o;
-        return getId0() == that.getId0() && getId1() == that.getId1();
+        return getId0().equals(that.getId0()) && getId1().equals(that.getId1());
     }
 
     @Override

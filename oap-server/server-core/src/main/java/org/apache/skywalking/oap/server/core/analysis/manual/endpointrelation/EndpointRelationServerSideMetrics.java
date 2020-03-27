@@ -165,9 +165,9 @@ public class EndpointRelationServerSideMetrics extends Metrics {
             return false;
 
         EndpointRelationServerSideMetrics metrics = (EndpointRelationServerSideMetrics) obj;
-        if (sourceEndpoint != metrics.sourceEndpoint)
+        if (!sourceEndpoint.equals(metrics.sourceEndpoint))
             return false;
-        if (destEndpoint != metrics.destEndpoint)
+        if (!destEndpoint.equals(metrics.destEndpoint))
             return false;
         if (componentId != metrics.componentId)
             return false;
