@@ -256,6 +256,8 @@ public class Config {
              * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
              */
             public static boolean TRACE_DSL = false;
+
+            public static int ELASTICSEARCH_DSL_LENGTH_THRESHOLD = 1024;
         }
 
         public static class Customize {

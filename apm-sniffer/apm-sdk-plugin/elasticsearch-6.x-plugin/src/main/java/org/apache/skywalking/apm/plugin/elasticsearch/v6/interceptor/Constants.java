@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+
 public class Constants {
     //interceptor class
     public static final String REST_HIGH_LEVEL_CLIENT_CON_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.RestHighLevelClientConInterceptor";
@@ -33,6 +36,9 @@ public class Constants {
     public static final String CLUSTER_CLIENT_GET_SETTINGS_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.ClusterClientGetSettingsMethodsInterceptor";
     public static final String CLUSTER_CLIENT_PUT_SETTINGS_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.ClusterClientPutSettingsMethodsInterceptor";
 
+    //witnessClasses
+    public static final String TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES = "org.elasticsearch.transport.TaskTransportChannel";
+
     //es operator name
     public static final String CREATE_OPERATOR_NAME = "Elasticsearch/CreateRequest";
     public static final String DELETE_OPERATOR_NAME = "Elasticsearch/DeleteRequest";
@@ -45,4 +51,14 @@ public class Constants {
     public static final String CLUSTER_PUT_SETTINGS_NAME = "Elasticsearch/PutSettings";
 
     public static final String DB_TYPE = "Elasticsearch";
+
+    public static final String BASE_FUTURE_METHOD = "actionGet";
+
+    //tags
+    public static final AbstractTag<String> ES_NODE = Tags.ofKey("node.address");
+    public static final AbstractTag<String> ES_INDEX = Tags.ofKey("es.indices");
+    public static final AbstractTag<String> ES_TYPE = Tags.ofKey("es.types");
+    public static final AbstractTag<String> ES_TOOK_MILLIS = Tags.ofKey("es.took_millis");
+    public static final AbstractTag<String> ES_TOTAL_HITS = Tags.ofKey("es.total_hits");
+    public static final AbstractTag<String> ES_INGEST_TOOK_MILLIS = Tags.ofKey("es.ingest_took_millis");
 }

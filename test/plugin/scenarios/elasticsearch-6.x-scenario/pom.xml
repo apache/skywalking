@@ -31,7 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
 
-        <test.framework.version>6.7.1</test.framework.version>
+        <test.framework.version>6.8.6</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
 
         <spring-boot.version>2.1.4.RELEASE</spring-boot.version>
@@ -55,6 +55,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
+        </dependency>
+        <!-- elasticsearch transport-client -->
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>transport</artifactId>
+            <version>${test.framework.version}</version>
         </dependency>
         <!-- elasticsearch rest-high-level-client -->
         <dependency>
