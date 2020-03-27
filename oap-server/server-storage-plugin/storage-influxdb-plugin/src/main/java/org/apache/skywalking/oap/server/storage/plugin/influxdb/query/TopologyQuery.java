@@ -76,7 +76,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                                          List<Integer> serviceIds) throws IOException {
         String measurement = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         WhereQueryImpl query = buildServiceCallsQuery(
-            measurement,
+            measurement,TopologyQuery
             startTB,
             endTB,
             ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
@@ -230,7 +230,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> buildCalls(WhereQueryImpl query,
-                                            DetectPoint detectPoint) throws IOException {
+                                             DetectPoint detectPoint) throws IOException {
         QueryResult.Series series = client.queryForSingleSeries(query);
 
         if (log.isDebugEnabled()) {
@@ -257,7 +257,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> buildEndpointCalls(WhereQueryImpl query,
-                                             DetectPoint detectPoint) throws IOException {
+                                                     DetectPoint detectPoint) throws IOException {
         QueryResult.Series series = client.queryForSingleSeries(query);
 
         if (log.isDebugEnabled()) {
@@ -271,10 +271,13 @@ public class TopologyQuery implements ITopologyQueryDAO {
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = (String) values.get(1);
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(entityId);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(
+                entityId);
 
-            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), detectPoint));
-            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), detectPoint));
+            call.setSource(
+                EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), detectPoint));
+            call.setTarget(
+                EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), detectPoint));
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
             call.generateID();
