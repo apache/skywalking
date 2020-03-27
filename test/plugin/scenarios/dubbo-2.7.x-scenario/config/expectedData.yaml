@@ -18,9 +18,6 @@ registryItems:
     - {dubbo-2.7.x-scenario: 2}
   instances:
     - {dubbo-2.7.x-scenario: 1}
-  operationNames:
-    - dubbo-2.7.x-scenario: [/dubbo-2.7.x-scenario/case/dubbo,
-                             org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()]
   heartbeat: []
 segmentItems:
   - serviceName: dubbo-2.7.x-scenario

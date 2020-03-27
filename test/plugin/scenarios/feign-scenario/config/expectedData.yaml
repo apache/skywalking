@@ -18,9 +18,6 @@ registryItems:
   - {feign-scenario: nq 0}
   instances:
   - {feign-scenario: 1}
-  operationNames:
-  - feign-scenario: [/feign-scenario/update/1, /feign-scenario/get/1, /feign-scenario/create/,
-                     /feign-scenario/case/feign-scenario, /feign-scenario/delete/1]
   heartbeat: []
 segmentItems:
 - serviceName: feign-scenario

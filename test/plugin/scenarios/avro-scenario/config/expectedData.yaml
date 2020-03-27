@@ -20,9 +20,6 @@ registryItems:
   instances:
     - {avro-server: 1}
     - {avro-client: 1}
-  operationNames:
-    - avro-server: [example.proto.Greeter.hello]
-    - avro-client: [/avro-scenario/case/healthCheck, /avro-scenario/case/avro-scenario]
   heartbeat: []
 segmentItems:
   - serviceName: avro-server

@@ -18,8 +18,6 @@ registryItems:
     - {h2-scenario: 2}
   instances:
     - {h2-scenario: 1}
-  operationNames:
-    - h2-scenario: [/h2-scenario/case/h2-scenario]
   heartbeat: []
 segmentItems:
   - serviceName: h2-scenario

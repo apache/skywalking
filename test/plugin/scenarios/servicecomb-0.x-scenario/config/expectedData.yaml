@@ -19,8 +19,6 @@ registryItems:
     - {servicecomb-0.x-scenario: 2}
   instances:
     - {servicecomb-0.x-scenario: 1}
-  operationNames:
-    - servicecomb-0.x-scenario: [codefirst.codeFirstSpringmvcHelloClient.say, codefirst.codeFirstHello.sayHi]
   heartbeat: []
 segmentItems:
   - serviceName: servicecomb-0.x-scenario

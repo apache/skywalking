@@ -19,8 +19,6 @@ registryItems:
     - {jdk-threading-scenario: 2}
   instances:
     - {jdk-threading-scenario: 1}
-  operationNames:
-    - jdk-threading-scenario: ['/greet/{username}']
   heartbeat: []
 
 segmentItems:

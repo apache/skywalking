@@ -18,10 +18,6 @@ registryItems:
     - {httpclient-4.3.x-scenario: 2}
   instances:
     - {httpclient-4.3.x-scenario: 1}
-  operationNames:
-    - httpclient-4.3.x-scenario: [/httpclient-4.3.x-scenario/case/httpclient,
-                                  /httpclient-4.3.x-scenario/healthCheck,
-                                  /httpclient-4.3.x-scenario/case/context-propagate]
   heartbeat: []
 segmentItems:
   - serviceName: httpclient-4.3.x-scenario

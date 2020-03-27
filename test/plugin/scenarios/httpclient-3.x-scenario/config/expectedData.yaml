@@ -18,9 +18,6 @@ registryItems:
     - {httpclient-3.x-scenario: 2}
   instances:
     - {httpclient-3.x-scenario: 1}
-  operationNames:
-    - httpclient-3.x-scenario: [/httpclient-3.x-scenario/case/httpclient,
-                                /httpclient-3.x-scenario/case/context-propagate]
   heartbeat: []
 segmentItems:
   - serviceName: httpclient-3.x-scenario

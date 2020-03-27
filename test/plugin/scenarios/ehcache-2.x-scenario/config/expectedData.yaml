@@ -18,8 +18,6 @@ registryItems:
     - {ehcache-2.x-scenario: 2}
   instances:
     - {ehcache-2.x-scenario: 1}
-  operationNames:
-    - ehcache-2.x-scenario: [/ehcache-2.x-scenario/case/ehcache]
   heartbeat: []
 segmentItems:
   - serviceName: ehcache-2.x-scenario

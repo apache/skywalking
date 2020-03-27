@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.agent.core.commands.CommandService;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -57,15 +56,15 @@ import org.apache.skywalking.apm.util.StringUtil;
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
 @DefaultImplementor
-public class ServiceAndEndpointRegisterClient implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(ServiceAndEndpointRegisterClient.class);
+public class ServiceRegisterClient implements BootService, Runnable, GRPCChannelListener {
+    private static final ILog logger = LogManager.getLogger(ServiceRegisterClient.class);
     private static String INSTANCE_UUID;
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile RegisterGrpc.RegisterBlockingStub registerBlockingStub;
     private volatile ServiceInstancePingGrpc.ServiceInstancePingBlockingStub serviceInstancePingStub;
-    private volatile ScheduledFuture<?> applicationRegisterFuture;
+    private volatile ScheduledFuture<?> serviceRegisterFuture;
     private volatile long coolDownStartTime = -1;
 
     @Override
@@ -101,8 +100,8 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
     @Override
     public void boot() {
-        applicationRegisterFuture = Executors.newSingleThreadScheduledExecutor(
-            new DefaultNamedThreadFactory("ServiceAndEndpointRegisterClient")
+        serviceRegisterFuture = Executors.newSingleThreadScheduledExecutor(
+            new DefaultNamedThreadFactory("ServiceRegisterClient")
         ).scheduleAtFixedRate(
             new RunnableWithExceptionProtection(
                 this,
@@ -118,12 +117,12 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
     @Override
     public void shutdown() {
-        applicationRegisterFuture.cancel(true);
+        serviceRegisterFuture.cancel(true);
     }
 
     @Override
     public void run() {
-        logger.debug("ServiceAndEndpointRegisterClient running, status:{}.", status);
+        logger.debug("ServiceRegisterClient running, status:{}.", status);
 
         if (coolDownStartTime > 0) {
             final long coolDownDurationInMillis = TimeUnit.MINUTES.toMillis(Config.Agent.COOL_DOWN_THRESHOLD);
@@ -201,14 +200,12 @@ public class ServiceAndEndpointRegisterClient implements BootService, Runnable, 
 
                             NetworkAddressDictionary.INSTANCE.syncRemoteDictionary(
                                 registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
-                            EndpointNameDictionary.INSTANCE.syncRemoteDictionary(
-                                registerBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS));
                             ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
                         }
                     }
                 }
             } catch (Throwable t) {
-                logger.error(t, "ServiceAndEndpointRegisterClient execute fail.");
+                logger.error(t, "ServiceRegisterClient execute fail.");
                 ServiceManager.INSTANCE.findService(GRPCChannelManager.class).reportError(t);
             }
         }

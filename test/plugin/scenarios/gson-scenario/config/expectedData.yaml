@@ -18,8 +18,6 @@ registryItems:
     - {gson-scenario: nq 0}
   instances:
     - {gson-scenario: nq 0}
-  operationNames:
-    - gson-scenario: [/gson-scenario/case/gson-scenario]
 segmentItems:
 - serviceName: gson-scenario
   segmentSize: ge 2

@@ -19,8 +19,6 @@ registryItems:
     - {redisson-scenario: 2}
   instances:
     - {redisson-scenario: 1}
-  operationNames:
-    - redisson-scenario: [/case/healthCheck, /case/redisson-case]
   heartbeat: []
 segmentItems:
   - serviceName: redisson-scenario

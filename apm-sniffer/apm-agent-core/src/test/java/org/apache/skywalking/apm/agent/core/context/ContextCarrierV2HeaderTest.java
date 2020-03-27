@@ -59,7 +59,7 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setParentServiceInstanceId(1);
         contextCarrier.setPeerHost("127.0.0.1:8080");
         contextCarrier.setEntryEndpointName("/portal");
-        contextCarrier.setParentEndpointId(123);
+        contextCarrier.setParentEndpointName("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
 
@@ -72,7 +72,7 @@ public class ContextCarrierV2HeaderTest {
              * "1-3.4.5-1.2.3-4-1-1-#127.0.0.1:8080-#/portal-123"
              */
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
                 /**
                  * customKey:customValue
@@ -89,7 +89,7 @@ public class ContextCarrierV2HeaderTest {
         while (next.hasNext()) {
             next = next.next();
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-MTIz", next.getHeadValue());
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
             } else {
@@ -113,7 +113,7 @@ public class ContextCarrierV2HeaderTest {
         contextCarrier.setParentServiceInstanceId(1);
         contextCarrier.setPeerHost("127.0.0.1:8080");
         contextCarrier.setEntryEndpointName("/portal");
-        contextCarrier.setParentEndpointId(123);
+        contextCarrier.setParentEndpointName("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
 

@@ -20,8 +20,6 @@ registryItems:
     - {'armeria-0.96plus-scenario': 2}
   instances:
     - {'armeria-0.96plus-scenario': 1}
-  operationNames:
-    - 'armeria-0.96plus-scenario': [/greet/skywalking]
   heartbeat: []
 segmentItems:
   - serviceName: armeria-0.96plus-scenario

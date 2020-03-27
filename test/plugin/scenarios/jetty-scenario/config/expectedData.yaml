@@ -20,10 +20,6 @@ registryItems:
   instances:
   - {jettyserver-scenario: 1}
   - {jettyclient-scenario: 1}
-  operationNames:
-  - jettyserver-scenario: [/jettyserver-case/case/receiveContext-0]
-  - jettyclient-scenario: [/jettyclient-case/case/jettyclient-case,
-                           /jettyclient-case/case/healthCheck]
 segmentItems:
 - serviceName: jettyserver-scenario
   segmentSize: 1

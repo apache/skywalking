@@ -43,7 +43,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected int parentSpanId;
     protected List<TagValuePair> tags;
     protected String operationName;
-    protected int operationId;
     protected SpanLayer layer;
     /**
      * The span has been tagged in async mode, required async stop to finish.
@@ -90,15 +89,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         this.operationName = operationName;
-        this.operationId = DictionaryUtil.nullValue();
-        this.spanId = spanId;
-        this.parentSpanId = parentSpanId;
-        this.owner = owner;
-    }
-
-    protected AbstractTracingSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
-        this.operationName = null;
-        this.operationId = operationId;
         this.spanId = spanId;
         this.parentSpanId = parentSpanId;
         this.owner = owner;
@@ -167,7 +157,10 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         logs.add(new LogDataEntity.Builder().add(new KeyValuePair("event", "error"))
                                             .add(new KeyValuePair("error.kind", t.getClass().getName()))
                                             .add(new KeyValuePair("message", t.getMessage()))
-                                            .add(new KeyValuePair("stack", ThrowableTransformer.INSTANCE.convert2String(t, 4000)))
+                                            .add(new KeyValuePair(
+                                                "stack",
+                                                ThrowableTransformer.INSTANCE.convert2String(t, 4000)
+                                            ))
                                             .build(System.currentTimeMillis()));
         return this;
     }
@@ -211,30 +204,12 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public AbstractTracingSpan setOperationName(String operationName) {
         this.operationName = operationName;
-        this.operationId = DictionaryUtil.nullValue();
-        return this;
-    }
-
-    /**
-     * Set the operation id, which compress by the name.
-     *
-     * @return span instance, for chaining.
-     */
-    @Override
-    public AbstractTracingSpan setOperationId(int operationId) {
-        this.operationId = operationId;
-        this.operationName = null;
         return this;
     }
 
     @Override
     public int getSpanId() {
         return spanId;
-    }
-
-    @Override
-    public int getOperationId() {
-        return operationId;
     }
 
     @Override
@@ -283,11 +258,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         spanBuilder.setParentSpanId(parentSpanId);
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(endTime);
-        if (operationId != DictionaryUtil.nullValue()) {
-            spanBuilder.setOperationNameId(operationId);
-        } else {
-            spanBuilder.setOperationName(operationName);
-        }
+        spanBuilder.setOperationName(operationName);
         if (isEntry()) {
             spanBuilder.setSpanType(SpanType.Entry);
         } else if (isExit()) {
