@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.installer;
 
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -26,11 +27,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 
-public class MySQLInstaller extends MySQLTableInstaller {
+public class InfluxDBMySQLMetaDBInstaller extends MySQLTableInstaller {
 
-    public MySQLInstaller(ModuleManager moduleManager) {
+    public InfluxDBMySQLMetaDBInstaller(ModuleManager moduleManager) {
         super(moduleManager);
         overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
+        overrideColumnName(EndpointTraffic.NAME, InfluxModelConstants.NAME);
     }
 
     @Override
