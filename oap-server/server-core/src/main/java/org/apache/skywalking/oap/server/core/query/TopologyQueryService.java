@@ -153,7 +153,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB,
-                                        final int endpointId) throws IOException {
+                                        final String endpointId) throws IOException {
         List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(
             downsampling, startTB, endTB, endpointId);
 

@@ -154,7 +154,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
                                                                                 long startTB,
                                                                                 long endTB,
-                                                                                int destEndpointId) throws IOException {
+                                                                                String destEndpointId) throws IOException {
         String measurement = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         WhereQueryImpl query = buildServiceCallsQuery(

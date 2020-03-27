@@ -90,7 +90,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
 
     @Override
     public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB,
-        long endTB, int destEndpointId) throws IOException {
+        long endTB, String destEndpointId) throws IOException {
         String tableName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         List<Call.CallDetail> calls = loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, false);
@@ -162,7 +162,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> loadEndpointFromSide(String tableName, long startTB, long endTB, String sourceCName,
-        String destCName, int id, boolean isSourceId) throws IOException {
+        String destCName, String id, boolean isSourceId) throws IOException {
         Object[] conditions = new Object[3];
         conditions[0] = startTB;
         conditions[1] = endTB;

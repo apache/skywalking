@@ -205,7 +205,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
                                                                                 long startTB,
                                                                                 long endTB,
-                                                                                int destEndpointId) throws IOException {
+                                                                                String destEndpointId) throws IOException {
         String indexName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
