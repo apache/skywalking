@@ -16,25 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.elasticsearch.v5.define;
+package org.apache.skywalking.apm.plugin.elasticsearch.v6.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.plugin.elasticsearch.v5.Constants;
+import org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.Constants;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginDefine {
+public class TransportServiceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v5.TransportActionNodeProxyInterceptor";
-    public static final String ENHANC_CLASS = "org.elasticsearch.action.TransportActionNodeProxy";
+    private static final String ENHANCE_CLASS = "org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor.TransportServiceConInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -47,7 +45,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return ENHANCE_CLASS;
                 }
             }
         };
@@ -55,24 +53,7 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute");
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override
@@ -82,12 +63,11 @@ public class TransportActionNodeProxyInstrumentation extends ClassEnhancePluginD
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(ENHANC_CLASS);
+        return byName("org.elasticsearch.transport.TransportService");
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{Constants.INET_SOCKET_TRANSPORT_ADDRESS_WITNESS_CLASS};
+        return new String[]{Constants.TASK_TRANSPORT_CHANNEL_WITNESS_CLASSES};
     }
-
 }
