@@ -32,7 +32,6 @@ public class InfluxDBMySQLMetaDBInstaller extends MySQLTableInstaller {
     public InfluxDBMySQLMetaDBInstaller(ModuleManager moduleManager) {
         super(moduleManager);
         overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
-        overrideColumnName(EndpointTraffic.NAME, InfluxModelConstants.NAME);
     }
 
     @Override

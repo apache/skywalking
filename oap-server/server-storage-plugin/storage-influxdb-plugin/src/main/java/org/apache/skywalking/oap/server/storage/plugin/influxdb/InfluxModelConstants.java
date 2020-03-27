@@ -23,9 +23,4 @@ public interface InfluxModelConstants {
      * Override column because the 'duration' is the identifier of InfluxDB.
      */
     String DURATION = "dur";
-
-    /**
-     * Override columen because the 'name' is the identifier of InfluxDB.
-     */
-    String NAME = "name_o";
 }

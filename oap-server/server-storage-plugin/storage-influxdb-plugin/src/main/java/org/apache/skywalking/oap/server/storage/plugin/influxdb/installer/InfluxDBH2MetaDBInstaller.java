@@ -32,7 +32,6 @@ public class InfluxDBH2MetaDBInstaller extends H2TableInstaller {
     public InfluxDBH2MetaDBInstaller(ModuleManager moduleManager) {
         super(moduleManager);
         overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
-        overrideColumnName(EndpointTraffic.NAME, InfluxModelConstants.NAME);
     }
 
     @Override

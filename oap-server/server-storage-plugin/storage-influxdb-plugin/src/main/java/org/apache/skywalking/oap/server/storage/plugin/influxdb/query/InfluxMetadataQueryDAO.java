@@ -75,15 +75,17 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
     public List<Endpoint> searchEndpoint(final String keyword,
                                          final String serviceId,
                                          final int limit) throws IOException {
+        final String endpointName = '\"' + EndpointTraffic.NAME + '\"';
+        
         WhereQueryImpl<SelectQueryImpl> endpointQuery = select()
             .column(EndpointTraffic.SERVICE_ID)
-            .column(InfluxModelConstants.NAME)
+            .column(endpointName)
             .column(EndpointTraffic.DETECT_POINT)
             .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where();
         endpointQuery.where(eq(EndpointTraffic.SERVICE_ID, serviceId));
         if (!Strings.isNullOrEmpty(keyword)) {
-            endpointQuery.where(contains(InfluxModelConstants.NAME, keyword));
+            endpointQuery.where(contains(endpointName, keyword));
         }
         endpointQuery.limit(limit);
 
