@@ -84,7 +84,7 @@ segmentItems:
               - {key: url, value: 'http://localhost:8080/undertow-scenario/case/undertow1'}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: 0, parentEndpoint: /undertow-scenario/case/undertow1, networkAddressId: 0,
+              - {parentEndpointId: 0, parentEndpoint: UndertowDispatch, networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstanceId: 1, networkAddress: 'localhost:8080', entryEndpoint: /undertow-scenario/case/undertow,
                  entryServiceInstanceId: 1}

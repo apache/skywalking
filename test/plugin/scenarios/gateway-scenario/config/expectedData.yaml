@@ -45,7 +45,7 @@ segmentItems:
               - {key: url, value: not null}
               - {key: http.method, value: GET}
             refs:
-              - {parentEndpointId: -1, parentEndpoint: '', networkAddressId: 0,
+              - {parentEndpointId: 0, parentEndpoint: GATEWAY/provider_route, networkAddressId: 0,
                  entryEndpointId: 0, refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
                  parentServiceInstanceId: not null, networkAddress: 'localhost:18070', entryEndpoint: WEBFLUX.handle,
                  entryServiceInstanceId: not null}
