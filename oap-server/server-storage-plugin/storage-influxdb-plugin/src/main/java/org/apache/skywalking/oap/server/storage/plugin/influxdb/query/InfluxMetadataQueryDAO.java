@@ -83,7 +83,7 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
             .column(EndpointTraffic.DETECT_POINT)
             .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where();
-        endpointQuery.where(eq(MetricsDAO.TAG_ENDPOINT_OWNER_SERVICE, serviceId));
+        endpointQuery.where(eq(MetricsDAO.TAG_ENDPOINT_OWNER_SERVICE, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
             endpointQuery.where(contains(MetricsDAO.TAG_ENDPOINT_NAME, keyword.replaceAll("/", "////")));
         }
