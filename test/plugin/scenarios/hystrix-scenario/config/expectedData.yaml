@@ -45,7 +45,7 @@ segmentItems:
         - {key: message, value: not null}
         - {key: stack, value: not null}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: Hystrix/TestACommand/Execution, networkAddressId: 0, entryEndpointId: 0, refType: CrossThread,
+      - {parentEndpointId: 0, parentEndpoint: /case/hystrix-scenario, networkAddressId: 0, entryEndpointId: 0, refType: CrossThread,
          parentSpanId: 0, parentTraceSegmentId: '${hystrix-scenario[2]}', parentServiceInstanceId: nq 0, networkAddress: '', entryEndpoint: /case/hystrix-scenario, entryServiceInstanceId: nq 0 }
   - segmentId: not null
     spans:
