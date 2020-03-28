@@ -19,8 +19,6 @@ registryItems:
   - {pulsar-scenario: nq 0}
   instances:
   - {pulsar-scenario: nq 0}
-  operationNames:
-  - pulsar-scenario: [/case/pulsar-case, Pulsar/test/Consumer/test]
 segmentItems:
 - serviceName: pulsar-scenario
   segmentSize: ge 3

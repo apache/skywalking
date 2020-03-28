@@ -18,8 +18,6 @@ registryItems:
     - {postgresql-above9.4.1207-scenario: nq 0}
     instances:
     - {postgresql-above9.4.1207-scenario: 1}
-    operationNames:
-    - postgresql-above9.4.1207-scenario: [/postgresql-scenario/case/postgres]
 segmentItems:
 - serviceName: postgresql-above9.4.1207-scenario
   segmentSize: ge 1

@@ -18,12 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 public class RelationDefineUtil {
+    /**
+     * @return the service or instance relationship string id.
+     */
     public static String buildEntityId(RelationDefine define) {
-        return String.valueOf(define.source) + Const.ID_SPLIT + String.valueOf(define.dest) + Const.ID_SPLIT + String.valueOf(define.componentId);
+        return define.source + Const.ID_SPLIT + define.dest + Const.ID_SPLIT + define.componentId;
     }
 
     /**
@@ -37,16 +45,54 @@ public class RelationDefineUtil {
         return new RelationDefine(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
     }
 
-    @Getter
-    public static class RelationDefine {
-        private int source;
-        private int dest;
-        private int componentId;
+    /**
+     * @return the endpoint relationship string id.
+     */
+    public static String buildEndpointRelationEntityId(EndpointRelationDefine define) {
+        return define.sourceServiceId
+            + Const.ID_SPLIT
+            + new String(
+            Base64.getEncoder().encode(define.source.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+            + Const.ID_SPLIT
+            + define.destServiceId
+            + Const.ID_SPLIT
+            + new String(
+            Base64.getEncoder().encode(define.dest.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)
+            + Const.ID_SPLIT
+            + define.componentId;
+    }
 
-        public RelationDefine(int source, int dest, int componentId) {
-            this.source = source;
-            this.dest = dest;
-            this.componentId = componentId;
+    public static EndpointRelationDefine splitEndpointRelationEntityId(String entityId) {
+        String[] parts = entityId.split(Const.ID_SPLIT);
+        if (parts.length != 5) {
+            throw new UnexpectedException("Illegal endpoint Relation entity id, " + entityId);
         }
+        return new EndpointRelationDefine(
+            Integer.parseInt(parts[0]),
+            new String(Base64.getDecoder().decode(parts[1]), StandardCharsets.UTF_8),
+            Integer.parseInt(parts[2]),
+            new String(Base64.getDecoder().decode(parts[3]), StandardCharsets.UTF_8),
+            Integer.parseInt(parts[4])
+        );
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    @EqualsAndHashCode
+    public static class RelationDefine {
+        private final int source;
+        private final int dest;
+        private final int componentId;
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    @EqualsAndHashCode
+    public static class EndpointRelationDefine {
+        private final int sourceServiceId;
+        private final String source;
+        private final int destServiceId;
+        private final String dest;
+        private final int componentId;
     }
 }

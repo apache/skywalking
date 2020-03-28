@@ -26,9 +26,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxModelConstants;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 
-public class H2Installer extends H2TableInstaller {
+public class InfluxDBH2MetaDBInstaller extends H2TableInstaller {
 
-    public H2Installer(ModuleManager moduleManager) {
+    public InfluxDBH2MetaDBInstaller(ModuleManager moduleManager) {
         super(moduleManager);
         overrideColumnName(ProfileTaskRecord.DURATION, InfluxModelConstants.DURATION);
     }

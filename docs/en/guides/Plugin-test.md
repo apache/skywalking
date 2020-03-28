@@ -221,7 +221,6 @@ registryItems:
   - { SERVICE_CODE: INSTANCE_COUNT(int) }
   ...
   operationNames:
-  - SERVICE_CODE: [ ENTRY_SPAN_OPERATION(string), ... ]
   ...
 ```
 
@@ -230,7 +229,7 @@ registryItems:
 | --- | ---
 | services | The registered service codes. Normally, not 0 should be enough.
 | instances | The number of service instances exists in this test case.
-| operationNames | Operation names of entry spans. Since 6.6.0, only these span name would do register, due to they are real endpoints.
+| operationNames | Since 7.1.0, there is no operation name register. Ignore this.
 
 
 **Segment verify description format**

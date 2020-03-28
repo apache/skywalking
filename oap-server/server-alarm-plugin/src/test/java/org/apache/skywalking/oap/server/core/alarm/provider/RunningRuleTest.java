@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
@@ -143,8 +144,9 @@ public class RunningRuleTest {
         // check at 201808301442
         alarmMessages = runningRule.check();
         Assert.assertEquals(1, alarmMessages.size());
-        Assert.assertEquals("response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0)
-                                                                                                                      .getAlarmMessage());
+        Assert.assertEquals(
+            "response percentile of endpoint Service_123 is lower than expected values", alarmMessages.get(0)
+                                                                                                      .getAlarmMessage());
     }
 
     @Test
@@ -283,19 +285,19 @@ public class RunningRuleTest {
             }
 
             @Override
-            public int getId0() {
-                return id;
+            public String getId0() {
+                return "" + id;
             }
 
             @Override
-            public int getId1() {
-                return 0;
+            public String getId1() {
+                return Const.EMPTY_STRING;
             }
 
             @Override
             public boolean equals(Object o) {
                 MetaInAlarm target = (MetaInAlarm) o;
-                return id == target.getId0();
+                return (id + "").equals(target.getId0());
             }
 
             @Override

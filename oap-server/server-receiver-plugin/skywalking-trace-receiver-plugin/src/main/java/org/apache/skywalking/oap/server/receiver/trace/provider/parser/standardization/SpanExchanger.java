@@ -24,7 +24,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -33,11 +32,9 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 
@@ -54,7 +51,6 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCacheDAO;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private final IEndpointInventoryRegister endpointInventoryRegister;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
@@ -78,9 +74,6 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                              .provider()
                                                              .getService(IServiceInstanceInventoryRegister.class);
-        this.endpointInventoryRegister = moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(IEndpointInventoryRegister.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -154,32 +147,6 @@ public class SpanExchanger implements IdExchanger<SpanDecorator> {
             serviceInstanceInventoryRegister.update(newServiceInstanceInventory.getSequence(), nodeType, properties);
         }
 
-        if (standardBuilder.getOperationNameId() == Const.NONE) {
-            /**
-             * Only operation name of entry span is being treated as an endpoint,
-             * so, since 6.6.0, only it triggers register.
-             */
-            if (SpanType.Entry.equals(standardBuilder.getSpanType())) {
-                String endpointName = Strings.isNullOrEmpty(
-                    standardBuilder.getOperationName()) ? Const.DOMAIN_OPERATION_NAME : standardBuilder
-                    .getOperationName();
-                int endpointId = endpointInventoryRegister.getOrCreate(
-                    serviceId, endpointName, DetectPoint.fromSpanType(standardBuilder
-                                                                          .getSpanType()));
-
-                if (endpointId == 0) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("endpoint name: {} from service id: {} exchange failed", endpointName, serviceId);
-                    }
-
-                    exchanged = false;
-                } else {
-                    standardBuilder.toBuilder();
-                    standardBuilder.setOperationNameId(endpointId);
-                    standardBuilder.setOperationName(Const.EMPTY_STRING);
-                }
-            }
-        }
         return exchanged;
     }
 

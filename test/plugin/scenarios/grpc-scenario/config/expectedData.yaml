@@ -18,8 +18,6 @@ registryItems:
   - { grpc-scenario: 2 }
   instances:
   - { grpc-scenario: 1 }
-  operationNames:
-  - grpc-scenario: [Greeter.sayHello, GreeterBlocking.sayHello, GreeterBlockingError.sayHello, /grpc-scenario/case/grpc-scenario]
   heartbeat: []
 segmentItems:
 - serviceName: grpc-scenario

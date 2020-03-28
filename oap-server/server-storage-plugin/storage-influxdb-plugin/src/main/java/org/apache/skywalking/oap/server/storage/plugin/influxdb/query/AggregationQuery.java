@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
@@ -85,7 +85,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                                             long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
-            subQuery(EndpointInventory.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
+            subQuery(EndpointTraffic.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
         );
     }
 

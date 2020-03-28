@@ -29,6 +29,7 @@ import java.util.Base64;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
@@ -49,7 +50,7 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
     }
 
     public void postSpans(Collector.PostSpansRequest request,
-        StreamObserver<Collector.PostSpansResponse> responseObserver) {
+                          StreamObserver<Collector.PostSpansResponse> responseObserver) {
 
         request.getBatch().getSpansList().forEach(span -> {
             try {
@@ -119,13 +120,8 @@ public class JaegerGRPCHandler extends CollectorServiceGrpc.CollectorServiceImpl
                         if ("server".equals(kind) || "consumer".equals(kind)) {
                             String endpointName = span.getOperationName();
                             jaegerSpan.setEndpointName(endpointName);
-                            int endpointId = CoreRegisterLinker.getEndpointInventoryCache()
-                                                               .getEndpointId(finalServiceId, endpointName, DetectPoint.SERVER
-                                                                   .ordinal());
-                            if (endpointId != Const.NONE) {
-                                CoreRegisterLinker.getEndpointInventoryRegister()
-                                                  .getOrCreate(finalServiceId, endpointName, DetectPoint.SERVER);
-                            }
+                            jaegerSpan.setEndpointId(
+                                EndpointTraffic.buildId(finalServiceId, endpointName, DetectPoint.SERVER));
                         }
                     }
                 });

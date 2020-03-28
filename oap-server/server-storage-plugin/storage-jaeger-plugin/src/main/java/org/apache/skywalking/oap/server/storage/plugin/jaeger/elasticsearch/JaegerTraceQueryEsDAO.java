@@ -80,9 +80,19 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
-        TraceState traceState, QueryOrder queryOrder) throws IOException {
+    public TraceBrief queryBasicTraces(long startSecondTB,
+                                       long endSecondTB,
+                                       long minDuration,
+                                       long maxDuration,
+                                       String endpointName,
+                                       int serviceId,
+                                       int serviceInstanceId,
+                                       String endpointId,
+                                       String traceId,
+                                       int limit,
+                                       int from,
+                                       TraceState traceState,
+                                       QueryOrder queryOrder) throws IOException {
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -113,7 +123,7 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         if (serviceInstanceId != 0) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != 0) {
+        if (!Strings.isNullOrEmpty(endpointId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {

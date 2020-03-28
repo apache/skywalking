@@ -32,6 +32,7 @@ public abstract class AbstractLogRecord extends Record {
 
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
+    public static final String ENDPOINT_NAME = "endpoint_name";
     public static final String ENDPOINT_ID = "endpoint_id";
     public static final String TRACE_ID = "trace_id";
     public static final String IS_ERROR = "is_error";
@@ -51,7 +52,11 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = ENDPOINT_ID)
-    private int endpointId;
+    private String endpointId;
+    @Setter
+    @Getter
+    @Column(columnName = ENDPOINT_NAME)
+    private String endpointName;
     @Setter
     @Getter
     @Column(columnName = TRACE_ID)
@@ -86,7 +91,8 @@ public abstract class AbstractLogRecord extends Record {
         protected void map2Data(T record, Map<String, Object> dbMap) {
             record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
             record.setServiceInstanceId(((Number) dbMap.get(SERVICE_INSTANCE_ID)).intValue());
-            record.setEndpointId(((Number) dbMap.get(ENDPOINT_ID)).intValue());
+            record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
+            record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setIsError(((Number) dbMap.get(IS_ERROR)).intValue());
             record.setTraceId((String) dbMap.get(TRACE_ID));
             record.setStatusCode((String) dbMap.get(STATUS_CODE));
@@ -102,6 +108,7 @@ public abstract class AbstractLogRecord extends Record {
             map.put(SERVICE_ID, record.getServiceId());
             map.put(SERVICE_INSTANCE_ID, record.getServiceInstanceId());
             map.put(ENDPOINT_ID, record.getEndpointId());
+            map.put(ENDPOINT_NAME, record.getEndpointName());
             map.put(TRACE_ID, record.getTraceId());
             map.put(IS_ERROR, record.getIsError());
             map.put(STATUS_CODE, record.getStatusCode());

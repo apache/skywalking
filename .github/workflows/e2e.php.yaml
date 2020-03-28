@@ -32,6 +32,7 @@ jobs:
   PHPAgent:
     name: PHP
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
       - name: checkout submodules

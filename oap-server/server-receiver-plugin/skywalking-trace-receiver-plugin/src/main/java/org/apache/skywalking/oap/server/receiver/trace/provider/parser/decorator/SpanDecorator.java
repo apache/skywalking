@@ -158,21 +158,6 @@ public class SpanDecorator implements StandardBuilder {
         spanBuilderV2.setPeer(peer);
     }
 
-    public int getOperationNameId() {
-        if (isOrigin) {
-            return spanObjectV2.getOperationNameId();
-        } else {
-            return spanBuilderV2.getOperationNameId();
-        }
-    }
-
-    public void setOperationNameId(int value) {
-        if (isOrigin) {
-            toBuilder();
-        }
-        spanBuilderV2.setOperationNameId(value);
-    }
-
     public String getOperationName() {
         if (isOrigin) {
             return spanObjectV2.getOperationName();

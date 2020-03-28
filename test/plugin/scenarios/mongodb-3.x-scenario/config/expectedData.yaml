@@ -19,8 +19,6 @@ registryItems:
     - {mongodb-3.x-scenario: nq 0}
   instances:
     - {mongodb-3.x-scenario: 1}
-  operationNames:
-    - mongodb-3.x-scenario: [/mongodb-case/case/mongodb]
   heartbeat: []
 
 segmentItems:

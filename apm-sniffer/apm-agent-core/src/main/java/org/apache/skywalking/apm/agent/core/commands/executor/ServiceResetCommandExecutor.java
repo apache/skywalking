@@ -22,11 +22,10 @@ import org.apache.skywalking.apm.agent.core.commands.CommandExecutionException;
 import org.apache.skywalking.apm.agent.core.commands.CommandExecutor;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.dictionary.EndpointNameDictionary;
 import org.apache.skywalking.apm.agent.core.dictionary.NetworkAddressDictionary;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.remote.ServiceAndEndpointRegisterClient;
+import org.apache.skywalking.apm.agent.core.remote.ServiceRegisterClient;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 
@@ -40,13 +39,12 @@ public class ServiceResetCommandExecutor implements CommandExecutor {
     public void execute(final BaseCommand command) throws CommandExecutionException {
         LOGGER.warn("Received ServiceResetCommand, a re-register task is scheduled.");
 
-        ServiceManager.INSTANCE.findService(ServiceAndEndpointRegisterClient.class).coolDown();
+        ServiceManager.INSTANCE.findService(ServiceRegisterClient.class).coolDown();
 
         RemoteDownstreamConfig.Agent.SERVICE_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
         RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME = DictionaryUtil.nullValue();
 
         NetworkAddressDictionary.INSTANCE.clear();
-        EndpointNameDictionary.INSTANCE.clear();
     }
 }

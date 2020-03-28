@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core;
 public class Const {
     public static final int NONE = 0;
     public static final String ID_SPLIT = "_";
+    public static final String ID_PARSER_SPLIT = "\\_";
     public static final String LINE = "-";
     public static final String SPACE = " ";
     public static final String KEY_VALUE_SPLIT = ",";
@@ -28,7 +29,7 @@ public class Const {
     public static final String ARRAY_PARSER_SPLIT = "\\|";
     public static final int USER_SERVICE_ID = 1;
     public static final int USER_INSTANCE_ID = 1;
-    public static final int USER_ENDPOINT_ID = 1;
+    public static final String USER_ENDPOINT_NAME = "User";
     public static final int INEXISTENCE_ENDPOINT_ID = -1;
     public static final String USER_CODE = "User";
     public static final String SEGMENT_SPAN_SPLIT = "S";

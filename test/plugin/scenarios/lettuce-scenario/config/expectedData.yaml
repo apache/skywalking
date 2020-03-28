@@ -19,8 +19,6 @@ registryItems:
     - {lettuce-scenario: 2}
   instances:
     - {lettuce-scenario: 1}
-  operationNames:
-    - lettuce-scenario: [/lettuce-scenario/case/lettuce-case, /lettuce-scenario/case/healthCheck]
   heartbeat: []
 segmentItems:
   - serviceName: lettuce-scenario

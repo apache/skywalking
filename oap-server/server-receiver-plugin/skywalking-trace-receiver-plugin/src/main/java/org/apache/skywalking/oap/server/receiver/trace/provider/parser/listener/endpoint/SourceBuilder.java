@@ -48,9 +48,6 @@ class SourceBuilder {
     private String sourceServiceInstanceName;
     @Getter
     @Setter
-    private int sourceEndpointId;
-    @Getter
-    @Setter
     private String sourceEndpointName;
     @Getter
     @Setter
@@ -64,9 +61,6 @@ class SourceBuilder {
     @Getter
     @Setter
     private String destServiceInstanceName;
-    @Getter
-    @Setter
-    private int destEndpointId;
     @Getter
     @Setter
     private String destEndpointName;
@@ -176,7 +170,6 @@ class SourceBuilder {
 
     Endpoint toEndpoint() {
         Endpoint endpoint = new Endpoint();
-        endpoint.setId(destEndpointId);
         endpoint.setName(destEndpointName);
         endpoint.setServiceId(destServiceId);
         endpoint.setServiceName(destServiceName);
@@ -195,13 +188,11 @@ class SourceBuilder {
             return null;
         }
         EndpointRelation endpointRelation = new EndpointRelation();
-        endpointRelation.setEndpointId(sourceEndpointId);
         endpointRelation.setEndpoint(sourceEndpointName);
         endpointRelation.setServiceId(sourceServiceId);
         endpointRelation.setServiceName(sourceServiceName);
         endpointRelation.setServiceInstanceId(sourceServiceInstanceId);
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
-        endpointRelation.setChildEndpointId(destEndpointId);
         endpointRelation.setChildEndpoint(destEndpointName);
         endpointRelation.setChildServiceId(destServiceId);
         endpointRelation.setChildServiceName(destServiceName);

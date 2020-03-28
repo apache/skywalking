@@ -18,8 +18,6 @@ registryItems:
     - {kotlin-coroutine-scenario: 2}
   instances:
     - {kotlin-coroutine-scenario: 1}
-  operationNames:
-    - kotlin-coroutine-scenario: [/kotlin-coroutine-scenario/case/h2]
   heartbeat: []
 segmentItems:
   - serviceName: kotlin-coroutine-scenario

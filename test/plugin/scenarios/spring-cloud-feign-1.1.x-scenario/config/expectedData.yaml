@@ -18,9 +18,6 @@ registryItems:
     - {spring-cloud-feign-1.1.x-scenario: nq 0}
   instances:
     - {spring-cloud-feign-1.1.x-scenario: 1}
-  operationNames:
-    - spring-cloud-feign-1.1.x-scenario: [/spring-cloud-feign-1.1.x-scenario/case/spring-cloud-feign-1.1.x-scenario,
-                                          /spring-cloud-feign-1.1.x-scenario/get]
   heartbeat: []
 segmentItems:
   - serviceName: spring-cloud-feign-1.1.x-scenario

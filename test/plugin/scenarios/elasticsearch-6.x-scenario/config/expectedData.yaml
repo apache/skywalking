@@ -18,8 +18,6 @@ registryItems:
     - {elasticsearch-6.x-scenario: nq 0}
     instances:
     - {elasticsearch-6.x-scenario: 1}
-    operationNames:
-    - elasticsearch-6.x-scenario: [/elasticsearch-case/case/elasticsearch]
     heartbeat: []
 segmentItems:
 - serviceName: elasticsearch-6.x-scenario

@@ -18,8 +18,6 @@ registryItems:
     - {jdk-http-scenario: 2}
   instances:
     - {jdk-http-scenario: 1}
-  operationNames:
-    - jdk-http-scenario: [/jdk-http-scenario/case/receiveContext-0, /jdk-http-scenario/case/jdk-http-scenario]
   heartbeat: []
 segmentItems:
   - serviceName: jdk-http-scenario

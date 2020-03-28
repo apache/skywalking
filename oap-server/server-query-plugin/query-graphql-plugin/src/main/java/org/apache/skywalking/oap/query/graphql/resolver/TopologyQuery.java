@@ -81,7 +81,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
         );
     }
 
-    public Topology getEndpointTopology(final int endpointId, final Duration duration) throws IOException {
+    public Topology getEndpointTopology(final String endpointId, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 

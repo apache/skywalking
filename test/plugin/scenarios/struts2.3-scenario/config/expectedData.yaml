@@ -18,8 +18,6 @@ registryItems:
     - {struts2.3-scenario: 2}
   instances:
     - {struts2.3-scenario: 1}
-  operationNames:
-    - struts2.3-scenario: [/struts2.3-scenario/struts-scenario/case1.action, /struts2.3-scenario/struts-scenario/case.action]
   heartbeat: []
 segmentItems:
   - serviceName: struts2.3-scenario

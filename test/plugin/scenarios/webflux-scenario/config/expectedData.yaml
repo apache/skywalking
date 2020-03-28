@@ -21,9 +21,6 @@ registryItems:
   instances:
     - {webflux-projectB-scenario: 1}
     - {webflux-projectA-scenario: 1}
-  operationNames:
-    - webflux-projectB-scenario: [WEBFLUX.handle]
-    - webflux-projectA-scenario: [/projectA/testcase]
   heartbeat: []
 segmentItems:
   - serviceName: webflux-projectB-scenario

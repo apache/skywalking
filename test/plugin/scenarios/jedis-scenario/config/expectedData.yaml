@@ -19,8 +19,6 @@ registryItems:
     - {jedis-scenario: 2}
   instances:
     - {jedis-scenario: 1}
-  operationNames:
-    - jedis-scenario: [/jedis-scenario/case/jedis-scenario]
   heartbeat: []
 segmentItems:
   - serviceName: jedis-scenario

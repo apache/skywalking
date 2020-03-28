@@ -19,8 +19,6 @@ registryItems:
     - {spring-tx-scenario: 2}
   instances:
     - {spring-tx-scenario: 1}
-  operationNames:
-    - spring-tx-scenario: [/case/spring-tx-case, /case/healthCheck]
   heartbeat: []
 segmentItems:
   - serviceName: spring-tx-scenario

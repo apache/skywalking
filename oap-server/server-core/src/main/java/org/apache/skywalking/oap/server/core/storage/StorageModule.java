@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
@@ -56,7 +55,6 @@ public class StorageModule extends ModuleDefine {
             IHistoryDeleteDAO.class,
             IServiceInventoryCacheDAO.class,
             IServiceInstanceInventoryCacheDAO.class,
-            IEndpointInventoryCacheDAO.class,
             INetworkAddressInventoryCacheDAO.class,
             ITopologyQueryDAO.class,
             IMetricsQueryDAO.class,

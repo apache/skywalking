@@ -18,8 +18,6 @@ registryItems:
     - {play-scenario: 2}
   instances:
     - {play-scenario: 1}
-  operationNames:
-    - play-scenario: ["/play-scenario/case/play-scenario/projects/{projectId}"]
 segmentItems:
   - serviceName: play-scenario
     segmentSize: gt 1

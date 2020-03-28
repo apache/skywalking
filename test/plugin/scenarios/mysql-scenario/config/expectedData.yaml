@@ -18,8 +18,6 @@ registryItems:
     - {mysql-scenario: nq 0}
   instances:
     - {mysql-scenario: 1}
-  operationNames:
-    - mysql-scenario: [/mysql-scenario/case/healthCheck, /mysql-scenario/case/mysql-scenario]
 segmentItems:
   - serviceName: mysql-scenario
     segmentSize: ge 2

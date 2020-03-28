@@ -165,16 +165,8 @@ public class ContextCarrier implements Serializable {
         this.entryEndpointName = '#' + entryEndpointName;
     }
 
-    void setEntryEndpointId(int entryOperationId) {
-        this.entryEndpointName = entryOperationId + "";
-    }
-
     void setParentEndpointName(String parentEndpointName) {
         this.parentEndpointName = '#' + parentEndpointName;
-    }
-
-    void setParentEndpointId(int parentOperationId) {
-        this.parentEndpointName = parentOperationId + "";
     }
 
     public ID getTraceSegmentId() {

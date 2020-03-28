@@ -25,10 +25,6 @@ import org.apache.skywalking.apm.agent.core.context.TracingContext;
  */
 public class LocalSpan extends AbstractTracingSpan {
 
-    public LocalSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, owner);
-    }
-
     public LocalSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         super(spanId, parentSpanId, operationName, owner);
     }
@@ -46,13 +42,5 @@ public class LocalSpan extends AbstractTracingSpan {
     @Override
     public AbstractSpan setPeer(String remotePeer) {
         return this;
-    }
-
-    /**
-     * Illegal operation. Operation name id is the registered endpoint, only work for entry span.
-     */
-    @Override
-    public AbstractTracingSpan setOperationId(int operationId) {
-        throw new UnsupportedOperationException("Exit span doesn't support operation id");
     }
 }

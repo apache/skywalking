@@ -18,8 +18,6 @@ registryItems:
     - {httpasyncclient-scenario: nq 0}
     instances:
     - {httpasyncclient-scenario: 1}
-    operationNames:
-    - httpasyncclient-scenario: [/httpasyncclient/case/httpasyncclient, /httpasyncclient/back]
 segmentItems:
 - serviceName: httpasyncclient-scenario
   segmentSize: ge 4

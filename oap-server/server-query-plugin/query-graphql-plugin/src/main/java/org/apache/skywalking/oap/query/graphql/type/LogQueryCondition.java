@@ -29,7 +29,7 @@ public class LogQueryCondition {
     private String metricName;
     private int serviceId;
     private int serviceInstanceId;
-    private int endpointId;
+    private String endpointId;
     private String traceId;
     private LogState state;
     private String stateCode;

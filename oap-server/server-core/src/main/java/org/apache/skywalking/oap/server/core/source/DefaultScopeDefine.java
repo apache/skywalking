@@ -54,7 +54,7 @@ public class DefaultScopeDefine {
     public static final int ALARM = 13;
     public static final int SERVICE_INVENTORY = 14;
     public static final int SERVICE_INSTANCE_INVENTORY = 15;
-    public static final int ENDPOINT_INVENTORY = 16;
+    public static final int ENDPOINT_TRAFFIC = 16;
     public static final int DATABASE_ACCESS = 17;
     public static final int DATABASE_SLOW_STATEMENT = 18;
     public static final int SERVICE_INSTANCE_CLR_CPU = 19;

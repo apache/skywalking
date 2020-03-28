@@ -24,6 +24,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Endpoint {
-    private int id;
+    private String id;
     private String name;
 }

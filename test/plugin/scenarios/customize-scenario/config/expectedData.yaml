@@ -19,8 +19,6 @@ registryItems:
     - {customize-scenario: nq 0}
   instances:
     - {customize-scenario: 1}
-  operationNames:
-    - customize-scenario: [/case/customize]
 segmentItems:
   - serviceName: customize-scenario
     segmentSize: gt 1

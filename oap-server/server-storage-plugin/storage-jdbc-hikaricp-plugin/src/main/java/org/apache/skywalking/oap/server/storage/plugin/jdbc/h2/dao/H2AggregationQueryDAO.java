@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
@@ -77,7 +77,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
         Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
-            sql.append(" and ").append(EndpointInventory.SERVICE_ID).append("=?");
+            sql.append(" and ").append(EndpointTraffic.SERVICE_ID).append("=?");
             conditions.add(serviceId);
         });
     }

@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.IEndpointInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
@@ -53,10 +52,11 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.H2Installer;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.MySQLInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.InfluxDBH2MetaDBInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.InfluxDBMySQLMetaDBInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
@@ -65,8 +65,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThr
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EndpointInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
@@ -119,11 +117,10 @@ public class InfluxStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(client));
         this.registerServiceImplementation(
             IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
-        this.registerServiceImplementation(IEndpointInventoryCacheDAO.class, new H2EndpointInventoryCacheDAO(client));
         this.registerServiceImplementation(
             INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(client));
         this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new H2MetadataQueryDAO(client, config.getMetadataQueryMaxSize()));
+            IMetadataQueryDAO.class, new InfluxMetadataQueryDAO(influxClient, client, config.getMetadataQueryMaxSize()));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
@@ -151,9 +148,9 @@ public class InfluxStorageProvider extends ModuleProvider {
 
             ModelInstaller installer;
             if (config.getMetabaseType().equalsIgnoreCase("h2")) {
-                installer = new H2Installer(getManager());
+                installer = new InfluxDBH2MetaDBInstaller(getManager());
             } else {
-                installer = new MySQLInstaller(getManager());
+                installer = new InfluxDBMySQLMetaDBInstaller(getManager());
             }
             installer.install(client);
             new H2RegisterLockInstaller().install(client, lockDAO);

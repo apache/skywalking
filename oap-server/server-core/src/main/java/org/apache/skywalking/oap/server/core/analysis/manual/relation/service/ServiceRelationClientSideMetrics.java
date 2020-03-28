@@ -71,10 +71,8 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     }
 
     public void buildEntityId() {
-        String splitJointId = String.valueOf(sourceServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
-        entityId = splitJointId;
+        entityId = RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
     }
 
     @Override

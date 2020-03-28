@@ -18,8 +18,6 @@ registryItems:
     - {cassandra-java-driver-3.x-scenario: 2}
   instances:
     - {cassandra-java-driver-3.x-scenario: 1}
-  operationNames:
-    - cassandra-java-driver-3.x-scenario: [/cassandra-java-driver-3.x-scenario/case/cassandra]
   heartbeat: []
 segmentItems:
   - serviceName: cassandra-java-driver-3.x-scenario

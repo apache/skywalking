@@ -75,7 +75,7 @@ public class TraceQuery implements GraphQLQueryResolver {
         int maxDuration = condition.getMaxTraceDuration();
         String endpointName = condition.getEndpointName();
         int serviceId = StringUtils.isEmpty(condition.getServiceId()) ? 0 : Integer.parseInt(condition.getServiceId());
-        int endpointId = StringUtils.isEmpty(condition.getEndpointId()) ? 0 : Integer.parseInt(condition.getEndpointId());
+        String endpointId = condition.getEndpointId();
         int serviceInstanceId = StringUtils.isEmpty(condition.getServiceInstanceId()) ? 0 : Integer.parseInt(condition.getServiceInstanceId());
         TraceState traceState = condition.getTraceState();
         QueryOrder queryOrder = condition.getQueryOrder();

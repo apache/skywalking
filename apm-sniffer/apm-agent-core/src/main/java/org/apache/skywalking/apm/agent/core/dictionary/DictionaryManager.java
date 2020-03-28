@@ -25,11 +25,4 @@ public class DictionaryManager {
     public static NetworkAddressDictionary findNetworkAddressSection() {
         return NetworkAddressDictionary.INSTANCE;
     }
-
-    /**
-     * @return {@link EndpointNameDictionary} to find service id.
-     */
-    public static EndpointNameDictionary findEndpointSection() {
-        return EndpointNameDictionary.INSTANCE;
-    }
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 @Getter(AccessLevel.PUBLIC)
@@ -28,7 +29,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 public class ServiceInstanceMetaInAlarm extends MetaInAlarm {
     private String metricsName;
 
-    private int id;
+    private String id;
     private String name;
     private String[] tags;
     private String[] properties;
@@ -44,12 +45,12 @@ public class ServiceInstanceMetaInAlarm extends MetaInAlarm {
     }
 
     @Override
-    public int getId0() {
+    public String getId0() {
         return id;
     }
 
     @Override
-    public int getId1() {
-        return 0;
+    public String getId1() {
+        return Const.EMPTY_STRING;
     }
 }

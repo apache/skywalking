@@ -41,10 +41,10 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 import org.influxdb.querybuilder.clauses.Clause;
 
+import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
-import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.regex;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
@@ -63,7 +63,7 @@ public class TraceQuery implements ITraceQueryDAO {
                                        String endpointName,
                                        int serviceId,
                                        int serviceInstanceId,
-                                       int endpointId,
+                                       String endpointId,
                                        String traceId,
                                        int limit,
                                        int from,
@@ -98,7 +98,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(lte(SegmentRecord.LATENCY, maxDuration));
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            recallQuery.and(regex(SegmentRecord.ENDPOINT_NAME, "/" + endpointName.replaceAll("/", "\\\\/") + "/"));
+            recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName));
         }
         if (serviceId != 0) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
@@ -106,7 +106,7 @@ public class TraceQuery implements ITraceQueryDAO {
         if (serviceInstanceId != 0) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != 0) {
+        if (!com.google.common.base.Strings.isNullOrEmpty(endpointId)) {
             recallQuery.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {

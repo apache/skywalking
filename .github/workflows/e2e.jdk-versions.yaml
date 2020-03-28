@@ -31,6 +31,7 @@ jobs:
   JavaVersions:
     name: Agent Java Versions
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       matrix:
         jdk: [8, 9, 10, 11, 12, 13, 14]
@@ -58,6 +59,7 @@ jobs:
 
   Single:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     needs: [JavaVersions]
     steps:
       - name: Singles Bar

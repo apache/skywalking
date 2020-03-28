@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 public interface InfluxModelConstants {
     /**
-     * Override column because the 'duration' is a identifier of InfluxDB.
+     * Override column because the 'duration' is the identifier of InfluxDB.
      */
     String DURATION = "dur";
 }

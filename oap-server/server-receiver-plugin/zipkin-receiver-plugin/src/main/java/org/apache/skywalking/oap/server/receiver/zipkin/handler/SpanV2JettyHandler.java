@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -37,12 +36,10 @@ public class SpanV2JettyHandler extends JettyHandler {
     private ZipkinReceiverConfig config;
     private SourceReceiver sourceReceiver;
     private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
 
     public SpanV2JettyHandler(ZipkinReceiverConfig config, ModuleManager manager) {
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         serviceInventoryCache = manager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        endpointInventoryCache = manager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         this.config = config;
     }
 
@@ -63,7 +60,7 @@ public class SpanV2JettyHandler extends JettyHandler {
 
             SpanBytesDecoder decoder = SpanEncode.isProto3(encode) ? SpanBytesDecoder.PROTO3 : SpanBytesDecoder.JSON_V2;
 
-            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache, encode);
+            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, encode);
             processor.convert(config, decoder, request);
 
             response.setStatus(202);

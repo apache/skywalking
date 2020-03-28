@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Pagination;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ILogQueryDAO extends Service {
-    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId, String traceId,
+    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
         LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB,
         final long endTB) throws IOException;
 }

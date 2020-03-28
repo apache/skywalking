@@ -18,10 +18,6 @@ registryItems:
     - {spring-4.3.x-scenario: 2}
   instances:
     - {spring-4.3.x-scenario: 1}
-  operationNames:
-    - spring-4.3.x-scenario: [/create/, '/delete/{id}', /inherit/child/test, /healthCheck,
-                              '/get/{id}', '/update/{id}', /case/resttemplate,
-                              /case/spring3, /impl/requestmapping, /impl/restmapping]
   heartbeat: []
 segmentItems:
   - serviceName: spring-4.3.x-scenario

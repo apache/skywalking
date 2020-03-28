@@ -21,10 +21,10 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -46,18 +46,13 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
     private final Segment segment = new Segment();
-    private final EndpointInventoryCache serviceNameCacheService;
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
-    private int entryEndpointId = 0;
-    private int firstEndpointId = 0;
-    private String firstEndpointName = "";
+    private String endpointId = "";
+    private String endpointName = "";
 
     private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        this.serviceNameCacheService = moduleManager.find(CoreModule.NAME)
-                                                    .provider()
-                                                    .getService(EndpointInventoryCache.class);
     }
 
     @Override
@@ -84,13 +79,18 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         segment.setDataBinary(segmentCoreInfo.getDataBinary());
         segment.setVersion(segmentCoreInfo.getVersion().number());
 
-        firstEndpointId = spanDecorator.getOperationNameId();
-        firstEndpointName = spanDecorator.getOperationName();
+        endpointId = EndpointTraffic.buildId(segmentCoreInfo.getServiceId(), spanDecorator.getOperationName(),
+                                             DetectPoint.fromSpanType(spanDecorator.getSpanType())
+        );
+        endpointName = spanDecorator.getOperationName();
     }
 
     @Override
     public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        entryEndpointId = spanDecorator.getOperationNameId();
+        endpointId = EndpointTraffic.buildId(segmentCoreInfo.getServiceId(), spanDecorator.getOperationName(),
+                                             DetectPoint.fromSpanType(spanDecorator.getSpanType())
+        );
+        endpointName = spanDecorator.getOperationName();
     }
 
     @Override
@@ -121,23 +121,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
             return;
         }
 
-        if (entryEndpointId == Const.NONE) {
-            if (firstEndpointId != Const.NONE) {
-                /*
-                 * Since 6.6.0, only entry span is treated as an endpoint. Other span's endpoint id == 0.
-                 */
-                segment.setEndpointId(firstEndpointId);
-                segment.setEndpointName(serviceNameCacheService.get(firstEndpointId).getName());
-            } else {
-                /*
-                 * Only fill first operation name for the trace list query, as no endpoint id.
-                 */
-                segment.setEndpointName(firstEndpointName);
-            }
-        } else {
-            segment.setEndpointId(entryEndpointId);
-            segment.setEndpointName(serviceNameCacheService.get(entryEndpointId).getName());
-        }
+        segment.setEndpointId(endpointId);
+        segment.setEndpointName(endpointName);
 
         sourceReceiver.receive(segment);
     }

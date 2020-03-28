@@ -49,13 +49,13 @@ public class AlarmMessageFormatterTest {
             }
 
             @Override
-            public int getId0() {
-                return 0;
+            public String getId0() {
+                return "";
             }
 
             @Override
-            public int getId1() {
-                return 0;
+            public String getId1() {
+                return "";
             }
         });
 
@@ -88,13 +88,13 @@ public class AlarmMessageFormatterTest {
             }
 
             @Override
-            public int getId0() {
-                return 1290;
+            public String getId0() {
+                return "1290";
             }
 
             @Override
-            public int getId1() {
-                return 0;
+            public String getId1() {
+                return "";
             }
         });
         Assert.assertEquals("abc} words service - 1290 .. {", message);

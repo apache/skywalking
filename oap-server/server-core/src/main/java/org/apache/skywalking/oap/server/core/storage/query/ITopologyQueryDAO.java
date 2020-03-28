@@ -79,5 +79,5 @@ public interface ITopologyQueryDAO extends Service {
     List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
-                                                                         int destEndpointId) throws IOException;
+                                                                         String destEndpointId) throws IOException;
 }
