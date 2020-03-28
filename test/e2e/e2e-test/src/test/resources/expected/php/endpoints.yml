@@ -16,8 +16,6 @@
 endpoints:
   - key: not null
     label: /php/info
-  - key: not null
-    label: /php/call
 
 
 
