@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -37,26 +36,26 @@ import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 public class EndpointRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_relation_server_side";
-    public static final String SOURCE_ENDPOINT_ID = "source_endpoint_id";
-    public static final String DEST_ENDPOINT_ID = "dest_endpoint_id";
+    public static final String SOURCE_ENDPOINT = "source_endpoint";
+    public static final String DEST_ENDPOINT = "dest_endpoint";
     public static final String COMPONENT_ID = "component_id";
 
     @Setter
     @Getter
-    @Column(columnName = SOURCE_ENDPOINT_ID)
+    @Column(columnName = SOURCE_ENDPOINT)
     @IDColumn
-    private int sourceEndpointId;
+    private String sourceEndpoint;
     @Setter
     @Getter
-    @Column(columnName = DEST_ENDPOINT_ID)
+    @Column(columnName = DEST_ENDPOINT)
     @IDColumn
-    private int destEndpointId;
+    private String destEndpoint;
     @Setter
     @Getter
     @Column(columnName = COMPONENT_ID)
     @IDColumn
     private int componentId;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
     @IDColumn
@@ -65,17 +64,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + sourceEndpointId;
-        splitJointId += Const.ID_SPLIT + destEndpointId;
-        splitJointId += Const.ID_SPLIT + componentId;
+        splitJointId += Const.ID_SPLIT + entityId;
         return splitJointId;
-    }
-
-    public void buildEntityId() {
-        String splitJointId = String.valueOf(sourceEndpointId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(destEndpointId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
-        entityId = splitJointId;
     }
 
     @Override
@@ -92,8 +82,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     public Metrics toHour() {
         EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setSourceEndpointId(getSourceEndpointId());
-        metrics.setDestEndpointId(getDestEndpointId());
+        metrics.setSourceEndpoint(getSourceEndpoint());
+        metrics.setDestEndpoint(getDestEndpoint());
         metrics.setComponentId(getComponentId());
         metrics.setEntityId(getEntityId());
         return metrics;
@@ -103,8 +93,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     public Metrics toDay() {
         EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setSourceEndpointId(getSourceEndpointId());
-        metrics.setDestEndpointId(getDestEndpointId());
+        metrics.setSourceEndpoint(getSourceEndpoint());
+        metrics.setDestEndpoint(getDestEndpoint());
         metrics.setComponentId(getComponentId());
         metrics.setEntityId(getEntityId());
         return metrics;
@@ -114,8 +104,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     public Metrics toMonth() {
         EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
         metrics.setTimeBucket(toTimeBucketInMonth());
-        metrics.setSourceEndpointId(getSourceEndpointId());
-        metrics.setDestEndpointId(getDestEndpointId());
+        metrics.setSourceEndpoint(getSourceEndpoint());
+        metrics.setDestEndpoint(getDestEndpoint());
         metrics.setComponentId(getComponentId());
         metrics.setEntityId(getEntityId());
         return metrics;
@@ -124,42 +114,42 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Override
     public int remoteHashCode() {
         int result = 17;
-        result = 31 * result + sourceEndpointId;
-        result = 31 * result + destEndpointId;
+        result = 31 * result + sourceEndpoint.hashCode();
+        result = 31 * result + destEndpoint.hashCode();
         result = 31 * result + componentId;
         return result;
     }
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setSourceEndpointId(remoteData.getDataIntegers(0));
-        setDestEndpointId(remoteData.getDataIntegers(1));
-        setComponentId(remoteData.getDataIntegers(2));
+        setComponentId(remoteData.getDataIntegers(0));
 
         setTimeBucket(remoteData.getDataLongs(0));
 
         setEntityId(remoteData.getDataStrings(0));
+        setSourceEndpoint(remoteData.getDataStrings(1));
+        setDestEndpoint(remoteData.getDataStrings(2));
     }
 
     @Override
     public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
 
-        remoteBuilder.addDataIntegers(getSourceEndpointId());
-        remoteBuilder.addDataIntegers(getDestEndpointId());
         remoteBuilder.addDataIntegers(getComponentId());
 
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(getEntityId());
+        remoteBuilder.addDataStrings(getSourceEndpoint());
+        remoteBuilder.addDataStrings(getDestEndpoint());
         return remoteBuilder;
     }
 
     @Override
     public int hashCode() {
         int result = 17;
-        result = 31 * result + sourceEndpointId;
-        result = 31 * result + destEndpointId;
+        result = 31 * result + sourceEndpoint.hashCode();
+        result = 31 * result + destEndpoint.hashCode();
         result = 31 * result + componentId;
         result = 31 * result + (int) getTimeBucket();
         return result;
@@ -175,9 +165,9 @@ public class EndpointRelationServerSideMetrics extends Metrics {
             return false;
 
         EndpointRelationServerSideMetrics metrics = (EndpointRelationServerSideMetrics) obj;
-        if (sourceEndpointId != metrics.sourceEndpointId)
+        if (!sourceEndpoint.equals(metrics.sourceEndpoint))
             return false;
-        if (destEndpointId != metrics.destEndpointId)
+        if (!destEndpoint.equals(metrics.destEndpoint))
             return false;
         if (componentId != metrics.componentId)
             return false;
@@ -190,8 +180,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
         @Override
         public EndpointRelationServerSideMetrics map2Data(Map<String, Object> dbMap) {
             EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
-            metrics.setSourceEndpointId(((Number) dbMap.get(SOURCE_ENDPOINT_ID)).intValue());
-            metrics.setDestEndpointId(((Number) dbMap.get(DEST_ENDPOINT_ID)).intValue());
+            metrics.setSourceEndpoint((String) dbMap.get(SOURCE_ENDPOINT));
+            metrics.setDestEndpoint((String) dbMap.get(DEST_ENDPOINT));
             metrics.setComponentId(((Number) dbMap.get(COMPONENT_ID)).intValue());
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
@@ -201,8 +191,8 @@ public class EndpointRelationServerSideMetrics extends Metrics {
         @Override
         public Map<String, Object> data2Map(EndpointRelationServerSideMetrics storageData) {
             Map<String, Object> map = new HashMap<>();
-            map.put(SOURCE_ENDPOINT_ID, storageData.getSourceEndpointId());
-            map.put(DEST_ENDPOINT_ID, storageData.getDestEndpointId());
+            map.put(SOURCE_ENDPOINT, storageData.getSourceEndpoint());
+            map.put(DEST_ENDPOINT, storageData.getDestEndpoint());
             map.put(COMPONENT_ID, storageData.getComponentId());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(ENTITY_ID, storageData.getEntityId());

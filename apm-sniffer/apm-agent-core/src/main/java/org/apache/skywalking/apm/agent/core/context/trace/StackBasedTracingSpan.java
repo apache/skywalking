@@ -40,25 +40,6 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
         this.peerId = DictionaryUtil.nullValue();
     }
 
-    protected StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, owner);
-        this.stackDepth = 0;
-        this.peer = null;
-        this.peerId = DictionaryUtil.nullValue();
-    }
-
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, int peerId, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, owner);
-        this.peer = null;
-        this.peerId = peerId;
-    }
-
-    public StackBasedTracingSpan(int spanId, int parentSpanId, int operationId, String peer, TracingContext owner) {
-        super(spanId, parentSpanId, operationId, owner);
-        this.peer = peer;
-        this.peerId = DictionaryUtil.nullValue();
-    }
-
     protected StackBasedTracingSpan(int spanId, int parentSpanId, String operationName, String peer,
                                     TracingContext owner) {
         super(spanId, parentSpanId, operationName, owner);
@@ -89,17 +70,6 @@ public abstract class StackBasedTracingSpan extends AbstractTracingSpan {
     @Override
     public boolean finish(TraceSegment owner) {
         if (--stackDepth == 0) {
-            /*
-             * Since 6.6.0, only entry span requires the op name register, which is endpoint.
-             */
-            if (this.isEntry()) {
-                if (this.operationId == DictionaryUtil.nullValue()) {
-                    this.operationId =
-                        (Integer) DictionaryManager.findEndpointSection()
-                                                   .findOrPrepare4Register(owner.getServiceId(), operationName)
-                                                   .doInCondition(value -> value, DictionaryUtil::nullValue);
-                }
-            }
             return super.finish(owner);
         } else {
             return false;

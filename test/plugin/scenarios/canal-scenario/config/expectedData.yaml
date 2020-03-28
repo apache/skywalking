@@ -18,8 +18,6 @@ registryItems:
     - {canal-scenario: 2}
   instances:
     - {canal-scenario: 1}
-  operationNames:
-    - canal-scenario: [/canal-scenario/case/canal-case]
   heartbeat: []
 segmentItems:
   - serviceName: canal-scenario

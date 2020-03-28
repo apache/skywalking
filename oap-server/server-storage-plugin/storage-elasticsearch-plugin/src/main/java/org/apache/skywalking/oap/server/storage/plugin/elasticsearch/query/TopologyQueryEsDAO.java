@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -41,10 +45,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
     public TopologyQueryEsDAO(ElasticSearchClient client) {
@@ -52,8 +52,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB,
-        long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling,
+                                                                         long startTB,
+                                                                         long endTB,
+                                                                         List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -67,8 +69,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB,
-        long endTB, List<Integer> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling,
+                                                                         long startTB,
+                                                                         long endTB,
+                                                                         List<Integer> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -82,7 +86,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
-        List<Integer> serviceIds) {
+                                   List<Integer> serviceIds) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must()
                  .add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
@@ -92,22 +96,32 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         if (serviceIds.size() == 1) {
             serviceIdBoolQuery.should()
-                              .add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds
-                                  .get(0)));
+                              .add(
+                                  QueryBuilders.termQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds
+                                      .get(0)));
             serviceIdBoolQuery.should()
-                              .add(QueryBuilders.termQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds.get(0)));
+                              .add(QueryBuilders.termQuery(
+                                  ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+                                  serviceIds.get(0)
+                              ));
         } else {
             serviceIdBoolQuery.should()
-                              .add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds));
+                              .add(QueryBuilders.termsQuery(
+                                  ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+                                  serviceIds
+                              ));
             serviceIdBoolQuery.should()
-                              .add(QueryBuilders.termsQuery(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
+                              .add(QueryBuilders.termsQuery(
+                                  ServiceRelationServerSideMetrics.DEST_SERVICE_ID,
+                                  serviceIds
+                              ));
         }
         sourceBuilder.query(boolQuery);
     }
 
     @Override
     public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
-        long endTB) throws IOException {
+                                                                long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
@@ -120,7 +134,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
     @Override
     public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
-        long endTB) throws IOException {
+                                                                long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET)
@@ -132,8 +146,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
-        Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId,
+                                                                        int serverServiceId,
+                                                                        Downsampling downsampling,
+                                                                        long startTB,
+                                                                        long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
@@ -143,8 +160,11 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId, int serverServiceId,
-        Downsampling downsampling, long startTB, long endTB) throws IOException {
+    public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId,
+                                                                        int serverServiceId,
+                                                                        Downsampling downsampling,
+                                                                        long startTB,
+                                                                        long endTB) throws IOException {
         String indexName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
@@ -154,7 +174,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
-        int clientServiceId, int serverServiceId) {
+                                           int clientServiceId, int serverServiceId) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must()
                  .add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
@@ -165,21 +185,27 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         BoolQueryBuilder serverRelationBoolQuery = new BoolQueryBuilder();
         serviceIdBoolQuery.should(serverRelationBoolQuery);
 
-        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
-        serverRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
+        serverRelationBoolQuery.must(
+            QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId));
+        serverRelationBoolQuery.must(
+            QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
 
         BoolQueryBuilder clientRelationBoolQuery = new BoolQueryBuilder();
         serviceIdBoolQuery.should(clientRelationBoolQuery);
 
-        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
-        clientRelationBoolQuery.must(QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
+        clientRelationBoolQuery.must(
+            QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId));
+        clientRelationBoolQuery.must(
+            QueryBuilders.termQuery(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
 
         sourceBuilder.query(boolQuery);
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling, long startTB,
-        long endTB, int destEndpointId) throws IOException {
+    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
+                                                                                long startTB,
+                                                                                long endTB,
+                                                                                String destEndpointId) throws IOException {
         String indexName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -192,17 +218,21 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         BoolQueryBuilder serviceIdBoolQuery = QueryBuilders.boolQuery();
         boolQuery.must().add(serviceIdBoolQuery);
         serviceIdBoolQuery.should()
-                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
+                          .add(QueryBuilders.termQuery(
+                              EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+                              destEndpointId
+                          ));
         serviceIdBoolQuery.should()
-                          .add(QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
+                          .add(
+                              QueryBuilders.termQuery(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
 
         sourceBuilder.query(boolQuery);
 
-        return load(sourceBuilder, indexName, DetectPoint.SERVER);
+        return loadEndpoint(sourceBuilder, indexName, DetectPoint.SERVER);
     }
 
     private List<Call.CallDetail> load(SearchSourceBuilder sourceBuilder, String indexName,
-        DetectPoint detectPoint) throws IOException {
+                                       DetectPoint detectPoint) throws IOException {
         sourceBuilder.aggregation(AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
 
         SearchResponse response = getClient().search(indexName, sourceBuilder);
@@ -214,8 +244,36 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
             RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setSource(relationDefine.getSource());
-            call.setTarget(relationDefine.getDest());
+            call.setSource(String.valueOf(relationDefine.getSource()));
+            call.setTarget(String.valueOf(relationDefine.getDest()));
+            call.setComponentId(relationDefine.getComponentId());
+            call.setDetectPoint(detectPoint);
+            call.generateID();
+            calls.add(call);
+        }
+        return calls;
+    }
+
+    private List<Call.CallDetail> loadEndpoint(SearchSourceBuilder sourceBuilder, String indexName,
+                                               DetectPoint detectPoint) throws IOException {
+        sourceBuilder.aggregation(AggregationBuilders.terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID).size(1000));
+
+        SearchResponse response = getClient().search(indexName, sourceBuilder);
+
+        List<Call.CallDetail> calls = new ArrayList<>();
+        Terms entityTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
+            String entityId = entityBucket.getKeyAsString();
+
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(
+                entityId);
+            Call.CallDetail call = new Call.CallDetail();
+            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(),
+                                                   detectPoint
+            ));
+            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(),
+                                                   detectPoint
+            ));
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
             call.generateID();

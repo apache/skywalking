@@ -19,8 +19,6 @@ registryItems:
     - {shardingsphere-3.x-scenario: nq 0}
   instances:
     - {shardingsphere-3.x-scenario: 1}
-  operationNames:
-    - shardingsphere-3.x-scenario: [/shardingsphere-3.x-scenario/case/execute]
   heartbeat: []
 segmentItems:
   - serviceName: shardingsphere-3.x-scenario

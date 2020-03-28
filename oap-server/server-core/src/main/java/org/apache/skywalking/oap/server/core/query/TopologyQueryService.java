@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Node;
@@ -50,7 +50,6 @@ public class TopologyQueryService implements Service {
     private final ModuleManager moduleManager;
     private ITopologyQueryDAO topologyQueryDAO;
     private IMetadataQueryDAO metadataQueryDAO;
-    private EndpointInventoryCache endpointInventoryCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TopologyQueryService(ModuleManager moduleManager) {
@@ -78,15 +77,6 @@ public class TopologyQueryService implements Service {
                                                           .getService(IComponentLibraryCatalogService.class);
         }
         return componentLibraryCatalogService;
-    }
-
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            endpointInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                  .provider()
-                                                  .getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
     }
 
     public Topology getGlobalTopology(final Downsampling downsampling, final long startTB,
@@ -121,7 +111,7 @@ public class TopologyQueryService implements Service {
             // Client side relationships exclude the given services(#serviceIds)
             // The given services(#serviceIds)'s component names have been included inside `serviceRelationServerCalls`
             if (!serviceIds.contains(call.getSource())) {
-                outScopeSourceServiceIds.add(call.getSource());
+                outScopeSourceServiceIds.add(Integer.parseInt(call.getSource()));
             }
         });
         if (CollectionUtils.isNotEmpty(outScopeSourceServiceIds)) {
@@ -131,7 +121,7 @@ public class TopologyQueryService implements Service {
             topology.getNodes().forEach(node -> {
                 if (Strings.isNullOrEmpty(node.getType())) {
                     for (Call.CallDetail call : sourceCalls) {
-                        if (node.getId() == call.getTarget()) {
+                        if (node.getId().equals(call.getTarget())) {
                             node.setType(getComponentLibraryCatalogService().getComponentName(call.getComponentId()));
                             break;
                         }
@@ -163,7 +153,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB,
-                                        final int endpointId) throws IOException {
+                                        final String endpointId) throws IOException {
         List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(
             downsampling, startTB, endTB, endpointId);
 
@@ -177,7 +167,7 @@ public class TopologyQueryService implements Service {
             topology.getCalls().add(call);
         });
 
-        Set<Integer> nodeIds = new HashSet<>();
+        Set<String> nodeIds = new HashSet<>();
         serverSideCalls.forEach(call -> {
             if (!nodeIds.contains(call.getSource())) {
                 topology.getNodes().add(buildEndpointNode(call.getSource()));
@@ -192,10 +182,11 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
-    private Node buildEndpointNode(int endpointId) {
+    private Node buildEndpointNode(String endpointId) {
         Node node = new Node();
         node.setId(endpointId);
-        node.setName(getEndpointInventoryCache().get(endpointId).getName());
+        final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(endpointId);
+        node.setName(endpointID.getEndpointName());
         node.setType(Const.EMPTY_STRING);
         node.setReal(true);
         return node;

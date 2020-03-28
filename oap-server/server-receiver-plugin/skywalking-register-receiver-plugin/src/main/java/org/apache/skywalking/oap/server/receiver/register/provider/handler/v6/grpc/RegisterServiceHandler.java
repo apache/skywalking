@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.network.common.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.KeyStringValuePair;
 import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.apm.network.register.v2.EndpointMapping;
-import org.apache.skywalking.apm.network.register.v2.EndpointMappingElement;
 import org.apache.skywalking.apm.network.register.v2.Endpoints;
 import org.apache.skywalking.apm.network.register.v2.NetAddressMapping;
 import org.apache.skywalking.apm.network.register.v2.NetAddresses;
@@ -45,11 +44,9 @@ import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.slf4j.Logger;
@@ -76,7 +73,6 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IServiceInventoryRegister serviceInventoryRegister;
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
-    private final IEndpointInventoryRegister inventoryService;
     private final INetworkAddressInventoryRegister networkAddressInventoryRegister;
 
     public RegisterServiceHandler(ModuleManager moduleManager) {
@@ -92,9 +88,6 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                              .provider()
                                                              .getService(IServiceInstanceInventoryRegister.class);
-        this.inventoryService = moduleManager.find(CoreModule.NAME)
-                                             .provider()
-                                             .getService(IEndpointInventoryRegister.class);
         this.networkAddressInventoryRegister = moduleManager.find(CoreModule.NAME)
                                                             .provider()
                                                             .getService(INetworkAddressInventoryRegister.class);
@@ -199,31 +192,13 @@ public class RegisterServiceHandler extends RegisterGrpc.RegisterImplBase implem
         responseObserver.onCompleted();
     }
 
+    /**
+     * @since 7.1.0 There is no endpoint / operation name register anymore.
+     */
+    @Deprecated
     @Override
     public void doEndpointRegister(Endpoints request, StreamObserver<EndpointMapping> responseObserver) {
-        EndpointMapping.Builder builder = EndpointMapping.newBuilder();
-
-        request.getEndpointsList().forEach(endpoint -> {
-            int serviceId = endpoint.getServiceId();
-            String endpointName = endpoint.getEndpointName();
-
-            DetectPoint detectPoint = DetectPoint.fromNetworkProtocolDetectPoint(endpoint.getFrom());
-            if (DetectPoint.SERVER.equals(detectPoint)) {
-                int endpointId = inventoryService.getOrCreate(serviceId, endpointName, detectPoint);
-
-                if (endpointId != Const.NONE) {
-                    builder.addElements(EndpointMappingElement.newBuilder()
-                                                              .setServiceId(serviceId)
-                                                              .setEndpointName(endpointName)
-                                                              .setEndpointId(endpointId)
-                                                              .setFrom(endpoint.getFrom()));
-                }
-            } else {
-                logger.warn("Unexpected endpoint register, endpoint isn't detected from server side. {}", request);
-            }
-        });
-
-        responseObserver.onNext(builder.build());
+        responseObserver.onNext(EndpointMapping.newBuilder().build());
         responseObserver.onCompleted();
     }
 

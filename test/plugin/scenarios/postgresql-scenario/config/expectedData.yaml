@@ -18,8 +18,6 @@ registryItems:
     - {postgresql-scenario: nq 0}
     instances:
     - {postgresql-scenario: 1}
-    operationNames:
-    - postgresql-scenario: [/postgresql-scenario/case/postgres]
     heartbeat: []
 segmentItems:
 - serviceName: postgresql-scenario

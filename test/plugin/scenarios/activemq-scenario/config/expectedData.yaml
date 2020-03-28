@@ -18,8 +18,6 @@ registryItems:
     - {activemq-scenario: nq 0}
   instances:
     - {activemq-scenario: nq 0}
-  operationNames:
-    - activemq-scenario: [ActiveMQ/Queue/test/Consumer, /activemq-scenario/case/activemq]
   heartbeat: []
 segmentItems:
 - serviceName: activemq-scenario

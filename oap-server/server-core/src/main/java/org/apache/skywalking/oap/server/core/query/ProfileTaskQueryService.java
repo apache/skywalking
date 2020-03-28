@@ -24,13 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
@@ -45,7 +42,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfiledSegment;
 import org.apache.skywalking.oap.server.core.query.entity.ProfiledSpan;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -57,7 +53,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
  * handle profile task queries
@@ -71,13 +66,15 @@ public class ProfileTaskQueryService implements Service {
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private NetworkAddressInventoryCache networkAddressInventoryCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
-    private EndpointInventoryCache endpointInventoryCache;
 
     private final ProfileAnalyzer profileAnalyzer;
 
     public ProfileTaskQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
-        this.profileAnalyzer = new ProfileAnalyzer(moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot(), moduleConfig.getMaxSizeOfAnalyzeProfileSnapshot());
+        this.profileAnalyzer = new ProfileAnalyzer(
+            moduleManager, moduleConfig.getMaxPageSizeOfQueryProfileSnapshot(),
+            moduleConfig.getMaxSizeOfAnalyzeProfileSnapshot()
+        );
     }
 
     private IProfileTaskQueryDAO getProfileTaskDAO() {
@@ -143,15 +140,6 @@ public class ProfileTaskQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
-    }
-
     /**
      * search profile task list
      *
@@ -180,7 +168,8 @@ public class ProfileTaskQueryService implements Service {
                 // filter all task logs
                 task.setLogs(taskLogList.stream().filter(l -> Objects.equal(l.getTaskId(), task.getId())).map(l -> {
                     // get instance name from cache
-                    final ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(l.getInstanceId());
+                    final ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(
+                        l.getInstanceId());
                     if (instanceInventory != null) {
                         l.setInstanceName(instanceInventory.getName());
                     }
@@ -199,7 +188,8 @@ public class ProfileTaskQueryService implements Service {
         return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+    public ProfileAnalyzation getProfileAnalyze(final String segmentId,
+                                                final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
         return profileAnalyzer.analyze(segmentId, timeRanges);
     }
 
@@ -228,23 +218,13 @@ public class ProfileTaskQueryService implements Service {
             span.setError(spanObject.getIsError());
             span.setLayer(spanObject.getSpanLayer().name());
             span.setType(spanObject.getSpanType().name());
+            span.setEndpointName(spanObject.getOperationName());
 
             if (spanObject.getPeerId() == 0) {
                 span.setPeer(spanObject.getPeer());
             } else {
                 span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
             }
-
-            String endpointName = spanObject.getOperationName();
-            if (spanObject.getOperationNameId() != 0) {
-                EndpointInventory endpointInventory = getEndpointInventoryCache().get(spanObject.getOperationNameId());
-                if (nonNull(endpointInventory)) {
-                    endpointName = endpointInventory.getName();
-                } else {
-                    endpointName = Const.EMPTY_STRING;
-                }
-            }
-            span.setEndpointName(endpointName);
 
             final ServiceInventory serviceInventory = getServiceInventoryCache().get(segmentObject.getServiceId());
             if (serviceInventory != null) {

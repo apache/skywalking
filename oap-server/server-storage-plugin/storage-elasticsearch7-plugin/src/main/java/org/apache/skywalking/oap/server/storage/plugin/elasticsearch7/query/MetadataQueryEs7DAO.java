@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.register.NodeType;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -54,6 +54,9 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         return (int) response.getHits().getTotalHits().value;
     }
 
+    /**
+     * @since 7.0.0, as EndpointInventory has been replaced by EndpointTraffic. This is not an accurate number anymore.
+     */
     @Override
     public int numOfEndpoint() throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -61,12 +64,12 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         boolQueryBuilder.must()
-                        .add(QueryBuilders.termQuery(EndpointInventory.DETECT_POINT, DetectPoint.SERVER.ordinal()));
+                        .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(EndpointInventory.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, sourceBuilder);
         return (int) response.getHits().getTotalHits().value;
     }
 

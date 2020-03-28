@@ -18,8 +18,6 @@ registryItems:
   - {oracle-scenario: nq 0}
   instances:
   - {oracle-scenario: 1}
-  operationNames:
-  - oracle-scenario: [/oracle-scenario/case/oracle]
 segmentItems:
 - serviceName: oracle-scenario
   segmentSize: ge 1

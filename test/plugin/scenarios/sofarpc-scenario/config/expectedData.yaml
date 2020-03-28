@@ -19,9 +19,6 @@ registryItems:
     - {sofarpc-scenario: 2}
   instances:
     - {sofarpc-scenario: 1}
-  operationNames:
-    - sofarpc-scenario: [org.apache.skywalking.apm.testcase.sofarpc.interfaces.SofaRpcDemoService.hello(java.lang.String),
-                         /sofarpc-scenario/case/sofarpc]
   heartbeat: []
 segmentItems:
   - serviceName: sofarpc-scenario

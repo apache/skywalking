@@ -18,8 +18,6 @@ registryItems:
     - {solrj-7.x-scenario: nq 0}
   instances:
     - {solrj-7.x-scenario: nq 0}
-  operationNames:
-    - solrj-7.x-scenario: [/solrj-scenario/case/solrj]
   heartbeat: []
 segmentItems:
   - serviceName: solrj-7.x-scenario

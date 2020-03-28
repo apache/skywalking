@@ -131,7 +131,8 @@ public class TracingContext implements AbstractTracerContext {
         if (PROFILE_TASK_EXECUTION_SERVICE == null) {
             PROFILE_TASK_EXECUTION_SERVICE = ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class);
         }
-        this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(this, segment.getTraceSegmentId(), firstOPName);
+        this.profileStatus = PROFILE_TASK_EXECUTION_SERVICE.addProfiling(
+            this, segment.getTraceSegmentId(), firstOPName);
 
         this.correlationContext = new CorrelationContext();
     }
@@ -184,56 +185,21 @@ public class TracingContext implements AbstractTracerContext {
         String firstSpanOperationName = firstSpan.getOperationName();
 
         List<TraceSegmentRef> refs = this.segment.getRefs();
-        int operationId = DictionaryUtil.inexistence();
         String operationName = "";
         int entryApplicationInstanceId;
 
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            operationId = ref.getEntryEndpointId();
             operationName = ref.getEntryEndpointName();
             entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
-            if (firstSpan.isEntry()) {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-                operationId = firstSpan.getOperationId();
-                operationName = firstSpanOperationName;
-            }
+            operationName = firstSpanOperationName;
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
-
         }
+
         carrier.setEntryServiceInstanceId(entryApplicationInstanceId);
-
-        if (operationId == DictionaryUtil.nullValue()) {
-            if (!StringUtil.isEmpty(operationName)) {
-                carrier.setEntryEndpointName(operationName);
-            } else {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-            }
-        } else {
-            carrier.setEntryEndpointId(operationId);
-        }
-
-        int parentOperationId = firstSpan.getOperationId();
-        if (parentOperationId == DictionaryUtil.nullValue()) {
-            if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
-                carrier.setParentEndpointName(firstSpanOperationName);
-            } else {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-                carrier.setParentEndpointId(DictionaryUtil.inexistence());
-            }
-        } else {
-            carrier.setParentEndpointId(parentOperationId);
-        }
+        carrier.setEntryEndpointName(operationName);
+        carrier.setParentEndpointName(firstSpanOperationName);
 
         carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
 
@@ -267,7 +233,9 @@ public class TracingContext implements AbstractTracerContext {
     public ContextSnapshot capture() {
         List<TraceSegmentRef> refs = this.segment.getRefs();
         ContextSnapshot snapshot = new ContextSnapshot(
-            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces(), this.correlationContext);
+            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces(),
+            this.correlationContext
+        );
         int entryOperationId;
         String entryOperationName = "";
         int entryApplicationInstanceId;
@@ -276,51 +244,16 @@ public class TracingContext implements AbstractTracerContext {
 
         if (refs != null && refs.size() > 0) {
             TraceSegmentRef ref = refs.get(0);
-            entryOperationId = ref.getEntryEndpointId();
             entryOperationName = ref.getEntryEndpointName();
             entryApplicationInstanceId = ref.getEntryServiceInstanceId();
         } else {
-            if (firstSpan.isEntry()) {
-                entryOperationId = firstSpan.getOperationId();
-                entryOperationName = firstSpanOperationName;
-            } else {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-                entryOperationId = DictionaryUtil.inexistence();
-            }
+            entryOperationName = firstSpanOperationName;
             entryApplicationInstanceId = this.segment.getApplicationInstanceId();
         }
         snapshot.setEntryApplicationInstanceId(entryApplicationInstanceId);
+        snapshot.setEntryOperationName(entryOperationName);
+        snapshot.setParentOperationName(firstSpanOperationName);
 
-        if (entryOperationId == DictionaryUtil.nullValue()) {
-            if (!StringUtil.isEmpty(entryOperationName)) {
-                snapshot.setEntryOperationName(entryOperationName);
-            } else {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-            }
-        } else {
-            snapshot.setEntryOperationId(entryOperationId);
-        }
-
-        int parentOperationId = firstSpan.getOperationId();
-        if (parentOperationId == DictionaryUtil.nullValue()) {
-            if (firstSpan.isEntry() && !StringUtil.isEmpty(firstSpanOperationName)) {
-                snapshot.setParentOperationName(firstSpanOperationName);
-            } else {
-                /*
-                 * Since 6.6.0, if first span is not entry span, then this is an internal segment(no RPC),
-                 * rather than an endpoint.
-                 */
-                snapshot.setParentOperationId(DictionaryUtil.inexistence());
-            }
-        } else {
-            snapshot.setParentOperationId(parentOperationId);
-        }
         return snapshot;
     }
 
@@ -368,25 +301,14 @@ public class TracingContext implements AbstractTracerContext {
              * as the operation name could be overrided.
              */
             profilingRecheck(parentSpan, operationName);
-            entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
-                                                               .findOnly(segment.getServiceId(), operationName)
-                                                               .doInCondition(
-                                                                   parentSpan::setOperationId, () -> parentSpan
-                                                                       .setOperationName(operationName));
+            parentSpan.setOperationName(operationName);
+            entrySpan = parentSpan;
             return entrySpan.start();
         } else {
-            entrySpan = (AbstractTracingSpan) DictionaryManager.findEndpointSection()
-                                                               .findOnly(segment.getServiceId(), operationName)
-                                                               .doInCondition(
-                                                                   operationId -> new EntrySpan(spanIdGenerator++,
-                                                                                                parentSpanId,
-                                                                                                operationId, owner
-                                                                   ), () -> {
-                                                                       return new EntrySpan(
-                                                                           spanIdGenerator++, parentSpanId,
-                                                                           operationName, owner
-                                                                       );
-                                                                   });
+            entrySpan = new EntrySpan(
+                spanIdGenerator++, parentSpanId,
+                operationName, owner
+            );
             entrySpan.start();
             return push(entrySpan);
         }

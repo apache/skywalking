@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
@@ -39,7 +38,6 @@ import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
 import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
@@ -122,14 +120,12 @@ public class CoreModule extends ModuleDefine {
     private void addRegisterService(List<Class> classes) {
         classes.add(IServiceInventoryRegister.class);
         classes.add(IServiceInstanceInventoryRegister.class);
-        classes.add(IEndpointInventoryRegister.class);
         classes.add(INetworkAddressInventoryRegister.class);
     }
 
     private void addCacheService(List<Class> classes) {
         classes.add(ServiceInventoryCache.class);
         classes.add(ServiceInstanceInventoryCache.class);
-        classes.add(EndpointInventoryCache.class);
         classes.add(NetworkAddressInventoryCache.class);
     }
 

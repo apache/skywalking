@@ -18,9 +18,6 @@ registryItems:
     - {resttemplate-4.x-scenario: nq 0}
   instances:
     - {resttemplate-4.x-scenario: 1}
-  operationNames:
-    - resttemplate-4.x-scenario: [/resttemplate-4.x-scenario/resttemplate/asyncback, /resttemplate-4.x-scenario/resttemplate/case/resttemplate,
-                                  /resttemplate-4.x-scenario/resttemplate/syncback]
   heartbeat: []
 segmentItems:
   - serviceName: resttemplate-4.x-scenario

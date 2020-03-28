@@ -110,11 +110,7 @@ public interface AbstractSpan extends AsyncSpan {
      */
     int getSpanId();
 
-    int getOperationId();
-
     String getOperationName();
-
-    AbstractSpan setOperationId(int operationId);
 
     /**
      * Reference other trace segment.

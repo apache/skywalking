@@ -25,6 +25,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Downsampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -153,31 +154,31 @@ public class TopologyQuery implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
                                                                                 long startTB,
                                                                                 long endTB,
-                                                                                int destEndpointId) throws IOException {
+                                                                                String destEndpointId) throws IOException {
         String measurement = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
 
         WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
-            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT,
             Collections.emptyList()
         );
-        query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID, destEndpointId));
+        query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
 
         WhereQueryImpl query2 = buildServiceCallsQuery(
             measurement,
             startTB,
             endTB,
-            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID,
-            EndpointRelationServerSideMetrics.DEST_ENDPOINT_ID,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+            EndpointRelationServerSideMetrics.DEST_ENDPOINT,
             Collections.emptyList()
         );
-        query2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT_ID, destEndpointId));
+        query2.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId));
 
         List<Call.CallDetail> calls = buildCalls(query, DetectPoint.SERVER);
-        calls.addAll(buildCalls(query2, DetectPoint.CLIENT));
+        calls.addAll(buildEndpointCalls(query2, DetectPoint.CLIENT));
         return calls;
     }
 
@@ -229,7 +230,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     private List<Call.CallDetail> buildCalls(WhereQueryImpl query,
-                                            DetectPoint detectPoint) throws IOException {
+                                             DetectPoint detectPoint) throws IOException {
         QueryResult.Series series = client.queryForSingleSeries(query);
 
         if (log.isDebugEnabled()) {
@@ -245,8 +246,38 @@ public class TopologyQuery implements ITopologyQueryDAO {
             String entityId = (String) values.get(1);
             RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
 
-            call.setSource(relationDefine.getSource());
-            call.setTarget(relationDefine.getDest());
+            call.setSource(String.valueOf(relationDefine.getSource()));
+            call.setTarget(String.valueOf(relationDefine.getDest()));
+            call.setComponentId(relationDefine.getComponentId());
+            call.setDetectPoint(detectPoint);
+            call.generateID();
+            calls.add(call);
+        });
+        return calls;
+    }
+
+    private List<Call.CallDetail> buildEndpointCalls(WhereQueryImpl query,
+                                                     DetectPoint detectPoint) throws IOException {
+        QueryResult.Series series = client.queryForSingleSeries(query);
+
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
+        }
+        if (series == null) {
+            return Collections.emptyList();
+        }
+
+        List<Call.CallDetail> calls = new ArrayList<>();
+        series.getValues().forEach(values -> {
+            Call.CallDetail call = new Call.CallDetail();
+            String entityId = (String) values.get(1);
+            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(
+                entityId);
+
+            call.setSource(
+                EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(), detectPoint));
+            call.setTarget(
+                EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(), detectPoint));
             call.setComponentId(relationDefine.getComponentId());
             call.setDetectPoint(detectPoint);
             call.generateID();

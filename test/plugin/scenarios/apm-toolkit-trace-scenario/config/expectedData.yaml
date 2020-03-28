@@ -19,9 +19,6 @@ registryItems:
     - {apm-toolkit-trace-scenario: 2}
   instances:
     - {apm-toolkit-trace-scenario: 1}
-  operationNames:
-    - apm-toolkit-trace-scenario: [/case/asyncVisit/runnable, /case/asyncVisit/callable,
-                                   /case/tool-kit, /case/asyncVisit/supplier]
   heartbeat: []
 segmentItems:
   - serviceName: apm-toolkit-trace-scenario
@@ -196,7 +193,7 @@ segmentItems:
               - {key: http.method, value: GET}
               - {key: correlation, value: correlationValueTest}
             refs:
-              - {parentEndpointId: -1, parentEndpoint: '',
+              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
@@ -292,7 +289,7 @@ segmentItems:
               - {key: http.method, value: GET}
               - {key: correlation, value: correlationValueTest}
             refs:
-              - {parentEndpointId: -1, parentEndpoint: '',
+              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}
@@ -352,7 +349,7 @@ segmentItems:
               - {key: http.method, value: GET}
               - {key: correlation, value: correlationValueTest}
             refs:
-              - {parentEndpointId: -1, parentEndpoint: '',
+              - {parentEndpointId: 0, parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get,
                  networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
                  parentTraceSegmentId: not null, parentServiceInstanceId: 1,
                  networkAddress: 'localhost:8080', entryEndpoint: /case/tool-kit, entryServiceInstanceId: 1}

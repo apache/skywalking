@@ -25,16 +25,16 @@ import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.EndpointInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -76,8 +76,6 @@ public class NotifyHandlerTest {
 
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
 
-    private EndpointInventoryCache endpointInventoryCache;
-
     private MockMetrics metrics;
 
     private MetricsMetaInfo metadata;
@@ -96,16 +94,15 @@ public class NotifyHandlerTest {
         when(DefaultScopeDefine.inEndpointCatalog(0)).thenReturn(true);
 
         String endpointInventoryName = "endpoint-inventory-name";
-        EndpointInventory endpointInventory = mock(EndpointInventory.class);
-        when(endpointInventory.getName()).thenReturn(endpointInventoryName);
+        EndpointTraffic endpointTraffic = mock(EndpointTraffic.class);
+        when(endpointTraffic.getName()).thenReturn(endpointInventoryName);
 
         String serviceInventoryName = "service-inventory-name";
         ServiceInventory serviceInventory = mock(ServiceInventory.class);
         when(serviceInventory.getName()).thenReturn(serviceInventoryName);
 
         when(serviceInventoryCache.get(anyInt())).thenReturn(serviceInventory);
-
-        when(endpointInventoryCache.get(anyInt())).thenReturn(endpointInventory);
+        when(metadata.getId()).thenReturn(EndpointTraffic.buildId(1, endpointInventoryName, DetectPoint.SERVER));
 
         ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
 
@@ -115,7 +112,7 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
-        assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals("1_ZW5kcG9pbnQtaW52ZW50b3J5LW5hbWU=_0", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.ENDPOINT_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
@@ -148,7 +145,7 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals(mockId + "", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(instanceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE, metaInAlarm.getScopeId());
@@ -177,7 +174,7 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals(mockId, metaInAlarm.getId0());
+        assertEquals(mockId + "", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
@@ -238,11 +235,10 @@ public class NotifyHandlerTest {
 
         serviceInventoryCache = mock(ServiceInventoryCache.class);
         serviceInstanceInventoryCache = mock(ServiceInstanceInventoryCache.class);
-        endpointInventoryCache = mock(EndpointInventoryCache.class);
 
         when(moduleServiceHolder.getService(ServiceInventoryCache.class)).thenReturn(serviceInventoryCache);
-        when(moduleServiceHolder.getService(ServiceInstanceInventoryCache.class)).thenReturn(serviceInstanceInventoryCache);
-        when(moduleServiceHolder.getService(EndpointInventoryCache.class)).thenReturn(endpointInventoryCache);
+        when(moduleServiceHolder.getService(ServiceInstanceInventoryCache.class)).thenReturn(
+            serviceInstanceInventoryCache);
 
         AlarmCore core = mock(AlarmCore.class);
 

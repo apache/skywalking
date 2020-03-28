@@ -32,6 +32,7 @@ jobs:
   FeatureGroup01:
     name: Feature
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       matrix:
         case: [auth, compatibility, ssl]
@@ -59,6 +60,7 @@ jobs:
   FeatureGroup02:
     name: Agent Reboot & Lua Nginx
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
       - name: checkout submodules
@@ -83,6 +85,7 @@ jobs:
   FeatureGroup03:
     name: Gateway
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
       - name: checkout submodules

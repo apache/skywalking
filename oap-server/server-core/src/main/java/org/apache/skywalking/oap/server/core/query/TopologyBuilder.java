@@ -55,16 +55,14 @@ class TopologyBuilder {
     }
 
     Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
-        filterZeroSourceOrTargetReference(serviceRelationClientCalls);
-        filterZeroSourceOrTargetReference(serviceRelationServerCalls);
 
         Map<Integer, Node> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
         for (Call.CallDetail clientCall : serviceRelationClientCalls) {
-            ServiceInventory source = serviceInventoryCache.get(clientCall.getSource());
-            ServiceInventory target = serviceInventoryCache.get(clientCall.getTarget());
+            ServiceInventory source = serviceInventoryCache.get(Integer.parseInt(clientCall.getSource()));
+            ServiceInventory target = serviceInventoryCache.get(Integer.parseInt(clientCall.getTarget()));
 
             if (isNull(source) || isNull(target)) {
                 continue;
@@ -107,8 +105,8 @@ class TopologyBuilder {
         }
 
         for (Call.CallDetail serverCall : serviceRelationServerCalls) {
-            ServiceInventory source = serviceInventoryCache.get(serverCall.getSource());
-            ServiceInventory target = serviceInventoryCache.get(serverCall.getTarget());
+            ServiceInventory source = serviceInventoryCache.get(Integer.parseInt(serverCall.getSource()));
+            ServiceInventory target = serviceInventoryCache.get(Integer.parseInt(serverCall.getTarget()));
 
             if (isNull(source) || isNull(target)) {
                 continue;
@@ -117,7 +115,7 @@ class TopologyBuilder {
             if (source.getSequence() == Const.USER_SERVICE_ID) {
                 if (!nodes.containsKey(source.getSequence())) {
                     Node visualUserNode = new Node();
-                    visualUserNode.setId(source.getSequence());
+                    visualUserNode.setId(String.valueOf(source.getSequence()));
                     visualUserNode.setName(Const.USER_CODE);
                     visualUserNode.setType(Const.USER_CODE.toUpperCase());
                     visualUserNode.setReal(false);
@@ -128,7 +126,7 @@ class TopologyBuilder {
             if (BooleanUtils.valueToBoolean(source.getIsAddress())) {
                 if (!nodes.containsKey(source.getSequence())) {
                     Node conjecturalNode = new Node();
-                    conjecturalNode.setId(source.getSequence());
+                    conjecturalNode.setId(String.valueOf(source.getSequence()));
                     conjecturalNode.setName(source.getName());
                     conjecturalNode.setType(
                         componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
@@ -178,7 +176,7 @@ class TopologyBuilder {
 
     private Node buildNode(ServiceInventory serviceInventory) {
         Node serviceNode = new Node();
-        serviceNode.setId(serviceInventory.getSequence());
+        serviceNode.setId(String.valueOf(serviceInventory.getSequence()));
         serviceNode.setName(serviceInventory.getName());
         if (BooleanUtils.valueToBoolean(serviceInventory.getIsAddress())) {
             serviceNode.setReal(false);
@@ -186,14 +184,5 @@ class TopologyBuilder {
             serviceNode.setReal(true);
         }
         return serviceNode;
-    }
-
-    private void filterZeroSourceOrTargetReference(List<Call.CallDetail> serviceRelationClientCalls) {
-        for (int i = serviceRelationClientCalls.size() - 1; i >= 0; i--) {
-            Call.CallDetail call = serviceRelationClientCalls.get(i);
-            if (call.getSource() == 0 || call.getTarget() == 0) {
-                serviceRelationClientCalls.remove(i);
-            }
-        }
     }
 }

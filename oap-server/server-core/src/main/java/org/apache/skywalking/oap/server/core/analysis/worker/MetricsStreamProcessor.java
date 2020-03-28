@@ -113,24 +113,27 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsPersistentWorker dayPersistentWorker = null;
         MetricsPersistentWorker monthPersistentWorker = null;
 
-        if (configService.shouldToHour()) {
-            Model model = modelSetter.putIfAbsent(
-                metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
-            hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
+        MetricsTransWorker transWorker = null;
+        if (stream.supportDownSampling()) {
+            if (configService.shouldToHour()) {
+                Model model = modelSetter.putIfAbsent(
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
+                hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
+            }
+            if (configService.shouldToDay()) {
+                Model model = modelSetter.putIfAbsent(
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
+                dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
+            }
+            if (configService.shouldToMonth()) {
+                Model model = modelSetter.putIfAbsent(
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
+                monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
+            }
+            
+            transWorker = new MetricsTransWorker(
+                moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
         }
-        if (configService.shouldToDay()) {
-            Model model = modelSetter.putIfAbsent(
-                metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
-            dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
-        }
-        if (configService.shouldToMonth()) {
-            Model model = modelSetter.putIfAbsent(
-                metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
-            monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
-        }
-
-        MetricsTransWorker transWorker = new MetricsTransWorker(
-            moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
 
         Model model = modelSetter.putIfAbsent(
             metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);

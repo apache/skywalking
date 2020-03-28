@@ -57,9 +57,9 @@ public class AlarmRecord extends Record {
     @Column(columnName = NAME)
     private String name;
     @Column(columnName = ID0)
-    private int id0;
+    private String id0;
     @Column(columnName = ID1)
-    private int id1;
+    private String id1;
     @Column(columnName = START_TIME)
     private long startTime;
     @Column(columnName = ALARM_MESSAGE, matchQuery = true)
@@ -85,8 +85,8 @@ public class AlarmRecord extends Record {
             AlarmRecord record = new AlarmRecord();
             record.setScope(((Number) dbMap.get(SCOPE)).intValue());
             record.setName((String) dbMap.get(NAME));
-            record.setId0(((Number) dbMap.get(ID0)).intValue());
-            record.setId1(((Number) dbMap.get(ID1)).intValue());
+            record.setId0((String) dbMap.get(ID0));
+            record.setId1((String) dbMap.get(ID1));
             record.setAlarmMessage((String) dbMap.get(ALARM_MESSAGE));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
             record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());

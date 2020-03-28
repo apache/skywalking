@@ -18,8 +18,6 @@ registryItems:
     - {spring-3.0.x-scenario: 2}
   instances:
     - {spring-3.0.x-scenario: 1}
-  operationNames:
-    - spring-3.0.x-scenario: [/healthCheck, /case/spring3]
   heartbeat: []
 segmentItems:
   - serviceName: spring-3.0.x-scenario

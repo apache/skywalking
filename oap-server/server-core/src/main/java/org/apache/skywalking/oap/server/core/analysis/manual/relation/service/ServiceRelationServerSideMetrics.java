@@ -66,15 +66,14 @@ public class ServiceRelationServerSideMetrics extends Metrics {
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
+        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
         return splitJointId;
     }
 
     public void buildEntityId() {
-        String splitJointId = String.valueOf(sourceServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(destServiceId);
-        splitJointId += Const.ID_SPLIT + String.valueOf(componentId);
-        entityId = splitJointId;
+        entityId = RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
     }
 
     @Override

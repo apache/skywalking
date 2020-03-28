@@ -16,7 +16,8 @@ Service, Service Instance, Network address and Endpoint could do register to get
 
 ### Language based native agent protocol
 There is two types of protocols to make language agents work in distributed environments.
-1. **Cross Process Propagation Headers Protocol** is in wire data format, agent/SDK usually uses HTTP/MQ/HTTP2 headers
+1. **Cross Process Propagation Headers Protocol** and **Cross Process Correlation Headers Protocol** are in wire data format, 
+agent/SDK usually uses HTTP/MQ/HTTP2 headers
 to carry the data with rpc request. The remote agent will receive this in the request handler, and bind the context 
 with this specific request.
 1. **Trace Data Protocol** is out of wire data, agent/SDK uses this to send traces and metrics to skywalking or other
@@ -25,10 +26,14 @@ compatible backend.
 [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md) is the new protocol for 
 in-wire context propagation, started in 6.0.0-beta release, v1 is no longer supported.
 
-Since SkyWalking v6.0.0-beta, SkyWalking agent and backend are using Trace Data Protocol v2.
-[SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md) defines the communication way and format between agent and backend.
+[Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation additional and optional protocols. 
+Please read SkyWalking language agents documentations to see whether it is supported. 
+This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol v2`.
+SkyWalking javaagent begins to support this since 7.1.0.
 
-* [Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation additional and optional protocols. Please read SkyWalking language agents documentations to see whether it is supported. This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol v2`. SkyWalking javaagent begins to support this since 7.1.0.
+Since SkyWalking v7.1.0, SkyWalking agent and backend are using Trace Data Protocol v2.1.
+[SkyWalking Trace Data Protocol v2.1](Trace-Data-Protocol-v2.md) defines the communication way and format between agent and backend.
+
 
 ### Service Mesh probe protocol
 The probe in sidecar or proxy could use this protocol to send data to backendEnd. This service provided by gRPC, requires 

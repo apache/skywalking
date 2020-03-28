@@ -18,8 +18,6 @@ registryItems:
     - {finagle-17.10.x-scenario: 2}
   instances:
     - {finagle-17.10.x-scenario: 1}
-  operationNames:
-    - finagle-17.10.x-scenario: [hello, /finagle-17.10.x-scenario/case/finagle]
   heartbeat: []
 segmentItems:
   - serviceName: finagle-17.10.x-scenario

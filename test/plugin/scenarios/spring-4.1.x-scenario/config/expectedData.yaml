@@ -18,9 +18,6 @@ registryItems:
     - {spring-4.1.x-scenario: 2}
   instances:
     - {spring-4.1.x-scenario: 1}
-  operationNames:
-    - spring-4.1.x-scenario: ['{DELETE}/delete/{id}', /case/resttemplate, '{GET}/get/{id}',
-                               '{POST}/create/', /healthCheck, /case/spring3, '{PUT}/update/{id}']
   heartbeat: []
 segmentItems:
   - serviceName: spring-4.1.x-scenario
