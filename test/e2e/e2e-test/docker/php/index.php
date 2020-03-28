@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+usleep(200000);
 $uri = $_SERVER['REQUEST_URI'];
 
 if($uri == '/php/info') {
