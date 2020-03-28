@@ -256,6 +256,8 @@ public class Config {
              * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
              */
             public static boolean TRACE_DSL = false;
+
+            public static int ELASTICSEARCH_DSL_LENGTH_THRESHOLD = 1024;
         }
 
         public static class Customize {
@@ -393,5 +395,17 @@ public class Config {
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
         }
+    }
+
+    public static class Correlation {
+        /**
+         * Max element count in the correlation context.
+         */
+        public static int ELEMENT_MAX_NUMBER = 3;
+
+        /**
+         * Max value length of each element.
+         */
+        public static int VALUE_MAX_LENGTH = 128;
     }
 }

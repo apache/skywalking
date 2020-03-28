@@ -70,8 +70,11 @@ public class ContextCarrier implements Serializable {
      */
     private DistributedTraceId primaryDistributedTraceId;
 
+    private CorrelationContext correlationContext = new CorrelationContext();
+
     public CarrierItem items() {
-        SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, null);
+        SW7CorrelationCarrierItem sw7CorrelationCarrierItem = new SW7CorrelationCarrierItem(correlationContext, null);
+        SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, sw7CorrelationCarrierItem);
         return new CarrierItemHead(sw6CarrierItem);
     }
 
@@ -232,6 +235,10 @@ public class ContextCarrier implements Serializable {
 
     public void setEntryServiceInstanceId(int entryServiceInstanceId) {
         this.entryServiceInstanceId = entryServiceInstanceId;
+    }
+
+    public CorrelationContext getCorrelationContext() {
+        return correlationContext;
     }
 
     public enum HeaderVersion {

@@ -1,0 +1,76 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PluginsTest
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/plugins-test*.yaml'
+      - 'apm-application-toolkit/**'
+      - 'apm-commons/**'
+      - 'apm-protocol/**'
+      - 'apm-sniffer/**'
+      - 'test/plugin/**'
+      - '**/pom.xml'
+      - '!test/e2e/**'
+      - '!apm-webapp/**'
+      - '!apm-dist/**'
+      - '!apm-dist-es7/**'
+      - '!apm-docker/**'
+      - '!docs/**'
+      - '!oap-server/**'
+
+jobs:
+  PluginsTest:
+    name: Plugin
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        case:
+          - { name: 'h2-scenario', title: 'H2 (24)' }
+          - { name: 'httpasyncclient-scenario', title: 'HttpAsyncClient 4.0-4.1.3 (7)' }
+          - { name: 'httpclient-3.x-scenario', title: 'HttpClient 2.0-3.1 (5)' }
+          - { name: 'httpclient-4.3.x-scenario', title: 'HttpClient 4.3.x-4.5.x (14)' }
+          - { name: 'hystrix-scenario', title: 'Hystrix 1.4.20-1.5.12 (20)' }
+          - { name: 'jdk-http-scenario', title: 'JDK http (1)' }
+          - { name: 'jdk-threading-scenario', title: 'JDK Threading (1)' }
+          - { name: 'jedis-scenario', title: 'Jedis 2.4.0-2.9.0 (18)' }
+          - { name: 'jetty-scenario', title: 'Jetty 9.x (63)' }
+          - { name: 'kafka-scenario', title: 'Kafka 0.11.0.0-2.3.0 (16)' }
+          - { name: 'kotlin-coroutine-scenario', title: 'Kotlin Coroutine 1.0.1-1.3.3 (4)' }
+          - { name: 'lettuce-scenario', title: 'Lettuce 5.x (17)' }
+          - { name: 'mongodb-3.x-scenario', title: 'Mongodb 3.4.0-3.11.1 (22)' }
+          - { name: 'mysql-scenario', title: 'MySQL 5.1.2-8.0.15 (53)' }
+          - { name: 'netty-socketio-scenario', title: 'Netty-SocketIO 1.x (4)' }
+    steps:
+      - uses: actions/checkout@v2
+      - name: checkout submodules
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build SkyWalking Agent
+        run: ./mvnw --batch-mode clean package -DskipTests -Pagent
+      - name: Build Docker image
+        run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
+      - name: ${{ matrix.case.title }}
+        run: bash test/plugin/run.sh ${{ matrix.case.name }}
