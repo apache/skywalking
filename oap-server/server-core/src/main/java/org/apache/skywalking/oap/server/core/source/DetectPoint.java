@@ -40,20 +40,6 @@ public enum DetectPoint {
         }
     }
 
-    public static DetectPoint fromNetworkProtocolDetectPoint(
-        org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
-        switch (detectPoint) {
-            case client:
-                return CLIENT;
-            case server:
-                return SERVER;
-            case proxy:
-            case UNRECOGNIZED:
-            default:
-                return UNRECOGNIZED;
-        }
-    }
-
     public static DetectPoint valueOf(int value) {
         switch (value) {
             case 0:

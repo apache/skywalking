@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
@@ -77,6 +78,7 @@ public class RelationDefineUtil {
 
     @RequiredArgsConstructor
     @Getter
+    @EqualsAndHashCode
     public static class RelationDefine {
         private final int source;
         private final int dest;
@@ -85,6 +87,7 @@ public class RelationDefineUtil {
 
     @RequiredArgsConstructor
     @Getter
+    @EqualsAndHashCode
     public static class EndpointRelationDefine {
         private final int sourceServiceId;
         private final String source;
