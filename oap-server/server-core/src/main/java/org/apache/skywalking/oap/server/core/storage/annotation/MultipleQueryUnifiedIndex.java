@@ -16,11 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.library.module.Service;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface IModelGetter extends Service {
-    List<Model> getModels();
+/**
+ * The support of the multiple {@link QueryUnifiedIndex}s on one field.
+ */
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MultipleQueryUnifiedIndex {
+    QueryUnifiedIndex[] value();
 }

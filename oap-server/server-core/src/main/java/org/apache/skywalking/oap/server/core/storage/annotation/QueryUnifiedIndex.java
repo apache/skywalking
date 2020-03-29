@@ -16,23 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Extend H2TableInstaller but match MySQL SQL syntax.
+ * QueryIndex defines the unified index is required in the query stage. This works only the storage supports this kind
+ * of index model. Mostly, work for the typical relational database, such as MySQL, TiDB.
  */
-@Slf4j
-public class MySQLTableInstaller extends H2TableInstaller {
-    public MySQLTableInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
-        /*
-         * Override column because the default column names in core have syntax conflict with MySQL.
-         */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
-    }
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(MultipleQueryUnifiedIndex.class)
+public @interface QueryUnifiedIndex {
+    /**
+     * @return index name.
+     */
+    String name();
+
+    /**
+     * @return list of other column should be add into the unified index.
+     */
+    String[] withColumns();
 }

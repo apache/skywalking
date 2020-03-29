@@ -117,12 +117,17 @@ public class DefaultScopeDefine {
                 "ScopeDeclaration id=" + id + " at " + originalClass.getName() + " has conflict with another named " + ID_2_NAME
                     .get(id));
         }
+        if (id < 0) {
+            throw new UnexpectedException(
+                "ScopeDeclaration id=" + id + " at " + originalClass.getName() + " is negative. ");
+        }
         String name = declaration.name();
         if (NAME_2_ID.containsKey(name)) {
             throw new UnexpectedException(
                 "ScopeDeclaration fieldName=" + name + " at " + originalClass.getName() + " has conflict with another id= " + NAME_2_ID
                     .get(name));
         }
+
         ID_2_NAME.put(id, name);
         NAME_2_ID.put(name, id);
 

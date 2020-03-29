@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
+import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -65,31 +66,32 @@ public class H2TableInstaller extends ModelInstaller {
 
     @Override
     protected void createTable(Client client, Model model) throws StorageException {
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
-        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
-        tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");
-        for (int i = 0; i < model.getColumns().size(); i++) {
-            ModelColumn column = model.getColumns().get(i);
-            ColumnName name = column.getColumnName();
-            tableCreateSQL.appendLine(
-                name.getStorageName() + " " + getColumnType(model, column) + (i != model
-                    .getColumns()
-                    .size() - 1 ? "," : ""));
-        }
-        tableCreateSQL.appendLine(")");
+        JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
+        try (Connection connection = jdbcHikariCPClient.getConnection()) {
+            SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
+            tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");
+            for (int i = 0; i < model.getColumns().size(); i++) {
+                ModelColumn column = model.getColumns().get(i);
+                ColumnName name = column.getColumnName();
+                tableCreateSQL.appendLine(
+                    name.getStorageName() + " " + getColumnType(model, column) + (i != model
+                        .getColumns()
+                        .size() - 1 ? "," : ""));
+            }
+            tableCreateSQL.appendLine(")");
 
-        if (log.isDebugEnabled()) {
-            log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-        }
+            if (log.isDebugEnabled()) {
+                log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
+            }
 
-        try (Connection connection = h2Client.getConnection()) {
-            h2Client.execute(connection, tableCreateSQL.toString());
+            jdbcHikariCPClient.execute(connection, tableCreateSQL.toString());
+
+            createTableIndexes(jdbcHikariCPClient, connection, model);
         } catch (JDBCClientException e) {
             throw new StorageException(e.getMessage(), e);
         } catch (SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }
-
     }
 
     /**
@@ -112,5 +114,45 @@ public class H2TableInstaller extends ModelInstaller {
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
+    }
+
+    private void createTableIndexes(JDBCHikariCPClient client,
+                                    Connection connection,
+                                    Model model) throws JDBCClientException {
+        for (final ModelColumn modelColumn : model.getColumns()) {
+            if (!modelColumn.isStorageOnly()) {
+                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                tableIndexSQL.append(model.getName().toUpperCase()).append("_")
+                             .append(modelColumn.getColumnName().getStorageName()).append("_IDX ");
+                tableIndexSQL.append("ON ").append(model.getName()).append("(")
+                             .append(modelColumn.getColumnName().getStorageName())
+                             .append(")");
+                createIndex(client, connection, model, tableIndexSQL);
+            }
+        }
+
+        for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
+            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(model.getName().toUpperCase()).append("_")
+                         .append(extraQueryIndex.getIndexName())
+                         .append(" ON ").append(model.getName()).append("(");
+            final String[] columns = extraQueryIndex.getColumns();
+            for (int i = 0; i < columns.length; i++) {
+                tableIndexSQL.append(columns[i]);
+                if (i < columns.length - 1) {
+                    tableIndexSQL.append(",");
+                }
+            }
+            tableIndexSQL.append(")");
+            createIndex(client, connection, model, tableIndexSQL);
+        }
+    }
+
+    private void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
+                             SQLBuilder indexSQL) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
+        }
+        client.execute(connection, indexSQL.toString());
     }
 }

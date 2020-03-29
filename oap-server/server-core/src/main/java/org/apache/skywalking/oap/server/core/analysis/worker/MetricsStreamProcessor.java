@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
+import org.apache.skywalking.oap.server.core.storage.model.INewModel;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -104,7 +104,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " metrics DAO failure.", e);
         }
 
-        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
+        INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
         DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
                                                                     .provider()
                                                                     .getService(DownsamplingConfigService.class);
@@ -116,17 +116,17 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsTransWorker transWorker = null;
         if (stream.supportDownSampling()) {
             if (configService.shouldToHour()) {
-                Model model = modelSetter.putIfAbsent(
+                Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
                 hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
             }
             if (configService.shouldToDay()) {
-                Model model = modelSetter.putIfAbsent(
+                Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
                 dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
             }
             if (configService.shouldToMonth()) {
-                Model model = modelSetter.putIfAbsent(
+                Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
                 monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model);
             }
@@ -135,7 +135,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                 moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
         }
 
-        Model model = modelSetter.putIfAbsent(
+        Model model = modelSetter.add(
             metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
             moduleDefineHolder, metricsDAO, model, transWorker);

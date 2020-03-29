@@ -47,11 +47,11 @@ public class ProfileTaskLogRecord extends Record {
     public static final String OPERATION_TYPE = "operation_type";
     public static final String OPERATION_TIME = "operation_time";
 
-    @Column(columnName = TASK_ID)
+    @Column(columnName = TASK_ID, storageOnly = true)
     private String taskId;
-    @Column(columnName = INSTANCE_ID)
+    @Column(columnName = INSTANCE_ID, storageOnly = true)
     private int instanceId;
-    @Column(columnName = OPERATION_TYPE)
+    @Column(columnName = OPERATION_TYPE, storageOnly = true)
     private int operationType;
     @Column(columnName = OPERATION_TIME)
     private long operationTime;

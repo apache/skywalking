@@ -16,23 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Extend H2TableInstaller but match MySQL SQL syntax.
+ * INewModel implementation supports creating a new module.
  */
-@Slf4j
-public class MySQLTableInstaller extends H2TableInstaller {
-    public MySQLTableInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
-        /*
-         * Override column because the default column names in core have syntax conflict with MySQL.
-         */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
-    }
+public interface INewModel extends Service {
+    /**
+     * Add a new model
+     *
+     * @return the created new model
+     */
+    Model add(Class aClass, int scopeId, Storage storage, boolean record);
 }
