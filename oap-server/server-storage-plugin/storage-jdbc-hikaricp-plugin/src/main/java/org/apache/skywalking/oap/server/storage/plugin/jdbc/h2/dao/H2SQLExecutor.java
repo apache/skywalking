@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
@@ -138,8 +138,8 @@ public class H2SQLExecutor {
             }
 
             Object value = objectMap.get(column.getColumnName().getName());
-            if (value instanceof StorageDataType) {
-                param.add(((StorageDataType) value).toStorageData());
+            if (value instanceof StorageDataComplexObject) {
+                param.add(((StorageDataComplexObject) value).toStorageData());
             } else {
                 param.add(value);
             }
@@ -164,8 +164,8 @@ public class H2SQLExecutor {
             }
 
             Object value = objectMap.get(column.getColumnName().getName());
-            if (value instanceof StorageDataType) {
-                param.add(((StorageDataType) value).toStorageData());
+            if (value instanceof StorageDataComplexObject) {
+                param.add(((StorageDataComplexObject) value).toStorageData());
             } else {
                 param.add(value);
             }

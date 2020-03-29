@@ -22,9 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
-public class IntKeyLongValueHashMap extends HashMap<Integer, IntKeyLongValue> implements StorageDataType {
+public class IntKeyLongValueHashMap extends HashMap<Integer, IntKeyLongValue> implements StorageDataComplexObject {
 
     public IntKeyLongValueHashMap() {
         super();

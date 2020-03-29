@@ -18,11 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.storage.type;
 
-public interface StorageDataType {
-
+/**
+ * StorageDataType implementation supports String-Object interconversion.
+ */
+public interface StorageDataComplexObject {
+    /**
+     * @return string representing this object.
+     */
     String toStorageData();
 
+    /**
+     * Initial this object based on the given string data.
+     */
     void toObject(String data);
 
+    /**
+     * Initial the object based on the given source.
+     */
     void copyFrom(Object source);
 }
