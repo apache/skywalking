@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 /**
  * H2 table initialization. Create tables without Indexes. H2 is for the demonstration only, so, keep the logic as
@@ -45,7 +46,8 @@ public class H2TableInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        return false;
+         TableMetaInfo.addModel(model);
+         return false;
     }
 
     @Override
