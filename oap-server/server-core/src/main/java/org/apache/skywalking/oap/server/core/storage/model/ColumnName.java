@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import lombok.ToString;
+
 /**
  * Short column name unsupported for now. No define in @Column annotation. The storage implementation need to use name
  * to do match.
  */
+@ToString
 public class ColumnName {
     private String fullName;
     private String storageName = null;

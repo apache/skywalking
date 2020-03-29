@@ -29,8 +29,9 @@ public class SourceColumnsFactory {
 
         List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
         for (ScopeDefaultColumn defaultColumn : columns) {
-            sourceColumns.add(new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
-                .getType(), defaultColumn.isID()));
+            sourceColumns.add(
+                new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
+                    .getType(), defaultColumn.isID(), defaultColumn.getLength()));
         }
         return sourceColumns;
     }

@@ -133,7 +133,7 @@ public class DefaultScopeDefine {
         if (virtualColumn != null) {
             scopeDefaultColumns.add(
                 new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
-                    .type(), virtualColumn.isID()));
+                    .type(), virtualColumn.isID(), virtualColumn.length()));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
@@ -143,9 +143,9 @@ public class DefaultScopeDefine {
                 if (definedByField != null) {
                     if (!definedByField.requireDynamicActive() || ACTIVE_EXTRA_MODEL_COLUMNS) {
                         scopeDefaultColumns.add(
-                            new ScopeDefaultColumn(field.getName(), definedByField.columnName(), field.getType(),
-                                                   definedByField
-                                                       .isID()
+                            new ScopeDefaultColumn(
+                                field.getName(), definedByField.columnName(), field.getType(), false,
+                                definedByField.length()
                             ));
                     }
                 }

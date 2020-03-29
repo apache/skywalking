@@ -54,7 +54,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     private int destServiceId;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID)
+    @Column(columnName = COMPONENT_ID, storageOnly = true)
     @IDColumn
     private int componentId;
     @Setter(AccessLevel.PRIVATE)

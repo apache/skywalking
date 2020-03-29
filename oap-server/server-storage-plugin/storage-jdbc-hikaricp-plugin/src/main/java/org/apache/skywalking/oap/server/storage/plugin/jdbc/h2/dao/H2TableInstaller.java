@@ -74,7 +74,7 @@ public class H2TableInstaller extends ModelInstaller {
             ModelColumn column = model.getColumns().get(i);
             ColumnName name = column.getColumnName();
             tableCreateSQL.appendLine(
-                name.getStorageName() + " " + getColumnType(model, name, column.getType()) + (i != model
+                name.getStorageName() + " " + getColumnType(model, column) + (i != model
                     .getColumns()
                     .size() - 1 ? "," : ""));
         }
@@ -97,7 +97,8 @@ public class H2TableInstaller extends ModelInstaller {
     /**
      * Set up the data type mapping between Java type and H2 database type
      */
-    protected String getColumnType(Model model, ColumnName name, Class<?> type) {
+    protected String getColumnType(Model model, ModelColumn column) {
+        final Class<?> type = column.getType();
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
@@ -105,16 +106,11 @@ public class H2TableInstaller extends ModelInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            return "VARCHAR(2000)";
+            return "VARCHAR(" + column.getLength() + ")";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
-            return "VARCHAR(20000)";
+            return "MEDIUMTEXT";
         } else if (byte[].class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
-                if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
-                    return "MEDIUMTEXT";
-                }
-            }
-            return "VARCHAR(20000)";
+            return "MEDIUMTEXT";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

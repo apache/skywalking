@@ -35,7 +35,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
 
     @Getter
     @Setter
-    @Column(columnName = STATEMENT, content = true)
+    @Column(columnName = STATEMENT, storageOnly = true)
     private String statement;
     @Getter
     @Setter

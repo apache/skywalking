@@ -54,8 +54,11 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         List<ModelColumn> modelColumns = new LinkedList<>();
         retrieval(aClass, storage.getModelName(), modelColumns);
 
-        Model model = new Model(storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId, storage
-            .getDownsampling(), record);
+        Model model = new Model(
+            storage.getModelName(), modelColumns, storage.isCapableOfTimeSeries(), storage.isDeleteHistory(), scopeId,
+            storage
+                .getDownsampling(), record
+        );
         models.add(model);
 
         return model;
@@ -67,8 +70,9 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                modelColumns.add(new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery(), column
-                    .content()));
+                modelColumns.add(
+                    new ModelColumn(new ColumnName(column.columnName()), field.getType(), column.matchQuery(), column
+                        .storageOnly(), column.isValue(), column.length()));
                 if (logger.isDebugEnabled()) {
                     logger.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
@@ -90,7 +94,8 @@ public class StorageModels implements IModelGetter, IModelSetter, IModelOverride
             String name = existColumnName.getName();
             if (name.equals(columnName)) {
                 existColumnName.setStorageName(newName);
-                logger.debug("Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
+                logger.debug(
+                    "Model {} column {} has been override. The new column name is {}.", model.getName(), name, newName);
             }
         }));
     }

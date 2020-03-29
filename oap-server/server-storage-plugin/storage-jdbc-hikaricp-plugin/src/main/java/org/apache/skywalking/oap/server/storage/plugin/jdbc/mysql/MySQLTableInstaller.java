@@ -23,13 +23,11 @@ import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
@@ -65,43 +63,6 @@ public class MySQLTableInstaller extends H2TableInstaller {
         super.createTable(client, model);
         JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
         this.createIndexes(jdbcHikariCPClient, model);
-    }
-
-    /**
-     * Based on MySQL features, provide a specific data type mappings.
-     */
-    @Override
-    protected String getColumnType(Model model, ColumnName name, Class<?> type) {
-        if (Integer.class.equals(type) || int.class.equals(type)) {
-            return "INT";
-        } else if (Long.class.equals(type) || long.class.equals(type)) {
-            return "BIGINT";
-        } else if (Double.class.equals(type) || double.class.equals(type)) {
-            return "DOUBLE";
-        } else if (String.class.equals(type)) {
-            if (name.getName().equals(SegmentRecord.TRACE_ID) || name.getName().equals(SegmentRecord.SEGMENT_ID)) {
-                return "VARCHAR(150)";
-            }
-            if (Metrics.ENTITY_ID.equals(name.getName())) {
-                return "VARCHAR(512)";
-            }
-            if (SegmentRecord.ENDPOINT_NAME.equals(name.getName()) || SegmentRecord.ENDPOINT_ID.equals(
-                name.getName())) {
-                return "VARCHAR(200)";
-            }
-            if (PROFILE_TASK_LOG == model.getScopeId() || PROFILE_TASK_SEGMENT_SNAPSHOT == model.getScopeId()) {
-                if (name.getName().equals(ProfileTaskLogRecord.TASK_ID)) {
-                    return "VARCHAR(300)";
-                }
-            }
-            return "VARCHAR(2000)";
-        } else if (IntKeyLongValueHashMap.class.equals(type)) {
-            return "MEDIUMTEXT";
-        } else if (byte[].class.equals(type)) {
-            return "MEDIUMTEXT";
-        } else {
-            throw new IllegalArgumentException("Unsupported data type: " + type.getName());
-        }
     }
 
     /**

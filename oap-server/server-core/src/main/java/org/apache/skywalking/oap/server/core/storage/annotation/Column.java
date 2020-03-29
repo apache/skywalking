@@ -55,5 +55,12 @@ public @interface Column {
     /**
      * The column is just saved, never used in query.
      */
-    boolean content() default false;
+    boolean storageOnly() default false;
+
+    /**
+     * @return the length of this column, this is only for {@link String} column. The usage of this depends on the
+     * storage implementation.
+     * @since 7.1.0
+     */
+    int length() default 200;
 }

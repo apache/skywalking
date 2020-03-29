@@ -46,11 +46,11 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
     private int value;
     @Getter
     @Setter
-    @Column(columnName = PRECISION)
+    @Column(columnName = PRECISION, storageOnly = true)
     private int precision;
     @Getter
     @Setter
-    @Column(columnName = DETAIL_GROUP)
+    @Column(columnName = DETAIL_GROUP, storageOnly = true)
     private IntKeyLongValueHashMap detailGroup;
 
     private final int percentileRank;

@@ -52,7 +52,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private String destEndpoint;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID)
+    @Column(columnName = COMPONENT_ID, storageOnly = true)
     @IDColumn
     private int componentId;
     @Setter

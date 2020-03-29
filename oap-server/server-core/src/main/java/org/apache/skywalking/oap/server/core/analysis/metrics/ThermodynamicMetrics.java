@@ -43,15 +43,19 @@ public abstract class ThermodynamicMetrics extends GroupMetrics {
 
     @Getter
     @Setter
-    @Column(columnName = STEP)
+    @Column(columnName = STEP, storageOnly = true)
     private int step = 0;
     @Getter
     @Setter
-    @Column(columnName = NUM_OF_STEPS)
+    @Column(columnName = NUM_OF_STEPS, storageOnly = true)
     private int numOfSteps = 0;
+    /**
+     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link
+     * IntKeyLongValueHashMap} type, this column can't be query by the aggregation way.
+     */
     @Getter
     @Setter
-    @Column(columnName = DETAIL_GROUP, isValue = true)
+    @Column(columnName = DETAIL_GROUP, isValue = true, storageOnly = true)
     private IntKeyLongValueHashMap detailGroup = new IntKeyLongValueHashMap(30);
 
     /**
