@@ -47,7 +47,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDataCache<Metrics>> {
     private final Model model;
-    private final Map<Metrics, Metrics> databaseSession;
+    private final Map<Metrics, Metrics> context;
     private final MergeDataCache<Metrics> mergeDataCache;
     private final IMetricsDAO metricsDAO;
     private final AbstractWorker<Metrics> nextAlarmWorker;
@@ -62,7 +62,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                             MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean insertOnly) {
         super(moduleDefineHolder);
         this.model = model;
-        this.databaseSession = new HashMap<>(100);
+        this.context = new HashMap<>(100);
         this.enableDatabaseSession = enableDatabaseSession;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
@@ -137,7 +137,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                     loadFromStorage(metrics);
 
                     for (Metrics metric : metrics) {
-                        Metrics cacheMetric = databaseSession.get(metric);
+                        Metrics cacheMetric = context.get(metric);
                         if (cacheMetric != null) {
                             if (insertOnly) {
                                 continue;
@@ -197,12 +197,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
      */
     private void loadFromStorage(Metrics[] metrics) throws IOException {
         if (!enableDatabaseSession) {
-            databaseSession.clear();
+            context.clear();
         }
 
         List<String> notInCacheIds = new ArrayList<>();
         for (Metrics metric : metrics) {
-            if (!databaseSession.containsKey(metric)) {
+            if (!context.containsKey(metric)) {
                 notInCacheIds.add(metric.id());
             }
         }
@@ -210,7 +210,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         if (notInCacheIds.size() > 0) {
             List<Metrics> metricsList = metricsDAO.multiGet(model, notInCacheIds);
             for (Metrics metric : metricsList) {
-                databaseSession.put(metric, metric);
+                context.put(metric, metric);
             }
         }
     }
@@ -218,7 +218,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     @Override
     public void endOfRound(long tookTime) {
         if (enableDatabaseSession) {
-            Iterator<Metrics> iterator = databaseSession.values().iterator();
+            Iterator<Metrics> iterator = context.values().iterator();
             while (iterator.hasNext()) {
                 Metrics metrics = iterator.next();
                 metrics.extendSurvivalTime(tookTime);

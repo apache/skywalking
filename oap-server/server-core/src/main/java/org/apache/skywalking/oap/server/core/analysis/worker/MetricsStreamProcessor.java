@@ -117,21 +117,27 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         MetricsTransWorker transWorker = null;
 
         final MetricsExtension metricsExtension = metricsClass.getAnnotation(MetricsExtension.class);
-        if (metricsExtension.supportDownSampling()) {
+        boolean supportDownSampling = true;
+        boolean insertOnly = false;
+        if (metricsExtension != null) {
+            supportDownSampling = metricsExtension.supportDownSampling();
+            insertOnly = metricsExtension.insertOnly();
+        }
+        if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
-                hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, metricsExtension.insertOnly());
+                hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, insertOnly);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
-                dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, metricsExtension.insertOnly());
+                dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, insertOnly);
             }
             if (configService.shouldToMonth()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
-                monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, metricsExtension.insertOnly());
+                monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model, insertOnly);
             }
 
             transWorker = new MetricsTransWorker(
@@ -141,7 +147,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         Model model = modelSetter.add(
             metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
-            moduleDefineHolder, metricsDAO, model, transWorker, metricsExtension.insertOnly());
+            moduleDefineHolder, metricsDAO, model, transWorker, insertOnly);
 
         String remoteReceiverWorkerName = stream.name() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
