@@ -253,7 +253,7 @@ public class OALRuntime implements OALEngine {
                 Annotation columnAnnotation = new Annotation(Column.class.getName(), constPool);
                 columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
                 if (field.getType().equals(String.class)) {
-                    columnAnnotation.addMemberValue("length", new IntegerMemberValue(field.getLength(), constPool));
+                    columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 

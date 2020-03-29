@@ -29,9 +29,10 @@ public class ModelColumnTest {
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
-        column = new ModelColumn(new ColumnName("abc"), IntKeyLongValueHashMap.class, true, false, true, 0);
+        column = new ModelColumn(new ColumnName("abc"), IntKeyLongValueHashMap.class, true, false, true, 200);
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
+        Assert.assertEquals(0, column.getLength());
 
         column = new ModelColumn(new ColumnName("abc"), String.class, true, false, true, 200);
         Assert.assertEquals(false, column.isStorageOnly());
@@ -41,15 +42,5 @@ public class ModelColumnTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConflictDefinition() {
         ModelColumn column = new ModelColumn(new ColumnName("abc"), String.class, true, true, true, 200);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testStringColumnNoLength() {
-        ModelColumn column = new ModelColumn(new ColumnName("abc"), String.class, true, true, true, 0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testIntColumnWithLength() {
-        ModelColumn column = new ModelColumn(new ColumnName("abc"), int.class, true, true, true, 100);
     }
 }

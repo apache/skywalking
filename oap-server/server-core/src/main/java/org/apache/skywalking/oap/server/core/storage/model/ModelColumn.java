@@ -38,11 +38,14 @@ public class ModelColumn {
         this.columnName = columnName;
         this.type = type;
         this.matchQuery = matchQuery;
-        this.length = length;
-        if (!type.equals(String.class) && length > 0) {
-            throw new IllegalArgumentException("Can't define the column " + columnName + " length.");
-        } else if (type.equals(String.class) && length == 0) {
-            throw new IllegalArgumentException("Can't define the column " + columnName + " length as 0.");
+
+        /**
+         * Only accept length in the String definition.
+         */
+        if (!type.equals(String.class)) {
+            this.length = 0;
+        } else {
+            this.length = length;
         }
         /**
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.
