@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
@@ -229,7 +228,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     /**
      * Metrics queue processor, merge the received metrics if existing one with same ID(s) and time bucket.
      *
-     * ID is declared through {@link IDColumn}
+     * ID is declared through {@link Object#hashCode()} and {@link Object#equals(Object)} as usual.
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
 

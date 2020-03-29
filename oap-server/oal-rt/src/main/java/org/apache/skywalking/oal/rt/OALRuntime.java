@@ -65,7 +65,6 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
@@ -257,16 +256,7 @@ public class OALRuntime implements OALEngine {
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 
-                if (field.isID()) {
-                    /**
-                     * Add @IDColumn
-                     */
-                    Annotation idAnnotation = new Annotation(IDColumn.class.getName(), constPool);
-                    annotationsAttribute.addAnnotation(idAnnotation);
-                }
-
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
-
             } catch (CannotCompileException e) {
                 logger.error(
                     "Can't add field(including set/get) " + field.getFieldName() + " in " + className + ".", e);
