@@ -56,7 +56,7 @@ public class ServiceInventory extends RegisterSource {
     @Setter
     @Getter
     @Column(columnName = NAME, matchQuery = true)
-    @QueryUnifiedIndex(name = NAME, withColumns = {
+    @QueryUnifiedIndex(withColumns = {
         HEARTBEAT_TIME,
         REGISTER_TIME
     })

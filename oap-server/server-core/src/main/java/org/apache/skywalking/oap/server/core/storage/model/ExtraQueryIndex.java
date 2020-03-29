@@ -27,11 +27,9 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
  */
 @Getter
 public class ExtraQueryIndex {
-    private String indexName;
     private String[] columns;
 
-    public ExtraQueryIndex(final String indexName, String mainColumn, final String[] withColumns) {
-        this.indexName = indexName;
+    public ExtraQueryIndex(String mainColumn, final String[] withColumns) {
         if (CollectionUtils.isNotEmpty(withColumns)) {
             this.columns = new String[withColumns.length + 1];
             for (int i = 0; i < columns.length; i++) {

@@ -119,11 +119,14 @@ public class H2TableInstaller extends ModelInstaller {
     private void createTableIndexes(JDBCHikariCPClient client,
                                     Connection connection,
                                     Model model) throws JDBCClientException {
+        int indexSeq = 0;
         for (final ModelColumn modelColumn : model.getColumns()) {
             if (!modelColumn.isStorageOnly()) {
                 SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                tableIndexSQL.append(model.getName().toUpperCase()).append("_")
-                             .append(modelColumn.getColumnName().getStorageName()).append("_IDX ");
+                tableIndexSQL.append(model.getName().toUpperCase())
+                             .append("_")
+                             .append(String.valueOf(indexSeq++))
+                             .append("_IDX ");
                 tableIndexSQL.append("ON ").append(model.getName()).append("(")
                              .append(modelColumn.getColumnName().getStorageName())
                              .append(")");
@@ -133,9 +136,11 @@ public class H2TableInstaller extends ModelInstaller {
 
         for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(model.getName().toUpperCase()).append("_")
-                         .append(extraQueryIndex.getIndexName())
-                         .append(" ON ").append(model.getName()).append("(");
+            tableIndexSQL.append(model.getName().toUpperCase())
+                         .append("_")
+                         .append(String.valueOf(indexSeq++))
+                         .append("_IDX ");
+            tableIndexSQL.append(" ON ").append(model.getName()).append("(");
             final String[] columns = extraQueryIndex.getColumns();
             for (int i = 0; i < columns.length; i++) {
                 tableIndexSQL.append(columns[i]);

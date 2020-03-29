@@ -66,9 +66,6 @@ public class StorageModelsTest {
 
         final List<ExtraQueryIndex> extraQueryIndices = model.getExtraQueryIndices();
         Assert.assertEquals(3, extraQueryIndices.size());
-        Assert.assertEquals("column1_UIDX", extraQueryIndices.get(0).getIndexName());
-        Assert.assertEquals("column2_0_UIDX", extraQueryIndices.get(1).getIndexName());
-        Assert.assertEquals("column2_1_UIDX", extraQueryIndices.get(2).getIndexName());
         Assert.assertArrayEquals(new String[] {
             "column2",
             "column"
@@ -81,12 +78,12 @@ public class StorageModelsTest {
         private String column;
 
         @Column(columnName = "column1")
-        @QueryUnifiedIndex(name = "column1", withColumns = {"column2"})
+        @QueryUnifiedIndex(withColumns = {"column2"})
         private String column1;
 
         @Column(columnName = "column2")
-        @QueryUnifiedIndex(name = "column2_0", withColumns = {"column1"})
-        @QueryUnifiedIndex(name = "column2_1", withColumns = {"column"})
+        @QueryUnifiedIndex(withColumns = {"column1"})
+        @QueryUnifiedIndex(withColumns = {"column"})
         private String column2;
 
         @Column(columnName = "column", storageOnly = true)

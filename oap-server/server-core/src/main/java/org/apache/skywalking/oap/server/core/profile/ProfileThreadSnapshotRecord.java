@@ -53,11 +53,11 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String STACK_BINARY = "stack_binary";
 
     @Column(columnName = TASK_ID)
-    @QueryUnifiedIndex(name = TASK_ID, withColumns = {SEGMENT_ID})
+    @QueryUnifiedIndex(withColumns = {SEGMENT_ID})
     private String taskId;
     @Column(columnName = SEGMENT_ID)
-    @QueryUnifiedIndex(name = SEGMENT_ID + "_0", withColumns = {SEQUENCE})
-    @QueryUnifiedIndex(name = SEGMENT_ID + "_1", withColumns = {DUMP_TIME})
+    @QueryUnifiedIndex(withColumns = {SEQUENCE})
+    @QueryUnifiedIndex(withColumns = {DUMP_TIME})
     private String segmentId;
     @Column(columnName = DUMP_TIME)
     private long dumpTime;

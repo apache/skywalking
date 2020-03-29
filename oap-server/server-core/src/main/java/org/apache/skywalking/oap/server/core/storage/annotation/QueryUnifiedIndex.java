@@ -32,10 +32,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Repeatable(MultipleQueryUnifiedIndex.class)
 public @interface QueryUnifiedIndex {
-    /**
-     * @return index name.
-     */
-    String name();
 
     /**
      * @return list of other column should be add into the unified index.

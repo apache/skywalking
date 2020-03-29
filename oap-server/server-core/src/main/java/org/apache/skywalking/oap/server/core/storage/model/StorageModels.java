@@ -101,7 +101,6 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
 
                 indexDefinitions.forEach(indexDefinition -> {
                     extraQueryIndices.add(new ExtraQueryIndex(
-                        indexDefinition.name() + "_UIDX",
                         column.columnName(),
                         indexDefinition.withColumns()
                     ));
