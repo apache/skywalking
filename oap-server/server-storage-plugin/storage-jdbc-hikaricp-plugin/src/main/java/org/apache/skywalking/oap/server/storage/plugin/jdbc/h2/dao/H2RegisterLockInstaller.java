@@ -50,10 +50,6 @@ public class H2RegisterLockInstaller {
         tableCreateSQL.appendLine("name VARCHAR(100)");
         tableCreateSQL.appendLine(")");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-        }
-
         try (Connection connection = h2Client.getConnection()) {
             h2Client.execute(connection, tableCreateSQL.toString());
 
@@ -67,9 +63,10 @@ public class H2RegisterLockInstaller {
     }
 
     private void putIfAbsent(JDBCHikariCPClient h2Client, Connection connection, int scopeId,
-        String scopeName) throws StorageException {
+                             String scopeName) throws StorageException {
         boolean existed = false;
-        try (ResultSet resultSet = h2Client.executeQuery(connection, "select 1 from " + LOCK_TABLE_NAME + " where id = " + scopeId)) {
+        try (ResultSet resultSet = h2Client.executeQuery(
+            connection, "select 1 from " + LOCK_TABLE_NAME + " where id = " + scopeId)) {
             if (resultSet.next()) {
                 existed = true;
             }
@@ -77,7 +74,8 @@ public class H2RegisterLockInstaller {
             throw new StorageException(e.getMessage(), e);
         }
         if (!existed) {
-            try (PreparedStatement statement = connection.prepareStatement("insert into " + LOCK_TABLE_NAME + "(id, sequence, name)  values (?, ?, ?)")) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                "insert into " + LOCK_TABLE_NAME + "(id, sequence, name)  values (?, ?, ?)")) {
                 statement.setInt(1, scopeId);
                 statement.setInt(2, 1);
                 statement.setString(3, scopeName);

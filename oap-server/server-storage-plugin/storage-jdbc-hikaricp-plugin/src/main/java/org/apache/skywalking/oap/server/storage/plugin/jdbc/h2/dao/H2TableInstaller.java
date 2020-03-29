@@ -19,13 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
-import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -34,7 +32,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 /**
  * H2 table initialization. Create tables without Indexes. H2 is for the demonstration only, so, keep the logic as
@@ -48,19 +45,6 @@ public class H2TableInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        TableMetaInfo.addModel(model);
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
-        try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
-                if (rset.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
         return false;
     }
 
@@ -116,45 +100,13 @@ public class H2TableInstaller extends ModelInstaller {
         }
     }
 
-    private void createTableIndexes(JDBCHikariCPClient client,
-                                    Connection connection,
-                                    Model model) throws JDBCClientException {
-        int indexSeq = 0;
-        for (final ModelColumn modelColumn : model.getColumns()) {
-            if (!modelColumn.isStorageOnly()) {
-                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                tableIndexSQL.append(model.getName().toUpperCase())
-                             .append("_")
-                             .append(String.valueOf(indexSeq++))
-                             .append("_IDX ");
-                tableIndexSQL.append("ON ").append(model.getName()).append("(")
-                             .append(modelColumn.getColumnName().getStorageName())
-                             .append(")");
-                createIndex(client, connection, model, tableIndexSQL);
-            }
-        }
-
-        for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
-            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(model.getName().toUpperCase())
-                         .append("_")
-                         .append(String.valueOf(indexSeq++))
-                         .append("_IDX ");
-            tableIndexSQL.append(" ON ").append(model.getName()).append("(");
-            final String[] columns = extraQueryIndex.getColumns();
-            for (int i = 0; i < columns.length; i++) {
-                tableIndexSQL.append(columns[i]);
-                if (i < columns.length - 1) {
-                    tableIndexSQL.append(",");
-                }
-            }
-            tableIndexSQL.append(")");
-            createIndex(client, connection, model, tableIndexSQL);
-        }
+    protected void createTableIndexes(JDBCHikariCPClient client,
+                                      Connection connection,
+                                      Model model) throws JDBCClientException {
     }
 
-    private void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
-                             SQLBuilder indexSQL) throws JDBCClientException {
+    protected void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
+                               SQLBuilder indexSQL) throws JDBCClientException {
         if (log.isDebugEnabled()) {
             log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
         }
