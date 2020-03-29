@@ -55,10 +55,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final DataCarrier<Metrics> dataCarrier;
     private final MetricsTransWorker transWorker;
     private final boolean enableDatabaseSession;
+    private final boolean insertOnly;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-                            MetricsTransWorker transWorker, boolean enableDatabaseSession) {
+                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean insertOnly) {
         super(moduleDefineHolder);
         this.model = model;
         this.databaseSession = new HashMap<>(100);
@@ -68,6 +69,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         this.nextAlarmWorker = nextAlarmWorker;
         this.nextExportWorker = nextExportWorker;
         this.transWorker = transWorker;
+        this.insertOnly = insertOnly;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -132,11 +134,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
             if (mod == metrics.length - 1) {
                 try {
-                    syncStorageToCache(metrics);
+                    loadFromStorage(metrics);
 
                     for (Metrics metric : metrics) {
                         Metrics cacheMetric = databaseSession.get(metric);
                         if (cacheMetric != null) {
+                            if (insertOnly) {
+                                continue;
+                            }
                             cacheMetric.combine(metric);
                             cacheMetric.calculate();
                             prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cacheMetric));
@@ -188,9 +193,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     }
 
     /**
-     * Sync data to the cache if the {@link #enableDatabaseSession} == true.
+     * Load data from the storage, if {@link #enableDatabaseSession} == true, only load data when the id doesn't exist.
      */
-    private void syncStorageToCache(Metrics[] metrics) throws IOException {
+    private void loadFromStorage(Metrics[] metrics) throws IOException {
         if (!enableDatabaseSession) {
             databaseSession.clear();
         }
