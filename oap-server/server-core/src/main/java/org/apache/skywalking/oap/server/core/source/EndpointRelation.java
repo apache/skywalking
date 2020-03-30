@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_RELATION;
@@ -44,9 +45,13 @@ public class EndpointRelation extends Source {
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name")
     private String endpoint;
+
+    public void setEndpoint(final String endpoint) {
+        this.endpoint = endpoint.substring(0, CoreModule.getEndpointNameMaxLength());
+    }
+
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
@@ -61,7 +66,6 @@ public class EndpointRelation extends Source {
     @Getter
     @Setter
     private String serviceInstanceName;
-
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name")
@@ -71,16 +75,19 @@ public class EndpointRelation extends Source {
     @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
     private int childServiceId;
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "child_service_name", requireDynamicActive = true)
     private String childServiceName;
+
+    public void setChildEndpoint(final String childEndpoint) {
+        this.childEndpoint = childEndpoint.substring(0, CoreModule.getEndpointNameMaxLength());
+    }
+
     @Getter
     @Setter
     private int childServiceInstanceId;
     @Getter
     @Setter
     private String childServiceInstanceName;
-
     @Getter
     @Setter
     private int componentId;

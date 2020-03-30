@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.network.register.v2.NetAddressMapping;
 import org.apache.skywalking.apm.network.register.v2.NetAddresses;
 import org.apache.skywalking.apm.network.register.v2.RegisterGrpc;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.SERVICE_CODE_BUFFER_SIZE;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Dictionary.NETWORK_ADDRESS_BUFFER_SIZE;
 
 /**
  * Map of network address id to network literal address, which is from the collector side.
@@ -41,7 +41,7 @@ public enum NetworkAddressDictionary {
         if (applicationId != null) {
             return new Found(applicationId);
         } else {
-            if (serviceDictionary.size() + unRegisterServices.size() < SERVICE_CODE_BUFFER_SIZE) {
+            if (serviceDictionary.size() + unRegisterServices.size() < NETWORK_ADDRESS_BUFFER_SIZE) {
                 unRegisterServices.add(networkAddress);
             }
             return new NotFound();

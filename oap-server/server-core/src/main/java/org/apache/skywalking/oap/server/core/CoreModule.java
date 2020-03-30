@@ -57,8 +57,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  * Core module definition. Define all open services to other modules.
  */
 public class CoreModule extends ModuleDefine {
-
     public static final String NAME = "core";
+    private static int ENDPOINT_NAME_MAX_LENGTH = 150;
 
     public CoreModule() {
         super(NAME);
@@ -85,6 +85,14 @@ public class CoreModule extends ModuleDefine {
         classes.add(CommandService.class);
 
         return classes.toArray(new Class[] {});
+    }
+
+    public static int getEndpointNameMaxLength() {
+        return ENDPOINT_NAME_MAX_LENGTH;
+    }
+
+    public static void setEndpointNameMaxLength(final int endpointNameMaxLength) {
+        ENDPOINT_NAME_MAX_LENGTH = endpointNameMaxLength;
     }
 
     private void addProfileService(List<Class> classes) {

@@ -88,7 +88,6 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     @Setter
     private int remoteTimeout = 20;
-
     /**
      * Following are cache settings for inventory(s)
      */
@@ -96,31 +95,34 @@ public class CoreModuleConfig extends ModuleConfig {
     private long maxSizeOfServiceInstanceInventory = 1_000_000L;
     private long maxSizeOfEndpointInventory = 1_000_000L;
     private long maxSizeOfNetworkInventory = 1_000_000L;
-
     /**
      * Following are cache setting for none stream(s)
      */
     private long maxSizeOfProfileTask = 10_000L;
-
     /**
      * Analyze profile snapshots paging size.
      */
     private int maxPageSizeOfQueryProfileSnapshot = 500;
-
     /**
      * Analyze profile snapshots max size.
      */
     private int maxSizeOfAnalyzeProfileSnapshot = 12000;
-
     /**
      * Extra model column are the column defined by {@link ScopeDefaultColumn.DefinedByField#requireDynamicActive()} ==
-     * true. These columns of model are not required logically in aggregation or further query, and it will cause more load for
-     * memory, network of OAP and storage.
+     * true. These columns of model are not required logically in aggregation or further query, and it will cause more
+     * load for memory, network of OAP and storage.
      *
      * But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party
      * tool, such as Kibana->ES, to query the data by themselves.
      */
     private boolean activeExtraModelColumns = false;
+    /**
+     * The max length of the endpoint name.
+     *
+     * <p>NOTICE</p>
+     * In the current practice, we don't recommend the length over 190.
+     */
+    private int endpointNameMaxLength = 150;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

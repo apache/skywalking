@@ -139,6 +139,9 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
+        if (moduleConfig.getEndpointNameMaxLength() > 0) {
+            CoreModule.setEndpointNameMaxLength(moduleConfig.getEndpointNameMaxLength());
+        }
 
         StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
 

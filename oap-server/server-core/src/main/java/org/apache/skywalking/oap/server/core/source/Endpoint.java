@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
@@ -42,9 +43,13 @@ public class Endpoint extends Source {
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
+
+    public void setName(final String name) {
+        this.name = name.substring(0, CoreModule.getEndpointNameMaxLength());
+    }
+
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
