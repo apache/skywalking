@@ -46,6 +46,8 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
  */
 public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
     private InfluxClient client;
+    // 'name' is InfluxDB keyword, so escapes it
+    private static final String endpointName = '\"' + EndpointTraffic.NAME + '\"';
 
     public InfluxMetadataQueryDAO(final InfluxClient client, final JDBCHikariCPClient h2Client,
                                   final int metadataQueryMaxSize) {
@@ -75,8 +77,6 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
     public List<Endpoint> searchEndpoint(final String keyword,
                                          final int serviceId,
                                          final int limit) throws IOException {
-        final String endpointName = '\"' + EndpointTraffic.NAME + '\"';
-
         WhereQueryImpl<SelectQueryImpl> endpointQuery = select()
             .column(EndpointTraffic.SERVICE_ID)
             .column(endpointName)
@@ -85,7 +85,7 @@ public class InfluxMetadataQueryDAO extends H2MetadataQueryDAO {
             .where();
         endpointQuery.where(eq(MetricsDAO.TAG_ENDPOINT_OWNER_SERVICE, String.valueOf(serviceId)));
         if (!Strings.isNullOrEmpty(keyword)) {
-            endpointQuery.where(contains(MetricsDAO.TAG_ENDPOINT_NAME, keyword.replaceAll("/", "////")));
+            endpointQuery.where(contains(MetricsDAO.TAG_ENDPOINT_NAME, keyword.replaceAll("/", "\\\\/")));
         }
         endpointQuery.limit(limit);
 
