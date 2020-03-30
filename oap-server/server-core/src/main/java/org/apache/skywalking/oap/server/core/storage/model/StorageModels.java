@@ -70,6 +70,10 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
                            String modelName,
                            List<ModelColumn> modelColumns,
                            List<ExtraQueryIndex> extraQueryIndices) {
+        if (log.isDebugEnabled()) {
+            log.debug("Analysis {} to generate Model.", clazz.getName());
+        }
+
         Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields) {

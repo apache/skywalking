@@ -31,16 +31,11 @@ public class ExtraQueryIndex {
 
     public ExtraQueryIndex(String mainColumn, final String[] withColumns) {
         if (CollectionUtils.isNotEmpty(withColumns)) {
-            this.columns = new String[withColumns.length + 1];
-            for (int i = 0; i < columns.length; i++) {
-                if (i == 0) {
-                    columns[i] = mainColumn;
-                } else {
-                    columns[i] = withColumns[i - 1];
-                }
-            }
+            columns = new String[withColumns.length + 1];
+            columns[0] = mainColumn;
+            System.arraycopy(withColumns, 0, columns, 1, withColumns.length);
         } else {
-            this.columns = new String[] {mainColumn};
+            throw new IllegalArgumentException("ExtraQueryIndex required withColumns as a not empty list.");
         }
 
     }
