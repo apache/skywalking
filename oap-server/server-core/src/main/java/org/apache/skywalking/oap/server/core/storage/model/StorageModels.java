@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -96,11 +97,7 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
                 }
 
                 if (field.isAnnotationPresent(MultipleQueryUnifiedIndex.class)) {
-                    for (final QueryUnifiedIndex queryUnifiedIndex : field.getAnnotation(
-                        MultipleQueryUnifiedIndex.class)
-                                                                          .value()) {
-                        indexDefinitions.add(queryUnifiedIndex);
-                    }
+                    Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
                 }
 
                 indexDefinitions.forEach(indexDefinition -> {

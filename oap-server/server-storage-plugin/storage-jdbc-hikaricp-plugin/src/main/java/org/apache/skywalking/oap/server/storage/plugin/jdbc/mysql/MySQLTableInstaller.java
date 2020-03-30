@@ -58,9 +58,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
                     return true;
                 }
             }
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
+        } catch (SQLException | JDBCClientException e) {
             throw new StorageException(e.getMessage(), e);
         }
         return false;

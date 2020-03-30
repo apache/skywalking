@@ -123,12 +123,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             return;
         }
 
-        /**
+        /*
          * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
          */
         int maxBatchGetSize = 2000;
-        final int batchSize = maxBatchGetSize > lastCollection.size() ? maxBatchGetSize : lastCollection.size();
-        List<Metrics> metricsList = new ArrayList();
+        final int batchSize = Math.max(maxBatchGetSize, lastCollection.size());
+        List<Metrics> metricsList = new ArrayList<>();
         for (Metrics data : lastCollection) {
             transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
 
@@ -159,14 +159,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
             for (Metrics metrics : metricsList) {
                 Metrics cachedMetrics = context.get(metrics);
                 if (cachedMetrics != null) {
-                    /**
+                    /*
                      * If the metrics is not supportUpdate, defined through MetricsExtension#supportUpdate,
                      * then no merge and further process happens.
                      */
                     if (!supportUpdate) {
                         continue;
                     }
-                    /**
+                    /*
                      * Merge metrics into cachedMetrics, change only happens inside cachedMetrics.
                      */
                     cachedMetrics.combine(metrics);
@@ -174,7 +174,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                     prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
                     nextWorker(cachedMetrics);
 
-                    /**
+                    /*
                      * The `data` should be not changed in any case. Exporter is an async process.
                      */
                     nextExportWorker.ifPresent(exportEvenWorker -> exportEvenWorker.in(

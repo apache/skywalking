@@ -60,7 +60,7 @@ public class H2TableInstaller extends ModelInstaller {
                 ModelColumn column = model.getColumns().get(i);
                 ColumnName name = column.getColumnName();
                 tableCreateSQL.appendLine(
-                    name.getStorageName() + " " + getColumnType(model, column) + (i != model
+                    name.getStorageName() + " " + getColumnType(column) + (i != model
                         .getColumns()
                         .size() - 1 ? "," : ""));
             }
@@ -73,9 +73,7 @@ public class H2TableInstaller extends ModelInstaller {
             jdbcHikariCPClient.execute(connection, tableCreateSQL.toString());
 
             createTableIndexes(jdbcHikariCPClient, connection, model);
-        } catch (JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (SQLException e) {
+        } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }
     }
@@ -83,7 +81,7 @@ public class H2TableInstaller extends ModelInstaller {
     /**
      * Set up the data type mapping between Java type and H2 database type
      */
-    protected String getColumnType(Model model, ModelColumn column) {
+    protected String getColumnType(ModelColumn column) {
         final Class<?> type = column.getType();
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";

@@ -83,8 +83,8 @@ public class IntKeyLongValue implements Comparable<IntKeyLongValue>, StorageData
     @Override
     public void toObject(String data) {
         String[] keyValue = data.split(Const.KEY_VALUE_SPLIT);
-        this.key = Integer.valueOf(keyValue[0]);
-        this.value = Long.valueOf(keyValue[1]);
+        this.key = Integer.parseInt(keyValue[0]);
+        this.value = Long.parseLong(keyValue[1]);
     }
 
     @Override

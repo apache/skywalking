@@ -39,7 +39,7 @@ public class ModelColumn {
         this.type = type;
         this.matchQuery = matchQuery;
 
-        /**
+        /*
          * Only accept length in the String definition.
          */
         if (!type.equals(String.class)) {
@@ -47,7 +47,7 @@ public class ModelColumn {
         } else {
             this.length = length;
         }
-        /**
+        /*
          * byte[] and {@link IntKeyLongValueHashMap} could never be query.
          */
         if (type.equals(byte[].class) || type.equals(IntKeyLongValueHashMap.class)) {
