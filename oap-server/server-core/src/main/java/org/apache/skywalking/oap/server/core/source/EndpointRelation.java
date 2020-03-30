@@ -67,21 +67,21 @@ public class EndpointRelation extends Source {
     @Setter
     private String serviceInstanceName;
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name")
     private String childEndpoint;
-    @Getter
-    @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
-    private int childServiceId;
-    @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_name", requireDynamicActive = true)
-    private String childServiceName;
 
     public void setChildEndpoint(final String childEndpoint) {
         this.childEndpoint = childEndpoint.substring(0, CoreModule.getEndpointNameMaxLength());
     }
 
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
+    private int childServiceId;
+    @Setter
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_name", requireDynamicActive = true)
+    private String childServiceName;
     @Getter
     @Setter
     private int childServiceInstanceId;
