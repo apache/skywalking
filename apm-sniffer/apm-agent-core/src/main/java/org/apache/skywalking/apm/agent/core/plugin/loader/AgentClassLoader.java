@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
@@ -55,7 +56,7 @@ public class AgentClassLoader extends ClassLoader {
     /**
      * The default class loader for the agent.
      */
-    private static AgentClassLoader DEFAULT_LOADER;
+    private volatile static AgentClassLoader DEFAULT_LOADER;
 
     private List<File> classpath;
     private List<Jar> allJars;
@@ -130,16 +131,18 @@ public class AgentClassLoader extends ClassLoader {
                         }
                         data = baos.toByteArray();
                     } finally {
-                        if (is != null)
+                        if (is != null) {
                             try {
                                 is.close();
                             } catch (IOException ignored) {
                             }
-                        if (baos != null)
+                        }
+                        if (baos != null) {
                             try {
                                 baos.close();
                             } catch (IOException ignored) {
                             }
+                        }
                     }
                     return defineClass(name, data, 0, data.length);
                 } catch (MalformedURLException e) {
