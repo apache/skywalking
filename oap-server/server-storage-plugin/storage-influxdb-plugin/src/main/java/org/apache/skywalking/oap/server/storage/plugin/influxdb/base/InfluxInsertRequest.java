@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
@@ -47,10 +47,10 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
         for (ModelColumn column : model.getColumns()) {
             Object value = objectMap.get(column.getColumnName().getName());
 
-            if (value instanceof StorageDataType) {
+            if (value instanceof StorageDataComplexObject) {
                 fields.put(
                     column.getColumnName().getStorageName(),
-                    ((StorageDataType) value).toStorageData()
+                    ((StorageDataComplexObject) value).toStorageData()
                 );
             } else {
                 fields.put(column.getColumnName().getStorageName(), value);

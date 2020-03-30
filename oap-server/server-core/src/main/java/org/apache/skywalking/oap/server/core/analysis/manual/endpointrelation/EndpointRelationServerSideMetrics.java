@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 
 @Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION, builder = EndpointRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class EndpointRelationServerSideMetrics extends Metrics {
@@ -43,22 +42,18 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = SOURCE_ENDPOINT)
-    @IDColumn
     private String sourceEndpoint;
     @Setter
     @Getter
     @Column(columnName = DEST_ENDPOINT)
-    @IDColumn
     private String destEndpoint;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID)
-    @IDColumn
+    @Column(columnName = COMPONENT_ID, storageOnly = true)
     private int componentId;
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
-    @IDColumn
     private String entityId;
 
     @Override

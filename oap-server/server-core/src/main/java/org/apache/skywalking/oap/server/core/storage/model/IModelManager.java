@@ -16,23 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class SourceColumnsFactory {
-    public static List<SourceColumn> getColumns(String source) {
-        List<SourceColumn> sourceColumns = new ArrayList<>();
-
-        List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
-        for (ScopeDefaultColumn defaultColumn : columns) {
-            sourceColumns.add(
-                new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
-                    .getType(), defaultColumn.isID(), defaultColumn.getLength()));
-        }
-        return sourceColumns;
-    }
+/**
+ * IModelManager implementation supports to read all existing models.
+ */
+public interface IModelManager extends Service {
+    List<Model> allModels();
 }

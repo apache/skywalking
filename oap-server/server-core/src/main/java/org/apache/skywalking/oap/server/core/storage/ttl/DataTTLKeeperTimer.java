@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -77,8 +77,8 @@ public enum DataTTLKeeperTimer {
         }
 
         log.info("Beginning to remove expired metrics from the storage.");
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
-        List<Model> models = modelGetter.getModels();
+        IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
+        List<Model> models = modelGetter.allModels();
         models.forEach(model -> {
             if (model.isDeleteHistory()) {
                 execute(model);

@@ -149,8 +149,10 @@ public class InfluxStorageProvider extends ModuleProvider {
             ModelInstaller installer;
             if (config.getMetabaseType().equalsIgnoreCase("h2")) {
                 installer = new InfluxDBH2MetaDBInstaller(getManager());
-            } else {
+            } else if (config.getMetabaseType().equalsIgnoreCase("mysql")) {
                 installer = new InfluxDBMySQLMetaDBInstaller(getManager());
+            } else {
+                throw new IllegalArgumentException("Unavailable metabase type, " + config.getMetabaseType());
             }
             installer.install(client);
             new H2RegisterLockInstaller().install(client, lockDAO);

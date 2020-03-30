@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 
 @Stream(name = ServiceRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, builder = ServiceRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ServiceRelationClientSideMetrics extends Metrics {
@@ -45,28 +44,25 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = SOURCE_SERVICE_ID)
-    @IDColumn
     private int sourceServiceId;
     @Setter
     @Getter
     @Column(columnName = DEST_SERVICE_ID)
-    @IDColumn
     private int destServiceId;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID)
-    @IDColumn
+    @Column(columnName = COMPONENT_ID, storageOnly = true)
     private int componentId;
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Column(columnName = ENTITY_ID)
-    @IDColumn
     private String entityId;
 
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
+        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
+            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
         return splitJointId;
     }
 

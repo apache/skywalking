@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.query.entity.Attribute;
 import org.apache.skywalking.oap.server.core.query.entity.Database;
@@ -233,12 +232,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                         .add(QueryBuilders.termQuery(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
 
         sourceBuilder.query(boolQueryBuilder);
-        /**
-         * Query the dataset by a larger limit condition and distinct in the memory,
-         * in order to avoid the storage level distinct.
-         * This is a match query only, don't need 100% accurate.
-         */
-        sourceBuilder.size(limit * 7);
+        sourceBuilder.size(limit);
 
         SearchResponse response = getClient().search(EndpointTraffic.INDEX_NAME, sourceBuilder);
 
@@ -254,9 +248,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             endpoints.add(endpoint);
         }
 
-        final List<Endpoint> endpointList = endpoints.stream().distinct().collect(Collectors.toList());
-
-        return endpointList.size() > limit ? endpointList.subList(0, limit) : endpointList;
+        return endpoints;
     }
 
     @Override

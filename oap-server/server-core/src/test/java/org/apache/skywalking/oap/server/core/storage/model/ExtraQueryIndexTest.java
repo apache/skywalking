@@ -16,13 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.type;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-public interface StorageDataType {
+import org.junit.Assert;
+import org.junit.Test;
 
-    String toStorageData();
+public class ExtraQueryIndexTest {
+    @Test
+    public void testIndexColumns() {
+        final ExtraQueryIndex extraQueryIndex = new ExtraQueryIndex("a1", new String[] {"a2"});
+        Assert.assertArrayEquals(new String[] {
+            "a1",
+            "a2"
+        }, extraQueryIndex.getColumns());
+    }
 
-    void toObject(String data);
-
-    void copyFrom(Object source);
+    @Test(expected = IllegalArgumentException.class)
+    public void testIllegalIndexColumns() {
+        ExtraQueryIndex extraQueryIndex = new ExtraQueryIndex("a1", new String[0]);
+    }
 }

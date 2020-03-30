@@ -16,17 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.apache.skywalking.oap.server.core.storage.type;
 
 /**
- * IDColumn is the plus annotation for {@link Column}, declares this column is ID for the entity, besides time(bucket).
+ * StorageDataComplexObject implementation supports String-Object interconversion.
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface IDColumn {
+public interface StorageDataComplexObject {
+    /**
+     * @return string representing this object.
+     */
+    String toStorageData();
+
+    /**
+     * Initialize this object based on the given string data.
+     */
+    void toObject(String data);
+
+    /**
+     * Initialize the object based on the given source.
+     */
+    void copyFrom(Object source);
 }

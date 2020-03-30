@@ -19,12 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -49,55 +46,43 @@ public class H2TableInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-        TableMetaInfo.addModel(model);
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
-        try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
-                if (rset.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
-        return false;
+         TableMetaInfo.addModel(model);
+         return false;
     }
 
     @Override
     protected void createTable(Client client, Model model) throws StorageException {
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
-        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
-        tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");
-        for (int i = 0; i < model.getColumns().size(); i++) {
-            ModelColumn column = model.getColumns().get(i);
-            ColumnName name = column.getColumnName();
-            tableCreateSQL.appendLine(
-                name.getStorageName() + " " + getColumnType(model, name, column.getType()) + (i != model
-                    .getColumns()
-                    .size() - 1 ? "," : ""));
-        }
-        tableCreateSQL.appendLine(")");
+        JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
+        try (Connection connection = jdbcHikariCPClient.getConnection()) {
+            SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
+            tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");
+            for (int i = 0; i < model.getColumns().size(); i++) {
+                ModelColumn column = model.getColumns().get(i);
+                ColumnName name = column.getColumnName();
+                tableCreateSQL.appendLine(
+                    name.getStorageName() + " " + getColumnType(column) + (i != model
+                        .getColumns()
+                        .size() - 1 ? "," : ""));
+            }
+            tableCreateSQL.appendLine(")");
 
-        if (log.isDebugEnabled()) {
-            log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-        }
+            if (log.isDebugEnabled()) {
+                log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
+            }
 
-        try (Connection connection = h2Client.getConnection()) {
-            h2Client.execute(connection, tableCreateSQL.toString());
-        } catch (JDBCClientException e) {
+            jdbcHikariCPClient.execute(connection, tableCreateSQL.toString());
+
+            createTableIndexes(jdbcHikariCPClient, connection, model);
+        } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
         }
-
     }
 
     /**
      * Set up the data type mapping between Java type and H2 database type
      */
-    protected String getColumnType(Model model, ColumnName name, Class<?> type) {
+    protected String getColumnType(ModelColumn column) {
+        final Class<?> type = column.getType();
         if (Integer.class.equals(type) || int.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
@@ -105,18 +90,26 @@ public class H2TableInstaller extends ModelInstaller {
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            return "VARCHAR(2000)";
+            return "VARCHAR(" + column.getLength() + ")";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
-            return "VARCHAR(20000)";
+            return "MEDIUMTEXT";
         } else if (byte[].class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
-                if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
-                    return "MEDIUMTEXT";
-                }
-            }
-            return "VARCHAR(20000)";
+            return "MEDIUMTEXT";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
+    }
+
+    protected void createTableIndexes(JDBCHikariCPClient client,
+                                      Connection connection,
+                                      Model model) throws JDBCClientException {
+    }
+
+    protected void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
+                               SQLBuilder indexSQL) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
+        }
+        client.execute(connection, indexSQL.toString());
     }
 }

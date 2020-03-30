@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -62,8 +62,8 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         XContentBuilder builder = XContentFactory.jsonBuilder().startObject();
         for (String key : objectMap.keySet()) {
             Object value = objectMap.get(key);
-            if (value instanceof StorageDataType) {
-                builder.field(key, ((StorageDataType) value).toStorageData());
+            if (value instanceof StorageDataComplexObject) {
+                builder.field(key, ((StorageDataComplexObject) value).toStorageData());
             } else {
                 builder.field(key, value);
             }

@@ -252,12 +252,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         }
         sql.append(" and ").append(EndpointTraffic.DETECT_POINT).append(" = ?");
         condition.add(DetectPoint.SERVER.value());
-        /**
-         * Query the dataset by a larger limit condition and distinct in the memory,
-         * in order to avoid the storage level distinct.
-         * This is a match query only, don't need 100% accurate.
-         */
-        sql.append(" limit ").append(limit * 7);
+        sql.append(" limit ").append(limit);
 
         List<Endpoint> endpoints = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
@@ -324,8 +319,9 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                                               .getAsString());
                                 for (String ipv4 : ipv4s) {
                                     serviceInstance.getAttributes()
-                                                   .add(new Attribute(ServiceInstanceInventory.PropertyUtil.IPV4S,
-                                                                      ipv4
+                                                   .add(new Attribute(
+                                                       ServiceInstanceInventory.PropertyUtil.IPV4S,
+                                                       ipv4
                                                    ));
                                 }
                             } else {

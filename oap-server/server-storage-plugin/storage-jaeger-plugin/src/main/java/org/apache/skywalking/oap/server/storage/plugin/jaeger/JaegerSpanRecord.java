@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Stream(name = JaegerSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.JAEGER_SPAN, builder = JaegerSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
@@ -53,62 +52,50 @@ public class JaegerSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = TRACE_ID)
-    @IDColumn
     private String traceId;
     @Setter
     @Getter
     @Column(columnName = SPAN_ID)
-    @IDColumn
     private String spanId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    @IDColumn
     private int serviceId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_INSTANCE_ID)
-    @IDColumn
     private int serviceInstanceId;
     @Setter
     @Getter
     @Column(columnName = ENDPOINT_NAME, matchQuery = true)
-    @IDColumn
     private String endpointName;
     @Setter
     @Getter
     @Column(columnName = ENDPOINT_ID)
-    @IDColumn
     private String endpointId;
     @Setter
     @Getter
     @Column(columnName = START_TIME)
-    @IDColumn
     private long startTime;
     @Setter
     @Getter
     @Column(columnName = END_TIME)
-    @IDColumn
     private long endTime;
     @Setter
     @Getter
     @Column(columnName = LATENCY)
-    @IDColumn
     private int latency;
     @Setter
     @Getter
     @Column(columnName = IS_ERROR)
-    @IDColumn
     private int isError;
     @Setter
     @Getter
     @Column(columnName = DATA_BINARY)
-    @IDColumn
     private byte[] dataBinary;
     @Setter
     @Getter
     @Column(columnName = ENCODE)
-    @IDColumn
     private int encode;
 
     @Override

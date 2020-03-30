@@ -52,11 +52,11 @@ public class SegmentRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SEGMENT_ID)
+    @Column(columnName = SEGMENT_ID, length = 150)
     private String segmentId;
     @Setter
     @Getter
-    @Column(columnName = TRACE_ID)
+    @Column(columnName = TRACE_ID, length = 150)
     private String traceId;
     @Setter
     @Getter
@@ -92,11 +92,11 @@ public class SegmentRecord extends Record {
     private int isError;
     @Setter
     @Getter
-    @Column(columnName = DATA_BINARY)
+    @Column(columnName = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = VERSION)
+    @Column(columnName = VERSION, storageOnly = true)
     private int version;
 
     @Override

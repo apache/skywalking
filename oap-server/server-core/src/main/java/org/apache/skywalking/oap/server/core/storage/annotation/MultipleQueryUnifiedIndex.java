@@ -16,12 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.library.module.Service;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface IModelSetter extends Service {
-
-    Model putIfAbsent(Class aClass, int scopeId, Storage storage, boolean record);
+/**
+ * The support of the multiple {@link QueryUnifiedIndex}s on one field.
+ */
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MultipleQueryUnifiedIndex {
+    QueryUnifiedIndex[] value();
 }

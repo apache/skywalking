@@ -41,9 +41,9 @@ public abstract class ModelInstaller {
      * Entrance of the storage entity installation work.
      */
     public final void install(Client client) throws StorageException {
-        IModelGetter modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelGetter.class);
+        IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
 
-        List<Model> models = modelGetter.getModels();
+        List<Model> models = modelGetter.allModels();
 
         if (RunningMode.isNoInitMode()) {
             for (Model model : models) {
