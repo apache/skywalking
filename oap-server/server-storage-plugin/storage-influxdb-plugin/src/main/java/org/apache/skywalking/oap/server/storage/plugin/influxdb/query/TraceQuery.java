@@ -98,7 +98,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(lte(SegmentRecord.LATENCY, maxDuration));
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName));
+            recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
         if (serviceId != 0) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
