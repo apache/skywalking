@@ -32,7 +32,6 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
@@ -161,7 +160,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                 Metrics cachedMetrics = context.get(metrics);
                 if (cachedMetrics != null) {
                     /**
-                     * If the metrics is insertOnly, defined through {@link MetricsExtension#insertOnly()},
+                     * If the metrics is insertOnly, defined through MetricsExtension#insertOnly,
                      * then no merge and further process happens.
                      */
                     if (insertOnly) {
