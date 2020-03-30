@@ -30,5 +30,5 @@ public interface INewModel extends Service {
      *
      * @return the created new model
      */
-    Model add(Class aClass, int scopeId, Storage storage, boolean record);
+    Model add(Class<?> aClass, int scopeId, Storage storage, boolean record);
 }

@@ -92,7 +92,7 @@ public class H2TableInstaller extends ModelInstaller {
         } else if (String.class.equals(type)) {
             return "VARCHAR(" + column.getLength() + ")";
         } else if (IntKeyLongValueHashMap.class.equals(type)) {
-            return "MEDIUMTEXT";
+            return "VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
             return "MEDIUMTEXT";
         } else {
