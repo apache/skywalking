@@ -36,7 +36,7 @@ public @interface MetricsExtension {
     boolean supportDownSampling();
 
     /**
-     * @return true if this metrics doesn't support update.
+     * @return true if this metrics data could be updated.
      */
-    boolean insertOnly();
+    boolean supportUpdate();
 }

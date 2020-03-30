@@ -45,7 +45,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 @ScopeDeclaration(id = ENDPOINT_TRAFFIC, name = "EndpointTraffic")
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, insertOnly = false)
+@MetricsExtension(supportDownSampling = false, supportUpdate = false)
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";

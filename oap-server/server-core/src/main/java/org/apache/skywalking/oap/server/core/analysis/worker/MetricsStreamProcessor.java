@@ -121,26 +121,26 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
          * All metrics default are `supportDownSampling` and `insertAndUpdate`, unless it has explicit definition.
          */
         boolean supportDownSampling = true;
-        boolean insertOnly = false;
+        boolean supportUpdate = true;
         if (metricsExtension != null) {
             supportDownSampling = metricsExtension.supportDownSampling();
-            insertOnly = metricsExtension.insertOnly();
+            supportUpdate = metricsExtension.supportUpdate();
         }
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
-                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, insertOnly);
+                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
-                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, insertOnly);
+                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToMonth()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
-                monthPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, insertOnly);
+                monthPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
 
             transWorker = new MetricsTransWorker(
@@ -150,7 +150,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         Model model = modelSetter.add(
             metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
-            moduleDefineHolder, metricsDAO, model, transWorker, insertOnly);
+            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 
         String remoteReceiverWorkerName = stream.name() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
@@ -169,13 +169,13 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                            IMetricsDAO metricsDAO,
                                                            Model model,
                                                            MetricsTransWorker transWorker,
-                                                           boolean insertOnly) {
+                                                           boolean supportUpdate) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession,
-            insertOnly
+            supportUpdate
         );
         persistentWorkers.add(minutePersistentWorker);
 
@@ -185,9 +185,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     private MetricsPersistentWorker downSamplingWorker(ModuleDefineHolder moduleDefineHolder,
                                                        IMetricsDAO metricsDAO,
                                                        Model model,
-                                                       boolean insertOnly) {
+                                                       boolean supportUpdate) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
-            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, insertOnly);
+            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, supportUpdate);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

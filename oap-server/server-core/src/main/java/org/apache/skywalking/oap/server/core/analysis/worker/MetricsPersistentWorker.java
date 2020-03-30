@@ -55,11 +55,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final DataCarrier<Metrics> dataCarrier;
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
-    private final boolean insertOnly;
+    private final boolean supportUpdate;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean insertOnly) {
+                            MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate) {
         super(moduleDefineHolder);
         this.model = model;
         this.context = new HashMap<>(100);
@@ -69,7 +69,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
         this.transWorker = Optional.ofNullable(transWorker);
-        this.insertOnly = insertOnly;
+        this.supportUpdate = supportUpdate;
 
         String name = "METRICS_L2_AGGREGATION";
         int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
@@ -91,10 +91,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
      * Create the leaf MetricsPersistentWorker, no next step.
      */
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-                            boolean enableDatabaseSession, boolean insertOnly) {
+                            boolean enableDatabaseSession, boolean supportUpdate) {
         this(moduleDefineHolder, model, metricsDAO,
              null, null, null,
-             enableDatabaseSession, insertOnly
+             enableDatabaseSession, supportUpdate
         );
     }
 
@@ -160,10 +160,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
                 Metrics cachedMetrics = context.get(metrics);
                 if (cachedMetrics != null) {
                     /**
-                     * If the metrics is insertOnly, defined through MetricsExtension#insertOnly,
+                     * If the metrics is not supportUpdate, defined through MetricsExtension#supportUpdate,
                      * then no merge and further process happens.
                      */
-                    if (insertOnly) {
+                    if (!supportUpdate) {
                         continue;
                     }
                     /**

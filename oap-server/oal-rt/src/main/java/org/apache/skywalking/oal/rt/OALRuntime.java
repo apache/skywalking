@@ -375,20 +375,22 @@ public class OALRuntime implements OALEngine {
              * Set generic signature
              */
             String sourceClassName = SOURCE_PACKAGE + dispatcherContext.getSource();
-            SignatureAttribute.ClassSignature dispatcherSignature = new SignatureAttribute.ClassSignature(null, null,
-                                                                                                          // Set interface and its generic params
-                                                                                                          new SignatureAttribute.ClassType[] {
-                                                                                                              new SignatureAttribute.ClassType(
-                                                                                                                  SourceDispatcher.class
-                                                                                                                      .getCanonicalName(),
-                                                                                                                  new SignatureAttribute.TypeArgument[] {
-                                                                                                                      new SignatureAttribute.TypeArgument(
-                                                                                                                          new SignatureAttribute.ClassType(
-                                                                                                                              sourceClassName))
-                                                                                                                  }
-                                                                                                              )
-                                                                                                          }
-            );
+            SignatureAttribute.ClassSignature dispatcherSignature =
+                new SignatureAttribute.ClassSignature(
+                    null, null,
+                    // Set interface and its generic params
+                    new SignatureAttribute.ClassType[] {
+                        new SignatureAttribute.ClassType(
+                            SourceDispatcher.class
+                                .getCanonicalName(),
+                            new SignatureAttribute.TypeArgument[] {
+                                new SignatureAttribute.TypeArgument(
+                                    new SignatureAttribute.ClassType(
+                                        sourceClassName))
+                            }
+                        )
+                    }
+                );
 
             dispatcherClass.setGenericSignature(dispatcherSignature.encode());
         } catch (NotFoundException e) {
