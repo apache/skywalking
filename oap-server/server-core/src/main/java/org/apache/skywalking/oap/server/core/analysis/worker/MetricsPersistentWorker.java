@@ -25,13 +25,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
@@ -50,10 +51,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     private final Map<Metrics, Metrics> context;
     private final MergeDataCache<Metrics> mergeDataCache;
     private final IMetricsDAO metricsDAO;
-    private final AbstractWorker<Metrics> nextAlarmWorker;
-    private final AbstractWorker<ExportEvent> nextExportWorker;
+    private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
+    private final Optional<AbstractWorker<ExportEvent>> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
-    private final MetricsTransWorker transWorker;
+    private final Optional<MetricsTransWorker> transWorker;
     private final boolean enableDatabaseSession;
     private final boolean insertOnly;
 
@@ -66,9 +67,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         this.enableDatabaseSession = enableDatabaseSession;
         this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
-        this.nextAlarmWorker = nextAlarmWorker;
-        this.nextExportWorker = nextExportWorker;
-        this.transWorker = transWorker;
+        this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
+        this.nextExportWorker = Optional.ofNullable(nextExportWorker);
+        this.transWorker = Optional.ofNullable(transWorker);
         this.insertOnly = insertOnly;
 
         String name = "METRICS_L2_AGGREGATION";
@@ -85,6 +86,17 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
 
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, 2000);
         this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
+    }
+
+    /**
+     * Create the leaf MetricsPersistentWorker, no next step.
+     */
+    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
+                            boolean enableDatabaseSession, boolean insertOnly) {
+        this(moduleDefineHolder, model, metricsDAO,
+             null, null, null,
+             enableDatabaseSession, insertOnly
+        );
     }
 
     @Override
@@ -108,55 +120,28 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     @Override
     public void prepareBatch(Collection<Metrics> lastCollection, List<PrepareRequest> prepareRequests) {
         long start = System.currentTimeMillis();
+        if (lastCollection.size() == 0) {
+            return;
+        }
 
-        int i = 0;
-        int batchGetSize = 2000;
-        Metrics[] metrics = null;
+        /**
+         * Hard coded the max size. This is only the batch size of one metrics, too large number is meaningless.
+         */
+        int maxBatchGetSize = 2000;
+        final int batchSize = maxBatchGetSize > lastCollection.size() ? maxBatchGetSize : lastCollection.size();
+        List<Metrics> metricsList = new ArrayList();
         for (Metrics data : lastCollection) {
-            if (Objects.nonNull(nextExportWorker)) {
-                ExportEvent event = new ExportEvent(data, ExportEvent.EventType.INCREMENT);
-                nextExportWorker.in(event);
-            }
-            if (Objects.nonNull(transWorker)) {
-                transWorker.in(data);
-            }
+            transWorker.ifPresent(metricsTransWorker -> metricsTransWorker.in(data));
 
-            int mod = i % batchGetSize;
-            if (mod == 0) {
-                int residual = lastCollection.size() - i;
-                if (residual >= batchGetSize) {
-                    metrics = new Metrics[batchGetSize];
-                } else {
-                    metrics = new Metrics[residual];
-                }
+            metricsList.add(data);
+
+            if (metricsList.size() == batchSize) {
+                flushDataToStorage(metricsList, prepareRequests);
             }
-            metrics[mod] = data;
+        }
 
-            if (mod == metrics.length - 1) {
-                try {
-                    loadFromStorage(metrics);
-
-                    for (Metrics metric : metrics) {
-                        Metrics cacheMetric = context.get(metric);
-                        if (cacheMetric != null) {
-                            if (insertOnly) {
-                                continue;
-                            }
-                            cacheMetric.combine(metric);
-                            cacheMetric.calculate();
-                            prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cacheMetric));
-                            nextWorker(cacheMetric);
-                        } else {
-                            prepareRequests.add(metricsDAO.prepareBatchInsert(model, metric));
-                            nextWorker(metric);
-                        }
-                    }
-                } catch (Throwable t) {
-                    log.error(t.getMessage(), t);
-                }
-            }
-
-            i++;
+        if (metricsList.size() > 0) {
+            flushDataToStorage(metricsList, prepareRequests);
         }
 
         if (prepareRequests.size() > 0) {
@@ -167,14 +152,50 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         }
     }
 
-    private void nextWorker(Metrics metric) {
-        if (Objects.nonNull(nextAlarmWorker)) {
-            nextAlarmWorker.in(metric);
+    private void flushDataToStorage(List<Metrics> metricsList,
+                                    List<PrepareRequest> prepareRequests) {
+        try {
+            loadFromStorage(metricsList);
+
+            for (Metrics metrics : metricsList) {
+                Metrics cachedMetrics = context.get(metrics);
+                if (cachedMetrics != null) {
+                    /**
+                     * If the metrics is insertOnly, defined through {@link MetricsExtension#insertOnly()},
+                     * then no merge and further process happens.
+                     */
+                    if (insertOnly) {
+                        continue;
+                    }
+                    /**
+                     * Merge metrics into cachedMetrics, change only happens inside cachedMetrics.
+                     */
+                    cachedMetrics.combine(metrics);
+                    cachedMetrics.calculate();
+                    prepareRequests.add(metricsDAO.prepareBatchUpdate(model, cachedMetrics));
+                    nextWorker(cachedMetrics);
+
+                    /**
+                     * The `data` should be not changed in any case. Exporter is an async process.
+                     */
+                    nextExportWorker.ifPresent(exportEvenWorker -> exportEvenWorker.in(
+                        new ExportEvent(metrics, ExportEvent.EventType.INCREMENT)));
+                } else {
+                    prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
+                    nextWorker(metrics);
+                }
+            }
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        } finally {
+            metricsList.clear();
         }
-        if (Objects.nonNull(nextExportWorker)) {
-            ExportEvent event = new ExportEvent(metric, ExportEvent.EventType.TOTAL);
-            nextExportWorker.in(event);
-        }
+    }
+
+    private void nextWorker(Metrics metrics) {
+        nextAlarmWorker.ifPresent(nextAlarmWorker -> nextAlarmWorker.in(metrics));
+        nextExportWorker.ifPresent(
+            nextExportWorker -> nextExportWorker.in(new ExportEvent(metrics, ExportEvent.EventType.TOTAL)));
     }
 
     @Override
@@ -195,7 +216,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     /**
      * Load data from the storage, if {@link #enableDatabaseSession} == true, only load data when the id doesn't exist.
      */
-    private void loadFromStorage(Metrics[] metrics) throws IOException {
+    private void loadFromStorage(List<Metrics> metrics) throws IOException {
         if (!enableDatabaseSession) {
             context.clear();
         }

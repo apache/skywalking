@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -44,7 +45,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 @ScopeDeclaration(id = ENDPOINT_TRAFFIC, name = "EndpointTraffic")
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = true, insertOnly = false)
+@MetricsExtension(supportDownSampling = false, insertOnly = false)
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";
@@ -115,9 +116,7 @@ public class EndpointTraffic extends Metrics {
 
     @Override
     public int hashCode() {
-        int result = 17;
-        result = 31 * result + buildId(this).hashCode();
-        return result;
+        return Objects.hash(serviceId, name, detectPoint);
     }
 
     @Override
