@@ -22,6 +22,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -100,5 +101,13 @@ public class MySQLTableInstaller extends H2TableInstaller {
             tableIndexSQL.append(")");
             createIndex(client, connection, model, tableIndexSQL);
         }
+    }
+
+    @Override
+    protected String getColumnType(final ModelColumn column) {
+        if (IntKeyLongValueHashMap.class.equals(column.getType())) {
+            return "MEDIUMTEXT";
+        }
+        return super.getColumnType(column);
     }
 }
