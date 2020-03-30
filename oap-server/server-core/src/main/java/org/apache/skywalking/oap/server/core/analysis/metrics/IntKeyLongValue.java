@@ -23,14 +23,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.IntKeyLongValuePair;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 /**
  * IntKeyLongValue is a common bean, with key in Int and value in Long
  */
 @Setter
 @Getter
-public class IntKeyLongValue implements Comparable<IntKeyLongValue>, StorageDataType {
+public class IntKeyLongValue implements Comparable<IntKeyLongValue>, StorageDataComplexObject {
     private int key;
     private long value;
 
@@ -83,8 +83,8 @@ public class IntKeyLongValue implements Comparable<IntKeyLongValue>, StorageData
     @Override
     public void toObject(String data) {
         String[] keyValue = data.split(Const.KEY_VALUE_SPLIT);
-        this.key = Integer.valueOf(keyValue[0]);
-        this.value = Long.valueOf(keyValue[1]);
+        this.key = Integer.parseInt(keyValue[0]);
+        this.value = Long.parseLong(keyValue[1]);
     }
 
     @Override

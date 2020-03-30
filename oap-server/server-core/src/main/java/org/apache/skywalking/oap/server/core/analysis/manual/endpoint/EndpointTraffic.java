@@ -23,11 +23,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -42,8 +44,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 
 @ScopeDeclaration(id = ENDPOINT_TRAFFIC, name = "EndpointTraffic")
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC,
-    builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class,
-    supportDownSampling = false)
+    builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = false, supportUpdate = false)
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";
@@ -109,16 +111,12 @@ public class EndpointTraffic extends Metrics {
     public String id() {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
-        String splitJointId = String.valueOf(getTimeBucket() / 10000);
-        splitJointId += Const.ID_SPLIT + buildId(this);
-        return splitJointId;
+        return buildId(this);
     }
 
     @Override
     public int hashCode() {
-        int result = 17;
-        result = 31 * result + buildId(this).hashCode();
-        return result;
+        return Objects.hash(serviceId, name, detectPoint);
     }
 
     @Override

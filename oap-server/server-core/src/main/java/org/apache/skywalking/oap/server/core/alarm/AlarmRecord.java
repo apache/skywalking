@@ -54,11 +54,11 @@ public class AlarmRecord extends Record {
 
     @Column(columnName = SCOPE)
     private int scope;
-    @Column(columnName = NAME)
+    @Column(columnName = NAME, storageOnly = true)
     private String name;
-    @Column(columnName = ID0)
+    @Column(columnName = ID0, storageOnly = true)
     private String id0;
-    @Column(columnName = ID1)
+    @Column(columnName = ID1, storageOnly = true)
     private String id1;
     @Column(columnName = START_TIME)
     private long startTime;

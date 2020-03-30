@@ -16,23 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oap.server.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SourceColumnsFactory {
-    public static List<SourceColumn> getColumns(String source) {
-        List<SourceColumn> sourceColumns = new ArrayList<>();
+public class CoreModuleTest {
+    @Test
+    public void testOpenServiceList() {
+        CoreModule coreModule = new CoreModule();
 
-        List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
-        for (ScopeDefaultColumn defaultColumn : columns) {
-            sourceColumns.add(
-                new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
-                    .getType(), defaultColumn.isID(), defaultColumn.getLength()));
-        }
-        return sourceColumns;
+        Assert.assertEquals(31, coreModule.services().length);
     }
 }

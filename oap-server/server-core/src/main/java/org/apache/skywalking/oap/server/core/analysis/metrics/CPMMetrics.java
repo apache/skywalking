@@ -38,7 +38,7 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     private long value;
     @Getter
     @Setter
-    @Column(columnName = TOTAL)
+    @Column(columnName = TOTAL, storageOnly = true)
     private long total;
 
     @Entrance

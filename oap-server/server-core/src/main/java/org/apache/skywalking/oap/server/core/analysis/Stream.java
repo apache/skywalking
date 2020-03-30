@@ -59,9 +59,4 @@ public @interface Stream {
      * InventoryStreamProcessor}, {@link TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
      */
     Class<? extends StreamProcessor> processor();
-
-    /**
-     * @return true if this metrics stream support down sampling.
-     */
-    boolean supportDownSampling() default true;
 }

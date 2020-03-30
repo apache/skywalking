@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
@@ -55,6 +56,10 @@ public class ServiceInventory extends RegisterSource {
     @Setter
     @Getter
     @Column(columnName = NAME, matchQuery = true)
+    @QueryUnifiedIndex(withColumns = {
+        HEARTBEAT_TIME,
+        REGISTER_TIME
+    })
     private String name = Const.EMPTY_STRING;
     @Setter
     @Getter

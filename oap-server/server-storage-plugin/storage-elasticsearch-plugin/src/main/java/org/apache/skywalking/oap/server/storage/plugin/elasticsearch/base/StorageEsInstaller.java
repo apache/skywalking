@@ -139,14 +139,12 @@ public class StorageEsInstaller extends ModelInstaller {
                 matchColumn.put("type", "text");
                 matchColumn.put("analyzer", "oap_analyzer");
                 properties.put(matchCName, matchColumn);
-            } else if (columnDefine.isContent()) {
-                Map<String, Object> column = new HashMap<>();
-                column.put("type", "text");
-                column.put("index", false);
-                properties.put(columnDefine.getColumnName().getName(), column);
             } else {
                 Map<String, Object> column = new HashMap<>();
                 column.put("type", columnTypeEsMapping.transform(columnDefine.getType()));
+                if (columnDefine.isStorageOnly()) {
+                    column.put("index", false);
+                }
                 properties.put(columnDefine.getColumnName().getName(), column);
             }
         }

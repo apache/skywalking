@@ -16,11 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.List;
-import org.apache.skywalking.oap.server.library.module.Service;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface IModelGetter extends Service {
-    List<Model> getModels();
+/**
+ * QueryIndex defines the unified index is required in the query stage. This works only the storage supports this kind
+ * of index model. Mostly, work for the typical relational database, such as MySQL, TiDB.
+ */
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Repeatable(MultipleQueryUnifiedIndex.class)
+public @interface QueryUnifiedIndex {
+
+    /**
+     * @return list of other column should be add into the unified index.
+     */
+    String[] withColumns();
 }

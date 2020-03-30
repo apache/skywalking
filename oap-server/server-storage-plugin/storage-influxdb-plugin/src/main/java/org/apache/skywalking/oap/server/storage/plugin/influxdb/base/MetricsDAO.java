@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataType;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
@@ -81,8 +81,8 @@ public class MetricsDAO implements IMetricsDAO {
 
             for (int i = 1; i < columns.size(); i++) {
                 Object value = values.get(i);
-                if (value instanceof StorageDataType) {
-                    value = ((StorageDataType) value).toStorageData();
+                if (value instanceof StorageDataComplexObject) {
+                    value = ((StorageDataComplexObject) value).toStorageData();
                 }
 
                 data.put(storageAndColumnNames.get(columns.get(i)), value);

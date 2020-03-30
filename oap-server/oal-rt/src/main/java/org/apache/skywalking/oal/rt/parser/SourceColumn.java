@@ -32,15 +32,17 @@ public class SourceColumn {
     private Class<?> type;
     private String typeName;
     private boolean isID;
+    private int length;
     private String fieldSetter;
     private String fieldGetter;
 
-    public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID) {
+    public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.typeName = type.getName();
         this.isID = isID;
+        this.length = length;
 
         this.fieldGetter = ClassMethodUtil.toGetMethod(fieldName);
         this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);

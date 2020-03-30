@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 
 /**
  * This class is auto generated. Please don't change this class manually.
@@ -43,7 +42,6 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
     @Setter
     @Getter
     @Column(columnName = "entity_id")
-    @IDColumn
     private java.lang.String entityId;
 
     @Override

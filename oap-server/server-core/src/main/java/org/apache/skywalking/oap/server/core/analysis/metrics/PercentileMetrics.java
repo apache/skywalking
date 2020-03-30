@@ -45,17 +45,21 @@ public abstract class PercentileMetrics extends GroupMetrics implements MultiInt
         99
     };
 
+    /**
+     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link
+     * IntKeyLongValueHashMap} type, this column can't be query by the aggregation way.
+     */
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true)
+    @Column(columnName = VALUE, isValue = true, storageOnly = true)
     private IntKeyLongValueHashMap percentileValues;
     @Getter
     @Setter
-    @Column(columnName = PRECISION)
+    @Column(columnName = PRECISION, storageOnly = true)
     private int precision;
     @Getter
     @Setter
-    @Column(columnName = DATASET)
+    @Column(columnName = DATASET, storageOnly = true)
     private IntKeyLongValueHashMap dataset;
 
     private boolean isCalculated;
