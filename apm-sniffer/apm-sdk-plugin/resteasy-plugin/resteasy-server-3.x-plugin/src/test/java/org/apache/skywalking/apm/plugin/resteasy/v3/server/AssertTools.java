@@ -34,7 +34,7 @@ class AssertTools {
     static void assertTraceSegmentRef(TraceSegmentRef ref) {
         assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 
     static void assertHttpSpan(AbstractTracingSpan span) {

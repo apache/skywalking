@@ -73,7 +73,7 @@ public class RabbitMQConsumerInterceptorTest {
     public void TestRabbitMQConsumerInterceptor() throws Throwable {
         Envelope envelope = new Envelope(1111, false, "", "rabbitmq-test");
         Map<String, Object> headers = new HashMap<String, Object>();
-        headers.put(SW8CarrierItem.HEADER_NAME, "1-MS4xLjE1NDM5NzU1OTEwMTQwMDAx-MS4xLjE1NDM5NzU1OTA5OTcwMDAw-0-1-1-IzEyNy4wLjAuMTo1Mjcy-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=");
+        headers.put(SW8CarrierItem.HEADER_NAME, "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
         Object[] arguments = new Object[] {
             0,

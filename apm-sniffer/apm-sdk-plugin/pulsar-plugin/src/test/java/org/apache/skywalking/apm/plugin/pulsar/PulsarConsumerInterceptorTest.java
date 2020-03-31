@@ -86,7 +86,7 @@ public class PulsarConsumerInterceptorTest {
         msg.getMessageBuilder()
            .addProperties(PulsarApi.KeyValue.newBuilder()
                                             .setKey(SW8CarrierItem.HEADER_NAME)
-                                            .setValue("1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-I3Rlc3RFbnRyeVNwYW4="));
+                                            .setValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="));
     }
 
     @Test
@@ -127,6 +127,6 @@ public class PulsarConsumerInterceptorTest {
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
         MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 }

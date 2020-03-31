@@ -99,7 +99,7 @@ public class KafkaConsumerInterceptorTest {
         consumerRecord.headers()
                       .add(
                           SW8CarrierItem.HEADER_NAME,
-                          "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-I3Rlc3RFbnRyeVNwYW4="
+                          "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="
                               .getBytes()
                       );
         records.add(consumerRecord);
@@ -145,6 +145,6 @@ public class KafkaConsumerInterceptorTest {
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
         MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 }

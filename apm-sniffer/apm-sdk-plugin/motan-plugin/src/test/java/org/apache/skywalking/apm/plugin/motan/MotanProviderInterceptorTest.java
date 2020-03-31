@@ -109,7 +109,7 @@ public class MotanProviderInterceptorTest {
         HashMap attachments = new HashMap();
         attachments.put(
             SW8CarrierItem.HEADER_NAME,
-            "1-MC4wLjA=-MS4xMjMuNDU2-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu"
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="
         );
         when(request.getAttachments()).thenReturn(attachments);
 
@@ -155,10 +155,10 @@ public class MotanProviderInterceptorTest {
     }
 
     private void assertRefSegment(TraceSegmentRef primaryRef) {
-        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("1.123.456"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(primaryRef).toString(), is("3.4.5"));
         assertThat(SegmentRefHelper.getSpanId(primaryRef), is(3));
         MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(primaryRef), is("instance"));
-        assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("192.168.1.8:18002"));
+        assertThat(SegmentRefHelper.getPeerHost(primaryRef), is("127.0.0.1:8080"));
     }
 
     private void assertMotanProviderSpan(AbstractTracingSpan span) {

@@ -110,8 +110,7 @@ public class ServerTracingFilterInterceptorTest extends AbstractTracingFilterTes
         while (next.hasNext()) {
             next = next.next();
             if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
-                next.setHeadValue("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0Y" +
-                        "Wwv-Iy90ZXN0RW50cnlTcGFu");
+                next.setHeadValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
             }
         }
         SWContextCarrier swContextCarrier = new SWContextCarrier();

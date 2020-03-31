@@ -117,9 +117,11 @@ public class SofaRpcProviderInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW8CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW8CarrierItem.HEADER_NAME)).thenReturn(
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
 
-        sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        sofaRpcProviderInterceptor.beforeMethod(
+            enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         sofaRpcProviderInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, sofaResponse);
         assertProvider();
     }

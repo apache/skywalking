@@ -55,6 +55,6 @@ public class ContextSnapshot {
     }
 
     public boolean isValid() {
-        return traceSegmentId != null && spanId > 0 && traceId != null;
+        return traceSegmentId != null && spanId > -1 && traceId != null;
     }
 }

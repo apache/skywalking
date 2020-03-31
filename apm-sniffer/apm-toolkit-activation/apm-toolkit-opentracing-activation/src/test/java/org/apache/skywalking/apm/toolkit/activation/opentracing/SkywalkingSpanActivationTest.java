@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -53,6 +55,7 @@ import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingContinuation;
 import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpan;
 import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder;
 import org.apache.skywalking.apm.toolkit.opentracing.TextMapContext;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -116,6 +119,8 @@ public class SkywalkingSpanActivationTest {
             HashMap.class
         };
 
+        Config.Agent.SERVICE_NAME = "service";
+
         setOperationNameInterceptor = new SpanSetOperationNameInterceptor();
         setOperationNameArgument = new Object[] {"testOperationName"};
         setOperationNameArgumentType = new Class[] {String.class};
@@ -127,6 +132,11 @@ public class SkywalkingSpanActivationTest {
 
         constructorInterceptor = new ConstructorInterceptor();
         activateInterceptor = new ActivateInterceptor();
+    }
+
+    @After
+    public void tearDown() {
+        Config.Agent.SERVICE_NAME = Constants.EMPTY_STRING;
     }
 
     @Test
@@ -218,9 +228,9 @@ public class SkywalkingSpanActivationTest {
             carrier
         }, null, null);
 
-        String[] parts = values.get(SW8CarrierItem.HEADER_NAME).split("-", 9);
+        String[] parts = values.get(SW8CarrierItem.HEADER_NAME).split("-", 8);
         Assert.assertEquals("0", parts[3]);
-        Assert.assertEquals(Base64.encode("#127.0.0.1:8080"), parts[6]);
+        Assert.assertEquals(Base64.encode("127.0.0.1:8080"), parts[7]);
         stopSpan();
     }
 
@@ -246,7 +256,7 @@ public class SkywalkingSpanActivationTest {
 
         values.put(
             SW8CarrierItem.HEADER_NAME,
-            "1-NDM0LjEyLjEyMTIz-MS4zNDMuMjIy-3-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu"
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="
         );
 
         extractInterceptor.afterMethod(enhancedInstance, null, new Object[] {
@@ -259,7 +269,7 @@ public class SkywalkingSpanActivationTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
         assertThat(tracingSegment.getRefs().size(), is(1));
         TraceSegmentRef ref = tracingSegment.getRefs().get(0);
-        SegmentRefAssert.assertSegmentId(ref, "1.343.222");
+        SegmentRefAssert.assertSegmentId(ref, "3.4.5");
         SegmentRefAssert.assertSpanId(ref, 3);
         assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         SegmentRefAssert.assertPeerHost(ref, "127.0.0.1:8080");

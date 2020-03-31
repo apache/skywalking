@@ -96,7 +96,7 @@ public class ContextCarrier implements Serializable {
                     this.parentServiceInstance = Base64.decode2UTFString(parts[5]);
                     this.parentEndpoint = Base64.decode2UTFString(parts[6]);
                     this.addressUsedAtClient = Base64.decode2UTFString(parts[7]);
-                } catch (NumberFormatException ignored) {
+                } catch (IllegalArgumentException ignored) {
 
                 }
             }
