@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This is the core config in sniffer agent.
@@ -102,9 +101,12 @@ public class Config {
         public static long FORCE_RECONNECTION_PERIOD = 1;
 
         /**
-         * Limit the length of the operationName to prevent errors when inserting elasticsearch
-         **/
-        public static int OPERATION_NAME_THRESHOLD = 500;
+         * Limit the length of the operationName to prevent the overlength issue in the storage.
+         *
+         * <p>NOTICE</p>
+         * In the current practice, we don't recommend the length over 190.
+         */
+        public static int OPERATION_NAME_THRESHOLD = 150;
     }
 
     public static class Collector {
@@ -173,11 +175,9 @@ public class Config {
 
     public static class Dictionary {
         /**
-         * The buffer size of application codes and peer
+         * The buffer size of the registered network addresses.
          */
-        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
-
-        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
+        public static int NETWORK_ADDRESS_BUFFER_SIZE = 10 * 10000;
     }
 
     public static class Logging {
