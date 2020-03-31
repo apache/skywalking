@@ -5,7 +5,7 @@ HTTP API Protocol defines the API data format, including api request and respons
 ### Do register
 
 Detail information about data format can be found in  [Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto).
-And register steps followings [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v2.md).
+And register steps followings [SkyWalking Trace Data Protocol v2](Trace-Data-Protocol-v3.md).
 
 - Service Register
 
