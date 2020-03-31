@@ -49,7 +49,7 @@ public class EndpointRelation extends Source {
     private String endpoint;
 
     public void setEndpoint(final String endpoint) {
-        this.endpoint = endpoint.substring(0, CoreModule.getEndpointNameMaxLength());
+        this.endpoint = CoreModule.formatEndpointName(endpoint);
     }
 
     @Getter
@@ -71,7 +71,7 @@ public class EndpointRelation extends Source {
     private String childEndpoint;
 
     public void setChildEndpoint(final String childEndpoint) {
-        this.childEndpoint = childEndpoint.substring(0, CoreModule.getEndpointNameMaxLength());
+        this.childEndpoint = CoreModule.formatEndpointName(childEndpoint);
     }
 
     @Getter

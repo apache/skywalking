@@ -87,8 +87,20 @@ public class CoreModule extends ModuleDefine {
         return classes.toArray(new Class[] {});
     }
 
-    public static int getEndpointNameMaxLength() {
-        return ENDPOINT_NAME_MAX_LENGTH;
+    /**
+     * Format endpoint name by using the length config in the core module. This is a global rule, every place including
+     * endpoint as the {@link org.apache.skywalking.oap.server.core.source.Source} should follow this for any core
+     * module implementation.
+     *
+     * @param endpointName raw data, literal string.
+     * @return the string, which length less than or equals {@link #ENDPOINT_NAME_MAX_LENGTH};
+     */
+    public static String formatEndpointName(String endpointName) {
+        if (endpointName.length() > ENDPOINT_NAME_MAX_LENGTH) {
+            return endpointName.substring(0, ENDPOINT_NAME_MAX_LENGTH);
+        } else {
+            return endpointName;
+        }
     }
 
     public static void setEndpointNameMaxLength(final int endpointNameMaxLength) {

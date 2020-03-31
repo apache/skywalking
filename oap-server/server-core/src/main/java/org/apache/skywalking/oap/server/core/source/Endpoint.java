@@ -47,7 +47,7 @@ public class Endpoint extends Source {
     private String name;
 
     public void setName(final String name) {
-        this.name = name.substring(0, CoreModule.getEndpointNameMaxLength());
+        this.name = CoreModule.formatEndpointName(name);
     }
 
     @Getter
