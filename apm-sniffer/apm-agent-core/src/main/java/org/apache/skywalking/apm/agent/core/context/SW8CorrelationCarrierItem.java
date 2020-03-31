@@ -17,11 +17,11 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-public class SW7CorrelationCarrierItem extends CarrierItem {
-    public static final String HEADER_NAME = "sw7-correlation";
+public class SW8CorrelationCarrierItem extends CarrierItem {
+    public static final String HEADER_NAME = "sw8-correlation";
     private final CorrelationContext correlationContext;
 
-    public SW7CorrelationCarrierItem(CorrelationContext correlationContext, CarrierItem next) {
+    public SW8CorrelationCarrierItem(CorrelationContext correlationContext, CarrierItem next) {
         super(HEADER_NAME, correlationContext.serialize(), next);
         this.correlationContext = correlationContext;
     }

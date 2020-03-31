@@ -1,5 +1,5 @@
 # SkyWalking Cross Process Propagation Headers Protocol
-* Version 2.1
+* Version 3.0
 
 SkyWalking is more likely an APM system, rather than common distributed tracing system. 
 The Headers is much more complex than them in order to improving analysis performance of collector. 
@@ -9,7 +9,7 @@ You can find many similar mechanism in other commercial APM system. (Some are ev
 SkyWalking Cross Process Propagation Headers Protocol v2 is also named as sw6 protocol, which is for context propagation.
 
 ## Header Item
-* Header Name: `sw6`
+* Header Name: `sw8`
 * Header Value: Split by `-`, the parts are following. The length of header value should be less than 2k(default).
 
 Value format example, `XXXXX-XXXXX-XXXX-XXXX`
@@ -22,23 +22,23 @@ Values include the following segments, all String type values are in BASE64 enco
 1. Trace Id. **String(BASE64 encoded)**. Three Longs split by `.` to represent the unique id of this trace.
 1. Parent trace segment Id. **String(BASE64 encoded)**. Three Longs split by `.` to represent the unique id of parent segment in parent service.
 1. Parent span Id. Integer. Begin with 0. This span id points to the parent span in parent trace segment. 
-1. Parent service instance Id. Integer. The instance ID of parent service.
-1. Entrance service instance Id. Integer. The instance ID of the entrance service. 
+1. Parent service instance Id.  **String(BASE64 encoded)**.
+1. Entrance service instance Id.  **String(BASE64 encoded)**. 
 1. Target address of this request. **String(BASE64 encoded)**. The network address(not must be IP + port) used at client side to access this target
-service. _This value can use exchange/compress collector service to get the id(integer) to represent the string. If you use the string, it must start with `#`, others use integer directly._
+service.
 
 - Optional(s)
 
 Optional values could not exist if the agent/SDK haven't those info or the length of header is over the threshold(2k default).  
-1. Entry endpoint of the trace. Add `#` as the prefix. **String(BASE64 encoded)**. 
-1. Parent endpoint of the parent service. Add `#` as the prefix. **String(BASE64 encoded)**. 
+1. Entry endpoint of the trace. **String(BASE64 encoded)**. 
+1. Parent endpoint of the parent service. **String(BASE64 encoded)**. 
 
 ## Sample values
-1. Short version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT`
+1. Short version, `1-TRACEID-SEGMENTID-3-INSTANCEID-ENTRY_INSTANCE_ID-IPPORT`
 1. Complete version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT-ENTRYURI-PARENTURI`
 
 ## Differences from v2
-The entry and parent endpoints in the header doesn't support ID format. Always use the literal string.
+All ID register mechanism has been removed. Agent keeps using literal string to propagate all necessary information.
 [SkyWalking v2](https://github.com/apache/skywalking/blob/v7.0.0/docs/en/protocols/Trace-Data-Protocol-v2.md) 
 
 ## Differences from v1 
