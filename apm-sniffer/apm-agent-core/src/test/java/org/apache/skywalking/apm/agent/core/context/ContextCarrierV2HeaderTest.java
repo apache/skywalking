@@ -36,7 +36,7 @@ public class ContextCarrierV2HeaderTest {
             next = next.next();
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
                 next.setHeadValue("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw--");
-            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+            } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue("dGVzdA==:dHJ1ZQ==");
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
@@ -73,7 +73,7 @@ public class ContextCarrierV2HeaderTest {
              */
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
-            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+            } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 /**
                  * customKey:customValue
                  *
@@ -90,7 +90,7 @@ public class ContextCarrierV2HeaderTest {
             next = next.next();
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
-            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+            } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
@@ -124,7 +124,7 @@ public class ContextCarrierV2HeaderTest {
             next = next.next();
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
                 sw6HeaderValue = next.getHeadValue();
-            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+            } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 correlationHeaderValue = next.getHeadValue();
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());
@@ -137,7 +137,7 @@ public class ContextCarrierV2HeaderTest {
             next = next.next();
             if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
                 next.setHeadValue(sw6HeaderValue);
-            } else if (next.getHeadKey().equals(SW7CorrelationCarrierItem.HEADER_NAME)) {
+            } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue(correlationHeaderValue);
             } else {
                 throw new IllegalArgumentException("Unknown Header: " + next.getHeadKey());

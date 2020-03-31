@@ -7,26 +7,14 @@ Trace data protocol is defined and provided in [gRPC format](https://github.com/
 For each agent/SDK, it needs to register service id and service instance id before reporting any kind of trace 
 or metrics data.
 
-Since SkyWalking v7.x, SkyWalking provided register and uplink trace data through HTTP API way.
+Since SkyWalking v8.x, SkyWalking provided register and uplink trace data through HTTP API way.
 [HTTP API Protocol](HTTP-API-Protocol.md) defined the API data format.
 
-### Step 1. Do register
-[Register service](https://github.com/apache/skywalking-data-collect-protocol/tree/master/register/Register.proto) takes charge of 
-all register methods. At step 1, we need `doServiceRegister`, then `doServiceInstanceRegister`.
+### Report service instance properties 
+Service Instance has more information than a name, once the agent wants to report this, use `ServiceInstanceService#reportProperties` service
+providing a string-key/string-value pair list as the parameter. `language` of target instance is expected at least.
 
-1. First of all, do `doServiceRegister`, input is **serviceName**, which could be declared by any UTF-8 String. The return 
-value is KeyValue pair, **serviceName** as key, **service id** as value. Batch is also supported.
-1. After have **service id**, use `doServiceInstanceRegister` to do instance register. Input is **service id**, **UUID**,
-and **register time**. UUID should be unique in the whole distributed environments. The return value is still KeyValue pair,
-**UUID** as key, **service instance id** as value. Batch is also supported.
-
-For register, the most important notice is that, the process is expected as async in backend, so, the return could be **NULL**.
-In most cases, you need to set a timer to call these services repeated, until you got the response. Suggestion loop cycle, 10s.
-
-Because batch is supported, even for most language agent/SDK, no scenario to do batch register. We suggest to check the  `serviceName`
-and `UUID` in response, and match with your expected value.
-
-### Step 2. Send trace and metrics
+### Send trace and metrics
 After you have service id and service instance id, you could send traces and metrics. Now we
 have 
 1. `TraceSegmentReportService#collect` for skywalking native trace format
@@ -50,7 +38,7 @@ e.g. accessing DB by JDBC, reading Redis/Memcached are cataloged an ExitSpan.
 
 3. Span parent info called Reference, which is included in span. Reference carries more fields besides 
 trace id, parent segment id, span id. Others are **entry service instance id**, **parent service instance id**,
-**entry endpoint**, **parent endpoint** and **network address**. Follow [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v2.md),
+**entry endpoint**, **parent endpoint** and **network address**. Follow [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md),
 you will know how to get all these fields.
 
 4. `segment` in Upstream is the byte array of TraceSegmentObject.

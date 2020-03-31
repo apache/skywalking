@@ -73,8 +73,8 @@ public class ContextCarrier implements Serializable {
     private CorrelationContext correlationContext = new CorrelationContext();
 
     public CarrierItem items() {
-        SW7CorrelationCarrierItem sw7CorrelationCarrierItem = new SW7CorrelationCarrierItem(correlationContext, null);
-        SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, sw7CorrelationCarrierItem);
+        SW8CorrelationCarrierItem sw8CorrelationCarrierItem = new SW8CorrelationCarrierItem(correlationContext, null);
+        SW6CarrierItem sw6CarrierItem = new SW6CarrierItem(this, sw8CorrelationCarrierItem);
         return new CarrierItemHead(sw6CarrierItem);
     }
 
