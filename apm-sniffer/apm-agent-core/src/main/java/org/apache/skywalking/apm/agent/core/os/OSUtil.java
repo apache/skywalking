@@ -69,6 +69,8 @@ public class OSUtil {
                             String addressStr = address.getHostAddress();
                             if ("127.0.0.1".equals(addressStr)) {
                                 continue;
+                            } else if ("localhost".equals(addressStr)) {
+                                continue;
                             }
                             IPV4_LIST.add(addressStr);
                         }
@@ -79,6 +81,15 @@ public class OSUtil {
             }
         }
         return IPV4_LIST;
+    }
+
+    public static String getIPV4() {
+        final List<String> allIPV4 = getAllIPV4();
+        if (allIPV4.size() > 0) {
+            return allIPV4.get(0);
+        } else {
+            return "no-hostname";
+        }
     }
 
     public static int getProcessNo() {

@@ -10,9 +10,13 @@ or metrics data.
 Since SkyWalking v8.x, SkyWalking provided register and uplink trace data through HTTP API way.
 [HTTP API Protocol](HTTP-API-Protocol.md) defined the API data format.
 
-### Report service instance properties 
-Service Instance has more information than a name, once the agent wants to report this, use `ServiceInstanceService#reportProperties` service
+### Report service instance status
+1. Service Instance Properties 
+Service instance has more information than a name, once the agent wants to report this, use `ManagementService#reportInstanceProperties` service
 providing a string-key/string-value pair list as the parameter. `language` of target instance is expected at least.
+
+2. Service Ping
+Service instance should keep alive with the backend. The agent should set a scheduler using `ManagementService#keepAlive` service in every minute.
 
 ### Send trace and metrics
 After you have service id and service instance id, you could send traces and metrics. Now we

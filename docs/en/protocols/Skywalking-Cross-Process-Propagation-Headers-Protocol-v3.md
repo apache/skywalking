@@ -21,21 +21,16 @@ Values include the following segments, all String type values are in BASE64 enco
 1. Sample. 0 or 1. 0 means context exists, but could(most likely will) ignore. 1 means this trace need to be sampled and send to backend. 
 1. Trace Id. **String(BASE64 encoded)**. Three Longs split by `.` to represent the unique id of this trace.
 1. Parent trace segment Id. **String(BASE64 encoded)**. Three Longs split by `.` to represent the unique id of parent segment in parent service.
-1. Parent span Id. Integer. Begin with 0. This span id points to the parent span in parent trace segment. 
-1. Parent service instance Id.  **String(BASE64 encoded)**.
-1. Entrance service instance Id.  **String(BASE64 encoded)**. 
-1. Target address of this request. **String(BASE64 encoded)**. The network address(not must be IP + port) used at client side to access this target
+1. Parent span Id. Integer. Begin with 0. This span id points to the parent span in parent trace segment.
+1. Parent service.  **String(BASE64 encoded)**. 
+1. Parent service instance.  **String(BASE64 encoded)**.
+1. Parent endpoint. **String(BASE64 encoded)**.
+1. Target address used at client side of this request. **String(BASE64 encoded)**. The network address(not must be IP + port) used at client side to access this target
 service.
 
-- Optional(s)
-
-Optional values could not exist if the agent/SDK haven't those info or the length of header is over the threshold(2k default).  
-1. Entry endpoint of the trace. **String(BASE64 encoded)**. 
-1. Parent endpoint of the parent service. **String(BASE64 encoded)**. 
-
 ## Sample values
-1. Short version, `1-TRACEID-SEGMENTID-3-INSTANCEID-ENTRY_INSTANCE_ID-IPPORT`
-1. Complete version, `1-TRACEID-SEGMENTID-3-5-2-IPPORT-ENTRYURI-PARENTURI`
+`1-TRACEID-SEGMENTID-3-PARENT_SERVICE-PARENT_INSTANCE-PARENT_ENDPOINT-IPPORT`
+
 
 ## Differences from v2
 All ID register mechanism has been removed. Agent keeps using literal string to propagate all necessary information.

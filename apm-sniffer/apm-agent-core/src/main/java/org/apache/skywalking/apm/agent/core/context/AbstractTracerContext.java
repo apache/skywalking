@@ -60,7 +60,7 @@ public interface AbstractTracerContext {
      *
      * @return the string represents the id.
      */
-    String getReadableGlobalTraceId();
+    String getReadablePrimaryTraceId();
 
     /**
      * Create an entry span

@@ -24,8 +24,6 @@ import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
  * The exit span has some additional behaviours
  */
 public interface ExitTypeSpan {
-    int getPeerId();
-
     String getPeer();
 
     ExitTypeSpan inject(ContextCarrier carrier);

@@ -20,14 +20,12 @@ package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceIds;
 import org.apache.skywalking.apm.agent.core.context.ids.GlobalIdGenerator;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.NewDistributedTraceId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 /**
  * {@link TraceSegment} is a segment or fragment of the distributed trace. See https://github.com/opentracing/specification/blob/master/specification.md#the-opentracing-data-model
@@ -38,7 +36,7 @@ public class TraceSegment {
     /**
      * The id of this trace segment. Every segment has its unique-global-id.
      */
-    private ID traceSegmentId;
+    private String traceSegmentId;
 
     /**
      * The refs of parent trace segments, except the primary one. For most RPC call, {@link #refs} contains only one
@@ -119,12 +117,8 @@ public class TraceSegment {
         return this;
     }
 
-    public ID getTraceSegmentId() {
+    public String getTraceSegmentId() {
         return traceSegmentId;
-    }
-
-    public int getServiceId() {
-        return RemoteDownstreamConfig.Agent.SERVICE_ID;
     }
 
     public boolean hasRef() {
@@ -156,37 +150,29 @@ public class TraceSegment {
      *
      * @return the segment as GRPC service parameter
      */
-    public UpstreamSegment transform() {
-        UpstreamSegment.Builder upstreamBuilder = UpstreamSegment.newBuilder();
-        for (DistributedTraceId distributedTraceId : getRelatedGlobalTraces()) {
-            upstreamBuilder = upstreamBuilder.addGlobalTraceIds(distributedTraceId.toUniqueId());
-        }
+    public SegmentObject transform() {
         SegmentObject.Builder traceSegmentBuilder = SegmentObject.newBuilder();
+        traceSegmentBuilder.setTraceId(getRelatedGlobalTraces().get(0).getId());
         /*
          * Trace Segment
          */
-        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId.transform());
+        traceSegmentBuilder.setTraceSegmentId(this.traceSegmentId);
         // Don't serialize TraceSegmentReference
 
         // SpanObject
         for (AbstractTracingSpan span : this.spans) {
             traceSegmentBuilder.addSpans(span.transform());
         }
-        traceSegmentBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID);
-        traceSegmentBuilder.setServiceInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+        traceSegmentBuilder.setService(Config.Agent.SERVICE_NAME);
+        traceSegmentBuilder.setServiceInstance(Config.Agent.INSTANCE_NAME);
         traceSegmentBuilder.setIsSizeLimited(this.isSizeLimited);
 
-        upstreamBuilder.setSegment(traceSegmentBuilder.build().toByteString());
-        return upstreamBuilder.build();
+        return traceSegmentBuilder.build();
     }
 
     @Override
     public String toString() {
         return "TraceSegment{" + "traceSegmentId='" + traceSegmentId + '\'' + ", refs=" + refs + ", spans=" + spans + ", relatedGlobalTraces=" + relatedGlobalTraces + '}';
-    }
-
-    public int getApplicationInstanceId() {
-        return RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
     }
 
     public long createTime() {

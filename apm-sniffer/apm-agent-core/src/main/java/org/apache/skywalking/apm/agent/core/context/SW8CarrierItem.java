@@ -16,13 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.dictionary;
+package org.apache.skywalking.apm.agent.core.context;
 
-public class DictionaryManager {
-    /**
-     * @return {@link NetworkAddressDictionary} to find application id for application code and network address.
-     */
-    public static NetworkAddressDictionary findNetworkAddressSection() {
-        return NetworkAddressDictionary.INSTANCE;
+public class SW8CarrierItem extends CarrierItem {
+    public static final String HEADER_NAME = "sw8";
+    private ContextCarrier carrier;
+
+    public SW8CarrierItem(ContextCarrier carrier, CarrierItem next) {
+        super(HEADER_NAME, carrier.serialize(ContextCarrier.HeaderVersion.v3), next);
+        this.carrier = carrier;
+    }
+
+    @Override
+    public void setHeadValue(String headValue) {
+        carrier.deserialize(headValue, ContextCarrier.HeaderVersion.v3);
     }
 }

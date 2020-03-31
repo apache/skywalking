@@ -21,21 +21,20 @@ package org.apache.skywalking.apm.agent.core.context;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ContextCarrierV2HeaderTest {
+public class ContextCarrierV3HeaderTest {
 
     @Test
-    public void testDeserializeV2Header() {
+    public void testDeserializeV3Header() {
         ContextCarrier contextCarrier = new ContextCarrier();
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                next.setHeadValue("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw--");
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
+                next.setHeadValue("1-My40LjU=-MS4yLjM=-4-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue("dGVzdA==:dHJ1ZQ==");
             } else {
@@ -47,32 +46,26 @@ public class ContextCarrierV2HeaderTest {
     }
 
     @Test
-    public void testSerializeV2Header() {
+    public void testSerializeV3Header() {
         List<DistributedTraceId> distributedTraceIds = new ArrayList<>();
-        distributedTraceIds.add(new PropagatedTraceId("3.4.5"));
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        contextCarrier.setTraceSegmentId(new ID(1, 2, 3));
-        contextCarrier.setDistributedTraceIds(distributedTraceIds);
+        contextCarrier.setTraceSegmentId("1.2.3");
+        contextCarrier.setTraceId("3.4.5");
         contextCarrier.setSpanId(4);
-        contextCarrier.setEntryServiceInstanceId(1);
-        contextCarrier.setParentServiceInstanceId(1);
-        contextCarrier.setPeerHost("127.0.0.1:8080");
-        contextCarrier.setEntryEndpointName("/portal");
-        contextCarrier.setParentEndpointName("/app");
+        contextCarrier.setParentService("service");
+        contextCarrier.setParentServiceInstance("instance");
+        contextCarrier.setAddressUsedAtClient("127.0.0.1:8080");
+        contextCarrier.setParentEndpoint("/portal");
+        contextCarrier.setParentEndpoint("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
 
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            /*
-             * sampleFlag-traceId-segmentId-spanId-parentAppInstId-entryAppInstId-peerHost-entryEndpoint-parentEndpoint
-             *
-             * "1-3.4.5-1.2.3-4-1-1-#127.0.0.1:8080-#/portal-123"
-             */
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 /**
                  * customKey:customValue
@@ -88,8 +81,8 @@ public class ContextCarrierV2HeaderTest {
         next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWw=-Iy9hcHA=", next.getHeadValue());
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
+                Assert.assertEquals("1-My40LjU=-MS4yLjM=-4-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=", next.getHeadValue());
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 Assert.assertEquals("dGVzdA==:dHJ1ZQ==", next.getHeadValue());
             } else {
@@ -106,14 +99,14 @@ public class ContextCarrierV2HeaderTest {
         distributedTraceIds.add(new PropagatedTraceId("3.4.5"));
 
         ContextCarrier contextCarrier = new ContextCarrier();
-        contextCarrier.setTraceSegmentId(new ID(1, 2, 3));
-        contextCarrier.setDistributedTraceIds(distributedTraceIds);
+        contextCarrier.setTraceSegmentId("1.2.3");
+        contextCarrier.setTraceId("3.4.5");
         contextCarrier.setSpanId(4);
-        contextCarrier.setEntryServiceInstanceId(1);
-        contextCarrier.setParentServiceInstanceId(1);
-        contextCarrier.setPeerHost("127.0.0.1:8080");
-        contextCarrier.setEntryEndpointName("/portal");
-        contextCarrier.setParentEndpointName("/app");
+        contextCarrier.setParentService("service");
+        contextCarrier.setParentServiceInstance("instance");
+        contextCarrier.setAddressUsedAtClient("127.0.0.1:8080");
+        contextCarrier.setParentEndpoint("/portal");
+        contextCarrier.setParentEndpoint("/app");
 
         contextCarrier.getCorrelationContext().put("test", "true");
 
@@ -122,7 +115,7 @@ public class ContextCarrierV2HeaderTest {
         String correlationHeaderValue = null;
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
                 sw6HeaderValue = next.getHeadValue();
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 correlationHeaderValue = next.getHeadValue();
@@ -135,7 +128,7 @@ public class ContextCarrierV2HeaderTest {
         next = contextCarrier2.items();
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
                 next.setHeadValue(sw6HeaderValue);
             } else if (next.getHeadKey().equals(SW8CorrelationCarrierItem.HEADER_NAME)) {
                 next.setHeadValue(correlationHeaderValue);
@@ -146,12 +139,12 @@ public class ContextCarrierV2HeaderTest {
 
         Assert.assertTrue(contextCarrier2.isValid());
         Assert.assertEquals(contextCarrier.getSpanId(), contextCarrier2.getSpanId());
-        Assert.assertEquals(contextCarrier.getPeerHost(), contextCarrier2.getPeerHost());
-        Assert.assertEquals(contextCarrier.getDistributedTraceId(), contextCarrier2.getDistributedTraceId());
+        Assert.assertEquals(contextCarrier.getAddressUsedAtClient(), contextCarrier2.getAddressUsedAtClient());
+        Assert.assertEquals(contextCarrier.getTraceId(), contextCarrier2.getTraceId());
         Assert.assertEquals(contextCarrier.getTraceSegmentId(), contextCarrier2.getTraceSegmentId());
-        Assert.assertEquals(contextCarrier.getEntryEndpointName(), contextCarrier2.getEntryEndpointName());
-        Assert.assertEquals(contextCarrier.getEntryServiceInstanceId(), contextCarrier2.getEntryServiceInstanceId());
-        Assert.assertEquals(contextCarrier.getParentServiceInstanceId(), contextCarrier2.getParentServiceInstanceId());
+        Assert.assertEquals(contextCarrier.getParentService(), contextCarrier2.getParentService());
+        Assert.assertEquals(contextCarrier.getParentServiceInstance(), contextCarrier2.getParentServiceInstance());
+        Assert.assertEquals(contextCarrier.getParentEndpoint(), contextCarrier2.getParentEndpoint());
         Assert.assertEquals(contextCarrier.getCorrelationContext(), contextCarrier2.getCorrelationContext());
     }
 }

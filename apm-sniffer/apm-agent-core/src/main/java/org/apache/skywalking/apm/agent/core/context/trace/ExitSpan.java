@@ -39,10 +39,6 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
         super(spanId, parentSpanId, operationName, peer, owner);
     }
 
-    public ExitSpan(int spanId, int parentSpanId, String operationName, int peerId, TracingContext owner) {
-        super(spanId, parentSpanId, operationName, peerId, owner);
-    }
-
     public ExitSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         super(spanId, parentSpanId, operationName, owner);
     }
@@ -116,11 +112,6 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
         } else {
             return this;
         }
-    }
-
-    @Override
-    public int getPeerId() {
-        return peerId;
     }
 
     @Override

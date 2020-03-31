@@ -16,20 +16,12 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.conf;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-
-/**
- * The <code>RemoteDownstreamConfig</code> includes configurations from collector side. All of them initialized null,
- * Null-Value or empty collection.
- */
-public class RemoteDownstreamConfig {
-    public static class Agent {
-        public volatile static int SERVICE_ID = DictionaryUtil.nullValue();
-
-        public volatile static int SERVICE_INSTANCE_ID = DictionaryUtil.nullValue();
-
-        public volatile static long INSTANCE_REGISTERED_TIME = DictionaryUtil.nullValue();
+public class Main {
+    public static void main(String[] args) {
+        String abc = "3_b3JnLnNreXdha2luZy5hcG0udGVzdGNhc2UuZHViYm8uc2VydmljZXMuR3JlZXRTZXJ2aWNlSW1wbC5kb0J1c2luZXNzKCk=_0";
+        System.out.println(abc.length());
+        System.out.println(abc.getBytes(StandardCharsets.UTF_8).length);
     }
 }

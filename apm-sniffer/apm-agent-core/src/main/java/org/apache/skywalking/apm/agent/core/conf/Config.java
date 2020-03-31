@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
+import org.apache.skywalking.apm.util.Length;
 
 /**
  * This is the core config in sniffer agent.
@@ -40,6 +41,7 @@ public class Config {
          * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service, service instance
          * nodes share the same code
          */
+        @Length(50)
         public static String SERVICE_NAME = "";
 
         /**
@@ -74,7 +76,8 @@ public class Config {
         /**
          * The identifier of the instance
          */
-        public static String INSTANCE_UUID = "";
+        @Length(50)
+        public volatile static String INSTANCE_NAME = "";
 
         /*
          * service instance properties
@@ -87,12 +90,6 @@ public class Config {
          * How depth the agent goes, when log cause exceptions.
          */
         public static int CAUSE_EXCEPTION_DEPTH = 5;
-
-        /**
-         * How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset
-         * command
-         */
-        public static int COOL_DOWN_THRESHOLD = 10;
 
         /**
          * Force reconnection period of grpc, based on grpc_channel_check_interval. If count of check grpc channel

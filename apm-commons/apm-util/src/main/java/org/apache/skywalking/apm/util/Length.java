@@ -16,21 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.network;
+package org.apache.skywalking.apm.util;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * The version of the protocol between agent and backend.
+ * The length rule of the target field.
  */
-public enum ProtocolVersion {
-    V2(2);
-
-    private final int number;
-
-    ProtocolVersion(final int number) {
-        this.number = number;
-    }
-
-    public int number() {
-        return number;
-    }
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Length {
+    int value();
 }
+

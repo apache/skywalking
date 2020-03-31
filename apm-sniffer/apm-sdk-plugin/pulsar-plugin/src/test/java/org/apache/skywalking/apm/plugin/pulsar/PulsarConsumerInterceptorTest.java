@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.plugin.pulsar;
 
 import org.apache.pulsar.common.api.proto.PulsarApi;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -85,7 +85,7 @@ public class PulsarConsumerInterceptorTest {
         msg = new MockMessage();
         msg.getMessageBuilder()
            .addProperties(PulsarApi.KeyValue.newBuilder()
-                                            .setKey(SW6CarrierItem.HEADER_NAME)
+                                            .setKey(SW8CarrierItem.HEADER_NAME)
                                             .setValue("1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-I3Rlc3RFbnRyeVNwYW4="));
     }
 
@@ -125,7 +125,7 @@ public class PulsarConsumerInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        MatcherAssert.assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
     }
