@@ -31,16 +31,17 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_TRAFFIC;
 
-@ScopeDeclaration(id = SERVICE_INVENTORY, name = "ServiceInventory")
-@Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INVENTORY, builder = ServiceInventory.Builder.class, processor = InventoryStreamProcessor.class)
+@ScopeDeclaration(id = SERVICE_TRAFFIC, name = "ServiceInventory")
+@Stream(name = ServiceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_TRAFFIC, builder = ServiceInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class ServiceInventory extends RegisterSource {
 
     public static final String INDEX_NAME = "service_inventory";
@@ -91,7 +92,7 @@ public class ServiceInventory extends RegisterSource {
     private boolean resetServiceMapping = false;
 
     public NodeType getServiceNodeType() {
-        return NodeType.get(this.nodeType);
+        return NodeType.valueOf(this.nodeType);
     }
 
     public static String buildId(String serviceName) {

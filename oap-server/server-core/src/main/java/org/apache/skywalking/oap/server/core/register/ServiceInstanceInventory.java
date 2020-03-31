@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -112,7 +113,7 @@ public class ServiceInstanceInventory extends RegisterSource {
     }
 
     public NodeType getServiceInstanceNodeType() {
-        return NodeType.get(nodeType);
+        return NodeType.valueOf(nodeType);
     }
 
     public void setServiceInstanceNodeType(NodeType nodeType) {

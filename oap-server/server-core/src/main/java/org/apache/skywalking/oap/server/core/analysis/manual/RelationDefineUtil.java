@@ -76,14 +76,7 @@ public class RelationDefineUtil {
         );
     }
 
-    @RequiredArgsConstructor
-    @Getter
-    @EqualsAndHashCode
-    public static class RelationDefine {
-        private final int source;
-        private final int dest;
-        private final int componentId;
-    }
+
 
     @RequiredArgsConstructor
     @Getter

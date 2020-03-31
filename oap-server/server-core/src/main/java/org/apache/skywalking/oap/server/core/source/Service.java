@@ -39,11 +39,9 @@ public class Service extends Source {
 
     @Getter
     @Setter
-    private int id;
-    @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
+    private NodeType type;
     @Getter
     @Setter
     private String serviceInstanceName;

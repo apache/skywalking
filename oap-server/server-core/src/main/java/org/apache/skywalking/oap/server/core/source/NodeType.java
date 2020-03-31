@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.register;
+package org.apache.skywalking.oap.server.core.source;
 
 import org.apache.skywalking.apm.network.common.ServiceType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -67,7 +67,7 @@ public enum NodeType {
         return value;
     }
 
-    public static NodeType get(int value) {
+    public static NodeType valueOf(int value) {
         switch (value) {
             case 0:
                 return Normal;
@@ -92,7 +92,7 @@ public enum NodeType {
      * Right now, spanLayerValue is exact same as NodeType value.
      */
     public static NodeType fromSpanLayerValue(int spanLayerValue) {
-        return get(spanLayerValue);
+        return valueOf(spanLayerValue);
     }
 
     public static NodeType fromRegisterServiceType(ServiceType serviceType) {
