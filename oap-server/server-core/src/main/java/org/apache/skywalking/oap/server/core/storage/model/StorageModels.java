@@ -43,7 +43,7 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
     }
 
     @Override
-    public Model add(Class aClass, int scopeId, Storage storage, boolean record) {
+    public Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -67,7 +67,7 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
         return model;
     }
 
-    private void retrieval(Class clazz,
+    private void retrieval(Class<?> clazz,
                            String modelName,
                            List<ModelColumn> modelColumns,
                            List<ExtraQueryIndex> extraQueryIndices) {
@@ -100,12 +100,10 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
                     Collections.addAll(indexDefinitions, field.getAnnotation(MultipleQueryUnifiedIndex.class).value());
                 }
 
-                indexDefinitions.forEach(indexDefinition -> {
-                    extraQueryIndices.add(new ExtraQueryIndex(
-                        column.columnName(),
-                        indexDefinition.withColumns()
-                    ));
-                });
+                indexDefinitions.forEach(indexDefinition -> extraQueryIndices.add(new ExtraQueryIndex(
+                    column.columnName(),
+                    indexDefinition.withColumns()
+                )));
             }
         }
 
