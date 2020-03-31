@@ -6,7 +6,7 @@ The Headers is much more complex than them in order to improving analysis perfor
 You can find many similar mechanism in other commercial APM system. (Some are even much more complex than our's)
 
 ## Abstract
-SkyWalking Cross Process Propagation Headers Protocol v2 is also named as sw6 protocol, which is for context propagation.
+SkyWalking Cross Process Propagation Headers Protocol v3 is also named as sw8 protocol, which is for context propagation.
 
 ## Header Item
 * Header Name: `sw8`
