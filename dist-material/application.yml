@@ -85,7 +85,9 @@ core:
     # and it will cause more load for memory, network of OAP and storage.
     # But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party tool, such as Kibana->ES, to query the data by themselves.
     activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
-
+    # The max length of the endpoint name.
+    # In the current practice, we don't recommend the length over 190.
+    endpointNameMaxLength: ${SW_CORE_ENDPOINT_NAME_MAX_LENGTH:150}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
