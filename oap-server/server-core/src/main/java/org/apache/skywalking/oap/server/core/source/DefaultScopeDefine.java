@@ -53,7 +53,7 @@ public class DefaultScopeDefine {
     public static final int SEGMENT = 12;
     public static final int ALARM = 13;
     public static final int SERVICE_TRAFFIC = 14;
-    public static final int SERVICE_INSTANCE_INVENTORY = 15;
+    public static final int SERVICE_INSTANCE_TRAFFIC = 15;
     public static final int ENDPOINT_TRAFFIC = 16;
     public static final int DATABASE_ACCESS = 17;
     public static final int DATABASE_SLOW_STATEMENT = 18;
@@ -67,6 +67,7 @@ public class DefaultScopeDefine {
     public static final int PROFILE_TASK = 26;
     public static final int PROFILE_TASK_LOG = 27;
     public static final int PROFILE_TASK_SEGMENT_SNAPSHOT = 28;
+    public static final int SERVICE_INSTANCE_PROPERTIES = 29;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

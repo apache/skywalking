@@ -16,22 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
+package org.apache.skywalking.oap.server.core.analysis.manual.instance;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceProperties;
 
-public class EndpointTrafficDispatcher implements SourceDispatcher<Endpoint> {
-
+public class InstancePropertiesDispatcher implements SourceDispatcher<ServiceInstanceProperties> {
     @Override
-    public void dispatch(final Endpoint source) {
-        EndpointTraffic traffic = new EndpointTraffic();
+    public void dispatch(final ServiceInstanceProperties source) {
+        InstanceTraffic traffic = new InstanceTraffic();
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
-        traffic.setDetectPoint(DetectPoint.SERVER.value());
+        traffic.setLastPingTimestamp(source.getTimeBucket());
+        traffic.setProperties(source.getProperties());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

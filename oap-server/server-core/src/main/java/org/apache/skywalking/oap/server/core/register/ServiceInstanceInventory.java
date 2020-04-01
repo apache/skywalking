@@ -41,10 +41,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedInde
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_TRAFFIC;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE_INVENTORY, name = "ServiceInstanceInventory")
-@Stream(name = ServiceInstanceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_INVENTORY, builder = ServiceInstanceInventory.Builder.class, processor = InventoryStreamProcessor.class)
+@ScopeDeclaration(id = SERVICE_INSTANCE_TRAFFIC, name = "ServiceInstanceInventory")
+@Stream(name = ServiceInstanceInventory.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_INSTANCE_TRAFFIC, builder = ServiceInstanceInventory.Builder.class, processor = InventoryStreamProcessor.class)
 public class ServiceInstanceInventory extends RegisterSource {
 
     public static final String INDEX_NAME = "service_instance_inventory";

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
@@ -34,14 +35,13 @@ public class Service extends Source {
 
     @Override
     public String getEntityId() {
-        return String.valueOf(id);
+        return IDManager.ServiceID.buildId(name, NodeType.Normal);
     }
 
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
-    private NodeType type;
     @Getter
     @Setter
     private String serviceInstanceName;

@@ -29,8 +29,7 @@ public enum Downsampling {
     Second(1, "second"),
     Minute(2, "minute"),
     Hour(3, "hour"),
-    Day(4, "day"),
-    Month(5, "month");
+    Day(4, "day");
 
     private final int value;
     private final String name;

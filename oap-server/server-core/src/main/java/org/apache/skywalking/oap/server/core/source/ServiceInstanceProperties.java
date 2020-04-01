@@ -18,19 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_PROPERTIES;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDeclaration(id = SERVICE_INSTANCE_PROPERTIES, name = "ServiceInstanceProperties")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ServiceInstance extends Source {
+public class ServiceInstanceProperties extends Source {
     @Override
     public int scope() {
-        return DefaultScopeDefine.SERVICE_INSTANCE;
+        return SERVICE_INSTANCE_PROPERTIES;
     }
 
     @Override
@@ -48,21 +48,5 @@ public class ServiceInstance extends Source {
     private String name;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
-    private String serviceName;
-    @Getter
-    @Setter
-    private String endpointName;
-    @Getter
-    @Setter
-    private int latency;
-    @Getter
-    @Setter
-    private boolean status;
-    @Getter
-    @Setter
-    private int responseCode;
-    @Getter
-    @Setter
-    private RequestType type;
+    private JsonObject properties;
 }

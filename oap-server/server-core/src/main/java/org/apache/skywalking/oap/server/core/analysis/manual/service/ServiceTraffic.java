@@ -18,23 +18,90 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_TRAFFIC;
 
 @ScopeDeclaration(id = SERVICE_TRAFFIC, name = "ServiceTraffic")
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_TRAFFIC,
-    builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
+    builder = ServiceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
+@EqualsAndHashCode
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
+
+    public static final String NAME = "name";
+    public static final String NODE_TYPE = "node_type";
+
+    @Setter
+    @Getter
+    @Column(columnName = NAME, matchQuery = true)
+    private String name = Const.EMPTY_STRING;
+
+    @Setter
+    @Getter
+    @Column(columnName = NODE_TYPE)
+    private NodeType nodeType;
+
+    @Override
+    public String id() {
+        return IDManager.ServiceID.buildId(name, nodeType);
+    }
+
+    @Override
+    public int remoteHashCode() {
+        return this.hashCode();
+    }
+
+    @Override
+    public void deserialize(final RemoteData remoteData) {
+        setName(remoteData.getDataStrings(0));
+        setNodeType(NodeType.valueOf(remoteData.getDataIntegers(0)));
+    }
+
+    @Override
+    public RemoteData.Builder serialize() {
+        final RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.setDataStrings(0, name);
+        builder.setDataIntegers(0, nodeType.value());
+        return builder;
+    }
+
+    public static class Builder implements StorageBuilder<ServiceTraffic> {
+
+        @Override
+        public ServiceTraffic map2Data(final Map<String, Object> dbMap) {
+            ServiceTraffic serviceTraffic = new ServiceTraffic();
+            serviceTraffic.setName((String) dbMap.get(NAME));
+            serviceTraffic.setNodeType(NodeType.valueOf(((Number) dbMap.get(NODE_TYPE)).intValue()));
+            return serviceTraffic;
+        }
+
+        @Override
+        public Map<String, Object> data2Map(final ServiceTraffic storageData) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(NAME, storageData.getName());
+            map.put(NODE_TYPE, storageData.getNodeType().value());
+            return map;
+        }
+    }
 
     @Override
     public void combine(final Metrics metrics) {
@@ -60,24 +127,5 @@ public class ServiceTraffic extends Metrics {
     public Metrics toMonth() {
         return null;
     }
-
-    @Override
-    public int remoteHashCode() {
-        return 0;
-    }
-
-    @Override
-    public void deserialize(final RemoteData remoteData) {
-
-    }
-
-    @Override
-    public RemoteData.Builder serialize() {
-        return null;
-    }
-
-    @Override
-    public String id() {
-        return null;
-    }
 }
+

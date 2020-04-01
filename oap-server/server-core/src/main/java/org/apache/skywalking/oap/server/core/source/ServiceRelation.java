@@ -40,7 +40,7 @@ public class ServiceRelation extends Source {
 
     @Getter
     @Setter
-    private int sourceServiceId;
+    private String sourceServiceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)

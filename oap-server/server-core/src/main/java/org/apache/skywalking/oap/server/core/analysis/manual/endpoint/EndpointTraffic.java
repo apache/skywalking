@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 import com.google.common.base.Strings;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -43,6 +43,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_TRAFFIC,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
+@EqualsAndHashCode
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";
@@ -73,56 +74,57 @@ public class EndpointTraffic extends Metrics {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(serviceId, name, detectPoint);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-
-        EndpointTraffic source = (EndpointTraffic) obj;
-        if (serviceId != source.getServiceId())
-            return false;
-        if (!name.equals(source.getName()))
-            return false;
-        return detectPoint == source.getDetectPoint();
-    }
-
-    @Override
     public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.addDataIntegers(serviceId);
         remoteBuilder.addDataIntegers(detectPoint);
 
         remoteBuilder.addDataLongs(getTimeBucket());
 
+        remoteBuilder.addDataStrings(serviceId);
         remoteBuilder.addDataStrings(Strings.isNullOrEmpty(name) ? Const.EMPTY_STRING : name);
         return remoteBuilder;
     }
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setServiceId(remoteData.getDataIntegers(0));
-        setDetectPoint(remoteData.getDataIntegers(1));
+        setDetectPoint(remoteData.getDataIntegers(0));
 
         setTimeBucket(remoteData.getDataLongs(0));
 
-        setName(remoteData.getDataStrings(0));
+        setServiceId(remoteData.getDataStrings(0));
+        setName(remoteData.getDataStrings(1));
     }
 
     @Override
     public int remoteHashCode() {
         int result = 17;
-        result = 31 * result + serviceId;
+        result = 31 * result + serviceId.hashCode();
         result = 31 * result + name.hashCode();
         result = 31 * result + detectPoint;
         return result;
+    }
+
+    public static class Builder implements StorageBuilder<EndpointTraffic> {
+
+        @Override
+        public EndpointTraffic map2Data(Map<String, Object> dbMap) {
+            EndpointTraffic inventory = new EndpointTraffic();
+            inventory.setServiceId((String) dbMap.get(SERVICE_ID));
+            inventory.setName((String) dbMap.get(NAME));
+            inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
+            inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            return inventory;
+        }
+
+        @Override
+        public Map<String, Object> data2Map(EndpointTraffic storageData) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(SERVICE_ID, storageData.getServiceId());
+            map.put(NAME, storageData.getName());
+            map.put(DETECT_POINT, storageData.getDetectPoint());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
+            return map;
+        }
     }
 
     @Override
@@ -148,28 +150,5 @@ public class EndpointTraffic extends Metrics {
     @Override
     public Metrics toMonth() {
         return null;
-    }
-
-    public static class Builder implements StorageBuilder<EndpointTraffic> {
-
-        @Override
-        public EndpointTraffic map2Data(Map<String, Object> dbMap) {
-            EndpointTraffic inventory = new EndpointTraffic();
-            inventory.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
-            inventory.setName((String) dbMap.get(NAME));
-            inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
-            inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            return inventory;
-        }
-
-        @Override
-        public Map<String, Object> data2Map(EndpointTraffic storageData) {
-            Map<String, Object> map = new HashMap<>();
-            map.put(SERVICE_ID, storageData.getServiceId());
-            map.put(NAME, storageData.getName());
-            map.put(DETECT_POINT, storageData.getDetectPoint());
-            map.put(TIME_BUCKET, storageData.getTimeBucket());
-            return map;
-        }
     }
 }

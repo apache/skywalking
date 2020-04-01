@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.source;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
@@ -39,7 +40,7 @@ public class Endpoint extends Source {
      */
     @Override
     public String getEntityId() {
-        return EndpointTraffic.buildId(serviceId, name, DetectPoint.SERVER);
+        return IDManager.EndpointID.buildId(serviceId, name, DetectPoint.SERVER);
     }
 
     @Getter
@@ -53,7 +54,7 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private int serviceId;
+    private String serviceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)

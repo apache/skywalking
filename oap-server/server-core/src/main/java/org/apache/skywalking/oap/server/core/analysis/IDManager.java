@@ -61,7 +61,7 @@ public class IDManager {
          * @return encoded service relation id
          */
         public static String buildRelationId(ServiceRelationDefine define) {
-            return define.source + Const.ID_SPLIT + define.dest + Const.ID_SPLIT + define.componentId;
+            return define.sourceId + Const.ID_SPLIT + define.destId + Const.ID_SPLIT + define.componentId;
         }
 
         /**
@@ -86,8 +86,8 @@ public class IDManager {
         @Getter
         @EqualsAndHashCode
         public static class ServiceRelationDefine {
-            private final String source;
-            private final String dest;
+            private final String sourceId;
+            private final String destId;
             private final int componentId;
         }
     }
