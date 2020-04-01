@@ -1,14 +1,9 @@
-# Trace Data Protocol v2
+# Trace Data Protocol v3
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
 ## Overview
-Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol).
-
-For each agent/SDK, it needs to register service id and service instance id before reporting any kind of trace 
-or metrics data.
-
-Since SkyWalking v8.x, SkyWalking provided register and uplink trace data through HTTP API way.
-[HTTP API Protocol](HTTP-API-Protocol.md) defined the API data format.
+Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol),
+also implemented in [HTTP 1.1](HTTP-API-Protocol.md)
 
 ### Report service instance status
 1. Service Instance Properties 
@@ -40,13 +35,10 @@ nor a service(e.g. HTTP service) provider/consumer.
 ExitSpan represents a client of service or MQ-producer, as named as `LeafSpan` at early age of SkyWalking.
 e.g. accessing DB by JDBC, reading Redis/Memcached are cataloged an ExitSpan. 
 
-3. Span parent info called Reference, which is included in span. Reference carries more fields besides 
-trace id, parent segment id, span id. Others are **entry service instance id**, **parent service instance id**,
-**entry endpoint**, **parent endpoint** and **network address**. Follow [Cross Process Propagation Headers Protocol v2](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md),
-you will know how to get all these fields.
+3. Span across thread or process parent info is called Reference. Reference carries trace id, 
+segment id, span id, service name, service instance name, endpoint name and target address used at client side(not required in across thread) 
+of this request in the parent. 
+Follow [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) to get more details.
 
-4. `segment` in Upstream is the byte array of TraceSegmentObject.
+4. `Span#skipAnalysis` could be TRUE, if this span doesn't require backend analysis.
 
-### Step 3. Keep alive.
-`ServiceInstancePing#doPing` should be called per several seconds. Make the backend know this instance is still
-alive. Existed **service instance id** and **UUID** used in `doServiceInstanceRegister` are required.
