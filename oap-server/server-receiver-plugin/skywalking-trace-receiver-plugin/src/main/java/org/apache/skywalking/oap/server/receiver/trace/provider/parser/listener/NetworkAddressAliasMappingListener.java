@@ -22,9 +22,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
@@ -32,11 +34,11 @@ import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceIn
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntryAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListenerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,19 +47,19 @@ import java.util.List;
  * Service Instance mapping basically is as same as the service mapping. The network address fetched from the propagated
  * context is the alias for the specific service instance. This is just more detailed mapping setup.
  * <p>
- * Read {@link ServiceMappingSpanListener}.
+ * Read {@link ServiceMappingAnalysisListener}.
  */
 @Slf4j
-public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
+public class ServiceInstanceMappingAnalysisListener implements EntryAnalysisListener {
     private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
     private final TraceServiceModuleConfig config;
     private final ServiceInventoryCache serviceInventoryCache;
     private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private final NetworkAddressInventoryCache networkAddressInventoryCache;
+    private final NetworkAddressAliasCache networkAddressAliasCache;
     private final List<ServiceInstanceMapping> serviceInstanceMappings = new ArrayList<>();
     private final List<Integer> serviceInstancesToResetMapping = new ArrayList<>();
 
-    public ServiceInstanceMappingSpanListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+    public ServiceInstanceMappingAnalysisListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
             .provider()
             .getService(ServiceInstanceInventoryCache.class);
@@ -67,14 +69,14 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
         this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
             .provider()
             .getService(IServiceInstanceInventoryRegister.class);
-        this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
-            .provider()
-            .getService(NetworkAddressInventoryCache.class);
+        this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(NetworkAddressAliasCache.class);
         this.config = config;
     }
 
     @Override
-    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+    public void parseEntry(SpanObject span, SegmentObject segmentObject) {
         if (log.isDebugEnabled()) {
             log.debug("service instance mapping listener parse reference");
         }
@@ -90,7 +92,7 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
                         continue;
                     }
                     int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
-                    String address = networkAddressInventoryCache.get(networkAddressId).getName();
+                    String address = networkAddressAliasCache.get(networkAddressId).getName();
                     int serviceInstanceId = serviceInstanceInventoryCache.getServiceInstanceId(
                         serviceInventoryCache.getServiceId(networkAddressId), networkAddressId);
 
@@ -142,11 +144,11 @@ public class ServiceInstanceMappingSpanListener implements EntrySpanListener {
         return Point.Entry.equals(point);
     }
 
-    public static class Factory implements SpanListenerFactory {
+    public static class Factory implements AnalysisListenerFactory {
 
         @Override
-        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new ServiceInstanceMappingSpanListener(moduleManager, config);
+        public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            return new ServiceInstanceMappingAnalysisListener(moduleManager, config);
         }
     }
 

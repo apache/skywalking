@@ -30,19 +30,19 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntryAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListenerFactory;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListenerFactory;
 
 /**
  * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
  */
 @Slf4j
-public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener, GlobalTraceIdsListener {
+public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, GlobalTraceIdsListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
     private final Segment segment = new Segment();
@@ -50,14 +50,14 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
     private String endpointId = "";
     private String endpointName = "";
 
-    private SegmentSpanListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
+    private SegmentAnalysisListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     @Override
     public boolean containsPoint(Point point) {
-        return Point.First.equals(point) || Point.Entry.equals(point) || Point.TraceIds.equals(point);
+        return Point.First.equals(point) || Point.Entry.equals(point) || Point.Segment.equals(point);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         UNKNOWN, SAMPLED, IGNORE
     }
 
-    public static class Factory implements SpanListenerFactory {
+    public static class Factory implements AnalysisListenerFactory {
         private final TraceSegmentSampler sampler;
 
         public Factory(int segmentSamplingRate) {
@@ -139,8 +139,8 @@ public class SegmentSpanListener implements FirstSpanListener, EntrySpanListener
         }
 
         @Override
-        public SpanListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new SegmentSpanListener(moduleManager, sampler);
+        public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            return new SegmentAnalysisListener(moduleManager, sampler);
         }
     }
 }

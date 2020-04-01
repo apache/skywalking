@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
@@ -33,16 +34,12 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 class SourceBuilder {
-
-    @Getter
-    @Setter
-    private int sourceServiceId;
     @Getter
     @Setter
     private String sourceServiceName;
     @Getter
     @Setter
-    private int sourceServiceInstanceId;
+    private NodeType sourceNodeType;
     @Getter
     @Setter
     private String sourceServiceInstanceName;
@@ -51,13 +48,10 @@ class SourceBuilder {
     private String sourceEndpointName;
     @Getter
     @Setter
-    private int destServiceId;
-    @Getter
-    @Setter
     private String destServiceName;
     @Getter
     @Setter
-    private int destServiceInstanceId;
+    private NodeType destNodeType;
     @Getter
     @Setter
     private String destServiceInstanceName;
@@ -101,7 +95,6 @@ class SourceBuilder {
 
     Service toService() {
         Service service = new Service();
-        service.setId(destServiceId);
         service.setName(destServiceName);
         service.setServiceInstanceName(destServiceInstanceName);
         service.setEndpointName(destEndpointName);
@@ -115,11 +108,11 @@ class SourceBuilder {
 
     ServiceRelation toServiceRelation() {
         ServiceRelation serviceRelation = new ServiceRelation();
-        serviceRelation.setSourceServiceId(sourceServiceId);
         serviceRelation.setSourceServiceName(sourceServiceName);
+        serviceRelation.setSourceServiceNodeType(sourceNodeType);
         serviceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
-        serviceRelation.setDestServiceId(destServiceId);
         serviceRelation.setDestServiceName(destServiceName);
+        serviceRelation.setDestServiceNodeType(destNodeType);
         serviceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceRelation.setEndpoint(destEndpointName);
         serviceRelation.setComponentId(componentId);
@@ -134,10 +127,9 @@ class SourceBuilder {
 
     ServiceInstance toServiceInstance() {
         ServiceInstance serviceInstance = new ServiceInstance();
-        serviceInstance.setId(destServiceInstanceId);
-        serviceInstance.setServiceId(destServiceId);
         serviceInstance.setName(destServiceInstanceName);
         serviceInstance.setServiceName(destServiceName);
+        serviceInstance.setNodeType(destNodeType);
         serviceInstance.setEndpointName(destEndpointName);
         serviceInstance.setLatency(latency);
         serviceInstance.setStatus(status);
@@ -149,13 +141,11 @@ class SourceBuilder {
 
     ServiceInstanceRelation toServiceInstanceRelation() {
         ServiceInstanceRelation serviceInstanceRelation = new ServiceInstanceRelation();
-        serviceInstanceRelation.setSourceServiceInstanceId(sourceServiceInstanceId);
-        serviceInstanceRelation.setSourceServiceId(sourceServiceId);
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
+        serviceInstanceRelation.setSourceServiceNodeType(sourceNodeType);
         serviceInstanceRelation.setSourceServiceInstanceName(sourceServiceInstanceName);
-        serviceInstanceRelation.setDestServiceId(destServiceId);
-        serviceInstanceRelation.setDestServiceInstanceId(destServiceInstanceId);
         serviceInstanceRelation.setDestServiceName(destServiceName);
+        serviceInstanceRelation.setDestServiceNodeType(destNodeType);
         serviceInstanceRelation.setDestServiceInstanceName(destServiceInstanceName);
         serviceInstanceRelation.setEndpoint(destEndpointName);
         serviceInstanceRelation.setComponentId(componentId);
@@ -171,9 +161,8 @@ class SourceBuilder {
     Endpoint toEndpoint() {
         Endpoint endpoint = new Endpoint();
         endpoint.setName(destEndpointName);
-        endpoint.setServiceId(destServiceId);
         endpoint.setServiceName(destServiceName);
-        endpoint.setServiceInstanceId(destServiceInstanceId);
+        endpoint.setServiceNodeType(destNodeType);
         endpoint.setServiceInstanceName(destServiceInstanceName);
         endpoint.setLatency(latency);
         endpoint.setStatus(status);
@@ -189,14 +178,12 @@ class SourceBuilder {
         }
         EndpointRelation endpointRelation = new EndpointRelation();
         endpointRelation.setEndpoint(sourceEndpointName);
-        endpointRelation.setServiceId(sourceServiceId);
         endpointRelation.setServiceName(sourceServiceName);
-        endpointRelation.setServiceInstanceId(sourceServiceInstanceId);
+        endpointRelation.setServiceNodeType(sourceNodeType);
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpoint(destEndpointName);
-        endpointRelation.setChildServiceId(destServiceId);
         endpointRelation.setChildServiceName(destServiceName);
-        endpointRelation.setChildServiceInstanceId(destServiceInstanceId);
+        endpointRelation.setChildServiceNodeType(destNodeType);
         endpointRelation.setChildServiceInstanceName(destServiceInstanceName);
         endpointRelation.setComponentId(componentId);
         endpointRelation.setRpcLatency(latency);
@@ -213,7 +200,6 @@ class SourceBuilder {
             return null;
         }
         DatabaseAccess databaseAccess = new DatabaseAccess();
-        databaseAccess.setId(destServiceId);
         databaseAccess.setDatabaseTypeId(componentId);
         databaseAccess.setLatency(latency);
         databaseAccess.setName(destServiceName);

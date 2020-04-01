@@ -16,10 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import java.io.IOException;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
-public interface StreamJsonReader<T> {
-    T read(String json) throws IOException;
+/**
+ * SpanListener for local span
+ */
+public interface LocalSpanListener extends SpanListener {
+    void parseLocal(SpanObject span, SegmentObject segmentObject);
 }

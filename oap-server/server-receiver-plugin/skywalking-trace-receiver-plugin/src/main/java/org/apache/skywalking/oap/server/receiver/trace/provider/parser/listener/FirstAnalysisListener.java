@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * SpanListener for exit span.
+ * SpanListener for the first span in the segment. The first span means span id is 0.
  */
-public interface ExitSpanListener extends SpanListener {
-    void parseExit(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);
+public interface FirstSpanListener extends SpanListener {
+    void parseFirst(SpanObject span, SegmentObject segmentObject);
 }

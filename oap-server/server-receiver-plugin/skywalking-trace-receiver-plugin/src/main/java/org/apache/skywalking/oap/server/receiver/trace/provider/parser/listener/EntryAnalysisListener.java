@@ -16,18 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest.reader;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import java.io.IOException;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
-public class SegmentJsonReader implements StreamJsonReader<SegmentObject.Builder> {
-
-    @Override
-    public SegmentObject.Builder read(String json) throws IOException {
-        SegmentObject.Builder builder = SegmentObject.newBuilder();
-        ProtoBufJsonUtils.fromJSON(json, builder);
-        return builder;
-    }
+/**
+ * SpanListener for Entry span.
+ */
+public interface EntrySpanListener extends SpanListener {
+    void parseEntry(SpanObject span, SegmentObject segmentObject);
 }

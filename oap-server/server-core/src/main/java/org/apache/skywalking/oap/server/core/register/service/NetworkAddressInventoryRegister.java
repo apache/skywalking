@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
@@ -37,7 +37,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
     private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryRegister.class);
 
     private final ModuleDefineHolder moduleDefineHolder;
-    private NetworkAddressInventoryCache networkAddressInventoryCache;
+    private NetworkAddressAliasCache networkAddressAliasCache;
     private IServiceInventoryRegister serviceInventoryRegister;
     private IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
 
@@ -45,13 +45,13 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
         this.moduleDefineHolder = moduleDefineHolder;
     }
 
-    private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
-        if (isNull(networkAddressInventoryCache)) {
-            this.networkAddressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
-                                                                  .provider()
-                                                                  .getService(NetworkAddressInventoryCache.class);
+    private NetworkAddressAliasCache getNetworkAddressAliasCache() {
+        if (isNull(networkAddressAliasCache)) {
+            this.networkAddressAliasCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                              .provider()
+                                                              .getService(NetworkAddressAliasCache.class);
         }
-        return this.networkAddressInventoryCache;
+        return this.networkAddressAliasCache;
     }
 
     private IServiceInventoryRegister getServiceInventoryRegister() {
@@ -74,7 +74,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     @Override
     public int getOrCreate(String networkAddress, JsonObject properties) {
-        int addressId = getNetworkAddressInventoryCache().getAddressId(networkAddress);
+        int addressId = getNetworkAddressAliasCache().getAddressId(networkAddress);
 
         if (addressId != Const.NONE) {
             int serviceId = getServiceInventoryRegister().getOrCreate(addressId, networkAddress, properties);
@@ -103,12 +103,12 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     @Override
     public int get(String networkAddress) {
-        return getNetworkAddressInventoryCache().getAddressId(networkAddress);
+        return getNetworkAddressAliasCache().getAddressId(networkAddress);
     }
 
     @Override
     public void heartbeat(int addressId, long heartBeatTime) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+        NetworkAddressInventory networkAddress = getNetworkAddressAliasCache().get(addressId);
         if (Objects.nonNull(networkAddress)) {
             networkAddress = networkAddress.getClone();
             networkAddress.setHeartbeatTime(heartBeatTime);
@@ -121,7 +121,7 @@ public class NetworkAddressInventoryRegister implements INetworkAddressInventory
 
     @Override
     public void update(int addressId, NodeType nodeType) {
-        NetworkAddressInventory networkAddress = getNetworkAddressInventoryCache().get(addressId);
+        NetworkAddressInventory networkAddress = getNetworkAddressAliasCache().get(addressId);
 
         if (!this.compare(networkAddress, nodeType)) {
             NetworkAddressInventory newNetworkAddress = networkAddress.getClone();

@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 
 /**
- * SpanListener for Entry span.
+ * SpanListener for exit span.
  */
-public interface EntrySpanListener extends SpanListener {
-    void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo);
+public interface ExitSpanListener extends SpanListener {
+    void parseExit(SpanObject span, SegmentObject segmentObject);
 }

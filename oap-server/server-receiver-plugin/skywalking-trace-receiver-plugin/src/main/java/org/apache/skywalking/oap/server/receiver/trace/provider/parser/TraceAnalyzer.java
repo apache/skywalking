@@ -24,20 +24,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.ProtocolVersion;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.library.buffer.BufferData;
-import org.apache.skywalking.oap.server.library.buffer.DataStreamReader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentCoreInfo;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
@@ -50,73 +43,27 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardi
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanExchanger;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-/**
- * SegmentParseV2 replaced the SegmentParse(V1 is before 6.0.0) to drive the segment analysis. It includes the following
- * steps
- *
- * 1. Register data, name to ID register
- *
- * 2. If register unfinished, cache in the local buffer file. And back to (1).
- *
- * 3. If register finished, traverse the span and analysis by the given {@link SpanListener}s.
- *
- * 4. Notify the build event to all {@link SpanListener}s in order to forward all built sources into dispatchers.
- *
- * @since 6.0.0 In the 6.x, the V1 and V2 analysis both exist.
- * @since 7.0.0 SegmentParse(V1) has been removed permanently.
- */
 @Slf4j
-public class SegmentParseV2 {
+public class TraceAnalysisor {
     private final ModuleManager moduleManager;
     private final List<SpanListener> spanListeners;
     private final SegmentParserListenerManager listenerManager;
     private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
-    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     @Setter
     private SegmentStandardizationWorker standardizationWorker;
-    private volatile static CounterMetrics TRACE_BUFFER_FILE_RETRY;
-    private volatile static CounterMetrics TRACE_BUFFER_FILE_OUT;
-    private volatile static CounterMetrics TRACE_PARSE_ERROR;
 
-    private SegmentParseV2(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
-                           TraceServiceModuleConfig config) {
+    private TraceAnalysisor(ModuleManager moduleManager,
+                          SegmentParserListenerManager listenerManager,
+                          TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.spanListeners = new LinkedList<>();
         this.segmentCoreInfo = new SegmentCoreInfo();
         this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
         this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
-        this.segmentCoreInfo.setVersion(ProtocolVersion.V2);
         this.config = config;
-
-        if (TRACE_BUFFER_FILE_RETRY == null) {
-            MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                                                         .provider()
-                                                         .getService(MetricsCreator.class);
-            TRACE_BUFFER_FILE_RETRY = metricsCreator.createCounter(
-                "v6_trace_buffer_file_retry",
-                "The number of retry trace segment from the buffer file, but haven't registered successfully.",
-                MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
-            );
-            TRACE_BUFFER_FILE_OUT = metricsCreator.createCounter(
-                "v6_trace_buffer_file_out", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY,
-                MetricsTag.EMPTY_VALUE
-            );
-            TRACE_PARSE_ERROR = metricsCreator.createCounter(
-                "v6_trace_parse_error", "The number of trace segment out of the buffer file", MetricsTag.EMPTY_KEY,
-                MetricsTag.EMPTY_VALUE
-            );
-        }
-
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                          .provider()
-                                                          .getService(ServiceInstanceInventoryCache.class);
     }
 
     public boolean parse(BufferData<UpstreamSegment> bufferData, SegmentSource source) {
@@ -304,39 +251,5 @@ public class SegmentParseV2 {
         listenerManager.getSpanListenerFactories()
                        .forEach(
                            spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
-    }
-
-    public static class Producer implements DataStreamReader.CallBack<UpstreamSegment> {
-
-        @Setter
-        private SegmentStandardizationWorker standardizationWorker;
-        private final ModuleManager moduleManager;
-        private final SegmentParserListenerManager listenerManager;
-        private final TraceServiceModuleConfig config;
-
-        public Producer(ModuleManager moduleManager, SegmentParserListenerManager listenerManager,
-                        TraceServiceModuleConfig config) {
-            this.moduleManager = moduleManager;
-            this.listenerManager = listenerManager;
-            this.config = config;
-        }
-
-        public void send(UpstreamSegment segment, SegmentSource source) {
-            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager, config);
-            segmentParse.setStandardizationWorker(standardizationWorker);
-            segmentParse.parse(new BufferData<>(segment), source);
-        }
-
-        @Override
-        public boolean call(BufferData<UpstreamSegment> bufferData) {
-            SegmentParseV2 segmentParse = new SegmentParseV2(moduleManager, listenerManager, config);
-            segmentParse.setStandardizationWorker(standardizationWorker);
-            boolean parseResult = segmentParse.parse(bufferData, SegmentSource.Buffer);
-            if (parseResult) {
-                TRACE_BUFFER_FILE_OUT.inc();
-            }
-
-            return parseResult;
-        }
     }
 }
