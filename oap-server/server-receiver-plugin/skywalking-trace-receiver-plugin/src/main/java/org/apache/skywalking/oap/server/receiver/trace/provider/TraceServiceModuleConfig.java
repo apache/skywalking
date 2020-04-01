@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-import java.util.Collections;
-import java.util.List;
 
 public class TraceServiceModuleConfig extends ModuleConfig {
     @Setter
@@ -47,9 +46,11 @@ public class TraceServiceModuleConfig extends ModuleConfig {
     /**
      * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
      * service instance mapping and service instance client side relation are ignored.
+     *
+     * Read component-libraries.yml for more details.
      */
     @Getter
-    private final List<String> noUpstreamRealAddressAgents = Collections.singletonList("Lua");
+    private final List<Integer> noUpstreamRealAddressAgents = Collections.singletonList(6000);
     /**
      * The threshold used to check the slow database access. Unit, millisecond.
      */

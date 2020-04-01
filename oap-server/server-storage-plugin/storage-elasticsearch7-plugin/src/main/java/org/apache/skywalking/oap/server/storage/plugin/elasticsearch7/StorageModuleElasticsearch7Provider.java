@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
@@ -62,7 +62,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNR
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base.StorageEs7Installer;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.NetworkAddressInventoryCacheEs7DAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.NetworkAddressAliasCacheEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.ServiceInstanceInventoryCacheEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache.ServiceInventoryCacheEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
@@ -170,7 +170,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
                 config.getResultWindowMaxSize()
             ));
         this.registerServiceImplementation(
-            INetworkAddressInventoryCacheDAO.class, new NetworkAddressInventoryCacheEs7DAO(
+            INetworkAddressAliasCacheDAO.class, new NetworkAddressAliasCacheEs7DAO(
                 elasticSearch7Client,
                 config.getResultWindowMaxSize()
             ));

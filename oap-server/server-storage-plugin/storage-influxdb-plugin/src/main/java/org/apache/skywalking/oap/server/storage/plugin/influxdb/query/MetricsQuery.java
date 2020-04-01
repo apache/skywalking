@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
@@ -62,7 +62,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB,
+    public IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB,
                                Where where, String valueCName, Function function) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
@@ -136,7 +136,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids, String valueCName)
+    public IntValues getLinearIntValues(String indName, DownSampling downsampling, List<String> ids, String valueCName)
         throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
@@ -191,7 +191,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
+    public IntValues[] getMultipleLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
                                                   List<Integer> linearIndex, String valueCName) throws IOException {
         String measurement = ModelName.build(downsampling, indName);
 
@@ -250,7 +250,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
+    public Thermodynamic getThermodynamic(String indName, DownSampling downsampling, List<String> ids,
                                           String valueCName)
         throws IOException {
         String measurement = ModelName.build(downsampling, indName);

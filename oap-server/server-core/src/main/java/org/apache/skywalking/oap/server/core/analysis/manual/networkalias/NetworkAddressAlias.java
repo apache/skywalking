@@ -18,19 +18,126 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.networkalias;
 
+import java.util.HashMap;
+import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_TRAFFIC;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS_ALIAS;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE_TRAFFIC, name = "InstanceTraffic")
-@Stream(name = ServiceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE_TRAFFIC,
-    builder = InstanceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = true)
-public class NetworkAlias  extends Metrics {
+@ScopeDeclaration(id = NETWORK_ADDRESS_ALIAS, name = "NetworkAddressAlias")
+@Stream(name = NetworkAddressAlias.INDEX_NAME, scopeId = NETWORK_ADDRESS_ALIAS,
+    builder = NetworkAddressAlias.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = true, supportUpdate = true)
+@EqualsAndHashCode(of = {
+    "address"
+})
+public class NetworkAddressAlias extends Metrics {
+    public static final String INDEX_NAME = "network_address_alias";
+    private static final String ADDRESS = "address";
+    private static final String REPRESENT_SERVICE_ID = "represent_service_id";
+    private static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
+    private static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
+
+    @Setter
+    @Getter
+    @Column(columnName = ADDRESS)
+    private String address;
+    @Setter
+    @Getter
+    @Column(columnName = REPRESENT_SERVICE_ID)
+    private String representServiceId;
+    @Setter
+    @Getter
+    @Column(columnName = REPRESENT_SERVICE_INSTANCE_ID)
+    private String representServiceInstanceId;
+    @Setter
+    @Getter
+    @Column(columnName = LAST_UPDATE_TIME_BUCKET)
+    private long lastUpdateTimeBucket;
+
+    @Override
+    public void combine(final Metrics metrics) {
+        NetworkAddressAlias alias = (NetworkAddressAlias) metrics;
+        this.representServiceId = alias.getRepresentServiceId();
+        this.representServiceInstanceId = alias.getRepresentServiceInstanceId();
+        this.lastUpdateTimeBucket = alias.getLastUpdateTimeBucket();
+    }
+
+    @Override
+    public String id() {
+        return IDManager.NetworkAddressAliasDefine.buildId(address);
+    }
+
+    @Override
+    public int remoteHashCode() {
+        return this.hashCode();
+    }
+
+    @Override
+    public void deserialize(final RemoteData remoteData) {
+        setAddress(remoteData.getDataStrings(0));
+        setRepresentServiceId(remoteData.getDataStrings(1));
+        setRepresentServiceInstanceId(remoteData.getDataStrings(2));
+
+        setLastUpdateTimeBucket(remoteData.getDataLongs(0));
+    }
+
+    @Override
+    public RemoteData.Builder serialize() {
+        final RemoteData.Builder builder = RemoteData.newBuilder();
+        builder.setDataStrings(0, address);
+        builder.setDataStrings(1, representServiceId);
+        builder.setDataStrings(2, representServiceInstanceId);
+
+        builder.setDataLongs(0, lastUpdateTimeBucket);
+        return builder;
+    }
+
+    public class Builder implements StorageBuilder<NetworkAddressAlias> {
+        @Override
+        public NetworkAddressAlias map2Data(final Map<String, Object> dbMap) {
+            final NetworkAddressAlias networkAddressAlias = new NetworkAddressAlias();
+            networkAddressAlias.setAddress((String) dbMap.get(ADDRESS));
+            networkAddressAlias.setRepresentServiceId((String) dbMap.get(REPRESENT_SERVICE_ID));
+            networkAddressAlias.setRepresentServiceInstanceId((String) dbMap.get(REPRESENT_SERVICE_INSTANCE_ID));
+            networkAddressAlias.setLastUpdateTimeBucket(((Number) dbMap.get(LAST_UPDATE_TIME_BUCKET)).longValue());
+            return networkAddressAlias;
+        }
+
+        @Override
+        public Map<String, Object> data2Map(final NetworkAddressAlias storageData) {
+            Map<String, Object> map = new HashMap<>();
+            map.put(ADDRESS, storageData.getAddress());
+            map.put(REPRESENT_SERVICE_ID, storageData.getRepresentServiceId());
+            map.put(REPRESENT_SERVICE_INSTANCE_ID, storageData.getRepresentServiceInstanceId());
+            map.put(LAST_UPDATE_TIME_BUCKET, storageData.getLastUpdateTimeBucket());
+            return map;
+        }
+    }
+
+    @Override
+    public void calculate() {
+
+    }
+
+    @Override
+    public Metrics toHour() {
+        return null;
+    }
+
+    @Override
+    public Metrics toDay() {
+        return null;
+    }
 }

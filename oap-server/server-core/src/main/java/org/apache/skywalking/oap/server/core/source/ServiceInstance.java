@@ -39,7 +39,6 @@ public class ServiceInstance extends Source {
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
@@ -50,6 +49,8 @@ public class ServiceInstance extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
+    @Setter
+    private NodeType nodeType;
     @Getter
     @Setter
     private String endpointName;
@@ -65,4 +66,9 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private RequestType type;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, nodeType);
+    }
 }

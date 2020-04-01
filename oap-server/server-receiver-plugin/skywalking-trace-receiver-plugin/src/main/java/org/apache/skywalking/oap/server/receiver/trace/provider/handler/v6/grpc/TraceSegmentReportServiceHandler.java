@@ -19,47 +19,55 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.grpc;
 
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParseV2;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentSource;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.TraceAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(TraceSegmentReportServiceHandler.class);
-
-    private final SegmentParseV2.Producer segmentProducer;
+    private final ModuleManager moduleManager;
+    private final SegmentParserListenerManager listenerManager;
+    private final TraceServiceModuleConfig config;
     private HistogramMetrics histogram;
 
-    public TraceSegmentReportServiceHandler(SegmentParseV2.Producer segmentProducer, ModuleManager moduleManager) {
-        this.segmentProducer = segmentProducer;
+    public TraceSegmentReportServiceHandler(ModuleManager moduleManager,
+                                            SegmentParserListenerManager listenerManager,
+                                            TraceServiceModuleConfig config) {
+        this.moduleManager = moduleManager;
+        this.listenerManager = listenerManager;
+        this.config = config;
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric("trace_grpc_v6_in_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        histogram = metricsCreator.createHistogramMetric(
+            "trace_grpc_in_latency", "The process latency of trace data", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
-    public StreamObserver<UpstreamSegment> collect(StreamObserver<Commands> responseObserver) {
-        return new StreamObserver<UpstreamSegment>() {
+    public StreamObserver<SegmentObject> collect(StreamObserver<Commands> responseObserver) {
+        return new StreamObserver<SegmentObject>() {
             @Override
-            public void onNext(UpstreamSegment segment) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("receive segment");
+            public void onNext(SegmentObject segment) {
+                if (log.isDebugEnabled()) {
+                    log.debug("receive segment");
                 }
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    segmentProducer.send(segment, SegmentSource.Agent);
+                    final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
+                    traceAnalyzer.doAnalysis(segment);
                 } finally {
                     timer.finish();
                 }
@@ -67,7 +75,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
             @Override
             public void onError(Throwable throwable) {
-                logger.error(throwable.getMessage(), throwable);
+                log.error(throwable.getMessage(), throwable);
                 responseObserver.onCompleted();
             }
 

@@ -19,14 +19,23 @@
 package org.apache.skywalking.oap.server.core.storage.cache;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public interface INetworkAddressInventoryCacheDAO extends DAO {
+public interface INetworkAddressAliasCacheDAO extends DAO {
+    /**
+     * Load network address alias of given address name
+     *
+     * @param address network ip address or hostname, collected from the agent.
+     * @return existing network address definition or NULL
+     */
+    NetworkAddressAlias get(String address);
 
-    int getAddressId(String networkAddress);
-
-    NetworkAddressInventory get(int addressId);
-
-    List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime);
+    /**
+     * Load the recent update alias information.
+     *
+     * @param timeBucket in minute unit
+     * @return All new alias updated before the given time bucket.
+     */
+    List<NetworkAddressAlias> loadLastUpdate(long timeBucket);
 }

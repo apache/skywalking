@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -53,8 +53,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException {
+    public IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB, Where where,
+                               String valueCName, Function function) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -111,8 +111,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    public IntValues getLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                        String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
@@ -134,8 +134,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        List<Integer> linearIndex, String valueCName) throws IOException {
+    public IntValues[] getMultipleLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                                  List<Integer> linearIndex, String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
@@ -171,8 +171,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    public Thermodynamic getThermodynamic(String indName, DownSampling downsampling, List<String> ids,
+                                          String valueCName) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         Thermodynamic thermodynamic = new Thermodynamic();

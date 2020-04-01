@@ -27,8 +27,8 @@ public class Const {
     public static final String KEY_VALUE_SPLIT = ",";
     public static final String ARRAY_SPLIT = "|";
     public static final String ARRAY_PARSER_SPLIT = "\\|";
-    public static final int USER_SERVICE_ID = 1;
-    public static final int USER_INSTANCE_ID = 1;
+    public static final String USER_SERVICE_NAME = "User";
+    public static final String USER_INSTANCE_NAME = "User";
     public static final String USER_ENDPOINT_NAME = "User";
     public static final int INEXISTENCE_ENDPOINT_ID = -1;
     public static final String USER_CODE = "User";

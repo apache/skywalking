@@ -18,23 +18,23 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 
 public class StepToDownsampling {
 
-    public static Downsampling transform(Step step) {
+    public static DownSampling transform(Step step) {
         switch (step) {
             case SECOND:
-                return Downsampling.Second;
+                return DownSampling.Second;
             case MINUTE:
-                return Downsampling.Minute;
+                return DownSampling.Minute;
             case HOUR:
-                return Downsampling.Hour;
+                return DownSampling.Hour;
             case DAY:
-                return Downsampling.Day;
+                return DownSampling.Day;
             case MONTH:
-                return Downsampling.Month;
+                return DownSampling.Month;
         }
         throw new UnexpectedException("Unknown step value.");
     }

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 import java.util.List;
 import org.apache.skywalking.apm.network.language.agent.UniqueId;

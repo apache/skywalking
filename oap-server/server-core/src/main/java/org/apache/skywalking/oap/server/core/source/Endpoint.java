@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
@@ -30,6 +30,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Endpoint extends Source {
+    private String entityId;
+
     @Override
     public int scope() {
         return DefaultScopeDefine.ENDPOINT;
@@ -40,7 +42,10 @@ public class Endpoint extends Source {
      */
     @Override
     public String getEntityId() {
-        return IDManager.EndpointID.buildId(serviceId, name, DetectPoint.SERVER);
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.EndpointID.buildId(serviceId, name, DetectPoint.SERVER);
+        }
+        return entityId;
     }
 
     @Getter
@@ -52,17 +57,14 @@ public class Endpoint extends Source {
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
-    @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id")
-    private int serviceInstanceId;
+    private NodeType serviceNodeType;
     @Getter
     @Setter
     private String serviceInstanceName;
@@ -78,4 +80,9 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     private RequestType type;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+    }
 }

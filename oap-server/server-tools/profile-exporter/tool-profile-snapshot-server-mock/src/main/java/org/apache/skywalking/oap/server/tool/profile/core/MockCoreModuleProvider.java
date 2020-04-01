@@ -24,13 +24,13 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -114,7 +114,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
-            DownsamplingConfigService.class, new DownsamplingConfigService(Collections.emptyList()));
+            DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new MockGRPCHandlerRegister());
         this.registerServiceImplementation(JettyHandlerRegister.class, new MockJettyHandlerRegister());
@@ -143,7 +143,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
             IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
 
         this.registerServiceImplementation(
-            NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
+            NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
         this.registerServiceImplementation(
             INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
 

@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-public enum Downsampling {
+public enum DownSampling {
     /**
      * None downsampling is for inventory
      */
@@ -34,7 +34,7 @@ public enum Downsampling {
     private final int value;
     private final String name;
 
-    Downsampling(int value, String name) {
+    DownSampling(int value, String name) {
         this.value = value;
         this.name = name;
     }

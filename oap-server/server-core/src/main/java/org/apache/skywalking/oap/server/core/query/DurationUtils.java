@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.entity.Step;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -125,7 +125,7 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
-    public int minutesBetween(Downsampling downsampling, DateTime dateTime) {
+    public int minutesBetween(DownSampling downsampling, DateTime dateTime) {
         switch (downsampling) {
             case Month:
                 return dateTime.dayOfMonth().getMaximumValue() * 24 * 60;
@@ -138,7 +138,7 @@ public enum DurationUtils {
         }
     }
 
-    public int secondsBetween(Downsampling downsampling, DateTime dateTime) {
+    public int secondsBetween(DownSampling downsampling, DateTime dateTime) {
         switch (downsampling) {
             case Month:
                 return dateTime.dayOfMonth().getMaximumValue() * 24 * 60 * 60;
@@ -153,7 +153,7 @@ public enum DurationUtils {
         }
     }
 
-    public List<DurationPoint> getDurationPoints(Downsampling downsampling, long startTimeBucket, long endTimeBucket) {
+    public List<DurationPoint> getDurationPoints(DownSampling downsampling, long startTimeBucket, long endTimeBucket) {
         DateTime dateTime = parseToDateTime(downsampling, startTimeBucket);
 
         List<DurationPoint> durations = new LinkedList<>();
@@ -198,7 +198,7 @@ public enum DurationUtils {
         return durations;
     }
 
-    private DateTime parseToDateTime(Downsampling downsampling, long time) {
+    private DateTime parseToDateTime(DownSampling downsampling, long time) {
         switch (downsampling) {
             case Month:
                 return YYYYMM.parseDateTime(String.valueOf(time));

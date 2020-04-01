@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
@@ -44,8 +44,8 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException {
+    public IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB, Where where,
+                               String valueCName, Function function) throws IOException {
 
         String indexName = ModelName.build(downsampling, indName);
 

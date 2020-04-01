@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -51,21 +51,21 @@ public class AggregationQuery implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, DownSampling downsampling,
                                            long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
     public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-                                                      Downsampling downsampling,
+                                                      DownSampling downsampling,
                                                       long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
     public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-                                                   Downsampling downsampling,
+                                                   DownSampling downsampling,
                                                    long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
@@ -74,14 +74,14 @@ public class AggregationQuery implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, DownSampling downsampling,
                                                long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
-                                            Downsampling downsampling,
+                                            DownSampling downsampling,
                                             long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
@@ -89,7 +89,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
         );
     }
 
-    private List<TopNEntity> getTopNEntity(Downsampling downsampling,
+    private List<TopNEntity> getTopNEntity(DownSampling downsampling,
                                            String name,
                                            SelectSubQueryImpl<SelectQueryImpl> subQuery,
                                            Order order,

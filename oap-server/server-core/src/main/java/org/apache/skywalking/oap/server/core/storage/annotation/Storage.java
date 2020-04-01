@@ -18,7 +18,7 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 
 @Getter
 public class Storage {
@@ -26,9 +26,9 @@ public class Storage {
     private final String modelName;
     private final boolean capableOfTimeSeries;
     private final boolean deleteHistory;
-    private final Downsampling downsampling;
+    private final DownSampling downsampling;
 
-    public Storage(String modelName, boolean capableOfTimeSeries, boolean deleteHistory, Downsampling downsampling) {
+    public Storage(String modelName, boolean capableOfTimeSeries, boolean deleteHistory, DownSampling downsampling) {
         this.modelName = modelName;
         this.capableOfTimeSeries = capableOfTimeSeries;
         this.deleteHistory = deleteHistory;

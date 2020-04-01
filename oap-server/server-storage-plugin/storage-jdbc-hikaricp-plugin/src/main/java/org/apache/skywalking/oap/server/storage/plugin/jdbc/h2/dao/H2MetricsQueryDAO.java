@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -50,8 +50,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException {
+    public IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB, Where where,
+                               String valueCName, Function function) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         List<KeyValues> whereKeyValues = where.getKeyValues();
@@ -106,8 +106,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override
-    public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    public IntValues getLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                        String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -138,8 +138,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        final List<Integer> linearIndex, String valueCName) throws IOException {
+    public IntValues[] getMultipleLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                                  final List<Integer> linearIndex, String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();
@@ -207,8 +207,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
+    public Thermodynamic getThermodynamic(String indName, DownSampling downsampling, List<String> ids,
+                                          String valueCName) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
 
         StringBuilder idValues = new StringBuilder();

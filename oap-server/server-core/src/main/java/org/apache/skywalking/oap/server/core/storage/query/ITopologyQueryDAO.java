@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
@@ -32,25 +32,25 @@ public interface ITopologyQueryDAO extends Service {
     /**
      * Query {@link ServiceRelationServerSideMetrics} through the given conditions
      */
-    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(DownSampling downsampling, long startTB, long endTB,
                                                                   List<Integer> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationClientSideMetrics} through the given conditions
      */
-    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling, long startTB, long endTB,
+    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(DownSampling downsampling, long startTB, long endTB,
                                                                   List<Integer> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationServerSideMetrics} globally, without given serviceIds
      */
-    List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
+    List<Call.CallDetail> loadServerSideServiceRelations(DownSampling downsampling, long startTB,
                                                          long endTB) throws IOException;
 
     /**
      * Query {@link ServiceRelationClientSideMetrics} globally, without given serviceIds
      */
-    List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
+    List<Call.CallDetail> loadClientSideServiceRelations(DownSampling downsampling, long startTB,
                                                          long endTB) throws IOException;
 
     /**
@@ -59,7 +59,7 @@ public interface ITopologyQueryDAO extends Service {
      */
     List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId,
                                                                  int serverServiceId,
-                                                                 Downsampling downsampling,
+                                                                 DownSampling downsampling,
                                                                  long startTB,
                                                                  long endTB) throws IOException;
 
@@ -69,14 +69,14 @@ public interface ITopologyQueryDAO extends Service {
      */
     List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId,
                                                                  int serverServiceId,
-                                                                 Downsampling downsampling,
+                                                                 DownSampling downsampling,
                                                                  long startTB,
                                                                  long endTB) throws IOException;
 
     /**
      * Query the endpoint relationship. Endpoint dependency is not detected from server side agent.
      */
-    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
+    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(DownSampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
                                                                          String destEndpointId) throws IOException;

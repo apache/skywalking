@@ -17,10 +17,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 
 public interface StorageTTL {
-    TTLCalculator metricsCalculator(Downsampling downsampling);
+    TTLCalculator metricsCalculator(DownSampling downsampling);
 
     TTLCalculator recordCalculator();
 }

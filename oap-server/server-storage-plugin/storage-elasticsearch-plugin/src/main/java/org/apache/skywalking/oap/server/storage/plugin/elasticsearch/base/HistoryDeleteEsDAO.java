@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -55,9 +55,9 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(ConfigService.class);
-        Downsampling downsampling = model.getDownsampling();
+        DownSampling downsampling = model.getDownsampling();
         if (enablePackedDownsampling) {
-            if (Downsampling.Hour.equals(downsampling) || Downsampling.Day.equals(downsampling)) {
+            if (DownSampling.Hour.equals(downsampling) || DownSampling.Day.equals(downsampling)) {
                 /**
                  * Once enablePackedDownsampling, only minute TTL works.
                  */

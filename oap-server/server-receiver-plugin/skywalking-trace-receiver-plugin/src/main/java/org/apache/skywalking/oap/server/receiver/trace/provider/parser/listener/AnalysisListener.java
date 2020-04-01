@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 /**
- * SpanListener represents the callback when OAP does the trace segment analysis.
+ * AnalysisListener represents the callback when OAP does the trace segment analysis.
  */
-public interface SpanListener {
+public interface AnalysisListener {
     /**
      * The last step of the analysis process. Typically, the implementations forward the analysis results to the source
      * receiver.
@@ -37,6 +37,6 @@ public interface SpanListener {
      * Analysis point when the analysis core traverses the segment
      */
     enum Point {
-        Entry, Exit, Local, First, TraceIds
+        Entry, Exit, Local, First, Segment
     }
 }

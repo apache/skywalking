@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
@@ -57,7 +57,7 @@ public class TraceQueryService implements Service {
     private final ModuleManager moduleManager;
     private ITraceQueryDAO traceQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
-    private NetworkAddressInventoryCache networkAddressInventoryCache;
+    private NetworkAddressAliasCache networkAddressAliasCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TraceQueryService(ModuleManager moduleManager) {
@@ -80,13 +80,13 @@ public class TraceQueryService implements Service {
         return serviceInventoryCache;
     }
 
-    private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
-        if (networkAddressInventoryCache == null) {
-            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                             .provider()
-                                                             .getService(NetworkAddressInventoryCache.class);
+    private NetworkAddressAliasCache getNetworkAddressAliasCache() {
+        if (networkAddressAliasCache == null) {
+            this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(NetworkAddressAliasCache.class);
         }
-        return networkAddressInventoryCache;
+        return networkAddressAliasCache;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
@@ -181,7 +181,7 @@ public class TraceQueryService implements Service {
             if (spanObject.getPeerId() == 0) {
                 span.setPeer(spanObject.getPeer());
             } else {
-                span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
+                span.setPeer(getNetworkAddressAliasCache().get(spanObject.getPeerId()).getName());
             }
 
             span.setEndpointName(spanObject.getOperationName());

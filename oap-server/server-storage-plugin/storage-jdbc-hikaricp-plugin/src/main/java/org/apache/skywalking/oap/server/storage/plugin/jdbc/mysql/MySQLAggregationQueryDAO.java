@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
@@ -40,7 +40,7 @@ public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
         String tableName = ModelName.build(downsampling, indName);
         StringBuilder sql = new StringBuilder();

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.TraceSegmentSampler;
 import org.junit.Assert;
 import org.junit.Test;
 

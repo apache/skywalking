@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.endpoint;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -45,10 +45,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListenerFactory;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntryAnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitAnalysisListener;
 
 /**
  * MultiScopesSpanListener includes the most segment to source(s) logic.

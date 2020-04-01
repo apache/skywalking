@@ -18,231 +18,121 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.library.buffer.BufferData;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SegmentDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntrySpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalSpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SpanListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.ReferenceIdExchanger;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardization;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SegmentStandardizationWorker;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.standardization.SpanExchanger;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntryAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.ExitAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SegmentListener;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class TraceAnalysisor {
+public class TraceAnalyzer {
     private final ModuleManager moduleManager;
-    private final List<SpanListener> spanListeners;
+    private final List<AnalysisListener> analysisListeners;
     private final SegmentParserListenerManager listenerManager;
-    private final SegmentCoreInfo segmentCoreInfo;
     private final TraceServiceModuleConfig config;
-    @Setter
-    private SegmentStandardizationWorker standardizationWorker;
+    private volatile static CounterMetrics TRACE_ANALYSIS_COUNT;
 
-    private TraceAnalysisor(ModuleManager moduleManager,
-                          SegmentParserListenerManager listenerManager,
-                          TraceServiceModuleConfig config) {
+    public TraceAnalyzer(ModuleManager moduleManager,
+                         SegmentParserListenerManager listenerManager,
+                         TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
-        this.spanListeners = new LinkedList<>();
-        this.segmentCoreInfo = new SegmentCoreInfo();
-        this.segmentCoreInfo.setStartTime(Long.MAX_VALUE);
-        this.segmentCoreInfo.setEndTime(Long.MIN_VALUE);
+        this.analysisListeners = new LinkedList<>();
         this.config = config;
+
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        TRACE_ANALYSIS_COUNT = metricsCreator.createCounter("v8_trace_analysis_count", "The number of trace analysis",
+                                                            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
     }
 
-    public boolean parse(BufferData<UpstreamSegment> bufferData, SegmentSource source) {
+    public void doAnalysis(SegmentObject segmentObject) {
+        if (segmentObject.getSpansList().size() == 0) {
+            return;
+        }
+
         createSpanListeners();
 
         try {
-            UpstreamSegment upstreamSegment = bufferData.getMessageType();
-
-            List<UniqueId> traceIds = upstreamSegment.getGlobalTraceIdsList();
-
-            if (bufferData.getV2Segment() == null) {
-                bufferData.setV2Segment(parseBinarySegment(upstreamSegment));
-            }
-            SegmentObject segmentObject = bufferData.getV2Segment();
-
-            // Recheck in case that the segment comes from file buffer
-            final int serviceInstanceId = segmentObject.getServiceInstanceId();
-            if (serviceInstanceInventoryCache.get(serviceInstanceId) == null) {
-                log.warn(
-                    "Cannot recognize service instance id [{}] from cache, segment will be ignored", serviceInstanceId);
-                return true; // to mark it "completed" thus won't be retried
-            }
-
-            SegmentDecorator segmentDecorator = new SegmentDecorator(segmentObject);
-
-            if (!preBuild(traceIds, segmentDecorator)) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                        "This segment id exchange not success, write to buffer file, id: {}",
-                        segmentCoreInfo.getSegmentId()
-                    );
+            segmentObject.getSpansList().forEach(spanObject -> {
+                if (spanObject.getSpanId() == 0) {
+                    notifyFirstListener(spanObject, segmentObject);
                 }
 
-                if (source.equals(SegmentSource.Agent)) {
-                    writeToBufferFile(segmentCoreInfo.getSegmentId(), upstreamSegment);
+                if (SpanType.Exit.equals(spanObject.getSpanType())) {
+                    notifyExitListener(spanObject, segmentObject);
+                } else if (SpanType.Entry.equals(spanObject.getSpanType())) {
+                    notifyEntryListener(spanObject, segmentObject);
+                } else if (SpanType.Local.equals(spanObject.getSpanType())) {
+                    notifyLocalListener(spanObject, segmentObject);
                 } else {
-                    // from SegmentSource.Buffer
-                    TRACE_BUFFER_FILE_RETRY.inc();
+                    log.error("span type value was unexpected, span type name: {}", spanObject.getSpanType()
+                                                                                              .name());
                 }
-                return false;
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("This segment id exchange success, id: {}", segmentCoreInfo.getSegmentId());
-                }
-
-                notifyListenerToBuild();
-                return true;
-            }
+            });
+            notifySegmentListener(segmentObject);
+            notifyListenerToBuild();
+            TRACE_ANALYSIS_COUNT.inc();
         } catch (Throwable e) {
-            TRACE_PARSE_ERROR.inc();
             log.error(e.getMessage(), e);
-            return true;
         }
-    }
-
-    private SegmentObject parseBinarySegment(UpstreamSegment segment) throws InvalidProtocolBufferException {
-        return SegmentObject.parseFrom(segment.getSegment());
-    }
-
-    private boolean preBuild(List<UniqueId> traceIds, SegmentDecorator segmentDecorator) {
-        for (UniqueId uniqueId : traceIds) {
-            notifyGlobalsListener(uniqueId);
-        }
-
-        final String segmentId = segmentDecorator.getTraceSegmentId()
-                                                 .getIdPartsList()
-                                                 .stream()
-                                                 .map(String::valueOf)
-                                                 .collect(Collectors.joining("."));
-        segmentCoreInfo.setSegmentId(segmentId);
-        segmentCoreInfo.setServiceId(segmentDecorator.getServiceId());
-        segmentCoreInfo.setServiceInstanceId(segmentDecorator.getServiceInstanceId());
-        segmentCoreInfo.setDataBinary(segmentDecorator.toByteArray());
-        segmentCoreInfo.setVersion(ProtocolVersion.V2);
-
-        boolean exchanged = true;
-
-        for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
-            SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
-
-            if (!SpanExchanger.getInstance(moduleManager).exchange(spanDecorator, segmentCoreInfo.getServiceId())) {
-                exchanged = false;
-            } else {
-                for (int j = 0; j < spanDecorator.getRefsCount(); j++) {
-                    ReferenceDecorator referenceDecorator = spanDecorator.getRefs(j);
-                    if (!ReferenceIdExchanger.getInstance(moduleManager)
-                                             .exchange(referenceDecorator, segmentCoreInfo.getServiceId())) {
-                        exchanged = false;
-                    }
-                }
-            }
-
-            if (segmentCoreInfo.getStartTime() > spanDecorator.getStartTime()) {
-                segmentCoreInfo.setStartTime(spanDecorator.getStartTime());
-            }
-            if (segmentCoreInfo.getEndTime() < spanDecorator.getEndTime()) {
-                segmentCoreInfo.setEndTime(spanDecorator.getEndTime());
-            }
-            segmentCoreInfo.setError(spanDecorator.getIsError() || segmentCoreInfo.isError());
-        }
-
-        if (exchanged) {
-            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(segmentCoreInfo.getStartTime());
-            segmentCoreInfo.setMinuteTimeBucket(minuteTimeBucket);
-
-            for (int i = 0; i < segmentDecorator.getSpansCount(); i++) {
-                SpanDecorator spanDecorator = segmentDecorator.getSpans(i);
-
-                if (spanDecorator.getSpanId() == 0) {
-                    notifyFirstListener(spanDecorator);
-                }
-
-                if (SpanType.Exit.equals(spanDecorator.getSpanType())) {
-                    notifyExitListener(spanDecorator);
-                } else if (SpanType.Entry.equals(spanDecorator.getSpanType())) {
-                    notifyEntryListener(spanDecorator);
-                } else if (SpanType.Local.equals(spanDecorator.getSpanType())) {
-                    notifyLocalListener(spanDecorator);
-                } else {
-                    log.error("span type value was unexpected, span type name: {}", spanDecorator.getSpanType()
-                                                                                                 .name());
-                }
-            }
-        }
-
-        return exchanged;
-    }
-
-    private void writeToBufferFile(String id, UpstreamSegment upstreamSegment) {
-        if (log.isDebugEnabled()) {
-            log.debug("push to segment buffer write worker, id: {}", id);
-        }
-
-        SegmentStandardization standardization = new SegmentStandardization(id);
-        standardization.setUpstreamSegment(upstreamSegment);
-
-        standardizationWorker.in(standardization);
     }
 
     private void notifyListenerToBuild() {
-        spanListeners.forEach(SpanListener::build);
+        analysisListeners.forEach(AnalysisListener::build);
     }
 
-    private void notifyExitListener(SpanDecorator spanDecorator) {
-        spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.Exit)) {
-                ((ExitSpanListener) listener).parseExit(spanDecorator, segmentCoreInfo);
+    private void notifyExitListener(SpanObject span, SegmentObject segmentObject) {
+        analysisListeners.forEach(listener -> {
+            if (listener.containsPoint(AnalysisListener.Point.Exit)) {
+                ((ExitAnalysisListener) listener).parseExit(span, segmentObject);
             }
         });
     }
 
-    private void notifyEntryListener(SpanDecorator spanDecorator) {
-        spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.Entry)) {
-                ((EntrySpanListener) listener).parseEntry(spanDecorator, segmentCoreInfo);
+    private void notifyEntryListener(SpanObject span, SegmentObject segmentObject) {
+        analysisListeners.forEach(listener -> {
+            if (listener.containsPoint(AnalysisListener.Point.Entry)) {
+                ((EntryAnalysisListener) listener).parseEntry(span, segmentObject);
             }
         });
     }
 
-    private void notifyLocalListener(SpanDecorator spanDecorator) {
-        spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.Local)) {
-                ((LocalSpanListener) listener).parseLocal(spanDecorator, segmentCoreInfo);
+    private void notifyLocalListener(SpanObject span, SegmentObject segmentObject) {
+        analysisListeners.forEach(listener -> {
+            if (listener.containsPoint(AnalysisListener.Point.Local)) {
+                ((LocalAnalysisListener) listener).parseLocal(span, segmentObject);
             }
         });
     }
 
-    private void notifyFirstListener(SpanDecorator spanDecorator) {
-        spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.First)) {
-                ((FirstSpanListener) listener).parseFirst(spanDecorator, segmentCoreInfo);
+    private void notifyFirstListener(SpanObject span, SegmentObject segmentObject) {
+        analysisListeners.forEach(listener -> {
+            if (listener.containsPoint(AnalysisListener.Point.First)) {
+                ((FirstAnalysisListener) listener).parseFirst(span, segmentObject);
             }
         });
     }
 
-    private void notifyGlobalsListener(UniqueId uniqueId) {
-        spanListeners.forEach(listener -> {
-            if (listener.containsPoint(SpanListener.Point.TraceIds)) {
-                ((GlobalTraceIdsListener) listener).parseGlobalTraceId(uniqueId, segmentCoreInfo);
+    private void notifySegmentListener(SegmentObject segmentObject) {
+        analysisListeners.forEach(listener -> {
+            if (listener.containsPoint(AnalysisListener.Point.Segment)) {
+                ((SegmentListener) listener).parseSegment(segmentObject);
             }
         });
     }
@@ -250,6 +140,7 @@ public class TraceAnalysisor {
     private void createSpanListeners() {
         listenerManager.getSpanListenerFactories()
                        .forEach(
-                           spanListenerFactory -> spanListeners.add(spanListenerFactory.create(moduleManager, config)));
+                           spanListenerFactory -> analysisListeners.add(
+                               spanListenerFactory.create(moduleManager, config)));
     }
 }

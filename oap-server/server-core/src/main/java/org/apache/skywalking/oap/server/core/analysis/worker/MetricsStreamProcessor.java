@@ -27,12 +27,12 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -106,9 +106,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
 
         INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
-        DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+        DownSamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
                                                                     .provider()
-                                                                    .getService(DownsamplingConfigService.class);
+                                                                    .getService(DownSamplingConfigService.class);
 
         MetricsPersistentWorker hourPersistentWorker = null;
         MetricsPersistentWorker dayPersistentWorker = null;
@@ -129,18 +129,13 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Hour), false);
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Hour), false);
                 hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Day), false);
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Day), false);
                 dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
-            }
-            if (configService.shouldToMonth()) {
-                Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Month), false);
-                monthPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
 
             transWorker = new MetricsTransWorker(
@@ -148,7 +143,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
 
         Model model = modelSetter.add(
-            metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Minute), false);
+            metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
             moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 

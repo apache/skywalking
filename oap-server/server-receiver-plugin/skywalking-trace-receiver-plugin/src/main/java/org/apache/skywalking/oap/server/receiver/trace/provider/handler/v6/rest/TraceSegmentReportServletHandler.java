@@ -35,16 +35,16 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class TraceSegmentCollectServletHandler extends JettyJsonHandler {
+public class TraceSegmentReportServletHandler extends JettyJsonHandler {
 
     private final ModuleManager moduleManager;
     private final SegmentParserListenerManager listenerManager;
     private final TraceServiceModuleConfig config;
     private HistogramMetrics histogram;
 
-    public TraceSegmentCollectServletHandler(ModuleManager moduleManager,
-                                             SegmentParserListenerManager listenerManager,
-                                             TraceServiceModuleConfig config) {
+    public TraceSegmentReportServletHandler(ModuleManager moduleManager,
+                                            SegmentParserListenerManager listenerManager,
+                                            TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.config = config;

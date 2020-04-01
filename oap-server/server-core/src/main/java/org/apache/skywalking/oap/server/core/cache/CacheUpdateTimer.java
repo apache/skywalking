@@ -20,20 +20,16 @@ package org.apache.skywalking.oap.server.core.cache;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.slf4j.Logger;
@@ -53,88 +49,36 @@ public enum CacheUpdateTimer {
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
-                     .scheduleAtFixedRate(new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> logger
-                         .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+                     .scheduleAtFixedRate(
+                         new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> logger
+                             .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
 
             this.isStarted = true;
         }
     }
 
     private void update(ModuleDefineHolder moduleDefineHolder) {
-        updateServiceInventory(moduleDefineHolder);
-        updateServiceInstanceInventory(moduleDefineHolder);
-        updateNetAddressInventory(moduleDefineHolder);
+        updateNetAddressAliasCache(moduleDefineHolder);
         updateProfileTask(moduleDefineHolder);
     }
 
-    private void updateServiceInventory(ModuleDefineHolder moduleDefineHolder) {
-        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME)
-                                                                               .provider()
-                                                                               .getService(IServiceInventoryCacheDAO.class);
-        ServiceInventoryCache serviceInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
-                                                                        .provider()
-                                                                        .getService(ServiceInventoryCache.class);
-        List<ServiceInventory> serviceInventories = serviceInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
+    /**
+     * Update the cached data updated in last 1 minutes.
+     *
+     * @param moduleDefineHolder
+     */
+    private void updateNetAddressAliasCache(ModuleDefineHolder moduleDefineHolder) {
+        INetworkAddressAliasCacheDAO addressInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME)
+                                                                                  .provider()
+                                                                                  .getService(
+                                                                                      INetworkAddressAliasCacheDAO.class);
+        NetworkAddressAliasCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                                           .provider()
+                                                                           .getService(NetworkAddressAliasCache.class);
+        List<NetworkAddressAlias> addressInventories = addressInventoryCacheDAO.loadLastUpdate(
+            TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000));
 
-        serviceInventories.forEach(serviceInventory -> {
-            ServiceInventory cache = serviceInventoryCache.get(serviceInventory.getSequence());
-            if (Objects.nonNull(cache)) {
-                if (cache.getMappingServiceId() != serviceInventory.getMappingServiceId()) {
-                    cache.setMappingServiceId(serviceInventory.getMappingServiceId());
-                    cache.setServiceNodeType(serviceInventory.getServiceNodeType());
-                    cache.setProperties(serviceInventory.getProperties());
-                    logger.info("Update the cache of service inventory, service id: {}", serviceInventory.getSequence());
-                }
-            } else {
-                logger.warn("Unable to found the id of {} in service inventory cache.", serviceInventory.getSequence());
-            }
-        });
-    }
-
-    private void updateServiceInstanceInventory(ModuleDefineHolder moduleDefineHolder) {
-        IServiceInstanceInventoryCacheDAO instanceInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME)
-                                                                                        .provider()
-                                                                                        .getService(IServiceInstanceInventoryCacheDAO.class);
-        ServiceInstanceInventoryCache instanceInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
-                                                                                 .provider()
-                                                                                 .getService(ServiceInstanceInventoryCache.class);
-        List<ServiceInstanceInventory> instanceInventories = instanceInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
-
-        instanceInventories.forEach(instanceInventory -> {
-            ServiceInstanceInventory cache = instanceInventoryCache.get(instanceInventory.getSequence());
-            if (Objects.nonNull(cache)) {
-                if (cache.getMappingServiceInstanceId() != instanceInventory.getMappingServiceInstanceId()) {
-                    cache.setMappingServiceInstanceId(instanceInventory.getMappingServiceInstanceId());
-                    cache.setServiceInstanceNodeType(instanceInventory.getServiceInstanceNodeType());
-                    cache.setProperties(instanceInventory.getProperties());
-                    logger.info("Update the cache of service instance inventory, instance id: {}", instanceInventory.getSequence());
-                }
-            } else {
-                logger.warn("Unable to found the id of {} in service instance inventory cache.", instanceInventory.getSequence());
-            }
-        });
-    }
-
-    private void updateNetAddressInventory(ModuleDefineHolder moduleDefineHolder) {
-        INetworkAddressInventoryCacheDAO addressInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME)
-                                                                                      .provider()
-                                                                                      .getService(INetworkAddressInventoryCacheDAO.class);
-        NetworkAddressInventoryCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
-                                                                               .provider()
-                                                                               .getService(NetworkAddressInventoryCache.class);
-        List<NetworkAddressInventory> addressInventories = addressInventoryCacheDAO.loadLastUpdate(System.currentTimeMillis() - 60000);
-
-        addressInventories.forEach(addressInventory -> {
-            NetworkAddressInventory cache = addressInventoryCache.get(addressInventory.getSequence());
-            if (Objects.nonNull(cache)) {
-                if (!cache.getNetworkAddressNodeType().equals(addressInventory.getNetworkAddressNodeType())) {
-                    cache.setNetworkAddressNodeType(addressInventory.getNetworkAddressNodeType());
-                    logger.info("Update the cache of net address inventory, address id: {}", addressInventory.getSequence());
-                }
-            } else {
-                logger.warn("Unable to found the id of {} in net address inventory cache.", addressInventory.getSequence());
-            }
-        });
+        addressInventoryCache.load(addressInventories);
     }
 
     /**
@@ -148,8 +92,9 @@ public enum CacheUpdateTimer {
                                                               .provider()
                                                               .getService(ProfileTaskCache.class);
         try {
-            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(null, null, profileTaskCache.getCacheStartTimeBucket(), profileTaskCache
-                .getCacheEndTimeBucket(), null);
+            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(
+                null, null, profileTaskCache.getCacheStartTimeBucket(), profileTaskCache
+                    .getCacheEndTimeBucket(), null);
 
             taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
                 final Integer serviceId = e.getKey();

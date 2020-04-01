@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
@@ -47,20 +47,20 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override
     public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                                      DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override
     public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                                   DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(ServiceInstanceInventory.SERVICE_ID).append("=?");
             conditions.add(serviceId);
@@ -68,21 +68,21 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, null);
     }
 
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                            DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         return topNQuery(indName, valueCName, topN, downsampling, startTB, endTB, order, (sql, conditions) -> {
             sql.append(" and ").append(EndpointTraffic.SERVICE_ID).append("=?");
             conditions.add(serviceId);
         });
     }
 
-    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> topNQuery(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order, AppendCondition appender) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
         StringBuilder sql = new StringBuilder();

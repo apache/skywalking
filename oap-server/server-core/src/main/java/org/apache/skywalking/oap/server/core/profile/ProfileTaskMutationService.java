@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
@@ -141,8 +141,8 @@ public class ProfileTaskMutationService implements Service {
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks
-        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
-        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
+        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, DownSampling.Second);
+        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, DownSampling.Second);
         final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
             serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {

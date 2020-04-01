@@ -28,7 +28,7 @@ import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -64,7 +64,7 @@ public class ProfileTaskQueryService implements Service {
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
     private ServiceInventoryCache serviceInventoryCache;
     private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private NetworkAddressInventoryCache networkAddressInventoryCache;
+    private NetworkAddressAliasCache networkAddressAliasCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     private final ProfileAnalyzer profileAnalyzer;
@@ -122,13 +122,13 @@ public class ProfileTaskQueryService implements Service {
         return profileThreadSnapshotQueryDAO;
     }
 
-    private NetworkAddressInventoryCache getNetworkAddressInventoryCache() {
-        if (networkAddressInventoryCache == null) {
-            this.networkAddressInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                             .provider()
-                                                             .getService(NetworkAddressInventoryCache.class);
+    private NetworkAddressAliasCache getNetworkAddressAliasCache() {
+        if (networkAddressAliasCache == null) {
+            this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(NetworkAddressAliasCache.class);
         }
-        return networkAddressInventoryCache;
+        return networkAddressAliasCache;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
@@ -223,7 +223,7 @@ public class ProfileTaskQueryService implements Service {
             if (spanObject.getPeerId() == 0) {
                 span.setPeer(spanObject.getPeer());
             } else {
-                span.setPeer(getNetworkAddressInventoryCache().get(spanObject.getPeerId()).getName());
+                span.setPeer(getNetworkAddressAliasCache().get(spanObject.getPeerId()).getName());
             }
 
             final ServiceInventory serviceInventory = getServiceInventoryCache().get(segmentObject.getServiceId());

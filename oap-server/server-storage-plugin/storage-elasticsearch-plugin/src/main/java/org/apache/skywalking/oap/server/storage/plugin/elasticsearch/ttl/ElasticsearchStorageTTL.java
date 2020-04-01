@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.ttl.DayTTLCalculator;
 import org.apache.skywalking.oap.server.core.storage.ttl.MonthTTLCalculator;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 public class ElasticsearchStorageTTL implements StorageTTL {
 
     @Override
-    public TTLCalculator metricsCalculator(Downsampling downsampling) {
+    public TTLCalculator metricsCalculator(DownSampling downsampling) {
         switch (downsampling) {
             case Month:
                 return new MonthTTLCalculator();

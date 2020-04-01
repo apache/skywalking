@@ -44,7 +44,10 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE_TRAFFIC,
     builder = InstanceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
-@EqualsAndHashCode(of = "name")
+@EqualsAndHashCode(of = {
+    "serviceId",
+    "name"
+})
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";
@@ -155,11 +158,6 @@ public class InstanceTraffic extends Metrics {
 
     @Override
     public Metrics toDay() {
-        return null;
-    }
-
-    @Override
-    public Metrics toMonth() {
         return null;
     }
 }

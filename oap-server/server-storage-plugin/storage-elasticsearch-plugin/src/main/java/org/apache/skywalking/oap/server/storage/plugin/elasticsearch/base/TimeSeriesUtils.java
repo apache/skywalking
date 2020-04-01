@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.joda.time.DateTime;
@@ -46,7 +46,7 @@ public class TimeSeriesUtils {
         return timeSeries(model, timeBucket);
     }
 
-    public static String timeSeries(String modelName, long timeBucket, Downsampling downsampling) {
+    public static String timeSeries(String modelName, long timeBucket, DownSampling downsampling) {
         switch (downsampling) {
             case None:
                 return modelName;

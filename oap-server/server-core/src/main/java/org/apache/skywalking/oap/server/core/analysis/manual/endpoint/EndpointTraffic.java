@@ -146,9 +146,4 @@ public class EndpointTraffic extends Metrics {
     public Metrics toDay() {
         return null;
     }
-
-    @Override
-    public Metrics toMonth() {
-        return null;
-    }
 }

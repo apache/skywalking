@@ -37,9 +37,10 @@ public class ProtoBufJsonUtils {
      */
     public static void fromJSON(String json, Message.Builder targetBuilder) throws IOException {
         JsonFormat.parser()
-                  .usingTypeRegistry(JsonFormat.TypeRegistry.newBuilder()
-                                                            .add(targetBuilder.getDescriptorForType())
-                                                            .build())
+                  .usingTypeRegistry(
+                      JsonFormat.TypeRegistry.newBuilder()
+                                             .add(targetBuilder.getDescriptorForType())
+                                             .build())
                   .ignoringUnknownFields()
                   .merge(json, targetBuilder);
     }

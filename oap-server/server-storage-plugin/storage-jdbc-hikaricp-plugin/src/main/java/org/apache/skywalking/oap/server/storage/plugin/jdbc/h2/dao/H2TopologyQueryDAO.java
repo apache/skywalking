@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
@@ -47,7 +47,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(Downsampling downsampling,
+    public List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(DownSampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
                                                                          List<Integer> serviceIds) throws IOException {
@@ -59,7 +59,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(Downsampling downsampling,
+    public List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(DownSampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
                                                                          List<Integer> serviceIds) throws IOException {
@@ -71,7 +71,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServerSideServiceRelations(Downsampling downsampling, long startTB,
+    public List<Call.CallDetail> loadServerSideServiceRelations(DownSampling downsampling, long startTB,
                                                                 long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceCalls(
@@ -81,7 +81,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadClientSideServiceRelations(Downsampling downsampling, long startTB,
+    public List<Call.CallDetail> loadClientSideServiceRelations(DownSampling downsampling, long startTB,
                                                                 long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(
@@ -93,7 +93,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId,
                                                                         int serverServiceId,
-                                                                        Downsampling downsampling,
+                                                                        DownSampling downsampling,
                                                                         long startTB,
                                                                         long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
@@ -106,7 +106,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId,
                                                                         int serverServiceId,
-                                                                        Downsampling downsampling,
+                                                                        DownSampling downsampling,
                                                                         long startTB,
                                                                         long endTB) throws IOException {
         String tableName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
@@ -117,7 +117,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(Downsampling downsampling,
+    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(DownSampling downsampling,
                                                                                 long startTB,
                                                                                 long endTB,
                                                                                 String destEndpointId) throws IOException {

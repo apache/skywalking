@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -29,15 +29,15 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IMetricsQueryDAO extends DAO {
 
-    IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException;
+    IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB, Where where,
+                        String valueCName, Function function) throws IOException;
 
-    IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException;
+    IntValues getLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                 String valueCName) throws IOException;
 
-    IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        List<Integer> linearIndex, String valueCName) throws IOException;
+    IntValues[] getMultipleLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+                                           List<Integer> linearIndex, String valueCName) throws IOException;
 
-    Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException;
+    Thermodynamic getThermodynamic(String indName, DownSampling downsampling, List<String> ids,
+                                   String valueCName) throws IOException;
 }

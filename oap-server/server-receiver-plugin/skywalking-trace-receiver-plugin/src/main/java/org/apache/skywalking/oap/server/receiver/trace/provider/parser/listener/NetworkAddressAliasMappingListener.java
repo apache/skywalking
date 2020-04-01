@@ -16,63 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.service;
+package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.v3.RefType;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
+import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
+import org.apache.skywalking.oap.server.core.source.NodeType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.ReferenceDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.EntryAnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.AnalysisListenerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Service Instance mapping basically is as same as the service mapping. The network address fetched from the propagated
- * context is the alias for the specific service instance. This is just more detailed mapping setup.
- * <p>
- * Read {@link ServiceMappingAnalysisListener}.
+ * NetworkAddressAliasMappingListener use the propagated data in the segment reference, set up the alias relationship
+ * between network address and current service and instance. The alias relationship will be used in the {@link
+ * MultiScopesAnalysisListener#parseExit(SpanObject, SegmentObject)} to setup the accurate target destination service
+ * and instance.
+ *
+ * This is a key point of SkyWalking header propagation protocol.
  */
 @Slf4j
-public class ServiceInstanceMappingAnalysisListener implements EntryAnalysisListener {
-    private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
+public class NetworkAddressAliasMappingListener implements EntryAnalysisListener {
     private final TraceServiceModuleConfig config;
-    private final ServiceInventoryCache serviceInventoryCache;
-    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private final NetworkAddressAliasCache networkAddressAliasCache;
-    private final List<ServiceInstanceMapping> serviceInstanceMappings = new ArrayList<>();
-    private final List<Integer> serviceInstancesToResetMapping = new ArrayList<>();
+    private final SourceReceiver sourceReceiver;
 
-    public ServiceInstanceMappingAnalysisListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-            .provider()
-            .getService(ServiceInstanceInventoryCache.class);
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-            .provider()
-            .getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME)
-            .provider()
-            .getService(IServiceInstanceInventoryRegister.class);
-        this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
-                                                     .provider()
-                                                     .getService(NetworkAddressAliasCache.class);
+    public NetworkAddressAliasMappingListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
         this.config = config;
+        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     @Override
@@ -80,63 +53,24 @@ public class ServiceInstanceMappingAnalysisListener implements EntryAnalysisList
         if (log.isDebugEnabled()) {
             log.debug("service instance mapping listener parse reference");
         }
-        if (!spanDecorator.getSpanLayer().equals(SpanLayer.MQ)) {
-            if (spanDecorator.getRefsCount() > 0) {
-                for (int i = 0; i < spanDecorator.getRefsCount(); i++) {
-                    ReferenceDecorator referenceDecorator = spanDecorator.getRefs(i);
-                    String parentLanguage = serviceInstanceInventoryCache.getServiceInstanceLanguage(referenceDecorator.getParentServiceInstanceId());
-                    if (config.getNoUpstreamRealAddressAgents().contains(parentLanguage)) {
-                        /*
-                         * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
-                         */
-                        continue;
-                    }
-                    int networkAddressId = spanDecorator.getRefs(i).getNetworkAddressId();
-                    String address = networkAddressAliasCache.get(networkAddressId).getName();
-                    int serviceInstanceId = serviceInstanceInventoryCache.getServiceInstanceId(
-                        serviceInventoryCache.getServiceId(networkAddressId), networkAddressId);
+        if (!span.getSpanLayer().equals(SpanLayer.MQ)) {
+            span.getRefsList().forEach(segmentReference -> {
+                if (RefType.CrossProcess.equals(segmentReference.getRefType())) {
+                    final NetworkAddressAliasSetup networkAddressAliasSetup = new NetworkAddressAliasSetup();
+                    networkAddressAliasSetup.setAddress(segmentReference.getNetworkAddressUsedAtPeer());
+                    networkAddressAliasSetup.setRepresentService(segmentObject.getService());
+                    networkAddressAliasSetup.setRepresentServiceNodeType(NodeType.Normal);
+                    networkAddressAliasSetup.setRepresentServiceInstance(segmentObject.getServiceInstance());
 
-                    if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(address)) {
-                        if (log.isDebugEnabled()) {
-                            log.debug(
-                                "{} is configured as gateway, will reset its mapping service instance id",
-                                serviceInstanceId
-                            );
-                        }
-                        ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(
-                            serviceInstanceId);
-                        if (instanceInventory.getMappingServiceInstanceId() != Const.NONE && !serviceInstancesToResetMapping
-                            .contains(serviceInstanceId)) {
-                            serviceInstancesToResetMapping.add(serviceInstanceId);
-                        }
-                    } else {
-                        ServiceInstanceMapping serviceMapping = new ServiceInstanceMapping();
-                        serviceMapping.setServiceInstanceId(serviceInstanceId);
-                        serviceMapping.setMappingServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
-                        serviceInstanceMappings.add(serviceMapping);
-                    }
+                    sourceReceiver.receive(networkAddressAliasSetup);
                 }
-            }
+
+            });
         }
     }
 
     @Override
     public void build() {
-        serviceInstanceMappings.forEach(instanceMapping -> {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                    "service instance mapping listener build, service instance id: {}, mapping service instance id: {}", instanceMapping
-                        .getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
-            }
-            serviceInstanceInventoryRegister.updateMapping(
-                instanceMapping.getServiceInstanceId(), instanceMapping.getMappingServiceInstanceId());
-        });
-        serviceInstancesToResetMapping.forEach(instanceId -> {
-            if (log.isDebugEnabled()) {
-                log.debug("service instance mapping listener build, reset mapping of service instance id: {}", instanceId);
-            }
-            serviceInstanceInventoryRegister.resetMapping(instanceId);
-        });
     }
 
     @Override
@@ -148,14 +82,7 @@ public class ServiceInstanceMappingAnalysisListener implements EntryAnalysisList
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new ServiceInstanceMappingAnalysisListener(moduleManager, config);
+            return new NetworkAddressAliasMappingListener(moduleManager, config);
         }
-    }
-
-    @Getter
-    @Setter
-    private static class ServiceInstanceMapping {
-        private int serviceInstanceId;
-        private int mappingServiceInstanceId;
     }
 }

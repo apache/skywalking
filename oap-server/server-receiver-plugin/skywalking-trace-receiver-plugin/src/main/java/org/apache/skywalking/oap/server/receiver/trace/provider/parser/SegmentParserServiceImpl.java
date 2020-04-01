@@ -18,20 +18,29 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 
 /**
- * The open service to the receivers. Segment parser for v2 trace protocol.
+ * The open service to the receivers.
  */
 public class SegmentParserServiceImpl implements ISegmentParserService {
-    private final SegmentParseV2.Producer segmentProducer;
+    private ModuleManager moduleManager;
+    private SegmentParserListenerManager listenerManager;
+    private TraceServiceModuleConfig config;
 
-    public SegmentParserServiceImpl(SegmentParseV2.Producer segmentProducer) {
-        this.segmentProducer = segmentProducer;
+    public SegmentParserServiceImpl(ModuleManager moduleManager,
+                                    SegmentParserListenerManager listenerManager,
+                                    TraceServiceModuleConfig config) {
+        this.moduleManager = moduleManager;
+        this.listenerManager = listenerManager;
+        this.config = config;
     }
 
     @Override
-    public void send(UpstreamSegment segment) {
-        segmentProducer.send(segment, SegmentSource.Agent);
+    public void send(SegmentObject segment) {
+        final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
+        traceAnalyzer.doAnalysis(segment);
     }
 }

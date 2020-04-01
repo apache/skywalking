@@ -68,6 +68,7 @@ public class DefaultScopeDefine {
     public static final int PROFILE_TASK_LOG = 27;
     public static final int PROFILE_TASK_SEGMENT_SNAPSHOT = 28;
     public static final int SERVICE_INSTANCE_PROPERTIES = 29;
+    public static final int NETWORK_ADDRESS_ALIAS = 30;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.get.GetResponse;
@@ -33,14 +33,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkAddressInventoryCacheEsDAO extends EsDAO implements INetworkAddressInventoryCacheDAO {
+public class NetworkAddressAliasCacheEsDAO extends EsDAO implements INetworkAddressAliasCacheDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEsDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressAliasCacheEsDAO.class);
 
     protected final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
     protected final int resultWindowMaxSize;
 
-    public NetworkAddressInventoryCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
+    public NetworkAddressAliasCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);
         this.resultWindowMaxSize = resultWindowMaxSize;
     }

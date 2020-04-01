@@ -118,12 +118,12 @@ public class ServiceInstanceTopologyBuilder {
                 continue;
             }
 
-            if (sourceInstance.getSequence() == Const.USER_INSTANCE_ID) {
+            if (sourceInstance.getSequence() == Const.USER_INSTANCE_NAME) {
                 if (!nodes.containsKey(sourceInstance.getSequence())) {
                     ServiceInstanceNode visualUserNode = new ServiceInstanceNode();
                     visualUserNode.setId(sourceInstance.getSequence());
                     visualUserNode.setName(Const.USER_CODE);
-                    visualUserNode.setServiceId(Const.USER_SERVICE_ID);
+                    visualUserNode.setServiceId(Const.USER_SERVICE_NAME);
                     visualUserNode.setServiceName(Const.USER_CODE);
                     visualUserNode.setType(Const.USER_CODE.toUpperCase());
                     visualUserNode.setReal(false);

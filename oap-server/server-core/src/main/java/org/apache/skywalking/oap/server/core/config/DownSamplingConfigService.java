@@ -19,23 +19,20 @@
 package org.apache.skywalking.oap.server.core.config;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-public class DownsamplingConfigService implements Service {
+public class DownSamplingConfigService implements Service {
 
     private boolean shouldToHour = false;
     private boolean shouldToDay = false;
-    private boolean shouldToMonth = false;
 
-    public DownsamplingConfigService(List<String> downsampling) {
+    public DownSamplingConfigService(List<String> downsampling) {
         downsampling.forEach(value -> {
-            if (Downsampling.Hour.getName().toLowerCase().equals(value.toLowerCase())) {
+            if (DownSampling.Hour.getName().toLowerCase().equals(value.toLowerCase())) {
                 shouldToHour = true;
-            } else if (Downsampling.Day.getName().toLowerCase().equals(value.toLowerCase())) {
+            } else if (DownSampling.Day.getName().toLowerCase().equals(value.toLowerCase())) {
                 shouldToDay = true;
-            } else if (Downsampling.Month.getName().toLowerCase().equals(value.toLowerCase())) {
-                shouldToMonth = true;
             }
         });
     }
@@ -48,7 +45,4 @@ public class DownsamplingConfigService implements Service {
         return shouldToDay;
     }
 
-    public boolean shouldToMonth() {
-        return shouldToMonth;
-    }
 }

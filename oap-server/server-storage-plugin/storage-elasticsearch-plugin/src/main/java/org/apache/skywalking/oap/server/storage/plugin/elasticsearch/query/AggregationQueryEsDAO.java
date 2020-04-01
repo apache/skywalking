@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
@@ -48,7 +48,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
@@ -59,7 +59,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override
     public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                                      DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -69,7 +69,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override
     public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                                   DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
@@ -84,7 +84,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, DownSampling downsampling,
         long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
@@ -95,7 +95,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override
     public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
+                                            DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
         String indexName = ModelName.build(downsampling, indName);
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();

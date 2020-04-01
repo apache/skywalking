@@ -20,13 +20,13 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
 import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -68,7 +68,7 @@ public class CoreModule extends ModuleDefine {
     public Class[] services() {
         List<Class> classes = new ArrayList<>();
         classes.add(ConfigService.class);
-        classes.add(DownsamplingConfigService.class);
+        classes.add(DownSamplingConfigService.class);
         classes.add(IComponentLibraryCatalogService.class);
 
         classes.add(IWorkerInstanceGetter.class);
@@ -146,7 +146,7 @@ public class CoreModule extends ModuleDefine {
     private void addCacheService(List<Class> classes) {
         classes.add(ServiceInventoryCache.class);
         classes.add(ServiceInstanceInventoryCache.class);
-        classes.add(NetworkAddressInventoryCache.class);
+        classes.add(NetworkAddressAliasCache.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {

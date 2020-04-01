@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.cache;
 
 import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressInventoryCacheEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasCacheEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -28,11 +28,11 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkAddressInventoryCacheEs7DAO extends NetworkAddressInventoryCacheEsDAO {
+public class NetworkAddressAliasCacheEs7DAO extends NetworkAddressAliasCacheEsDAO {
 
-    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCacheEs7DAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressAliasCacheEs7DAO.class);
 
-    public NetworkAddressInventoryCacheEs7DAO(ElasticSearchClient client, int resultWindowMaxSize) {
+    public NetworkAddressAliasCacheEs7DAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client, resultWindowMaxSize);
     }
 

@@ -258,6 +258,25 @@ public class IDManager {
     }
 
     /**
+     * Network Address Alias ID related functions.
+     */
+    public static class NetworkAddressAliasDefine {
+        /**
+         * @return encoded network address id
+         */
+        public static String buildId(String name) {
+            return encode(name);
+        }
+
+        /**
+         * @return network address id object decoded from {@link #buildId(String)} result
+         */
+        public static String analysisId(String id) {
+            return decode(id);
+        }
+    }
+
+    /**
      * @param text normal literal string
      * @return Base74 encoded UTF-8 string
      */

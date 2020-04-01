@@ -17,12 +17,12 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 
 public class GeneralStorageTTL implements StorageTTL {
 
     @Override
-    public TTLCalculator metricsCalculator(Downsampling downsampling) {
+    public TTLCalculator metricsCalculator(DownSampling downsampling) {
         switch (downsampling) {
             case Hour:
                 return new HourTTLCalculator();

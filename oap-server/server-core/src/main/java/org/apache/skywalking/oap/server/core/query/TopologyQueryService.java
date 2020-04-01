@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
@@ -79,7 +79,7 @@ public class TopologyQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public Topology getGlobalTopology(final Downsampling downsampling, final long startTB,
+    public Topology getGlobalTopology(final DownSampling downsampling, final long startTB,
                                       final long endTB) throws IOException {
         logger.debug("Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", downsampling, startTB, endTB);
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(
@@ -91,7 +91,7 @@ public class TopologyQueryService implements Service {
         return builder.build(serviceRelationClientCalls, serviceRelationServerCalls);
     }
 
-    public Topology getServiceTopology(final Downsampling downsampling, final long startTB, final long endTB,
+    public Topology getServiceTopology(final DownSampling downsampling, final long startTB, final long endTB,
                                        final List<Integer> serviceIds) throws IOException {
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(
             downsampling, startTB, endTB, serviceIds);
@@ -135,7 +135,7 @@ public class TopologyQueryService implements Service {
 
     public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId,
                                                               final int serverServiceId,
-                                                              final Downsampling downsampling,
+                                                              final DownSampling downsampling,
                                                               final long startTB,
                                                               final long endTB) throws IOException {
         logger.debug(
@@ -152,7 +152,7 @@ public class TopologyQueryService implements Service {
         return builder.build(serviceInstanceRelationClientCalls, serviceInstanceRelationServerCalls);
     }
 
-    public Topology getEndpointTopology(final Downsampling downsampling, final long startTB, final long endTB,
+    public Topology getEndpointTopology(final DownSampling downsampling, final long startTB, final long endTB,
                                         final String endpointId) throws IOException {
         List<Call.CallDetail> serverSideCalls = getTopologyQueryDAO().loadSpecifiedDestOfServerSideEndpointRelations(
             downsampling, startTB, endTB, endpointId);

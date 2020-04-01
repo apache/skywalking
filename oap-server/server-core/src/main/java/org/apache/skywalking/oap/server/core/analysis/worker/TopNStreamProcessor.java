@@ -27,7 +27,7 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -78,7 +78,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         }
 
         INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
-        Model model = modelSetter.add(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, Downsampling.Second), true);
+        Model model = modelSetter.add(topNClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Second), true);
 
         TopNWorker persistentWorker = new TopNWorker(moduleDefineHolder, model, topSize, topNWorkerReportCycle * 60 * 1000L, recordDAO);
         persistentWorkers.add(persistentWorker);

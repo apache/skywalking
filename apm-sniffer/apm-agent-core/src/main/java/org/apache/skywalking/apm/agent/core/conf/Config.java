@@ -170,13 +170,6 @@ public class Config {
         public static int BUFFER_SIZE = 300;
     }
 
-    public static class Dictionary {
-        /**
-         * The buffer size of the registered network addresses.
-         */
-        public static int NETWORK_ADDRESS_BUFFER_SIZE = 10 * 10000;
-    }
-
     public static class Logging {
         /**
          * Log file name.

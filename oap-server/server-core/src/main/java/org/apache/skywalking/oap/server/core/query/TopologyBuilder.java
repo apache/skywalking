@@ -112,7 +112,7 @@ class TopologyBuilder {
                 continue;
             }
 
-            if (source.getSequence() == Const.USER_SERVICE_ID) {
+            if (source.getSequence() == Const.USER_SERVICE_NAME) {
                 if (!nodes.containsKey(source.getSequence())) {
                     Node visualUserNode = new Node();
                     visualUserNode.setId(String.valueOf(source.getSequence()));

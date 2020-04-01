@@ -20,77 +20,44 @@ package org.apache.skywalking.oap.server.core.cache;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.Objects;
-import org.apache.skywalking.oap.server.core.Const;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+/**
+ * NetworkAddressAliasCache set the temporary network address - service/instance mapping in the memory cache. This data
+ * was original analysis from reference of trace span.
+ */
+@Slf4j
+public class NetworkAddressAliasCache implements Service {
+    private final Cache<String, NetworkAddressAlias> networkAddressAliasCache;
 
-public class NetworkAddressInventoryCache implements Service {
-
-    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressInventoryCache.class);
-
-    private final Cache<String, Integer> networkAddressCache;
-    private final Cache<Integer, NetworkAddressInventory> addressIdCache;
-
-    private final ModuleManager moduleManager;
-    private INetworkAddressInventoryCacheDAO cacheDAO;
-
-    public NetworkAddressInventoryCache(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
-        this.moduleManager = moduleManager;
-
-        long initialSize = moduleConfig.getMaxSizeOfNetworkInventory() / 10L;
+    public NetworkAddressAliasCache(CoreModuleConfig moduleConfig) {
+        long initialSize = moduleConfig.getMaxSizeOfNetworkAddressAlias() / 10L;
         int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
-        networkAddressCache = CacheBuilder.newBuilder()
-                                          .initialCapacity(initialCapacitySize)
-                                          .maximumSize(moduleConfig.getMaxSizeOfNetworkInventory())
-                                          .build();
-        addressIdCache = CacheBuilder.newBuilder()
-                                     .initialCapacity(initialCapacitySize)
-                                     .maximumSize(moduleConfig.getMaxSizeOfNetworkInventory())
-                                     .build();
+        networkAddressAliasCache = CacheBuilder.newBuilder()
+                                               .initialCapacity(initialCapacitySize)
+                                               .maximumSize(moduleConfig.getMaxSizeOfNetworkAddressAlias())
+                                               // Hold data in cache for last 15 minute updated alias
+                                               // in order to avoid expired network address.
+                                               .expireAfterWrite(15, TimeUnit.MINUTES)
+                                               .build();
     }
 
-    private INetworkAddressInventoryCacheDAO getCacheDAO() {
-        if (isNull(cacheDAO)) {
-            this.cacheDAO = moduleManager.find(StorageModule.NAME)
-                                         .provider()
-                                         .getService(INetworkAddressInventoryCacheDAO.class);
-        }
-        return this.cacheDAO;
+    /**
+     * @return NULL if alias doesn't exist or has been loaded in the cache.
+     */
+    public NetworkAddressAlias get(String address) {
+        return networkAddressAliasCache.getIfPresent(address);
     }
 
-    public int getAddressId(String networkAddress) {
-        Integer addressId = networkAddressCache.getIfPresent(NetworkAddressInventory.buildId(networkAddress));
-
-        if (Objects.isNull(addressId) || addressId == Const.NONE) {
-            addressId = getCacheDAO().getAddressId(networkAddress);
-            if (addressId != Const.NONE) {
-                networkAddressCache.put(NetworkAddressInventory.buildId(networkAddress), addressId);
-            }
-        }
-
-        return addressId;
-    }
-
-    public NetworkAddressInventory get(int addressId) {
-        NetworkAddressInventory networkAddress = addressIdCache.getIfPresent(addressId);
-
-        if (isNull(networkAddress)) {
-            networkAddress = getCacheDAO().get(addressId);
-            if (nonNull(networkAddress)) {
-                addressIdCache.put(addressId, networkAddress);
-            }
-        }
-        return networkAddress;
+    void load(List<NetworkAddressAlias> networkAddressAliasList) {
+        networkAddressAliasList.forEach(networkAddressAlias -> {
+            networkAddressAliasCache.put(networkAddressAlias.getAddress(), networkAddressAlias);
+        });
     }
 }
