@@ -25,8 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -35,7 +33,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.Se
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -51,10 +48,10 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                                           long startTB,
                                                                           long endTB,
                                                                           List<Integer> serviceIds) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceCalls(
-            tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-            ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, false
+            ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds, DetectPoint.SERVER
         );
     }
 
@@ -63,30 +60,30 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                                          long startTB,
                                                                          long endTB,
                                                                          List<Integer> serviceIds) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(
-            tableName, startTB, endTB, ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-            ServiceRelationClientSideMetrics.DEST_SERVICE_ID, serviceIds, true
+            ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationClientSideMetrics.DEST_SERVICE_ID, serviceIds, DetectPoint.CLIENT
         );
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB,
                                                                           long endTB) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceCalls(
-            tableName, startTB, endTB, ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-            ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), false
+            ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationServerSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), DetectPoint.SERVER
         );
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB,
                                                                          long endTB) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceCalls(
-            tableName, startTB, endTB, ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-            ServiceRelationClientSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), true
+            ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+            ServiceRelationClientSideMetrics.DEST_SERVICE_ID, new ArrayList<>(0), DetectPoint.CLIENT
         );
     }
 
@@ -96,10 +93,11 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
         return loadServiceInstanceCalls(
-            tableName, startTB, endTB, ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-            ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId, false
+            ServiceInstanceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
+            ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId,
+            DetectPoint.SERVER
         );
     }
 
@@ -109,27 +107,29 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
-        String tableName = ModelName.build(downsampling, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
         return loadServiceInstanceCalls(
-            tableName, startTB, endTB, ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-            ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId, true
+            ServiceInstanceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
+            ServiceInstanceRelationClientSideMetrics.SOURCE_SERVICE_ID,
+            ServiceInstanceRelationClientSideMetrics.DEST_SERVICE_ID, clientServiceId, serverServiceId,
+            DetectPoint.CLIENT
         );
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(DownSampling downsampling,
-                                                                                long startTB,
-                                                                                long endTB,
-                                                                                String destEndpointId) throws IOException {
-        String tableName = ModelName.build(downsampling, EndpointRelationServerSideMetrics.INDEX_NAME);
-
+    public List<Call.CallDetail> loadEndpointRelation(DownSampling downsampling,
+                                                      long startTB,
+                                                      long endTB,
+                                                      String destEndpointId) throws IOException {
         List<Call.CallDetail> calls = loadEndpointFromSide(
-            tableName, startTB, endTB, EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+            EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
             EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, false
         );
-        calls.addAll(loadEndpointFromSide(tableName, startTB, endTB, EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
-                                          EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, true
-        ));
+        calls.addAll(
+            loadEndpointFromSide(EndpointRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
+                                 EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
+                                 EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId, true
+            ));
         return calls;
     }
 
@@ -139,7 +139,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                    String sourceCName,
                                                    String destCName,
                                                    List<Integer> serviceIds,
-                                                   boolean isClientSide) throws IOException {
+                                                   DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[serviceIds.size() * 2 + 2];
         conditions[0] = startTB;
         conditions[1] = endTB;
@@ -160,10 +160,13 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
-                    .toString() + " group by " + Metrics.ENTITY_ID, conditions
+                "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_ID
+                    + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and "
+                    + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
+                    .toString() +
+                    " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_ID, conditions
             )) {
-                buildCalls(resultSet, calls, isClientSide);
+                buildServiceCalls(resultSet, calls, detectPoint);
             }
         } catch (SQLException e) {
             throw new IOException(e);
@@ -178,7 +181,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                            String descCName,
                                                            int sourceServiceId,
                                                            int destServiceId,
-                                                           boolean isClientSide) throws IOException {
+                                                           DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[] {
             startTB,
             endTB,
@@ -201,10 +204,12 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
-                    .toString() + " group by " + Metrics.ENTITY_ID, conditions
+                "select " + Metrics.ENTITY_ID + ", " + ServiceInstanceRelationServerSideMetrics.COMPONENT_ID
+                    + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
+                    .toString() + " group by " + Metrics.ENTITY_ID + ", " + ServiceInstanceRelationServerSideMetrics.COMPONENT_ID,
+                conditions
             )) {
-                buildCalls(resultSet, calls, isClientSide);
+                buildInstanceCalls(resultSet, calls, detectPoint);
             }
         } catch (SQLException e) {
             throw new IOException(e);
@@ -227,10 +232,13 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and " + (isSourceId ? sourceCName : destCName) + "=?" + " group by " + Metrics.ENTITY_ID,
+                "select " + Metrics.ENTITY_ID + " from " + tableName
+                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                    + (isSourceId ? sourceCName : destCName) + "=?"
+                    + " group by " + Metrics.ENTITY_ID,
                 conditions
             )) {
-                buildEndpointCalls(resultSet, calls, isSourceId);
+                buildEndpointCalls(resultSet, calls, DetectPoint.SERVER);
             }
         } catch (SQLException e) {
             throw new IOException(e);
@@ -238,48 +246,34 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
         return calls;
     }
 
-    private void buildCalls(ResultSet resultSet, List<Call.CallDetail> calls,
-                            boolean isClientSide) throws SQLException {
+    private void buildServiceCalls(ResultSet resultSet, List<Call.CallDetail> calls,
+                                   DetectPoint detectPoint) throws SQLException {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            RelationDefineUtil.RelationDefine relationDefine = RelationDefineUtil.splitEntityId(entityId);
+            final int componentId = resultSet.getInt(ServiceRelationServerSideMetrics.COMPONENT_ID);
+            call.buildFromServiceRelation(entityId, componentId, detectPoint);
+            calls.add(call);
+        }
+    }
 
-            call.setSource(String.valueOf(relationDefine.getSource()));
-            call.setTarget(String.valueOf(relationDefine.getDest()));
-            call.setComponentId(relationDefine.getComponentId());
-            if (isClientSide) {
-                call.setDetectPoint(DetectPoint.CLIENT);
-            } else {
-                call.setDetectPoint(DetectPoint.SERVER);
-            }
-            call.generateID();
+    private void buildInstanceCalls(ResultSet resultSet, List<Call.CallDetail> calls,
+                                    DetectPoint detectPoint) throws SQLException {
+        while (resultSet.next()) {
+            Call.CallDetail call = new Call.CallDetail();
+            String entityId = resultSet.getString(Metrics.ENTITY_ID);
+            final int componentId = resultSet.getInt(ServiceRelationServerSideMetrics.COMPONENT_ID);
+            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
     }
 
     private void buildEndpointCalls(ResultSet resultSet, List<Call.CallDetail> calls,
-                                    boolean isClientSide) throws SQLException {
+                                    DetectPoint detectPoint) throws SQLException {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            RelationDefineUtil.EndpointRelationDefine relationDefine = RelationDefineUtil.splitEndpointRelationEntityId(
-                entityId);
-
-            if (isClientSide) {
-                call.setDetectPoint(DetectPoint.CLIENT);
-            } else {
-                call.setDetectPoint(DetectPoint.SERVER);
-            }
-            call.setSource(EndpointTraffic.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource(),
-                                                   call.getDetectPoint()
-            ));
-            call.setTarget(EndpointTraffic.buildId(relationDefine.getDestServiceId(), relationDefine.getDest(),
-                                                   call.getDetectPoint()
-            ));
-            call.setComponentId(relationDefine.getComponentId());
-
-            call.generateID();
+            call.buildFromEndpointRelation(entityId, detectPoint);
             calls.add(call);
         }
     }

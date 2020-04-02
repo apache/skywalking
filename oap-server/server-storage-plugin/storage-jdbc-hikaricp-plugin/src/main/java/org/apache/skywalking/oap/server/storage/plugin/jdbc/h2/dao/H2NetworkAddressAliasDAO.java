@@ -25,16 +25,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2NetworkAddressAliasCacheDAO extends H2SQLExecutor implements INetworkAddressAliasCacheDAO {
-    private static final Logger logger = LoggerFactory.getLogger(H2NetworkAddressAliasCacheDAO.class);
+public class H2NetworkAddressAliasDAO extends H2SQLExecutor implements INetworkAddressAliasDAO {
+    private static final Logger logger = LoggerFactory.getLogger(H2NetworkAddressAliasDAO.class);
     private JDBCHikariCPClient h2Client;
 
-    public H2NetworkAddressAliasCacheDAO(JDBCHikariCPClient h2Client) {
+    public H2NetworkAddressAliasDAO(JDBCHikariCPClient h2Client) {
         this.h2Client = h2Client;
     }
 

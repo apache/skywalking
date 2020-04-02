@@ -20,12 +20,10 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.manual.RelationDefineUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -44,31 +42,23 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = SOURCE_SERVICE_ID)
-    private int sourceServiceId;
+    private String sourceServiceId;
     @Setter
     @Getter
     @Column(columnName = DEST_SERVICE_ID)
-    private int destServiceId;
+    private String destServiceId;
     @Setter
     @Getter
     @Column(columnName = COMPONENT_ID, storageOnly = true)
     private int componentId;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
     private String entityId;
 
     @Override
     public String id() {
-        String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + RelationDefineUtil.buildEntityId(
-            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
-        return splitJointId;
-    }
-
-    public void buildEntityId() {
-        entityId = RelationDefineUtil.buildEntityId(
-            new RelationDefineUtil.RelationDefine(sourceServiceId, destServiceId, componentId));
+        return getTimeBucket() + Const.ID_SPLIT + entityId;
     }
 
     @Override
@@ -104,57 +94,39 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     }
 
     @Override
-    public Metrics toMonth() {
-        ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
-        metrics.setEntityId(getEntityId());
-        metrics.setTimeBucket(toTimeBucketInMonth());
-        metrics.setSourceServiceId(getSourceServiceId());
-        metrics.setDestServiceId(getDestServiceId());
-        metrics.setComponentId(getComponentId());
-        return metrics;
-    }
-
-    @Override
     public int remoteHashCode() {
-        int result = 17;
-        result = 31 * result + sourceServiceId;
-        result = 31 * result + destServiceId;
-        result = 31 * result + componentId;
-        return result;
+        return this.hashCode();
     }
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setSourceServiceId(remoteData.getDataIntegers(0));
-        setDestServiceId(remoteData.getDataIntegers(1));
-        setComponentId(remoteData.getDataIntegers(2));
+        setEntityId(remoteData.getDataStrings(0));
+        setSourceServiceId(remoteData.getDataStrings(1));
+        setDestServiceId(remoteData.getDataStrings(2));
+
+        setComponentId(remoteData.getDataIntegers(0));
 
         setTimeBucket(remoteData.getDataLongs(0));
-
-        setEntityId(remoteData.getDataStrings(0));
     }
 
     @Override
     public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.addDataStrings(getEntityId());
+        remoteBuilder.addDataStrings(getSourceServiceId());
+        remoteBuilder.addDataStrings(getDestServiceId());
 
-        remoteBuilder.addDataIntegers(getSourceServiceId());
-        remoteBuilder.addDataIntegers(getDestServiceId());
         remoteBuilder.addDataIntegers(getComponentId());
 
         remoteBuilder.addDataLongs(getTimeBucket());
-
-        remoteBuilder.addDataStrings(getEntityId());
         return remoteBuilder;
     }
 
     @Override
     public int hashCode() {
         int result = 17;
-        result = 31 * result + sourceServiceId;
-        result = 31 * result + destServiceId;
-        result = 31 * result + componentId;
-        result = 31 * result + (int) getTimeBucket();
+        result = 31 * result + entityId.hashCode();
+        result = (int) (31 * result + getTimeBucket());
         return result;
     }
 
@@ -183,8 +155,8 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         @Override
         public ServiceRelationClientSideMetrics map2Data(Map<String, Object> dbMap) {
             ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
-            metrics.setSourceServiceId(((Number) dbMap.get(SOURCE_SERVICE_ID)).intValue());
-            metrics.setDestServiceId(((Number) dbMap.get(DEST_SERVICE_ID)).intValue());
+            metrics.setSourceServiceId((String) dbMap.get(SOURCE_SERVICE_ID));
+            metrics.setDestServiceId((String) dbMap.get(DEST_SERVICE_ID));
             metrics.setComponentId(((Number) dbMap.get(COMPONENT_ID)).intValue());
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));

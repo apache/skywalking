@@ -25,9 +25,9 @@ import lombok.Setter;
 @Getter
 public class ServiceInstanceNode {
 
-    private int id;
+    private String id;
     private String name;
-    private int serviceId;
+    private String serviceId;
     private String serviceName;
     private String type;
     private boolean isReal;

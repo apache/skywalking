@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -162,10 +161,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(DownSampling downsampling,
-                                                                                long startTB,
-                                                                                long endTB,
-                                                                                String destEndpointId) throws IOException {
+    public List<Call.CallDetail> loadEndpointRelation(DownSampling downsampling,
+                                                      long startTB,
+                                                      long endTB,
+                                                      String destEndpointId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.size(0);
 
@@ -208,14 +207,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Terms componentTerms = entityBucket.getAggregations().get(ServiceRelationServerSideMetrics.COMPONENT_ID);
             final int componentId = componentTerms.getBuckets().get(0).getKeyAsNumber().intValue();
 
-            final IDManager.ServiceID.ServiceRelationDefine serviceRelationDefine
-                = IDManager.ServiceID.analysisRelationId(entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setSource(serviceRelationDefine.getSourceId());
-            call.setTarget(serviceRelationDefine.getDestId());
-            call.setComponentId(componentId);
-            call.setDetectPoint(detectPoint);
-            call.setId(entityId);
+            call.buildFromServiceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
         return calls;
@@ -241,14 +234,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                                .get(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID);
             final int componentId = componentTerms.getBuckets().get(0).getKeyAsNumber().intValue();
 
-            final IDManager.ServiceInstanceID.ServiceInstanceRelationDefine serviceRelationDefine
-                = IDManager.ServiceInstanceID.analysisRelationId(entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setSource(serviceRelationDefine.getSourceId());
-            call.setTarget(serviceRelationDefine.getDestId());
-            call.setComponentId(componentId);
-            call.setDetectPoint(detectPoint);
-            call.setId(entityId);
+            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
         return calls;
@@ -265,16 +252,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         for (Terms.Bucket entityBucket : entityTerms.getBuckets()) {
             String entityId = entityBucket.getKeyAsString();
 
-            IDManager.EndpointID.EndpointRelationDefine relationDefine = IDManager.EndpointID.analysisRelationId(
-                entityId);
             Call.CallDetail call = new Call.CallDetail();
-            call.setSource(
-                IDManager.EndpointID.buildId(relationDefine.getSourceServiceId(), relationDefine.getSource()));
-            call.setTarget(
-                IDManager.EndpointID.buildId(relationDefine.getDestServiceId(), relationDefine.getDest()));
-            call.setComponentId(0);
-            call.setDetectPoint(detectPoint);
-            call.setId(entityId);
+            call.buildFromEndpointRelation(entityId, detectPoint);
             calls.add(call);
         }
         return calls;

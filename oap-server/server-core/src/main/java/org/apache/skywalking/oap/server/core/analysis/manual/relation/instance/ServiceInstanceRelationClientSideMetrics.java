@@ -36,8 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
     builder = ServiceInstanceRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 @EqualsAndHashCode(of = {
     "sourceServiceInstanceId",
-    "destServiceInstanceId",
-    "componentId"
+    "destServiceInstanceId"
 })
 public class ServiceInstanceRelationClientSideMetrics extends Metrics {
 

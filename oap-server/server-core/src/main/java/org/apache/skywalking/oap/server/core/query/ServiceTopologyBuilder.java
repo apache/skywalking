@@ -30,19 +30,18 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
-import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceNode;
-import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceTopology;
+import org.apache.skywalking.oap.server.core.query.entity.Node;
+import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
-public class ServiceInstanceTopologyBuilder {
-
+class ServiceTopologyBuilder {
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
     private final NetworkAddressAliasCache networkAddressAliasCache;
 
-    public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
+    ServiceTopologyBuilder(ModuleManager moduleManager) {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
                                                            .provider()
                                                            .getService(IComponentLibraryCatalogService.class);
@@ -51,40 +50,31 @@ public class ServiceInstanceTopologyBuilder {
                                                      .getService(NetworkAddressAliasCache.class);
     }
 
-    ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,
-                                  List<Call.CallDetail> serviceInstanceRelationServerCalls) {
+    Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
 
-        Map<String, ServiceInstanceNode> nodes = new HashMap<>();
+        Map<String, Node> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
-        /*
-         * Build Calls and Nodes based on client side detected data.
-         */
-        for (Call.CallDetail clientCall : serviceInstanceRelationClientCalls) {
-            final IDManager.ServiceInstanceID.InstanceIDDefinition sourceServiceInstance = IDManager.ServiceInstanceID.analysisId(
-                clientCall.getSource());
+        for (Call.CallDetail clientCall : serviceRelationClientCalls) {
             final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
-                sourceServiceInstance.getServiceId());
-
-            IDManager.ServiceInstanceID.InstanceIDDefinition destServiceInstance = IDManager.ServiceInstanceID.analysisId(
+                clientCall.getSource());
+            IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
                 clientCall.getTarget());
-            final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
-                destServiceInstance.getServiceId());
 
             if (!NodeType.Normal.equals(destService.getType())) {
                 final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
                 if (networkAddressAlias != null) {
-                    destServiceInstance = IDManager.ServiceInstanceID.analysisId(
-                        networkAddressAlias.getRepresentServiceInstanceId());
+                    destService = IDManager.ServiceID.analysisId(
+                        networkAddressAlias.getRepresentServiceId());
                 }
             }
 
             if (!nodes.containsKey(clientCall.getSource())) {
-                nodes.put(clientCall.getSource(), buildNode(sourceService, sourceServiceInstance));
+                nodes.put(clientCall.getSource(), buildNode(clientCall.getSource(), sourceService));
             }
             if (!nodes.containsKey(clientCall.getTarget())) {
-                final ServiceInstanceNode node = buildNode(destService, destServiceInstance);
+                final Node node = buildNode(clientCall.getTarget(), destService);
                 nodes.put(clientCall.getTarget(), node);
                 if (!node.isReal() && StringUtil.isEmpty(node.getType())) {
                     node.setType(
@@ -105,31 +95,23 @@ public class ServiceInstanceTopologyBuilder {
             }
         }
 
-        /*
-         * Build Calls and Nodes based on server side detected data.
-         */
-        for (Call.CallDetail serverCall : serviceInstanceRelationServerCalls) {
-            final IDManager.ServiceInstanceID.InstanceIDDefinition sourceServiceInstance = IDManager.ServiceInstanceID.analysisId(
-                serverCall.getSource());
+        for (Call.CallDetail serverCall : serviceRelationServerCalls) {
             final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
-                sourceServiceInstance.getServiceId());
-
-            IDManager.ServiceInstanceID.InstanceIDDefinition destServiceInstance = IDManager.ServiceInstanceID.analysisId(
+                serverCall.getSource());
+            IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
                 serverCall.getTarget());
-            final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
-                destServiceInstance.getServiceId());
 
             if (!nodes.containsKey(serverCall.getSource())) {
-                nodes.put(serverCall.getSource(), buildNode(sourceService, sourceServiceInstance));
+                nodes.put(serverCall.getSource(), buildNode(serverCall.getSource(), sourceService));
             }
             if (!nodes.containsKey(serverCall.getTarget())) {
-                final ServiceInstanceNode node = buildNode(destService, destServiceInstance);
+                final Node node = buildNode(serverCall.getTarget(), destService);
                 nodes.put(serverCall.getTarget(), node);
             }
             /*
              * Service side component id has higher priority
              */
-            final ServiceInstanceNode serverSideNode = nodes.get(serverCall.getTarget());
+            final Node serverSideNode = nodes.get(serverCall.getTarget());
             serverSideNode.setType(
                 componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
 
@@ -150,27 +132,21 @@ public class ServiceInstanceTopologyBuilder {
             }
         }
 
-        ServiceInstanceTopology topology = new ServiceInstanceTopology();
+        Topology topology = new Topology();
         topology.getCalls().addAll(calls);
         topology.getNodes().addAll(nodes.values());
         return topology;
     }
 
-    private ServiceInstanceNode buildNode(
-        IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition,
-        IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition) {
-        ServiceInstanceNode instanceNode = new ServiceInstanceNode();
-        instanceNode.setId(
-            IDManager.ServiceInstanceID.buildId(instanceIDDefinition.getServiceId(), instanceIDDefinition.getName()));
-        instanceNode.setName(instanceIDDefinition.getName());
-        instanceNode.setServiceId(instanceIDDefinition.getServiceId());
-
-        instanceNode.setServiceName(serviceIDDefinition.getName());
-        if (!NodeType.Normal.equals(serviceIDDefinition.getType())) {
-            instanceNode.setReal(false);
+    private Node buildNode(String sourceId, IDManager.ServiceID.ServiceIDDefinition sourceService) {
+        Node serviceNode = new Node();
+        serviceNode.setId(sourceId);
+        serviceNode.setName(sourceService.getName());
+        if (!NodeType.Normal.equals(sourceService.getType())) {
+            serviceNode.setReal(false);
         } else {
-            instanceNode.setReal(true);
+            serviceNode.setReal(true);
         }
-        return instanceNode;
+        return serviceNode;
     }
 }

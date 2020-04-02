@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -54,7 +54,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.BatchProcessEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.HistoryDeleteEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasCacheEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
@@ -155,7 +155,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
                                                             config.isEnablePackedDownsampling()
             ));
         this.registerServiceImplementation(
-            INetworkAddressAliasCacheDAO.class, new NetworkAddressAliasCacheEsDAO(
+            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(
                 elasticSearch7Client,
                 config.getResultWindowMaxSize()
             ));

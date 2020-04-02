@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -64,7 +64,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.Histor
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasCacheEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
@@ -161,7 +161,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             ));
 
         this.registerServiceImplementation(
-            INetworkAddressAliasCacheDAO.class, new NetworkAddressAliasCacheEsDAO(elasticSearchClient, config
+            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
                 .getResultWindowMaxSize()));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearchClient));

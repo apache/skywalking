@@ -96,22 +96,10 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     }
 
     @Override
-    public Metrics toMonth() {
-        EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
-        metrics.setTimeBucket(toTimeBucketInMonth());
-        metrics.setSourceEndpoint(getSourceEndpoint());
-        metrics.setDestEndpoint(getDestEndpoint());
-        metrics.setComponentId(getComponentId());
-        metrics.setEntityId(getEntityId());
-        return metrics;
-    }
-
-    @Override
     public int remoteHashCode() {
         int result = 17;
-        result = 31 * result + sourceEndpoint.hashCode();
-        result = 31 * result + destEndpoint.hashCode();
-        result = 31 * result + componentId;
+        result = 31 * result + entityId.hashCode();
+        result = (int) (31 * result + getTimeBucket());
         return result;
     }
 

@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -66,14 +66,14 @@ public enum CacheUpdateTimer {
      * @param moduleDefineHolder
      */
     private void updateNetAddressAliasCache(ModuleDefineHolder moduleDefineHolder) {
-        INetworkAddressAliasCacheDAO addressInventoryCacheDAO = moduleDefineHolder.find(StorageModule.NAME)
-                                                                                  .provider()
-                                                                                  .getService(
-                                                                                      INetworkAddressAliasCacheDAO.class);
+        INetworkAddressAliasDAO networkAddressAliasDAO = moduleDefineHolder.find(StorageModule.NAME)
+                                                                           .provider()
+                                                                           .getService(
+                                                                                      INetworkAddressAliasDAO.class);
         NetworkAddressAliasCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
                                                                            .provider()
                                                                            .getService(NetworkAddressAliasCache.class);
-        List<NetworkAddressAlias> addressInventories = addressInventoryCacheDAO.loadLastUpdate(
+        List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(
             TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000));
 
         addressInventoryCache.load(addressInventories);

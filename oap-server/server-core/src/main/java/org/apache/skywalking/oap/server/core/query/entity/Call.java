@@ -23,7 +23,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 
 @Getter
@@ -53,14 +53,6 @@ public class Call {
         this.target = target;
     }
 
-    public void addSourceComponentId(int componentId) {
-        sourceComponentIDs.add(componentId);
-    }
-
-    public void addTargetComponentId(int componentId) {
-        targetComponentIDs.add(componentId);
-    }
-
     public void addSourceComponent(String component) {
         if (!sourceComponents.contains(component)) {
             sourceComponents.add(component);
@@ -79,7 +71,7 @@ public class Call {
         }
     }
 
-    @Setter
+    @Setter(AccessLevel.PRIVATE)
     @Getter
     public static class CallDetail {
         private String id;
@@ -87,5 +79,47 @@ public class Call {
         private String target;
         private DetectPoint detectPoint;
         private Integer componentId;
+
+        public void buildFromServiceRelation(String entityId, int componentId, DetectPoint detectPoint) {
+            final IDManager.ServiceID.ServiceRelationDefine serviceRelationDefine
+                = IDManager.ServiceID.analysisRelationId(entityId);
+
+            this.setId(entityId);
+            this.setSource(serviceRelationDefine.getSourceId());
+            this.setTarget(serviceRelationDefine.getDestId());
+            this.setComponentId(componentId);
+            this.setDetectPoint(detectPoint);
+        }
+
+        public void buildFromInstanceRelation(String entityId, int componentId, DetectPoint detectPoint) {
+            final IDManager.ServiceInstanceID.ServiceInstanceRelationDefine serviceRelationDefine
+                = IDManager.ServiceInstanceID.analysisRelationId(entityId);
+
+            this.setId(entityId);
+            this.setSource(serviceRelationDefine.getSourceId());
+            this.setTarget(serviceRelationDefine.getDestId());
+            this.setComponentId(componentId);
+            this.setDetectPoint(detectPoint);
+        }
+
+        public void buildFromEndpointRelation(String entityId, DetectPoint detectPoint) {
+            this.setId(entityId);
+
+            final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine = IDManager.EndpointID.analysisRelationId(
+                entityId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getSourceServiceId());
+
+            this.setDetectPoint(detectPoint);
+            this.setSource(
+                IDManager.EndpointID.buildId(
+                    endpointRelationDefine.getSourceServiceId(), endpointRelationDefine.getSource())
+            );
+            this.setTarget(
+                IDManager.EndpointID.buildId(
+                    endpointRelationDefine.getDestServiceId(), endpointRelationDefine.getDest())
+            );
+            this.setComponentId(0);
+        }
     }
 }

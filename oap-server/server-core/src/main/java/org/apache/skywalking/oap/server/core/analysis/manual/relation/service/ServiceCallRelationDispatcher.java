@@ -42,7 +42,8 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setComponentId(source.getComponentId());
-        metrics.buildEntityId();
+        metrics.setEntityId(source.getEntityId());
+        metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
@@ -52,7 +53,7 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setComponentId(source.getComponentId());
-        metrics.buildEntityId();
+        metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 }

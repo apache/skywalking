@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -31,10 +31,10 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 @Slf4j
-public class NetworkAddressAliasCacheEsDAO extends EsDAO implements INetworkAddressAliasCacheDAO {
+public class NetworkAddressAliasEsDAO extends EsDAO implements INetworkAddressAliasDAO {
     protected final int resultWindowMaxSize;
 
-    public NetworkAddressAliasCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
+    public NetworkAddressAliasEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
         super(client);
         this.resultWindowMaxSize = resultWindowMaxSize;
     }

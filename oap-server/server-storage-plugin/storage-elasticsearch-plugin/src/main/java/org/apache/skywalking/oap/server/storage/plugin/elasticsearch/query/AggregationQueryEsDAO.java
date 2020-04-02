@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -48,56 +47,63 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, DownSampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<TopNEntity> getServiceTopN(String indexName, String valueCName, int topN, DownSampling downsampling,
+                                           long startTB, long endTB, Order order) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-                                                      DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<TopNEntity> getAllServiceInstanceTopN(String indexName,
+                                                      String valueCName,
+                                                      int topN,
+                                                      DownSampling downsampling,
+                                                      long startTB,
+                                                      long endTB,
+                                                      Order order) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-                                                   DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<TopNEntity> getServiceInstanceTopN(int serviceId,
+                                                   String indexName,
+                                                   String valueCName,
+                                                   int topN,
+                                                   DownSampling downsampling,
+                                                   long startTB,
+                                                   long endTB,
+                                                   Order order) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(InstanceTraffic.SERVICE_ID, serviceId));
 
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, DownSampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<TopNEntity> getAllEndpointTopN(String indexName, String valueCName, int topN, DownSampling downsampling,
+                                               long startTB, long endTB, Order order) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
         return aggregation(indexName, valueCName, sourceBuilder, topN, order);
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
-                                            DownSampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<TopNEntity> getEndpointTopN(int serviceId,
+                                            String indexName,
+                                            String valueCName,
+                                            int topN,
+                                            DownSampling downsampling,
+                                            long startTB,
+                                            long endTB,
+                                            Order order) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -110,7 +116,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     protected List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
-        int topN, Order order) throws IOException {
+                                           int topN, Order order) throws IOException {
         boolean asc = false;
         if (order.equals(Order.ASC)) {
             asc = true;

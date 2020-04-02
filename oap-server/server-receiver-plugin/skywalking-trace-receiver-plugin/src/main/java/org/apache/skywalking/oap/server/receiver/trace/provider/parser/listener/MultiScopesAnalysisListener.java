@@ -128,6 +128,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
+            sourceBuilder.setSourceNodeType(NodeType.UNRECOGNIZED);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
             sourceBuilder.setDestEndpointName(span.getOperationName());

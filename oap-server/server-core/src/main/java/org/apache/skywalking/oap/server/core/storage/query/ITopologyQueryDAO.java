@@ -76,8 +76,8 @@ public interface ITopologyQueryDAO extends Service {
     /**
      * Query the endpoint relationship. Endpoint dependency is not detected from server side agent.
      */
-    List<Call.CallDetail> loadSpecifiedDestOfServerSideEndpointRelations(DownSampling downsampling,
-                                                                         long startTB,
-                                                                         long endTB,
-                                                                         String destEndpointId) throws IOException;
+    List<Call.CallDetail> loadEndpointRelation(DownSampling downsampling,
+                                               long startTB,
+                                               long endTB,
+                                               String destEndpointId) throws IOException;
 }

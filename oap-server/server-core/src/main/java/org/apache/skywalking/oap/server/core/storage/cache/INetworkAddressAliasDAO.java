@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public interface INetworkAddressAliasCacheDAO extends DAO {
+public interface INetworkAddressAliasDAO extends DAO {
     /**
      * Load the recent update alias information.
      *
