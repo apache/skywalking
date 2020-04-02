@@ -119,7 +119,7 @@ public class InstanceTraffic extends Metrics {
         return IDManager.ServiceInstanceID.buildId(serviceId, name);
     }
 
-    public class Builder implements StorageBuilder<InstanceTraffic> {
+    public static class Builder implements StorageBuilder<InstanceTraffic> {
         @Override
         public InstanceTraffic map2Data(final Map<String, Object> dbMap) {
             InstanceTraffic instanceTraffic = new InstanceTraffic();
@@ -138,8 +138,8 @@ public class InstanceTraffic extends Metrics {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());
-            if (properties != null) {
-                map.put(PROPERTIES, GSON.toJson(properties));
+            if (storageData.getProperties() != null) {
+                map.put(PROPERTIES, GSON.toJson(storageData.getProperties()));
             }
             map.put(LAST_PING_TIMESTAMP, storageData.getLastPingTimestamp());
             return map;
@@ -159,5 +159,11 @@ public class InstanceTraffic extends Metrics {
     @Override
     public Metrics toDay() {
         return null;
+    }
+
+    public static class PropertyUtil {
+        public static final String LANGUAGE = "language";
+        public static final String IPV4 = "ipv4";
+        public static final String IPV4S = "ipv4s";
     }
 }

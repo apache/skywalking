@@ -20,11 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import java.io.IOException;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.source.NodeType;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -42,15 +41,11 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(timeRangeQueryBuild(startTimestamp, endTimestamp));
-
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.IS_ADDRESS, BooleanUtils.FALSE));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, NodeType.Normal.value()));
-
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
         return (int) response.getHits().getTotalHits().value;
     }
 
@@ -77,10 +72,10 @@ public class MetadataQueryEs7DAO extends MetadataQueryEsDAO {
     public int numOfConjectural(int nodeTypeValue) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
-        sourceBuilder.query(QueryBuilders.termQuery(ServiceInventory.NODE_TYPE, nodeTypeValue));
+        sourceBuilder.query(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, nodeTypeValue));
         sourceBuilder.size(0);
 
-        SearchResponse response = getClient().search(ServiceInventory.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
 
         return (int) response.getHits().getTotalHits().value;
     }

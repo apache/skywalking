@@ -18,19 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -42,8 +36,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.ttl.GeneralStorageTTL;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -52,11 +44,10 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.BatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.HistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.InfluxDBH2MetaDBInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.installer.InfluxDBMySQLMetaDBInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxMetadataQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxNetworkAddressAlias;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
@@ -65,18 +56,11 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThr
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
     private InfluxStorageConfig config;
-    private JDBCHikariCPClient client;
     private InfluxClient influxClient;
-    private H2RegisterLockDAO lockDAO;
 
     public InfluxStorageProvider() {
         config = new InfluxStorageConfig();
@@ -99,28 +83,13 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-
-        Properties settings;
-        if ("mysql".equalsIgnoreCase(config.getMetabaseType())) {
-            settings = config.getMysqlProps();
-        } else {
-            settings = config.getH2Props();
-        }
-        client = new JDBCHikariCPClient(settings);
         influxClient = new InfluxClient(config);
 
         this.registerServiceImplementation(IBatchDAO.class, new BatchDAO(influxClient));
-        this.registerServiceImplementation(StorageDAO.class, new InfluxStorageDAO(client, influxClient));
+        this.registerServiceImplementation(StorageDAO.class, new InfluxStorageDAO(influxClient));
 
-        this.lockDAO = new H2RegisterLockDAO(client);
-        this.registerServiceImplementation(IRegisterLockDAO.class, new H2RegisterLockDAO(client));
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(client));
-        this.registerServiceImplementation(
-            IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(client));
-        this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(client));
-        this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new InfluxMetadataQueryDAO(influxClient, client, config.getMetadataQueryMaxSize()));
+        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new InfluxNetworkAddressAlias(influxClient));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new InfluxMetadataQueryDAO(influxClient));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
@@ -137,28 +106,12 @@ public class InfluxStorageProvider extends ModuleProvider {
             IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient, config.getFetchTaskLogMaxSize()));
 
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteDAO(getManager(), influxClient, new GeneralStorageTTL()));
+            IHistoryDeleteDAO.class, new HistoryDeleteDAO(influxClient));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        try {
-            client.connect();
-            influxClient.connect();
-
-            ModelInstaller installer;
-            if (config.getMetabaseType().equalsIgnoreCase("h2")) {
-                installer = new InfluxDBH2MetaDBInstaller(getManager());
-            } else if (config.getMetabaseType().equalsIgnoreCase("mysql")) {
-                installer = new InfluxDBMySQLMetaDBInstaller(getManager());
-            } else {
-                throw new IllegalArgumentException("Unavailable metabase type, " + config.getMetabaseType());
-            }
-            installer.install(client);
-            new H2RegisterLockInstaller().install(client, lockDAO);
-        } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
+        influxClient.connect();
     }
 
     @Override

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.rest;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest;
 
 import com.google.gson.JsonElement;
 import java.io.BufferedReader;
@@ -59,7 +59,7 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
 
     @Override
     public String pathSpec() {
-        return "/v2/segments";
+        return "/v3/segments";
     }
 
     @Override

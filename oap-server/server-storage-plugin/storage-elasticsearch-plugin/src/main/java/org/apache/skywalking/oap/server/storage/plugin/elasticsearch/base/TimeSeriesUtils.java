@@ -56,8 +56,6 @@ public class TimeSeriesUtils {
                 return modelName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
             case Day:
                 return modelName + Const.LINE + compressTimeBucket(timeBucket, DAY_STEP);
-            case Month:
-                return modelName + Const.LINE + timeBucket;
             case Second:
                 return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
             default:

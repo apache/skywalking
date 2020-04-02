@@ -25,11 +25,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.RegisterServiceHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.grpc.ServiceInstancePingServiceHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstancePingServletHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceInstanceRegisterServletHandler;
-import org.apache.skywalking.oap.server.receiver.register.provider.handler.v6.rest.ServiceRegisterServletHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.grpc.ManagementServiceHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.rest.ManagementServiceKeepAliveHandler;
+import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.rest.ManagementServiceReportPropertiesHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class RegisterModuleProvider extends ModuleProvider {
@@ -58,15 +56,13 @@ public class RegisterModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(GRPCHandlerRegister.class);
-        grpcHandlerRegister.addHandler(new RegisterServiceHandler(getManager()));
-        grpcHandlerRegister.addHandler(new ServiceInstancePingServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ManagementServiceHandler(getManager()));
 
         JettyHandlerRegister jettyHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                                 .provider()
                                                                 .getService(JettyHandlerRegister.class);
-        jettyHandlerRegister.addHandler(new ServiceRegisterServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new ServiceInstanceRegisterServletHandler(getManager()));
-        jettyHandlerRegister.addHandler(new ServiceInstancePingServletHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ManagementServiceReportPropertiesHandler(getManager()));
+        jettyHandlerRegister.addHandler(new ManagementServiceKeepAliveHandler(getManager()));
     }
 
     @Override

@@ -16,14 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.entity;
+package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 
-@Getter
-@Setter
-public class Service {
-    private String id;
-    private String name;
+public class InfluxNetworkAddressAlias implements INetworkAddressAliasDAO {
+    private InfluxClient client;
+
+    public InfluxNetworkAddressAlias(final InfluxClient client) {
+        this.client = client;
+    }
+
+    @Override
+    public List<NetworkAddressAlias> loadLastUpdate(final long timeBucket) {
+        return null;
+    }
 }

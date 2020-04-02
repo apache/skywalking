@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v6.grpc;
+package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc;
 
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
