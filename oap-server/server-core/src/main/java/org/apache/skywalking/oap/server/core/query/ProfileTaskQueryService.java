@@ -24,13 +24,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profile.analyze.ProfileAnalyzer;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
@@ -42,8 +41,6 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfiledSegment;
 import org.apache.skywalking.oap.server.core.query.entity.ProfiledSpan;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
@@ -62,8 +59,6 @@ public class ProfileTaskQueryService implements Service {
     private IProfileTaskQueryDAO profileTaskQueryDAO;
     private IProfileTaskLogQueryDAO profileTaskLogQueryDAO;
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private NetworkAddressAliasCache networkAddressAliasCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
@@ -86,15 +81,6 @@ public class ProfileTaskQueryService implements Service {
         return profileTaskQueryDAO;
     }
 
-    private ServiceInventoryCache getServiceInventoryCache() {
-        if (isNull(serviceInventoryCache)) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(ServiceInventoryCache.class);
-        }
-        return serviceInventoryCache;
-    }
-
     private IProfileTaskLogQueryDAO getProfileTaskLogQueryDAO() {
         if (isNull(profileTaskLogQueryDAO)) {
             profileTaskLogQueryDAO = moduleManager.find(StorageModule.NAME)
@@ -102,15 +88,6 @@ public class ProfileTaskQueryService implements Service {
                                                   .getService(IProfileTaskLogQueryDAO.class);
         }
         return profileTaskLogQueryDAO;
-    }
-
-    private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
-        if (isNull(serviceInstanceInventoryCache)) {
-            serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                         .provider()
-                                                         .getService(ServiceInstanceInventoryCache.class);
-        }
-        return serviceInstanceInventoryCache;
     }
 
     private IProfileThreadSnapshotQueryDAO getProfileThreadSnapshotQueryDAO() {
@@ -157,22 +134,18 @@ public class ProfileTaskQueryService implements Service {
 
         // add service name
         if (CollectionUtils.isNotEmpty(tasks)) {
-            final ServiceInventoryCache serviceInventoryCache = getServiceInventoryCache();
-            final ServiceInstanceInventoryCache serviceInstanceInventoryCache = getServiceInstanceInventoryCache();
+
             for (ProfileTask task : tasks) {
-                final ServiceInventory serviceInventory = serviceInventoryCache.get(task.getServiceId());
-                if (serviceInventory != null) {
-                    task.setServiceName(serviceInventory.getName());
-                }
+                final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                    task.getId());
+                task.setServiceName(serviceIDDefinition.getName());
 
                 // filter all task logs
                 task.setLogs(taskLogList.stream().filter(l -> Objects.equal(l.getTaskId(), task.getId())).map(l -> {
                     // get instance name from cache
-                    final ServiceInstanceInventory instanceInventory = serviceInstanceInventoryCache.get(
-                        l.getInstanceId());
-                    if (instanceInventory != null) {
-                        l.setInstanceName(instanceInventory.getName());
-                    }
+                    final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
+                        .analysisId(l.getInstanceId());
+                    l.setInstanceName(instanceIDDefinition.getName());
                     return l;
                 }).collect(Collectors.toList()));
             }
@@ -220,18 +193,12 @@ public class ProfileTaskQueryService implements Service {
             span.setType(spanObject.getSpanType().name());
             span.setEndpointName(spanObject.getOperationName());
 
-            if (spanObject.getPeerId() == 0) {
-                span.setPeer(spanObject.getPeer());
-            } else {
-                span.setPeer(getNetworkAddressAliasCache().get(spanObject.getPeerId()).getName());
-            }
+            span.setPeer(spanObject.getPeer());
 
-            final ServiceInventory serviceInventory = getServiceInventoryCache().get(segmentObject.getServiceId());
-            if (serviceInventory != null) {
-                span.setServiceCode(serviceInventory.getName());
-            } else {
-                span.setServiceCode("unknown");
-            }
+            span.setEndpointName(spanObject.getOperationName());
+
+            span.setServiceCode(segmentObject.getService());
+            span.setServiceInstanceName(segmentObject.getServiceInstance());
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());

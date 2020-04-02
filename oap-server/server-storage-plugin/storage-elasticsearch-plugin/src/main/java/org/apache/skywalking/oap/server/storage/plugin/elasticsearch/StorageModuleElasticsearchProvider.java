@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -76,7 +75,6 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Profi
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ttl.ElasticsearchStorageTTL;
 
 /**
  * The storage provider for ElasticSearch 6.
@@ -147,7 +145,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient = new ElasticSearchClient(
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace(), config.isEnablePackedDownsampling())
+            indexNameConverters(config.getNameSpace())
         );
 
         this.registerServiceImplementation(
@@ -155,10 +153,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 .getFlushInterval(), config.getConcurrentRequests()));
         this.registerServiceImplementation(StorageDAO.class, new StorageEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(getManager(), elasticSearchClient,
-                                                            new ElasticsearchStorageTTL(),
-                                                            config.isEnablePackedDownsampling()
-            ));
+            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearchClient));
 
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(elasticSearchClient, config
@@ -188,8 +183,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        overrideCoreModuleTTLConfig();
-
         try {
             elasticSearchClient.connect();
 
@@ -210,22 +203,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         return new String[] {CoreModule.NAME};
     }
 
-    private void overrideCoreModuleTTLConfig() {
-        ConfigService configService = getManager().find(CoreModule.NAME).provider().getService(ConfigService.class);
-        configService.getDataTTLConfig().setRecordDataTTL(config.getRecordDataTTL());
-        configService.getDataTTLConfig().setMinuteMetricsDataTTL(config.getMinuteMetricsDataTTL());
-        configService.getDataTTLConfig().setHourMetricsDataTTL(config.getHourMetricsDataTTL());
-        configService.getDataTTLConfig().setDayMetricsDataTTL(config.getDayMetricsDataTTL());
-        configService.getDataTTLConfig().setMonthMetricsDataTTL(config.getMonthMetricsDataTTL());
-    }
-
-    public static List<IndexNameConverter> indexNameConverters(String namespace, boolean enablePackedDownsampling) {
+    public static List<IndexNameConverter> indexNameConverters(String namespace) {
         List<IndexNameConverter> converters = new ArrayList<>();
-
-        if (enablePackedDownsampling) {
-            // Packed downsampling converter.
-            converters.add(new PackedDownsamplingConverter());
-        }
         converters.add(new NamespaceConverter(namespace));
         return converters;
     }

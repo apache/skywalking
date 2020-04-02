@@ -43,7 +43,7 @@ public class Endpoint extends Source {
     @Override
     public String getEntityId() {
         if (StringUtil.isEmpty(entityId)) {
-            entityId = IDManager.EndpointID.buildId(serviceId, name, DetectPoint.SERVER);
+            entityId = IDManager.EndpointID.buildId(serviceId, name);
         }
         return entityId;
     }

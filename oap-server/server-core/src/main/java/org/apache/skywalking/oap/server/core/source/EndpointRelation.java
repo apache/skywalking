@@ -37,7 +37,7 @@ public class EndpointRelation extends Source {
     @Override
     public String getEntityId() {
         return IDManager.EndpointID.buildRelationId(new IDManager.EndpointID.EndpointRelationDefine(
-            serviceId, endpoint, childServiceId, childEndpoint, componentId
+            serviceId, endpoint, childServiceId, childEndpoint
         ));
     }
 

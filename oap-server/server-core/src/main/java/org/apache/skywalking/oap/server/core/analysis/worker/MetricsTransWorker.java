@@ -69,9 +69,9 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     }
 
     /**
-     * Use the {@link Metrics#toHour()}, {@link Metrics#toDay()} and {@link Metrics#toMonth()} to clone a new metrics
-     * instance then process the downsampling. Then forward the data to different works of different precisions for
-     * another round aggregation/merging.
+     * Use the {@link Metrics#toHour()} and {@link Metrics#toDay()}to clone a new metrics instance then process the
+     * downsampling. Then forward the data to different works of different precisions for another round
+     * aggregation/merging.
      */
     @Override
     public void in(Metrics metrics) {
@@ -82,10 +82,6 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
         if (Objects.nonNull(dayPersistenceWorker)) {
             aggregationDayCounter.inc();
             dayPersistenceWorker.in(metrics.toDay());
-        }
-        if (Objects.nonNull(monthPersistenceWorker)) {
-            aggregationHourCounter.inc();
-            monthPersistenceWorker.in(metrics.toMonth());
         }
     }
 }

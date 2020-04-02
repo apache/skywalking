@@ -20,15 +20,10 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
@@ -58,13 +53,7 @@ public class AggregationQueryService implements Service {
         List<TopNEntity> topNEntities = getAggregationQueryDAO().getServiceTopN(
             indName, ValueColumnMetadata.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInventory inventory = moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(ServiceInventoryCache.class)
-                                                      .get(Integer.parseInt(entity.getId()));
-            if (inventory != null) {
-                entity.setName(inventory.getName());
-            }
+            entity.setName(IDManager.ServiceID.analysisId(entity.getId()).getName());
         }
         return topNEntities;
     }
@@ -79,13 +68,7 @@ public class AggregationQueryService implements Service {
             indName, ValueColumnMetadata.INSTANCE
                 .getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME)
-                                                              .provider()
-                                                              .getService(ServiceInstanceInventoryCache.class)
-                                                              .get(Integer.parseInt(entity.getId()));
-            if (inventory != null) {
-                entity.setName(inventory.getName());
-            }
+            entity.setName(IDManager.ServiceInstanceID.analysisId(entity.getId()).getName());
         }
         return topNEntities;
     }
@@ -101,13 +84,7 @@ public class AggregationQueryService implements Service {
             serviceId, indName, ValueColumnMetadata.INSTANCE
                 .getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            ServiceInstanceInventory inventory = moduleManager.find(CoreModule.NAME)
-                                                              .provider()
-                                                              .getService(ServiceInstanceInventoryCache.class)
-                                                              .get(Integer.parseInt(entity.getId()));
-            if (inventory != null) {
-                entity.setName(inventory.getName());
-            }
+            entity.setName(IDManager.ServiceInstanceID.analysisId(entity.getId()).getName());
         }
         return topNEntities;
     }
@@ -122,7 +99,7 @@ public class AggregationQueryService implements Service {
             indName, ValueColumnMetadata.INSTANCE.getValueCName(indName), topN, downsampling, startTB, endTB, order);
 
         for (TopNEntity entity : topNEntities) {
-            entity.setName(EndpointTraffic.splitID(entity.getId()).getEndpointName());
+            entity.setName(IDManager.EndpointID.analysisId(entity.getId()).getEndpointName());
         }
         return topNEntities;
     }
@@ -138,7 +115,7 @@ public class AggregationQueryService implements Service {
             serviceId, indName, ValueColumnMetadata.INSTANCE
                 .getValueCName(indName), topN, downsampling, startTB, endTB, order);
         for (TopNEntity entity : topNEntities) {
-            entity.setName(EndpointTraffic.splitID(entity.getId()).getEndpointName());
+            entity.setName(IDManager.EndpointID.analysisId(entity.getId()).getEndpointName());
         }
         return topNEntities;
     }

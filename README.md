@@ -45,10 +45,7 @@ including
 
 
 # Document
-- [8.x Documentation, dev version](docs/README.md).
-- [7.0.0 Documentation](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
-- [6.6 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
-- [6.5 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+[8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
 
 The documentation links works after the official release.
 

@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
 
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 
 public class EndpointCallRelationDispatcher implements SourceDispatcher<EndpointRelation> {
@@ -39,9 +38,9 @@ public class EndpointCallRelationDispatcher implements SourceDispatcher<Endpoint
         EndpointRelationServerSideMetrics metrics = new EndpointRelationServerSideMetrics();
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceEndpoint(
-            EndpointTraffic.buildId(source.getServiceId(), source.getEndpoint(), DetectPoint.SERVER));
+            IDManager.EndpointID.buildId(source.getServiceId(), source.getEndpoint()));
         metrics.setDestEndpoint(
-            EndpointTraffic.buildId(source.getChildServiceId(), source.getChildEndpoint(), DetectPoint.SERVER));
+            IDManager.EndpointID.buildId(source.getChildServiceId(), source.getChildEndpoint()));
         metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);

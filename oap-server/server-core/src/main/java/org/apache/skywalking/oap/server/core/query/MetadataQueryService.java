@@ -20,9 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.entity.ClusterBrief;
 import org.apache.skywalking.oap.server.core.query.entity.Database;
 import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
@@ -38,7 +36,6 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     private final ModuleManager moduleManager;
     private IMetadataQueryDAO metadataQueryDAO;
-    private ServiceInventoryCache serviceInventoryCache;
 
     public MetadataQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -49,15 +46,6 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
             metadataQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetadataQueryDAO.class);
         }
         return metadataQueryDAO;
-    }
-
-    private ServiceInventoryCache getServiceInventoryCache() {
-        if (serviceInventoryCache == null) {
-            serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                 .provider()
-                                                 .getService(ServiceInventoryCache.class);
-        }
-        return serviceInventoryCache;
     }
 
     public ClusterBrief getGlobalBrief(final long startTimestamp, final long endTimestamp) throws IOException {
@@ -102,14 +90,16 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
-        final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(endpointId);
-        int serviceId = endpointID.getServiceId();
+        final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+            endpointId);
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+            endpointIDDefinition.getServiceId());
 
         EndpointInfo endpointInfo = new EndpointInfo();
         endpointInfo.setId(endpointId);
-        endpointInfo.setName(endpointID.getEndpointName());
-        endpointInfo.setServiceId(serviceId);
-        endpointInfo.setServiceName(getServiceInventoryCache().get(serviceId).getName());
+        endpointInfo.setName(endpointIDDefinition.getEndpointName());
+        endpointInfo.setServiceId(endpointIDDefinition.getServiceId());
+        endpointInfo.setServiceName(serviceIDDefinition.getName());
         return endpointInfo;
     }
 }

@@ -47,18 +47,16 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
     }
 
     public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException {
-        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration()
-                                                                                                 .getStep(), condition.getDuration()
-                                                                                                                      .getStart());
-        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration()
-                                                                                             .getStep(), condition.getDuration()
-                                                                                                                  .getEnd());
+        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(
+            condition.getDuration().getStep(), condition.getDuration().getStart());
+        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(
+            condition.getDuration().getStep(), condition.getDuration().getEnd());
 
         String metricName = condition.getMetricName();
         Order order = condition.getOrder();
         int topN = condition.getTopN();
-        int serviceId = condition.getServiceId();
 
-        return getTopNRecordsQueryService().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
+        return getTopNRecordsQueryService().getTopNRecords(
+            startSecondTB, endSecondTB, metricName, condition.getServiceId(), topN, order);
     }
 }

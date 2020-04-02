@@ -64,7 +64,7 @@ public class ServiceInstanceRelation extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
     private String sourceServiceInstanceName;
-    @Setter
+    @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_id")
     private String destServiceInstanceId;
     @Getter

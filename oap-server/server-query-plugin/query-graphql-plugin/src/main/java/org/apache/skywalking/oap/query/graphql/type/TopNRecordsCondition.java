@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Order;
 @Getter
 @Setter
 public class TopNRecordsCondition {
-    private int serviceId;
+    private String serviceId;
     private String metricName;
     private int topN;
     private Order order;

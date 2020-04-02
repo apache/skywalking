@@ -23,15 +23,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
 import org.apache.skywalking.oap.server.core.query.entity.LogEntity;
@@ -43,7 +38,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Span;
 import org.apache.skywalking.oap.server.core.query.entity.Trace;
 import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.entity.TraceState;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -56,8 +50,6 @@ public class TraceQueryService implements Service {
 
     private final ModuleManager moduleManager;
     private ITraceQueryDAO traceQueryDAO;
-    private ServiceInventoryCache serviceInventoryCache;
-    private NetworkAddressAliasCache networkAddressAliasCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public TraceQueryService(ModuleManager moduleManager) {
@@ -69,24 +61,6 @@ public class TraceQueryService implements Service {
             this.traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
         }
         return traceQueryDAO;
-    }
-
-    private ServiceInventoryCache getServiceInventoryCache() {
-        if (serviceInventoryCache == null) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(ServiceInventoryCache.class);
-        }
-        return serviceInventoryCache;
-    }
-
-    private NetworkAddressAliasCache getNetworkAddressAliasCache() {
-        if (networkAddressAliasCache == null) {
-            this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
-                                                         .provider()
-                                                         .getService(NetworkAddressAliasCache.class);
-        }
-        return networkAddressAliasCache;
     }
 
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
@@ -130,9 +104,7 @@ public class TraceQueryService implements Service {
                 if (nonNull(segment)) {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segment.getDataBinary());
                     trace.getSpans()
-                         .addAll(buildSpanV2List(traceId, segment.getSegmentId(), segment.getServiceId(),
-                                                 segmentObject.getSpansList()
-                         ));
+                         .addAll(buildSpanList(segmentObject));
                 }
             }
         }
@@ -156,14 +128,13 @@ public class TraceQueryService implements Service {
         return trace;
     }
 
-    private List<Span> buildSpanV2List(String traceId, String segmentId, int serviceId,
-                                       List<SpanObjectV2> spanObjects) {
+    private List<Span> buildSpanList(SegmentObject segmentObject) {
         List<Span> spans = new ArrayList<>();
 
-        spanObjects.forEach(spanObject -> {
+        segmentObject.getSpansList().forEach(spanObject -> {
             Span span = new Span();
-            span.setTraceId(traceId);
-            span.setSegmentId(segmentId);
+            span.setTraceId(segmentObject.getTraceId());
+            span.setSegmentId(segmentObject.getTraceSegmentId());
             span.setSpanId(spanObject.getSpanId());
             span.setParentSpanId(spanObject.getParentSpanId());
             span.setStartTime(spanObject.getStartTime());
@@ -172,26 +143,18 @@ public class TraceQueryService implements Service {
             span.setLayer(spanObject.getSpanLayer().name());
             span.setType(spanObject.getSpanType().name());
 
-            String segmentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getSpanId();
+            String segmentSpanId = segmentObject.getTraceSegmentId() + Const.SEGMENT_SPAN_SPLIT + spanObject.getSpanId();
             span.setSegmentSpanId(segmentSpanId);
 
-            String segmentParentSpanId = segmentId + Const.SEGMENT_SPAN_SPLIT + spanObject.getParentSpanId();
+            String segmentParentSpanId = segmentObject.getTraceSegmentId() + Const.SEGMENT_SPAN_SPLIT + spanObject.getParentSpanId();
             span.setSegmentParentSpanId(segmentParentSpanId);
 
-            if (spanObject.getPeerId() == 0) {
-                span.setPeer(spanObject.getPeer());
-            } else {
-                span.setPeer(getNetworkAddressAliasCache().get(spanObject.getPeerId()).getName());
-            }
+            span.setPeer(spanObject.getPeer());
 
             span.setEndpointName(spanObject.getOperationName());
 
-            final ServiceInventory serviceInventory = getServiceInventoryCache().get(serviceId);
-            if (serviceInventory != null) {
-                span.setServiceCode(serviceInventory.getName());
-            } else {
-                span.setServiceCode("unknown");
-            }
+            span.setServiceCode(segmentObject.getService());
+            span.setServiceInstanceName(segmentObject.getServiceInstance());
 
             if (spanObject.getComponentId() == 0) {
                 span.setComponent(spanObject.getComponent());
@@ -201,7 +164,8 @@ public class TraceQueryService implements Service {
 
             spanObject.getRefsList().forEach(reference -> {
                 Ref ref = new Ref();
-                ref.setTraceId(traceId);
+                ref.setTraceId(reference.getTraceId());
+                ref.setParentSegmentId(reference.getParentTraceSegmentId());
 
                 switch (reference.getRefType()) {
                     case CrossThread:
@@ -212,13 +176,6 @@ public class TraceQueryService implements Service {
                         break;
                 }
                 ref.setParentSpanId(reference.getParentSpanId());
-
-                final UniqueId uniqueId = reference.getParentTraceSegmentId();
-                final String parentSegmentId = uniqueId.getIdPartsList()
-                                                       .stream()
-                                                       .map(String::valueOf)
-                                                       .collect(Collectors.joining("."));
-                ref.setParentSegmentId(parentSegmentId);
 
                 span.setSegmentParentSpanId(
                     ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId());

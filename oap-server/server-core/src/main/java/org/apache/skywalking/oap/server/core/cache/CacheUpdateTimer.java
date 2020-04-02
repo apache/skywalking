@@ -62,14 +62,12 @@ public enum CacheUpdateTimer {
 
     /**
      * Update the cached data updated in last 1 minutes.
-     *
-     * @param moduleDefineHolder
      */
     private void updateNetAddressAliasCache(ModuleDefineHolder moduleDefineHolder) {
         INetworkAddressAliasDAO networkAddressAliasDAO = moduleDefineHolder.find(StorageModule.NAME)
                                                                            .provider()
                                                                            .getService(
-                                                                                      INetworkAddressAliasDAO.class);
+                                                                               INetworkAddressAliasDAO.class);
         NetworkAddressAliasCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
                                                                            .provider()
                                                                            .getService(NetworkAddressAliasCache.class);

@@ -15,12 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.storage.ttl;
+package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.query.entity.Step;
 
-public interface StorageTTL {
-    TTLCalculator metricsCalculator(DownSampling downsampling);
+public class StepToDownSampling {
 
-    TTLCalculator recordCalculator();
+    public static DownSampling transform(Step step) {
+        switch (step) {
+            case SECOND:
+                return DownSampling.Second;
+            case MINUTE:
+                return DownSampling.Minute;
+            case HOUR:
+                return DownSampling.Hour;
+            case DAY:
+                return DownSampling.Day;
+        }
+        throw new UnexpectedException("Unknown step value.");
+    }
 }
