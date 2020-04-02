@@ -69,6 +69,8 @@ public class TraceAnalyzer {
         createSpanListeners();
 
         try {
+            notifySegmentListener(segmentObject);
+
             segmentObject.getSpansList().forEach(spanObject -> {
                 if (spanObject.getSpanId() == 0) {
                     notifyFirstListener(spanObject, segmentObject);
@@ -85,7 +87,7 @@ public class TraceAnalyzer {
                                                                                               .name());
                 }
             });
-            notifySegmentListener(segmentObject);
+
             notifyListenerToBuild();
             TRACE_ANALYSIS_COUNT.inc();
         } catch (Throwable e) {

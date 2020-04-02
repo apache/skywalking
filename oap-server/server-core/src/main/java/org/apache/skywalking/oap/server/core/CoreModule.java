@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
@@ -38,9 +36,6 @@ import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -77,7 +72,6 @@ public class CoreModule extends ModuleDefine {
         addServerInterface(classes);
         addReceiverInterface(classes);
         addInsideService(classes);
-        addRegisterService(classes);
         addCacheService(classes);
         addQueryService(classes);
         addProfileService(classes);
@@ -137,15 +131,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(RemoteSenderService.class);
     }
 
-    private void addRegisterService(List<Class> classes) {
-        classes.add(IServiceInventoryRegister.class);
-        classes.add(IServiceInstanceInventoryRegister.class);
-        classes.add(INetworkAddressInventoryRegister.class);
-    }
-
     private void addCacheService(List<Class> classes) {
-        classes.add(ServiceInventoryCache.class);
-        classes.add(ServiceInstanceInventoryCache.class);
         classes.add(NetworkAddressAliasCache.class);
     }
 

@@ -18,33 +18,37 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentCoreInfo;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.decorator.SpanDecorator;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.GlobalTraceIdsListener;
 
 /**
  * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
  */
 @Slf4j
-public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, GlobalTraceIdsListener {
+public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, SegmentListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
-    private String endpointId = "";
-    private String endpointName = "";
+    private String serviceId = Const.EMPTY_STRING;
+    private String endpointId = Const.EMPTY_STRING;
+    private String endpointName = Const.EMPTY_STRING;
+    private long startTimeBucket;
+    private long endTimeBucket;
+    private int duration;
+    private boolean isError;
 
     private SegmentAnalysisListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
         this.sampler = sampler;
@@ -57,42 +61,56 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     }
 
     @Override
-    public void parseFirst(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
+    public void parseFirst(SpanObject span, SegmentObject segmentObject) {
         if (sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
             return;
         }
 
-        long timeBucket = TimeBucket.getRecordTimeBucket(segmentCoreInfo.getStartTime());
+        if (StringUtil.isEmpty(serviceId)) {
+            serviceId = IDManager.ServiceID.buildId(
+                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanTypeValue()));
+        }
 
-        segment.setSegmentId(segmentCoreInfo.getSegmentId());
-        segment.setServiceId(segmentCoreInfo.getServiceId());
-        segment.setServiceInstanceId(segmentCoreInfo.getServiceInstanceId());
-        segment.setLatency((int) (segmentCoreInfo.getEndTime() - segmentCoreInfo.getStartTime()));
-        segment.setStartTime(segmentCoreInfo.getStartTime());
-        segment.setEndTime(segmentCoreInfo.getEndTime());
-        segment.setIsError(BooleanUtils.booleanToValue(segmentCoreInfo.isError()));
-        segment.setTimeBucket(timeBucket);
-        segment.setDataBinary(segmentCoreInfo.getDataBinary());
-        segment.setVersion(segmentCoreInfo.getVersion().number());
+        segment.setSegmentId(segmentObject.getTraceSegmentId());
+        segment.setServiceId(serviceId);
+        segment.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
+            serviceId,
+            segmentObject.getServiceInstance()
+        ));
+        segment.setLatency(duration);
+        segment.setStartTime(startTimeBucket);
+        segment.setEndTime(endTimeBucket);
+        segment.setIsError(BooleanUtils.booleanToValue(isError));
+        segment.setTimeBucket(startTimeBucket);
+        segment.setDataBinary(segmentObject.toByteArray());
+        segment.setVersion(3);
 
-        endpointId = EndpointTraffic.buildId(segmentCoreInfo.getServiceId(), spanDecorator.getOperationName(),
-                                             DetectPoint.fromSpanType(spanDecorator.getSpanType())
+        endpointId = IDManager.EndpointID.buildId(
+            serviceId,
+            span.getOperationName()
         );
-        endpointName = spanDecorator.getOperationName();
+        endpointName = span.getOperationName();
     }
 
     @Override
-    public void parseEntry(SpanDecorator spanDecorator, SegmentCoreInfo segmentCoreInfo) {
-        endpointId = EndpointTraffic.buildId(segmentCoreInfo.getServiceId(), spanDecorator.getOperationName(),
-                                             DetectPoint.fromSpanType(spanDecorator.getSpanType())
+    public void parseEntry(SpanObject span, SegmentObject segmentObject) {
+        if (StringUtil.isEmpty(serviceId)) {
+            serviceId = IDManager.ServiceID.buildId(
+                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanTypeValue()));
+        }
+
+        endpointId = IDManager.EndpointID.buildId(
+            serviceId,
+            span.getOperationName()
         );
-        endpointName = spanDecorator.getOperationName();
+
+        endpointName = span.getOperationName();
     }
 
     @Override
-    public void parseGlobalTraceId(UniqueId uniqueId, SegmentCoreInfo segmentCoreInfo) {
+    public void parseSegment(SegmentObject segmentObject) {
         if (sampleStatus.equals(SAMPLE_STATUS.UNKNOWN) || sampleStatus.equals(SAMPLE_STATUS.IGNORE)) {
-            if (sampler.shouldSample(uniqueId)) {
+            if (sampler.shouldSample(segmentObject.getTraceSegmentId())) {
                 sampleStatus = SAMPLE_STATUS.SAMPLED;
             } else {
                 sampleStatus = SAMPLE_STATUS.IGNORE;
@@ -103,8 +121,22 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             return;
         }
 
-        final String traceId = uniqueId.getIdPartsList().stream().map(String::valueOf).collect(Collectors.joining("."));
-        segment.setTraceId(traceId);
+        segment.setTraceId(segmentObject.getTraceId());
+        segmentObject.getSpansList().forEach(span -> {
+            if (startTimeBucket == 0 || startTimeBucket > span.getStartTime()) {
+                startTimeBucket = span.getStartTime();
+            }
+            if (span.getEndTime() > endTimeBucket) {
+                endTimeBucket = span.getEndTime();
+            }
+            if (!isError && span.getIsError()) {
+                isError = true;
+            }
+        });
+        final long accurateDuration = endTimeBucket - startTimeBucket;
+        duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
+        startTimeBucket = TimeBucket.getRecordTimeBucket(startTimeBucket);
+        endTimeBucket = TimeBucket.getRecordTimeBucket(endTimeBucket);
     }
 
     @Override

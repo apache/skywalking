@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -60,24 +59,18 @@ public class EndpointTraffic extends Metrics {
     @Getter
     @Column(columnName = NAME, matchQuery = true)
     private String name = Const.EMPTY_STRING;
-    @Setter
-    @Getter
-    @Column(columnName = DETECT_POINT)
-    private int detectPoint;
 
     @Override
     public String id() {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
         return IDManager.EndpointID.buildId(
-            this.getServiceId(), this.getName(), DetectPoint.valueOf(this.getDetectPoint()));
+            this.getServiceId(), this.getName());
     }
 
     @Override
     public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.addDataIntegers(detectPoint);
-
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(serviceId);
@@ -87,8 +80,6 @@ public class EndpointTraffic extends Metrics {
 
     @Override
     public void deserialize(RemoteData remoteData) {
-        setDetectPoint(remoteData.getDataIntegers(0));
-
         setTimeBucket(remoteData.getDataLongs(0));
 
         setServiceId(remoteData.getDataStrings(0));
@@ -97,11 +88,7 @@ public class EndpointTraffic extends Metrics {
 
     @Override
     public int remoteHashCode() {
-        int result = 17;
-        result = 31 * result + serviceId.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + detectPoint;
-        return result;
+        return hashCode();
     }
 
     public static class Builder implements StorageBuilder<EndpointTraffic> {
@@ -111,7 +98,6 @@ public class EndpointTraffic extends Metrics {
             EndpointTraffic inventory = new EndpointTraffic();
             inventory.setServiceId((String) dbMap.get(SERVICE_ID));
             inventory.setName((String) dbMap.get(NAME));
-            inventory.setDetectPoint(((Number) dbMap.get(DETECT_POINT)).intValue());
             inventory.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return inventory;
         }
@@ -121,7 +107,6 @@ public class EndpointTraffic extends Metrics {
             Map<String, Object> map = new HashMap<>();
             map.put(SERVICE_ID, storageData.getServiceId());
             map.put(NAME, storageData.getName());
-            map.put(DETECT_POINT, storageData.getDetectPoint());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }

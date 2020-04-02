@@ -25,8 +25,6 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceNode;
@@ -42,32 +40,26 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class ServiceInstanceTopologyBuilder {
 
-    private final ServiceInventoryCache serviceInventoryCache;
-    private final ServiceInstanceInventoryCache serviceInstanceInventoryCache;
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
     public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
-        this.serviceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                  .provider()
-                                                  .getService(ServiceInventoryCache.class);
-        this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                          .provider()
-                                                          .getService(ServiceInstanceInventoryCache.class);
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
                                                            .provider()
                                                            .getService(IComponentLibraryCatalogService.class);
     }
 
     ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,
-        List<Call.CallDetail> serviceInstanceRelationServerCalls) {
+                                  List<Call.CallDetail> serviceInstanceRelationServerCalls) {
 
         Map<Integer, ServiceInstanceNode> nodes = new HashMap<>();
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
         for (Call.CallDetail clientCall : serviceInstanceRelationClientCalls) {
-            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(Integer.parseInt(clientCall.getSource()));
-            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(Integer.parseInt(clientCall.getTarget()));
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(
+                Integer.parseInt(clientCall.getSource()));
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(
+                Integer.parseInt(clientCall.getTarget()));
 
             if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
@@ -87,7 +79,8 @@ public class ServiceInstanceTopologyBuilder {
                 nodes.put(targetInstance.getSequence(), buildNode(targetService, targetInstance));
                 if (BooleanUtils.valueToBoolean(targetInstance.getIsAddress())) {
                     nodes.get(targetInstance.getSequence())
-                         .setType(componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
+                         .setType(
+                             componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
@@ -111,8 +104,10 @@ public class ServiceInstanceTopologyBuilder {
         }
 
         for (Call.CallDetail serverCall : serviceInstanceRelationServerCalls) {
-            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(Integer.parseInt(serverCall.getSource()));
-            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(Integer.parseInt(serverCall.getTarget()));
+            ServiceInstanceInventory sourceInstance = serviceInstanceInventoryCache.get(
+                Integer.parseInt(serverCall.getSource()));
+            ServiceInstanceInventory targetInstance = serviceInstanceInventoryCache.get(
+                Integer.parseInt(serverCall.getTarget()));
 
             if (isNull(sourceInstance) || isNull(targetInstance)) {
                 continue;
@@ -139,7 +134,8 @@ public class ServiceInstanceTopologyBuilder {
                     conjecturalNode.setName(sourceInstance.getName());
                     conjecturalNode.setServiceId(sourceService.getSequence());
                     conjecturalNode.setServiceName(sourceService.getName());
-                    conjecturalNode.setType(componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
+                    conjecturalNode.setType(
+                        componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
                     conjecturalNode.setReal(true);
                     nodes.put(sourceInstance.getSequence(), conjecturalNode);
                 }
@@ -187,7 +183,7 @@ public class ServiceInstanceTopologyBuilder {
     }
 
     private ServiceInstanceNode buildNode(ServiceInventory serviceInventory,
-        ServiceInstanceInventory instanceInventory) {
+                                          ServiceInstanceInventory instanceInventory) {
         ServiceInstanceNode instanceNode = new ServiceInstanceNode();
         instanceNode.setId(instanceInventory.getSequence());
         instanceNode.setName(instanceInventory.getName());

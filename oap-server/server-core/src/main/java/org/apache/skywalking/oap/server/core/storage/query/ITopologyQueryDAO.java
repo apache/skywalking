@@ -32,46 +32,46 @@ public interface ITopologyQueryDAO extends Service {
     /**
      * Query {@link ServiceRelationServerSideMetrics} through the given conditions
      */
-    List<Call.CallDetail> loadSpecifiedServerSideServiceRelations(DownSampling downsampling, long startTB, long endTB,
-                                                                  List<Integer> serviceIds) throws IOException;
+    List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB, long endTB,
+                                                                   List<Integer> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationClientSideMetrics} through the given conditions
      */
-    List<Call.CallDetail> loadSpecifiedClientSideServiceRelations(DownSampling downsampling, long startTB, long endTB,
+    List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB, long endTB,
                                                                   List<Integer> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationServerSideMetrics} globally, without given serviceIds
      */
-    List<Call.CallDetail> loadServerSideServiceRelations(DownSampling downsampling, long startTB,
-                                                         long endTB) throws IOException;
+    List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB,
+                                                                   long endTB) throws IOException;
 
     /**
      * Query {@link ServiceRelationClientSideMetrics} globally, without given serviceIds
      */
-    List<Call.CallDetail> loadClientSideServiceRelations(DownSampling downsampling, long startTB,
-                                                         long endTB) throws IOException;
+    List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB,
+                                                                  long endTB) throws IOException;
 
     /**
      * Query {@link ServiceInstanceRelationServerSideMetrics} through given conditions, including the specific
      * clientServiceId and serverServiceId
      */
-    List<Call.CallDetail> loadServerSideServiceInstanceRelations(int clientServiceId,
-                                                                 int serverServiceId,
-                                                                 DownSampling downsampling,
-                                                                 long startTB,
-                                                                 long endTB) throws IOException;
+    List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(int clientServiceId,
+                                                                   int serverServiceId,
+                                                                   DownSampling downsampling,
+                                                                   long startTB,
+                                                                   long endTB) throws IOException;
 
     /**
      * Query {@link ServiceInstanceRelationClientSideMetrics} through given conditions, including the specific
      * clientServiceId and serverServiceId
      */
-    List<Call.CallDetail> loadClientSideServiceInstanceRelations(int clientServiceId,
-                                                                 int serverServiceId,
-                                                                 DownSampling downsampling,
-                                                                 long startTB,
-                                                                 long endTB) throws IOException;
+    List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(int clientServiceId,
+                                                                   int serverServiceId,
+                                                                   DownSampling downsampling,
+                                                                   long startTB,
+                                                                   long endTB) throws IOException;
 
     /**
      * Query the endpoint relationship. Endpoint dependency is not detected from server side agent.

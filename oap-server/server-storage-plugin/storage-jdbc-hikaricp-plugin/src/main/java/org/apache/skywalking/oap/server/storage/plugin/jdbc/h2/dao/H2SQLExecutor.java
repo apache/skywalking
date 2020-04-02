@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -75,7 +73,7 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
-                                  StorageBuilder<T> storageBuilder) throws IOException {
+                                                          StorageBuilder<T> storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection();
              ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
             return toStorageData(rs, modelName, storageBuilder);
@@ -106,19 +104,6 @@ public class H2SQLExecutor {
             return storageBuilder.map2Data(data);
         }
         return null;
-    }
-
-    protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", id)) {
-            if (rs.next()) {
-                return rs.getInt(ServiceInstanceInventory.SEQUENCE);
-            }
-        } catch (SQLException | JDBCClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Const.NONE;
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,

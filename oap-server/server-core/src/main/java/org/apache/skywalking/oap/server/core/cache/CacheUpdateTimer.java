@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -32,25 +33,22 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public enum CacheUpdateTimer {
     INSTANCE;
-
-    private static final Logger logger = LoggerFactory.getLogger(CacheUpdateTimer.class);
 
     private Boolean isStarted = false;
 
     public void start(ModuleDefineHolder moduleDefineHolder) {
-        logger.info("Cache updateServiceInventory timer start");
+        log.info("Cache updateServiceInventory timer start");
 
         final long timeInterval = 10;
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
                      .scheduleAtFixedRate(
-                         new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> logger
+                         new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
                              .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
 
             this.isStarted = true;
@@ -103,7 +101,7 @@ public enum CacheUpdateTimer {
                 profileTaskCache.saveTaskList(serviceId, profileTasks);
             });
         } catch (IOException e) {
-            logger.warn("Unable to update profile task cache", e);
+            log.warn("Unable to update profile task cache", e);
         }
     }
 }

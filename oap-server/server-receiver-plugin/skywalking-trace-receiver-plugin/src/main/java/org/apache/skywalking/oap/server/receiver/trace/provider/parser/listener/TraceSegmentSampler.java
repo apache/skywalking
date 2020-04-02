@@ -18,21 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-
 /**
- * The sampler makes the sampling mechanism works at backend side.
- * <p>
- * The sample check mechanism is very easy and effective when backend run in cluster mode. Based on traceId, which is
- * constituted by 3 Long, and according to GlobalIdGenerator, the last four number of the last Long is a sequence, so it
- * is suitable for sampling.
- * <p>
- * Set rate = x
- * <p>
- * Then divide last Long in TraceId by 10000,  y = x % 10000
- * <p>
- * Sample result: [0,y) sampled, (y,~) ignored
+ * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
+ * ignored
  */
 public class TraceSegmentSampler {
     private int sampleRate = 10000;
@@ -41,13 +29,7 @@ public class TraceSegmentSampler {
         this.sampleRate = sampleRate;
     }
 
-    public boolean shouldSample(UniqueId uniqueId) {
-        List<Long> idPartsList = uniqueId.getIdPartsList();
-        if (idPartsList.size() == 3) {
-            Long lastLong = idPartsList.get(2);
-            long sampleValue = lastLong % 10000;
-            return sampleValue < sampleRate;
-        }
-        return false;
+    public boolean shouldSample(String segmentId) {
+        return segmentId.hashCode() % 10000 < sampleRate;
     }
 }

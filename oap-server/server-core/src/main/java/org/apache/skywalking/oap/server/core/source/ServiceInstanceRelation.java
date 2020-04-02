@@ -41,8 +41,7 @@ public class ServiceInstanceRelation extends Source {
             entityId = IDManager.ServiceInstanceID.buildRelationId(
                 new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
                     sourceServiceInstanceId,
-                    destServiceInstanceId,
-                    componentId
+                    destServiceInstanceId
                 )
             );
         }

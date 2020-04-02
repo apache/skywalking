@@ -88,6 +88,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
      */
     @Override
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
+        if (span.getSkipAnalysis()) {
+            return;
+        }
+
         if (span.getRefsCount() > 0) {
             for (int i = 0; i < span.getRefsCount(); i++) {
                 SegmentReference reference = span.getRefs(i);
@@ -141,6 +145,10 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
      */
     @Override
     public void parseExit(SpanObject span, SegmentObject segmentObject) {
+        if (span.getSkipAnalysis()) {
+            return;
+        }
+
         SourceBuilder sourceBuilder = new SourceBuilder();
 
         final String networkAddress = span.getPeer();

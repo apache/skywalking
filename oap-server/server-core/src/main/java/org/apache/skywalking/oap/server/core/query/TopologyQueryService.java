@@ -82,9 +82,9 @@ public class TopologyQueryService implements Service {
     public Topology getGlobalTopology(final DownSampling downsampling, final long startTB,
                                       final long endTB) throws IOException {
         logger.debug("Downsampling: {}, startTimeBucket: {}, endTimeBucket: {}", downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceRelations(
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
             downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceRelations(
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
             downsampling, startTB, endTB);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
@@ -93,9 +93,9 @@ public class TopologyQueryService implements Service {
 
     public Topology getServiceTopology(final DownSampling downsampling, final long startTB, final long endTB,
                                        final List<Integer> serviceIds) throws IOException {
-        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadSpecifiedClientSideServiceRelations(
+        List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
             downsampling, startTB, endTB, serviceIds);
-        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(
+        List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
             downsampling, startTB, endTB, serviceIds);
 
         TopologyBuilder builder = new TopologyBuilder(moduleManager);
@@ -116,7 +116,7 @@ public class TopologyQueryService implements Service {
         });
         if (CollectionUtils.isNotEmpty(outScopeSourceServiceIds)) {
             // If exist, query them as the server side to get the target's component.
-            List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadSpecifiedServerSideServiceRelations(
+            List<Call.CallDetail> sourceCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
                 downsampling, startTB, endTB, outScopeSourceServiceIds);
             topology.getNodes().forEach(node -> {
                 if (Strings.isNullOrEmpty(node.getType())) {
@@ -143,9 +143,9 @@ public class TopologyQueryService implements Service {
             clientServiceId, serverServiceId, downsampling, startTB, endTB
         );
 
-        List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadClientSideServiceInstanceRelations(
+        List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtClientSide(
             clientServiceId, serverServiceId, downsampling, startTB, endTB);
-        List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadServerSideServiceInstanceRelations(
+        List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtServerSide(
             clientServiceId, serverServiceId, downsampling, startTB, endTB);
 
         ServiceInstanceTopologyBuilder builder = new ServiceInstanceTopologyBuilder(moduleManager);

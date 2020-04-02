@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.slf4j.Logger;
@@ -39,40 +39,25 @@ public class H2NetworkAddressAliasCacheDAO extends H2SQLExecutor implements INet
     }
 
     @Override
-    public int getAddressId(String networkAddress) {
-        String id = NetworkAddressInventory.buildId(networkAddress);
-        return getEntityIDByID(h2Client, NetworkAddressInventory.SEQUENCE, NetworkAddressInventory.INDEX_NAME, id);
-    }
-
-    @Override
-    public NetworkAddressInventory get(int addressId) {
-        try {
-            return (NetworkAddressInventory) getByColumn(h2Client, NetworkAddressInventory.INDEX_NAME, NetworkAddressInventory.SEQUENCE, addressId, new NetworkAddressInventory.Builder());
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    @Override
-    public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
-        List<NetworkAddressInventory> addressInventories = new ArrayList<>();
+    public List<NetworkAddressAlias> loadLastUpdate(long lastUpdateTime) {
+        List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
 
         try {
             StringBuilder sql = new StringBuilder("select * from ");
-            sql.append(NetworkAddressInventory.INDEX_NAME);
-            sql.append(" where ").append(NetworkAddressInventory.LAST_UPDATE_TIME).append(">?");
+            sql.append(NetworkAddressAlias.INDEX_NAME);
+            sql.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
 
             try (Connection connection = h2Client.getConnection()) {
                 try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), lastUpdateTime)) {
-                    NetworkAddressInventory addressInventory;
+                    NetworkAddressAlias networkAddressAlias;
                     do {
-                        addressInventory = (NetworkAddressInventory) toStorageData(resultSet, NetworkAddressInventory.INDEX_NAME, new NetworkAddressInventory.Builder());
-                        if (addressInventory != null) {
-                            addressInventories.add(addressInventory);
+                        networkAddressAlias = (NetworkAddressAlias) toStorageData(
+                            resultSet, NetworkAddressAlias.INDEX_NAME, new NetworkAddressAlias.Builder());
+                        if (networkAddressAlias != null) {
+                            networkAddressAliases.add(networkAddressAlias);
                         }
                     }
-                    while (addressInventory != null);
+                    while (networkAddressAlias != null);
                 }
             } catch (SQLException e) {
                 throw new IOException(e);
@@ -80,6 +65,6 @@ public class H2NetworkAddressAliasCacheDAO extends H2SQLExecutor implements INet
         } catch (Throwable t) {
             logger.error(t.getMessage(), t);
         }
-        return addressInventories;
+        return networkAddressAliases;
     }
 }

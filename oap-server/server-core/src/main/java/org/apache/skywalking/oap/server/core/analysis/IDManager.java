@@ -61,7 +61,7 @@ public class IDManager {
          * @return encoded service relation id
          */
         public static String buildRelationId(ServiceRelationDefine define) {
-            return define.sourceId + Const.ID_SPLIT + define.destId + Const.ID_SPLIT + define.componentId;
+            return define.sourceId + Const.ID_SPLIT + define.destId;
         }
 
         /**
@@ -69,10 +69,10 @@ public class IDManager {
          */
         public static ServiceRelationDefine analysisRelationId(String entityId) {
             String[] parts = entityId.split(Const.ID_SPLIT);
-            if (parts.length != 3) {
+            if (parts.length != 2) {
                 throw new RuntimeException("Illegal Service Relation entity id");
             }
-            return new ServiceRelationDefine(parts[0], parts[1], Integer.parseInt(parts[2]));
+            return new ServiceRelationDefine(parts[0], parts[1]);
         }
 
         @RequiredArgsConstructor
@@ -88,7 +88,6 @@ public class IDManager {
         public static class ServiceRelationDefine {
             private final String sourceId;
             private final String destId;
-            private final int componentId;
         }
     }
 
@@ -124,7 +123,7 @@ public class IDManager {
          * @return encoded service instance relation id
          */
         public static String buildRelationId(ServiceInstanceRelationDefine define) {
-            return define.source + Const.ID_SPLIT + define.dest + Const.ID_SPLIT + define.componentId;
+            return define.sourceId + Const.ID_SPLIT + define.destId + Const.ID_SPLIT;
         }
 
         /**
@@ -133,10 +132,10 @@ public class IDManager {
          */
         public static ServiceInstanceID.ServiceInstanceRelationDefine analysisRelationId(String entityId) {
             String[] parts = entityId.split(Const.ID_SPLIT);
-            if (parts.length != 3) {
+            if (parts.length != 2) {
                 throw new RuntimeException("Illegal Service Instance Relation entity id");
             }
-            return new ServiceInstanceID.ServiceInstanceRelationDefine(parts[0], parts[1], Integer.parseInt(parts[2]));
+            return new ServiceInstanceID.ServiceInstanceRelationDefine(parts[0], parts[1]);
         }
 
         @RequiredArgsConstructor
@@ -156,12 +155,11 @@ public class IDManager {
             /**
              * Built by {@link ServiceID#buildId(String, NodeType)}
              */
-            private final String source;
+            private final String sourceId;
             /**
              * Built by {@link ServiceID#buildId(String, NodeType)}
              */
-            private final String dest;
-            private final int componentId;
+            private final String destId;
         }
     }
 
@@ -173,16 +171,14 @@ public class IDManager {
          * @param serviceId built by {@link ServiceID#buildId(String, NodeType)}
          * @return endpoint id
          */
-        public static String buildId(String serviceId, String endpointName, DetectPoint detectPoint) {
+        public static String buildId(String serviceId, String endpointName) {
             return serviceId
                 + Const.ID_SPLIT
-                + encode(endpointName)
-                + Const.ID_SPLIT
-                + detectPoint.value();
+                + encode(endpointName);
         }
 
         /**
-         * @return Endpoint id object decoded from {@link #buildId(String, String, DetectPoint)} result.
+         * @return Endpoint id object decoded from {@link #buildId(String, String)} result.
          */
         public static EndpointIDDefinition analysisId(String id) {
             final String[] strings = id.split(Const.ID_PARSER_SPLIT);
@@ -206,25 +202,22 @@ public class IDManager {
                 + Const.ID_SPLIT
                 + define.destServiceId
                 + Const.ID_SPLIT
-                + encode(define.dest)
-                + Const.ID_SPLIT
-                + define.componentId;
+                + encode(define.dest);
         }
 
         /**
          * @return endpoint relation ID object decoded from {@link #buildRelationId(EndpointRelationDefine)} result
          */
-        public static EndpointRelationDefine splitEndpointRelationEntityId(String entityId) {
+        public static EndpointRelationDefine analysisRelationId(String entityId) {
             String[] parts = entityId.split(Const.ID_SPLIT);
-            if (parts.length != 5) {
+            if (parts.length != 4) {
                 throw new UnexpectedException("Illegal endpoint Relation entity id, " + entityId);
             }
             return new EndpointRelationDefine(
                 parts[0],
                 decode(parts[1]),
                 parts[2],
-                decode(parts[3]),
-                Integer.parseInt(parts[4])
+                decode(parts[3])
             );
         }
 
@@ -253,7 +246,6 @@ public class IDManager {
              */
             private final String destServiceId;
             private final String dest;
-            private final int componentId;
         }
     }
 

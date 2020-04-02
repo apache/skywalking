@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 /**
- * SegmentListener for the whole segment.
+ * SegmentListener for the whole segment. This has higher priority than other {@link AnalysisListener} implementation.
  */
 public interface SegmentListener extends AnalysisListener {
     void parseSegment(SegmentObject segmentObject);

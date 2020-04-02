@@ -50,6 +50,9 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
 
     @Override
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
+        if (span.getSkipAnalysis()) {
+            return;
+        }
         if (log.isDebugEnabled()) {
             log.debug("service instance mapping listener parse reference");
         }

@@ -24,14 +24,6 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface INetworkAddressAliasCacheDAO extends DAO {
     /**
-     * Load network address alias of given address name
-     *
-     * @param address network ip address or hostname, collected from the agent.
-     * @return existing network address definition or NULL
-     */
-    NetworkAddressAlias get(String address);
-
-    /**
      * Load the recent update alias information.
      *
      * @param timeBucket in minute unit

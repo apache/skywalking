@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -120,11 +119,6 @@ public class ServiceTraffic extends Metrics {
 
     @Override
     public Metrics toDay() {
-        return null;
-    }
-
-    @Override
-    public Metrics toMonth() {
         return null;
     }
 }

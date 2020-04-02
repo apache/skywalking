@@ -20,24 +20,18 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.NetworkAddressInventory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class NetworkAddressAliasCacheEsDAO extends EsDAO implements INetworkAddressAliasCacheDAO {
-
-    private static final Logger logger = LoggerFactory.getLogger(NetworkAddressAliasCacheEsDAO.class);
-
-    protected final NetworkAddressInventory.Builder builder = new NetworkAddressInventory.Builder();
     protected final int resultWindowMaxSize;
 
     public NetworkAddressAliasCacheEsDAO(ElasticSearchClient client, int resultWindowMaxSize) {
@@ -46,60 +40,25 @@ public class NetworkAddressAliasCacheEsDAO extends EsDAO implements INetworkAddr
     }
 
     @Override
-    public int getAddressId(String networkAddress) {
-        try {
-            String id = NetworkAddressInventory.buildId(networkAddress);
-            GetResponse response = getClient().get(NetworkAddressInventory.INDEX_NAME, id);
-            if (response.isExists()) {
-                return (int) response.getSource().getOrDefault(NetworkAddressInventory.SEQUENCE, 0);
-            } else {
-                return Const.NONE;
-            }
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
-            return Const.NONE;
-        }
-    }
-
-    @Override
-    public NetworkAddressInventory get(int addressId) {
-        try {
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.termQuery(NetworkAddressInventory.SEQUENCE, addressId));
-            searchSourceBuilder.size(1);
-
-            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
-            if (response.getHits().totalHits == 1) {
-                SearchHit searchHit = response.getHits().getAt(0);
-                return builder.map2Data(searchHit.getSourceAsMap());
-            } else {
-                return null;
-            }
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
-            return null;
-        }
-    }
-
-    @Override
-    public List<NetworkAddressInventory> loadLastUpdate(long lastUpdateTime) {
-        List<NetworkAddressInventory> addressInventories = new ArrayList<>();
+    public List<NetworkAddressAlias> loadLastUpdate(long timeBucketInMinute) {
+        List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
 
         try {
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressInventory.LAST_UPDATE_TIME)
-                                                   .gte(lastUpdateTime));
+            searchSourceBuilder.query(QueryBuilders.rangeQuery(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET)
+                                                   .gte(timeBucketInMinute));
             searchSourceBuilder.size(resultWindowMaxSize);
 
-            SearchResponse response = getClient().search(NetworkAddressInventory.INDEX_NAME, searchSourceBuilder);
+            SearchResponse response = getClient().search(NetworkAddressAlias.INDEX_NAME, searchSourceBuilder);
 
+            final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
             for (SearchHit searchHit : response.getHits().getHits()) {
-                addressInventories.add(this.builder.map2Data(searchHit.getSourceAsMap()));
+                networkAddressAliases.add(builder.map2Data(searchHit.getSourceAsMap()));
             }
         } catch (Throwable t) {
-            logger.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         }
 
-        return addressInventories;
+        return networkAddressAliases;
     }
 }

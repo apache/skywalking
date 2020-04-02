@@ -38,7 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 @ScopeDeclaration(id = NETWORK_ADDRESS_ALIAS, name = "NetworkAddressAlias")
 @Stream(name = NetworkAddressAlias.INDEX_NAME, scopeId = NETWORK_ADDRESS_ALIAS,
     builder = NetworkAddressAlias.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = true, supportUpdate = true)
+@MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
     "address"
 })
@@ -47,7 +47,7 @@ public class NetworkAddressAlias extends Metrics {
     private static final String ADDRESS = "address";
     private static final String REPRESENT_SERVICE_ID = "represent_service_id";
     private static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
-    private static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
+    public static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
 
     @Setter
     @Getter
@@ -104,7 +104,7 @@ public class NetworkAddressAlias extends Metrics {
         return builder;
     }
 
-    public class Builder implements StorageBuilder<NetworkAddressAlias> {
+    public static class Builder implements StorageBuilder<NetworkAddressAlias> {
         @Override
         public NetworkAddressAlias map2Data(final Map<String, Object> dbMap) {
             final NetworkAddressAlias networkAddressAlias = new NetworkAddressAlias();

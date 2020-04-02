@@ -82,15 +82,10 @@ public class Call {
     @Setter
     @Getter
     public static class CallDetail {
-        @Setter(AccessLevel.PRIVATE)
         private String id;
         private String source;
         private String target;
         private DetectPoint detectPoint;
         private Integer componentId;
-
-        public void generateID() {
-            id = source + Const.ID_SPLIT + target;
-        }
     }
 }
