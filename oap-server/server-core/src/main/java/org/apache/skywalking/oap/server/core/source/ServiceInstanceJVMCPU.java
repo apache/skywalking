@@ -39,7 +39,7 @@ public class ServiceInstanceJVMCPU extends Source {
 
     @Getter
     @Setter
-    private int id;
+    private String id;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
@@ -51,7 +51,7 @@ public class ServiceInstanceJVMCPU extends Source {
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private int serviceId;
+    private String serviceId;
     @Getter
     @Setter
     private double usePercent;

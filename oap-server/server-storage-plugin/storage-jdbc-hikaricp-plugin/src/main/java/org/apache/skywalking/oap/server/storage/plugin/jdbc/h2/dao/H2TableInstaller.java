@@ -40,6 +40,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
  */
 @Slf4j
 public class H2TableInstaller extends ModelInstaller {
+    public static final String ID_COLUMN = "id";
+
     public H2TableInstaller(ModuleManager moduleManager) {
         super(moduleManager);
     }

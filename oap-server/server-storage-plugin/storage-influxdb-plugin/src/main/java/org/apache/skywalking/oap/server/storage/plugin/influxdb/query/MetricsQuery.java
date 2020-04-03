@@ -37,11 +37,10 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
@@ -62,10 +61,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, DownSampling downsampling, long startTB, long endTB,
+    public IntValues getValues(String measurement, DownSampling downsampling, long startTB, long endTB,
                                Where where, String valueCName, Function function) throws IOException {
-        String measurement = ModelName.build(downsampling, indName);
-
         SelectionQueryImpl query = select();
         switch (function) {
             case Avg:
@@ -136,10 +133,11 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getLinearIntValues(String indName, DownSampling downsampling, List<String> ids, String valueCName)
+    public IntValues getLinearIntValues(String measurement,
+                                        DownSampling downsampling,
+                                        List<String> ids,
+                                        String valueCName)
         throws IOException {
-        String measurement = ModelName.build(downsampling, indName);
-
         WhereQueryImpl<SelectQueryImpl> query = select()
             .column("id")
             .column(valueCName)
@@ -191,10 +189,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, DownSampling downsampling, List<String> ids,
+    public IntValues[] getMultipleLinearIntValues(String measurement, DownSampling downsampling, List<String> ids,
                                                   List<Integer> linearIndex, String valueCName) throws IOException {
-        String measurement = ModelName.build(downsampling, indName);
-
         WhereQueryImpl<SelectQueryImpl> query = select()
             .column("id")
             .column(valueCName)
@@ -250,10 +246,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, DownSampling downsampling, List<String> ids,
+    public Thermodynamic getThermodynamic(String measurement, DownSampling downsampling, List<String> ids,
                                           String valueCName)
         throws IOException {
-        String measurement = ModelName.build(downsampling, indName);
         WhereQueryImpl<SelectQueryImpl> query = select()
             .column(ThermodynamicMetrics.STEP)
             .column(ThermodynamicMetrics.NUM_OF_STEPS)

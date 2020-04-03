@@ -16,16 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
+package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-import com.google.gson.JsonObject;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 
-public class ZipkinTraceOSInfoBuilder {
+public class TableMetaInfo {
+    private static Map<String, Model> TABLES = new HashMap<>();
 
-    public static JsonObject getOSInfoForZipkin(String instanceName) {
-        JsonObject properties = new JsonObject();
-        properties.addProperty(ServiceInstanceInventory.PropertyUtil.HOST_NAME, instanceName);
-        return properties;
+    public static void addModel(Model model) {
+        TABLES.put(model.getName(), model);
+    }
+
+    public static Model get(String moduleName) {
+        return TABLES.get(moduleName);
     }
 }

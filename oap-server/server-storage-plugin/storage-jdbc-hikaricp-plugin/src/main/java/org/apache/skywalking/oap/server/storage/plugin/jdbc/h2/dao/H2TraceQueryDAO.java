@@ -159,7 +159,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
                     segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                    segmentRecord.setServiceId(resultSet.getInt(SegmentRecord.SERVICE_ID));
+                    segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
+                    segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
                     segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
                     segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));

@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.source.NodeType;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceProperties;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
@@ -59,9 +59,9 @@ public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);
 
-        ServiceInstanceProperties serviceInstanceProperties = new ServiceInstanceProperties();
-        serviceInstanceProperties.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceProperties.setName(request.getServiceInstance());
+        ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
+        serviceInstanceUpdate.setName(request.getServiceInstance());
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -74,10 +74,10 @@ public class ManagementServiceReportPropertiesHandler extends JettyJsonHandler {
         });
 
         properties.addProperty(InstanceTraffic.PropertyUtil.IPV4S, ipv4List.stream().collect(Collectors.joining(",")));
-        serviceInstanceProperties.setProperties(properties);
-        serviceInstanceProperties.setTimeBucket(
+        serviceInstanceUpdate.setProperties(properties);
+        serviceInstanceUpdate.setTimeBucket(
             TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
-        sourceReceiver.receive(serviceInstanceProperties);
+        sourceReceiver.receive(serviceInstanceUpdate);
 
         return gson.fromJson(ProtoBufJsonUtils.toJSON(Commands.newBuilder().build()), JsonElement.class);
     }

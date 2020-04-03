@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.NodeType;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceProperties;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
@@ -54,12 +54,12 @@ public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);
 
-        ServiceInstanceProperties serviceInstanceProperties = new ServiceInstanceProperties();
-        serviceInstanceProperties.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceProperties.setName(request.getServiceInstance());
-        serviceInstanceProperties.setTimeBucket(
+        ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
+        serviceInstanceUpdate.setName(request.getServiceInstance());
+        serviceInstanceUpdate.setTimeBucket(
             TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
-        sourceReceiver.receive(serviceInstanceProperties);
+        sourceReceiver.receive(serviceInstanceUpdate);
 
         return gson.fromJson(ProtoBufJsonUtils.toJSON(Commands.newBuilder().build()), JsonElement.class);
     }

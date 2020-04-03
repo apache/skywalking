@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -27,8 +28,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.google.common.base.Strings;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -87,8 +86,9 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), segments.toArray(new String[segments
-                .size()]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), segments.toArray(new String[segments
+                    .size()]))) {
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -120,7 +120,9 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
+                                                          int minSequence,
+                                                          int maxSequence) throws IOException {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
         sql.append(" 1=1 ");
@@ -128,7 +130,11 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" < ? ");
 
-        Object[] params = new Object[] {segmentId, minSequence, maxSequence};
+        Object[] params = new Object[] {
+            segmentId,
+            minSequence,
+            maxSequence
+        };
 
         ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         try (Connection connection = h2Client.getConnection()) {
@@ -160,12 +166,16 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
 
-            try (ResultSet resultSet = h2Client.executeQuery(connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?", segmentId)) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?",
+                segmentId
+            )) {
                 if (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
                     segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                    segmentRecord.setServiceId(resultSet.getInt(SegmentRecord.SERVICE_ID));
+                    segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
+                    segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
                     segmentRecord.setEndpointName(resultSet.getString(SegmentRecord.ENDPOINT_NAME));
                     segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
                     segmentRecord.setEndTime(resultSet.getLong(SegmentRecord.END_TIME));
@@ -188,13 +198,23 @@ public class H2ProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQu
 
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
         StringBuilder sql = new StringBuilder();
-        sql.append("select ").append(aggType).append("(").append(ProfileThreadSnapshotRecord.SEQUENCE).append(") from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
+        sql.append("select ")
+           .append(aggType)
+           .append("(")
+           .append(ProfileThreadSnapshotRecord.SEQUENCE)
+           .append(") from ")
+           .append(ProfileThreadSnapshotRecord.INDEX_NAME)
+           .append(" where ");
         sql.append(" 1=1 ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
         sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
 
-        Object[] params = new Object[] {segmentId, start, end};
+        Object[] params = new Object[] {
+            segmentId,
+            start,
+            end
+        };
 
         try (Connection connection = h2Client.getConnection()) {
 

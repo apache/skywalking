@@ -23,14 +23,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_PROPERTIES;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_UPDATE;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE_PROPERTIES, name = "ServiceInstanceProperties")
+@ScopeDeclaration(id = SERVICE_INSTANCE_UPDATE, name = "ServiceInstanceUpdate")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ServiceInstanceProperties extends Source {
+public class ServiceInstanceUpdate extends Source {
     @Override
     public int scope() {
-        return SERVICE_INSTANCE_PROPERTIES;
+        return SERVICE_INSTANCE_UPDATE;
     }
 
     @Override

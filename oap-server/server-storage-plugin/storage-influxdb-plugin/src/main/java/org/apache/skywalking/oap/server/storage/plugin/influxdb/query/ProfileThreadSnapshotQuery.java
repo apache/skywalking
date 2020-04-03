@@ -174,7 +174,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
         segmentRecord.setSegmentId((String) values.get(1));
         segmentRecord.setTraceId((String) values.get(2));
-        segmentRecord.setServiceId((int) values.get(3));
+        segmentRecord.setServiceId((String) values.get(3));
         segmentRecord.setEndpointName((String) values.get(4));
         segmentRecord.setStartTime((long) values.get(5));
         segmentRecord.setEndTime((long) values.get(6));

@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.source.NodeType;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceProperties;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -48,9 +48,9 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
     @Override
     public void reportInstanceProperties(final InstanceProperties request,
                                          final StreamObserver<Commands> responseObserver) {
-        ServiceInstanceProperties serviceInstanceProperties = new ServiceInstanceProperties();
-        serviceInstanceProperties.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceProperties.setName(request.getServiceInstance());
+        ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
+        serviceInstanceUpdate.setName(request.getServiceInstance());
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -63,22 +63,22 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         });
 
         properties.addProperty(InstanceTraffic.PropertyUtil.IPV4S, ipv4List.stream().collect(Collectors.joining(",")));
-        serviceInstanceProperties.setProperties(properties);
-        serviceInstanceProperties.setTimeBucket(
+        serviceInstanceUpdate.setProperties(properties);
+        serviceInstanceUpdate.setTimeBucket(
             TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
-        sourceReceiver.receive(serviceInstanceProperties);
+        sourceReceiver.receive(serviceInstanceUpdate);
 
         responseObserver.onNext(Commands.newBuilder().build());
     }
 
     @Override
     public void keepAlive(final InstancePingPkg request, final StreamObserver<Commands> responseObserver) {
-        ServiceInstanceProperties serviceInstanceProperties = new ServiceInstanceProperties();
-        serviceInstanceProperties.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceProperties.setName(request.getServiceInstance());
-        serviceInstanceProperties.setTimeBucket(
+        ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
+        serviceInstanceUpdate.setName(request.getServiceInstance());
+        serviceInstanceUpdate.setTimeBucket(
             TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
-        sourceReceiver.receive(serviceInstanceProperties);
+        sourceReceiver.receive(serviceInstanceUpdate);
 
         responseObserver.onNext(Commands.newBuilder().build());
     }
