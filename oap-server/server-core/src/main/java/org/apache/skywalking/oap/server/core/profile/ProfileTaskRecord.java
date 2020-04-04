@@ -53,7 +53,7 @@ public class ProfileTaskRecord extends NoneStream {
 
     @Override
     public String id() {
-        return getCreateTime() + Const.ID_SPLIT + getServiceId();
+        return getCreateTime() + Const.ID_CONNECTOR + getServiceId();
     }
 
     @Column(columnName = SERVICE_ID)

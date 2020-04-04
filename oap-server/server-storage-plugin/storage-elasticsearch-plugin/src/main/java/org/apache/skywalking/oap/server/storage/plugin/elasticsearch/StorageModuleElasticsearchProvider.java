@@ -211,8 +211,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     private static class PackedDownsamplingConverter implements IndexNameConverter {
         private final String[] removableSuffixes = new String[] {
-            Const.ID_SPLIT + DownSampling.Day.getName(),
-            Const.ID_SPLIT + DownSampling.Hour.getName()
+            Const.ID_CONNECTOR + DownSampling.Day.getName(),
+            Const.ID_CONNECTOR + DownSampling.Hour.getName()
         };
         private final Map<String, String> convertedIndexNames = new ConcurrentHashMap<>();
 

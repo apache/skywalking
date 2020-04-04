@@ -40,7 +40,7 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return encode(name) + Const.ID_SPLIT + type.value();
+            return encode(name) + Const.ID_CONNECTOR + type.value();
         }
 
         /**
@@ -61,14 +61,14 @@ public class IDManager {
          * @return encoded service relation id
          */
         public static String buildRelationId(ServiceRelationDefine define) {
-            return define.sourceId + Const.ID_SPLIT + define.destId;
+            return define.sourceId + Const.RELATION_ID_CONNECTOR + define.destId;
         }
 
         /**
          * @return service relation ID object decoded from {@link #buildRelationId(ServiceRelationDefine)} result
          */
         public static ServiceRelationDefine analysisRelationId(String entityId) {
-            String[] parts = entityId.split(Const.ID_SPLIT);
+            String[] parts = entityId.split(Const.RELATION_ID_PARSER_SPLIT);
             if (parts.length != 2) {
                 throw new RuntimeException("Illegal Service Relation entity id");
             }
@@ -77,6 +77,7 @@ public class IDManager {
 
         @RequiredArgsConstructor
         @Getter
+        @EqualsAndHashCode
         public static class ServiceIDDefinition {
             private final String name;
             private final NodeType type;
@@ -101,7 +102,7 @@ public class IDManager {
          */
         public static String buildId(String serviceId, String instanceName) {
             return serviceId
-                + Const.ID_SPLIT
+                + Const.ID_CONNECTOR
                 + encode(instanceName);
         }
 
@@ -123,7 +124,7 @@ public class IDManager {
          * @return encoded service instance relation id
          */
         public static String buildRelationId(ServiceInstanceRelationDefine define) {
-            return define.sourceId + Const.ID_SPLIT + define.destId + Const.ID_SPLIT;
+            return define.sourceId + Const.RELATION_ID_CONNECTOR + define.destId;
         }
 
         /**
@@ -131,7 +132,7 @@ public class IDManager {
          * result
          */
         public static ServiceInstanceID.ServiceInstanceRelationDefine analysisRelationId(String entityId) {
-            String[] parts = entityId.split(Const.ID_SPLIT);
+            String[] parts = entityId.split(Const.RELATION_ID_PARSER_SPLIT);
             if (parts.length != 2) {
                 throw new RuntimeException("Illegal Service Instance Relation entity id");
             }
@@ -173,7 +174,7 @@ public class IDManager {
          */
         public static String buildId(String serviceId, String endpointName) {
             return serviceId
-                + Const.ID_SPLIT
+                + Const.ID_CONNECTOR
                 + encode(endpointName);
         }
 
@@ -197,11 +198,11 @@ public class IDManager {
          */
         public static String buildRelationId(EndpointRelationDefine define) {
             return define.sourceServiceId
-                + Const.ID_SPLIT
+                + Const.RELATION_ID_CONNECTOR
                 + encode(define.source)
-                + Const.ID_SPLIT
+                + Const.RELATION_ID_CONNECTOR
                 + define.destServiceId
-                + Const.ID_SPLIT
+                + Const.RELATION_ID_CONNECTOR
                 + encode(define.dest);
         }
 
@@ -209,7 +210,7 @@ public class IDManager {
          * @return endpoint relation ID object decoded from {@link #buildRelationId(EndpointRelationDefine)} result
          */
         public static EndpointRelationDefine analysisRelationId(String entityId) {
-            String[] parts = entityId.split(Const.ID_SPLIT);
+            String[] parts = entityId.split(Const.RELATION_ID_PARSER_SPLIT);
             if (parts.length != 4) {
                 throw new UnexpectedException("Illegal endpoint Relation entity id, " + entityId);
             }

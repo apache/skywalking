@@ -59,7 +59,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + entityId;
+        splitJointId += Const.ID_CONNECTOR + entityId;
         return splitJointId;
     }
 

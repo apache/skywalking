@@ -58,7 +58,7 @@ public class ProfileTaskLogRecord extends Record {
 
     @Override
     public String id() {
-        return getTaskId() + Const.ID_SPLIT + getInstanceId() + Const.ID_SPLIT + getOperationType() + Const.ID_SPLIT + getOperationTime();
+        return getTaskId() + Const.ID_CONNECTOR + getInstanceId() + Const.ID_CONNECTOR + getOperationType() + Const.ID_CONNECTOR + getOperationTime();
     }
 
     public static class Builder implements StorageBuilder<ProfileTaskLogRecord> {

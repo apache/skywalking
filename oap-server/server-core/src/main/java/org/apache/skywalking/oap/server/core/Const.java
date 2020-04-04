@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.core;
 
 public class Const {
     public static final int NONE = 0;
-    public static final String ID_SPLIT = "_";
+    public static final String ID_CONNECTOR = "_";
+    public static final String RELATION_ID_CONNECTOR = "-";
     public static final String ID_PARSER_SPLIT = "\\_";
+    public static final String RELATION_ID_PARSER_SPLIT = "\\-";
     public static final String LINE = "-";
     public static final String SPACE = " ";
     public static final String KEY_VALUE_SPLIT = ",";

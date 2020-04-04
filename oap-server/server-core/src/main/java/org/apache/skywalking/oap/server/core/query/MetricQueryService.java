@@ -86,7 +86,7 @@ public class MetricQueryService implements Service {
         if (StringUtil.isEmpty(id)) {
             durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
         } else {
-            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_CONNECTOR + id));
         }
 
         return getMetricQueryDAO().getLinearIntValues(indName, downsampling, ids, ValueColumnMetadata.INSTANCE.getValueCName(indName));
@@ -110,7 +110,7 @@ public class MetricQueryService implements Service {
         if (StringUtil.isEmpty(id)) {
             durationPoints.forEach(durationPoint -> ids.add(String.valueOf(durationPoint.getPoint())));
         } else {
-            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id));
+            durationPoints.forEach(durationPoint -> ids.add(durationPoint.getPoint() + Const.ID_CONNECTOR + id));
         }
 
         IntValues[] multipleLinearIntValues = getMetricQueryDAO().getMultipleLinearIntValues(indName, downsampling, ids, linearIndex, ValueColumnMetadata.INSTANCE
@@ -129,7 +129,7 @@ public class MetricQueryService implements Service {
             if (id == null) {
                 ids.add(String.valueOf(durationPoint.getPoint()));
             } else {
-                ids.add(durationPoint.getPoint() + Const.ID_SPLIT + id);
+                ids.add(durationPoint.getPoint() + Const.ID_CONNECTOR + id);
             }
         });
 

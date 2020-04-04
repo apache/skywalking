@@ -21,60 +21,45 @@ package org.apache.skywalking.oap.server.receiver.trace.mock;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 
 public class AgentDataMock {
-
     private static boolean IS_COMPLETED = false;
 
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
-        RegisterMock registerMock = new RegisterMock(channel);
+        StreamObserver<SegmentObject> streamObserver = createStreamObserver();
 
-        StreamObserver<UpstreamSegment> streamObserver = createStreamObserver();
-
-        UniqueId.Builder globalTraceId = UniqueIdBuilder.INSTANCE.create();
         long startTimestamp = System.currentTimeMillis();
         //long startTimestamp = new DateTime().minusDays(2).getMillis();
 
         // ServiceAMock
-        ServiceAMock serviceAMock = new ServiceAMock(registerMock);
-        serviceAMock.register();
+        ServiceAMock serviceAMock = new ServiceAMock();
 
         // ServiceBMock
-        ServiceBMock serviceBMock = new ServiceBMock(registerMock);
-        serviceBMock.register();
+        ServiceBMock serviceBMock = new ServiceBMock();
 
         // ServiceCMock
-        ServiceCMock serviceCMock = new ServiceCMock(registerMock);
-        serviceCMock.register();
-
-        UniqueId.Builder serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, true);
-
-        UniqueId.Builder serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceBMock.mock(streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, true);
-
-        UniqueId.Builder serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
-        serviceCMock.mock(streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, true);
+        ServiceCMock serviceCMock = new ServiceCMock();
 
         TimeUnit.SECONDS.sleep(10);
 
         for (int i = 0; i < 500; i++) {
-            globalTraceId = UniqueIdBuilder.INSTANCE.create();
-            serviceASegmentId = UniqueIdBuilder.INSTANCE.create();
-            serviceBSegmentId = UniqueIdBuilder.INSTANCE.create();
-            serviceCSegmentId = UniqueIdBuilder.INSTANCE.create();
-            serviceAMock.mock(streamObserver, globalTraceId, serviceASegmentId, startTimestamp, true);
+            String traceId = UUID.randomUUID().toString();
+            String serviceASegmentId = UUID.randomUUID().toString();
+            String serviceBSegmentId = UUID.randomUUID().toString();
+            String serviceCSegmentId = UUID.randomUUID().toString();
+            serviceAMock.mock(
+                streamObserver, traceId, serviceASegmentId, startTimestamp);
             serviceBMock.mock(
-                streamObserver, globalTraceId, serviceBSegmentId, serviceASegmentId, startTimestamp, true);
+                streamObserver, traceId, serviceBSegmentId, serviceASegmentId, startTimestamp);
             serviceCMock.mock(
-                streamObserver, globalTraceId, serviceCSegmentId, serviceBSegmentId, startTimestamp, true);
+                streamObserver, traceId, serviceCSegmentId, serviceBSegmentId, startTimestamp);
         }
 
         streamObserver.onCompleted();
@@ -83,7 +68,7 @@ public class AgentDataMock {
         }
     }
 
-    private static StreamObserver<UpstreamSegment> createStreamObserver() {
+    private static StreamObserver<SegmentObject> createStreamObserver() {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
         TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub stub = TraceSegmentReportServiceGrpc.newStub(
             channel);

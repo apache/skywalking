@@ -47,7 +47,7 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
     @Override
     public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + entityId;
+        splitJointId += Const.ID_CONNECTOR + entityId;
         return splitJointId;
     }
 

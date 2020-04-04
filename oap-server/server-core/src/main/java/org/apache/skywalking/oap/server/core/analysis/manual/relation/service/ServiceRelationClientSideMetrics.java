@@ -58,7 +58,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
 
     @Override
     public String id() {
-        return getTimeBucket() + Const.ID_SPLIT + entityId;
+        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
     @Override
