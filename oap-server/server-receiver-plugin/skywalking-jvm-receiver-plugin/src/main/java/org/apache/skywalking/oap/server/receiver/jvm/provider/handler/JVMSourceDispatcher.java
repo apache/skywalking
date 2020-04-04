@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.jvm.provider.handler;
 
 import java.util.List;
-import org.apache.skywalking.apm.network.common.CPU;
+import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.GC;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.Memory;

@@ -19,13 +19,15 @@
 package org.apache.skywalking.oap.server.receiver.profile.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
-import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskCommandQuery;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskFinishReport;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskGrpc;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
@@ -34,14 +36,12 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
+import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBase implements GRPCHandler {
 
@@ -58,7 +58,9 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     @Override
     public void getProfileTaskCommands(ProfileTaskCommandQuery request, StreamObserver<Commands> responseObserver) {
         // query profile task list by service id
-        final List<ProfileTask> profileTaskList = profileTaskCache.getProfileTaskList(request.getServiceId());
+        final String serviceId = IDManager.ServiceID.buildId(request.getService(), NodeType.Normal);
+        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
+        final List<ProfileTask> profileTaskList = profileTaskCache.getProfileTaskList(serviceId);
         if (CollectionUtils.isEmpty(profileTaskList)) {
             responseObserver.onNext(Commands.newBuilder().build());
             responseObserver.onCompleted();
@@ -76,7 +78,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             }
 
             // record profile task log
-            recordProfileTaskLog(profileTask, request.getInstanceId(), ProfileTaskLogOperationType.NOTIFIED);
+            recordProfileTaskLog(profileTask, serviceInstanceId, ProfileTaskLogOperationType.NOTIFIED);
 
             // add command
             commandsBuilder.addCommands(commandService.newProfileTaskCommand(profileTask).serialize().build());
@@ -95,21 +97,10 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                     LOGGER.debug("receive profile segment snapshot");
                 }
 
-                // parse segment id
-                UniqueId uniqueId = snapshot.getTraceSegmentId();
-                StringBuilder segmentIdBuilder = new StringBuilder();
-                for (int i = 0; i < uniqueId.getIdPartsList().size(); i++) {
-                    if (i == 0) {
-                        segmentIdBuilder.append(uniqueId.getIdPartsList().get(i));
-                    } else {
-                        segmentIdBuilder.append(".").append(uniqueId.getIdPartsList().get(i));
-                    }
-                }
-
                 // build database data
                 final ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
                 record.setTaskId(snapshot.getTaskId());
-                record.setSegmentId(segmentIdBuilder.toString());
+                record.setSegmentId(snapshot.getTraceSegmentId());
                 record.setDumpTime(snapshot.getTime());
                 record.setSequence(snapshot.getSequence());
                 record.setStackBinary(snapshot.getStack().toByteArray());
@@ -136,25 +127,28 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     @Override
     public void reportTaskFinish(ProfileTaskFinishReport request, StreamObserver<Commands> responseObserver) {
         // query task from cache, set log time bucket need it
+        final String serviceId = IDManager.ServiceID.buildId(request.getService(), NodeType.Normal);
+        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
         final ProfileTask profileTask = profileTaskCache.getProfileTaskById(request.getTaskId());
 
         // record finish log
         if (profileTask != null) {
-            recordProfileTaskLog(profileTask, request.getInstanceId(), ProfileTaskLogOperationType.EXECUTION_FINISHED);
+            recordProfileTaskLog(profileTask, serviceInstanceId, ProfileTaskLogOperationType.EXECUTION_FINISHED);
         }
 
         responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();
     }
 
-    private void recordProfileTaskLog(ProfileTask task, int instanceId, ProfileTaskLogOperationType operationType) {
+    private void recordProfileTaskLog(ProfileTask task, String instanceId, ProfileTaskLogOperationType operationType) {
         final ProfileTaskLogRecord logRecord = new ProfileTaskLogRecord();
         logRecord.setTaskId(task.getId());
         logRecord.setInstanceId(instanceId);
         logRecord.setOperationType(operationType.getCode());
         logRecord.setOperationTime(System.currentTimeMillis());
         // same with task time bucket, ensure record will ttl same with profile task
-        logRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration())));
+        logRecord.setTimeBucket(
+            TimeBucket.getRecordTimeBucket(task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration())));
 
         RecordStreamProcessor.getInstance().in(logRecord);
     }

@@ -33,7 +33,7 @@ import lombok.Setter;
 public class ProfileTask {
 
     private String id;
-    private int serviceId;
+    private String serviceId;
     private String serviceName;
     private String endpointName;
     private long startTime;

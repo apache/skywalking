@@ -24,6 +24,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -61,8 +62,8 @@ public class TraceQuery implements ITraceQueryDAO {
                                        long minDuration,
                                        long maxDuration,
                                        String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
+                                       String serviceId,
+                                       String serviceInstanceId,
                                        String endpointId,
                                        String traceId,
                                        int limit,
@@ -100,10 +101,10 @@ public class TraceQuery implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(endpointName)) {
             recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(endpointId)) {

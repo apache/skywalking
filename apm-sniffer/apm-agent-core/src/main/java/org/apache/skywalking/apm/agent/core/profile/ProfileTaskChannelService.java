@@ -40,11 +40,11 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.remote.GRPCStreamServiceStatus;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
-import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskCommandQuery;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskFinishReport;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskGrpc;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;

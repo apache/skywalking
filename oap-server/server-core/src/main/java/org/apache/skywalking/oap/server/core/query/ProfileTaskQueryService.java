@@ -123,7 +123,7 @@ public class ProfileTaskQueryService implements Service {
      * @param serviceId    monitor service
      * @param endpointName endpoint name to monitored
      */
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName) throws IOException {
+    public List<ProfileTask> getTaskList(String serviceId, String endpointName) throws IOException {
         final List<ProfileTask> tasks = getProfileTaskDAO().getTaskList(serviceId, endpointName, null, null, null);
 
         // query all and filter on task to match logs

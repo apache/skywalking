@@ -19,8 +19,8 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringFormatGroup;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -69,7 +69,7 @@ public class TelemetryDataDispatcher {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getStartTime());
 
         heartbeat(metrics, minuteTimeBucket);
-        if (org.apache.skywalking.apm.network.common.DetectPoint.server.equals(metrics.getDetectPoint())) {
+        if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
             toAll(metrics, minuteTimeBucket);
             toService(metrics, minuteTimeBucket);
             toServiceInstance(metrics, minuteTimeBucket);
@@ -236,7 +236,7 @@ public class TelemetryDataDispatcher {
         }
     }
 
-    private static DetectPoint detectPointMapping(org.apache.skywalking.apm.network.common.DetectPoint detectPoint) {
+    private static DetectPoint detectPointMapping(org.apache.skywalking.apm.network.common.v3.DetectPoint detectPoint) {
         switch (detectPoint) {
             case client:
                 return DetectPoint.CLIENT;

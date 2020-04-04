@@ -93,7 +93,7 @@ public enum CacheUpdateTimer {
                     .getCacheEndTimeBucket(), null);
 
             taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
-                final Integer serviceId = e.getKey();
+                final String serviceId = e.getKey();
                 final List<ProfileTask> profileTasks = e.getValue();
 
                 profileTaskCache.saveTaskList(serviceId, profileTasks);

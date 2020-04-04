@@ -19,9 +19,9 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetricServiceGrpc;
+import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetricServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;

@@ -57,7 +57,7 @@ public class ProfileTaskRecord extends NoneStream {
     }
 
     @Column(columnName = SERVICE_ID)
-    private int serviceId;
+    private String serviceId;
     @Column(columnName = ENDPOINT_NAME)
     private String endpointName;
     @Column(columnName = START_TIME)
@@ -78,7 +78,7 @@ public class ProfileTaskRecord extends NoneStream {
         @Override
         public ProfileTaskRecord map2Data(Map<String, Object> dbMap) {
             final ProfileTaskRecord record = new ProfileTaskRecord();
-            record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            record.setServiceId((String) dbMap.get(SERVICE_ID));
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
             record.setDuration(((Number) dbMap.get(DURATION)).intValue());

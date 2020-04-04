@@ -18,18 +18,17 @@
 
 package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.entity.Span;
 import org.apache.skywalking.oap.server.core.query.entity.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProfileTraceDAO implements ITraceQueryDAO {
     private final ExportedData exportData;
@@ -39,7 +38,19 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String endpointName, int serviceId, int serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder) throws IOException {
+    public TraceBrief queryBasicTraces(long startSecondTB,
+                                       long endSecondTB,
+                                       long minDuration,
+                                       long maxDuration,
+                                       String endpointName,
+                                       String serviceId,
+                                       String serviceInstanceId,
+                                       String endpointId,
+                                       String traceId,
+                                       int limit,
+                                       int from,
+                                       TraceState traceState,
+                                       QueryOrder queryOrder) throws IOException {
         return null;
     }
 
@@ -51,12 +62,12 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
 
         final SegmentObject.Builder segmentBuilder = SegmentObject.newBuilder();
         for (ExportedData.Span span : exportData.getSpans()) {
-            segmentBuilder.addSpans(SpanObjectV2.newBuilder()
-                    .setOperationName(span.getOperation())
-                    .setStartTime(span.getStart())
-                    .setEndTime(span.getEnd())
-                    .setSpanId(span.getId())
-                    .setParentSpanId(span.getParentId()));
+            segmentBuilder.addSpans(SpanObject.newBuilder()
+                                              .setOperationName(span.getOperation())
+                                              .setStartTime(span.getStart())
+                                              .setEndTime(span.getEnd())
+                                              .setSpanId(span.getId())
+                                              .setParentSpanId(span.getParentId()));
         }
         segment.setDataBinary(segmentBuilder.build().toByteArray());
         segment.setServiceId(1);

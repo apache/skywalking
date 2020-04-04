@@ -79,8 +79,8 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        long minDuration,
                                        long maxDuration,
                                        String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
+                                       String serviceId,
+                                       String serviceInstanceId,
                                        String endpointId,
                                        String traceId,
                                        int limit,
@@ -111,10 +111,10 @@ public class ZipkinTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(endpointName)) {
             mustQueryList.add(QueryBuilders.matchPhraseQuery(ENDPOINT_NAME, endpointName));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {

@@ -27,10 +27,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.KeyValue;
 import org.apache.skywalking.oap.server.core.query.entity.LogEntity;
@@ -72,8 +71,6 @@ import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanR
 import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.TRACE_ID;
 
 public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
-    @Setter
-    private ServiceInventoryCache serviceInventoryCache;
 
     public JaegerTraceQueryEsDAO(ElasticSearchClient client) {
         super(client);
@@ -85,8 +82,8 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        long minDuration,
                                        long maxDuration,
                                        String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
+                                       String serviceId,
+                                       String serviceInstanceId,
                                        String endpointId,
                                        String traceId,
                                        int limit,
@@ -117,10 +114,10 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(endpointName)) {
             mustQueryList.add(QueryBuilders.matchPhraseQuery(ENDPOINT_NAME, endpointName));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
@@ -195,7 +192,7 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         List<Span> spanList = new ArrayList<>();
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            int serviceId = ((Number) searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
+            String serviceId = (String) searchHit.getSourceAsMap().get(SERVICE_ID);
             long startTime = ((Number) searchHit.getSourceAsMap().get(START_TIME)).longValue();
             long endTime = ((Number) searchHit.getSourceAsMap().get(END_TIME)).longValue();
             String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
@@ -267,11 +264,10 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 swSpan.getLogs().add(entity);
             });
 
-            if (serviceId != Const.NONE) {
-                swSpan.setServiceCode(serviceInventoryCache.get(serviceId).getName());
-            } else {
-                swSpan.setServiceCode("UNKNOWN");
-            }
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                serviceId);
+
+            swSpan.setServiceCode(serviceIDDefinition.getName());
             swSpan.setSpanId(0);
             swSpan.setParentSpanId(-1);
             String spanId = id(format(jaegerSpan.getTraceId()), format(jaegerSpan.getSpanId()));

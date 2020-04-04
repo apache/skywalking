@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.apm.network.common.ServiceType;
+import org.apache.skywalking.apm.network.common.v3.ServiceType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**

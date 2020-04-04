@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc
 
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.Commands;
+import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;

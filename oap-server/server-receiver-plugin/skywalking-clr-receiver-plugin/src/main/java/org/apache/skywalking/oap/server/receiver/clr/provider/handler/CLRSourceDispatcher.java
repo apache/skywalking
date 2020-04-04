@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
 
-import org.apache.skywalking.apm.network.common.CPU;
+import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.CLRMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.ClrGC;
 import org.apache.skywalking.apm.network.language.agent.v3.ClrThread;

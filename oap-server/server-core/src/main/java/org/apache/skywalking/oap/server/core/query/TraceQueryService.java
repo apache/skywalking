@@ -72,8 +72,8 @@ public class TraceQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public TraceBrief queryBasicTraces(final int serviceId,
-                                       final int serviceInstanceId,
+    public TraceBrief queryBasicTraces(final String serviceId,
+                                       final String serviceInstanceId,
                                        final String endpointId,
                                        final String traceId,
                                        final String endpointName,
