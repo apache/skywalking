@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
 import org.junit.Assert;
@@ -147,7 +147,12 @@ public class K8sHTTPAnalysisTest {
 
         @Override
         public void init(EnvoyMetricReceiverConfig config) {
-            getIpServiceMap().set(ImmutableMap.of("10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"), "10.44.2.54", new ServiceMetaInfo("productpage", "productpage-Inst"), "10.44.6.66", new ServiceMetaInfo("detail", "detail-Inst"), "10.44.2.55", new ServiceMetaInfo("review", "detail-Inst")));
+            getIpServiceMap().set(
+                ImmutableMap.of("10.44.2.56", new ServiceMetaInfo("ingress", "ingress-Inst"), "10.44.2.54",
+                                new ServiceMetaInfo("productpage", "productpage-Inst"), "10.44.6.66",
+                                new ServiceMetaInfo("detail", "detail-Inst"), "10.44.2.55",
+                                new ServiceMetaInfo("review", "detail-Inst")
+                ));
         }
 
         @Override

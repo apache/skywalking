@@ -45,16 +45,12 @@ public class DefaultScopeDefine {
     public static final int SERVICE_RELATION = 4;
     public static final int SERVICE_INSTANCE_RELATION = 5;
     public static final int ENDPOINT_RELATION = 6;
-    public static final int NETWORK_ADDRESS = 7;
     public static final int SERVICE_INSTANCE_JVM_CPU = 8;
     public static final int SERVICE_INSTANCE_JVM_MEMORY = 9;
     public static final int SERVICE_INSTANCE_JVM_MEMORY_POOL = 10;
     public static final int SERVICE_INSTANCE_JVM_GC = 11;
     public static final int SEGMENT = 12;
     public static final int ALARM = 13;
-    public static final int SERVICE_TRAFFIC = 14;
-    public static final int SERVICE_INSTANCE_TRAFFIC = 15;
-    public static final int ENDPOINT_TRAFFIC = 16;
     public static final int DATABASE_ACCESS = 17;
     public static final int DATABASE_SLOW_STATEMENT = 18;
     public static final int SERVICE_INSTANCE_CLR_CPU = 19;

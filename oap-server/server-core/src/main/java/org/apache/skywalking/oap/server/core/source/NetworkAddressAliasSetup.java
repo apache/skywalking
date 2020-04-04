@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NETWORK_ADDRESS_ALIAS;
 
-@ScopeDeclaration(id = NETWORK_ADDRESS_ALIAS, name = "NetworkAddressAlias")
 public class NetworkAddressAliasSetup extends Source {
     @Override
     public int scope() {

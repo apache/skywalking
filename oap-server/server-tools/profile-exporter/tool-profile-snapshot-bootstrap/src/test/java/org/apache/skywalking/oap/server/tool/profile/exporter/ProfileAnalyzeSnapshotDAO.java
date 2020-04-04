@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.tool.profile.exporter;
 
 import com.google.common.primitives.Ints;
-import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;

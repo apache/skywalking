@@ -71,20 +71,25 @@ public class NotifyHandler implements MetricsNotify {
             final String instanceId = meta.getId();
             final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
                 instanceId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                instanceIDDefinition.getServiceId());
             ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
             instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
             instanceMetaInAlarm.setId(instanceId);
-            instanceMetaInAlarm.setName(instanceIDDefinition.getName());
+            instanceMetaInAlarm.setName(instanceIDDefinition.getName() + " of " + serviceIDDefinition.getName());
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
             final String endpointId = meta.getId();
             final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
                 endpointId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                endpointIDDefinition.getServiceId());
 
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
             endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
             endpointMetaInAlarm.setId(meta.getId());
-            endpointMetaInAlarm.setName(endpointIDDefinition.getEndpointName());
+            endpointMetaInAlarm.setName(
+                endpointIDDefinition.getEndpointName() + " in " + serviceIDDefinition.getName());
             metaInAlarm = endpointMetaInAlarm;
         } else {
             return;

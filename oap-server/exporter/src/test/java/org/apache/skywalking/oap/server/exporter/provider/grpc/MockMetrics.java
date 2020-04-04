@@ -49,11 +49,6 @@ public class MockMetrics extends Metrics {
     }
 
     @Override
-    public Metrics toMonth() {
-        return this;
-    }
-
-    @Override
     public int remoteHashCode() {
         return 1;
     }

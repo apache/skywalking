@@ -61,6 +61,8 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
         segments.add(segment);
 
         final SegmentObject.Builder segmentBuilder = SegmentObject.newBuilder();
+        segmentBuilder.setTraceId(traceId);
+        segmentBuilder.setTraceSegmentId(exportData.getSegmentId());
         for (ExportedData.Span span : exportData.getSpans()) {
             segmentBuilder.addSpans(SpanObject.newBuilder()
                                               .setOperationName(span.getOperation())
@@ -70,7 +72,8 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
                                               .setParentSpanId(span.getParentId()));
         }
         segment.setDataBinary(segmentBuilder.build().toByteArray());
-        segment.setServiceId(1);
+        segment.setTraceId(exportData.getTraceId());
+        segment.setServiceId("service");
         segment.setSegmentId(exportData.getSegmentId());
         return segments;
     }

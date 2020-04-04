@@ -26,13 +26,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -207,35 +203,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         List<IndexNameConverter> converters = new ArrayList<>();
         converters.add(new NamespaceConverter(namespace));
         return converters;
-    }
-
-    private static class PackedDownsamplingConverter implements IndexNameConverter {
-        private final String[] removableSuffixes = new String[] {
-            Const.ID_CONNECTOR + DownSampling.Day.getName(),
-            Const.ID_CONNECTOR + DownSampling.Hour.getName()
-        };
-        private final Map<String, String> convertedIndexNames = new ConcurrentHashMap<>();
-
-        public PackedDownsamplingConverter() {
-        }
-
-        @Override
-        public String convert(final String indexName) {
-            String convertedName = convertedIndexNames.get(indexName);
-            if (convertedName != null) {
-                return convertedName;
-            }
-            convertedName = indexName;
-            for (final String removableSuffix : removableSuffixes) {
-                String mayReplaced = indexName.replaceAll(removableSuffix, "");
-                if (mayReplaced.length() != convertedName.length()) {
-                    convertedName = mayReplaced;
-                    break;
-                }
-            }
-            convertedIndexNames.put(indexName, convertedName);
-            return convertedName;
-        }
     }
 
     private static class NamespaceConverter implements IndexNameConverter {

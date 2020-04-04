@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.NodeType;
 
 /**
@@ -40,14 +39,14 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return encode(name) + Const.ID_CONNECTOR + type.value();
+            return encode(name) + Const.SERVICE_ID_CONNECTOR + type.value();
         }
 
         /**
          * @return service ID object decoded from {@link #buildId(String, NodeType)} result
          */
         public static ServiceIDDefinition analysisId(String id) {
-            final String[] strings = id.split(Const.ID_PARSER_SPLIT);
+            final String[] strings = id.split(Const.SERVICE_ID_PARSER_SPLIT);
             if (strings.length != 2) {
                 throw new UnexpectedException("Can't split service id into 2 parts, " + id);
             }
@@ -183,13 +182,12 @@ public class IDManager {
          */
         public static EndpointIDDefinition analysisId(String id) {
             final String[] strings = id.split(Const.ID_PARSER_SPLIT);
-            if (strings.length != 3) {
-                throw new UnexpectedException("Can't split endpoint id into 3 parts, " + id);
+            if (strings.length != 2) {
+                throw new UnexpectedException("Can't split endpoint id into 2 parts, " + id);
             }
             return new EndpointIDDefinition(
-                decode(strings[0]),
-                decode(strings[1]),
-                DetectPoint.valueOf(Integer.parseInt(strings[2]))
+                strings[0],
+                decode(strings[1])
             );
         }
 
@@ -230,7 +228,6 @@ public class IDManager {
              */
             private final String serviceId;
             private final String endpointName;
-            private final DetectPoint detectPoint;
         }
 
         @RequiredArgsConstructor

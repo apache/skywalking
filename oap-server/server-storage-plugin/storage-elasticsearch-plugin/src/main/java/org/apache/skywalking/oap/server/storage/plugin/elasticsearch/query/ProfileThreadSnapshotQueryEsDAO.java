@@ -47,13 +47,13 @@ import java.util.List;
 
 public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileThreadSnapshotQueryDAO {
 
-    private final int querySegemntMaxSize;
+    private final int querySegmentMaxSize;
 
     protected final ProfileThreadSnapshotRecord.Builder builder = new ProfileThreadSnapshotRecord.Builder();
 
     public ProfileThreadSnapshotQueryEsDAO(ElasticSearchClient client, int profileTaskQueryMaxSize) {
         super(client);
-        this.querySegemntMaxSize = profileTaskQueryMaxSize;
+        this.querySegmentMaxSize = profileTaskQueryMaxSize;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.TASK_ID, taskId));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
-        sourceBuilder.size(querySegemntMaxSize);
+        sourceBuilder.size(querySegmentMaxSize);
         sourceBuilder.sort(ProfileThreadSnapshotRecord.DUMP_TIME, SortOrder.DESC);
 
         SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
