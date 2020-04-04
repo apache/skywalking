@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.source.NodeType;
 
 /**
  * IDManager includes all ID encode/decode functions for service, service instance and endpoint.

@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.GCPhrase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
-import org.apache.skywalking.oap.server.core.source.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;

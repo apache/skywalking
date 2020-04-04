@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import org.apache.skywalking.oap.server.core.source.NodeType;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.oap.server.core.analysis;
 
 import org.apache.skywalking.apm.network.common.v3.ServiceType;
 import org.apache.skywalking.oap.server.core.UnexpectedException;

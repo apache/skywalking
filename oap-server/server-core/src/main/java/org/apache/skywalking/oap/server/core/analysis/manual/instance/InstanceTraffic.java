@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 
-@Stream(name = ServiceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE,
+@Stream(name = InstanceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE,
     builder = InstanceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {

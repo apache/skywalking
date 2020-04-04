@@ -25,7 +25,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.ClrThread;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.source.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceCLRThread;

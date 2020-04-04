@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
+import com.google.gson.JsonObject;
 import java.sql.Connection;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
@@ -48,8 +50,8 @@ public class H2TableInstaller extends ModelInstaller {
 
     @Override
     protected boolean isExists(Client client, Model model) throws StorageException {
-         TableMetaInfo.addModel(model);
-         return false;
+        TableMetaInfo.addModel(model);
+        return false;
     }
 
     @Override
@@ -85,7 +87,7 @@ public class H2TableInstaller extends ModelInstaller {
      */
     protected String getColumnType(ModelColumn column) {
         final Class<?> type = column.getType();
-        if (Integer.class.equals(type) || int.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "BIGINT";
@@ -97,6 +99,8 @@ public class H2TableInstaller extends ModelInstaller {
             return "VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
             return "MEDIUMTEXT";
+        } else if (JsonObject.class.equals(type)) {
+            return "VARCHAR(" + column.getLength() + ")";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
