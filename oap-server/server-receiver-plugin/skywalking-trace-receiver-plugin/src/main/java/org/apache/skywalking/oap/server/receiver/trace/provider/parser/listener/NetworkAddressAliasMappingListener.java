@@ -24,8 +24,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -64,6 +65,7 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
                     networkAddressAliasSetup.setRepresentService(segmentObject.getService());
                     networkAddressAliasSetup.setRepresentServiceNodeType(NodeType.Normal);
                     networkAddressAliasSetup.setRepresentServiceInstance(segmentObject.getServiceInstance());
+                    networkAddressAliasSetup.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
 
                     sourceReceiver.receive(networkAddressAliasSetup);
                 }

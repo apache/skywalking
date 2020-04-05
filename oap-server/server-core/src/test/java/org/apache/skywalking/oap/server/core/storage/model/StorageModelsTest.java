@@ -50,7 +50,7 @@ public class StorageModelsTest {
     public void testStorageModels() {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", true, true, DownSampling.Hour),
+                   new Storage("StorageModelsTest", DownSampling.Hour),
                    false
         );
 

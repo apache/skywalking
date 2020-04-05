@@ -112,7 +112,6 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsPersistentWorker hourPersistentWorker = null;
         MetricsPersistentWorker dayPersistentWorker = null;
-        MetricsPersistentWorker monthPersistentWorker = null;
 
         MetricsTransWorker transWorker = null;
 
@@ -129,21 +128,21 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Hour), false);
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Hour), false);
                 hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Day), false);
+                    metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Day), false);
                 dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
 
             transWorker = new MetricsTransWorker(
-                moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
+                moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker);
         }
 
         Model model = modelSetter.add(
-            metricsClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Minute), false);
+            metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
             moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 

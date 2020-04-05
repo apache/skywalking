@@ -44,7 +44,7 @@ public class NetworkAddressAliasCache implements Service {
                                                .maximumSize(moduleConfig.getMaxSizeOfNetworkAddressAlias())
                                                // Hold data in cache for last 15 minute updated alias
                                                // in order to avoid expired network address.
-                                               .expireAfterWrite(15, TimeUnit.MINUTES)
+                                               .expireAfterWrite(24, TimeUnit.HOURS)
                                                .build();
     }
 

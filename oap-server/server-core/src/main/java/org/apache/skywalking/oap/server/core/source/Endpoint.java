@@ -38,9 +38,6 @@ public class Endpoint extends Source {
         return DefaultScopeDefine.ENDPOINT;
     }
 
-    /**
-     * @since 7.1.0 SkyWalking doesn't do endpoint register. Use name directly.
-     */
     @Override
     public String getEntityId() {
         if (StringUtil.isEmpty(entityId)) {

@@ -82,9 +82,7 @@ public enum DataTTLKeeperTimer {
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
         List<Model> models = modelGetter.allModels();
         models.forEach(model -> {
-            if (model.isDeleteHistory()) {
-                execute(model);
-            }
+            execute(model);
         });
     }
 

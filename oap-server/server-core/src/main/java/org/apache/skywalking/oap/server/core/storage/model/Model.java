@@ -19,39 +19,23 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 
 /**
  * The model definition of a logic entity.
  */
 @Getter
+@RequiredArgsConstructor
+@EqualsAndHashCode
 public class Model {
-
     private final String name;
-    private final boolean capableOfTimeSeries;
-    private final DownSampling downsampling;
-    private final boolean deleteHistory;
     private final List<ModelColumn> columns;
     private final List<ExtraQueryIndex> extraQueryIndices;
     private final int scopeId;
+    private final DownSampling downsampling;
     private final boolean record;
-
-    public Model(String name,
-                 List<ModelColumn> columns,
-                 List<ExtraQueryIndex> extraQueryIndices,
-                 boolean capableOfTimeSeries,
-                 boolean deleteHistory,
-                 int scopeId,
-                 DownSampling downsampling,
-                 boolean record) {
-        this.columns = columns;
-        this.extraQueryIndices = extraQueryIndices;
-        this.capableOfTimeSeries = capableOfTimeSeries;
-        this.downsampling = downsampling;
-        this.deleteHistory = deleteHistory;
-        this.scopeId = scopeId;
-        this.name = name;
-        this.record = record;
-    }
 }

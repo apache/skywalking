@@ -49,7 +49,7 @@ public class AgentDataMock {
 
         TimeUnit.SECONDS.sleep(10);
 
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 5; i++) {
             String traceId = UUID.randomUUID().toString();
             String serviceASegmentId = UUID.randomUUID().toString();
             String serviceBSegmentId = UUID.randomUUID().toString();

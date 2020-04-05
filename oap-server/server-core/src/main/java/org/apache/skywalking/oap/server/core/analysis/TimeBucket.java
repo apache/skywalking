@@ -134,15 +134,15 @@ public class TimeBucket {
     }
 
     /**
-     * Record time bucket format in Downsampling Unit.
+     * Record timestamp bucket format in Downsampling Unit.
      *
-     * @param time         Timestamp
+     * @param timestamp    Timestamp
      * @param downsampling Downsampling
-     * @return time in downsampling format
+     * @return timestamp in downsampling format
      */
-    public static long getTimeBucket(long time, DownSampling downsampling) {
+    public static long getTimeBucket(long timestamp, DownSampling downsampling) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
+        calendar.setTimeInMillis(timestamp);
 
         long year = calendar.get(Calendar.YEAR);
         long month = calendar.get(Calendar.MONTH) + 1;

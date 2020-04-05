@@ -73,7 +73,7 @@ public class NoneStreamingProcessor implements StreamProcessor<NoneStream> {
         }
 
         INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
-        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Second), true);
+        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Second), true);
 
         final NoneStreamPersistentWorker persistentWorker = new NoneStreamPersistentWorker(moduleDefineHolder, model, noneStream);
         workers.put(streamClass, persistentWorker);

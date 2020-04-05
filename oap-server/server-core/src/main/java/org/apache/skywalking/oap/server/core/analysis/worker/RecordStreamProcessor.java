@@ -67,7 +67,8 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
 
         INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
-        Model model = modelSetter.add(recordClass, stream.scopeId(), new Storage(stream.name(), true, true, DownSampling.Second), true);
+        Model model = modelSetter.add(
+            recordClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Second), true);
         RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO);
 
         workers.put(recordClass, persistentWorker);
