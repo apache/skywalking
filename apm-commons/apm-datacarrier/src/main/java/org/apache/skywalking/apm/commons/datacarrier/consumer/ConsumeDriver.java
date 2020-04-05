@@ -34,7 +34,7 @@ public class ConsumeDriver<T> implements IDriver {
         long consumeCycle) {
         this(channels, num);
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumser." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
+            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", getNewConsumerInstance(consumerClass), consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
     }
@@ -43,7 +43,7 @@ public class ConsumeDriver<T> implements IDriver {
         this(channels, num);
         prototype.init();
         for (int i = 0; i < num; i++) {
-            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumser." + i + ".Thread", prototype, consumeCycle);
+            consumerThreads[i] = new ConsumerThread("DataCarrier." + name + ".Consumer." + i + ".Thread", prototype, consumeCycle);
             consumerThreads[i].setDaemon(true);
         }
 
