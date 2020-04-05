@@ -45,7 +45,6 @@ public class EndpointTraffic extends Metrics {
 
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";
-    public static final String DETECT_POINT = "detect_point";
 
     @Setter
     @Getter

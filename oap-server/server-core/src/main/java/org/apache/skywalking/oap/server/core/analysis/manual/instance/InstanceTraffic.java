@@ -49,7 +49,7 @@ public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";
-    public static final String LAST_PING_TIMESTAMP = "last_ping";
+    public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
 
     private static final Gson GSON = new Gson();
@@ -65,7 +65,7 @@ public class InstanceTraffic extends Metrics {
     private String name;
     @Setter
     @Getter
-    @Column(columnName = LAST_PING_TIMESTAMP, length = 400)
+    @Column(columnName = LAST_PING_TIME_BUCKET)
     private long lastPingTimestamp;
     @Setter
     @Getter
@@ -126,7 +126,7 @@ public class InstanceTraffic extends Metrics {
             if (StringUtil.isNotEmpty(propString)) {
                 instanceTraffic.setProperties(GSON.fromJson(propString, JsonObject.class));
             }
-            instanceTraffic.setLastPingTimestamp(((Number) dbMap.get(LAST_PING_TIMESTAMP)).longValue());
+            instanceTraffic.setLastPingTimestamp(((Number) dbMap.get(LAST_PING_TIME_BUCKET)).longValue());
             return instanceTraffic;
         }
 
@@ -138,7 +138,7 @@ public class InstanceTraffic extends Metrics {
             if (storageData.getProperties() != null) {
                 map.put(PROPERTIES, GSON.toJson(storageData.getProperties()));
             }
-            map.put(LAST_PING_TIMESTAMP, storageData.getLastPingTimestamp());
+            map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             return map;
         }
     }

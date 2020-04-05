@@ -80,11 +80,7 @@ public class ContextCarrier implements Serializable {
         if (text == null) {
             return this;
         }
-        // if this carrier is initialized by v2, don't do deserialize again for performance.
-        if (this.isValid(HeaderVersion.v3)) {
-            return this;
-        }
-        if (HeaderVersion.v3 == version) {
+        if (HeaderVersion.v3.equals(version)) {
             String[] parts = text.split("-", 8);
             if (parts.length == 8) {
                 try {

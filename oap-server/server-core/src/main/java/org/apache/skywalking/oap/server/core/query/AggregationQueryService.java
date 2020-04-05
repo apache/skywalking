@@ -73,7 +73,7 @@ public class AggregationQueryService implements Service {
         return topNEntities;
     }
 
-    public List<TopNEntity> getServiceInstanceTopN(final int serviceId,
+    public List<TopNEntity> getServiceInstanceTopN(final String serviceId,
                                                    final String indName,
                                                    final int topN,
                                                    final DownSampling downsampling,
@@ -104,7 +104,7 @@ public class AggregationQueryService implements Service {
         return topNEntities;
     }
 
-    public List<TopNEntity> getEndpointTopN(final int serviceId,
+    public List<TopNEntity> getEndpointTopN(final String serviceId,
                                             final String indName,
                                             final int topN,
                                             final DownSampling downsampling,

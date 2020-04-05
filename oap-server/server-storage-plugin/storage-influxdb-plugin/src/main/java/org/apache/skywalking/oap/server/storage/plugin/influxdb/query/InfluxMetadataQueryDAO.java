@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Database;
 import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
 import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
@@ -57,13 +56,11 @@ public class InfluxMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public int numOfEndpoint() throws IOException {
-        WhereQueryImpl<SelectQueryImpl> countQuery = select()
+        final SelectQueryImpl selectQuery = select()
             .count(EndpointTraffic.ENTITY_ID)
-            .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
-            .where();
-        countQuery.where(eq(EndpointTraffic.DETECT_POINT, DetectPoint.SERVER.value()));
+            .from(client.getDatabase(), EndpointTraffic.INDEX_NAME);
 
-        Query query = new Query(countQuery.getCommand());
+        Query query = new Query(selectQuery.getCommand());
 
         final QueryResult.Series series = client.queryForSingleSeries(query);
         if (series == null) {
@@ -107,12 +104,11 @@ public class InfluxMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     public List<Endpoint> searchEndpoint(final String keyword,
-                                         final int serviceId,
+                                         final String serviceId,
                                          final int limit) throws IOException {
         WhereQueryImpl<SelectQueryImpl> endpointQuery = select()
             .column(EndpointTraffic.SERVICE_ID)
             .column(ENDPOINT_NAME)
-            .column(EndpointTraffic.DETECT_POINT)
             .from(client.getDatabase(), EndpointTraffic.INDEX_NAME)
             .where();
         endpointQuery.where(eq(MetricsDAO.TAG_ENDPOINT_OWNER_SERVICE, String.valueOf(serviceId)));

@@ -33,13 +33,13 @@ public interface IAggregationQueryDAO extends DAO {
     List<TopNEntity> getAllServiceInstanceTopN(final String indName, String valueCName, final int topN,
                                                final DownSampling downsampling, final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, String valueCName,
+    List<TopNEntity> getServiceInstanceTopN(final String serviceId, final String indName, String valueCName,
                                             final int topN, final DownSampling downsampling, final long startTB, final long endTB,
                                             final Order order) throws IOException;
 
     List<TopNEntity> getAllEndpointTopN(final String indName, String valueCName, final int topN,
                                         final DownSampling downsampling, final long startTB, final long endTB, final Order order) throws IOException;
 
-    List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, String valueCName, final int topN,
+    List<TopNEntity> getEndpointTopN(final String serviceId, final String indName, String valueCName, final int topN,
                                      final DownSampling downsampling, final long startTB, final long endTB, final Order order) throws IOException;
 }

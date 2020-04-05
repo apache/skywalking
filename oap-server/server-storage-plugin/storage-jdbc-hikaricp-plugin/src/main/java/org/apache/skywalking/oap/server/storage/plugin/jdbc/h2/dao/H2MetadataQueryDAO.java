@@ -29,17 +29,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.entity.Attribute;
 import org.apache.skywalking.oap.server.core.query.entity.Database;
 import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
+import org.apache.skywalking.oap.server.core.query.entity.Language;
 import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
 import org.apache.skywalking.oap.server.core.query.entity.Service;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -82,8 +83,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     public int numOfEndpoint() throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
-        sql.append("select count(*) num from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
-        sql.append(EndpointTraffic.DETECT_POINT).append("=").append(DetectPoint.SERVER.value());
+        sql.append("select count(*) num from ").append(EndpointTraffic.INDEX_NAME);
 
         return getNum(sql, condition);
     }
@@ -213,7 +213,7 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Endpoint> searchEndpoint(String keyword, int serviceId, int limit) throws IOException {
+    public List<Endpoint> searchEndpoint(String keyword, String serviceId, int limit) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
@@ -222,8 +222,6 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         if (!Strings.isNullOrEmpty(keyword)) {
             sql.append(" and ").append(EndpointTraffic.NAME).append(" like '%").append(keyword).append("%' ");
         }
-        sql.append(" and ").append(EndpointTraffic.DETECT_POINT).append(" = ?");
-        condition.add(DetectPoint.SERVER.value());
         sql.append(" limit ").append(limit);
 
         List<Endpoint> endpoints = new ArrayList<>();
@@ -247,11 +245,13 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<ServiceInstance> getServiceInstances(long startTimestamp, long endTimestamp,
                                                      String serviceId) throws IOException {
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
-        sql.append(InstanceTraffic.LAST_PING_TIMESTAMP).append(" >= ?");
-        condition.add(startTimestamp);
+        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+        condition.add(minuteTimeBucket);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         condition.add(serviceId);
 
@@ -279,6 +279,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
                             }
 
                         }
+                    } else {
+                        serviceInstance.setLanguage(Language.UNKNOWN);
                     }
 
                     serviceInstances.add(serviceInstance);

@@ -68,7 +68,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId,
+    public List<TopNEntity> getServiceInstanceTopN(String serviceId,
                                                    String indexName,
                                                    String valueCName,
                                                    int topN,
@@ -96,7 +96,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId,
+    public List<TopNEntity> getEndpointTopN(String serviceId,
                                             String indexName,
                                             String valueCName,
                                             int topN,

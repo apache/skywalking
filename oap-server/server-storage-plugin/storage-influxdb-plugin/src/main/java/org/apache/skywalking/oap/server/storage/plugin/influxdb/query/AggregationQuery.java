@@ -63,7 +63,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
+    public List<TopNEntity> getServiceInstanceTopN(String serviceId, String indName, String valueCName, int topN,
                                                    DownSampling downsampling,
                                                    long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
@@ -79,7 +79,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
+    public List<TopNEntity> getEndpointTopN(String serviceId, String indName, String valueCName, int topN,
                                             DownSampling downsampling,
                                             long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
@@ -127,7 +127,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
         return entities;
     }
 
-    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, int serviceId, String name,
+    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, String serviceId, String name,
                                                          String columnName,
                                                          long startTB, long endTB) {
         return select().fromSubQuery(client.getDatabase()).mean(columnName).from(name)

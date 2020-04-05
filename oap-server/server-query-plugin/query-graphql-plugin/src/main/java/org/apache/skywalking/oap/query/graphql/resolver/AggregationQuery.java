@@ -64,7 +64,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         return getQueryService().getAllServiceInstanceTopN(name, topN, StepToDownSampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, order);
     }
 
-    public List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String name, final int topN,
+    public List<TopNEntity> getServiceInstanceTopN(final String serviceId, final String name, final int topN,
         final Duration duration, final Order order) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
@@ -80,7 +80,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         return getQueryService().getAllEndpointTopN(name, topN, StepToDownSampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, order);
     }
 
-    public List<TopNEntity> getEndpointTopN(final int serviceId, final String name, final int topN,
+    public List<TopNEntity> getEndpointTopN(final String serviceId, final String name, final int topN,
         final Duration duration, final Order order) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());

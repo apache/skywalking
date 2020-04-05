@@ -62,7 +62,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId,
+    public List<TopNEntity> getServiceInstanceTopN(String serviceId,
                                                    String indName,
                                                    String valueCName,
                                                    int topN,
@@ -83,7 +83,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId,
+    public List<TopNEntity> getEndpointTopN(String serviceId,
                                             String indName,
                                             String valueCName,
                                             int topN,
