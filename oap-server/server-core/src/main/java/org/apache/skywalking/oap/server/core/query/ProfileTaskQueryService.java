@@ -137,7 +137,7 @@ public class ProfileTaskQueryService implements Service {
 
             for (ProfileTask task : tasks) {
                 final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
-                    task.getId());
+                    task.getServiceId());
                 task.setServiceName(serviceIDDefinition.getName());
 
                 // filter all task logs

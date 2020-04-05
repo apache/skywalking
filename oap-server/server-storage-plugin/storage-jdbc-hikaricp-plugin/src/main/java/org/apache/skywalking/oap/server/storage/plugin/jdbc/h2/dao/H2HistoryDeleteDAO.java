@@ -39,7 +39,7 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
-            .append(timeBucketColumnName).append("<= ? and")
+            .append(timeBucketColumnName).append("<= ? and ")
             .append(timeBucketColumnName).append(">= ?");
         long minTimeBucket = 0;
         DateTime minDate = new DateTime(1900, 1, 1, 0, 0);
