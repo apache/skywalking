@@ -103,7 +103,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
-        return orderWithDefault0(intValues, ids);
+        return intValues;
     }
 
     @Override
