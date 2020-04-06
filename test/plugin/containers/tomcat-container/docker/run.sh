@@ -62,7 +62,6 @@ healthCheck http://localhost:12800/receiveData
 echo "To start tomcat"
 /usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
 
-healthCheck http://localhost:12800/status 10
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
