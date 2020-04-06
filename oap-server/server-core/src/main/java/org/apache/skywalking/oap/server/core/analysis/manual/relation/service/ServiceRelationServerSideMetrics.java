@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -31,7 +32,12 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-@Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION, builder = ServiceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION,
+    builder = ServiceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@EqualsAndHashCode(of = {
+    "entityId",
+    "timeBucket"
+})
 public class ServiceRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_server_side";
@@ -120,34 +126,6 @@ public class ServiceRelationServerSideMetrics extends Metrics {
 
         remoteBuilder.addDataLongs(getTimeBucket());
         return remoteBuilder;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 17;
-        result = 31 * result + entityId.hashCode();
-        result = (int) (31 * result + getTimeBucket());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-
-        ServiceRelationServerSideMetrics metrics = (ServiceRelationServerSideMetrics) obj;
-        if (sourceServiceId != metrics.sourceServiceId)
-            return false;
-        if (destServiceId != metrics.destServiceId)
-            return false;
-        if (componentId != metrics.componentId)
-            return false;
-
-        return getTimeBucket() == metrics.getTimeBucket();
     }
 
     public static class Builder implements StorageBuilder<ServiceRelationServerSideMetrics> {

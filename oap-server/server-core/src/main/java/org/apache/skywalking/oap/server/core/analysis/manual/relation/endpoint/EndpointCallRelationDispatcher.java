@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
+package org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint;
 
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;

@@ -16,10 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.endpointrelation;
+package org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -31,7 +32,12 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-@Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION, builder = EndpointRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@Stream(name = EndpointRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT_RELATION,
+    builder = EndpointRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@EqualsAndHashCode(of = {
+    "entityId",
+    "timeBucket"
+})
 public class EndpointRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_relation_server_side";
@@ -126,36 +132,6 @@ public class EndpointRelationServerSideMetrics extends Metrics {
         remoteBuilder.addDataStrings(getSourceEndpoint());
         remoteBuilder.addDataStrings(getDestEndpoint());
         return remoteBuilder;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 17;
-        result = 31 * result + sourceEndpoint.hashCode();
-        result = 31 * result + destEndpoint.hashCode();
-        result = 31 * result + componentId;
-        result = 31 * result + (int) getTimeBucket();
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-
-        EndpointRelationServerSideMetrics metrics = (EndpointRelationServerSideMetrics) obj;
-        if (!sourceEndpoint.equals(metrics.sourceEndpoint))
-            return false;
-        if (!destEndpoint.equals(metrics.destEndpoint))
-            return false;
-        if (componentId != metrics.componentId)
-            return false;
-
-        return getTimeBucket() == metrics.getTimeBucket();
     }
 
     public static class Builder implements StorageBuilder<EndpointRelationServerSideMetrics> {
