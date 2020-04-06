@@ -27,6 +27,8 @@ import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
+import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
@@ -70,6 +72,8 @@ public class ProfileSnapshotExporterTest {
         Mockito.when(moduleManager.find(StorageModule.NAME)).thenReturn(storageModule);
         final ProfileTaskQueryService taskQueryService = new ProfileTaskQueryService(moduleManager, coreModuleConfig);
 
+        Mockito.when(moduleProvider.getService(IComponentLibraryCatalogService.class))
+               .thenReturn(new ComponentLibraryCatalogService());
         Mockito.when(moduleProvider.getService(ProfileTaskQueryService.class)).thenReturn(taskQueryService);
         Mockito.when(moduleProvider.getService(TraceQueryService.class))
                .thenReturn(new TraceQueryService(moduleManager));
