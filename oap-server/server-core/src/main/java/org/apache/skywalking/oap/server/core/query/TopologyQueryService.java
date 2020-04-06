@@ -80,7 +80,7 @@ public class TopologyQueryService implements Service {
     }
 
     public Topology getServiceTopology(final DownSampling downsampling, final long startTB, final long endTB,
-                                       final List<Integer> serviceIds) throws IOException {
+                                       final List<String> serviceIds) throws IOException {
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
             downsampling, startTB, endTB, serviceIds);
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
@@ -94,12 +94,12 @@ public class TopologyQueryService implements Service {
          * There is a special case, there may be a node of the `serviceIds` call these services as and only as a client, so it is included in the topology,
          * its component name could be missed as not being queried before. We add another query about this.
          */
-        List<Integer> outScopeSourceServiceIds = new ArrayList<>();
+        List<String> outScopeSourceServiceIds = new ArrayList<>();
         serviceRelationClientCalls.forEach(call -> {
             // Client side relationships exclude the given services(#serviceIds)
             // The given services(#serviceIds)'s component names have been included inside `serviceRelationServerCalls`
             if (!serviceIds.contains(call.getSource())) {
-                outScopeSourceServiceIds.add(Integer.parseInt(call.getSource()));
+                outScopeSourceServiceIds.add(call.getSource());
             }
         });
         if (CollectionUtils.isNotEmpty(outScopeSourceServiceIds)) {
@@ -121,8 +121,8 @@ public class TopologyQueryService implements Service {
         return topology;
     }
 
-    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId,
-                                                              final int serverServiceId,
+    public ServiceInstanceTopology getServiceInstanceTopology(final String clientServiceId,
+                                                              final String serverServiceId,
                                                               final DownSampling downsampling,
                                                               final long startTB,
                                                               final long endTB) throws IOException {

@@ -54,7 +54,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB,
                                                                           long endTB,
-                                                                          List<Integer> serviceIds) throws IOException {
+                                                                          List<String> serviceIds) throws IOException {
         String measurement = ServiceRelationServerSideMetrics.INDEX_NAME;
         WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
@@ -70,7 +70,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB,
                                                                          long endTB,
-                                                                         List<Integer> serviceIds) throws IOException {
+                                                                         List<String> serviceIds) throws IOException {
         String measurement = ServiceRelationClientSideMetrics.INDEX_NAME;
         WhereQueryImpl query = buildServiceCallsQuery(
             measurement,
@@ -114,8 +114,8 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -131,8 +131,8 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -180,7 +180,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     private WhereQueryImpl buildServiceCallsQuery(String measurement, long startTB, long endTB, String sourceCName,
-                                                  String destCName, List<Integer> serviceIds) {
+                                                  String destCName, List<String> serviceIds) {
         WhereQueryImpl query = select()
             .function("distinct", Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_ID)
             .from(client.getDatabase(), measurement)
@@ -190,7 +190,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
 
         if (!serviceIds.isEmpty()) {
             WhereNested whereNested = query.andNested();
-            for (Integer id : serviceIds) {
+            for (String id : serviceIds) {
                 whereNested.or(eq(sourceCName, id))
                            .or(eq(destCName, id));
             }
@@ -204,8 +204,8 @@ public class TopologyQuery implements ITopologyQueryDAO {
                                                           long endTB,
                                                           String sourceCName,
                                                           String destCName,
-                                                          int sourceServiceId,
-                                                          int destServiceId) {
+                                                          String sourceServiceId,
+                                                          String destServiceId) {
         WhereQueryImpl query = select()
             .function("distinct", Metrics.ENTITY_ID, ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
             .from(client.getDatabase(), measurement)

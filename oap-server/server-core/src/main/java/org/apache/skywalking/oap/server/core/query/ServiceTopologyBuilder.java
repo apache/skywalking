@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -33,7 +34,6 @@ import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.Node;
 import org.apache.skywalking.oap.server.core.query.entity.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
@@ -59,36 +59,42 @@ class ServiceTopologyBuilder {
         for (Call.CallDetail clientCall : serviceRelationClientCalls) {
             final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
                 clientCall.getSource());
+            String sourceServiceId = clientCall.getSource();
             IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
                 clientCall.getTarget());
+            String targetServiceId = clientCall.getTarget();
 
-            if (!NodeType.Normal.equals(destService.getType())) {
+            if (!NodeType.Normal.equals(destService.getType())
+                && networkAddressAliasCache.get(destService.getName()) != null) {
                 final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
-                if (networkAddressAlias != null) {
-                    destService = IDManager.ServiceID.analysisId(
-                        networkAddressAlias.getRepresentServiceId());
-                }
+                destService = IDManager.ServiceID.analysisId(
+                    networkAddressAlias.getRepresentServiceId());
+                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), destService.getType());
             }
 
-            if (!nodes.containsKey(clientCall.getSource())) {
-                nodes.put(clientCall.getSource(), buildNode(clientCall.getSource(), sourceService));
-            }
-            if (!nodes.containsKey(clientCall.getTarget())) {
-                final Node node = buildNode(clientCall.getTarget(), destService);
-                nodes.put(clientCall.getTarget(), node);
+            if (!nodes.containsKey(targetServiceId)) {
+                final Node node = buildNode(targetServiceId, destService);
+                nodes.put(targetServiceId, node);
                 if (!node.isReal() && StringUtil.isEmpty(node.getType())) {
                     node.setType(
                         componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
 
-            if (!callMap.containsKey(clientCall.getId())) {
+            if (!nodes.containsKey(sourceServiceId)) {
+                nodes.put(sourceServiceId, buildNode(sourceServiceId, sourceService));
+            }
+
+            final String relationId = IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(sourceServiceId, targetServiceId));
+
+            if (!callMap.containsKey(relationId)) {
                 Call call = new Call();
 
-                callMap.put(clientCall.getId(), call);
-                call.setSource(clientCall.getSource());
-                call.setTarget(clientCall.getTarget());
-                call.setId(clientCall.getId());
+                callMap.put(relationId, call);
+                call.setSource(sourceServiceId);
+                call.setTarget(targetServiceId);
+                call.setId(relationId);
                 call.addDetectPoint(DetectPoint.CLIENT);
                 call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);

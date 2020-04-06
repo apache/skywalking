@@ -33,13 +33,13 @@ public interface ITopologyQueryDAO extends Service {
      * Query {@link ServiceRelationServerSideMetrics} through the given conditions
      */
     List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB, long endTB,
-                                                                   List<Integer> serviceIds) throws IOException;
+                                                                   List<String> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationClientSideMetrics} through the given conditions
      */
     List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB, long endTB,
-                                                                  List<Integer> serviceIds) throws IOException;
+                                                                  List<String> serviceIds) throws IOException;
 
     /**
      * Query {@link ServiceRelationServerSideMetrics} globally, without given serviceIds
@@ -57,8 +57,8 @@ public interface ITopologyQueryDAO extends Service {
      * Query {@link ServiceInstanceRelationServerSideMetrics} through given conditions, including the specific
      * clientServiceId and serverServiceId
      */
-    List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(int clientServiceId,
-                                                                   int serverServiceId,
+    List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
+                                                                   String serverServiceId,
                                                                    DownSampling downsampling,
                                                                    long startTB,
                                                                    long endTB) throws IOException;
@@ -67,8 +67,8 @@ public interface ITopologyQueryDAO extends Service {
      * Query {@link ServiceInstanceRelationClientSideMetrics} through given conditions, including the specific
      * clientServiceId and serverServiceId
      */
-    List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(int clientServiceId,
-                                                                   int serverServiceId,
+    List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
+                                                                   String serverServiceId,
                                                                    DownSampling downsampling,
                                                                    long startTB,
                                                                    long endTB) throws IOException;

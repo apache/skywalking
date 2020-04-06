@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
@@ -88,7 +89,9 @@ public enum NodeType {
                 return MQ;
             case 5:
                 return Cache;
-            case -1:
+            case 10:
+                return User;
+            case 11:
                 return Unrecognized;
             default:
                 throw new UnexpectedException("Unknown NodeType value");
@@ -98,7 +101,24 @@ public enum NodeType {
     /**
      * Right now, spanLayerValue is exact same as NodeType value.
      */
-    public static NodeType fromSpanLayerValue(int spanLayerValue) {
-        return valueOf(spanLayerValue);
+    public static NodeType fromSpanLayerValue(SpanLayer spanLayer) {
+        switch (spanLayer) {
+            case Unknown:
+                return Normal;
+            case Database:
+                return Database;
+            case RPCFramework:
+                return RPCFramework;
+            case Http:
+                return Http;
+            case MQ:
+                return MQ;
+            case Cache:
+                return Cache;
+            case UNRECOGNIZED:
+                return Unrecognized;
+            default:
+                throw new UnexpectedException("Unknown NodeType value");
+        }
     }
 }

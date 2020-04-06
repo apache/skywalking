@@ -25,8 +25,8 @@ import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -68,7 +68,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         if (StringUtil.isEmpty(serviceId)) {
             serviceId = IDManager.ServiceID.buildId(
-                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanTypeValue()));
+                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanLayer()));
         }
 
         segment.setSegmentId(segmentObject.getTraceSegmentId());
@@ -96,7 +96,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
         if (StringUtil.isEmpty(serviceId)) {
             serviceId = IDManager.ServiceID.buildId(
-                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanTypeValue()));
+                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanLayer()));
         }
 
         endpointId = IDManager.EndpointID.buildId(

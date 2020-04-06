@@ -55,13 +55,13 @@ public class TopologyQuery implements GraphQLQueryResolver {
             StepToDownSampling.transform(duration.getStep()), startTimeBucket, endTimeBucket);
     }
 
-    public Topology getServiceTopology(final int serviceId, final Duration duration) throws IOException {
-        List<Integer> selectedServiceList = new ArrayList<>(1);
+    public Topology getServiceTopology(final String serviceId, final Duration duration) throws IOException {
+        List<String> selectedServiceList = new ArrayList<>(1);
         selectedServiceList.add(serviceId);
         return this.getServicesTopology(selectedServiceList, duration);
     }
 
-    public Topology getServicesTopology(final List<Integer> serviceIds, final Duration duration) throws IOException {
+    public Topology getServicesTopology(final List<String> serviceIds, final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
 
@@ -69,7 +69,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
             StepToDownSampling.transform(duration.getStep()), startTimeBucket, endTimeBucket, serviceIds);
     }
 
-    public ServiceInstanceTopology getServiceInstanceTopology(final int clientServiceId, final int serverServiceId,
+    public ServiceInstanceTopology getServiceInstanceTopology(final String clientServiceId, final String serverServiceId,
                                                               final Duration duration) throws IOException {
         long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
         long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());

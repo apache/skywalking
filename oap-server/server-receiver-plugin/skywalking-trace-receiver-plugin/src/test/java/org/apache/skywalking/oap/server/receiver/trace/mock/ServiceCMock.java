@@ -45,12 +45,12 @@ class ServiceCMock {
         segment.setTraceSegmentId(segmentId);
         segment.setService(SERVICE_NAME);
         segment.setServiceInstance(SERVICE_INSTANCE_NAME);
-        segment.addSpans(createEntrySpan(startTimestamp, parentSegmentId));
+        segment.addSpans(createEntrySpan(startTimestamp, traceId, parentSegmentId));
 
         return segment;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, String parentSegmentId) {
+    private SpanObject.Builder createEntrySpan(long startTimestamp, String traceId, String parentSegmentId) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
@@ -60,18 +60,20 @@ class ServiceCMock {
         span.setEndTime(startTimestamp + 5000);
         span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
         span.setIsError(false);
-        span.addRefs(createReference(parentSegmentId));
+        span.addRefs(createReference(traceId, parentSegmentId));
         span.setOperationName(ServiceBMock.ROCKET_MQ_ENDPOINT);
         return span;
     }
 
-    private SegmentReference.Builder createReference(String parentTraceSegmentId) {
+    private SegmentReference.Builder createReference(String traceId, String parentTraceSegmentId) {
         SegmentReference.Builder reference = SegmentReference.newBuilder();
+        reference.setTraceId(traceId);
         reference.setParentTraceSegmentId(parentTraceSegmentId);
         reference.setParentService(ServiceBMock.SERVICE_NAME);
         reference.setParentServiceInstance(ServiceBMock.SERVICE_INSTANCE_NAME);
         reference.setParentSpanId(2);
         reference.setRefType(RefType.CrossProcess);
+        reference.setNetworkAddressUsedAtPeer(ServiceBMock.ROCKET_MQ_ADDRESS);
         reference.setParentEndpoint(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
         return reference;
     }

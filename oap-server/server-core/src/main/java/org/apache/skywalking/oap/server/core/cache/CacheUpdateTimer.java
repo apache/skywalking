@@ -72,7 +72,7 @@ public enum CacheUpdateTimer {
                                                                            .provider()
                                                                            .getService(NetworkAddressAliasCache.class);
         List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(
-            TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000));
+            TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 60));
 
         addressInventoryCache.load(addressInventories);
     }

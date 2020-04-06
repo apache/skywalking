@@ -52,7 +52,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB,
-                                                                          List<Integer> serviceIds) throws IOException {
+                                                                          List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -68,7 +68,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
-                                                                         List<Integer> serviceIds) throws IOException {
+                                                                         List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
@@ -105,8 +105,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -119,8 +119,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -133,7 +133,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     private void setInstanceQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
-                                           int clientServiceId, int serverServiceId) {
+                                           String clientServiceId, String serverServiceId) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must()
                  .add(QueryBuilders.rangeQuery(EndpointRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));
@@ -260,7 +260,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     private void setQueryCondition(SearchSourceBuilder sourceBuilder, long startTB, long endTB,
-                                   List<Integer> serviceIds) {
+                                   List<String> serviceIds) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         boolQuery.must()
                  .add(QueryBuilders.rangeQuery(ServiceRelationServerSideMetrics.TIME_BUCKET).gte(startTB).lte(endTB));

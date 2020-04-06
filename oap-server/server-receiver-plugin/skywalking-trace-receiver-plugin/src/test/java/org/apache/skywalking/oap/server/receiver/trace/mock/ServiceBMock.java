@@ -50,15 +50,16 @@ class ServiceBMock {
         segment.setTraceSegmentId(segmentId);
         segment.setService(SERVICE_NAME);
         segment.setServiceInstance(SERVICE_INSTANCE_NAME);
-        segment.addSpans(createEntrySpan(startTimestamp, parentSegmentId));
+        segment.addSpans(createEntrySpan(startTimestamp, traceId, parentSegmentId));
         segment.addSpans(createExitSpan(startTimestamp));
         segment.addSpans(createMQExitSpan(startTimestamp));
 
         return segment;
     }
 
-    private SegmentReference.Builder createReference(String parentTraceSegmentId) {
+    private SegmentReference.Builder createReference(String traceId, String parentTraceSegmentId) {
         SegmentReference.Builder reference = SegmentReference.newBuilder();
+        reference.setTraceId(traceId);
         reference.setParentTraceSegmentId(parentTraceSegmentId);
         reference.setParentService(ServiceAMock.SERVICE_NAME);
         reference.setParentServiceInstance(ServiceAMock.SERVICE_INSTANCE_NAME);
@@ -70,7 +71,7 @@ class ServiceBMock {
         return reference;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, String parentSegmentId) {
+    private SpanObject.Builder createEntrySpan(long startTimestamp, String traceId, String parentSegmentId) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
@@ -80,7 +81,7 @@ class ServiceBMock {
         span.setEndTime(startTimestamp + 5000);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
         span.setIsError(false);
-        span.addRefs(createReference(parentSegmentId));
+        span.addRefs(createReference(traceId, parentSegmentId));
 
         span.setOperationName(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
         return span;

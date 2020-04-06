@@ -47,7 +47,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB,
-                                                                          List<Integer> serviceIds) throws IOException {
+                                                                          List<String> serviceIds) throws IOException {
         return loadServiceCalls(
             ServiceRelationServerSideMetrics.INDEX_NAME, startTB, endTB,
             ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID,
@@ -59,7 +59,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling,
                                                                          long startTB,
                                                                          long endTB,
-                                                                         List<Integer> serviceIds) throws IOException {
+                                                                         List<String> serviceIds) throws IOException {
         return loadServiceCalls(
             ServiceRelationClientSideMetrics.INDEX_NAME, startTB, endTB,
             ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
@@ -88,8 +88,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -102,8 +102,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(int clientServiceId,
-                                                                          int serverServiceId,
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
+                                                                          String serverServiceId,
                                                                           DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
@@ -138,7 +138,7 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                    long endTB,
                                                    String sourceCName,
                                                    String destCName,
-                                                   List<Integer> serviceIds,
+                                                   List<String> serviceIds,
                                                    DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[serviceIds.size() * 2 + 2];
         conditions[0] = startTB;
@@ -179,8 +179,8 @@ public class H2TopologyQueryDAO implements ITopologyQueryDAO {
                                                            long endTB,
                                                            String sourceCName,
                                                            String descCName,
-                                                           int sourceServiceId,
-                                                           int destServiceId,
+                                                           String sourceServiceId,
+                                                           String destServiceId,
                                                            DetectPoint detectPoint) throws IOException {
         Object[] conditions = new Object[] {
             startTB,
