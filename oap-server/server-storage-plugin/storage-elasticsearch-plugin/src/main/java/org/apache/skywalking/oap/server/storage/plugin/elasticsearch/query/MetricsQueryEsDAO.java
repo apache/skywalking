@@ -90,6 +90,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             kvInt.setValue(value);
             intValues.addKVInt(kvInt);
         }
+        where.getKeyValues().forEach(condition -> {
+            condition.getValues().forEach(entityID -> {
+                if (!intValues.contain(entityID)) {
+                    KVInt kvInt = new KVInt();
+                    kvInt.setId(entityID);
+                    kvInt.setValue(0);
+                    intValues.addKVInt(kvInt);
+                }
+            });
+        });
         return intValues;
     }
 

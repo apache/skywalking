@@ -38,21 +38,19 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 public enum CacheUpdateTimer {
     INSTANCE;
 
-    private Boolean isStarted = false;
+    private int ttl = 10;
 
-    public void start(ModuleDefineHolder moduleDefineHolder) {
+    public void start(ModuleDefineHolder moduleDefineHolder, int ttl) {
         log.info("Cache updateServiceInventory timer start");
 
         final long timeInterval = 10;
 
-        if (!isStarted) {
-            Executors.newSingleThreadScheduledExecutor()
-                     .scheduleAtFixedRate(
-                         new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
-                             .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleAtFixedRate(
+                     new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
+                         .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+        this.ttl = ttl;
 
-            this.isStarted = true;
-        }
     }
 
     private void update(ModuleDefineHolder moduleDefineHolder) {
@@ -71,8 +69,16 @@ public enum CacheUpdateTimer {
         NetworkAddressAliasCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
                                                                            .provider()
                                                                            .getService(NetworkAddressAliasCache.class);
-        List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(
-            TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 60));
+        long loadStartTime;
+        if (addressInventoryCache.currentSize() == 0) {
+            /**
+             * As a new start process, load all known network alias information.
+             */
+            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 60 * 24 * ttl);
+        } else {
+            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 10);
+        }
+        List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(loadStartTime);
 
         addressInventoryCache.load(addressInventories);
     }

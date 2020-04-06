@@ -298,7 +298,7 @@ public class CoreModuleProvider extends ModuleProvider {
             DataTTLKeeperTimer.INSTANCE.start(getManager(), moduleConfig);
         }
 
-        CacheUpdateTimer.INSTANCE.start(getManager());
+        CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
     }
 
     @Override

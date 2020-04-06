@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
@@ -42,9 +41,6 @@ public class NetworkAddressAliasCache implements Service {
         networkAddressAliasCache = CacheBuilder.newBuilder()
                                                .initialCapacity(initialCapacitySize)
                                                .maximumSize(moduleConfig.getMaxSizeOfNetworkAddressAlias())
-                                               // Hold data in cache for last 15 minute updated alias
-                                               // in order to avoid expired network address.
-                                               .expireAfterWrite(24, TimeUnit.HOURS)
                                                .build();
     }
 
@@ -59,5 +55,9 @@ public class NetworkAddressAliasCache implements Service {
         networkAddressAliasList.forEach(networkAddressAlias -> {
             networkAddressAliasCache.put(networkAddressAlias.getAddress(), networkAddressAlias);
         });
+    }
+
+    long currentSize() {
+        return networkAddressAliasCache.size();
     }
 }
