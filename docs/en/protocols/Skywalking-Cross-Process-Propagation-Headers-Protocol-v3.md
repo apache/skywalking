@@ -10,7 +10,7 @@ SkyWalking Cross Process Propagation Headers Protocol v2 is also named as sw6 pr
 
 ### Standard Header Item
 The standard header should be the minimal requirement for the context propagation.
-* Header Name: `sw8`
+* Header Name: `sw8`.
 * Header Value: 8 fields split by `-`. The length of header value should be less than 2k(default).
 
 Value format example, `XXXXX-XXXXX-XXXX-XXXX`
