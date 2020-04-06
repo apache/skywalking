@@ -351,7 +351,6 @@ public class SkywalkingSpanActivationTest {
 
     private void assertSpanCommonsAttribute(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("testOperationName"));
-        assertComponent(span, "test");
         SpanAssert.assertLogSize(span, 1);
     }
 
