@@ -30,9 +30,9 @@ import org.apache.skywalking.apm.network.management.v3.ManagementServiceGrpc;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -69,6 +69,7 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         sourceReceiver.receive(serviceInstanceUpdate);
 
         responseObserver.onNext(Commands.newBuilder().build());
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -81,5 +82,6 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         sourceReceiver.receive(serviceInstanceUpdate);
 
         responseObserver.onNext(Commands.newBuilder().build());
+        responseObserver.onCompleted();
     }
 }
