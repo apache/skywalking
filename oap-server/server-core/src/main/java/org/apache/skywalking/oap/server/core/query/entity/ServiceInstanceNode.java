@@ -29,6 +29,6 @@ public class ServiceInstanceNode {
     private String name;
     private String serviceId;
     private String serviceName;
-    private String type;
+    private String type = "";
     private boolean isReal;
 }

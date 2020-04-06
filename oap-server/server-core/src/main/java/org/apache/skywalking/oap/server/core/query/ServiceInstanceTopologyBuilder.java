@@ -72,14 +72,6 @@ public class ServiceInstanceTopologyBuilder {
             final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
                 destServiceInstance.getServiceId());
 
-            if (!NodeType.Normal.equals(destService.getType())) {
-                final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
-                if (networkAddressAlias != null) {
-                    destServiceInstance = IDManager.ServiceInstanceID.analysisId(
-                        networkAddressAlias.getRepresentServiceInstanceId());
-                }
-            }
-
             if (!nodes.containsKey(clientCall.getSource())) {
                 nodes.put(clientCall.getSource(), buildNode(sourceService, sourceServiceInstance));
             }
@@ -165,7 +157,7 @@ public class ServiceInstanceTopologyBuilder {
         instanceNode.setName(instanceIDDefinition.getName());
         instanceNode.setServiceId(instanceIDDefinition.getServiceId());
 
-        instanceNode.setServiceName(serviceIDDefinition.getName());
+        instanceNode.setServiceName(instanceIDDefinition.getName());
         if (!NodeType.Normal.equals(serviceIDDefinition.getType())) {
             instanceNode.setReal(false);
         } else {

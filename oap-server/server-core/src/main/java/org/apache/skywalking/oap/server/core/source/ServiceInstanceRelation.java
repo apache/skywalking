@@ -107,7 +107,7 @@ public class ServiceInstanceRelation extends Source {
     public void prepare() {
         sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceNodeType);
         destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceNodeType);
-        sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceName);
-        destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceName);
+        sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceInstanceName);
+        destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceInstanceName);
     }
 }

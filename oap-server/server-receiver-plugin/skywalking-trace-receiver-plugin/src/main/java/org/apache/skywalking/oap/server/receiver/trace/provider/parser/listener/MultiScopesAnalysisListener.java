@@ -164,21 +164,16 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
-        if (networkAddressAlias == null) {
+        if (networkAddressAlias == null || config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
-            /*
-             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
-             */
-            if (!config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
-                sourceBuilder.setDestServiceInstanceName(networkAddress);
-            }
             sourceBuilder.setDestNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
         } else {
             final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
                 networkAddressAlias.getRepresentServiceId());
-            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
-                networkAddressAlias.getRepresentServiceInstanceId());
+            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
+                .analysisId(
+                    networkAddressAlias.getRepresentServiceInstanceId());
             sourceBuilder.setDestServiceName(serviceIDDefinition.getName());
             sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             sourceBuilder.setDestNodeType(serviceIDDefinition.getType());

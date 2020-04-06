@@ -131,7 +131,7 @@ public class TraceQueryService implements Service {
     private List<Span> buildSpanList(SegmentObject segmentObject) {
         List<Span> spans = new ArrayList<>();
 
-        segmentObject.getSpansList().forEach(spanObject -> {
+            segmentObject.getSpansList().forEach(spanObject -> {
             Span span = new Span();
             span.setTraceId(segmentObject.getTraceId());
             span.setSegmentId(segmentObject.getTraceSegmentId());

@@ -68,7 +68,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         if (StringUtil.isEmpty(serviceId)) {
             serviceId = IDManager.ServiceID.buildId(
-                segmentObject.getService(), NodeType.fromSpanLayerValue(span.getSpanLayer()));
+                segmentObject.getService(), NodeType.Normal);
         }
 
         segment.setSegmentId(segmentObject.getTraceSegmentId());
