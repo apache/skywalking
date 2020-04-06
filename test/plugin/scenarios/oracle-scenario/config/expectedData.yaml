@@ -13,11 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-  - {oracle-scenario: nq 0}
-  instances:
-  - {oracle-scenario: 1}
 segmentItems:
 - serviceName: oracle-scenario
   segmentSize: ge 1
@@ -32,17 +27,16 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 34
-      componentName: ''
       isError: false
       spanType: Exit
       peer: oracle-server:1521
-      peerId: 0
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: xe}
       - key: db.statement
         value: "CREATE TABLE test_007(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
           \ NOT NULL)"
+      skipAnalysis: 'false'
     - operationName: Oracle/JDBI/PreparedStatement/execute
       operationId: 0
       parentSpanId: 0
@@ -51,15 +45,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 34
-      componentName: ''
       isError: false
       spanType: Exit
       peer: oracle-server:1521
-      peerId: 0
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: xe}
       - {key: db.statement, value: 'INSERT INTO test_007(id, value) VALUES(?,?)'}
+      skipAnalysis: 'false'
     - operationName: Oracle/JDBI/PreparedStatement/executeQuery
       operationId: 0
       parentSpanId: 0
@@ -68,15 +61,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 34
-      componentName: ''
       isError: false
       spanType: Exit
       peer: oracle-server:1521
-      peerId: 0
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: xe}
       - {key: db.statement, value: 'SELECT id, value FROM test_007 WHERE id=?'}
+      skipAnalysis: 'false'
     - operationName: Oracle/JDBI/Statement/execute
       operationId: 0
       parentSpanId: 0
@@ -85,32 +77,30 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 34
-      componentName: ''
       isError: false
       spanType: Exit
       peer: oracle-server:1521
-      peerId: 0
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: xe}
-      - {key: db.statement, value: 'DROP table test_007'}
+      - {key: db.statement, value: DROP table test_007}
+      skipAnalysis: 'false'
     - operationName: Oracle/JDBI/Connection/close
       operationId: 0
       parentSpanId: 0
       spanId: 5
       spanLayer: Database
       tags:
-      - {key: db.type,value: sql}
-      - {key: db.instance,value: xe}
-      - {key: db.statement,value: ''}
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: xe}
+      - {key: db.statement, value: ''}
       startTime: nq 0
       endTime: nq 0
       componentId: 34
-      componentName: ''
       isError: false
       spanType: Exit
       peer: oracle-server:1521
-      peerId: 0
+      skipAnalysis: 'false'
     - operationName: /oracle-scenario/case/oracle
       operationId: 0
       parentSpanId: -1
@@ -119,11 +109,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
       - {key: url, value: 'http://localhost:8080/oracle-scenario/case/oracle'}
       - {key: http.method, value: GET}
+      skipAnalysis: 'false'

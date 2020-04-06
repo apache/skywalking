@@ -13,69 +13,58 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  services:
-    - {servicecomb-0.x-scenario: 2}
-  instances:
-    - {servicecomb-0.x-scenario: 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: servicecomb-0.x-scenario
-    segmentSize: gt 2
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: codefirst.codeFirstHello.sayHi
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 28
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: /sayHi}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: codefirst.codeFirstSpringmvcHelloClient.say,
-                 networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
-                 parentTraceSegmentId: not null, parentServiceInstanceId: 1,
-                 networkAddress: not null, entryEndpoint: codefirst.codeFirstSpringmvcHelloClient.say,
-                 entryServiceInstanceId: 1}
-      - segmentId: not null
-        spans:
-          - operationName: codefirst.codeFirstHello.sayHi
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 28
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: url, value: /sayHi}
-          - operationName: codefirst.codeFirstSpringmvcHelloClient.say
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 28
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: /case}
+- serviceName: servicecomb-0.x-scenario
+  segmentSize: gt 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: codefirst.codeFirstHello.sayHi
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 28
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: /sayHi}
+      refs:
+      - {parentEndpoint: codefirst.codeFirstSpringmvcHelloClient.say, networkAddress: not
+          null, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not
+          null, parentServiceInstance: not null, parentService: not null, traceId: not
+          null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: codefirst.codeFirstHello.sayHi
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 28
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: url, value: /sayHi}
+      skipAnalysis: 'false'
+    - operationName: codefirst.codeFirstSpringmvcHelloClient.say
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 28
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: /case}
+      skipAnalysis: 'false'

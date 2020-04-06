@@ -13,14 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  services:
-    - {mongodb-3.x-scenario: nq 0}
-  instances:
-    - {mongodb-3.x-scenario: 1}
-  heartbeat: []
-
 segmentItems:
 - serviceName: mongodb-3.x-scenario
   segmentSize: ge 2
@@ -35,13 +27,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/MixedBulkWriteOperation
       operationId: 0
       parentSpanId: 0
@@ -50,13 +41,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/FindOperation
       operationId: 0
       parentSpanId: 0
@@ -65,13 +55,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/MixedBulkWriteOperation
       operationId: 0
       parentSpanId: 0
@@ -80,13 +69,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/FindOperation
       operationId: 0
       parentSpanId: 0
@@ -95,13 +83,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/MixedBulkWriteOperation
       operationId: 0
       parentSpanId: 0
@@ -110,13 +97,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: MongoDB/DropDatabaseOperation
       operationId: 0
       parentSpanId: 0
@@ -125,13 +111,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 42
-      componentName: ''
       isError: false
       spanType: Exit
       peer: mongodb-server:27017
-      peerId: 0
       tags:
       - {key: db.type, value: MongoDB}
+      skipAnalysis: 'false'
     - operationName: /mongodb-case/case/mongodb
       operationId: 0
       parentSpanId: -1
@@ -140,11 +125,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
       - {key: url, value: 'http://localhost:8080/mongodb-case/case/mongodb'}
       - {key: http.method, value: GET}
+      skipAnalysis: 'false'

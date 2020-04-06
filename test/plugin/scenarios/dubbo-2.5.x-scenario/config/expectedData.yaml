@@ -13,68 +13,58 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {dubbo-2.5.x-scenario: 2}
-  instances:
-    - {dubbo-2.5.x-scenario: 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: dubbo-2.5.x-scenario
-    segmentSize: ge 3
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 3
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: not null}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /dubbo-2.5.x-scenario/case/dubbo, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: 1, networkAddress: 'localhost:20080', entryEndpoint: /dubbo-2.5.x-scenario/case/dubbo,
-                 entryServiceInstanceId: 1}
-      - segmentId: not null
-        spans:
-          - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 3
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:20080
-            peerId: 0
-            tags:
-              - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
-          - operationName: /dubbo-2.5.x-scenario/case/dubbo
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo'}
-              - {key: http.method, value: GET}
+- serviceName: dubbo-2.5.x-scenario
+  segmentSize: ge 3
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 3
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: not null}
+      refs:
+      - {parentEndpoint: /dubbo-2.5.x-scenario/case/dubbo, networkAddress: 'localhost:20080',
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 3
+      isError: false
+      spanType: Exit
+      peer: localhost:20080
+      tags:
+      - {key: url, value: 'dubbo://localhost:20080/org.apache.skywalking.apm.testcase.dubbo.services.GreetService.doBusiness()'}
+      skipAnalysis: 'false'
+    - operationName: /dubbo-2.5.x-scenario/case/dubbo
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/dubbo-2.5.x-scenario/case/dubbo'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
