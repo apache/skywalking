@@ -254,7 +254,6 @@ public class ContextManagerTest {
 
         SpanObject actualSpan = traceSegmentObject.getSpans(1);
         assertThat(actualSpan.getComponentId(), is(3));
-        assertThat(actualSpan.getComponent(), is(""));
 
         assertThat(actualSpan.getOperationName(), is("/testSecondEntry"));
         assertThat(actualSpan.getParentSpanId(), is(-1));
@@ -263,7 +262,6 @@ public class ContextManagerTest {
 
         SpanObject exitSpanObject = traceSegmentObject.getSpans(0);
         assertThat(exitSpanObject.getComponentId(), is(2));
-        assertThat(exitSpanObject.getComponent(), is(""));
         assertThat(exitSpanObject.getSpanType(), is(SpanType.Exit));
 
         assertThat(exitSpanObject.getOperationName(), is("/textExitSpan"));

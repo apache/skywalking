@@ -89,15 +89,6 @@ public class ExitSpan extends StackBasedTracingSpan implements ExitTypeSpan {
     }
 
     @Override
-    public AbstractTracingSpan setComponent(String componentName) {
-        if (stackDepth == 1) {
-            return super.setComponent(componentName);
-        } else {
-            return this;
-        }
-    }
-
-    @Override
     public ExitSpan log(Throwable t) {
         if (stackDepth == 1) {
             super.log(t);

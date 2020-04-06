@@ -73,8 +73,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
 
     protected int componentId = 0;
 
-    protected String componentName;
-
     /**
      * Log is a concept from OpenTracing spec. https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data
      */
@@ -234,17 +232,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    /**
-     * Set the component name. By using this, cost more memory and network.
-     *
-     * @return span instance, for chaining.
-     */
-    @Override
-    public AbstractTracingSpan setComponent(String componentName) {
-        this.componentName = componentName;
-        return this;
-    }
-
     @Override
     public AbstractSpan start(long startTime) {
         this.startTime = startTime;
@@ -271,10 +258,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         }
         if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);
-        } else {
-            if (componentName != null) {
-                spanBuilder.setComponent(componentName);
-            }
         }
         spanBuilder.setIsError(errorOccurred);
         if (this.tags != null) {
