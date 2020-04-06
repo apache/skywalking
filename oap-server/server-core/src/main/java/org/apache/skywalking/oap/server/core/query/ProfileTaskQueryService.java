@@ -200,11 +200,7 @@ public class ProfileTaskQueryService implements Service {
             span.setServiceCode(segmentObject.getService());
             span.setServiceInstanceName(segmentObject.getServiceInstance());
 
-            if (spanObject.getComponentId() == 0) {
-                span.setComponent(spanObject.getComponent());
-            } else {
-                span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
-            }
+            span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
 
             spanObject.getTagsList().forEach(tag -> {
                 KeyValue keyValue = new KeyValue();

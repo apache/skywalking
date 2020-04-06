@@ -131,7 +131,7 @@ public class TraceQueryService implements Service {
     private List<Span> buildSpanList(SegmentObject segmentObject) {
         List<Span> spans = new ArrayList<>();
 
-            segmentObject.getSpansList().forEach(spanObject -> {
+        segmentObject.getSpansList().forEach(spanObject -> {
             Span span = new Span();
             span.setTraceId(segmentObject.getTraceId());
             span.setSegmentId(segmentObject.getTraceSegmentId());
@@ -156,11 +156,7 @@ public class TraceQueryService implements Service {
             span.setServiceCode(segmentObject.getService());
             span.setServiceInstanceName(segmentObject.getServiceInstance());
 
-            if (spanObject.getComponentId() == 0) {
-                span.setComponent(spanObject.getComponent());
-            } else {
-                span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
-            }
+            span.setComponent(getComponentLibraryCatalogService().getComponentName(spanObject.getComponentId()));
 
             spanObject.getRefsList().forEach(reference -> {
                 Ref ref = new Ref();
