@@ -119,7 +119,7 @@ class ServiceTopologyBuilder {
              */
             final Node serverSideNode = nodes.get(serverCall.getTarget());
             serverSideNode.setType(
-                componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
+                componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
 
             if (!callMap.containsKey(serverCall.getId())) {
                 Call call = new Call();
