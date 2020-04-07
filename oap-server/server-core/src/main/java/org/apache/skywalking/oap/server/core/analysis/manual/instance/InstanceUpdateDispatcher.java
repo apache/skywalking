@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 
-public class InstancePropertiesDispatcher implements SourceDispatcher<ServiceInstanceUpdate> {
+public class InstanceUpdateDispatcher implements SourceDispatcher<ServiceInstanceUpdate> {
     @Override
     public void dispatch(final ServiceInstanceUpdate source) {
         InstanceTraffic traffic = new InstanceTraffic();

@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -61,7 +62,6 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
                 properties.addProperty(prop.getKey(), prop.getValue());
             }
         });
-
         properties.addProperty(InstanceTraffic.PropertyUtil.IPV4S, ipv4List.stream().collect(Collectors.joining(",")));
         serviceInstanceUpdate.setProperties(properties);
         serviceInstanceUpdate.setTimeBucket(
@@ -74,12 +74,18 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
 
     @Override
     public void keepAlive(final InstancePingPkg request, final StreamObserver<Commands> responseObserver) {
+        final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
         serviceInstanceUpdate.setName(request.getServiceInstance());
-        serviceInstanceUpdate.setTimeBucket(
-            TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
+        serviceInstanceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
+
+        ServiceUpdate serviceUpdate = new ServiceUpdate();
+        serviceUpdate.setName(request.getService());
+        serviceUpdate.setNodeType(NodeType.Normal);
+        serviceUpdate.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceUpdate);
 
         responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();

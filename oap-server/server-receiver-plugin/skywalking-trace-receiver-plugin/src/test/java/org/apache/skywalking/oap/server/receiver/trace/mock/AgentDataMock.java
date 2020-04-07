@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
+import org.apache.skywalking.apm.network.management.v3.ManagementServiceGrpc;
 
 public class AgentDataMock {
     private static boolean IS_COMPLETED = false;
@@ -33,13 +35,20 @@ public class AgentDataMock {
     public static void main(String[] args) throws InterruptedException {
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
 
-        StreamObserver<SegmentObject> streamObserver = createStreamObserver();
+        StreamObserver<SegmentObject> streamObserver = createStreamObserver(channel);
 
         long startTimestamp = System.currentTimeMillis();
         //long startTimestamp = new DateTime().minusDays(2).getMillis();
 
+        ManagementServiceGrpc.ManagementServiceBlockingStub managementServiceBlockingStub = ManagementServiceGrpc.newBlockingStub(
+            channel);
+
         // ServiceAMock
         ServiceAMock serviceAMock = new ServiceAMock();
+        managementServiceBlockingStub.keepAlive(InstancePingPkg.newBuilder()
+                                                               .setService(ServiceAMock.SERVICE_NAME)
+                                                               .setServiceInstance(ServiceAMock.SERVICE_INSTANCE_NAME)
+                                                               .build());
 
         // ServiceBMock
         ServiceBMock serviceBMock = new ServiceBMock();
@@ -66,10 +75,10 @@ public class AgentDataMock {
         while (!IS_COMPLETED) {
             TimeUnit.MILLISECONDS.sleep(500);
         }
+
     }
 
-    private static StreamObserver<SegmentObject> createStreamObserver() {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 11800).usePlaintext().build();
+    private static StreamObserver<SegmentObject> createStreamObserver(ManagedChannel channel) {
         TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub stub = TraceSegmentReportServiceGrpc.newStub(
             channel);
         return stub.collect(new StreamObserver<Commands>() {

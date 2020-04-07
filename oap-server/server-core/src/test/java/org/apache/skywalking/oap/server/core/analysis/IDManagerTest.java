@@ -26,7 +26,7 @@ public class IDManagerTest {
     public void testServiceID() {
         IDManager.ServiceID.ServiceIDDefinition define = new IDManager.ServiceID.ServiceIDDefinition(
             "Service",
-            NodeType.Normal
+            true
         );
         final IDManager.ServiceID.ServiceIDDefinition relationDefine = IDManager.ServiceID.analysisId(
             IDManager.ServiceID.buildId(

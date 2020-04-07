@@ -27,9 +27,10 @@ import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.ArgumentsParseException;
@@ -54,12 +55,19 @@ public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);
 
+        final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
         serviceInstanceUpdate.setName(request.getServiceInstance());
         serviceInstanceUpdate.setTimeBucket(
-            TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute));
+            timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
+
+        ServiceUpdate serviceUpdate = new ServiceUpdate();
+        serviceUpdate.setName(request.getService());
+        serviceUpdate.setNodeType(NodeType.Normal);
+        serviceUpdate.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceUpdate);
 
         return gson.fromJson(ProtoBufJsonUtils.toJSON(Commands.newBuilder().build()), JsonElement.class);
     }
