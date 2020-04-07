@@ -100,7 +100,7 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
-        assertEquals("c2VydmljZS1pbnZlbnRvcnktbmFtZQ==.0_ZW5kcG9pbnQtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
+        assertEquals("c2VydmljZS1pbnZlbnRvcnktbmFtZQ==.1_ZW5kcG9pbnQtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.ENDPOINT_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
@@ -132,7 +132,7 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals("c2VydmljZQ==.0_aW5zdGFuY2UtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
+        assertEquals("c2VydmljZQ==.1_aW5zdGFuY2UtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("instance-inventory-name of service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE, metaInAlarm.getScopeId());
@@ -157,7 +157,7 @@ public class NotifyHandlerTest {
 
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
         assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals("c2VydmljZQ==.0", metaInAlarm.getId0());
+        assertEquals("c2VydmljZQ==.1", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE, metaInAlarm.getScopeId());
