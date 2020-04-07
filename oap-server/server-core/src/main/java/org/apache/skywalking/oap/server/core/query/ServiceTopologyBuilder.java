@@ -70,12 +70,15 @@ class ServiceTopologyBuilder {
             /*
              * Use the alias name to make topology relationship accurate.
              */
-            if (!NodeType.Normal.equals(destService.getType())
+            if (!destService.isReal()
                 && networkAddressAliasCache.get(destService.getName()) != null) {
+                /*
+                 * If alias exists, mean this network address is representing a real service.
+                 */
                 final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
                 destService = IDManager.ServiceID.analysisId(
                     networkAddressAlias.getRepresentServiceId());
-                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), destService.getType());
+                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), NodeType.Normal);
             }
 
             /*
@@ -177,11 +180,7 @@ class ServiceTopologyBuilder {
         Node serviceNode = new Node();
         serviceNode.setId(sourceId);
         serviceNode.setName(sourceService.getName());
-        if (!NodeType.Normal.equals(sourceService.getType())) {
-            serviceNode.setReal(false);
-        } else {
-            serviceNode.setReal(true);
-        }
+        serviceNode.setReal(sourceService.isReal());
         return serviceNode;
     }
 }

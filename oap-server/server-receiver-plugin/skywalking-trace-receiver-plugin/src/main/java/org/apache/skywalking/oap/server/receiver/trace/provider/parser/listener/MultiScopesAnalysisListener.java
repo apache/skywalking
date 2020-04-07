@@ -169,6 +169,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             sourceBuilder.setDestServiceInstanceName(networkAddress);
             sourceBuilder.setDestNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
         } else {
+            /*
+             * If alias exists, mean this network address is representing a real service.
+             */
             final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
                 networkAddressAlias.getRepresentServiceId());
             final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
@@ -176,7 +179,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     networkAddressAlias.getRepresentServiceInstanceId());
             sourceBuilder.setDestServiceName(serviceIDDefinition.getName());
             sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
-            sourceBuilder.setDestNodeType(serviceIDDefinition.getType());
+            sourceBuilder.setDestNodeType(NodeType.Normal);
         }
 
         sourceBuilder.setDetectPoint(DetectPoint.CLIENT);

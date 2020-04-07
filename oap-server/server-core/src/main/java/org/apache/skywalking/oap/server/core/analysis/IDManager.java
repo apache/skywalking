@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 
 /**
  * IDManager includes all ID encode/decode functions for service, service instance and endpoint.
@@ -38,7 +39,8 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return encode(name) + Const.SERVICE_ID_CONNECTOR + type.value();
+            return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(
+                type.equals(NodeType.Normal));
         }
 
         /**
@@ -51,7 +53,7 @@ public class IDManager {
             }
             return new ServiceID.ServiceIDDefinition(
                 decode(strings[0]),
-                NodeType.valueOf(Integer.parseInt(strings[1]))
+                BooleanUtils.valueToBoolean(Integer.parseInt(strings[1]))
             );
         }
 
@@ -78,7 +80,10 @@ public class IDManager {
         @EqualsAndHashCode
         public static class ServiceIDDefinition {
             private final String name;
-            private final NodeType type;
+            /**
+             * TRUE means an agent installed or directly detected service. FALSE means a conjectural service
+             */
+            private final boolean isReal;
         }
 
         @RequiredArgsConstructor

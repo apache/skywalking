@@ -26,8 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.entity.Call;
 import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceNode;
@@ -39,15 +37,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class ServiceInstanceTopologyBuilder {
 
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
-    private final NetworkAddressAliasCache networkAddressAliasCache;
 
     public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
                                                            .provider()
                                                            .getService(IComponentLibraryCatalogService.class);
-        this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
-                                                     .provider()
-                                                     .getService(NetworkAddressAliasCache.class);
     }
 
     ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,
@@ -155,13 +149,8 @@ public class ServiceInstanceTopologyBuilder {
             IDManager.ServiceInstanceID.buildId(instanceIDDefinition.getServiceId(), instanceIDDefinition.getName()));
         instanceNode.setName(instanceIDDefinition.getName());
         instanceNode.setServiceId(instanceIDDefinition.getServiceId());
-
         instanceNode.setServiceName(instanceIDDefinition.getName());
-        if (!NodeType.Normal.equals(serviceIDDefinition.getType())) {
-            instanceNode.setReal(false);
-        } else {
-            instanceNode.setReal(true);
-        }
+        instanceNode.setReal(serviceIDDefinition.isReal());
         return instanceNode;
     }
 }
