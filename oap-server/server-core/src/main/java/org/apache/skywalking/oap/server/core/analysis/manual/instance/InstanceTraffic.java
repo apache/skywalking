@@ -137,6 +137,8 @@ public class InstanceTraffic extends Metrics {
             map.put(NAME, storageData.getName());
             if (storageData.getProperties() != null) {
                 map.put(PROPERTIES, GSON.toJson(storageData.getProperties()));
+            } else {
+                map.put(PROPERTIES, Const.EMPTY_STRING);
             }
             map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             return map;
