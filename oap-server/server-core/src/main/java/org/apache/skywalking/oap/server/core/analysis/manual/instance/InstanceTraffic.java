@@ -100,14 +100,14 @@ public class InstanceTraffic extends Metrics {
     @Override
     public RemoteData.Builder serialize() {
         final RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.setDataStrings(0, serviceId);
-        builder.setDataStrings(1, name);
+        builder.addDataStrings(serviceId);
+        builder.addDataStrings(name);
         if (properties == null) {
-            builder.setDataStrings(2, Const.EMPTY_STRING);
+            builder.addDataStrings(Const.EMPTY_STRING);
         } else {
-            builder.setDataStrings(2, GSON.toJson(properties));
+            builder.addDataStrings(GSON.toJson(properties));
         }
-        builder.setDataLongs(0, lastPingTimestamp);
+        builder.addDataLongs(lastPingTimestamp);
         return builder;
     }
 

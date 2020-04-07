@@ -96,11 +96,11 @@ public class NetworkAddressAlias extends Metrics {
     @Override
     public RemoteData.Builder serialize() {
         final RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.setDataStrings(0, address);
-        builder.setDataStrings(1, representServiceId);
-        builder.setDataStrings(2, representServiceInstanceId);
+        builder.addDataStrings(address);
+        builder.addDataStrings(representServiceId);
+        builder.addDataStrings(representServiceInstanceId);
 
-        builder.setDataLongs(0, lastUpdateTimeBucket);
+        builder.addDataLongs(lastUpdateTimeBucket);
         return builder;
     }
 
