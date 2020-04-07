@@ -67,6 +67,6 @@ segmentItems:
       - {key: mq.queue, value: test}
       refs:
       - {parentEndpoint: /activemq-scenario/case/activemq, networkAddress: not null,
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: '${activemq-scenario[0]}',
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'

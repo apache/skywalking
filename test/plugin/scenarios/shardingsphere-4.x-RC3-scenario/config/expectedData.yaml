@@ -48,7 +48,7 @@ segmentItems:
       peer: ''
       refs:
       - {parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute, networkAddress: '',
-        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: nq 0, parentServiceInstance: not
+        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -82,7 +82,7 @@ segmentItems:
       peer: ''
       refs:
       - {parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute, networkAddress: '',
-        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: nq 0, parentServiceInstance: not
+        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -116,7 +116,7 @@ segmentItems:
       peer: ''
       refs:
       - {parentEndpoint: /shardingsphere-4.x-RC3-scenario/case/execute, networkAddress: '',
-        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: nq 0, parentServiceInstance: not
+        refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null

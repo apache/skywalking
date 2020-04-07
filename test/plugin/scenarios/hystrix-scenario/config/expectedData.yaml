@@ -38,7 +38,7 @@ segmentItems:
         - {key: stack, value: not null}
       refs:
       - {parentEndpoint: /case/hystrix-scenario, networkAddress: '', refType: CrossThread,
-        parentSpanId: 0, parentTraceSegmentId: '${hystrix-scenario[2]}', parentServiceInstance: not
+        parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -56,7 +56,7 @@ segmentItems:
       peer: ''
       refs:
       - {parentEndpoint: Hystrix/TestACommand/Execution, networkAddress: '', refType: CrossThread,
-        parentSpanId: 0, parentTraceSegmentId: '${hystrix-scenario[0]}', parentServiceInstance: not
+        parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null

@@ -53,7 +53,7 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpoint: /okhttp-case/case/receiveContext-0, networkAddress: '127.0.0.1:8080',
-        refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: nq 0, parentServiceInstance: not
+        refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -73,7 +73,7 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpoint: /okhttp-case/case/receiveContext-0, networkAddress: '127.0.0.1:8080',
-        refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: nq 0, parentServiceInstance: not
+        refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -94,6 +94,6 @@ segmentItems:
       - {key: url, value: 'http://127.0.0.1:8080/okhttp-case/case/receiveContext-0'}
       refs:
       - {parentEndpoint: /case/okhttp-case, networkAddress: '', refType: CrossThread,
-        parentSpanId: 1, parentTraceSegmentId: nq 0, parentServiceInstance: not null,
+        parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not null,
         parentService: not null, traceId: not null}
       skipAnalysis: 'false'

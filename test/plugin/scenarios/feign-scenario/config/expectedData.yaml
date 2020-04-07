@@ -35,7 +35,7 @@ segmentItems:
       - {key: http.method, value: POST}
       refs:
       - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: '${feign-scenario[4]}',
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -56,7 +56,7 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
-        refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: '${feign-scenario[4]}',
+        refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -77,7 +77,7 @@ segmentItems:
       - {key: http.method, value: PUT}
       refs:
       - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
-        refType: CrossProcess, parentSpanId: 3, parentTraceSegmentId: '${feign-scenario[4]}',
+        refType: CrossProcess, parentSpanId: 3, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
@@ -98,7 +98,7 @@ segmentItems:
       - {key: http.method, value: DELETE}
       refs:
       - {parentEndpoint: /feign-scenario/case/feign-scenario, networkAddress: 'localhost:8080',
-        refType: CrossProcess, parentSpanId: 4, parentTraceSegmentId: '${feign-scenario[4]}',
+        refType: CrossProcess, parentSpanId: 4, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null

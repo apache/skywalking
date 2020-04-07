@@ -63,7 +63,7 @@ segmentItems:
       peer: ''
       refs:
       - {parentEndpoint: /kotlin-coroutine-scenario/case/h2, networkAddress: '', refType: CrossThread,
-        parentSpanId: 0, parentTraceSegmentId: '${kotlin-coroutine-scenario[1]}',
+        parentSpanId: 0, parentTraceSegmentId: not null,
         parentServiceInstance: not null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
