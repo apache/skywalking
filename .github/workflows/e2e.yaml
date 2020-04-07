@@ -58,7 +58,7 @@ jobs:
           path: logs
 
   FeatureGroup02:
-    name: Agent Reboot & Lua Nginx
+    name: Lua Nginx
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
