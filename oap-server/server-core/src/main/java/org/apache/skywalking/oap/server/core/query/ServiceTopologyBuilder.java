@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
@@ -40,6 +41,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 class ServiceTopologyBuilder {
     private final IComponentLibraryCatalogService componentLibraryCatalogService;
     private final NetworkAddressAliasCache networkAddressAliasCache;
+    private final String userID;
 
     ServiceTopologyBuilder(ModuleManager moduleManager) {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
@@ -48,6 +50,7 @@ class ServiceTopologyBuilder {
         this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
                                                      .provider()
                                                      .getService(NetworkAddressAliasCache.class);
+        this.userID = IDManager.ServiceID.buildId(Const.USER_SERVICE_NAME, NodeType.User);
     }
 
     Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
@@ -64,6 +67,9 @@ class ServiceTopologyBuilder {
                 clientCall.getTarget());
             String targetServiceId = clientCall.getTarget();
 
+            /*
+             * Use the alias name to make topology relationship accurate.
+             */
             if (!NodeType.Normal.equals(destService.getType())
                 && networkAddressAliasCache.get(destService.getName()) != null) {
                 final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
@@ -72,11 +78,14 @@ class ServiceTopologyBuilder {
                 targetServiceId = IDManager.ServiceID.buildId(destService.getName(), destService.getType());
             }
 
+            /*
+             * Set the conjectural node type.
+             */
             if (!nodes.containsKey(targetServiceId)) {
-                final Node node = buildNode(targetServiceId, destService);
-                nodes.put(targetServiceId, node);
-                if (!node.isReal() && StringUtil.isEmpty(node.getType())) {
-                    node.setType(
+                final Node conjecturalNode = buildNode(targetServiceId, destService);
+                nodes.put(targetServiceId, conjecturalNode);
+                if (!conjecturalNode.isReal() && StringUtil.isEmpty(conjecturalNode.getType())) {
+                    conjecturalNode.setType(
                         componentLibraryCatalogService.getServerNameBasedOnComponent(clientCall.getComponentId()));
                 }
             }
@@ -107,15 +116,36 @@ class ServiceTopologyBuilder {
             IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
                 serverCall.getTarget());
 
-            if (!nodes.containsKey(serverCall.getSource())) {
-                nodes.put(serverCall.getSource(), buildNode(serverCall.getSource(), sourceService));
+            /*
+             * Create the client node if it hasn't been created in client side call.
+             */
+            Node clientSideNode = nodes.get(serverCall.getSource());
+            if (clientSideNode == null) {
+                clientSideNode = buildNode(serverCall.getSource(), sourceService);
+                nodes.put(serverCall.getSource(), clientSideNode);
             }
+            /*
+             * conjectural node type.
+             */
+            if (!clientSideNode.isReal()) {
+                clientSideNode.setType(
+                    componentLibraryCatalogService.getServerNameBasedOnComponent(serverCall.getComponentId()));
+            }
+            /*
+             * Format the User name type.
+             */
+            if (userID.equals(serverCall.getSource())) {
+                nodes.get(userID).setType(Const.USER_SERVICE_NAME.toUpperCase());
+            }
+            /*
+             * Create the server node if it hasn't been created.
+             */
             if (!nodes.containsKey(serverCall.getTarget())) {
                 final Node node = buildNode(serverCall.getTarget(), destService);
                 nodes.put(serverCall.getTarget(), node);
             }
             /*
-             * Service side component id has higher priority
+             * Set the node type due to service side component id has higher priority
              */
             final Node serverSideNode = nodes.get(serverCall.getTarget());
             serverSideNode.setType(
@@ -123,7 +153,6 @@ class ServiceTopologyBuilder {
 
             if (!callMap.containsKey(serverCall.getId())) {
                 Call call = new Call();
-
                 callMap.put(serverCall.getId(), call);
                 call.setSource(serverCall.getSource());
                 call.setTarget(serverCall.getTarget());
