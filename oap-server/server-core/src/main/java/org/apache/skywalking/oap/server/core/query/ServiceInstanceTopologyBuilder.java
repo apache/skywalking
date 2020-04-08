@@ -149,7 +149,7 @@ public class ServiceInstanceTopologyBuilder {
             IDManager.ServiceInstanceID.buildId(instanceIDDefinition.getServiceId(), instanceIDDefinition.getName()));
         instanceNode.setName(instanceIDDefinition.getName());
         instanceNode.setServiceId(instanceIDDefinition.getServiceId());
-        instanceNode.setServiceName(instanceIDDefinition.getName());
+        instanceNode.setServiceName(serviceIDDefinition.getName());
         instanceNode.setReal(serviceIDDefinition.isReal());
         return instanceNode;
     }
