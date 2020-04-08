@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -45,8 +44,8 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     private String serviceId = Const.EMPTY_STRING;
     private String endpointId = Const.EMPTY_STRING;
     private String endpointName = Const.EMPTY_STRING;
-    private long startTimeBucket;
-    private long endTimeBucket;
+    private long startTimestamp;
+    private long endTimestamp;
     private int duration;
     private boolean isError;
 
@@ -78,10 +77,10 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             segmentObject.getServiceInstance()
         ));
         segment.setLatency(duration);
-        segment.setStartTime(startTimeBucket);
-        segment.setEndTime(endTimeBucket);
+        segment.setStartTime(startTimestamp);
+        segment.setEndTime(endTimestamp);
         segment.setIsError(BooleanUtils.booleanToValue(isError));
-        segment.setTimeBucket(startTimeBucket);
+        segment.setTimeBucket(startTimestamp);
         segment.setDataBinary(segmentObject.toByteArray());
         segment.setVersion(3);
 
@@ -123,20 +122,18 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         segment.setTraceId(segmentObject.getTraceId());
         segmentObject.getSpansList().forEach(span -> {
-            if (startTimeBucket == 0 || startTimeBucket > span.getStartTime()) {
-                startTimeBucket = span.getStartTime();
+            if (startTimestamp == 0 || startTimestamp > span.getStartTime()) {
+                startTimestamp = span.getStartTime();
             }
-            if (span.getEndTime() > endTimeBucket) {
-                endTimeBucket = span.getEndTime();
+            if (span.getEndTime() > endTimestamp) {
+                endTimestamp = span.getEndTime();
             }
             if (!isError && span.getIsError()) {
                 isError = true;
             }
         });
-        final long accurateDuration = endTimeBucket - startTimeBucket;
+        final long accurateDuration = endTimestamp - startTimestamp;
         duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
-        startTimeBucket = TimeBucket.getRecordTimeBucket(startTimeBucket);
-        endTimeBucket = TimeBucket.getRecordTimeBucket(endTimeBucket);
     }
 
     @Override
