@@ -1,0 +1,93 @@
+registryItems:
+  applications:
+  - {vertx-web-3.x-scenario: 2}
+  instances:
+  - {vertx-web-3.x-scenario: 1}
+  operationNames:
+  - vertx-web-3.x-scenario: [
+    "/vertx-web-3-scenario/case/healthCheck",
+    "/vertx-web-3-scenario/case/web-case"
+  ]
+segmentItems:
+- applicationCode: vertx-web-3.x-scenario
+  segmentSize: 3
+  segments:
+  - segmentId: nq 0
+    spans:
+    - operationName: "/vertx-web-3-scenario/case/healthCheck"
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      tags:
+      - {key: "http.method", value: "GET"}
+      - {key: "url", value: "/vertx-web-3-scenario/case/healthCheck"}
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 59
+      componentName: ""
+      isError: false
+      spanType: Exit
+      peer: not null
+      peerId: 0
+    - operationName: "/vertx-web-3-scenario/case/web-case"
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      tags:
+      - {key: "http.method", value: "GET"}
+      - {key: "url", value: "/vertx-web-3-scenario/case/web-case"}
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 59
+      componentName: ""
+      isError: false
+      spanType: Entry
+      peer: ""
+      peerId: 0
+  - segmentId: nq 0
+    spans:
+    - operationName: "#/vertx-web-3-scenario/case/healthCheck"
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      refs:
+      - {parentEndpointId: 0, parentEndpoint: "/vertx-web-3-scenario/case/web-case",
+         networkAddressId: 0, entryEndpointId: 0, refType: CrossThread, parentSpanId: 1,
+         parentTraceSegmentId: not null, parentServiceInstanceId: 1, networkAddress: "",
+         entryEndpoint: "/vertx-web-3-scenario/case/web-case", entryServiceInstanceId: 1}
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 59
+      componentName: ""
+      isError: false
+      spanType: Local
+      peer: ""
+      peerId: 0
+  - segmentId: nq 0
+    spans:
+    - operationName: "/vertx-web-3-scenario/case/healthCheck"
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      refs:
+      - {parentEndpointId: 0, parentEndpoint: "/vertx-web-3-scenario/case/web-case",
+         networkAddressId: 0, entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1,
+         parentTraceSegmentId: not null, parentServiceInstanceId: 1,
+         networkAddress: "localhost:8080",
+         entryEndpoint: "/vertx-web-3-scenario/case/web-case",
+         entryServiceInstanceId: 1}
+      tags:
+      - {key: "http.method", value: "GET"}
+      - {key: "url", value: "/vertx-web-3-scenario/case/healthCheck"}
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 59
+      componentName: ""
+      isError: false
+      spanType: Entry
+      peer: ""
+      peerId: 0
