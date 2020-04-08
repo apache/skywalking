@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -36,20 +37,16 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class H2SQLExecutor {
-
-    private static final Logger logger = LoggerFactory.getLogger(H2SQLExecutor.class);
-
     protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
                                                                  String modelName,
                                                                  String[] ids,
                                                                  StorageBuilder<T> storageBuilder) throws IOException {
         /*
-         * Although H2 database or other database support createArrayOf and setArray operate.
-         * But Mysql 5.1.44 driver doesn't.
+         * Although H2 database or other database support createArrayOf and setArray operate,
+         * Mysql 5.1.44 driver doesn't.
          */
         String param = ArrayParamBuilder.build(ids);
 
