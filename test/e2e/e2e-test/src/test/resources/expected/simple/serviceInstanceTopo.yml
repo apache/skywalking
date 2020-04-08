@@ -14,21 +14,21 @@
 # limitations under the License.
 
 nodes:
-  - id: VXNlcg==.10_VXNlcg==
+  - id: VXNlcg==.0_VXNlcg==
     name: User
     type: ""
-    serviceId: VXNlcg==.10
+    serviceId: VXNlcg==.0
     serviceName: User
     isReal: false
   - id: not null
     name: not null
-    serviceId: WW91cl9BcHBsaWNhdGlvbk5hbWU=.0
+    serviceId: WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
     serviceName: not null
     type: not null
     isReal: true
 calls:
   - id: not null
-    source: VXNlcg==.10_VXNlcg==
+    source: VXNlcg==.0_VXNlcg==
     target: not null
     detectPoints:
       - SERVER
