@@ -60,8 +60,16 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
         if (!span.getSpanLayer().equals(SpanLayer.MQ)) {
             span.getRefsList().forEach(segmentReference -> {
                 if (RefType.CrossProcess.equals(segmentReference.getRefType())) {
+                    final String networkAddressUsedAtPeer = segmentReference.getNetworkAddressUsedAtPeer();
+                    if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(
+                        networkAddressUsedAtPeer)) {
+                        /*
+                         * If this network address has been set as an uninstrumented gateway, no alias should be set.
+                         */
+                        return;
+                    }
                     final NetworkAddressAliasSetup networkAddressAliasSetup = new NetworkAddressAliasSetup();
-                    networkAddressAliasSetup.setAddress(segmentReference.getNetworkAddressUsedAtPeer());
+                    networkAddressAliasSetup.setAddress(networkAddressUsedAtPeer);
                     networkAddressAliasSetup.setRepresentService(segmentObject.getService());
                     networkAddressAliasSetup.setRepresentServiceNodeType(NodeType.Normal);
                     networkAddressAliasSetup.setRepresentServiceInstance(segmentObject.getServiceInstance());

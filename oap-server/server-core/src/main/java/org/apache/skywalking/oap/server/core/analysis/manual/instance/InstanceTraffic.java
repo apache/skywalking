@@ -79,6 +79,12 @@ public class InstanceTraffic extends Metrics {
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
             this.properties = instanceTraffic.getProperties();
         }
+        /**
+         * Keep the time bucket as the same time inserted.
+         */
+        if (this.getTimeBucket() > metrics.getTimeBucket()) {
+            this.setTimeBucket(metrics.getTimeBucket());
+        }
     }
 
     @Override
@@ -95,6 +101,7 @@ public class InstanceTraffic extends Metrics {
             setProperties(GSON.fromJson(propString, JsonObject.class));
         }
         setLastPingTimestamp(remoteData.getDataLongs(0));
+        setTimeBucket(remoteData.getDataLongs(1));
     }
 
     @Override
@@ -108,6 +115,7 @@ public class InstanceTraffic extends Metrics {
             builder.addDataStrings(GSON.toJson(properties));
         }
         builder.addDataLongs(lastPingTimestamp);
+        builder.addDataLongs(getTimeBucket());
         return builder;
     }
 
@@ -127,6 +135,7 @@ public class InstanceTraffic extends Metrics {
                 instanceTraffic.setProperties(GSON.fromJson(propString, JsonObject.class));
             }
             instanceTraffic.setLastPingTimestamp(((Number) dbMap.get(LAST_PING_TIME_BUCKET)).longValue());
+            instanceTraffic.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return instanceTraffic;
         }
 
@@ -141,6 +150,7 @@ public class InstanceTraffic extends Metrics {
                 map.put(PROPERTIES, Const.EMPTY_STRING);
             }
             map.put(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
     }

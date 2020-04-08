@@ -36,13 +36,16 @@ public class Service extends Source {
 
     @Override
     public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, NodeType.Normal);
+        return IDManager.ServiceID.buildId(name, nodeType);
     }
 
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
+    @Setter
+    @Getter
+    private NodeType nodeType;
     @Getter
     @Setter
     private String serviceInstanceName;

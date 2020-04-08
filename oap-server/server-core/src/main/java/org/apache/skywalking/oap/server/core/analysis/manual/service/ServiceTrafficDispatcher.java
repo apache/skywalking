@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.Service;
 
 public class ServiceTrafficDispatcher implements SourceDispatcher<Service> {
@@ -29,7 +28,7 @@ public class ServiceTrafficDispatcher implements SourceDispatcher<Service> {
         ServiceTraffic traffic = new ServiceTraffic();
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getName());
-        traffic.setNodeType(NodeType.Normal);
+        traffic.setNodeType(source.getNodeType());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

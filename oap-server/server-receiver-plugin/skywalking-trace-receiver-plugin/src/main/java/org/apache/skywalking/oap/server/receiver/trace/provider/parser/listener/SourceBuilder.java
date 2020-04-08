@@ -98,6 +98,7 @@ class SourceBuilder {
         service.setName(destServiceName);
         service.setServiceInstanceName(destServiceInstanceName);
         service.setEndpointName(destEndpointName);
+        service.setNodeType(destNodeType);
         service.setLatency(latency);
         service.setStatus(status);
         service.setResponseCode(responseCode);
@@ -140,6 +141,9 @@ class SourceBuilder {
     }
 
     ServiceInstanceRelation toServiceInstanceRelation() {
+        if (StringUtil.isEmpty(sourceServiceInstanceName) || StringUtil.isEmpty(destServiceInstanceName)) {
+            return null;
+        }
         ServiceInstanceRelation serviceInstanceRelation = new ServiceInstanceRelation();
         serviceInstanceRelation.setSourceServiceName(sourceServiceName);
         serviceInstanceRelation.setSourceServiceNodeType(sourceNodeType);

@@ -23,12 +23,13 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.apm.util.StringFormatGroup;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -46,7 +48,10 @@ public class TelemetryDataDispatcher {
     private static SourceReceiver SOURCE_RECEIVER;
 
     private TelemetryDataDispatcher() {
+    }
 
+    public static void init(ModuleManager moduleManager) {
+        SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     public static void preProcess(ServiceMeshMetric data) {
@@ -129,6 +134,7 @@ public class TelemetryDataDispatcher {
         Service service = new Service();
         service.setTimeBucket(minuteTimeBucket);
         service.setName(metrics.getDestServiceName());
+        service.setNodeType(NodeType.Normal);
         service.setServiceInstanceName(metrics.getDestServiceInstance());
         service.setEndpointName(metrics.getEndpoint());
         service.setLatency(metrics.getLatency());

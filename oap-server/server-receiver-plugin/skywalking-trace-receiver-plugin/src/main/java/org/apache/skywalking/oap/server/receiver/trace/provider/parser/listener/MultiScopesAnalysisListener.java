@@ -109,7 +109,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                     config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
-                    sourceBuilder.setSourceNodeType(NodeType.MQ);
+                    sourceBuilder.setSourceNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
                 } else {
                     sourceBuilder.setSourceServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(reference.getParentServiceInstance());
@@ -164,7 +164,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
-        if (networkAddressAlias == null || config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
+        if (networkAddressAlias == null) {
             sourceBuilder.setDestServiceName(networkAddress);
             sourceBuilder.setDestServiceInstanceName(networkAddress);
             sourceBuilder.setDestNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
@@ -178,7 +178,13 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 .analysisId(
                     networkAddressAlias.getRepresentServiceInstanceId());
             sourceBuilder.setDestServiceName(serviceIDDefinition.getName());
-            sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
+            /*
+             * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
+             * Keeping dest instance name as NULL makes no instance relation generate from this exit span.
+             */
+            if (!config.getNoUpstreamRealAddressAgents().contains(span.getComponentId())) {
+                sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
+            }
             sourceBuilder.setDestNodeType(NodeType.Normal);
         }
 
@@ -268,6 +274,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
+            sourceReceiver.receive(exitSourceBuilder.toService());
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*

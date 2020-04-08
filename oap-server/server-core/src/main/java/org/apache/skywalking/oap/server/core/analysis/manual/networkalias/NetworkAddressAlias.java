@@ -72,6 +72,12 @@ public class NetworkAddressAlias extends Metrics {
         this.representServiceId = alias.getRepresentServiceId();
         this.representServiceInstanceId = alias.getRepresentServiceInstanceId();
         this.lastUpdateTimeBucket = alias.getLastUpdateTimeBucket();
+        /**
+         * Keep the time bucket as the same time inserted.
+         */
+        if (this.getTimeBucket() > metrics.getTimeBucket()) {
+            this.setTimeBucket(metrics.getTimeBucket());
+        }
     }
 
     @Override
@@ -91,6 +97,7 @@ public class NetworkAddressAlias extends Metrics {
         setRepresentServiceInstanceId(remoteData.getDataStrings(2));
 
         setLastUpdateTimeBucket(remoteData.getDataLongs(0));
+        setTimeBucket(remoteData.getDataLongs(1));
     }
 
     @Override
@@ -101,6 +108,7 @@ public class NetworkAddressAlias extends Metrics {
         builder.addDataStrings(representServiceInstanceId);
 
         builder.addDataLongs(lastUpdateTimeBucket);
+        builder.addDataLongs(getTimeBucket());
         return builder;
     }
 
@@ -112,6 +120,7 @@ public class NetworkAddressAlias extends Metrics {
             networkAddressAlias.setRepresentServiceId((String) dbMap.get(REPRESENT_SERVICE_ID));
             networkAddressAlias.setRepresentServiceInstanceId((String) dbMap.get(REPRESENT_SERVICE_INSTANCE_ID));
             networkAddressAlias.setLastUpdateTimeBucket(((Number) dbMap.get(LAST_UPDATE_TIME_BUCKET)).longValue());
+            networkAddressAlias.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return networkAddressAlias;
         }
 
@@ -122,6 +131,7 @@ public class NetworkAddressAlias extends Metrics {
             map.put(REPRESENT_SERVICE_ID, storageData.getRepresentServiceId());
             map.put(REPRESENT_SERVICE_INSTANCE_ID, storageData.getRepresentServiceInstanceId());
             map.put(LAST_UPDATE_TIME_BUCKET, storageData.getLastUpdateTimeBucket());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
             return map;
         }
     }

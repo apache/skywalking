@@ -89,6 +89,20 @@ public class AgentDataMock {
                                                     .build()
                               )
                               .build());
+        managementServiceBlockingStub.reportInstanceProperties(
+            InstanceProperties.newBuilder()
+                              .setService(ServiceBMock.SERVICE_NAME)
+                              .setServiceInstance(ServiceBMock.SERVICE_INSTANCE_NAME)
+                              .addProperties(
+                                  KeyStringValuePair.newBuilder()
+                                                    .setKey("os_name").setValue("MacOS")
+                                                    .build())
+                              .addProperties(
+                                  KeyStringValuePair.newBuilder()
+                                                    .setKey("language").setValue("java")
+                                                    .build()
+                              )
+                              .build());
 
         while (!IS_COMPLETED) {
             TimeUnit.MILLISECONDS.sleep(500);

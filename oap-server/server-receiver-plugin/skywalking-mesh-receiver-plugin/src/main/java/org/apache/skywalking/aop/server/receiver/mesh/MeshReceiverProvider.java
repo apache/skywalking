@@ -56,6 +56,7 @@ public class MeshReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        TelemetryDataDispatcher.init(getManager());
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);
