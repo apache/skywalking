@@ -549,7 +549,7 @@ You could run test by using following commands
 
 ```bash
 cd ${SKYWALKING_HOME}
-bash ./test/pugin/run.sh -f ${scenario_name}
+bash ./test/plugin/run.sh -f ${scenario_name}
 ```
 
 **Notice**，if codes in `./apm-sniffer` have been changed, no matter because your change or git update，
