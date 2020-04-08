@@ -24,9 +24,11 @@ import io.grpc.stub.StreamObserver;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
+import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.apm.network.management.v3.ManagementServiceGrpc;
 
 public class AgentDataMock {
@@ -72,6 +74,22 @@ public class AgentDataMock {
         }
 
         streamObserver.onCompleted();
+
+        managementServiceBlockingStub.reportInstanceProperties(
+            InstanceProperties.newBuilder()
+                              .setService(ServiceAMock.SERVICE_NAME)
+                              .setServiceInstance(ServiceAMock.SERVICE_INSTANCE_NAME)
+                              .addProperties(
+                                  KeyStringValuePair.newBuilder()
+                                                    .setKey("os_name").setValue("MacOS")
+                                                    .build())
+                              .addProperties(
+                                  KeyStringValuePair.newBuilder()
+                                                    .setKey("language").setValue("java")
+                                                    .build()
+                              )
+                              .build());
+
         while (!IS_COMPLETED) {
             TimeUnit.MILLISECONDS.sleep(500);
         }
