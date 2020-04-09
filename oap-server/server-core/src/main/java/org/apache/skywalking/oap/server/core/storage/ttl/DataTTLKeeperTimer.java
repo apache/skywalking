@@ -81,9 +81,7 @@ public enum DataTTLKeeperTimer {
         log.info("Beginning to remove expired metrics from the storage.");
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
         List<Model> models = modelGetter.allModels();
-        models.forEach(model -> {
-            execute(model);
-        });
+        models.forEach(this::execute);
     }
 
     private void execute(Model model) {
