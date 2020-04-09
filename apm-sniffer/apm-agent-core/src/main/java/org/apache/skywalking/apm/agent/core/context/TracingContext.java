@@ -260,7 +260,7 @@ public class TracingContext implements AbstractTracerContext {
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
-            /**
+            /*
              * Only add the profiling recheck on creating entry span,
              * as the operation name could be overrided.
              */
@@ -324,14 +324,7 @@ public class TracingContext implements AbstractTracerContext {
             exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            if (StringUtil.isEmpty(remotePeer)) {
-                exitSpan = new ExitSpan(spanIdGenerator++, parentSpanId, operationName, owner);
-            } else {
-                exitSpan = new ExitSpan(
-                    spanIdGenerator++, parentSpanId, operationName,
-                    remotePeer, owner
-                );
-            }
+            exitSpan = new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer, owner);
             push(exitSpan);
         }
         exitSpan.start();
