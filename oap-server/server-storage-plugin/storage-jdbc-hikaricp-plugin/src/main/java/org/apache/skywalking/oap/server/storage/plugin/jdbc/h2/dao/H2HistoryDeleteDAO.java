@@ -45,7 +45,7 @@ public class H2HistoryDeleteDAO implements IHistoryDeleteDAO {
         DateTime minDate = new DateTime(1900, 1, 1, 0, 0);
 
         try (Connection connection = client.getConnection()) {
-            long deadline = 0;
+            long deadline;
             if (model.isRecord()) {
                 deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHHmmss"));
             } else {
