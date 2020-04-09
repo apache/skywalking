@@ -22,6 +22,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
 import java.util.Objects;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -46,6 +47,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.hamcrest.MatcherAssert;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,10 +66,15 @@ public class ContextManagerTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
+    }
+
     @AfterClass
     public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
         ServiceManager.INSTANCE.shutdown();
-
     }
 
     @Test

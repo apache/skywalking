@@ -27,8 +27,8 @@ import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,13 +46,15 @@ public class IgnoredTracerContextTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    @AfterClass
-    public static void afterClass() {
-        ServiceManager.INSTANCE.shutdown();
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test

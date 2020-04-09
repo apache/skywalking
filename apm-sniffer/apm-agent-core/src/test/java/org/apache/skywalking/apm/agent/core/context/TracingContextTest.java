@@ -18,12 +18,24 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TracingContextTest {
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
+    }
 
     @Test
     public void testSpanLimit() {

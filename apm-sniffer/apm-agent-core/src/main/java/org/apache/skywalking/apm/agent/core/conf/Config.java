@@ -104,6 +104,11 @@ public class Config {
          * In the current practice, we don't recommend the length over 190.
          */
         public static int OPERATION_NAME_THRESHOLD = 150;
+
+        /**
+         * Keep tracing even the backend is not available.
+         */
+        public static boolean KEEP_TRACING = false;
     }
 
     public static class Collector {

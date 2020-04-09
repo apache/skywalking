@@ -54,10 +54,9 @@ public class ContextManagerExtendService implements BootService, GRPCChannelList
     public AbstractTracerContext createTraceContext(String operationName, boolean forceSampling) {
         AbstractTracerContext context;
         /*
-         * Don't trace anything if the backend is not ava
-         * ilable.
+         * Don't trace anything if the backend is not available.
          */
-        if (GRPCChannelStatus.DISCONNECT.equals(status)) {
+        if (!Config.Agent.KEEP_TRACING && GRPCChannelStatus.DISCONNECT.equals(status)) {
             return new IgnoredTracerContext();
         }
 

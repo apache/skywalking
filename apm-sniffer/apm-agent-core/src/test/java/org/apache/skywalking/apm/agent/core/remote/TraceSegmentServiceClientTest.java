@@ -24,6 +24,7 @@ import io.grpc.testing.GrpcServerRule;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -40,6 +41,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportSer
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,8 +88,14 @@ public class TraceSegmentServiceClientTest {
         }
     };
 
+    @BeforeClass
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
+    }
+
     @AfterClass
     public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
         ServiceManager.INSTANCE.shutdown();
     }
 
