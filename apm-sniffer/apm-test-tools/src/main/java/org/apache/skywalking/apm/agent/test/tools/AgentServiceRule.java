@@ -54,5 +54,6 @@ public class AgentServiceRule extends ExternalResource {
         AgentClassLoader.initDefaultLoader();
         Config.Logging.LEVEL = LogLevel.OFF;
         ServiceManager.INSTANCE.boot();
+        Config.Agent.KEEP_TRACING = true;
     }
 }
