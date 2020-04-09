@@ -14,7 +14,7 @@
 # limitations under the License.
 
 instances:
-  - key: gt 0
+  - key: not null
     label: not null
     attributes:
       - name: OS Name
@@ -25,7 +25,7 @@ instances:
         value: gt 0
       - name: ipv4s
         value: not null
-  - key: gt 0
+  - key: not null
     label: not null
     attributes:
       - name: OS Name
