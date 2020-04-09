@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -70,6 +71,8 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
                 segmentObject.getService(), NodeType.Normal);
         }
 
+        long timeBucket = TimeBucket.getRecordTimeBucket(startTimestamp);
+
         segment.setSegmentId(segmentObject.getTraceSegmentId());
         segment.setServiceId(serviceId);
         segment.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
@@ -78,9 +81,9 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         ));
         segment.setLatency(duration);
         segment.setStartTime(startTimestamp);
+        segment.setTimeBucket(timeBucket);
         segment.setEndTime(endTimestamp);
         segment.setIsError(BooleanUtils.booleanToValue(isError));
-        segment.setTimeBucket(startTimestamp);
         segment.setDataBinary(segmentObject.toByteArray());
         segment.setVersion(3);
 
