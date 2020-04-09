@@ -14,5 +14,5 @@
 # limitations under the License.
 
 services:
-  - key: not null
-    label: "Your_ApplicationName"
+  - key: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1
+    label: "e2e-profile-service"
