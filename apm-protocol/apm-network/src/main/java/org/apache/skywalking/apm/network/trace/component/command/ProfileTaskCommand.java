@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.Command;
-import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 import java.util.List;
 

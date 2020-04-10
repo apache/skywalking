@@ -30,8 +30,8 @@ import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
 import org.apache.skywalking.apm.agent.core.context.util.ThrowableTransformer;
 import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
@@ -72,8 +72,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     protected boolean errorOccurred = false;
 
     protected int componentId = 0;
-
-    protected String componentName;
 
     /**
      * Log is a concept from OpenTracing spec. https://github.com/opentracing/specification/blob/master/specification.md#log-structured-data
@@ -234,25 +232,14 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         return this;
     }
 
-    /**
-     * Set the component name. By using this, cost more memory and network.
-     *
-     * @return span instance, for chaining.
-     */
-    @Override
-    public AbstractTracingSpan setComponent(String componentName) {
-        this.componentName = componentName;
-        return this;
-    }
-
     @Override
     public AbstractSpan start(long startTime) {
         this.startTime = startTime;
         return this;
     }
 
-    public SpanObjectV2.Builder transform() {
-        SpanObjectV2.Builder spanBuilder = SpanObjectV2.newBuilder();
+    public SpanObject.Builder transform() {
+        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
 
         spanBuilder.setSpanId(this.spanId);
         spanBuilder.setParentSpanId(parentSpanId);
@@ -271,10 +258,6 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         }
         if (componentId != DictionaryUtil.nullValue()) {
             spanBuilder.setComponentId(componentId);
-        } else {
-            if (componentName != null) {
-                spanBuilder.setComponent(componentName);
-            }
         }
         spanBuilder.setIsError(errorOccurred);
         if (this.tags != null) {

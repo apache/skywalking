@@ -65,7 +65,7 @@ public class H2ProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
         return ProfileTaskLog.builder()
                              .id(data.getString("id"))
                              .taskId(data.getString(ProfileTaskLogRecord.TASK_ID))
-                             .instanceId(data.getInt(ProfileTaskLogRecord.INSTANCE_ID))
+                             .instanceId(data.getString(ProfileTaskLogRecord.INSTANCE_ID))
                              .operationType(ProfileTaskLogOperationType.parse(data.getInt(ProfileTaskLogRecord.OPERATION_TYPE)))
                              .operationTime(data.getLong(ProfileTaskLogRecord.OPERATION_TIME))
                              .build();

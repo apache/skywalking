@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
 public interface Deserializable<T extends BaseCommand> {
     T deserialize(Command command);

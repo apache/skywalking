@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import com.google.common.base.Strings;
+import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -37,9 +40,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.io.IOException;
-import java.util.List;
-
 public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
     public TraceQueryEs7DAO(ElasticSearchClient client, int segmentQueryMaxSize) {
@@ -47,9 +47,19 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int serviceInstanceId, String endpointId, String traceId, int limit, int from,
-        TraceState traceState, QueryOrder queryOrder) throws IOException {
+    public TraceBrief queryBasicTraces(long startSecondTB,
+                                       long endSecondTB,
+                                       long minDuration,
+                                       long maxDuration,
+                                       String endpointName,
+                                       String serviceId,
+                                       String serviceInstanceId,
+                                       String endpointId,
+                                       String traceId,
+                                       int limit,
+                                       int from,
+                                       TraceState traceState,
+                                       QueryOrder queryOrder) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -74,10 +84,10 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
             String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
             mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
@@ -118,7 +128,8 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
             basicTrace.getEndpointNames().add((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             basicTrace.setDuration(((Number) searchHit.getSourceAsMap().get(SegmentRecord.LATENCY)).intValue());
             basicTrace.setError(BooleanUtils.valueToBoolean(((Number) searchHit.getSourceAsMap()
-                                                                               .get(SegmentRecord.IS_ERROR)).intValue()));
+                                                                               .get(
+                                                                                   SegmentRecord.IS_ERROR)).intValue()));
             basicTrace.getTraceIds().add((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
             traceBrief.getTraces().add(basicTrace);
         }

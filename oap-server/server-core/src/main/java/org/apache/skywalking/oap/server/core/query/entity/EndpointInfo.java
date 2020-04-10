@@ -26,6 +26,6 @@ import lombok.Setter;
 public class EndpointInfo {
     private String id;
     private String name;
-    private int serviceId;
+    private String serviceId;
     private String serviceName;
 }

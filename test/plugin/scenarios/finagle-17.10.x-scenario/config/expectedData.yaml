@@ -13,64 +13,45 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {finagle-17.10.x-scenario: 2}
-  instances:
-    - {finagle-17.10.x-scenario: 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: finagle-17.10.x-scenario
-    segmentSize: gt 2
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: hello
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 85
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /finagle-17.10.x-scenario/case/finagle, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: 1, networkAddress: '127.0.0.1:12220', entryEndpoint: /finagle-17.10.x-scenario/case/finagle,
-                 entryServiceInstanceId: 1}
-      - segmentId: not null
-        spans:
-          - operationName: hello
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: RPCFramework
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 85
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: 127.0.0.1:12220
-            peerId: 0
-          - operationName: /finagle-17.10.x-scenario/case/finagle
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/finagle-17.10.x-scenario/case/finagle'}
-              - {key: http.method, value: GET}
+- serviceName: finagle-17.10.x-scenario
+  segmentSize: gt 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: hello
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 85
+      isError: false
+      spanType: Entry
+      peer: ''
+      refs:
+      - {parentEndpoint: /finagle-17.10.x-scenario/case/finagle, networkAddress: '127.0.0.1:12220',
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - {operationName: hello, operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: RPCFramework,
+      startTime: nq 0, endTime: nq 0, componentId: 85, isError: false, spanType: Exit,
+      peer: '127.0.0.1:12220', skipAnalysis: 'false'}
+    - operationName: /finagle-17.10.x-scenario/case/finagle
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/finagle-17.10.x-scenario/case/finagle'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

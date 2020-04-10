@@ -1,7 +1,9 @@
 # Welcome
-**Here are SkyWalking 7 official documents. You're welcome to join us.**
+**Here are SkyWalking 8 official documents. You're welcome to join us.**
 
 From here you can learn all about **SkyWalking**’s architecture, how to deploy and use SkyWalking, and develop based on SkyWalking contributions guidelines.
+
+**NOTICE, SkyWalking 8 uses brand new tracing APIs, it is incompatible with all previous releases.**
 
 - [Concepts and Designs](en/concepts-and-designs/README.md). You'll find the the most important core ideas about SkyWalking. You can learn from here if you want to understand what is going on under our cool features and visualization.
 

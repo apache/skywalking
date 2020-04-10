@@ -51,10 +51,12 @@ public enum DataTTLKeeperTimer {
 
     private ModuleManager moduleManager;
     private ClusterNodesQuery clusterNodesQuery;
+    private CoreModuleConfig moduleConfig;
 
     public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
+        this.moduleConfig = moduleConfig;
 
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleAtFixedRate(
@@ -79,11 +81,7 @@ public enum DataTTLKeeperTimer {
         log.info("Beginning to remove expired metrics from the storage.");
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
         List<Model> models = modelGetter.allModels();
-        models.forEach(model -> {
-            if (model.isDeleteHistory()) {
-                execute(model);
-            }
-        });
+        models.forEach(this::execute);
     }
 
     private void execute(Model model) {
@@ -91,7 +89,9 @@ public enum DataTTLKeeperTimer {
             moduleManager.find(StorageModule.NAME)
                          .provider()
                          .getService(IHistoryDeleteDAO.class)
-                         .deleteHistory(model, Metrics.TIME_BUCKET);
+                         .deleteHistory(model, Metrics.TIME_BUCKET,
+                                        model.isRecord() ? moduleConfig.getRecordDataTTL() : moduleConfig.getMetricsDataTTL()
+                         );
         } catch (IOException e) {
             log.warn("History of {} delete failure", model.getName());
             log.error(e.getMessage(), e);

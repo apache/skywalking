@@ -47,19 +47,12 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
-        for (Model model : models) {
-            if (model.getName().equals(storage.getModelName())) {
-                return model;
-            }
-        }
-
         List<ModelColumn> modelColumns = new ArrayList<>();
         List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
         retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices);
 
         Model model = new Model(
-            storage.getModelName(), modelColumns, extraQueryIndices, storage.isCapableOfTimeSeries(),
-            storage.isDeleteHistory(), scopeId,
+            storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
             storage.getDownsampling(), record
         );
         models.add(model);

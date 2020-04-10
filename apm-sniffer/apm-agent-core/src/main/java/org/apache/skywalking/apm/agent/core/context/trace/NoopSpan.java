@@ -51,11 +51,6 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override
-    public AbstractSpan setComponent(String componentName) {
-        return this;
-    }
-
-    @Override
     public AbstractSpan setLayer(SpanLayer layer) {
         return this;
     }

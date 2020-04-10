@@ -67,7 +67,7 @@ public class TopNDatabaseStatement extends TopN {
             statement.setStatement((String) dbMap.get(STATEMENT));
             statement.setTraceId((String) dbMap.get(TRACE_ID));
             statement.setLatency(((Number) dbMap.get(LATENCY)).longValue());
-            statement.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
+            statement.setServiceId((String) dbMap.get(SERVICE_ID));
             statement.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return statement;
         }

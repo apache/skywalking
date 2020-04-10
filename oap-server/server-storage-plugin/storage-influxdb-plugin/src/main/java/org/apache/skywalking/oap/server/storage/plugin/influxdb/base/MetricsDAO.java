@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
@@ -97,10 +99,7 @@ public class MetricsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
-        if (metrics instanceof EndpointTraffic) {
-            /**
-             * @since 7.1.0 EndpointTraffic is a special manual metrics, to replace the old Endpoint Inventory.
-             */
+        if (metrics instanceof EndpointTraffic || metrics instanceof ServiceTraffic || metrics instanceof InstanceTraffic) {
             return new InfluxInsertRequest(model, metrics, storageBuilder)
                 .time(timestamp, TimeUnit.MILLISECONDS)
                 .addFieldAsTag(EndpointTraffic.SERVICE_ID, TAG_ENDPOINT_OWNER_SERVICE)

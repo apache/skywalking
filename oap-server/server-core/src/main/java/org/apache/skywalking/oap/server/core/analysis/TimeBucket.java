@@ -29,7 +29,7 @@ public class TimeBucket {
      * @return time in second format
      */
     public static long getRecordTimeBucket(long time) {
-        return getTimeBucket(time, Downsampling.Second);
+        return getTimeBucket(time, DownSampling.Second);
     }
 
     /**
@@ -39,7 +39,7 @@ public class TimeBucket {
      * @return time in minute format
      */
     public static long getMinuteTimeBucket(long time) {
-        return getTimeBucket(time, Downsampling.Minute);
+        return getTimeBucket(time, DownSampling.Minute);
     }
 
     /**
@@ -50,15 +50,13 @@ public class TimeBucket {
      */
     public static long getTimestamp(long timeBucket) {
         if (isSecondBucket(timeBucket)) {
-            return getTimestamp(timeBucket, Downsampling.Second);
+            return getTimestamp(timeBucket, DownSampling.Second);
         } else if (isMinuteBucket(timeBucket)) {
-            return getTimestamp(timeBucket, Downsampling.Minute);
+            return getTimestamp(timeBucket, DownSampling.Minute);
         } else if (isHourBucket(timeBucket)) {
-            return getTimestamp(timeBucket, Downsampling.Hour);
+            return getTimestamp(timeBucket, DownSampling.Hour);
         } else if (isDayBucket(timeBucket)) {
-            return getTimestamp(timeBucket, Downsampling.Day);
-        } else if (isMonthBucket(timeBucket)) {
-            return getTimestamp(timeBucket, Downsampling.Month);
+            return getTimestamp(timeBucket, DownSampling.Day);
         } else {
             throw new UnexpectedException("Unknown downsampling value.");
         }
@@ -81,8 +79,8 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket must be between 1000000000 and
-     * 9999999999.
+     * The format of timeBucket in hour Unit is "yyyyMMddHH", so which means the TimeBucket must be between 1000000000
+     * and 9999999999.
      */
     public static boolean isHourBucket(long timeBucket) {
         return timeBucket < 9999999999L && timeBucket > 1000000000L;
@@ -111,7 +109,7 @@ public class TimeBucket {
      * @param downsampling Downsampling
      * @return timestamp in millisecond unit
      */
-    public static long getTimestamp(long timeBucket, Downsampling downsampling) {
+    public static long getTimestamp(long timeBucket, DownSampling downsampling) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(0);
         switch (downsampling) {
@@ -127,9 +125,6 @@ public class TimeBucket {
             case Day:
                 calendar.set(Calendar.DAY_OF_MONTH, (int) (timeBucket % 100));
                 timeBucket /= 100;
-            case Month:
-                calendar.set(Calendar.MONTH, (int) (timeBucket % 100) - 1);
-                calendar.set(Calendar.YEAR, (int) (timeBucket / 100));
                 break;
             default:
                 throw new UnexpectedException("Unknown downsampling value.");
@@ -139,15 +134,15 @@ public class TimeBucket {
     }
 
     /**
-     * Record time bucket format in Downsampling Unit.
+     * Record timestamp bucket format in Downsampling Unit.
      *
-     * @param time         Timestamp
+     * @param timestamp    Timestamp
      * @param downsampling Downsampling
-     * @return time in downsampling format
+     * @return timestamp in downsampling format
      */
-    public static long getTimeBucket(long time, Downsampling downsampling) {
+    public static long getTimeBucket(long timestamp, DownSampling downsampling) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
+        calendar.setTimeInMillis(timestamp);
 
         long year = calendar.get(Calendar.YEAR);
         long month = calendar.get(Calendar.MONTH) + 1;
@@ -165,8 +160,6 @@ public class TimeBucket {
                 return year * 1000000 + month * 10000 + day * 100 + hour;
             case Day:
                 return year * 10000 + month * 100 + day;
-            case Month:
-                return year * 100 + month;
             default:
                 throw new UnexpectedException("Unknown downsampling value.");
         }

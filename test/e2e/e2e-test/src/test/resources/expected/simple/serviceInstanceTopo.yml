@@ -14,21 +14,21 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
+  - id: VXNlcg==.0_VXNlcg==
     name: User
-    type: USER
-    serviceId: 1
+    type: ""
+    serviceId: VXNlcg==.0
     serviceName: User
     isReal: false
-  - id: 2
+  - id: not null
     name: not null
-    serviceId: 2
-    serviceName: Your_ApplicationName
-    type: Tomcat
+    serviceId: WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
+    serviceName: not null
+    type: not null
     isReal: true
 calls:
-  - id: 1_2
-    source: 1
+  - id: not null
+    source: VXNlcg==.0_VXNlcg==
+    target: not null
     detectPoints:
       - SERVER
-    target: 2

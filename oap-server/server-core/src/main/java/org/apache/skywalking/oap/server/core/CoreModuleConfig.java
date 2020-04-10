@@ -69,16 +69,16 @@ public class CoreModuleConfig extends ModuleConfig {
     private boolean enableDataKeeperExecutor = true;
     @Setter
     private int dataKeeperExecutePeriod = 5;
+    /**
+     * The time to live of all metrics data. Unit is day.
+     */
     @Setter
-    private int recordDataTTL;
+    private int metricsDataTTL = 3;
+    /**
+     * The time to live of all record data, including tracing. Unit is Day.
+     */
     @Setter
-    private int minuteMetricsDataTTL;
-    @Setter
-    private int hourMetricsDataTTL;
-    @Setter
-    private int dayMetricsDataTTL;
-    @Setter
-    private int monthMetricsDataTTL;
+    private int recordDataTTL = 7;
     @Setter
     private int gRPCThreadPoolSize;
     @Setter
@@ -89,12 +89,9 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     private int remoteTimeout = 20;
     /**
-     * Following are cache settings for inventory(s)
+     * The size of network address alias.
      */
-    private long maxSizeOfServiceInventory = 10_000L;
-    private long maxSizeOfServiceInstanceInventory = 1_000_000L;
-    private long maxSizeOfEndpointInventory = 1_000_000L;
-    private long maxSizeOfNetworkInventory = 1_000_000L;
+    private long maxSizeOfNetworkAddressAlias = 1_000_000L;
     /**
      * Following are cache setting for none stream(s)
      */
@@ -126,16 +123,6 @@ public class CoreModuleConfig extends ModuleConfig {
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
-    }
-
-    public DataTTLConfig getDataTTL() {
-        DataTTLConfig dataTTLConfig = new DataTTLConfig();
-        dataTTLConfig.setRecordDataTTL(recordDataTTL);
-        dataTTLConfig.setMinuteMetricsDataTTL(minuteMetricsDataTTL);
-        dataTTLConfig.setHourMetricsDataTTL(hourMetricsDataTTL);
-        dataTTLConfig.setDayMetricsDataTTL(dayMetricsDataTTL);
-        dataTTLConfig.setMonthMetricsDataTTL(monthMetricsDataTTL);
-        return dataTTLConfig;
     }
 
     /**

@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.util.KeyValuePair;
-import org.apache.skywalking.apm.network.language.agent.v2.Log;
+import org.apache.skywalking.apm.network.language.agent.v3.Log;
 
 /**
  * The <code>LogDataEntity</code> represents a collection of {@link KeyValuePair}, contains several fields of a logging

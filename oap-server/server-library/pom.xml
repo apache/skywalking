@@ -32,7 +32,6 @@
         <module>library-server</module>
         <module>library-util</module>
         <module>library-client</module>
-        <module>library-buffer</module>
     </modules>
 
     <dependencies>

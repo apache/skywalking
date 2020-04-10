@@ -25,9 +25,9 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.internal.DnsNameResolverProvider;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.junit.Assert;
 
 public class GRPCNoServerTest {
@@ -39,7 +39,7 @@ public class GRPCNoServerTest {
         ManagedChannel channel = channelBuilder.build();
         TraceSegmentReportServiceGrpc.TraceSegmentReportServiceStub serviceStub = TraceSegmentReportServiceGrpc.newStub(channel);
         final Status[] status = {null};
-        StreamObserver<UpstreamSegment> streamObserver = serviceStub.collect(new StreamObserver<Commands>() {
+        StreamObserver<SegmentObject> streamObserver = serviceStub.collect(new StreamObserver<Commands>() {
             @Override
             public void onNext(Commands value) {
 

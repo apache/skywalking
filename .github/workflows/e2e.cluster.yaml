@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         coordinator: ['zk']
-        storage: ['mysql', 'es6', 'es7', 'influxdb']
+        storage: ['mysql', 'es6', 'es7'] #TODO: 'influxdb'
     env:
       SW_COORDINATOR: ${{ matrix.coordinator }}
       SW_STORAGE: ${{ matrix.storage }}

@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
@@ -49,7 +49,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
 
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName,
-                                           int serviceId, int topN, Order order) throws IOException {
+                                           String serviceId, int topN, Order order) throws IOException {
         String function = "bottom";
         // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNRecord> comparator = Comparator.comparingLong(TopNRecord::getLatency);
@@ -67,8 +67,8 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             .and(gte(TopN.TIME_BUCKET, startSecondTB))
             .and(lte(TopN.TIME_BUCKET, endSecondTB));
 
-        if (serviceId != Const.NONE) {
-            query.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
+        if (StringUtil.isNotEmpty(serviceId)) {
+            query.and(eq(RecordDAO.TAG_SERVICE_ID, serviceId));
         }
 
         QueryResult.Series series = client.queryForSingleSeries(query);

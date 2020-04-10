@@ -13,11 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {gson-scenario: nq 0}
-  instances:
-    - {gson-scenario: nq 0}
 segmentItems:
 - serviceName: gson-scenario
   segmentSize: ge 2
@@ -30,30 +25,28 @@ segmentItems:
       spanId: 1
       spanLayer: Unknown
       tags:
-        - {key: 'length', value: 'not null'}
+      - {key: length, value: not null}
       startTime: nq 0
       endTime: nq 0
       componentId: 55
-      componentName: ''
       isError: false
       spanType: Local
       peer: ' '
-      peerId: 0
+      skipAnalysis: 'false'
     - operationName: Gson/FromJson
       operationId: 0
       parentSpanId: 0
       spanId: 2
       spanLayer: Unknown
       tags:
-        - {key: 'length', value: 'not null'}
+      - {key: length, value: not null}
       startTime: nq 0
       endTime: nq 0
       componentId: 55
-      componentName: ''
       isError: false
       spanType: Local
       peer: ''
-      peerId: 0
+      skipAnalysis: 'false'
     - operationName: /gson-scenario/case/gson-scenario
       operationId: 0
       spanId: 0
@@ -61,11 +54,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
-        - {key: url, value: 'http://localhost:8080/gson-scenario/case/gson-scenario'}
-        - {key: http.method, value: GET}
+      - {key: url, value: 'http://localhost:8080/gson-scenario/case/gson-scenario'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

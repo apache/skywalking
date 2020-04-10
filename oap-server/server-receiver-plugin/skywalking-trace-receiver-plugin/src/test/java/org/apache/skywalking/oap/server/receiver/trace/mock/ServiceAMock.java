@@ -18,57 +18,41 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 class ServiceAMock {
+    public static String SERVICE_NAME = "mock_a_service";
+    public static String SERVICE_INSTANCE_NAME = "mock_a_service_instance";
 
     static String REST_ENDPOINT = "/dubbox-case/case/dubbox-rest";
     static String DUBBO_ENDPOINT = "org.skywaking.apm.testcase.dubbo.services.GreetService.doBusiness()";
     static String DUBBO_ADDRESS = "DubboIPAddress:1000";
-    private final RegisterMock registerMock;
-    private static int SERVICE_ID;
-    static int SERVICE_INSTANCE_ID;
 
-    ServiceAMock(RegisterMock registerMock) {
-        this.registerMock = registerMock;
+    void mock(StreamObserver<SegmentObject> streamObserver, String traceId,
+              String segmentId, long startTimestamp) {
+        streamObserver.onNext(createSegment(startTimestamp, traceId, segmentId).build());
     }
 
-    void register() throws InterruptedException {
-        SERVICE_ID = registerMock.registerService("dubbox-consumer");
-        SERVICE_INSTANCE_ID = registerMock.registerServiceInstance(SERVICE_ID, "pengysA");
-    }
-
-    void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder traceId,
-              UniqueId.Builder segmentId, long startTimestamp, boolean isPrepare) {
-        UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
-        upstreamSegment.addGlobalTraceIds(traceId);
-        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, isPrepare));
-
-        streamObserver.onNext(upstreamSegment.build());
-    }
-
-    private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId, boolean isPrepare) {
+    private SegmentObject.Builder createSegment(long startTimestamp, String traceId, String segmentId) {
         SegmentObject.Builder segment = SegmentObject.newBuilder();
+        segment.setTraceId(traceId);
         segment.setTraceSegmentId(segmentId);
-        segment.setServiceId(SERVICE_ID);
-        segment.setServiceInstanceId(SERVICE_INSTANCE_ID);
-        segment.addSpans(createEntrySpan(startTimestamp, isPrepare));
-        segment.addSpans(createLocalSpan(startTimestamp, isPrepare));
-        segment.addSpans(createExitSpan(startTimestamp, isPrepare));
+        segment.setService(SERVICE_NAME);
+        segment.setServiceInstance(SERVICE_INSTANCE_NAME);
+        segment.addSpans(createEntrySpan(startTimestamp));
+        segment.addSpans(createLocalSpan(startTimestamp));
+        segment.addSpans(createExitSpan(startTimestamp));
 
-        return segment.build().toByteString();
+        return segment;
     }
 
-    private SpanObjectV2.Builder createEntrySpan(long startTimestamp, boolean isPrepare) {
-        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
+    private SpanObject.Builder createEntrySpan(long startTimestamp) {
+        SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
         span.setSpanLayer(SpanLayer.Http);
@@ -76,17 +60,13 @@ class ServiceAMock {
         span.setStartTime(startTimestamp);
         span.setEndTime(startTimestamp + 6000);
         span.setComponentId(ComponentsDefine.TOMCAT.getId());
-        if (isPrepare) {
-            span.setOperationName(REST_ENDPOINT);
-        } else {
-            span.setOperationNameId(2);
-        }
+        span.setOperationName(REST_ENDPOINT);
         span.setIsError(false);
         return span;
     }
 
-    private SpanObjectV2.Builder createLocalSpan(long startTimestamp, boolean isPrepare) {
-        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
+    private SpanObject.Builder createLocalSpan(long startTimestamp) {
+        SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(1);
         span.setSpanType(SpanType.Local);
         span.setParentSpanId(0);
@@ -97,8 +77,8 @@ class ServiceAMock {
         return span;
     }
 
-    private SpanObjectV2.Builder createExitSpan(long startTimestamp, boolean isPrepare) {
-        SpanObjectV2.Builder span = SpanObjectV2.newBuilder();
+    private SpanObject.Builder createExitSpan(long startTimestamp) {
+        SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(2);
         span.setSpanType(SpanType.Exit);
         span.setSpanLayer(SpanLayer.RPCFramework);
@@ -107,11 +87,7 @@ class ServiceAMock {
         span.setEndTime(startTimestamp + 5800);
         span.setComponentId(ComponentsDefine.DUBBO.getId());
         span.setOperationName(DUBBO_ENDPOINT);
-        if (isPrepare) {
-            span.setPeer(DUBBO_ADDRESS);
-        } else {
-            span.setPeerId(2);
-        }
+        span.setPeer(DUBBO_ADDRESS);
         span.setIsError(false);
         return span;
     }

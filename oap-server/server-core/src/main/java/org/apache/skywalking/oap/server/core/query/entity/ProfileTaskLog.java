@@ -38,7 +38,7 @@ public class ProfileTaskLog {
     private String taskId;
 
     // instance
-    private int instanceId;
+    private String instanceId;
     private String instanceName;
 
     // operation

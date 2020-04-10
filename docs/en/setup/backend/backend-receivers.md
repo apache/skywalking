@@ -21,19 +21,12 @@ receiver-register:
   default:
 receiver-trace:
   default:
-    bufferPath: ../trace-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 receiver-jvm:
   default:
 service-mesh:
   default:
-    bufferPath: ../mesh-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
 envoy-metric:

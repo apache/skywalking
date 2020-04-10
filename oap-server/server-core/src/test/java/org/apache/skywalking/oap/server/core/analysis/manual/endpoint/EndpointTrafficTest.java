@@ -24,26 +24,8 @@ import org.junit.Test;
 
 public class EndpointTrafficTest {
     @Test
-    public void testBuildID() {
-        int serviceId = 4;
-        String endpointName = "/endpoint-123";
-        DetectPoint detectPoint = DetectPoint.SERVER;
-
-        EndpointTraffic endpointTraffic = new EndpointTraffic();
-        endpointTraffic.setServiceId(serviceId);
-        endpointTraffic.setName(endpointName);
-        endpointTraffic.setDetectPoint(detectPoint.value());
-
-        Assert.assertEquals(
-            EndpointTraffic.buildId(serviceId, endpointName, detectPoint), EndpointTraffic.buildId(endpointTraffic));
-
-        final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(EndpointTraffic.buildId(endpointTraffic));
-        Assert.assertEquals(endpointName, endpointID.getEndpointName());
-    }
-
-    @Test
     public void testSerialization() {
-        int serviceId = 4;
+        String serviceId = "mock_id";
         String endpointName = "/endpoint-123";
         DetectPoint detectPoint = DetectPoint.SERVER;
 
@@ -51,7 +33,6 @@ public class EndpointTrafficTest {
         endpointTraffic.setTimeBucket(202003281420L);
         endpointTraffic.setServiceId(serviceId);
         endpointTraffic.setName(endpointName);
-        endpointTraffic.setDetectPoint(detectPoint.value());
 
         EndpointTraffic another = new EndpointTraffic();
         another.deserialize(endpointTraffic.serialize().build());
@@ -61,7 +42,7 @@ public class EndpointTrafficTest {
 
     @Test
     public void testPersistence() {
-        int serviceId = 4;
+        String serviceId = "mock_id";
         String endpointName = "/endpoint-123";
         DetectPoint detectPoint = DetectPoint.SERVER;
 
@@ -69,7 +50,6 @@ public class EndpointTrafficTest {
         endpointTraffic.setTimeBucket(202003281420L);
         endpointTraffic.setServiceId(serviceId);
         endpointTraffic.setName(endpointName);
-        endpointTraffic.setDetectPoint(detectPoint.value());
 
         final EndpointTraffic.Builder builder = new EndpointTraffic.Builder();
         final EndpointTraffic another = builder.map2Data(builder.data2Map(endpointTraffic));

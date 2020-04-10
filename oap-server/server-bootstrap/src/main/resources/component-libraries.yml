@@ -29,6 +29,9 @@
 # ######
 # Languages declare which languages are using this component. Multi languages should be separated by `,`
 
+Unknown:
+  id: 0
+  language: All
 Tomcat:
   id: 1
   languages: Java

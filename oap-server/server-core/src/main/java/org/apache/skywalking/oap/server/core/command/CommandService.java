@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.command;
 
 import java.util.UUID;
 import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskCommand;
-import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -33,12 +32,6 @@ public class CommandService implements Service {
 
     public CommandService(final ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
-    }
-
-    public ServiceResetCommand newResetCommand(final int serviceInstanceId, final long time,
-                                               final String serviceInstanceUUID) {
-        final String serialNumber = generateSerialNumber(serviceInstanceId, time, serviceInstanceUUID);
-        return new ServiceResetCommand(serialNumber);
     }
 
     public ProfileTaskCommand newProfileTaskCommand(ProfileTask task) {

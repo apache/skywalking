@@ -36,14 +36,6 @@ public interface AbstractSpan extends AsyncSpan {
      */
     AbstractSpan setComponent(Component component);
 
-    /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It is highly recommended
-     * not to use this method for performance reasons.
-     *
-     * @return the span for chaining.
-     */
-    AbstractSpan setComponent(String componentName);
-
     AbstractSpan setLayer(SpanLayer layer);
 
     /**

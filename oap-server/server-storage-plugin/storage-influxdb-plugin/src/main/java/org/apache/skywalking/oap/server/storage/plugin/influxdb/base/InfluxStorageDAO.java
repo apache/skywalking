@@ -21,34 +21,23 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterDAO;
 
 public class InfluxStorageDAO implements StorageDAO {
     private final InfluxClient influxClient;
-    private final JDBCHikariCPClient client;
 
-    public InfluxStorageDAO(JDBCHikariCPClient client, InfluxClient influxdbClient) {
-        this.client = client;
-        this.influxClient = influxdbClient;
+    public InfluxStorageDAO(InfluxClient influxClient) {
+        this.influxClient = influxClient;
     }
 
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new MetricsDAO(influxClient, storageBuilder);
-    }
-
-    @Override
-    public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new H2RegisterDAO(client, storageBuilder);
     }
 
     @Override

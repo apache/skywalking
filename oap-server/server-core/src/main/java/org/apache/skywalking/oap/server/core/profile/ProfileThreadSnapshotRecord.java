@@ -68,7 +68,7 @@ public class ProfileThreadSnapshotRecord extends Record {
 
     @Override
     public String id() {
-        return getTaskId() + Const.ID_SPLIT + getSegmentId() + Const.ID_SPLIT + getSequence() + Const.ID_SPLIT;
+        return getTaskId() + Const.ID_CONNECTOR + getSegmentId() + Const.ID_CONNECTOR + getSequence() + Const.ID_CONNECTOR;
     }
 
     public static class Builder implements StorageBuilder<ProfileThreadSnapshotRecord> {

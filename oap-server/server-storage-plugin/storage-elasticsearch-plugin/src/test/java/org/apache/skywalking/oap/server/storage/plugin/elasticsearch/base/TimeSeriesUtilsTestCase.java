@@ -24,6 +24,6 @@ public class TimeSeriesUtilsTestCase {
 
     @Test
     public void indexTimeSeries() {
-        Assert.assertEquals(20190602, TimeSeriesUtils.indexTimeSeries("Index_Test-20190602"));
+        Assert.assertEquals(20190602, TimeSeriesUtils.isolateTimeFromIndexName("Index_Test-20190602"));
     }
 }

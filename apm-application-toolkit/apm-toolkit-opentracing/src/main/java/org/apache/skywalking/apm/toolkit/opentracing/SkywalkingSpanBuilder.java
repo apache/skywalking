@@ -36,7 +36,6 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
     private boolean isExit = false;
     private int port;
     private String peer;
-    private String componentName;
     private boolean isError = false;
     private long startTime;
 
@@ -73,9 +72,7 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, String value) {
-        if (Tags.COMPONENT.getKey().equals(key)) {
-            componentName = value;
-        } else if (Tags.SPAN_KIND.getKey().equals(key)) {
+        if (Tags.SPAN_KIND.getKey().equals(key)) {
             if (Tags.SPAN_KIND_CLIENT.equals(value) || Tags.SPAN_KIND_PRODUCER.equals(value)) {
                 isEntry = false;
                 isExit = true;
@@ -167,16 +164,8 @@ public class SkywalkingSpanBuilder implements Tracer.SpanBuilder {
         return peer;
     }
 
-    public String getComponentName() {
-        return componentName;
-    }
-
     public boolean isError() {
         return isError;
-    }
-
-    public long getStartTime() {
-        return startTime;
     }
 
     /**

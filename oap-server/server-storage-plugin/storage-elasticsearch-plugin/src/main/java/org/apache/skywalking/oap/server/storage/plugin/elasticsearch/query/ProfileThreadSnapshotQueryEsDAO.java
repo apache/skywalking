@@ -47,13 +47,13 @@ import java.util.List;
 
 public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileThreadSnapshotQueryDAO {
 
-    private final int querySegemntMaxSize;
+    private final int querySegmentMaxSize;
 
     protected final ProfileThreadSnapshotRecord.Builder builder = new ProfileThreadSnapshotRecord.Builder();
 
     public ProfileThreadSnapshotQueryEsDAO(ElasticSearchClient client, int profileTaskQueryMaxSize) {
         super(client);
-        this.querySegemntMaxSize = profileTaskQueryMaxSize;
+        this.querySegmentMaxSize = profileTaskQueryMaxSize;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.TASK_ID, taskId));
         boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileThreadSnapshotRecord.SEQUENCE, 0));
 
-        sourceBuilder.size(querySegemntMaxSize);
+        sourceBuilder.size(querySegmentMaxSize);
         sourceBuilder.sort(ProfileThreadSnapshotRecord.DUMP_TIME, SortOrder.DESC);
 
         SearchResponse response = getClient().search(ProfileThreadSnapshotRecord.INDEX_NAME, sourceBuilder);
@@ -163,7 +163,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO implements IProfileTh
         SegmentRecord segmentRecord = new SegmentRecord();
         segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
         segmentRecord.setTraceId((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
-        segmentRecord.setServiceId(((Number) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID)).intValue());
+        segmentRecord.setServiceId((String) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID));
         segmentRecord.setEndpointName((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
         segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
         segmentRecord.setEndTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.END_TIME)).longValue());

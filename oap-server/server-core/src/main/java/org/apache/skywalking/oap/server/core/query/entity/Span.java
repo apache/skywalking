@@ -37,6 +37,8 @@ public class Span {
     @Setter
     private String serviceCode;
     @Setter
+    private String serviceInstanceName;
+    @Setter
     private long startTime;
     @Setter
     private long endTime;

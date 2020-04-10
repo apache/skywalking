@@ -23,7 +23,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.Memory;
+import org.apache.skywalking.apm.network.language.agent.v3.Memory;
 
 public enum MemoryProvider {
     INSTANCE;

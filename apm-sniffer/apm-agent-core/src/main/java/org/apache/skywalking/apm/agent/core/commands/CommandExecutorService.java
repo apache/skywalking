@@ -17,17 +17,14 @@
 
 package org.apache.skywalking.apm.agent.core.commands;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.commands.executor.NoopCommandExecutor;
 import org.apache.skywalking.apm.agent.core.commands.executor.ProfileTaskCommandExecutor;
-import org.apache.skywalking.apm.agent.core.commands.executor.ServiceResetCommandExecutor;
 import org.apache.skywalking.apm.network.trace.component.command.BaseCommand;
 import org.apache.skywalking.apm.network.trace.component.command.ProfileTaskCommand;
-import org.apache.skywalking.apm.network.trace.component.command.ServiceResetCommand;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Command executor service, acts like a routing executor that controls all commands' execution, is responsible for
@@ -43,9 +40,6 @@ public class CommandExecutorService implements BootService, CommandExecutor {
     @Override
     public void prepare() throws Throwable {
         commandExecutorMap = new HashMap<String, CommandExecutor>();
-
-        // Register all the supported commands with their executors here
-        commandExecutorMap.put(ServiceResetCommand.NAME, new ServiceResetCommandExecutor());
 
         // Profile task executor
         commandExecutorMap.put(ProfileTaskCommand.NAME, new ProfileTaskCommandExecutor());

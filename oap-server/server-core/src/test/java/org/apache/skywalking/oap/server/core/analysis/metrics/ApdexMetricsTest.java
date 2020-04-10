@@ -119,11 +119,6 @@ public class ApdexMetricsTest {
         }
 
         @Override
-        public Metrics toMonth() {
-            return null;
-        }
-
-        @Override
         public int remoteHashCode() {
             return 0;
         }

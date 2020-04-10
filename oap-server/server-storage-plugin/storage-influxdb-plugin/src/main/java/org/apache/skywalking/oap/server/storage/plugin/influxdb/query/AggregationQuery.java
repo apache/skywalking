@@ -24,12 +24,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.query.entity.Order;
 import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
@@ -51,37 +50,37 @@ public class AggregationQuery implements IAggregationQueryDAO {
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, DownSampling downsampling,
                                            long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
     public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN,
-                                                      Downsampling downsampling,
+                                                      DownSampling downsampling,
                                                       long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
-    public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-                                                   Downsampling downsampling,
+    public List<TopNEntity> getServiceInstanceTopN(String serviceId, String indName, String valueCName, int topN,
+                                                   DownSampling downsampling,
                                                    long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
-            subQuery(ServiceInstanceInventory.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
+            subQuery(InstanceTraffic.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
         );
     }
 
     @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling,
+    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, DownSampling downsampling,
                                                long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(downsampling, indName, subQuery(indName, valueCName, startTB, endTB), order, topN);
     }
 
     @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN,
-                                            Downsampling downsampling,
+    public List<TopNEntity> getEndpointTopN(String serviceId, String indName, String valueCName, int topN,
+                                            DownSampling downsampling,
                                             long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
@@ -89,12 +88,11 @@ public class AggregationQuery implements IAggregationQueryDAO {
         );
     }
 
-    private List<TopNEntity> getTopNEntity(Downsampling downsampling,
-                                           String name,
+    private List<TopNEntity> getTopNEntity(DownSampling downsampling,
+                                           String measurement,
                                            SelectSubQueryImpl<SelectQueryImpl> subQuery,
                                            Order order,
                                            int topN) throws IOException {
-        String measurement = ModelName.build(downsampling, name);
         // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNEntity> comparator = DESCENDING;
         String functionName = "top";
@@ -129,7 +127,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
         return entities;
     }
 
-    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, int serviceId, String name,
+    private SelectSubQueryImpl<SelectQueryImpl> subQuery(String serviceColumnName, String serviceId, String name,
                                                          String columnName,
                                                          long startTB, long endTB) {
         return select().fromSubQuery(client.getDatabase()).mean(columnName).from(name)

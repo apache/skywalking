@@ -24,7 +24,8 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
+import org.apache.skywalking.apm.agent.core.context.ids.PropagatedTraceId;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -35,8 +36,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.NoopExitSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryManager;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.profile.ProfileStatusReference;
@@ -165,43 +164,17 @@ public class TracingContext implements AbstractTracerContext {
 
         ExitTypeSpan spanWithPeer = (ExitTypeSpan) exitSpan;
         String peer = spanWithPeer.getPeer();
-        int peerId = spanWithPeer.getPeerId();
-        if (StringUtil.isEmpty(peer) && DictionaryUtil.isNull(peerId)) {
+        if (StringUtil.isEmpty(peer)) {
             throw new IllegalStateException("Exit span doesn't include meaningful peer information.");
         }
 
+        carrier.setTraceId(getReadablePrimaryTraceId());
         carrier.setTraceSegmentId(this.segment.getTraceSegmentId());
         carrier.setSpanId(exitSpan.getSpanId());
-
-        carrier.setParentServiceInstanceId(segment.getApplicationInstanceId());
-
-        if (DictionaryUtil.isNull(peerId)) {
-            carrier.setPeerHost(peer);
-        } else {
-            carrier.setPeerId(peerId);
-        }
-
-        AbstractSpan firstSpan = first();
-        String firstSpanOperationName = firstSpan.getOperationName();
-
-        List<TraceSegmentRef> refs = this.segment.getRefs();
-        String operationName = "";
-        int entryApplicationInstanceId;
-
-        if (refs != null && refs.size() > 0) {
-            TraceSegmentRef ref = refs.get(0);
-            operationName = ref.getEntryEndpointName();
-            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
-        } else {
-            operationName = firstSpanOperationName;
-            entryApplicationInstanceId = this.segment.getApplicationInstanceId();
-        }
-
-        carrier.setEntryServiceInstanceId(entryApplicationInstanceId);
-        carrier.setEntryEndpointName(operationName);
-        carrier.setParentEndpointName(firstSpanOperationName);
-
-        carrier.setDistributedTraceIds(this.segment.getRelatedGlobalTraces());
+        carrier.setParentService(Config.Agent.SERVICE_NAME);
+        carrier.setParentServiceInstance(Config.Agent.INSTANCE_NAME);
+        carrier.setParentEndpoint(first().getOperationName());
+        carrier.setAddressUsedAtClient(peer);
 
         this.correlationContext.inject(carrier);
     }
@@ -215,7 +188,7 @@ public class TracingContext implements AbstractTracerContext {
     public void extract(ContextCarrier carrier) {
         TraceSegmentRef ref = new TraceSegmentRef(carrier);
         this.segment.ref(ref);
-        this.segment.relatedGlobalTraces(carrier.getDistributedTraceId());
+        this.segment.relatedGlobalTraces(new PropagatedTraceId(carrier.getTraceId()));
         AbstractSpan span = this.activeSpan();
         if (span instanceof EntrySpan) {
             span.ref(ref);
@@ -231,28 +204,13 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public ContextSnapshot capture() {
-        List<TraceSegmentRef> refs = this.segment.getRefs();
         ContextSnapshot snapshot = new ContextSnapshot(
-            segment.getTraceSegmentId(), activeSpan().getSpanId(), segment.getRelatedGlobalTraces(),
+            segment.getTraceSegmentId(),
+            activeSpan().getSpanId(),
+            getPrimaryTraceId(),
+            first().getOperationName(),
             this.correlationContext
         );
-        int entryOperationId;
-        String entryOperationName = "";
-        int entryApplicationInstanceId;
-        AbstractSpan firstSpan = first();
-        String firstSpanOperationName = firstSpan.getOperationName();
-
-        if (refs != null && refs.size() > 0) {
-            TraceSegmentRef ref = refs.get(0);
-            entryOperationName = ref.getEntryEndpointName();
-            entryApplicationInstanceId = ref.getEntryServiceInstanceId();
-        } else {
-            entryOperationName = firstSpanOperationName;
-            entryApplicationInstanceId = this.segment.getApplicationInstanceId();
-        }
-        snapshot.setEntryApplicationInstanceId(entryApplicationInstanceId);
-        snapshot.setEntryOperationName(entryOperationName);
-        snapshot.setParentOperationName(firstSpanOperationName);
 
         return snapshot;
     }
@@ -264,19 +222,25 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void continued(ContextSnapshot snapshot) {
-        TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
-        this.segment.ref(segmentRef);
-        this.activeSpan().ref(segmentRef);
-        this.segment.relatedGlobalTraces(snapshot.getDistributedTraceId());
-        this.correlationContext.continued(snapshot);
+        if (snapshot.isValid()) {
+            TraceSegmentRef segmentRef = new TraceSegmentRef(snapshot);
+            this.segment.ref(segmentRef);
+            this.activeSpan().ref(segmentRef);
+            this.segment.relatedGlobalTraces(snapshot.getTraceId());
+            this.correlationContext.continued(snapshot);
+        }
     }
 
     /**
      * @return the first global trace id.
      */
     @Override
-    public String getReadableGlobalTraceId() {
-        return segment.getRelatedGlobalTraces().get(0).toString();
+    public String getReadablePrimaryTraceId() {
+        return getPrimaryTraceId().getId();
+    }
+
+    private DistributedTraceId getPrimaryTraceId() {
+        return segment.getRelatedGlobalTraces().get(0);
     }
 
     /**
@@ -296,7 +260,7 @@ public class TracingContext implements AbstractTracerContext {
         final AbstractSpan parentSpan = peek();
         final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
         if (parentSpan != null && parentSpan.isEntry()) {
-            /**
+            /*
              * Only add the profiling recheck on creating entry span,
              * as the operation name could be overrided.
              */
@@ -360,21 +324,7 @@ public class TracingContext implements AbstractTracerContext {
             exitSpan = parentSpan;
         } else {
             final int parentSpanId = parentSpan == null ? -1 : parentSpan.getSpanId();
-            if (StringUtil.isEmpty(remotePeer)) {
-                exitSpan = new ExitSpan(spanIdGenerator++, parentSpanId, operationName, owner);
-            } else {
-                exitSpan = (AbstractSpan) DictionaryManager.findNetworkAddressSection()
-                                                           .find(remotePeer)
-                                                           .doInCondition(
-                                                               peerId -> new ExitSpan(spanIdGenerator++, parentSpanId,
-                                                                                      operationName, peerId, owner
-                                                               ), () -> {
-                                                                   return new ExitSpan(
-                                                                       spanIdGenerator++, parentSpanId, operationName,
-                                                                       remotePeer, owner
-                                                                   );
-                                                               });
-            }
+            exitSpan = new ExitSpan(spanIdGenerator++, parentSpanId, operationName, remotePeer, owner);
             push(exitSpan);
         }
         exitSpan.start();
@@ -490,15 +440,6 @@ public class TracingContext implements AbstractTracerContext {
                     if (!SAMPLING_SERVICE.trySampling()) {
                         finishedSegment.setIgnore(true);
                     }
-                }
-
-                /*
-                 * Check that the segment is created after the agent (re-)registered to backend,
-                 * otherwise the segment may be created when the agent is still rebooting and should
-                 * be ignored
-                 */
-                if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME) {
-                    finishedSegment.setIgnore(true);
                 }
 
                 TracingContext.ListenerManager.notifyFinish(finishedSegment);

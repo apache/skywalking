@@ -18,40 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis.data;
 
-import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.UniqueId;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 /**
  * Each SkyWalkingTrace consists of segments in each application, original from {@link ZipkinTrace}s
  */
+@RequiredArgsConstructor
+@Getter
 public class SkyWalkingTrace {
-    private UniqueId globalTraceId;
-    private List<SegmentObject.Builder> segmentList;
-
-    public SkyWalkingTrace(UniqueId globalTraceId, List<SegmentObject.Builder> segmentList) {
-        this.globalTraceId = globalTraceId;
-        this.segmentList = segmentList;
-    }
-
-    public List<UpstreamSegment.Builder> toUpstreamSegment() {
-        List<UpstreamSegment.Builder> newUpstreamList = new LinkedList<>();
-        segmentList.forEach(segment -> {
-            UpstreamSegment.Builder builder = UpstreamSegment.newBuilder();
-            builder.addGlobalTraceIds(globalTraceId);
-            builder.setSegment(segment.build().toByteString());
-            newUpstreamList.add(builder);
-        });
-        return newUpstreamList;
-    }
-
-    public UniqueId getGlobalTraceId() {
-        return globalTraceId;
-    }
-
-    public List<SegmentObject.Builder> getSegmentList() {
-        return segmentList;
-    }
+    private final List<SegmentObject.Builder> segmentList;
 }

@@ -25,9 +25,9 @@ import lombok.Setter;
 @Getter
 public class Log {
     private String serviceName;
-    private int serviceId;
+    private String serviceId;
     private String serviceInstanceName;
-    private int serviceInstanceId;
+    private String serviceInstanceId;
     private String endpointId;
     private String endpointName;
     private String traceId;

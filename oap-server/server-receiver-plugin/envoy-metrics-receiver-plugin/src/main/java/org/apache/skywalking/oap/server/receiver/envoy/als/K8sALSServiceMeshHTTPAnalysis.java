@@ -51,9 +51,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
-import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.slf4j.Logger;
@@ -392,7 +392,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     }
 
     protected void forward(ServiceMeshMetric metric) {
-        TelemetryDataDispatcher.preProcess(metric);
+        TelemetryDataDispatcher.process(metric);
     }
 
     private long formatAsLong(Timestamp timestamp) {

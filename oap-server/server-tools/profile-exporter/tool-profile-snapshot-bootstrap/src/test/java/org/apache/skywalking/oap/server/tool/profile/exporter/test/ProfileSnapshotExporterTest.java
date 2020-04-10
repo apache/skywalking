@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
-import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
@@ -43,12 +49,6 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Collections;
-import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 public class ProfileSnapshotExporterTest {
@@ -72,17 +72,18 @@ public class ProfileSnapshotExporterTest {
         Mockito.when(moduleManager.find(StorageModule.NAME)).thenReturn(storageModule);
         final ProfileTaskQueryService taskQueryService = new ProfileTaskQueryService(moduleManager, coreModuleConfig);
 
+        Mockito.when(moduleProvider.getService(IComponentLibraryCatalogService.class))
+               .thenReturn(new ComponentLibraryCatalogService());
         Mockito.when(moduleProvider.getService(ProfileTaskQueryService.class)).thenReturn(taskQueryService);
-        Mockito.when(moduleProvider.getService(TraceQueryService.class)).thenReturn(new TraceQueryService(moduleManager));
+        Mockito.when(moduleProvider.getService(TraceQueryService.class))
+               .thenReturn(new TraceQueryService(moduleManager));
 
         try (final Reader reader = ResourceUtils.read("profile.yml");) {
             exportedData = new Yaml().loadAs(reader, ExportedData.class);
         }
-        final ServiceInventoryCache serviceInventoryCache = new ServiceInventoryCache(moduleManager, coreModuleConfig);
-
-        Mockito.when(moduleProvider.getService(IProfileThreadSnapshotQueryDAO.class)).thenReturn(new ProfileExportSnapshotDAO(exportedData));
+        Mockito.when(moduleProvider.getService(IProfileThreadSnapshotQueryDAO.class))
+               .thenReturn(new ProfileExportSnapshotDAO(exportedData));
         Mockito.when(moduleProvider.getService(ITraceQueryDAO.class)).thenReturn(new ProfileTraceDAO(exportedData));
-        Mockito.when(moduleProvider.getService(ServiceInventoryCache.class)).thenReturn(serviceInventoryCache);
     }
 
     @Test
@@ -102,7 +103,8 @@ public class ProfileSnapshotExporterTest {
         final ProfileAnalyzeTimeRange timeRange = new ProfileAnalyzeTimeRange();
         timeRange.setStart(exportedData.getSpans().get(0).getStart());
         timeRange.setEnd(exportedData.getSpans().get(0).getEnd());
-        final List<ThreadSnapshot> threadSnapshots = ProfileSnapshotDumper.parseFromFileWithTimeRange(writeFile, Collections.singletonList(timeRange));
+        final List<ThreadSnapshot> threadSnapshots = ProfileSnapshotDumper.parseFromFileWithTimeRange(
+            writeFile, Collections.singletonList(timeRange));
 
         Assert.assertEquals(threadSnapshots.size(), exportedData.getSnapshots().size());
         for (int i = 0; i < threadSnapshots.size(); i++) {
@@ -111,7 +113,10 @@ public class ProfileSnapshotExporterTest {
 
             final String[] snapshots = exportedData.getSnapshots().get(i).split("-");
             for (int snapshotIndex = 0; snapshotIndex < snapshots.length; snapshotIndex++) {
-                Assert.assertEquals(threadSnapshots.get(i).getStack().getCodeSignaturesList().get(snapshotIndex), snapshots[snapshotIndex]);
+                Assert.assertEquals(
+                    threadSnapshots.get(i).getStack().getCodeSignaturesList().get(snapshotIndex),
+                    snapshots[snapshotIndex]
+                );
             }
         }
 

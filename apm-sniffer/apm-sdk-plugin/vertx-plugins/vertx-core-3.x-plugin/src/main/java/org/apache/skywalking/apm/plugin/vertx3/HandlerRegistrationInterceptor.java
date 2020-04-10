@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.impl.clustered.ClusteredMessage;
+import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -30,14 +31,12 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-import java.lang.reflect.Method;
-
 public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
 
         Message message = (Message) allArguments[1];
@@ -60,7 +59,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
             } else {
                 if (VertxContext.hasContext(message.replyAddress())) {
                     VertxContext context = VertxContext.peekContext(message.replyAddress());
-                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentOperationName());
+                    span = ContextManager.createLocalSpan(context.getContextSnapshot().getParentEndpoint());
                     ContextManager.continued(context.getContextSnapshot());
                 } else {
                     span = ContextManager.createLocalSpan(message.address());
@@ -70,7 +69,8 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
             SpanLayer.asRPCFramework(span);
 
             if (message.replyAddress() != null) {
-                VertxContext.pushContext(message.replyAddress(), new VertxContext(ContextManager.capture(), span.prepareForAsync()));
+                VertxContext.pushContext(
+                    message.replyAddress(), new VertxContext(ContextManager.capture(), span.prepareForAsync()));
             }
             ContextManager.getRuntimeContext().put(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName(), true);
         }
@@ -78,7 +78,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         Boolean closeSpan = (Boolean) ContextManager.getRuntimeContext()
                                                     .get(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());
         if (Boolean.TRUE.equals(closeSpan)) {
@@ -89,7 +89,7 @@ public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInte
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

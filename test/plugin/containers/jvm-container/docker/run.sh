@@ -73,7 +73,6 @@ export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Xms256m -Xmx256m ${agent_opts}"
 exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>/dev/null &
 
-healthCheck http://localhost:12800/status
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"

@@ -55,6 +55,7 @@ public class DispatcherManager implements DispatcherDetectorListener {
          * when the receiver is open, and oal script doesn't ask for analysis.
          */
         if (dispatchers != null) {
+            source.prepare();
             for (SourceDispatcher dispatcher : dispatchers) {
                 dispatcher.dispatch(source);
             }
@@ -94,7 +95,8 @@ public class DispatcherManager implements DispatcherDetectorListener {
                     Object source = ((Class) argument).newInstance();
 
                     if (!Source.class.isAssignableFrom(source.getClass())) {
-                        throw new UnexpectedException("unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.source.Source`. ");
+                        throw new UnexpectedException(
+                            "unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.source.Source`. ");
                     }
 
                     Source dispatcherSource = (Source) source;

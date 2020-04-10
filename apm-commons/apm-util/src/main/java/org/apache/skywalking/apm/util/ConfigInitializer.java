@@ -42,7 +42,7 @@ public class ConfigInitializer {
     }
 
     private static void initNextLevel(Properties properties, Class<?> recentConfigType,
-        ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
+                                      ConfigDesc parentDesc) throws IllegalArgumentException, IllegalAccessException {
         for (Field field : recentConfigType.getFields()) {
             if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers())) {
                 String configKey = (parentDesc + "." + field.getName()).toLowerCase();
@@ -73,6 +73,12 @@ public class ConfigInitializer {
                      */
                     String value = properties.getProperty(configKey);
                     // Convert the value into real type
+                    final Length lengthDefine = field.getAnnotation(Length.class);
+                    if (lengthDefine != null) {
+                        if (value != null && value.length() > lengthDefine.value()) {
+                            value = value.substring(0, lengthDefine.value());
+                        }
+                    }
                     Object convertedValue = convertToTypicalType(type, value);
                     if (convertedValue != null) {
                         field.set(null, convertedValue);
@@ -133,7 +139,7 @@ public class ConfigInitializer {
      * @param valueType  value type of the map
      */
     private static void setForMapType(String configKey, Map<Object, Object> map, Properties properties,
-        final Type keyType, final Type valueType) {
+                                      final Type keyType, final Type valueType) {
 
         Objects.requireNonNull(configKey);
         Objects.requireNonNull(map);
@@ -145,7 +151,8 @@ public class ConfigInitializer {
         properties.forEach((propertyKey, propertyValue) -> {
             String propertyStringKey = propertyKey.toString();
             if (propertyStringKey.startsWith(prefix) && propertyStringKey.endsWith(suffix)) {
-                String itemKey = propertyStringKey.substring(prefix.length(), propertyStringKey.length() - suffix.length());
+                String itemKey = propertyStringKey.substring(
+                    prefix.length(), propertyStringKey.length() - suffix.length());
                 Object keyObj;
                 Object valueObj;
 
