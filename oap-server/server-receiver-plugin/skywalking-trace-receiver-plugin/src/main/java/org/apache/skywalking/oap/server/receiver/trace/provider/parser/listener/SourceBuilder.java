@@ -19,45 +19,74 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
+@RequiredArgsConstructor
 class SourceBuilder {
+    private final NamingLengthControl namingLengthControl;
+
     @Getter
-    @Setter
     private String sourceServiceName;
+
+    public void setSourceServiceName(final String sourceServiceName) {
+        this.sourceServiceName = namingLengthControl.formatServiceName(sourceServiceName);
+    }
+
     @Getter
     @Setter
     private NodeType sourceNodeType;
     @Getter
-    @Setter
     private String sourceServiceInstanceName;
+
+    public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
+        this.sourceServiceInstanceName = namingLengthControl.formatInstanceName(sourceServiceInstanceName);
+    }
+
     @Getter
-    @Setter
     private String sourceEndpointName;
+
+    public void setSourceEndpointName(final String sourceEndpointName) {
+        this.sourceEndpointName = namingLengthControl.formatEndpointName(sourceEndpointName);
+    }
+
     @Getter
-    @Setter
     private String destServiceName;
+
+    public void setDestServiceName(final String destServiceName) {
+        this.destServiceName = namingLengthControl.formatServiceName(destServiceName);
+    }
+
     @Getter
     @Setter
     private NodeType destNodeType;
     @Getter
-    @Setter
     private String destServiceInstanceName;
+
+    public void setDestServiceInstanceName(final String destServiceInstanceName) {
+        this.destServiceInstanceName = namingLengthControl.formatServiceName(destServiceInstanceName);
+    }
+
     @Getter
-    @Setter
     private String destEndpointName;
+
+    public void setDestEndpointName(final String destEndpointName) {
+        this.destEndpointName = namingLengthControl.formatEndpointName(destEndpointName);
+    }
+
     @Getter
     @Setter
     private int componentId;

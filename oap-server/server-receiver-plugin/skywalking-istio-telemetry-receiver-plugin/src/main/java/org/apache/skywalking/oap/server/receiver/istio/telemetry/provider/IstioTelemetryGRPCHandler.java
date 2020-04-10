@@ -117,7 +117,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                     destServiceName = string(i, "destinationService");
                 }
 
-                ServiceMeshMetric metrics = ServiceMeshMetric.newBuilder()
+                ServiceMeshMetric.Builder metrics = ServiceMeshMetric.newBuilder()
                                                              .setStartTime(requestTime.toEpochMilli())
                                                              .setEndTime(responseTime.toEpochMilli())
                                                              .setSourceServiceName(sourceServiceName)
@@ -129,8 +129,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                                                              .setResponseCode(Math.toIntExact(responseCode))
                                                              .setStatus(status)
                                                              .setProtocol(netProtocol)
-                                                             .setDetectPoint(detectPoint)
-                                                             .build();
+                                                             .setDetectPoint(detectPoint);
                 logger.debug("Transformed metrics {}", metrics);
 
                 TelemetryDataDispatcher.process(metrics);

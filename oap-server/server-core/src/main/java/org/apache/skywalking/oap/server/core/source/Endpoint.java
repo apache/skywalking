@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
@@ -30,6 +30,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@Slf4j
 public class Endpoint extends Source {
     private String entityId;
 
@@ -47,13 +48,9 @@ public class Endpoint extends Source {
     }
 
     @Getter
+    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
-
-    public void setName(final String name) {
-        this.name = CoreModule.formatEndpointName(name);
-    }
-
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;

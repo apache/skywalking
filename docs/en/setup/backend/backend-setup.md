@@ -41,7 +41,7 @@ storage:
   # other configurations
 ```
 
-1. **`core`** is the module.
+1. **`storage`** is the module.
 1. **`selector`** selects one out of the all providers listed below, the unselected ones take no effect as if they were deleted.
 1. **`default`** is the default implementor of core module.
 1. `driver`, `url`, ... `metadataQueryMaxSize` are all setting items of the implementor.

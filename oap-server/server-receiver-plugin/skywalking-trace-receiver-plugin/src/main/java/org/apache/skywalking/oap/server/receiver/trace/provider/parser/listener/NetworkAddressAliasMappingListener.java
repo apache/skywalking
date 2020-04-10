@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.RefType;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -26,6 +27,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -40,14 +42,11 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
  * This is a key point of SkyWalking header propagation protocol.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class NetworkAddressAliasMappingListener implements EntryAnalysisListener {
-    private final TraceServiceModuleConfig config;
     private final SourceReceiver sourceReceiver;
-
-    public NetworkAddressAliasMappingListener(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-        this.config = config;
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-    }
+    private final TraceServiceModuleConfig config;
+    private final NamingLengthControl namingLengthControl;
 
     @Override
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
@@ -60,7 +59,8 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
         if (!span.getSpanLayer().equals(SpanLayer.MQ)) {
             span.getRefsList().forEach(segmentReference -> {
                 if (RefType.CrossProcess.equals(segmentReference.getRefType())) {
-                    final String networkAddressUsedAtPeer = segmentReference.getNetworkAddressUsedAtPeer();
+                    final String networkAddressUsedAtPeer = namingLengthControl.formatServiceName(
+                        segmentReference.getNetworkAddressUsedAtPeer());
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(
                         networkAddressUsedAtPeer)) {
                         /*
@@ -68,11 +68,15 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
                          */
                         return;
                     }
+                    final String serviceName = namingLengthControl.formatServiceName(segmentObject.getService());
+                    final String instanceName = namingLengthControl.formatInstanceName(
+                        segmentObject.getServiceInstance());
+
                     final NetworkAddressAliasSetup networkAddressAliasSetup = new NetworkAddressAliasSetup();
                     networkAddressAliasSetup.setAddress(networkAddressUsedAtPeer);
-                    networkAddressAliasSetup.setRepresentService(segmentObject.getService());
+                    networkAddressAliasSetup.setRepresentService(serviceName);
                     networkAddressAliasSetup.setRepresentServiceNodeType(NodeType.Normal);
-                    networkAddressAliasSetup.setRepresentServiceInstance(segmentObject.getServiceInstance());
+                    networkAddressAliasSetup.setRepresentServiceInstance(instanceName);
                     networkAddressAliasSetup.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
 
                     sourceReceiver.receive(networkAddressAliasSetup);
@@ -92,10 +96,19 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
     }
 
     public static class Factory implements AnalysisListenerFactory {
+        private final SourceReceiver sourceReceiver;
+        private final NamingLengthControl namingLengthControl;
+
+        public Factory(ModuleManager moduleManager) {
+            this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(NamingLengthControl.class);
+        }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new NetworkAddressAliasMappingListener(moduleManager, config);
+            return new NetworkAddressAliasMappingListener(sourceReceiver, config, namingLengthControl);
         }
     }
 }

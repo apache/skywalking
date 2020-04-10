@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
@@ -43,12 +42,9 @@ public class EndpointRelation extends Source {
     }
 
     @Getter
+    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name")
     private String endpoint;
-
-    public void setEndpoint(final String endpoint) {
-        this.endpoint = CoreModule.formatEndpointName(endpoint);
-    }
 
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
@@ -63,13 +59,9 @@ public class EndpointRelation extends Source {
     @Setter
     private String serviceInstanceName;
     @Getter
+    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name")
     private String childEndpoint;
-
-    public void setChildEndpoint(final String childEndpoint) {
-        this.childEndpoint = CoreModule.formatEndpointName(childEndpoint);
-    }
-
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
     private String childServiceId;

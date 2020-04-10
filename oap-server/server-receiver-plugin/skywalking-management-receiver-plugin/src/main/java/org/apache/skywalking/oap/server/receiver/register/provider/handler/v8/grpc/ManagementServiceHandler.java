@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -41,17 +42,23 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
 public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementServiceImplBase implements GRPCHandler {
     private final SourceReceiver sourceReceiver;
+    private final NamingLengthControl namingLengthControl;
 
     public ManagementServiceHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
+                                                .provider()
+                                                .getService(NamingLengthControl.class);
     }
 
     @Override
     public void reportInstanceProperties(final InstanceProperties request,
                                          final StreamObserver<Commands> responseObserver) {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceUpdate.setName(request.getServiceInstance());
+        final String serviceName = namingLengthControl.formatServiceName(request.getService());
+        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setName(instanceName);
 
         JsonObject properties = new JsonObject();
         List<String> ipv4List = new ArrayList<>();
@@ -75,14 +82,17 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
     @Override
     public void keepAlive(final InstancePingPkg request, final StreamObserver<Commands> responseObserver) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
+        final String serviceName = namingLengthControl.formatServiceName(request.getService());
+        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceUpdate.setName(request.getServiceInstance());
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setName(instanceName);
         serviceInstanceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceUpdate serviceUpdate = new ServiceUpdate();
-        serviceUpdate.setName(request.getService());
+        serviceUpdate.setName(serviceName);
         serviceUpdate.setNodeType(NodeType.Normal);
         serviceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceUpdate);

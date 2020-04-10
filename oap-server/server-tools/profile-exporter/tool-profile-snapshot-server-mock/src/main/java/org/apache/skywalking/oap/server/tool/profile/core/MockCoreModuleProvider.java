@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
@@ -92,6 +93,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        this.registerServiceImplementation(NamingLengthControl.class, new NamingLengthControl(50, 50, 150));
+
         MockStreamAnnotationListener streamAnnotationListener = new MockStreamAnnotationListener(getManager());
         annotationScan.registerListener(streamAnnotationListener);
 
