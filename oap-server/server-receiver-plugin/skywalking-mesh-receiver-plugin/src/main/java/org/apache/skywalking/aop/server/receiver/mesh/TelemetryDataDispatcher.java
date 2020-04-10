@@ -38,6 +38,10 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * TelemetryDataDispatcher processes the {@link ServiceMeshMetric} format telemetry data, transfers it to source
@@ -47,27 +51,41 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class TelemetryDataDispatcher {
     private static SourceReceiver SOURCE_RECEIVER;
 
+    private static HistogramMetrics MESH_ANALYSIS_METRICS;
+
     private TelemetryDataDispatcher() {
     }
 
     public static void init(ModuleManager moduleManager) {
         SOURCE_RECEIVER = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        MESH_ANALYSIS_METRICS = metricsCreator.createHistogramMetric(
+            "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
     }
 
-    public static void preProcess(ServiceMeshMetric data) {
-        String service = data.getDestServiceName();
-        String endpointName = data.getEndpoint();
-        StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
-        if (formatResult.isMatch()) {
-            data = data.toBuilder().setEndpoint(formatResult.getName()).build();
-        }
-        if (log.isDebugEnabled()) {
+    public static void process(ServiceMeshMetric data) {
+        HistogramMetrics.Timer timer = MESH_ANALYSIS_METRICS.createTimer();
+        try {
+            String service = data.getDestServiceName();
+            String endpointName = data.getEndpoint();
+            StringFormatGroup.FormatResult formatResult = EndpointNameFormater.format(service, endpointName);
             if (formatResult.isMatch()) {
-                log.debug("Endpoint {} is renamed to {}", endpointName, data.getEndpoint());
+                data = data.toBuilder().setEndpoint(formatResult.getName()).build();
             }
-        }
+            if (log.isDebugEnabled()) {
+                if (formatResult.isMatch()) {
+                    log.debug("Endpoint {} is renamed to {}", endpointName, data.getEndpoint());
+                }
+            }
 
-        doDispatch(data);
+            doDispatch(data);
+        } finally {
+            timer.finish();
+        }
     }
 
     static void doDispatch(ServiceMeshMetric metrics) {

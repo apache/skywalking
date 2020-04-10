@@ -133,7 +133,7 @@ public class IstioTelemetryGRPCHandler extends HandleMetricServiceGrpc.HandleMet
                                                              .build();
                 logger.debug("Transformed metrics {}", metrics);
 
-                TelemetryDataDispatcher.preProcess(metrics);
+                TelemetryDataDispatcher.process(metrics);
             } finally {
                 timer.finish();
             }

@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.TraceAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
@@ -41,6 +42,7 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
     private final SegmentParserListenerManager listenerManager;
     private final TraceServiceModuleConfig config;
     private HistogramMetrics histogram;
+    private CounterMetrics errorCounter;
 
     public TraceSegmentReportServletHandler(ModuleManager moduleManager,
                                             SegmentParserListenerManager listenerManager,
@@ -52,8 +54,11 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_http_in_latency", "The process latency of trace data", MetricsTag.EMPTY_KEY,
-            MetricsTag.EMPTY_VALUE
+            "trace_in_latency", "The process latency of trace data",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
+        );
+        errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
+                                                    new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
@@ -72,6 +77,7 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
         if (log.isDebugEnabled()) {
             log.debug("receive stream segment");
         }
+        HistogramMetrics.Timer timer = histogram.createTimer();
 
         StringBuilder stringBuilder = new StringBuilder();
         String line;
@@ -87,7 +93,10 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
             final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
             traceAnalyzer.doAnalysis(upstreamSegmentBuilder.build());
         } catch (Exception e) {
+            errorCounter.inc();
             log.error(e.getMessage(), e);
+        } finally {
+            timer.finish();
         }
 
         return null;

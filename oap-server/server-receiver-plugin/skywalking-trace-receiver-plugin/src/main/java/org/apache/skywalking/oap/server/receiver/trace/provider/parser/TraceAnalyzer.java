@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
@@ -32,34 +33,14 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.FirstAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.LocalAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SegmentListener;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
+@RequiredArgsConstructor
 public class TraceAnalyzer {
     private final ModuleManager moduleManager;
-    private final List<AnalysisListener> analysisListeners;
     private final SegmentParserListenerManager listenerManager;
     private final TraceServiceModuleConfig config;
-    private volatile static CounterMetrics TRACE_ANALYSIS_COUNT;
-
-    public TraceAnalyzer(ModuleManager moduleManager,
-                         SegmentParserListenerManager listenerManager,
-                         TraceServiceModuleConfig config) {
-        this.moduleManager = moduleManager;
-        this.listenerManager = listenerManager;
-        this.analysisListeners = new LinkedList<>();
-        this.config = config;
-
-        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
-                                                     .provider()
-                                                     .getService(MetricsCreator.class);
-        TRACE_ANALYSIS_COUNT = metricsCreator.createCounter("v8_trace_analysis_count", "The number of trace analysis",
-                                                            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
-        );
-    }
+    private List<AnalysisListener> analysisListeners = new ArrayList<>();
 
     public void doAnalysis(SegmentObject segmentObject) {
         if (segmentObject.getSpansList().size() == 0) {
@@ -89,7 +70,6 @@ public class TraceAnalyzer {
             });
 
             notifyListenerToBuild();
-            TRACE_ANALYSIS_COUNT.inc();
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
         }

@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.TraceAnalyzer;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
@@ -39,6 +40,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
     private final SegmentParserListenerManager listenerManager;
     private final TraceServiceModuleConfig config;
     private HistogramMetrics histogram;
+    private CounterMetrics errorCounter;
 
     public TraceSegmentReportServiceHandler(ModuleManager moduleManager,
                                             SegmentParserListenerManager listenerManager,
@@ -50,8 +52,11 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_grpc_in_latency", "The process latency of trace data", MetricsTag.EMPTY_KEY,
-            MetricsTag.EMPTY_VALUE
+            "trace_in_latency", "The process latency of trace data",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
+        );
+        errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
+                                                    new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
     }
 
@@ -66,8 +71,11 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
+                    final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(
+                        moduleManager, listenerManager, config);
                     traceAnalyzer.doAnalysis(segment);
+                } catch (Exception e) {
+                    errorCounter.inc();
                 } finally {
                     timer.finish();
                 }

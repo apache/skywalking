@@ -392,7 +392,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
     }
 
     protected void forward(ServiceMeshMetric metric) {
-        TelemetryDataDispatcher.preProcess(metric);
+        TelemetryDataDispatcher.process(metric);
     }
 
     private long formatAsLong(Timestamp timestamp) {
