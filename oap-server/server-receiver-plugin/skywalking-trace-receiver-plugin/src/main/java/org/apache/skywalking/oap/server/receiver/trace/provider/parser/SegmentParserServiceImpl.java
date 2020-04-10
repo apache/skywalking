@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -25,18 +27,12 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
 /**
  * The open service to the receivers.
  */
+@RequiredArgsConstructor
 public class SegmentParserServiceImpl implements ISegmentParserService {
-    private ModuleManager moduleManager;
+    private final ModuleManager moduleManager;
+    private final TraceServiceModuleConfig config;
+    @Setter
     private SegmentParserListenerManager listenerManager;
-    private TraceServiceModuleConfig config;
-
-    public SegmentParserServiceImpl(ModuleManager moduleManager,
-                                    SegmentParserListenerManager listenerManager,
-                                    TraceServiceModuleConfig config) {
-        this.moduleManager = moduleManager;
-        this.listenerManager = listenerManager;
-        this.config = config;
-    }
 
     @Override
     public void send(SegmentObject segment) {

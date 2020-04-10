@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogServi
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoader;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
@@ -131,9 +132,11 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
-        if (moduleConfig.getEndpointNameMaxLength() > 0) {
-            CoreModule.setEndpointNameMaxLength(moduleConfig.getEndpointNameMaxLength());
-        }
+        this.registerServiceImplementation(NamingLengthControl.class, new NamingLengthControl(
+            moduleConfig.getServiceNameMaxLength(),
+            moduleConfig.getInstanceNameMaxLength(),
+            moduleConfig.getEndpointNameMaxLength()
+        ));
 
         StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
 

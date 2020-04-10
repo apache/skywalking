@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -39,10 +40,14 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
     private final SourceReceiver sourceReceiver;
+    private final NamingLengthControl namingLengthControl;
     private final Gson gson = new Gson();
 
     public ManagementServiceKeepAliveHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
+                                                .provider()
+                                                .getService(NamingLengthControl.class);
     }
 
     @Override
@@ -55,16 +60,18 @@ public class ManagementServiceKeepAliveHandler extends JettyJsonHandler {
         final InstanceProperties.Builder request = InstanceProperties.newBuilder();
         ProtoBufJsonUtils.fromJSON(getJsonBody(req), request);
 
+        final String serviceName = namingLengthControl.formatServiceName(request.getService());
+        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(request.getService(), NodeType.Normal));
-        serviceInstanceUpdate.setName(request.getServiceInstance());
-        serviceInstanceUpdate.setTimeBucket(
-            timeBucket);
+        serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
+        serviceInstanceUpdate.setName(instanceName);
+        serviceInstanceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
 
         ServiceUpdate serviceUpdate = new ServiceUpdate();
-        serviceUpdate.setName(request.getService());
+        serviceUpdate.setName(serviceName);
         serviceUpdate.setNodeType(NodeType.Normal);
         serviceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceUpdate);

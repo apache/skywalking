@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
@@ -27,6 +28,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.Segment;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -37,9 +39,12 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
  * SegmentSpanListener forwards the segment raw data to the persistence layer with the query required conditions.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnalysisListener, SegmentListener {
     private final SourceReceiver sourceReceiver;
     private final TraceSegmentSampler sampler;
+    private final NamingLengthControl namingLengthControl;
+
     private final Segment segment = new Segment();
     private SAMPLE_STATUS sampleStatus = SAMPLE_STATUS.UNKNOWN;
     private String serviceId = Const.EMPTY_STRING;
@@ -49,11 +54,6 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     private long endTimestamp;
     private int duration;
     private boolean isError;
-
-    private SegmentAnalysisListener(ModuleManager moduleManager, TraceSegmentSampler sampler) {
-        this.sampler = sampler;
-        this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-    }
 
     @Override
     public boolean containsPoint(Point point) {
@@ -68,7 +68,9 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         if (StringUtil.isEmpty(serviceId)) {
             serviceId = IDManager.ServiceID.buildId(
-                segmentObject.getService(), NodeType.Normal);
+                namingLengthControl.formatServiceName(segmentObject.getService()),
+                NodeType.Normal
+            );
         }
 
         long timeBucket = TimeBucket.getRecordTimeBucket(startTimestamp);
@@ -77,7 +79,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setServiceId(serviceId);
         segment.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
             serviceId,
-            segmentObject.getServiceInstance()
+            namingLengthControl.formatInstanceName(segmentObject.getServiceInstance())
         ));
         segment.setLatency(duration);
         segment.setStartTime(startTimestamp);
@@ -87,11 +89,12 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setDataBinary(segmentObject.toByteArray());
         segment.setVersion(3);
 
+        endpointName = namingLengthControl.formatEndpointName(span.getOperationName());
         endpointId = IDManager.EndpointID.buildId(
             serviceId,
-            span.getOperationName()
+            endpointName
         );
-        endpointName = span.getOperationName();
+
     }
 
     @Override
@@ -106,7 +109,11 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
             span.getOperationName()
         );
 
-        endpointName = span.getOperationName();
+        endpointName = namingLengthControl.formatEndpointName(span.getOperationName());
+        endpointId = IDManager.EndpointID.buildId(
+            serviceId,
+            endpointName
+        );
     }
 
     @Override
@@ -160,15 +167,21 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
     }
 
     public static class Factory implements AnalysisListenerFactory {
+        private final SourceReceiver sourceReceiver;
         private final TraceSegmentSampler sampler;
+        private final NamingLengthControl namingLengthControl;
 
-        public Factory(int segmentSamplingRate) {
-            this.sampler = new TraceSegmentSampler(segmentSamplingRate);
+        public Factory(ModuleManager moduleManager, TraceServiceModuleConfig config) {
+            this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+            this.sampler = new TraceSegmentSampler(config.getSampleRate());
+            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(NamingLengthControl.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new SegmentAnalysisListener(moduleManager, sampler);
+            return new SegmentAnalysisListener(sourceReceiver, sampler, namingLengthControl);
         }
     }
 }
