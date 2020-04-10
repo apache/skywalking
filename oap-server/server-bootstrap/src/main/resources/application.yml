@@ -83,9 +83,9 @@ core:
     activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
     # The max length of service + instance names should be less than 200
     serviceNameMaxLength: ${SW_SERVICE_NAME_MAX_LENGTH:70}
-    instanceNameMaxLength: ${INSTANCE_NAME_MAX_LENGTH:70}
+    instanceNameMaxLength: ${SW_INSTANCE_NAME_MAX_LENGTH:70}
     # The max length of service + endpoint names should be less than 240
-    endpointNameMaxLength: ${ENDPOINT_NAME_MAX_LENGTH:150}
+    endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
