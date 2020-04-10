@@ -144,8 +144,8 @@ public class LogQuery implements ILogQueryDAO {
 
                 log.setStatusCode((String) data.get(STATUS_CODE));
 
-                log.setServiceId((int) data.get(SERVICE_ID));
-                log.setServiceInstanceId((int) data.get(SERVICE_INSTANCE_ID));
+                log.setServiceId((String) data.get(SERVICE_ID));
+                log.setServiceInstanceId((String) data.get(SERVICE_INSTANCE_ID));
 
                 logs.getLogs().add(log);
             });

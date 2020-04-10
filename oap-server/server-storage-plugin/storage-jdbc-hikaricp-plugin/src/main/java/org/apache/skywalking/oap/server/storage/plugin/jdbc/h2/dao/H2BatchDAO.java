@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
@@ -33,13 +34,9 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class H2BatchDAO implements IBatchDAO {
-
-    private static final Logger logger = LoggerFactory.getLogger(H2BatchDAO.class);
-
     private JDBCHikariCPClient h2Client;
     private final DataCarrier<PrepareRequest> dataCarrier;
 
@@ -64,8 +61,8 @@ public class H2BatchDAO implements IBatchDAO {
             return;
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("batch sql statements execute, data size: {}", prepareRequests.size());
+        if (log.isDebugEnabled()) {
+            log.debug("batch sql statements execute, data size: {}", prepareRequests.size());
         }
 
         try (Connection connection = h2Client.getConnection()) {
@@ -75,11 +72,11 @@ public class H2BatchDAO implements IBatchDAO {
                     sqlExecutor.invoke(connection);
                 } catch (SQLException e) {
                     // Just avoid one execution failure makes the rest of batch failure.
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
             }
         } catch (SQLException | JDBCClientException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -108,7 +105,7 @@ public class H2BatchDAO implements IBatchDAO {
 
         @Override
         public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
-            logger.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         }
 
         @Override

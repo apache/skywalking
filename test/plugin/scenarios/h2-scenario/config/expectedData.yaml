@@ -13,101 +13,90 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {h2-scenario: 2}
-  instances:
-    - {h2-scenario: 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: h2-scenario
-    segmentSize: gt 1
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: H2/JDBI/PreparedStatement/execute
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Database
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 32
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:-1
-            peerId: 0
-            tags:
-              - {key: db.type, value: sql}
-              - {key: db.instance, value: test}
-              - key: db.statement
-                value: "CREATE TABLE test_007(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
+- serviceName: h2-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: H2/JDBI/PreparedStatement/execute
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 32
+      isError: false
+      spanType: Exit
+      peer: localhost:-1
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: test}
+      - key: db.statement
+        value: "CREATE TABLE test_007(\nid VARCHAR(1) PRIMARY KEY, \nvalue VARCHAR(1)\
           \ NOT NULL)"
-          - operationName: H2/JDBI/CallableStatement/execute
-            operationId: 0
-            parentSpanId: 0
-            spanId: 2
-            spanLayer: Database
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 32
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:-1
-            peerId: 0
-            tags:
-              - {key: db.type, value: sql}
-              - {key: db.instance, value: test}
-              - {key: db.statement, value: 'INSERT INTO test_007(id, value) VALUES(?,?)'}
-          - operationName: H2/JDBI/Statement/execute
-            operationId: 0
-            parentSpanId: 0
-            spanId: 3
-            spanLayer: Database
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 32
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:-1
-            peerId: 0
-            tags:
-              - {key: db.type, value: sql}
-              - {key: db.instance, value: test}
-              - {key: db.statement, value: DROP table test_007}
-          - operationName: H2/JDBI/Connection/close
-            operationId: 0
-            parentSpanId: 0
-            spanId: 4
-            spanLayer: Database
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 32
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: localhost:-1
-            peerId: 0
-            tags:
-              - {key: db.type, value: sql}
-              - {key: db.instance, value: test}
-              - {key: db.statement, value: ''}
-          - operationName: /h2-scenario/case/h2-scenario
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: gt 0
-            endTime: gt 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/h2-scenario/case/h2-scenario'}
-              - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - operationName: H2/JDBI/CallableStatement/execute
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 32
+      isError: false
+      spanType: Exit
+      peer: localhost:-1
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: test}
+      - {key: db.statement, value: 'INSERT INTO test_007(id, value) VALUES(?,?)'}
+      skipAnalysis: 'false'
+    - operationName: H2/JDBI/Statement/execute
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 32
+      isError: false
+      spanType: Exit
+      peer: localhost:-1
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: test}
+      - {key: db.statement, value: DROP table test_007}
+      skipAnalysis: 'false'
+    - operationName: H2/JDBI/Connection/close
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Database
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 32
+      isError: false
+      spanType: Exit
+      peer: localhost:-1
+      tags:
+      - {key: db.type, value: sql}
+      - {key: db.instance, value: test}
+      - {key: db.statement, value: ''}
+      skipAnalysis: 'false'
+    - operationName: /h2-scenario/case/h2-scenario
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: gt 0
+      endTime: gt 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/h2-scenario/case/h2-scenario'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

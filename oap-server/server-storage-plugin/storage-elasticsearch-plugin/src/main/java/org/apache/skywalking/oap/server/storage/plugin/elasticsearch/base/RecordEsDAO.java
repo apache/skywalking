@@ -39,7 +39,7 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(record));
-        String modelName = TimeSeriesUtils.timeSeries(model, record.getTimeBucket());
+        String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
         return getClient().prepareInsert(modelName, record.id(), builder);
     }
 }

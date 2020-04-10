@@ -31,7 +31,7 @@ public class DatabaseSlowStatement extends Source {
     private String id;
     @Getter
     @Setter
-    private int databaseServiceId;
+    private String databaseServiceId;
     @Getter
     @Setter
     private String statement;

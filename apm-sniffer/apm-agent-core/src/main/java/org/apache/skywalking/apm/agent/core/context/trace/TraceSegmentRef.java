@@ -18,39 +18,28 @@
 
 package org.apache.skywalking.apm.agent.core.context.trace;
 
-import org.apache.skywalking.apm.agent.core.conf.Constants;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import lombok.Getter;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.network.language.agent.RefType;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentReference;
-import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.apm.network.language.agent.v3.RefType;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 
 /**
  * {@link TraceSegmentRef} is like a pointer, which ref to another {@link TraceSegment}, use {@link #spanId} point to
  * the exact span of the ref {@link TraceSegment}.
  * <p>
  */
+@Getter
 public class TraceSegmentRef {
     private SegmentRefType type;
-
-    private ID traceSegmentId;
-
+    private String traceId;
+    private String traceSegmentId;
     private int spanId;
-
-    private int peerId = DictionaryUtil.nullValue();
-
-    private String peerHost;
-
-    private int entryServiceInstanceId;
-
-    private int parentServiceInstanceId;
-
-    private String entryEndpointName = Constants.EMPTY_STRING;
-
-    private String parentEndpointName = Constants.EMPTY_STRING;
+    private String parentService;
+    private String parentServiceInstance;
+    private String parentEndpoint;
+    private String addressUsedAtClient;
 
     /**
      * Transform a {@link ContextCarrier} to the <code>TraceSegmentRef</code>
@@ -59,77 +48,41 @@ public class TraceSegmentRef {
      */
     public TraceSegmentRef(ContextCarrier carrier) {
         this.type = SegmentRefType.CROSS_PROCESS;
+        this.traceId = carrier.getTraceId();
         this.traceSegmentId = carrier.getTraceSegmentId();
         this.spanId = carrier.getSpanId();
-        this.parentServiceInstanceId = carrier.getParentServiceInstanceId();
-        this.entryServiceInstanceId = carrier.getEntryServiceInstanceId();
-        String host = carrier.getPeerHost();
-        if (host.charAt(0) == '#') {
-            this.peerHost = host.substring(1);
-        } else {
-            this.peerId = Integer.parseInt(host);
-        }
-        String entryOperationName = carrier.getEntryEndpointName();
-        if (!StringUtil.isEmpty(entryOperationName)) {
-            if (entryOperationName.charAt(0) == '#') {
-                this.entryEndpointName = entryOperationName.substring(1);
-            }
-        }
-        String parentOperationName = carrier.getParentEndpointName();
-        if (!StringUtil.isEmpty(parentOperationName)) {
-            if (parentOperationName.charAt(0) == '#') {
-                this.parentEndpointName = parentOperationName.substring(1);
-            }
-        }
+        this.parentService = carrier.getParentService();
+        this.parentServiceInstance = carrier.getParentServiceInstance();
+        this.parentEndpoint = carrier.getParentEndpoint();
+        this.addressUsedAtClient = carrier.getAddressUsedAtClient();
     }
 
     public TraceSegmentRef(ContextSnapshot snapshot) {
         this.type = SegmentRefType.CROSS_THREAD;
+        this.traceId = snapshot.getTraceId().getId();
         this.traceSegmentId = snapshot.getTraceSegmentId();
         this.spanId = snapshot.getSpanId();
-        this.parentServiceInstanceId = RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID;
-        this.entryServiceInstanceId = snapshot.getEntryApplicationInstanceId();
-        String entryOperationName = snapshot.getEntryOperationName();
-        if (!StringUtil.isEmpty(entryOperationName)) {
-            if (entryOperationName.charAt(0) == '#') {
-                this.entryEndpointName = entryOperationName.substring(1);
-            }
-        }
-        String parentOperationName = snapshot.getParentOperationName();
-        if (!StringUtil.isEmpty(parentOperationName)) {
-            if (parentOperationName.charAt(0) == '#') {
-                this.parentEndpointName = parentOperationName.substring(1);
-            }
-        }
-    }
-
-    public String getEntryEndpointName() {
-        return entryEndpointName;
-    }
-
-    public int getEntryServiceInstanceId() {
-        return entryServiceInstanceId;
+        this.parentService = Config.Agent.SERVICE_NAME;
+        this.parentServiceInstance = Config.Agent.INSTANCE_NAME;
+        this.parentEndpoint = snapshot.getParentEndpoint();
     }
 
     public SegmentReference transform() {
         SegmentReference.Builder refBuilder = SegmentReference.newBuilder();
         if (SegmentRefType.CROSS_PROCESS.equals(type)) {
             refBuilder.setRefType(RefType.CrossProcess);
-            if (peerId == DictionaryUtil.nullValue()) {
-                refBuilder.setNetworkAddress(peerHost);
-            } else {
-                refBuilder.setNetworkAddressId(peerId);
-            }
         } else {
             refBuilder.setRefType(RefType.CrossThread);
         }
-
-        refBuilder.setParentServiceInstanceId(parentServiceInstanceId);
-        refBuilder.setEntryServiceInstanceId(entryServiceInstanceId);
-        refBuilder.setParentTraceSegmentId(traceSegmentId.transform());
+        refBuilder.setTraceId(traceId);
+        refBuilder.setParentTraceSegmentId(traceSegmentId);
         refBuilder.setParentSpanId(spanId);
-        refBuilder.setEntryEndpoint(entryEndpointName);
-        refBuilder.setParentEndpoint(parentEndpointName);
+        refBuilder.setParentService(parentService);
+        refBuilder.setParentServiceInstance(parentServiceInstance);
+        refBuilder.setParentEndpoint(parentEndpoint);
+        if (addressUsedAtClient != null) {
+            refBuilder.setNetworkAddressUsedAtPeer(addressUsedAtClient);
+        }
 
         return refBuilder.build();
     }

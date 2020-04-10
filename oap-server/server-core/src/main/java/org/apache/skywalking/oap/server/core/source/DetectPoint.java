@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 
 @RequiredArgsConstructor
 public enum DetectPoint {

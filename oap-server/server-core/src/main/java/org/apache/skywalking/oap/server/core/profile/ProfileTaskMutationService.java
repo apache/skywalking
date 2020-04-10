@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
@@ -64,7 +64,7 @@ public class ProfileTaskMutationService implements Service {
      * @param maxSamplingCount     max trace count on sniffer
      * @return task create result
      */
-    public ProfileTaskCreationResult createTask(final int serviceId,
+    public ProfileTaskCreationResult createTask(final String serviceId,
                                                 final String endpointName,
                                                 final long monitorStartTime,
                                                 final int monitorDuration,
@@ -102,7 +102,7 @@ public class ProfileTaskMutationService implements Service {
         return ProfileTaskCreationResult.builder().id(task.id()).build();
     }
 
-    private String checkDataSuccess(final Integer serviceId,
+    private String checkDataSuccess(final String serviceId,
                                     final String endpointName,
                                     final long monitorStartTime,
                                     final long monitorEndTime,
@@ -141,8 +141,8 @@ public class ProfileTaskMutationService implements Service {
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks
-        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, Downsampling.Second);
-        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, Downsampling.Second);
+        long startTimeBucket = TimeBucket.getTimeBucket(monitorStartTime, DownSampling.Second);
+        long endTimeBucket = TimeBucket.getTimeBucket(monitorEndTime, DownSampling.Second);
         final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
             serviceId, null, startTimeBucket, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {

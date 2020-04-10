@@ -25,7 +25,7 @@ import com.alipay.sofa.rpc.core.response.SofaResponse;
 import com.alipay.sofa.rpc.filter.ProviderInvoker;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -117,9 +117,11 @@ public class SofaRpcProviderInterceptorTest {
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW6CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW8CarrierItem.HEADER_NAME)).thenReturn(
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
 
-        sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        sofaRpcProviderInterceptor.beforeMethod(
+            enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         sofaRpcProviderInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, sofaResponse);
         assertProvider();
     }
@@ -133,8 +135,8 @@ public class SofaRpcProviderInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
+        assertThat(SegmentRefHelper.getParentServiceInstance(actual), is("instance"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("3.4.5"));
     }
 
     private void assertProviderSpan(AbstractTracingSpan span) {

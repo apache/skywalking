@@ -55,7 +55,7 @@ public class Address implements Comparable<Address> {
 
     @Override
     public String toString() {
-        return host + Const.ID_SPLIT + port;
+        return host + Const.ID_CONNECTOR + port;
     }
 
     @Override

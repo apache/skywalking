@@ -32,7 +32,6 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.context.TracingContext;
 import org.apache.skywalking.apm.agent.core.context.TracingThreadListener;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.constants.ProfileConstants;
@@ -91,7 +90,9 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * check and add {@link TracingContext} profiling
      */
-    public ProfileStatusReference addProfiling(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public ProfileStatusReference addProfiling(TracingContext tracingContext,
+                                               String traceSegmentId,
+                                               String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {
@@ -104,7 +105,7 @@ public class ProfileTaskExecutionService implements BootService, TracingThreadLi
     /**
      * Re-check current trace need profiling, in case that third-party plugins change the operation name.
      */
-    public void profilingRecheck(TracingContext tracingContext, ID traceSegmentId, String firstSpanOPName) {
+    public void profilingRecheck(TracingContext tracingContext, String traceSegmentId, String firstSpanOPName) {
         // get current profiling task, check need profiling
         final ProfileTaskExecutionContext executionContext = taskExecutionContext.get();
         if (executionContext == null) {

@@ -26,16 +26,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.skywalking.apm.agent.core.base64.Base64;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.conf.Constants;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
+import org.apache.skywalking.apm.agent.test.helper.SegmentRefHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.test.tools.SegmentRefAssert;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
@@ -54,6 +55,7 @@ import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingContinuation;
 import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpan;
 import org.apache.skywalking.apm.toolkit.opentracing.SkywalkingSpanBuilder;
 import org.apache.skywalking.apm.toolkit.opentracing.TextMapContext;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,7 +64,6 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import static org.apache.skywalking.apm.agent.test.tools.SpanAssert.assertComponent;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNull;
@@ -117,6 +118,8 @@ public class SkywalkingSpanActivationTest {
             HashMap.class
         };
 
+        Config.Agent.SERVICE_NAME = "service";
+
         setOperationNameInterceptor = new SpanSetOperationNameInterceptor();
         setOperationNameArgument = new Object[] {"testOperationName"};
         setOperationNameArgumentType = new Class[] {String.class};
@@ -128,6 +131,11 @@ public class SkywalkingSpanActivationTest {
 
         constructorInterceptor = new ConstructorInterceptor();
         activateInterceptor = new ActivateInterceptor();
+    }
+
+    @After
+    public void tearDown() {
+        Config.Agent.SERVICE_NAME = Constants.EMPTY_STRING;
     }
 
     @Test
@@ -219,10 +227,9 @@ public class SkywalkingSpanActivationTest {
             carrier
         }, null, null);
 
-        String[] parts = values.get(SW6CarrierItem.HEADER_NAME).split("-", 9);
+        String[] parts = values.get(SW8CarrierItem.HEADER_NAME).split("-", 8);
         Assert.assertEquals("0", parts[3]);
-        Assert.assertEquals(Base64.encode("#127.0.0.1:8080"), parts[6]);
-        Assert.assertTrue(new ID(Base64.decode2UTFString(parts[1])).isValid());
+        Assert.assertEquals(Base64.encode("127.0.0.1:8080"), parts[7]);
         stopSpan();
     }
 
@@ -246,7 +253,10 @@ public class SkywalkingSpanActivationTest {
 
         };
 
-        values.put(SW6CarrierItem.HEADER_NAME, "1-NDM0LjEyLjEyMTIz-MS4zNDMuMjIy-3-1-1-IzEyNy4wLjAuMTo4MDgw-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        values.put(
+            SW8CarrierItem.HEADER_NAME,
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="
+        );
 
         extractInterceptor.afterMethod(enhancedInstance, null, new Object[] {
             Format.Builtin.TEXT_MAP,
@@ -258,9 +268,9 @@ public class SkywalkingSpanActivationTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(tracingSegment);
         assertThat(tracingSegment.getRefs().size(), is(1));
         TraceSegmentRef ref = tracingSegment.getRefs().get(0);
-        SegmentRefAssert.assertSegmentId(ref, "1.343.222");
+        SegmentRefAssert.assertSegmentId(ref, "3.4.5");
         SegmentRefAssert.assertSpanId(ref, 3);
-        SegmentRefAssert.assertEntryApplicationInstanceId(ref, 1);
+        assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         SegmentRefAssert.assertPeerHost(ref, "127.0.0.1:8080");
         assertThat(spans.size(), is(1));
         assertSpanCommonsAttribute(spans.get(0));
@@ -287,7 +297,7 @@ public class SkywalkingSpanActivationTest {
 
         };
 
-        values.put(SW6CarrierItem.HEADER_NAME, "aaaaaaaa|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|1.234.444");
+        values.put(SW8CarrierItem.HEADER_NAME, "aaaaaaaa|3|#192.168.1.8:18002|#/portal/|#/testEntrySpan|1.234.444");
 
         extractInterceptor.afterMethod(enhancedInstance, null, new Object[] {
             Format.Builtin.TEXT_MAP,
@@ -313,7 +323,8 @@ public class SkywalkingSpanActivationTest {
                 MockEnhancedInstance enhancedInstance = new MockEnhancedInstance();
                 try {
                     startSpan(enhancedInstance);
-                    activateInterceptor.afterMethod(continuationHolder, SkywalkingContinuation.class.getMethod("activate"), null, null, null);
+                    activateInterceptor.afterMethod(
+                        continuationHolder, SkywalkingContinuation.class.getMethod("activate"), null, null, null);
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
                 } finally {
@@ -339,7 +350,6 @@ public class SkywalkingSpanActivationTest {
 
     private void assertSpanCommonsAttribute(AbstractTracingSpan span) {
         assertThat(span.getOperationName(), is("testOperationName"));
-        assertComponent(span, "test");
         SpanAssert.assertLogSize(span, 1);
     }
 
@@ -359,7 +369,10 @@ public class SkywalkingSpanActivationTest {
         constructorWithSpanBuilderInterceptor.onConstruct(enhancedInstance, new Object[] {spanBuilder});
         spanLogInterceptor.afterMethod(enhancedInstance, null, logArgument, logArgumentType, null);
 
-        setOperationNameInterceptor.afterMethod(enhancedInstance, SkywalkingSpan.class.getMethod("setOperationName", String.class), setOperationNameArgument, setOperationNameArgumentType, null);
+        setOperationNameInterceptor.afterMethod(
+            enhancedInstance, SkywalkingSpan.class.getMethod("setOperationName", String.class),
+            setOperationNameArgument, setOperationNameArgumentType, null
+        );
     }
 
     private class MockEnhancedInstance implements EnhancedInstance {

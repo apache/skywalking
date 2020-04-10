@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.entity.IntValues;
 import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
@@ -35,8 +35,6 @@ import org.elasticsearch.search.aggregations.metrics.Avg;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.io.IOException;
-
 public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
 
     public MetricsQueryEs7DAO(ElasticSearchClient client) {
@@ -44,11 +42,8 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException {
-
-        String indexName = ModelName.build(downsampling, indName);
-
+    public IntValues getValues(String indexName, DownSampling downsampling, long startTB, long endTB, Where where,
+                               String valueCName, Function function) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
 

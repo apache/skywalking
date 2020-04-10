@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
@@ -34,16 +36,12 @@ public class ServiceInstance extends Source {
 
     @Override
     public String getEntityId() {
-        return String.valueOf(id);
+        return IDManager.ServiceInstanceID.buildId(serviceId, name);
     }
 
     @Getter
-    @Setter
-    private int id;
-    @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private int serviceId;
+    private String serviceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
@@ -52,6 +50,8 @@ public class ServiceInstance extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
+    @Setter
+    private NodeType nodeType;
     @Getter
     @Setter
     private String endpointName;
@@ -67,4 +67,9 @@ public class ServiceInstance extends Source {
     @Getter
     @Setter
     private RequestType type;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, nodeType);
+    }
 }

@@ -96,7 +96,7 @@ public class TopoMatcher extends AbstractMatcher<Topology> {
             }
 
             if (convert) {
-                callMatcher.setId(String.join("_", callMatcher.getSource(), callMatcher.getTarget()));
+                callMatcher.setId(String.join("-", callMatcher.getSource(), callMatcher.getTarget()));
             }
         }
     }

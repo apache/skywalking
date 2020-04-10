@@ -75,13 +75,13 @@ public class AlarmModuleProvider extends ModuleProvider {
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
-                                                                              .getService(DynamicConfigurationService.class);
+                                                                              .getService(
+                                                                                  DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(alarmRulesWatcher);
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        notifyHandler.initCache(getManager());
     }
 
     @Override

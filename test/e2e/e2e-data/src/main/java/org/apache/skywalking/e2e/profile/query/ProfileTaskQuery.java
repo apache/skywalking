@@ -27,6 +27,6 @@ import org.apache.skywalking.e2e.AbstractQuery;
 @Setter
 @Accessors(fluent = true)
 public class ProfileTaskQuery extends AbstractQuery<ProfileTaskQuery> {
-    private int serviceId;
+    private String serviceId;
     private String endpointName;
 }

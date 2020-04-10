@@ -26,11 +26,11 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.ServiceMeshMetricServiceGrpc;
+import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
+import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetricServiceGrpc;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
@@ -69,8 +69,7 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
     @ContainerHostAndPort(name = "oap", port = 11800)
     private HostAndPort oapHostPort;
 
-    private static final int SW_STORAGE_ES_MONTH_METRIC_DATA_TTL = 4;
-    private static final int SW_STORAGE_ES_OTHER_METRIC_DATA_TTL = 5;
+    private static final int SW_CORE_RECORD_DATA_TTL = 5;
 
     private static final int MAX_INBOUND_MESSAGE_SIZE = 1024 * 1024 * 50;
     private static final boolean SUCCESS = true;
@@ -106,10 +105,10 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
                              .setDetectPoint(DetectPoint.server);
 
         final LocalDateTime now = now();
-        final LocalDateTime startTime = now.minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL + 1);
+        final LocalDateTime startTime = now.minusDays(SW_CORE_RECORD_DATA_TTL + 1);
         final LocalDateTime endTime = startTime.plusMinutes(1);
 
-        final LocalDateTime queryEnd = now.minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL);
+        final LocalDateTime queryEnd = now.minusDays(SW_CORE_RECORD_DATA_TTL);
 
         ensureSendingMetricsWorks(
             builder, startTime.toEpochSecond(ZoneOffset.UTC) * 1000, endTime.toEpochSecond(ZoneOffset.UTC) * 1000,
@@ -117,35 +116,6 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
         );
 
         shouldBeEmptyBetweenTimeRange(startTime, queryEnd, "DAY");
-    }
-
-    @RetryableTest
-    public void monthMetricsDataShouldBeRemovedAfterTTL() throws Exception {
-        final ServiceMeshMetric.Builder builder =
-            ServiceMeshMetric.newBuilder()
-                             .setSourceServiceName("e2e-test-source-service")
-                             .setSourceServiceInstance("e2e-test-source-service-instance")
-                             .setDestServiceName("e2e-test-dest-service")
-                             .setDestServiceInstance("e2e-test-dest-service-instance")
-                             .setEndpoint("e2e/test")
-                             .setLatency(2000)
-                             .setResponseCode(200)
-                             .setStatus(SUCCESS)
-                             .setProtocol(Protocol.HTTP)
-                             .setDetectPoint(DetectPoint.server);
-
-        final LocalDateTime now = LocalDateTime.now();
-        final LocalDateTime startTime = now.minusMonths(SW_STORAGE_ES_MONTH_METRIC_DATA_TTL + 1);
-        final LocalDateTime endTime = startTime.plusMinutes(1);
-
-        final LocalDateTime queryEnd = now.minusMonths(SW_STORAGE_ES_MONTH_METRIC_DATA_TTL);
-
-        ensureSendingMetricsWorks(
-            builder, startTime.toEpochSecond(ZoneOffset.UTC) * 1000, endTime.toEpochSecond(ZoneOffset.UTC) * 1000,
-            startTime, queryEnd, "MONTH"
-        );
-
-        shouldBeEmptyBetweenTimeRange(startTime, queryEnd, "MONTH");
     }
 
     private void shouldBeEmptyBetweenTimeRange(final LocalDateTime queryStart,
@@ -209,7 +179,7 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
         for (int i = 0; i < 10; i++) {
             try {
                 final List<Service> services = graphql.services(
-                    new ServicesQuery().start(now().minusDays(SW_STORAGE_ES_OTHER_METRIC_DATA_TTL)).end(now())
+                    new ServicesQuery().start(now().minusDays(SW_CORE_RECORD_DATA_TTL)).end(now())
                 );
 
                 LOGGER.info("Services: {}", services);
@@ -234,7 +204,7 @@ public class StorageTTLE2E extends SkyWalkingTestAdapter {
         return null;
     }
 
-    private void sendMetrics(final ServiceMeshMetric metrics) throws InterruptedException {
+    void sendMetrics(final ServiceMeshMetric metrics) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
         StreamObserver<ServiceMeshMetric> collect = grpcStub.collect(new StreamObserver<MeshProbeDownstream>() {

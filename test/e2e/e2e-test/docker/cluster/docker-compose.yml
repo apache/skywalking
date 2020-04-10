@@ -41,6 +41,7 @@ services:
     environment:
       - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
       - SW_AGENT_NAME=e2e-service-provider
+      - SW_AGENT_PROPS=agent.instance_name=provider1
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
       interval: 5s
@@ -61,6 +62,7 @@ services:
     environment:
       - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
       - SW_AGENT_NAME=e2e-service-provider
+      - SW_AGENT_PROPS=agent.instance_name=provider2
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
       interval: 5s
@@ -81,6 +83,7 @@ services:
     environment:
       - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap1:11800
       - SW_AGENT_NAME=e2e-service-consumer
+      - SW_AGENT_PROPS=agent.instance_name=consumer
       - PROVIDER_URL=http://provider1:9090,http://provider2:9090
     depends_on:
       oap1:

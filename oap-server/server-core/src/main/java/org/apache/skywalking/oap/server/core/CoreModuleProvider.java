@@ -30,17 +30,15 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.CacheUpdateTimer;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoader;
@@ -54,12 +52,6 @@ import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.NetworkAddressInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.ServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.ServiceInventoryRegister;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
@@ -196,7 +188,7 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
-            DownsamplingConfigService.class, new DownsamplingConfigService(moduleConfig.getDownsampling()));
+            DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(JettyHandlerRegister.class, new JettyHandlerRegisterImpl(jettyServer));
@@ -215,18 +207,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IModelOverride.class, storageModels);
 
         this.registerServiceImplementation(
-            ServiceInventoryCache.class, new ServiceInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(IServiceInventoryRegister.class, new ServiceInventoryRegister(getManager()));
-
-        this.registerServiceImplementation(
-            ServiceInstanceInventoryCache.class, new ServiceInstanceInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(
-            IServiceInstanceInventoryRegister.class, new ServiceInstanceInventoryRegister(getManager()));
-
-        this.registerServiceImplementation(
-            NetworkAddressInventoryCache.class, new NetworkAddressInventoryCache(getManager(), moduleConfig));
-        this.registerServiceImplementation(
-            INetworkAddressInventoryRegister.class, new NetworkAddressInventoryRegister(getManager()));
+            NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
 
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
         this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
@@ -317,7 +298,7 @@ public class CoreModuleProvider extends ModuleProvider {
             DataTTLKeeperTimer.INSTANCE.start(getManager(), moduleConfig);
         }
 
-        CacheUpdateTimer.INSTANCE.start(getManager());
+        CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
     }
 
     @Override

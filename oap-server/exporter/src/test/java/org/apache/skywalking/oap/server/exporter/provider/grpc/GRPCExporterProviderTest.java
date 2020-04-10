@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -93,9 +91,6 @@ public class GRPCExporterProviderTest {
 
         when(manager.find(CoreModule.NAME)).thenReturn(providerHolder);
         when(providerHolder.provider()).thenReturn(serviceHolder);
-
-        when(serviceHolder.getService(ServiceInventoryCache.class)).thenReturn(null);
-        when(serviceHolder.getService(ServiceInstanceInventoryCache.class)).thenReturn(null);
 
         doNothing().when(exporter).initSubscriptionList();
 

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -59,8 +60,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        long minDuration,
                                        long maxDuration,
                                        String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
+                                       String serviceId,
+                                       String serviceInstanceId,
                                        String endpointId,
                                        String traceId,
                                        int limit,
@@ -91,10 +92,10 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
             mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
@@ -157,7 +158,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             SegmentRecord segmentRecord = new SegmentRecord();
             segmentRecord.setSegmentId((String) searchHit.getSourceAsMap().get(SegmentRecord.SEGMENT_ID));
             segmentRecord.setTraceId((String) searchHit.getSourceAsMap().get(SegmentRecord.TRACE_ID));
-            segmentRecord.setServiceId(((Number) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID)).intValue());
+            segmentRecord.setServiceId((String) searchHit.getSourceAsMap().get(SegmentRecord.SERVICE_ID));
             segmentRecord.setEndpointName((String) searchHit.getSourceAsMap().get(SegmentRecord.ENDPOINT_NAME));
             segmentRecord.setStartTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.START_TIME)).longValue());
             segmentRecord.setEndTime(((Number) searchHit.getSourceAsMap().get(SegmentRecord.END_TIME)).longValue());

@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -38,20 +37,16 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.ArrayParamBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class H2SQLExecutor {
-
-    private static final Logger logger = LoggerFactory.getLogger(H2SQLExecutor.class);
-
     protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
                                                                  String modelName,
                                                                  String[] ids,
                                                                  StorageBuilder<T> storageBuilder) throws IOException {
         /*
-         * Although H2 database or other database support createArrayOf and setArray operate.
-         * But Mysql 5.1.44 driver doesn't.
+         * Although H2 database or other database support createArrayOf and setArray operate,
+         * Mysql 5.1.44 driver doesn't.
          */
         String param = ArrayParamBuilder.build(ids);
 
@@ -75,7 +70,7 @@ public class H2SQLExecutor {
     }
 
     protected <T extends StorageData> StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
-                                  StorageBuilder<T> storageBuilder) throws IOException {
+                                                          StorageBuilder<T> storageBuilder) throws IOException {
         try (Connection connection = h2Client.getConnection();
              ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
             return toStorageData(rs, modelName, storageBuilder);
@@ -106,19 +101,6 @@ public class H2SQLExecutor {
             return storageBuilder.map2Data(data);
         }
         return null;
-    }
-
-    protected int getEntityIDByID(JDBCHikariCPClient h2Client, String entityColumnName, String modelName, String id) {
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT " + entityColumnName + " FROM " + modelName + " WHERE ID=?", id)) {
-            if (rs.next()) {
-                return rs.getInt(ServiceInstanceInventory.SEQUENCE);
-            }
-        } catch (SQLException | JDBCClientException e) {
-            logger.error(e.getMessage(), e);
-        }
-        return Const.NONE;
     }
 
     protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,

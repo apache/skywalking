@@ -58,7 +58,7 @@
                             <targetPath>/</targetPath>
                             <directory>${project.basedir}/../../agent-test-tools/dist</directory>
                             <include>skywalking-mock-collector.tar.gz</include>
-                            <include>validator.jar</include>
+                            <include>skywalking-validator.jar</include>
                         </resource>
                     </resources>
                 </configuration>

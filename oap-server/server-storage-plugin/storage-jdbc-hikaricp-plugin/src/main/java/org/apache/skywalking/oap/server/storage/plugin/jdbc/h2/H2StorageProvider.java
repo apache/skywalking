@@ -22,13 +22,10 @@ import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterLockDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -40,7 +37,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.ttl.GeneralStorageTTL;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -54,14 +50,10 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDele
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetricsQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressInventoryCacheDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2RegisterLockInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInstanceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceInventoryCacheDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
@@ -82,7 +74,6 @@ public class H2StorageProvider extends ModuleProvider {
 
     private H2StorageConfig config;
     private JDBCHikariCPClient h2Client;
-    private H2RegisterLockDAO lockDAO;
 
     public H2StorageProvider() {
         config = new H2StorageConfig();
@@ -115,14 +106,8 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(h2Client));
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
 
-        lockDAO = new H2RegisterLockDAO(h2Client);
-        this.registerServiceImplementation(IRegisterLockDAO.class, lockDAO);
-
-        this.registerServiceImplementation(IServiceInventoryCacheDAO.class, new H2ServiceInventoryCacheDAO(h2Client));
         this.registerServiceImplementation(
-            IServiceInstanceInventoryCacheDAO.class, new H2ServiceInstanceInventoryCacheDAO(h2Client));
-        this.registerServiceImplementation(
-            INetworkAddressInventoryCacheDAO.class, new H2NetworkAddressInventoryCacheDAO(h2Client));
+            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(h2Client));
@@ -132,7 +117,7 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(getManager(), h2Client, new GeneralStorageTTL()));
+            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
         this.registerServiceImplementation(ILogQueryDAO.class, new H2LogQueryDAO(h2Client));
 
@@ -149,8 +134,6 @@ public class H2StorageProvider extends ModuleProvider {
 
             H2TableInstaller installer = new H2TableInstaller(getManager());
             installer.install(h2Client);
-
-            new H2RegisterLockInstaller().install(h2Client, lockDAO);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

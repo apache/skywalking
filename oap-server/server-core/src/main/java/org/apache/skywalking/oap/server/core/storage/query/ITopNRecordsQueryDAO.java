@@ -25,6 +25,6 @@ import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITopNRecordsQueryDAO extends Service {
-    List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId, int topN,
+    List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, String serviceId, int topN,
         Order order) throws IOException;
 }

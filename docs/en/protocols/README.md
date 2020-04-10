@@ -28,7 +28,7 @@ in-wire context propagation, started in 8.0.0 release.
 
 [Cross Process Correlation Headers Protocol v1](Skywalking-Cross-Process-Correlation-Headers-Protocol-v1.md) is a new in-wire context propagation additional and optional protocols. 
 Please read SkyWalking language agents documentations to see whether it is supported. 
-This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol v2`.
+This protocol defines the data format of transporting custom data with `Cross Process Propagation Headers Protocol`.
 SkyWalking javaagent begins to support this since 8.0.0.
 
 [SkyWalking Trace Data Protocol v3](Trace-Data-Protocol-v3.md) defines the communication way and format between agent and backend.

@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
@@ -29,17 +31,19 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Endpoint extends Source {
+    private String entityId;
+
     @Override
     public int scope() {
         return DefaultScopeDefine.ENDPOINT;
     }
 
-    /**
-     * @since 7.1.0 SkyWalking doesn't do endpoint register. Use name directly.
-     */
     @Override
     public String getEntityId() {
-        return EndpointTraffic.buildId(serviceId, name, DetectPoint.SERVER);
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.EndpointID.buildId(serviceId, name);
+        }
+        return entityId;
     }
 
     @Getter
@@ -51,17 +55,14 @@ public class Endpoint extends Source {
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private int serviceId;
+    private String serviceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
-    @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id")
-    private int serviceInstanceId;
+    private NodeType serviceNodeType;
     @Getter
     @Setter
     private String serviceInstanceName;
@@ -77,4 +78,9 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     private RequestType type;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+    }
 }

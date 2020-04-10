@@ -19,5 +19,5 @@
 package org.apache.skywalking.oap.server.core.query.entity;
 
 public enum Step {
-    MONTH, DAY, HOUR, MINUTE, SECOND
+    DAY, HOUR, MINUTE, SECOND
 }

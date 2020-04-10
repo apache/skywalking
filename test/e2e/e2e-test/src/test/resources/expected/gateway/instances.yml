@@ -14,14 +14,14 @@
 # limitations under the License.
 
 instances:
-  - key: gt 0
+  - key: not null
     label: not null
     attributes:
-      - name: os_name
+      - name: OS Name
         value: not null
-      - name: host_name
+      - name: hostname
         value: not null
-      - name: process_no
+      - name: Process No.
         value: gt 0
       - name: ipv4s
         value: not null

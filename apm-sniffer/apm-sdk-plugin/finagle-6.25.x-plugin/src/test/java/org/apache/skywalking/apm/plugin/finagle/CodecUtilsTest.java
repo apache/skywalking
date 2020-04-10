@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.finagle;
 import com.twitter.io.Bufs;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class CodecUtilsTest {
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
                 next.setHeadValue(UUID.randomUUID().toString());
             }
         }

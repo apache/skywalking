@@ -351,11 +351,6 @@ public class RunningRuleTest {
         }
 
         @Override
-        public Metrics toMonth() {
-            return null;
-        }
-
-        @Override
         public int getValue() {
             return value;
         }
@@ -409,11 +404,6 @@ public class RunningRuleTest {
 
         @Override
         public Metrics toDay() {
-            return null;
-        }
-
-        @Override
-        public Metrics toMonth() {
             return null;
         }
 

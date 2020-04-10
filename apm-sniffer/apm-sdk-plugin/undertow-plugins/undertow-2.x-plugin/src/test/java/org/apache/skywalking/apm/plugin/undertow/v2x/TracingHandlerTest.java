@@ -25,7 +25,7 @@ import io.undertow.util.HeaderMap;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -100,7 +100,7 @@ public class TracingHandlerTest {
         TracingHandler handler = new TracingHandler(httpHandler);
         HttpServerExchange exchange = buildExchange();
         exchange.getRequestHeaders()
-                .put(HttpString.tryFromString(SW6CarrierItem.HEADER_NAME), "1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+                .put(HttpString.tryFromString(SW8CarrierItem.HEADER_NAME), "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
         handler.handleRequest(exchange);
         exchange.endExchange();
 
@@ -133,9 +133,9 @@ public class TracingHandlerTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 
 }

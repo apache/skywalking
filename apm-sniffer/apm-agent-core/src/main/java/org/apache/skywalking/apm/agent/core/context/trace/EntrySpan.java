@@ -80,15 +80,6 @@ public class EntrySpan extends StackBasedTracingSpan {
     }
 
     @Override
-    public AbstractTracingSpan setComponent(String componentName) {
-        if (stackDepth == currentMaxDepth) {
-            return super.setComponent(componentName);
-        } else {
-            return this;
-        }
-    }
-
-    @Override
     public AbstractTracingSpan setOperationName(String operationName) {
         if (stackDepth == currentMaxDepth || isInAsyncMode) {
             return super.setOperationName(operationName);
@@ -115,7 +106,6 @@ public class EntrySpan extends StackBasedTracingSpan {
 
     private void clearWhenRestart() {
         this.componentId = DictionaryUtil.nullValue();
-        this.componentName = null;
         this.layer = null;
         this.logs = null;
         this.tags = null;

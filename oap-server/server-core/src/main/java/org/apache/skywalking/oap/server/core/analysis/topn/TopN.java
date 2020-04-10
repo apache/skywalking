@@ -48,7 +48,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     @Getter
     @Setter
     @Column(columnName = SERVICE_ID)
-    private int serviceId;
+    private String serviceId;
 
     @Override
     public int compareTo(Object o) {

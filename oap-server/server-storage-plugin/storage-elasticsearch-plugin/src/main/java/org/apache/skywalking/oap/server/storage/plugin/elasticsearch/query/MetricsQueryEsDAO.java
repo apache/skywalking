@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.query.entity.KVInt;
 import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -53,10 +52,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getValues(String indName, Downsampling downsampling, long startTB, long endTB, Where where,
-        String valueCName, Function function) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public IntValues getValues(String indexName, DownSampling downsampling, long startTB, long endTB, Where where,
+                               String valueCName, Function function) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         queryBuild(sourceBuilder, where, startTB, endTB);
 
@@ -93,6 +90,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             kvInt.setValue(value);
             intValues.addKVInt(kvInt);
         }
+
         return intValues;
     }
 
@@ -111,10 +109,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public IntValues getLinearIntValues(String indexName, DownSampling downsampling, List<String> ids,
+                                        String valueCName) throws IOException {
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
@@ -134,10 +130,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String indName, Downsampling downsampling, List<String> ids,
-        List<Integer> linearIndex, String valueCName) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public IntValues[] getMultipleLinearIntValues(String indexName, DownSampling downsampling, List<String> ids,
+                                                  List<Integer> linearIndex, String valueCName) throws IOException {
         SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
         Map<String, Map<String, Object>> idMap = toMap(response);
 
@@ -171,10 +165,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String indName, Downsampling downsampling, List<String> ids,
-        String valueCName) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public Thermodynamic getThermodynamic(String indexName, DownSampling downsampling, List<String> ids,
+                                          String valueCName) throws IOException {
         Thermodynamic thermodynamic = new Thermodynamic();
         List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
 

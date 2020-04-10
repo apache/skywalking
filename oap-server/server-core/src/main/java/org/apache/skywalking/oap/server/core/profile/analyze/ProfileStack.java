@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 import lombok.Data;
-import org.apache.skywalking.apm.network.language.profile.ThreadStack;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 
 /**

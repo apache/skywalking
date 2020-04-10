@@ -50,7 +50,7 @@ public class ProfileTaskLogRecord extends Record {
     @Column(columnName = TASK_ID, storageOnly = true)
     private String taskId;
     @Column(columnName = INSTANCE_ID, storageOnly = true)
-    private int instanceId;
+    private String instanceId;
     @Column(columnName = OPERATION_TYPE, storageOnly = true)
     private int operationType;
     @Column(columnName = OPERATION_TIME)
@@ -58,7 +58,7 @@ public class ProfileTaskLogRecord extends Record {
 
     @Override
     public String id() {
-        return getTaskId() + Const.ID_SPLIT + getInstanceId() + Const.ID_SPLIT + getOperationType() + Const.ID_SPLIT + getOperationTime();
+        return getTaskId() + Const.ID_CONNECTOR + getInstanceId() + Const.ID_CONNECTOR + getOperationType() + Const.ID_CONNECTOR + getOperationTime();
     }
 
     public static class Builder implements StorageBuilder<ProfileTaskLogRecord> {
@@ -67,7 +67,7 @@ public class ProfileTaskLogRecord extends Record {
         public ProfileTaskLogRecord map2Data(Map<String, Object> dbMap) {
             final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
             log.setTaskId((String) dbMap.get(TASK_ID));
-            log.setInstanceId(((Number) dbMap.get(INSTANCE_ID)).intValue());
+            log.setInstanceId((String) dbMap.get(INSTANCE_ID));
             log.setOperationType(((Number) dbMap.get(OPERATION_TYPE)).intValue());
             log.setOperationTime(((Number) dbMap.get(OPERATION_TIME)).longValue());
             log.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());

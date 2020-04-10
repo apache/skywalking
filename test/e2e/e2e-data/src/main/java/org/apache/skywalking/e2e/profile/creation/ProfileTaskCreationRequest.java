@@ -30,7 +30,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ProfileTaskCreationRequest {
-    private int serviceId;
+    private String serviceId;
     private String endpointName;
     private long startTime;
     private int duration;

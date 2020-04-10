@@ -27,7 +27,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Database {
-    private int id;
+    private String id;
     private String name;
     private String type;
 }

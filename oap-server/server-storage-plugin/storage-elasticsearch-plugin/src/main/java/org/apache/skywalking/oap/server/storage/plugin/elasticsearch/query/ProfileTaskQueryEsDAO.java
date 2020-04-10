@@ -44,14 +44,14 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     }
 
     @Override
-    public List<ProfileTask> getTaskList(Integer serviceId, String endpointName, Long startTimeBucket,
+    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
         final BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
 
-        if (serviceId != null) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ProfileTaskRecord.SERVICE_ID, serviceId));
         }
 
@@ -108,7 +108,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     private ProfileTask parseTask(SearchHit data) {
         return ProfileTask.builder()
                           .id(data.getId())
-                          .serviceId(((Number) data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID)).intValue())
+                          .serviceId((String) data.getSourceAsMap().get(ProfileTaskRecord.SERVICE_ID))
                           .endpointName((String) data.getSourceAsMap().get(ProfileTaskRecord.ENDPOINT_NAME))
                           .startTime(((Number) data.getSourceAsMap().get(ProfileTaskRecord.START_TIME)).longValue())
                           .createTime(((Number) data.getSourceAsMap()

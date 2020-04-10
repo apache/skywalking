@@ -40,21 +40,15 @@ including
 1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh. 
 1. Istio telemetry format.
 1. Envoy Metrics Service format.
-1. Zipkin v1/v2 format.
-1. Jaeger gRPC format.
-
+1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental)
 
 # Document
-- [8.x Documentation, dev version](docs/README.md).
-- [7.0.0 Documentation](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
-- [6.6 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
-- [6.5 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+[8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
 
-The documentation links works after the official release.
+NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous released. 
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
-
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.

@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>jvm-container</artifactId>
-    <name>name>SkyWalking JVM Runner Image</name>
+    <name>SkyWalking JVM Runner Image</name>
 
     <properties>
         <skip.docker>false</skip.docker>

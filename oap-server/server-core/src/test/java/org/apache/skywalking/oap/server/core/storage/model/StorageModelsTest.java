@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -50,7 +50,7 @@ public class StorageModelsTest {
     public void testStorageModels() {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", true, true, Downsampling.Hour),
+                   new Storage("StorageModelsTest", DownSampling.Hour),
                    false
         );
 
