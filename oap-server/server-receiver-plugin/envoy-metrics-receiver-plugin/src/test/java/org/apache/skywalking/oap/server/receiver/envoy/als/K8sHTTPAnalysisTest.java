@@ -76,12 +76,12 @@ public class K8sHTTPAnalysisTest {
 
             Assert.assertEquals(2, analysis.metrics.size());
 
-            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
             Assert.assertEquals("UNKNOWN", incoming.getSourceServiceName());
             Assert.assertEquals("ingress", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
 
-            ServiceMeshMetric outgoing = analysis.metrics.get(1);
+            ServiceMeshMetric.Builder outgoing = analysis.metrics.get(1);
             Assert.assertEquals("ingress", outgoing.getSourceServiceName());
             Assert.assertEquals("productpage", outgoing.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, outgoing.getDetectPoint());
@@ -99,7 +99,7 @@ public class K8sHTTPAnalysisTest {
 
             Assert.assertEquals(1, analysis.metrics.size());
 
-            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
             Assert.assertEquals("", incoming.getSourceServiceName());
             Assert.assertEquals("productpage", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -117,7 +117,7 @@ public class K8sHTTPAnalysisTest {
 
             Assert.assertEquals(1, analysis.metrics.size());
 
-            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("review", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -135,7 +135,7 @@ public class K8sHTTPAnalysisTest {
 
             Assert.assertEquals(1, analysis.metrics.size());
 
-            ServiceMeshMetric incoming = analysis.metrics.get(0);
+            ServiceMeshMetric.Builder incoming = analysis.metrics.get(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("detail", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, incoming.getDetectPoint());
@@ -143,7 +143,7 @@ public class K8sHTTPAnalysisTest {
     }
 
     public static class MockK8sAnalysis extends K8sALSServiceMeshHTTPAnalysis {
-        private List<ServiceMeshMetric> metrics = new ArrayList<>();
+        private List<ServiceMeshMetric.Builder> metrics = new ArrayList<>();
 
         @Override
         public void init(EnvoyMetricReceiverConfig config) {
@@ -156,7 +156,7 @@ public class K8sHTTPAnalysisTest {
         }
 
         @Override
-        protected void forward(ServiceMeshMetric metric) {
+        protected void forward(ServiceMeshMetric.Builder metric) {
             metrics.add(metric);
         }
     }

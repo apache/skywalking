@@ -62,10 +62,10 @@ public class StringFormatGroup {
     public FormatResult format(String string) {
         for (PatternRule rule : rules) {
             if (rule.getPattern().matcher(string).matches()) {
-                return new FormatResult(true, rule.getName());
+                return new FormatResult(true, rule.getName(), string);
             }
         }
-        return new FormatResult(false, string);
+        return new FormatResult(false, string, string);
     }
 
     @Getter
@@ -73,6 +73,7 @@ public class StringFormatGroup {
     public static class FormatResult {
         private final boolean match;
         private final String name;
+        private final String replacedName;
     }
 
     @Getter

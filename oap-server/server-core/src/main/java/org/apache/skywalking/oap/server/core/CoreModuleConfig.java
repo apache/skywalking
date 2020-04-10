@@ -21,72 +21,55 @@ package org.apache.skywalking.oap.server.core;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
 public class CoreModuleConfig extends ModuleConfig {
-    @Setter
     private String role = "Mixed";
-    @Setter
     private String nameSpace;
-    @Setter
     private String restHost;
-    @Setter
     private int restPort;
-    @Setter
     private int jettySelectors = 1;
-    @Setter
     private String restContextPath;
-    @Setter
     private String gRPCHost;
-    @Setter
     private int gRPCPort;
-    @Setter
     private boolean gRPCSslEnabled = false;
-    @Setter
     private String gRPCSslKeyPath;
-    @Setter
     private String gRPCSslCertChainPath;
-    @Setter
     private String gRPCSslTrustedCAPath;
-    @Setter
     private int maxConcurrentCallsPerConnection;
-    @Setter
     private int maxMessageSize;
-    @Setter
     private boolean enableDatabaseSession;
-    @Setter
     private int topNReportPeriod;
     private final List<String> downsampling;
     /**
      * The period of doing data persistence. Unit is second.
      */
-    @Setter
+
     private long persistentPeriod = 3;
-    @Setter
+
     private boolean enableDataKeeperExecutor = true;
-    @Setter
+
     private int dataKeeperExecutePeriod = 5;
     /**
      * The time to live of all metrics data. Unit is day.
      */
-    @Setter
+
     private int metricsDataTTL = 3;
     /**
      * The time to live of all record data, including tracing. Unit is Day.
      */
-    @Setter
+
     private int recordDataTTL = 7;
-    @Setter
+
     private int gRPCThreadPoolSize;
-    @Setter
+
     private int gRPCThreadPoolQueueSize;
     /**
      * Timeout for cluster internal communication, in seconds.
      */
-    @Setter
+
     private int remoteTimeout = 20;
     /**
      * The size of network address alias.
@@ -113,6 +96,14 @@ public class CoreModuleConfig extends ModuleConfig {
      * tool, such as Kibana->ES, to query the data by themselves.
      */
     private boolean activeExtraModelColumns = false;
+    /**
+     * The max length of the service name.
+     */
+    private int serviceNameMaxLength = 70;
+    /**
+     * The max length of the service instance name.
+     */
+    private int instanceNameMaxLength = 70;
     /**
      * The max length of the endpoint name.
      *

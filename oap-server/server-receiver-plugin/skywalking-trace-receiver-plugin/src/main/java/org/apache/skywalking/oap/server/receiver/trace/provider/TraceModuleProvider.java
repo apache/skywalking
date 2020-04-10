@@ -45,6 +45,7 @@ public class TraceModuleProvider extends ModuleProvider {
     private final TraceServiceModuleConfig moduleConfig;
     private DBLatencyThresholdsAndWatcher thresholds;
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
+    private SegmentParserServiceImpl segmentParserService;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -74,8 +75,8 @@ public class TraceModuleProvider extends ModuleProvider {
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
 
-        this.registerServiceImplementation(
-            ISegmentParserService.class, new SegmentParserServiceImpl(getManager(), listenerManager(), moduleConfig));
+        segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
+        this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
     }
 
     @Override
@@ -93,6 +94,7 @@ public class TraceModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
 
+        segmentParserService.setListenerManager(listenerManager());
         grpcHandlerRegister.addHandler(
             new TraceSegmentReportServiceHandler(getManager(), listenerManager(), moduleConfig));
 
@@ -118,10 +120,10 @@ public class TraceModuleProvider extends ModuleProvider {
     private SegmentParserListenerManager listenerManager() {
         SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
         if (moduleConfig.isTraceAnalysis()) {
-            listenerManager.add(new MultiScopesAnalysisListener.Factory());
-            listenerManager.add(new NetworkAddressAliasMappingListener.Factory());
+            listenerManager.add(new MultiScopesAnalysisListener.Factory(getManager()));
+            listenerManager.add(new NetworkAddressAliasMappingListener.Factory(getManager()));
         }
-        listenerManager.add(new SegmentAnalysisListener.Factory(moduleConfig.getSampleRate()));
+        listenerManager.add(new SegmentAnalysisListener.Factory(getManager(), moduleConfig));
 
         return listenerManager;
     }

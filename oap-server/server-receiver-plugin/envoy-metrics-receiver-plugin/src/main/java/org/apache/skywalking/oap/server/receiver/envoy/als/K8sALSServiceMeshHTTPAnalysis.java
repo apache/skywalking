@@ -209,7 +209,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                     if (downstreamService.equals(ServiceMetaInfo.UNKNOWN)) {
                         // Ingress -> sidecar(server side)
                         // Mesh telemetry without source, the relation would be generated.
-                        ServiceMeshMetric metric = ServiceMeshMetric.newBuilder()
+                        ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
                                                                     .setStartTime(startTime)
                                                                     .setEndTime(startTime + duration)
                                                                     .setDestServiceName(localService.getServiceName())
@@ -219,14 +219,13 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setResponseCode(Math.toIntExact(responseCode))
                                                                     .setStatus(status)
                                                                     .setProtocol(protocol)
-                                                                    .setDetectPoint(DetectPoint.server)
-                                                                    .build();
+                                                                    .setDetectPoint(DetectPoint.server);
 
                         logger.debug("Transformed ingress->sidecar inbound mesh metric {}", metric);
                         forward(metric);
                     } else {
                         // sidecar -> sidecar(server side)
-                        ServiceMeshMetric metric = ServiceMeshMetric.newBuilder()
+                        ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
                                                                     .setStartTime(startTime)
                                                                     .setEndTime(startTime + duration)
                                                                     .setSourceServiceName(downstreamService.getServiceName())
@@ -238,8 +237,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setResponseCode(Math.toIntExact(responseCode))
                                                                     .setStatus(status)
                                                                     .setProtocol(protocol)
-                                                                    .setDetectPoint(DetectPoint.server)
-                                                                    .build();
+                                                                    .setDetectPoint(DetectPoint.server);
 
                         logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                         forward(metric);
@@ -251,7 +249,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                             .getAddress(), upstreamRemoteAddress.getSocketAddress()
                                                                                                                 .getPortValue());
 
-                    ServiceMeshMetric metric = ServiceMeshMetric.newBuilder()
+                    ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
                                                                 .setStartTime(startTime)
                                                                 .setEndTime(startTime + duration)
                                                                 .setSourceServiceName(downstreamService.getServiceName())
@@ -263,8 +261,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                 .setResponseCode(Math.toIntExact(responseCode))
                                                                 .setStatus(status)
                                                                 .setProtocol(protocol)
-                                                                .setDetectPoint(DetectPoint.client)
-                                                                .build();
+                                                                .setDetectPoint(DetectPoint.client);
 
                     logger.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
                     forward(metric);
@@ -312,7 +309,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 }
                 boolean status = responseCode >= 200 && responseCode < 400;
 
-                ServiceMeshMetric metric = ServiceMeshMetric.newBuilder()
+                ServiceMeshMetric.Builder metric = ServiceMeshMetric.newBuilder()
                                                             .setStartTime(startTime)
                                                             .setEndTime(startTime + duration)
                                                             .setSourceServiceName(outside.getServiceName())
@@ -324,8 +321,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                             .setResponseCode(Math.toIntExact(responseCode))
                                                             .setStatus(status)
                                                             .setProtocol(protocol)
-                                                            .setDetectPoint(DetectPoint.server)
-                                                            .build();
+                                                            .setDetectPoint(DetectPoint.server);
 
                 logger.debug("Transformed ingress inbound mesh metric {}", metric);
                 forward(metric);
@@ -337,7 +333,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                 long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
                 long outboundEndTime = startTime + formatAsLong(properties.getTimeToLastUpstreamRxByte());
 
-                ServiceMeshMetric outboundMetric = ServiceMeshMetric.newBuilder()
+                ServiceMeshMetric.Builder outboundMetric = ServiceMeshMetric.newBuilder()
                                                                     .setStartTime(outboundStartTime)
                                                                     .setEndTime(outboundEndTime)
                                                                     .setSourceServiceName(ingress.getServiceName())
@@ -349,8 +345,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
                                                                     .setResponseCode(Math.toIntExact(responseCode))
                                                                     .setStatus(status)
                                                                     .setProtocol(protocol)
-                                                                    .setDetectPoint(DetectPoint.client)
-                                                                    .build();
+                                                                    .setDetectPoint(DetectPoint.client);
 
                 logger.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
                 forward(outboundMetric);
@@ -391,7 +386,7 @@ public class K8sALSServiceMeshHTTPAnalysis implements ALSHTTPAnalysis {
         return ServiceMetaInfo.UNKNOWN;
     }
 
-    protected void forward(ServiceMeshMetric metric) {
+    protected void forward(ServiceMeshMetric.Builder metric) {
         TelemetryDataDispatcher.process(metric);
     }
 

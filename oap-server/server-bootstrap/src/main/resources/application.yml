@@ -81,9 +81,11 @@ core:
     # and it will cause more load for memory, network of OAP and storage.
     # But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party tool, such as Kibana->ES, to query the data by themselves.
     activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
-    # The max length of the endpoint name.
-    # In the current practice, we don't recommend the length over 190.
-    endpointNameMaxLength: ${SW_CORE_ENDPOINT_NAME_MAX_LENGTH:150}
+    # The max length of service + instance names should be less than 200
+    serviceNameMaxLength: ${SW_SERVICE_NAME_MAX_LENGTH:70}
+    instanceNameMaxLength: ${INSTANCE_NAME_MAX_LENGTH:70}
+    # The max length of service + endpoint names should be less than 240
+    endpointNameMaxLength: ${ENDPOINT_NAME_MAX_LENGTH:150}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -248,19 +250,19 @@ configuration:
     # Nacos Configuration namespace
     namespace: ''
     # Unit seconds, sync period. Default fetch every 60 seconds.
-    period : 60
+    period: 60
     # the name of current cluster, set the name if you want to upstream system known.
     clusterName: "default"
   zookeeper:
-    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
     nameSpace: /default
     hostPort: localhost:2181
     # Retry Policy
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
   etcd:
-    period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    group :  'skywalking'
+    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
+    group:  'skywalking'
     serverAddr: localhost:2379
     clusterName: "default"
   consul:
