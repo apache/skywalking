@@ -35,7 +35,7 @@ public class LuaController {
 
     @PostMapping("/nginx/entry/info")
     private String nginxEntry(String backend) throws MalformedURLException, URISyntaxException {
-        final URL url = new URL("http://" + backend + "/nginx/info");
+        final URL url = new URL("http://nginx:8080/nginx/info");
         final ResponseEntity<String> response = restTemplate.postForEntity(url.toURI(), null, String.class);
         return response.getBody();
     }

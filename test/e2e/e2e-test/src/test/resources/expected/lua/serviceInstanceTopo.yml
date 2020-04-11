@@ -20,15 +20,15 @@ nodes:
     serviceId: VXNlcl9TZXJ2aWNlX05hbWU=.1
     serviceName: User_Service_Name
     isReal: true
-  - id: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1
-    name: 205cdda42d6644fcb664b328d8d2a357@192.168.199.225
+  - id: not null
+    name: not null
     serviceId: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1
     serviceName: e2e-service-entry-provider
     type: ""
     isReal: true
 calls:
-  - id: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1-VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
-    source: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1
+  - id: not null
+    source: not null
     detectPoints:
       - CLIENT
       - SERVER
