@@ -14,21 +14,22 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
-    name: User
-    type: USER
-    serviceId: 1
-    serviceName: User
-    isReal: false
-  - id: 4
-    name: not null
-    serviceId: 4
-    serviceName: User_Service_Name
+  - id: VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
+    name: User_Service_Instance_Name
     type: not null
+    serviceId: VXNlcl9TZXJ2aWNlX05hbWU=.1
+    serviceName: User_Service_Name
+    isReal: true
+  - id: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1
+    name: 205cdda42d6644fcb664b328d8d2a357@192.168.199.225
+    serviceId: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1
+    serviceName: e2e-service-entry-provider
+    type: ""
     isReal: true
 calls:
-  - id: 1_4
-    source: 1
+  - id: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1-VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
+    source: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1_MjA1Y2RkYTQyZDY2NDRmY2I2NjRiMzI4ZDhkMmEzNTdAMTkyLjE2OC4xOTkuMjI1
     detectPoints:
+      - CLIENT
       - SERVER
-    target: 4
+    target: VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
