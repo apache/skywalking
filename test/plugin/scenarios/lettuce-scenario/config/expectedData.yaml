@@ -13,64 +13,54 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  services:
-    - {lettuce-scenario: 2}
-  instances:
-    - {lettuce-scenario: 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: lettuce-scenario
-    segmentSize: nq 0
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: Lettuce/GET
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Cache
-            startTime: not null
-            endTime: not null
-            componentId: 57
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: GET}
-          - operationName: Lettuce/BATCH_WRITE
-            operationId: 0
-            parentSpanId: 0
-            spanId: 2
-            spanLayer: Cache
-            startTime: not null
-            endTime: not null
-            componentId: 57
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: SET;SET;}
-          - operationName: /lettuce-scenario/case/lettuce-case
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: not null}
-              - {key: http.method, value: GET}
+- serviceName: lettuce-scenario
+  segmentSize: nq 0
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: Lettuce/GET
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Cache
+      startTime: not null
+      endTime: not null
+      componentId: 57
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: GET}
+      skipAnalysis: 'false'
+    - operationName: Lettuce/BATCH_WRITE
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Cache
+      startTime: not null
+      endTime: not null
+      componentId: 57
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: SET;SET;}
+      skipAnalysis: 'false'
+    - operationName: /lettuce-scenario/case/lettuce-case
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

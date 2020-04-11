@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.junit.AfterClass;
@@ -29,15 +28,13 @@ import org.junit.Test;
 
 public class TracingContextTest {
     @BeforeClass
-    public static void setup() {
-        ServiceManager.INSTANCE.boot();
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 5;
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
     @AfterClass
-    public static void clear() {
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 0;
-        ServiceManager.INSTANCE.shutdown();
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
     }
 
     @Test

@@ -35,21 +35,17 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class MetricsTransWorker extends AbstractWorker<Metrics> {
     private final MetricsPersistentWorker hourPersistenceWorker;
     private final MetricsPersistentWorker dayPersistenceWorker;
-    private final MetricsPersistentWorker monthPersistenceWorker;
 
     private final CounterMetrics aggregationHourCounter;
     private final CounterMetrics aggregationDayCounter;
-    private final CounterMetrics aggregationMonthCounter;
 
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder,
                               String modelName,
                               MetricsPersistentWorker hourPersistenceWorker,
-                              MetricsPersistentWorker dayPersistenceWorker,
-                              MetricsPersistentWorker monthPersistenceWorker) {
+                              MetricsPersistentWorker dayPersistenceWorker) {
         super(moduleDefineHolder);
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
-        this.monthPersistenceWorker = monthPersistenceWorker;
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
@@ -62,30 +58,22 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
             "metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level",
                                                                                             "dimensionality"
             ), new MetricsTag.Values(modelName, "2", "day"));
-        aggregationMonthCounter = metricsCreator.createCounter(
-            "metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level",
-                                                                                            "dimensionality"
-            ), new MetricsTag.Values(modelName, "2", "month"));
     }
 
     /**
-     * Use the {@link Metrics#toHour()}, {@link Metrics#toDay()} and {@link Metrics#toMonth()} to clone a new metrics
-     * instance then process the downsampling. Then forward the data to different works of different precisions for
-     * another round aggregation/merging.
+     * Use the {@link Metrics#toHour()} and {@link Metrics#toDay()}to clone a new metrics instance then process the
+     * downsampling. Then forward the data to different works of different precisions for another round
+     * aggregation/merging.
      */
     @Override
     public void in(Metrics metrics) {
         if (Objects.nonNull(hourPersistenceWorker)) {
-            aggregationMonthCounter.inc();
+            aggregationHourCounter.inc();
             hourPersistenceWorker.in(metrics.toHour());
         }
         if (Objects.nonNull(dayPersistenceWorker)) {
             aggregationDayCounter.inc();
             dayPersistenceWorker.in(metrics.toDay());
-        }
-        if (Objects.nonNull(monthPersistenceWorker)) {
-            aggregationHourCounter.inc();
-            monthPersistenceWorker.in(metrics.toMonth());
         }
     }
 }

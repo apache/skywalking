@@ -19,18 +19,17 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.segment;
 
 import java.io.IOException;
-import org.apache.skywalking.apm.network.common.Command;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.SpanLayer;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ProtoBufJsonUtilsTest {
     @Test
-    public void testProtoBuf() {
+    public void testProtoBuf() throws IOException {
         String json = "{\n" +
             "  \"spans\": [\n" +
             "    {\n" +
@@ -66,76 +65,42 @@ public class ProtoBufJsonUtilsTest {
             "      \"componentId\": 6000,\n" +
             "      \"refs\": [\n" +
             "        {\n" +
-            "          \"parentTraceSegmentId\": {\n" +
-            "            \"idParts\": [\n" +
-            "              1582526028032,\n" +
-            "              794206293,\n" +
-            "              69887\n" +
-            "            ]\n" +
-            "          },\n" +
-            "          \"parentEndpointId\": 0,\n" +
-            "          \"entryEndpointId\": 0,\n" +
-            "          \"parentServiceInstanceId\": 1,\n" +
-            "          \"parentEndpoint\": \"/ingress\",\n" +
+            "          \"parentTraceId\": \"abc.mocktraceid\",\n" +
+            "          \"parentTraceSegmentId\": \"abc.mocksegmentid\",\n" +
+            "          \"parentEndpointName\": \"/access/uri\",\n" +
+            "          \"parentService\": \"service\",\n" +
+            "          \"parentServiceInstance\": \"instance\",\n" +
             "          \"networkAddress\": \"#User Service Name-nginx:upstream_ip:port\",\n" +
             "          \"parentSpanId\": 1,\n" +
-            "          \"entryServiceInstanceId\": 1,\n" +
-            "          \"networkAddressId\": 0,\n" +
-            "          \"entryEndpoint\": \"/ingress\"\n" +
+            "          \"networkAddressUsedAtPeer\": \"127.0.0.1\"\n" +
             "        }\n" +
             "      ],\n" +
             "      \"spanLayer\": \"Http\"\n" +
             "    }\n" +
             "  ],\n" +
-            "  \"serviceInstanceId\": 1,\n" +
-            "  \"serviceId\": 1,\n" +
-            "  \"traceSegmentId\": {\n" +
-            "    \"idParts\": [\n" +
-            "      1582526028040,\n" +
-            "      794206293,\n" +
-            "      69887\n" +
-            "    ]\n" +
-            "  },\n" +
-            "  \"globalTraceIds\": [\n" +
-            "    {\n" +
-            "      \"idParts\": [\n" +
-            "        1582526028032,\n" +
-            "        794206293,\n" +
-            "        69887\n" +
-            "      ]\n" +
-            "    }\n" +
-            "  ]\n" +
+            "  \"serviceInstance\": \"instance\",\n" +
+            "  \"service\": \"service\",\n" +
+            "  \"traceSegmentId\": \"mocksegmentid\",\n" +
+            "  \"traceId\": \"mocktraceid\"\n" +
             "}";
 
-        UpstreamSegment.Builder builder = UpstreamSegment.newBuilder();
-        try {
-            ProtoBufJsonUtils.fromJSON(json, builder);
-            UpstreamSegment upstreamSegment = builder.build();
-            Assert.assertEquals(1582526028032L, upstreamSegment.getGlobalTraceIds(0).getIdParts(0));
-
-            SegmentObject.Builder segBuilder = SegmentObject.newBuilder();
-            ProtoBufJsonUtils.fromJSON(json, segBuilder);
-            SegmentObject segmentObject = segBuilder.build();
-            Assert.assertEquals(2, segmentObject.getSpansCount());
-            Assert.assertEquals(SpanLayer.Http, segmentObject.getSpans(0).getSpanLayer());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SegmentObject.Builder segBuilder = SegmentObject.newBuilder();
+        ProtoBufJsonUtils.fromJSON(json, segBuilder);
+        SegmentObject segmentObject = segBuilder.build();
+        Assert.assertEquals("mocktraceid", segmentObject.getTraceId());
+        Assert.assertEquals(2, segmentObject.getSpansCount());
+        Assert.assertEquals(SpanLayer.Http, segmentObject.getSpans(0).getSpanLayer());
 
     }
 
     @Test
-    public void testToJson() {
+    public void testToJson() throws IOException {
         String json = "{\n" +
             "  \"commands\": [{\n" +
             "  }]\n" +
             "}";
-        try {
-            Command command = Command.newBuilder().build();
-            final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
-            Assert.assertEquals(json, ProtoBufJsonUtils.toJSON(nextCommands));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Command command = Command.newBuilder().build();
+        final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
+        Assert.assertEquals(json, ProtoBufJsonUtils.toJSON(nextCommands));
     }
 }

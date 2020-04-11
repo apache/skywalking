@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.finagle;
 import com.twitter.finagle.context.Contexts;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
@@ -109,9 +109,8 @@ public class ServerTracingFilterInterceptorTest extends AbstractTracingFilterTes
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            if (next.getHeadKey().equals(SW6CarrierItem.HEADER_NAME)) {
-                next.setHeadValue("1-MC4wLjA=-MS4zMjMuNDQzMw==-3-1-1-IzE5Mi4xNjguMS44IDoxODAwMg==-Iy9wb3J0Y" +
-                        "Wwv-Iy90ZXN0RW50cnlTcGFu");
+            if (next.getHeadKey().equals(SW8CarrierItem.HEADER_NAME)) {
+                next.setHeadValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
             }
         }
         SWContextCarrier swContextCarrier = new SWContextCarrier();
@@ -138,7 +137,7 @@ public class ServerTracingFilterInterceptorTest extends AbstractTracingFilterTes
         TraceSegment traceSegment = segmentStorage.getTraceSegments().get(0);
         TraceSegmentRef actual = traceSegment.getRefs().get(0);
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
+        assertThat(SegmentRefHelper.getParentServiceInstance(actual), is("instance"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("3.4.5"));
     }
 }

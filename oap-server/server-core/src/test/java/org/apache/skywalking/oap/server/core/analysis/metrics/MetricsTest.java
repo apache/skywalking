@@ -30,18 +30,11 @@ public class MetricsTest {
         mocker.setTimeBucket(201809120511L);
         Assert.assertEquals(2018091205L, mocker.toTimeBucketInHour());
         Assert.assertEquals(20180912L, mocker.toTimeBucketInDay());
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
 
         mocker = new MetricsMocker();
 
         mocker.setTimeBucket(2018091205L);
         Assert.assertEquals(20180912L, mocker.toTimeBucketInDay());
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
-
-        mocker = new MetricsMocker();
-
-        mocker.setTimeBucket(20180912L);
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
     }
 
     @Test
@@ -101,11 +94,6 @@ public class MetricsTest {
 
         @Override
         public Metrics toDay() {
-            return null;
-        }
-
-        @Override
-        public Metrics toMonth() {
             return null;
         }
 

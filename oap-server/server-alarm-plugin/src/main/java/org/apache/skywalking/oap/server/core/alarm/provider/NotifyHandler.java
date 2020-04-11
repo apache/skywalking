@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
@@ -30,22 +29,14 @@ import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.register.ServiceInstanceInventory;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class NotifyHandler implements MetricsNotify {
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
 
@@ -68,31 +59,37 @@ public class NotifyHandler implements MetricsNotify {
 
         MetaInAlarm metaInAlarm;
         if (DefaultScopeDefine.inServiceCatalog(scope)) {
-            int serviceId = Integer.parseInt(meta.getId());
-            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+            final String serviceId = meta.getId();
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                serviceId);
             ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
             serviceMetaInAlarm.setMetricsName(meta.getMetricsName());
-            serviceMetaInAlarm.setId(String.valueOf(serviceId));
-            serviceMetaInAlarm.setName(serviceInventory.getName());
+            serviceMetaInAlarm.setId(serviceId);
+            serviceMetaInAlarm.setName(serviceIDDefinition.getName());
             metaInAlarm = serviceMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
-            int serviceInstanceId = Integer.parseInt(meta.getId());
-            ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
+            final String instanceId = meta.getId();
+            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                instanceId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                instanceIDDefinition.getServiceId());
             ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
             instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
-            instanceMetaInAlarm.setId(String.valueOf(serviceInstanceId));
-            instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
+            instanceMetaInAlarm.setId(instanceId);
+            instanceMetaInAlarm.setName(instanceIDDefinition.getName() + " of " + serviceIDDefinition.getName());
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
+            final String endpointId = meta.getId();
+            final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                endpointId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                endpointIDDefinition.getServiceId());
+
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
             endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
-
-            final EndpointTraffic.EndpointID endpointID = EndpointTraffic.splitID(meta.getId());
-            ServiceInventory serviceInventory = serviceInventoryCache.get(endpointID.getServiceId());
-            String textName = endpointID.getEndpointName() + " in " + serviceInventory.getName();
-
             endpointMetaInAlarm.setId(meta.getId());
-            endpointMetaInAlarm.setName(textName);
+            endpointMetaInAlarm.setName(
+                endpointIDDefinition.getEndpointName() + " in " + serviceIDDefinition.getName());
             metaInAlarm = endpointMetaInAlarm;
         } else {
             return;
@@ -111,12 +108,5 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
         allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
         core.start(allCallbacks);
-    }
-
-    public void initCache(ModuleManager moduleManager) {
-        serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME)
-                                                     .provider()
-                                                     .getService(ServiceInstanceInventoryCache.class);
     }
 }

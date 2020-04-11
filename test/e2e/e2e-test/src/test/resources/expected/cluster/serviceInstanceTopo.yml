@@ -16,7 +16,7 @@
 nodes:
   - id: not null
     name: not null
-    type: null
+    type: ""
     serviceId: not null
     serviceName: e2e-service-consumer
     isReal: true
@@ -24,18 +24,18 @@ nodes:
     name: not null
     serviceId: not null
     serviceName: e2e-service-provider
-    type: Tomcat
+    type: Unknown
     isReal: true
   - id: not null
     name: not null
     serviceId: not null
     serviceName: e2e-service-provider
-    type: Tomcat
+    type: Unknown
     isReal: true
 calls:
   - id: not null
-    source: ${e2e-service-consumer(.*)[0]}
-    target: ${e2e-service-provider(.*)[0]}
+    source: ${consumer[0]}
+    target: ${provider1[0]}
   - id: not null
-    source: ${e2e-service-consumer(.*)[0]}
-    target: ${e2e-service-provider(.*)[1]}
+    source: ${consumer[0]}
+    target: ${provider2[0]}

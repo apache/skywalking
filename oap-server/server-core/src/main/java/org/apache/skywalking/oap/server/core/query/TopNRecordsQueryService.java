@@ -44,7 +44,7 @@ public class TopNRecordsQueryService implements Service {
         return topNRecordsQueryDAO;
     }
 
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
+    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, String serviceId,
         int topN, Order order) throws IOException {
         return getTopNRecordsQueryDAO().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
     }

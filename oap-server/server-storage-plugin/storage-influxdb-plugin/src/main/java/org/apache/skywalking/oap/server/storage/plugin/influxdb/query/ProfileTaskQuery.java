@@ -46,7 +46,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public List<ProfileTask> getTaskList(final Integer serviceId,
+    public List<ProfileTask> getTaskList(final String serviceId,
                                          final String endpointName,
                                          final Long startTimeBucket,
                                          final Long endTimeBucket,
@@ -63,8 +63,8 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
                 .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
                 .where();
 
-        if (Objects.nonNull(serviceId)) {
-            query.and(eq(NoneStreamDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
+        if (StringUtil.isNotEmpty(serviceId)) {
+            query.and(eq(NoneStreamDAO.TAG_SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(endpointName)) {
             query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
@@ -117,7 +117,7 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
     private static final ProfileTask profileTaskBuilder(List<Object> values) {
         return ProfileTask.builder()
                           .id((String) values.get(1))
-                          .serviceId(((Number) values.get(2)).intValue())
+                          .serviceId((String) values.get(2))
                           .endpointName((String) values.get(3))
                           .startTime(((Number) values.get(4)).longValue())
                           .createTime(((Number) values.get(5)).longValue())

@@ -52,7 +52,7 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return profileTaskQueryService;
     }
 
-    public List<ProfileTask> getProfileTaskList(final Integer serviceId, final String endpointName) throws IOException {
+    public List<ProfileTask> getProfileTaskList(final String serviceId, final String endpointName) throws IOException {
         return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
     }
 

@@ -98,7 +98,7 @@ public class ServiceInstanceTopologyMatcher extends AbstractMatcher<ServiceInsta
             }
 
             if (convert) {
-                callMatcher.setId(String.join("_", callMatcher.getSource(), callMatcher.getTarget()));
+                callMatcher.setId(String.join("-", callMatcher.getSource(), callMatcher.getTarget()));
             }
         }
     }

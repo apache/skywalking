@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
-import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class JaegerReceiverProvider extends ModuleProvider {
@@ -77,8 +76,6 @@ public class JaegerReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        CoreRegisterLinker.setModuleManager(getManager());
-
         SourceReceiver sourceReceiver = getManager().find(CoreModule.NAME).provider().getService(SourceReceiver.class);
 
         if (Objects.nonNull(grpcServer)) {

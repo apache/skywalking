@@ -19,19 +19,17 @@
 package org.apache.skywalking.apm.agent.core.profile;
 
 import com.google.common.base.Objects;
-import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.TracingContext;
-import org.apache.skywalking.apm.agent.core.context.ids.ID;
-
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.TracingContext;
 
 public class ThreadProfiler {
 
     // current tracing context
     private final TracingContext tracingContext;
     // current tracing segment id
-    private final ID traceSegmentId;
+    private final String traceSegmentId;
     // need to profiling thread
     private final Thread profilingThread;
     // profiling execution context
@@ -46,7 +44,7 @@ public class ThreadProfiler {
     // thread dump sequence
     private int dumpSequence = 0;
 
-    public ThreadProfiler(TracingContext tracingContext, ID traceSegmentId, Thread profilingThread,
+    public ThreadProfiler(TracingContext tracingContext, String traceSegmentId, Thread profilingThread,
         ProfileTaskExecutionContext executionContext) {
         this.tracingContext = tracingContext;
         this.traceSegmentId = traceSegmentId;
@@ -130,7 +128,7 @@ public class ThreadProfiler {
      */
     public boolean matches(TracingContext context) {
         // match trace id
-        return Objects.equal(context.getReadableGlobalTraceId(), tracingContext.getReadableGlobalTraceId());
+        return Objects.equal(context.getReadablePrimaryTraceId(), tracingContext.getReadablePrimaryTraceId());
     }
 
     /**

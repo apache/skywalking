@@ -40,4 +40,13 @@ public class IntValues {
     public KVInt getLast() {
         return values.getLast();
     }
+
+    public boolean contain(String id) {
+        for (KVInt value : values) {
+            if (value.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

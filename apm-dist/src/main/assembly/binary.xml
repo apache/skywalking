@@ -39,7 +39,6 @@
             <outputDirectory>/config</outputDirectory>
             <includes>
                 <include>log4j2.xml</include>
-                <include>application.yml</include>
                 <include>alarm-settings.yml</include>
                 <include>alarm-settings-sample.yml</include>
             </includes>
@@ -47,6 +46,7 @@
         <fileSet>
             <directory>${project.basedir}/../oap-server/server-bootstrap/src/main/resources</directory>
             <includes>
+                <include>application.yml</include>
                 <include>component-libraries.yml</include>
                 <include>official_analysis.oal</include>
                 <include>gateways.yml</include>

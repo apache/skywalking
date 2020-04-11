@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.joda.time.DateTime;
@@ -41,39 +41,50 @@ public class TimeSeriesUtils {
     @Setter
     private static int DAY_STEP = 1;
 
-    public static String timeSeries(Model model) {
-        long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
-        return timeSeries(model, timeBucket);
-    }
-
-    public static String timeSeries(String modelName, long timeBucket, Downsampling downsampling) {
-        switch (downsampling) {
-            case None:
-                return modelName;
-            case Hour:
-                return modelName + Const.LINE + compressTimeBucket(timeBucket / 100, DAY_STEP);
-            case Minute:
-                return modelName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
-            case Day:
-                return modelName + Const.LINE + compressTimeBucket(timeBucket, DAY_STEP);
-            case Month:
-                return modelName + Const.LINE + timeBucket;
-            case Second:
-                return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
-            default:
-                throw new UnexpectedException("Unexpected downsampling value, " + downsampling);
+    /**
+     * @return formatted latest index name, based on current timestamp.
+     */
+    public static String latestWriteIndexName(Model model) {
+        long timeBucket;
+        if (model.isRecord()) {
+            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), model.getDownsampling());
+            return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
+        } else {
+            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
+            return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
         }
     }
 
-    static String timeSeries(Model model, long timeBucket) {
-        if (!model.isCapableOfTimeSeries()) {
-            return model.getName();
-        }
+    /**
+     * @return index name based on model definition and given time bucket.
+     */
+    static String writeIndexName(Model model, long timeBucket) {
+        final String modelName = model.getName();
 
-        return timeSeries(model.getName(), timeBucket, model.getDownsampling());
+        if (model.isRecord()) {
+            return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
+        } else {
+            switch (model.getDownsampling()) {
+                case None:
+                    return modelName;
+                case Hour:
+                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 100, DAY_STEP);
+                case Minute:
+                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
+                case Day:
+                    return modelName + Const.LINE + compressTimeBucket(timeBucket, DAY_STEP);
+                case Second:
+                    return modelName + Const.LINE + compressTimeBucket(timeBucket / 1000000, DAY_STEP);
+                default:
+                    throw new UnexpectedException("Unexpected down sampling value, " + model.getDownsampling());
+            }
+        }
     }
 
-    static long indexTimeSeries(String indexName) {
+    /**
+     * @return the index represented time, which is included in the index name.
+     */
+    static long isolateTimeFromIndexName(String indexName) {
         return Long.valueOf(indexName.substring(indexName.lastIndexOf(Const.LINE) + 1));
     }
 

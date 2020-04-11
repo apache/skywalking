@@ -13,30 +13,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-    - {play-scenario: 2}
-  instances:
-    - {play-scenario: 1}
 segmentItems:
-  - serviceName: play-scenario
-    segmentSize: gt 1
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: "/play-scenario/case/play-scenario/projects/{projectId}"
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 68
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'localhost:9000/play-scenario/case/play-scenario/projects/1'}
-              - {key: http.method, value: GET}
+- serviceName: play-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /play-scenario/case/play-scenario/projects/{projectId}
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 68
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'localhost:9000/play-scenario/case/play-scenario/projects/1'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

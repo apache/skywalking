@@ -96,8 +96,7 @@ public class OALRuntime implements OALEngine {
         "deserialize",
         "getMeta",
         "toHour",
-        "toDay",
-        "toMonth"
+        "toDay"
     };
     private static final String[] METRICS_BUILDER_CLASS_METHODS = {
         "data2Map",

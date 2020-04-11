@@ -20,48 +20,46 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@Slf4j
 public class Endpoint extends Source {
+    private String entityId;
+
     @Override
     public int scope() {
         return DefaultScopeDefine.ENDPOINT;
     }
 
-    /**
-     * @since 7.1.0 SkyWalking doesn't do endpoint register. Use name directly.
-     */
     @Override
     public String getEntityId() {
-        return EndpointTraffic.buildId(serviceId, name, DetectPoint.SERVER);
-    }
-
-    @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
-    private String name;
-
-    public void setName(final String name) {
-        this.name = CoreModule.formatEndpointName(name);
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.EndpointID.buildId(serviceId, name);
+        }
+        return entityId;
     }
 
     @Getter
     @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+    @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    private int serviceId;
+    private String serviceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
-    @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id")
-    private int serviceInstanceId;
+    private NodeType serviceNodeType;
     @Getter
     @Setter
     private String serviceInstanceName;
@@ -77,4 +75,9 @@ public class Endpoint extends Source {
     @Getter
     @Setter
     private RequestType type;
+
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+    }
 }

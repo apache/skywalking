@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.apm.agent.core.commands;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
 /**
  * Indicates that the execution of a command failed

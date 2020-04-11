@@ -15,8 +15,8 @@
 
 tasks:
   - id: not null
-    serviceId: gt 0
-    endpointName: not null
+    serviceId: ZTJlLXByb2ZpbGUtc2VydmljZQ==.1
+    endpointName: /profile/users
     startTime: gt 0
     duration: gt 0
     minDurationThreshold: gt 0
@@ -24,11 +24,11 @@ tasks:
     maxSamplingCount: gt 0
     logs:
       - id: not null
-        instanceId: gt 0
+        instanceId: not null
         operationType: EXECUTION_FINISHED
         operationTime: gt 0
       - id: not null
-        instanceId: gt 0
+        instanceId: not null
         operationType: NOTIFIED
         operationTime: gt 0
 

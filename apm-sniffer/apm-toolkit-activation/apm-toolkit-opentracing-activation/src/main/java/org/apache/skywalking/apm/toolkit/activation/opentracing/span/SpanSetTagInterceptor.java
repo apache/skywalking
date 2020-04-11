@@ -29,18 +29,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         String tagKey = String.valueOf(allArguments[0]);
         String tagValue = String.valueOf(allArguments[1]);
-        if (Tags.COMPONENT.getKey().equals(tagKey)) {
-            activeSpan.setComponent(tagValue);
-        } else if (Tags.PEER_SERVICE.getKey().equals(tagKey)) {
+        if (Tags.PEER_SERVICE.getKey().equals(tagKey)) {
             activeSpan.setOperationName(tagValue);
         } else if (Tags.ERROR.getKey().equals(tagKey) && "true".equals(tagValue)) {
             activeSpan.errorOccurred();
@@ -52,7 +50,7 @@ public class SpanSetTagInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

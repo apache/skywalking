@@ -55,14 +55,14 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
-        String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
+        String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         return getClient().prepareInsert(modelName, metrics.id(), builder);
     }
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics) throws IOException {
         XContentBuilder builder = map2builder(storageBuilder.data2Map(metrics));
-        String modelName = TimeSeriesUtils.timeSeries(model, metrics.getTimeBucket());
+        String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
         return getClient().prepareUpdate(modelName, metrics.id(), builder);
     }
 }

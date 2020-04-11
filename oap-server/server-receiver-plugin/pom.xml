@@ -32,7 +32,7 @@
         <module>zipkin-receiver-plugin</module>
         <module>skywalking-mesh-receiver-plugin</module>
         <module>skywalking-istio-telemetry-receiver-plugin</module>
-        <module>skywalking-register-receiver-plugin</module>
+        <module>skywalking-management-receiver-plugin</module>
         <module>skywalking-jvm-receiver-plugin</module>
         <module>envoy-metrics-receiver-plugin</module>
         <module>skywalking-sharing-server-plugin</module>
@@ -62,11 +62,6 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-buffer</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

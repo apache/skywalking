@@ -66,8 +66,8 @@ public class TestServiceInstanceTopologyMatcher {
                                            .setIsReal("true"));
 
         final List<Call> calls = new ArrayList<>();
-        calls.add(new Call().setId("4_3").setSource("4").setTarget("3"));
-        calls.add(new Call().setId("4_2").setSource("4").setTarget("2"));
+        calls.add(new Call().setId("4-3").setSource("4").setTarget("3"));
+        calls.add(new Call().setId("4-2").setSource("4").setTarget("2"));
 
         final ServiceInstanceTopology topoData = new ServiceInstanceTopology().setNodes(nodes).setCalls(calls);
 
@@ -97,8 +97,8 @@ public class TestServiceInstanceTopologyMatcher {
                                                .setIsReal("true"));
 
             final List<Call> calls = new ArrayList<>();
-            calls.add(new Call().setId("4_3").setSource("4").setTarget("3"));
-            calls.add(new Call().setId("4_2").setSource("4").setTarget("2"));
+            calls.add(new Call().setId("4-3").setSource("4").setTarget("3"));
+            calls.add(new Call().setId("4-2").setSource("4").setTarget("2"));
 
             final ServiceInstanceTopology topoData = new ServiceInstanceTopology().setNodes(nodes).setCalls(calls);
 

@@ -22,7 +22,7 @@ import com.opensymphony.xwork2.ActionContext;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.struts2.StrutsStatics;
 import org.junit.Before;
 import org.junit.Rule;
@@ -136,7 +136,8 @@ public class Struts2InterceptorTest {
 
     @Test
     public void testWithSerializedContextData() throws Throwable {
-        when(request.getHeader(SW6CarrierItem.HEADER_NAME)).thenReturn("1-MC4wLjA=-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        when(request.getHeader(
+            SW8CarrierItem.HEADER_NAME)).thenReturn("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
 
         struts2Interceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);
         struts2Interceptor.afterMethod(enhancedInstance, null, arguments, argumentType, null);
@@ -166,9 +167,9 @@ public class Struts2InterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 
     private void assertHttpSpan(AbstractTracingSpan span) {

@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -31,6 +30,7 @@ public class ProfiledSpan {
     private int spanId;
     private int parentSpanId;
     private String serviceCode;
+    private String serviceInstanceName;
     private long startTime;
     private long endTime;
     private String endpointName;

@@ -22,8 +22,8 @@ import java.lang.management.MemoryPoolMXBean;
 import java.lang.management.MemoryUsage;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.MemoryPool;
-import org.apache.skywalking.apm.network.language.agent.PoolType;
+import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
+import org.apache.skywalking.apm.network.language.agent.v3.PoolType;
 
 public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
     private List<MemoryPoolMXBean> beans;
@@ -59,7 +59,7 @@ public abstract class MemoryPoolModule implements MemoryPoolMetricsAccessor {
                                    .setType(type)
                                    .setInit(usage.getInit())
                                    .setMax(usage.getMax())
-                                   .setCommited(usage.getCommitted())
+                                   .setCommitted(usage.getCommitted())
                                    .setUsed(usage.getUsed())
                                    .build());
         }

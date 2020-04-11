@@ -16,26 +16,26 @@
 nodes:
   - id: not null
     name: gateway:80
-    type: Unknown
+    type: ""
     serviceId: not null
     serviceName: gateway:80
+    isReal: false
+  - id: not null
+    name: not null
+    serviceId: not null
+    serviceName: e2e-service-provider
+    type: Unknown
     isReal: true
   - id: not null
     name: not null
     serviceId: not null
     serviceName: e2e-service-provider
-    type: Tomcat
-    isReal: true
-  - id: not null
-    name: not null
-    serviceId: not null
-    serviceName: e2e-service-provider
-    type: Tomcat
+    type: Unknown
     isReal: true
 calls:
   - id: not null
     source: ${gateway:80[0]}
-    target: ${e2e-service-provider(.*)[0]}
+    target: ${.*@.*(.*)[0]}
   - id: not null
     source: ${gateway:80[0]}
-    target: ${e2e-service-provider(.*)[1]}
+    target: ${.*@.*(.*)[1]}

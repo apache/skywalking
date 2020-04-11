@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.plugin.resteasy.v3.server;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import org.apache.skywalking.apm.agent.core.context.SW6CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.LogDataEntity;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -136,7 +136,7 @@ public class SynchronousDispatcherInterceptorTest {
     @Test
     public void testWithSW6SerializedContextData() throws Throwable {
         MultivaluedMapImpl<String, String> multivaluedMap = new MultivaluedMapImpl<String, String>();
-        multivaluedMap.putSingle(SW6CarrierItem.HEADER_NAME, "1-I0FRQSojQVFBKkV0MFdlMHRRTlFBKg==-MS4yMzQuMTEx-3-1-1-IzE5Mi4xNjguMS44OjE4MDAy-Iy9wb3J0YWwv-Iy90ZXN0RW50cnlTcGFu");
+        multivaluedMap.putSingle(SW8CarrierItem.HEADER_NAME, "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
         when(request.getHttpHeaders()).thenReturn(new ResteasyHttpHeaders(multivaluedMap));
 
         synchronousDispatcherInterceptor.beforeMethod(enhancedInstance, null, arguments, argumentType, methodInterceptResult);

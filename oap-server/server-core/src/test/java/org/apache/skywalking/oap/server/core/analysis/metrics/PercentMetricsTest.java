@@ -82,11 +82,6 @@ public class PercentMetricsTest {
         }
 
         @Override
-        public Metrics toMonth() {
-            return null;
-        }
-
-        @Override
         public void deserialize(RemoteData remoteData) {
 
         }

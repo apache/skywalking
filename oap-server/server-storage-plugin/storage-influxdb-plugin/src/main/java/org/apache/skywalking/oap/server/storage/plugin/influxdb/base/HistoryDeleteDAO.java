@@ -20,50 +20,29 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
-import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.joda.time.DateTime;
 
 @Slf4j
 public class HistoryDeleteDAO implements IHistoryDeleteDAO {
-    private final ModuleDefineHolder moduleDefineHolder;
     private final InfluxClient client;
-    private final StorageTTL storageTTL;
 
-    public HistoryDeleteDAO(ModuleDefineHolder moduleDefineHolder, InfluxClient client, StorageTTL storageTTL) {
-        this.moduleDefineHolder = moduleDefineHolder;
-        this.storageTTL = storageTTL;
+    public HistoryDeleteDAO(InfluxClient client) {
         this.client = client;
     }
 
     @Override
-    public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug("TTL execution log, model: {}", model.getName());
         }
         try {
-            ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
-                                                            .provider()
-                                                            .getService(ConfigService.class);
+            long deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMddHHmm"));
 
-            TTLCalculator ttlCalculator;
-            if (model.isRecord()) {
-                ttlCalculator = storageTTL.recordCalculator();
-            } else {
-                ttlCalculator = storageTTL.metricsCalculator(model.getDownsampling());
-            }
-
-            client.deleteByQuery(
-                model.getName(),
-                TimeBucket.getTimestamp(ttlCalculator.timeBefore(DateTime.now(), configService.getDataTTLConfig()) + 1)
-            );
+            client.deleteByQuery(model.getName(), TimeBucket.getTimestamp(deadline));
         } catch (Exception e) {
             log.error("TTL execution log, model: {}, errMsg: {}", model.getName(), e.getMessage());
         }
