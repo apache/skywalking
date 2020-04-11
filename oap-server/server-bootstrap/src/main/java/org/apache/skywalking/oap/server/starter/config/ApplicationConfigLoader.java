@@ -24,13 +24,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -39,10 +38,8 @@ import org.yaml.snakeyaml.Yaml;
  * <p>
  * At last, override setting by system.properties and system.envs if the key matches moduleName.provideName.settingKey.
  */
+@Slf4j
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
-
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
-
     private static final String DISABLE_SELECTOR = "-";
     private static final String SELECTOR = "selector";
 
@@ -65,10 +62,14 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                 selectConfig(moduleConfig);
                 moduleConfig.forEach((moduleName, providerConfig) -> {
                     if (providerConfig.size() > 0) {
-                        logger.info("Get a module define from application.yml, module name: {}", moduleName);
-                        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                        log.info("Get a module define from application.yml, module name: {}", moduleName);
+                        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(
+                            moduleName);
                         providerConfig.forEach((providerName, config) -> {
-                            logger.info("Get a provider define belong to {} module, provider name: {}", moduleName, providerName);
+                            log.info(
+                                "Get a provider define belong to {} module, provider name: {}", moduleName,
+                                providerName
+                            );
                             final Map<String, ?> propertiesConfig = (Map<String, ?>) config;
                             final Properties properties = new Properties();
                             if (propertiesConfig != null) {
@@ -89,7 +90,10 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                             moduleConfiguration.addProviderConfiguration(providerName, properties);
                         });
                     } else {
-                        logger.warn("Get a module define from application.yml, but no provider define, use default, module name: {}", moduleName);
+                        log.warn(
+                            "Get a module define from application.yml, but no provider define, use default, module name: {}",
+                            moduleName
+                        );
                     }
                 });
             }
@@ -99,11 +103,26 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     }
 
     private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target,
-        final Object providerName) {
-        final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(propertyValue + "", target));
-        if (replaceValue != null) {
-            target.replace(propertyName, replaceValue);
-            logger.info("The property with key: {}, value: {}, in {} provider", propertyName, replaceValue.toString(), providerName);
+                                       final Object providerName) {
+        final String valueString = PropertyPlaceholderHelper.INSTANCE
+            .replacePlaceholders(propertyValue + "", target);
+        if (valueString != null) {
+            if (valueString.trim().length() == 0) {
+                target.replace(propertyName, valueString);
+                log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
+            } else {
+                // Use YAML to do data type conversion.
+                final Object replaceValue = yaml.load(valueString);
+                if (replaceValue != null) {
+                    target.replace(propertyName, replaceValue);
+                    log.info(
+                        "Provider={} config={} has been set as {}",
+                        providerName,
+                        propertyName,
+                        replaceValue.toString()
+                    );
+                }
+            }
         }
     }
 
@@ -148,7 +167,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             final boolean shouldBeRemoved = modulesWithoutProvider.contains(module);
 
             if (shouldBeRemoved) {
-                logger.info("Remove module {} without any provider", module);
+                log.info("Remove module {} without any provider", module);
             }
 
             return shouldBeRemoved;
@@ -162,7 +181,8 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         }
         String moduleName = key.substring(0, moduleAndConfigSeparator);
         String providerSettingSubKey = key.substring(moduleAndConfigSeparator + 1);
-        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.getModuleConfiguration(moduleName);
+        ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.getModuleConfiguration(
+            moduleName);
         if (moduleConfiguration == null) {
             return;
         }
@@ -193,6 +213,9 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             return;
         }
 
-        logger.info("The setting has been override by key: {}, value: {}, in {} provider of {} module through {}", settingKey, value, providerName, moduleName, "System.properties");
+        log.info(
+            "The setting has been override by key: {}, value: {}, in {} provider of {} module through {}", settingKey,
+            value, providerName, moduleName, "System.properties"
+        );
     }
 }
