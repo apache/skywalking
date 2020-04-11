@@ -78,16 +78,21 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     private HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
+    @ContainerHostAndPort(name = "provider-entry", port = 9090)
+    private HostAndPort entryProvider;
+
+    @SuppressWarnings("unused")
     @ContainerHostAndPort(name = "nginx", port = 8080)
     private HostAndPort nginxHostPort;
 
     private final String nginxServiceName = "User_Service_Name";
+    private final String entryServiceName = "e2e-service-entry-provider";
 
     @BeforeAll
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
 
-        trafficController(nginxHostPort, "/nginx/info");
+        trafficController(entryProvider, "/nginx/entry/info?backend=" + nginxHostPort.host() + ":" + nginxHostPort.port());
     }
 
     @AfterAll
@@ -144,8 +149,8 @@ public class LuaE2E extends SkyWalkingTestAdapter {
             new ServiceInstanceTopologyQuery().stepByMinute()
                                               .start(startTime.minusDays(1))
                                               .end(now())
-                                              .clientServiceId("1")
-                                              .serverServiceId("4"));
+                                              .clientServiceId("ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1")
+                                              .serverServiceId("VXNlcl9TZXJ2aWNlX05hbWU=.1"));
 
         LOGGER.info("topology: {}", topology);
 
@@ -177,8 +182,10 @@ public class LuaE2E extends SkyWalkingTestAdapter {
 
         if (nginxServiceName.equals(service.getLabel())) {
             load("expected/lua/nginxEndpoints.yml").as(EndpointsMatcher.class).verify(endpoints);
+        } else if (entryServiceName.equals(service.getLabel())) {
+            load("expected/lua/endpoints-entry.yml").as(EndpointsMatcher.class).verify(endpoints);
         } else {
-            load("expected/lua/endpoints.yml").as(EndpointsMatcher.class).verify(endpoints);
+            load("expected/lua/endpoints-end.yml").as(EndpointsMatcher.class).verify(endpoints);
         }
 
         return endpoints;
@@ -206,7 +213,7 @@ public class LuaE2E extends SkyWalkingTestAdapter {
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
-            if (!endpoint.getLabel().equals("/info") || !endpoint.getLabel().equals("/nginx/info")) {
+            if (!endpoint.getLabel().equals("/info") && !endpoint.getLabel().equals("/nginx/info")) {
                 continue;
             }
             for (final String metricName : ALL_ENDPOINT_METRICS) {

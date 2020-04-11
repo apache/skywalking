@@ -15,7 +15,7 @@
 
 FROM openresty/openresty
 
-ENV COMMIT_HASH=9cebe51276d9a8a5b360ee1d9897e8bf803bda31
+ENV COMMIT_HASH=45cf64640047a4a54619fa1d3451b4d0a65a62d6
 
 WORKDIR /usr/share/skywalking-nginx-lua
 
