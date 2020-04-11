@@ -14,21 +14,22 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
-    name: User
-    type: USER
-    serviceId: 1
-    serviceName: User
-    isReal: false
-  - id: 4
-    name: not null
-    serviceId: 4
-    serviceName: User_Service_Name
+  - id: VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
+    name: User_Service_Instance_Name
     type: not null
+    serviceId: VXNlcl9TZXJ2aWNlX05hbWU=.1
+    serviceName: User_Service_Name
+    isReal: true
+  - id: not null
+    name: not null
+    serviceId: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1
+    serviceName: e2e-service-entry-provider
+    type: ""
     isReal: true
 calls:
-  - id: 1_4
-    source: 1
+  - id: not null
+    source: not null
     detectPoints:
+      - CLIENT
       - SERVER
-    target: 4
+    target: VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
