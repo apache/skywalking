@@ -78,7 +78,7 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     private HostAndPort swWebappHostPort;
 
     @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "provider-entry", port = 8080)
+    @ContainerHostAndPort(name = "provider-entry", port = 9090)
     private HostAndPort entryProvider;
 
     @SuppressWarnings("unused")

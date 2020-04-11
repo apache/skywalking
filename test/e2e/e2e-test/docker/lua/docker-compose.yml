@@ -49,7 +49,7 @@ services:
     networks:
       - e2e
     expose:
-      - 9091
+      - 9090
     environment:
       - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap:11800
       - SW_AGENT_NAME=e2e-service-entry-provider
@@ -57,7 +57,7 @@ services:
       oap:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9091"]
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
       interval: 5s
       timeout: 60s
       retries: 120
