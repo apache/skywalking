@@ -85,7 +85,7 @@ property key | Description | Default |
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
-`collector.heartbeat_period`|application heartbeat period.|`3`|
+`collector.heartbeat_period`|application heartbeat period.|`30`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|
