@@ -109,20 +109,24 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     @Override
     public IntValues getLinearIntValues(String tableName, DownSampling downsampling, List<String> ids,
                                         String valueCName) throws IOException {
-        StringBuilder idValues = new StringBuilder();
-        for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
-            if (valueIdx != 0) {
-                idValues.append(",");
+        StringBuilder sql = new StringBuilder("select id, " + valueCName + " from " + tableName + " where id in (");
+        List<Object> parameters = new ArrayList();
+        for (int i = 0; i < ids.size(); i++) {
+            if (i == 0) {
+                sql.append("?");
+            } else {
+                sql.append(",?");
             }
-            idValues.append("'").append(ids.get(valueIdx)).append("'");
+            parameters.add(ids.get(i));
         }
+        sql.append(")");
 
         IntValues intValues = new IntValues();
 
         try (Connection connection = h2Client.getConnection()) {
+
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select id, " + valueCName + " from " + tableName + " where id in (" + idValues
-                    .toString() + ")")) {
+                connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     KVInt kv = new KVInt();
                     kv.setId(resultSet.getString("id"));
@@ -143,13 +147,17 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                                                   List<String> ids,
                                                   final List<Integer> linearIndex,
                                                   String valueCName) throws IOException {
-        StringBuilder idValues = new StringBuilder();
-        for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
-            if (valueIdx != 0) {
-                idValues.append(",");
+        StringBuilder sql = new StringBuilder("select id, " + valueCName + " from " + tableName + " where id in (");
+        List<Object> parameters = new ArrayList();
+        for (int i = 0; i < ids.size(); i++) {
+            if (i == 0) {
+                sql.append("?");
+            } else {
+                sql.append(",?");
             }
-            idValues.append("'").append(ids.get(valueIdx)).append("'");
+            parameters.add(ids.get(i));
         }
+        sql.append(")");
 
         IntValues[] intValuesArray = new IntValues[linearIndex.size()];
         for (int i = 0; i < intValuesArray.length; i++) {
@@ -158,8 +166,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection, "select id, " + valueCName + " from " + tableName + " where id in (" + idValues
-                    .toString() + ")")) {
+                connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     String id = resultSet.getString("id");
 
@@ -211,13 +218,18 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
     @Override
     public Thermodynamic getThermodynamic(String tableName, DownSampling downsampling, List<String> ids,
                                           String valueCName) throws IOException {
-        StringBuilder idValues = new StringBuilder();
-        for (int valueIdx = 0; valueIdx < ids.size(); valueIdx++) {
-            if (valueIdx != 0) {
-                idValues.append(",");
+        StringBuilder sql = new StringBuilder(
+            "select " + ThermodynamicMetrics.STEP + " step, " + ThermodynamicMetrics.NUM_OF_STEPS + " num_of_steps, " + ThermodynamicMetrics.DETAIL_GROUP + " detail_group, " + "id " + " from " + tableName + " where id in (");
+        List<Object> parameters = new ArrayList();
+        for (int i = 0; i < ids.size(); i++) {
+            if (i == 0) {
+                sql.append("?");
+            } else {
+                sql.append(",?");
             }
-            idValues.append("'").append(ids.get(valueIdx)).append("'");
+            parameters.add(ids.get(i));
         }
+        sql.append(")");
 
         List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
@@ -227,10 +239,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             int numOfSteps = 0;
             int axisYStep = 0;
             try (ResultSet resultSet = h2Client.executeQuery(
-                connection,
-                "select " + ThermodynamicMetrics.STEP + " step, " + ThermodynamicMetrics.NUM_OF_STEPS + " num_of_steps, " + ThermodynamicMetrics.DETAIL_GROUP + " detail_group, " + "id " + " from " + tableName + " where id in (" + idValues
-                    .toString() + ")"
-            )) {
+                connection, sql.toString(), parameters.toArray(new Object[0]))) {
 
                 while (resultSet.next()) {
                     axisYStep = resultSet.getInt("step");
