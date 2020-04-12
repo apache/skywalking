@@ -117,9 +117,9 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * service and endpoint registry check interval
+         * The period in which the agent report a heartbeat to the backend.
          */
-        public static long HEARTBEAT_PERIOD = 3;
+        public static long HEARTBEAT_PERIOD = 30;
         /**
          * Collector skywalking trace receiver service addresses.
          */
