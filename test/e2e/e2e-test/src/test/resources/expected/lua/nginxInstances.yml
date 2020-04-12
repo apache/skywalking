@@ -14,5 +14,5 @@
 # limitations under the License.
 
 instances:
-  - key: 4
-    label: not null
+  - key: VXNlcl9TZXJ2aWNlX05hbWU=.1_VXNlcl9TZXJ2aWNlX0luc3RhbmNlX05hbWU=
+    label: User_Service_Instance_Name
