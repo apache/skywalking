@@ -119,7 +119,7 @@ public class Config {
         /**
          * service and endpoint registry check interval
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
+        public static long HEARTBEAT_PERIOD = 3;
         /**
          * Collector skywalking trace receiver service addresses.
          */
