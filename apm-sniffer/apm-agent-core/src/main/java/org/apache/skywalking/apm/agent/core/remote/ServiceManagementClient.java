@@ -51,7 +51,7 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
 
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
     private volatile ManagementServiceGrpc.ManagementServiceBlockingStub managementServiceBlockingStub;
-    private volatile ScheduledFuture<?> serviceRegisterFuture;
+    private volatile ScheduledFuture<?> heartbeatFuture;
     private volatile boolean instancePropertiesSubmitted = false;
 
     @Override
@@ -85,13 +85,13 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
 
     @Override
     public void boot() {
-        serviceRegisterFuture = Executors.newSingleThreadScheduledExecutor(
-            new DefaultNamedThreadFactory("ServiceRegisterClient")
+        heartbeatFuture = Executors.newSingleThreadScheduledExecutor(
+            new DefaultNamedThreadFactory("ServiceManagementClient")
         ).scheduleAtFixedRate(
             new RunnableWithExceptionProtection(
                 this,
                 t -> logger.error("unexpected exception.", t)
-            ), 0, Config.Collector.APP_AND_SERVICE_REGISTER_CHECK_INTERVAL,
+            ), 0, Config.Collector.HEARTBEAT_PERIOD,
             TimeUnit.SECONDS
         );
     }
@@ -102,14 +102,14 @@ public class ServiceManagementClient implements BootService, Runnable, GRPCChann
 
     @Override
     public void shutdown() {
-        serviceRegisterFuture.cancel(true);
+        heartbeatFuture.cancel(true);
     }
 
     @Override
     public void run() {
         logger.debug("ServiceManagementClient running, status:{}.", status);
 
-        while (GRPCChannelStatus.CONNECTED.equals(status)) {
+        if (GRPCChannelStatus.CONNECTED.equals(status)) {
             try {
                 if (managementServiceBlockingStub != null) {
                     if (!instancePropertiesSubmitted) {
