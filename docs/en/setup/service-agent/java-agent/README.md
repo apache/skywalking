@@ -42,7 +42,7 @@ If the plugin is in **Optional²** catalog, go to [optional plugins](#optional-p
 - The default logging output folder is `/logs`.
 
 ## Install javaagent FAQs
-- Linux Tomcat 7, Tomcat 8  
+- Linux Tomcat 7, Tomcat 8, Tomcat 9  
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
