@@ -84,10 +84,6 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     @ContainerHostAndPort(name = "provider-entry", port = 9090)
     private HostAndPort entryProvider;
 
-    @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "nginx", port = 8080)
-    private HostAndPort nginxHostPort;
-
     private final String nginxServiceName = "User_Service_Name";
     private final String entryServiceName = "e2e-service-entry-provider";
 
@@ -104,7 +100,7 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     }
 
     @RetryableTest
-    public void correlation() throws Exception {
+    void correlation() throws Exception {
         final URL url = new URL("http", entryProvider.host(), entryProvider.port(), "/nginx/entry/info");
         final ResponseEntity<String> response = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
         Assert.assertEquals(response.getBody(), "entry_value_nginx_value");
