@@ -485,6 +485,10 @@
                         <exclude>**/*.pem</exclude>
 
                         <exclude>.m2/**</exclude>
+
+                        <!--           GO module             -->
+                        <exclude>**/go.mod</exclude>
+                        <exclude>**/go.sum</exclude>
                     </excludes>
                 </configuration>
                 <executions>
