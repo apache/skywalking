@@ -108,9 +108,10 @@ public class CorrelationContext {
                 break;
             }
             final String[] parts = perData.split(":");
-            String perDataKey = parts[0];
-            String perDataValue = parts.length > 1 ? parts[1] : "";
-            data.put(Base64.decode2UTFString(perDataKey), Base64.decode2UTFString(perDataValue));
+            if (parts.length != 2) {
+                continue;
+            }
+            data.put(Base64.decode2UTFString(parts[0]), Base64.decode2UTFString(parts[1]));
         }
     }
 
