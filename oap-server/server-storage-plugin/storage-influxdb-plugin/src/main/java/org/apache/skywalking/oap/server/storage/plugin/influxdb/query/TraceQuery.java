@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.entity.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
@@ -78,7 +79,7 @@ public class TraceQuery implements ITraceQueryDAO {
         }
 
         WhereQueryImpl<SelectQueryImpl> recallQuery = select()
-            .function("top", orderBy, limit + from)
+            .function(InfluxConstants.SORT_DES, orderBy, limit + from)
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_NAME)
@@ -102,7 +103,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
+            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));

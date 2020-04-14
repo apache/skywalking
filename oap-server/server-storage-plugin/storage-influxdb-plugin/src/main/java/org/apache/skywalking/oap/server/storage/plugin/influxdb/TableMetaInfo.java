@@ -18,18 +18,65 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
+import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 
+@Getter
+@Builder
+@AllArgsConstructor
 public class TableMetaInfo {
-    private static Map<String, Model> TABLES = new HashMap<>();
+    private static final Map<String, TableMetaInfo> TABLES = new HashMap<>();
+    private static final String PREFIX = "_";
+
+    private Map<String, String> storageAndColumnMap;
+    private Map<String, String> storageAndTagMap;
+    private Model model;
 
     public static void addModel(Model model) {
-        TABLES.put(model.getName(), model);
+        final List<ModelColumn> columns = model.getColumns();
+        final Map<String, String> storageAndTagMap = Maps.newHashMap();
+        final Map<String, String> storageAndColumnMap = Maps.newHashMap();
+        columns.forEach(column -> {
+            ColumnName columnName = column.getColumnName();
+            storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
+        });
+
+        //
+        if (storageAndColumnMap.containsKey(Metrics.ENTITY_ID)) {
+            storageAndTagMap.put(Metrics.ENTITY_ID, InfluxConstants.TagName.ENTITY_ID);
+        }
+        if (storageAndColumnMap.containsKey(Record.TIME_BUCKET)) {
+            storageAndTagMap.put(Record.TIME_BUCKET, InfluxConstants.TagName.TIME_BUCKET);
+        }
+        if (storageAndColumnMap.containsKey(ServiceTraffic.NODE_TYPE)) {
+            storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+        }
+        if (storageAndColumnMap.containsKey(SegmentRecord.SERVICE_ID)) {
+            storageAndTagMap.put(SegmentRecord.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+        }
+
+        TableMetaInfo info = TableMetaInfo.builder()
+                                          .model(model)
+                                          .storageAndTagMap(storageAndTagMap)
+                                          .storageAndColumnMap(storageAndColumnMap)
+                                          .build();
+        TABLES.put(model.getName(), info);
     }
 
-    public static Model get(String moduleName) {
+    public static TableMetaInfo get(String moduleName) {
         return TABLES.get(moduleName);
     }
+
 }

@@ -39,8 +39,8 @@ import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
@@ -74,7 +74,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         WhereQueryImpl<SelectQueryImpl> queryWhereQuery = query.from(client.getDatabase(), measurement).where();
 
         Map<String, Class<?>> columnTypes = Maps.newHashMap();
-        for (ModelColumn column : TableMetaInfo.get(measurement).getColumns()) {
+        for (ModelColumn column : TableMetaInfo.get(measurement).getModel().getColumns()) {
             columnTypes.put(column.getColumnName().getStorageName(), column.getType());
         }
 
@@ -86,9 +86,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
                 final List<String> values = kv.getValues();
 
                 Class<?> type = columnTypes.get(kv.getKey());
-                if (values.size() == 1) {
+                if (values.size() == 1) { // FIXME
                     String value = kv.getValues().get(0);
-                    if (type == String.class) {
+                    if (type != String.class) {
                         value = "'" + value + "'";
                     }
                     clauseBuilder.append(kv.getKey()).append("=").append(value).append(" OR ");
@@ -111,7 +111,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         queryWhereQuery
             .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB, downsampling)))
             .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB, downsampling)))
-            .groupBy(MetricsDAO.TAG_ENTITY_ID);
+            .groupBy(InfluxConstants.TagName.ENTITY_ID);
 
         IntValues intValues = new IntValues();
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);
@@ -121,7 +121,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (!(seriesList == null || seriesList.isEmpty())) {
             for (QueryResult.Series series : seriesList) {
                 KVInt kv = new KVInt();
-                kv.setId(series.getTags().get(MetricsDAO.TAG_ENTITY_ID));
+                kv.setId(series.getTags().get(InfluxConstants.TagName.ENTITY_ID));
                 Number value = (Number) series.getValues().get(0).get(1);
                 kv.setValue(value.longValue());
 

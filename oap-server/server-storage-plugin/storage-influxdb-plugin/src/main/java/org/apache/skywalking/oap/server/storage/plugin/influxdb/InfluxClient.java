@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -134,6 +135,22 @@ public class InfluxClient implements Client {
             return null;
         }
         return series.get(0);
+    }
+
+    /**
+     * Execute a query against InfluxDB with a `select count(*)` statement and return the count only.
+     *
+     * @throws IOException if there is an error on the InfluxDB server or communication error
+     */
+    public int getCounter(Query query) throws IOException {
+        QueryResult.Series series = queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
+        if (Objects.isNull(series)) {
+            return 0;
+        }
+        return ((Number) series.getValues().get(0).get(1)).intValue();
     }
 
     /**

@@ -18,9 +18,23 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-public interface InfluxModelConstants {
-    /**
-     * Override column because the 'duration' is the identifier of InfluxDB.
-     */
-    String DURATION = "dur";
+public interface InfluxConstants {
+    String ID_COLUMN = "id";
+
+    String ALL_FIELDS = "*::field";
+
+    String SORT_DES = "top";
+
+    String SORT_ASC = "bottom";
+
+    interface TagName {
+
+        String ENTITY_ID = "_entity_id";
+
+        String TIME_BUCKET = "_time_bucket";
+
+        String NODE_TYPE = "_node_type";
+
+        String SERVICE_ID = "_service_id";
+    }
 }

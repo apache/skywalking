@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -50,7 +51,7 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
             .function("top", ProfileTaskLogRecord.OPERATION_TIME, fetchTaskLogMaxSize)
-            .column("id")
+            .column(InfluxConstants.ID_COLUMN)
             .column(ProfileTaskLogRecord.TASK_ID)
             .column(ProfileTaskLogRecord.INSTANCE_ID)
             .column(ProfileTaskLogRecord.OPERATION_TIME)
@@ -77,7 +78,7 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
               .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
               .forEach(values -> {
                   taskLogs.add(ProfileTaskLog.builder()
-                                             .id((String) values.get(columnsMap.get("id")))
+                                             .id((String) values.get(columnsMap.get(InfluxConstants.ID_COLUMN)))
                                              .taskId((String) values.get(columnsMap.get(ProfileTaskLogRecord.TASK_ID)))
                                              .instanceId(
                                                  (String) values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
