@@ -13,16 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.12
+FROM golang:1.12 AS builder
+
+ARG COMMIT_HASH=fdb185d66faddad1651c18150d63bae32610f3ac
+ARG GO2SKY_REPO=${COMMIT_HASH}.tar.gz
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
 
-ADD ./go2sky-e2e /go2sky-e2e
-WORKDIR /go2sky-e2e
-RUN go build
+WORKDIR /go2sky
+
+ADD https://github.com/SkyAPM/go2sky/archive/${GO2SKY_REPO} .
+RUN tar -xf ${GO2SKY_REPO} --strip 1
+RUN rm ${GO2SKY_REPO}
+
+WORKDIR /go2sky/test/e2e/example-server
+RUN go build -o main
 
 FROM alpine:3.10
 
-COPY --from=0 /go2sky-e2e/go2sky-e2e .
-ENTRYPOINT ["/go2sky-e2e"]
+COPY --from=builder /go2sky/test/e2e/example-server/main .
+ENTRYPOINT ["/main"]
