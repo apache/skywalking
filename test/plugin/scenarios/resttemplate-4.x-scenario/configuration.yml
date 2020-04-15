@@ -15,4 +15,3 @@
 type: tomcat
 entryService: http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/resttemplate
 healthCheck: http://localhost:8080/resttemplate-4.x-scenario/resttemplate/case/healthcheck
-framework: resttemplate

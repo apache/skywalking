@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.query.graphql.type.ProfileTaskCreationRequest;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
-import org.apache.skywalking.oap.server.core.profile.entity.ProfileTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskCreationResult;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**

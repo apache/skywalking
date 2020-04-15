@@ -18,4 +18,3 @@ type: jvm
 entryService: http://localhost:9000/play-scenario/case/play-scenario/projects/1
 healthCheck: http://localhost:9000/play-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: PlayFramework
