@@ -19,4 +19,3 @@ entryService: http://localhost:8080/spring-3.0.x-scenario/case/spring3
 healthCheck: http://localhost:8080/spring-3.0.x-scenario/healthCheck
 runningMode: with_optional
 withPlugins: apm-spring-annotation-plugin-*.jar
-framework: spring

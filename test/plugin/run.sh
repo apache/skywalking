@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
+
 home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
@@ -23,7 +25,8 @@ force_build="off"
 cleanup="off"
 
 mvnw=${home}/../../mvnw
-agent_home=${home}"/../../skywalking-agent"
+agent_home="${home}"/../../skywalking-agent
+jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
 
 print_help() {
@@ -34,7 +37,6 @@ print_help() {
 }
 
 parse_commandline() {
-    _positionals_count=0
     while test $# -gt 0
     do
         _key="$1"
@@ -209,6 +211,7 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${_agent_home} \
+        -Djacoco.home=${jacoco_home} \
         -Ddocker.image.version=${BUILD_NO:=local} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
