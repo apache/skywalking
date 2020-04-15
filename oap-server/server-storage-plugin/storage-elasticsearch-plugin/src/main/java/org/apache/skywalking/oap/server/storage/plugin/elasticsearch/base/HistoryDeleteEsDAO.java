@@ -68,7 +68,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         }
         String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
         if (!leftIndices.contains(latestIndex)) {
-            client.createIndex(latest);
+            client.createIndex(latestIndex);
         }
     }
 }
