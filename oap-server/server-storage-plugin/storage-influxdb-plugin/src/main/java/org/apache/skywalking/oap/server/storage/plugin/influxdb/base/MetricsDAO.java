@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -40,9 +41,11 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@Slf4j
 public class MetricsDAO implements IMetricsDAO {
 
     private final StorageBuilder<Metrics> storageBuilder;
@@ -56,10 +59,13 @@ public class MetricsDAO implements IMetricsDAO {
     @Override
     public List<Metrics> multiGet(Model model, List<String> ids) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .regex("*::field")
+            .raw(ALL_FIELDS)
             .from(client.getDatabase(), model.getName())
             .where(contains("id", Joiner.on("|").join(ids)));
         QueryResult.Series series = client.queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
 
         if (series == null) {
             return Collections.emptyList();
@@ -94,7 +100,7 @@ public class MetricsDAO implements IMetricsDAO {
         final long timestamp = TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling());
         TableMetaInfo tableMetaInfo = TableMetaInfo.get(model.getName());
 
-        InfluxInsertRequest request = new InfluxInsertRequest(model, metrics, storageBuilder)
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, metrics, storageBuilder)
             .time(timestamp, TimeUnit.MILLISECONDS);
 
         tableMetaInfo.getStorageAndTagMap().forEach((field, tag) -> {

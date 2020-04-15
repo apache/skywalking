@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 public interface InfluxConstants {
     String ID_COLUMN = "id";
 
+    String NAME = "\"name\"";
+
     String ALL_FIELDS = "*::field";
 
     String SORT_DES = "top";
@@ -28,6 +30,10 @@ public interface InfluxConstants {
     String SORT_ASC = "bottom";
 
     interface TagName {
+
+        String ID_COLUMN = "_id";
+
+        String NAME = "_name";
 
         String ENTITY_ID = "_entity_id";
 

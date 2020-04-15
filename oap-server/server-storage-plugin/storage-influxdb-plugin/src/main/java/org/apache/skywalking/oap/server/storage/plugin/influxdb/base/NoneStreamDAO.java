@@ -47,7 +47,7 @@ public class NoneStreamDAO implements INoneStreamDAO {
         final long timestamp = TimeBucket.getTimestamp(
             noneStream.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
 
-        InfluxInsertRequest request = new InfluxInsertRequest(model, noneStream, storageBuilder)
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, noneStream, storageBuilder)
             .time(timestamp, TimeUnit.NANOSECONDS);
         TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
             request.addFieldAsTag(field, tag);

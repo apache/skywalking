@@ -202,9 +202,9 @@ public class TraceQuery implements ITraceQueryDAO {
             segmentRecord.setEndTime((long) values.get(7));
             segmentRecord.setLatency((int) values.get(8));
             segmentRecord.setIsError((int) values.get(9));
-            segmentRecord.setVersion((int) values.get(10));
+            segmentRecord.setVersion((int) values.get(11));
 
-            String base64 = (String) values.get(9);
+            String base64 = (String) values.get(10);
             if (!Strings.isNullOrEmpty(base64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
             }

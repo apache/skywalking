@@ -58,8 +58,7 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
         }
         builder = Point.measurement(model.getName())
                        .addField(ID, storageData.id())
-                       .fields(fields)
-                       .tag(InfluxClient.TAG_TIME_BUCKET, String.valueOf(fields.get(Metrics.TIME_BUCKET)));
+                       .fields(fields);
     }
 
     public InfluxInsertRequest time(long time, TimeUnit unit) {
@@ -68,9 +67,7 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
     }
 
     public InfluxInsertRequest addFieldAsTag(String fieldName, String tagName) {
-        if (fields.containsKey(fieldName)) {
-            builder.tag(tagName, String.valueOf(fields.get(fieldName)));
-        }
+        builder.tag(tagName, String.valueOf(fields.get(fieldName)));
         return this;
     }
 

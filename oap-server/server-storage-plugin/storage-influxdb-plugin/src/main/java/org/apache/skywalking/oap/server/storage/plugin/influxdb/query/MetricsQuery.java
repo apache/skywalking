@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
@@ -46,6 +47,7 @@ import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ID_COLUMN;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.contains;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
@@ -86,7 +88,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
                 final List<String> values = kv.getValues();
 
                 Class<?> type = columnTypes.get(kv.getKey());
-                if (values.size() == 1) { // FIXME
+                if (values.size() == 1) {
                     String value = kv.getValues().get(0);
                     if (type != String.class) {
                         value = "'" + value + "'";
@@ -99,10 +101,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
                                      .append(" =~ /")
                                      .append(Joiner.on("|").join(values))
                                      .append("/ OR ");
-                        continue;
-                    }
-                    for (String value : values) {
-                        clauseBuilder.append(kv.getKey()).append(" = '").append(value).append("' OR ");
+                    } else {
+                        for (String value : values) {
+                            clauseBuilder.append(kv.getKey()).append(" = ").append(value).append(" OR ");
+                        }
                     }
                 }
             }
@@ -118,7 +120,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", queryWhereQuery.getCommand(), seriesList);
         }
-        if (!(seriesList == null || seriesList.isEmpty())) {
+        if (CollectionUtils.isNotEmpty(seriesList)) {
             for (QueryResult.Series series : seriesList) {
                 KVInt kv = new KVInt();
                 kv.setId(series.getTags().get(InfluxConstants.TagName.ENTITY_ID));
@@ -139,16 +141,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
                                         String valueCName)
         throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .column("id")
+            .column(ID_COLUMN)
             .column(valueCName)
             .from(client.getDatabase(), measurement)
             .where();
 
-        if (ids != null && !ids.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             if (ids.size() == 1) {
-                query.where(eq("id", ids.get(0)));
+                query.where(eq(ID_COLUMN, ids.get(0)));
             } else {
-                query.where(contains("id", Joiner.on("|").join(ids)));
+                query.where(contains(ID_COLUMN, Joiner.on("|").join(ids)));
             }
         }
         List<QueryResult.Series> seriesList = client.queryForSeries(query);
@@ -157,7 +159,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
 
         IntValues intValues = new IntValues();
-        if (!(seriesList == null || seriesList.isEmpty())) {
+        if (CollectionUtils.isNotEmpty(seriesList)) {
             seriesList.get(0).getValues().forEach(values -> {
                 KVInt kv = new KVInt();
                 kv.setValue(((Number) values.get(2)).longValue());
@@ -197,7 +199,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             .from(client.getDatabase(), measurement)
             .where();
 
-        if (ids != null && !ids.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             if (ids.size() == 1) {
                 query.where(eq("id", ids.get(0)));
             } else {
@@ -212,7 +214,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         for (int i = 0; i < intValues.length; i++) {
             intValues[i] = new IntValues();
         }
-        if (series == null || series.isEmpty()) {
+        if (CollectionUtils.isEmpty(series)) {
             return intValues;
         }
         series.get(0).getValues().forEach(values -> {
@@ -253,9 +255,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
             .column(ThermodynamicMetrics.STEP)
             .column(ThermodynamicMetrics.NUM_OF_STEPS)
             .column(ThermodynamicMetrics.DETAIL_GROUP)
-            .column("id")
+            .column(ID_COLUMN)
             .from(client.getDatabase(), measurement)
-            .where(contains("id", Joiner.on("|").join(ids)));
+            .where(contains(ID_COLUMN, Joiner.on("|").join(ids)));
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
         QueryResult.Series series = client.queryForSingleSeries(query);

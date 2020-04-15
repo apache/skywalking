@@ -25,6 +25,8 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -53,18 +55,32 @@ public class TableMetaInfo {
             storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
         });
 
-        //
-        if (storageAndColumnMap.containsKey(Metrics.ENTITY_ID)) {
-            storageAndTagMap.put(Metrics.ENTITY_ID, InfluxConstants.TagName.ENTITY_ID);
-        }
-        if (storageAndColumnMap.containsKey(Record.TIME_BUCKET)) {
-            storageAndTagMap.put(Record.TIME_BUCKET, InfluxConstants.TagName.TIME_BUCKET);
-        }
-        if (storageAndColumnMap.containsKey(ServiceTraffic.NODE_TYPE)) {
-            storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
-        }
-        if (storageAndColumnMap.containsKey(SegmentRecord.SERVICE_ID)) {
-            storageAndTagMap.put(SegmentRecord.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+        if (model.getName().endsWith("_traffic")) { // It is not a good way. It has performance issue.
+            // instance_traffic name, service_id
+            // endpoint_traffic name, service_id
+            // service_traffic  name, node_type
+            storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
+            if ("instance_traffic".equals(model.getName())
+                || "endpoint_traffic".equals(model.getName())) {
+                storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+            } else {
+                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+            }
+        } else {
+
+            // Specifies ENTITY_ID, TIME_BUCKET, NODE_TYPE, SERVICE_ID as tag
+            if (storageAndColumnMap.containsKey(Metrics.ENTITY_ID)) {
+                storageAndTagMap.put(Metrics.ENTITY_ID, InfluxConstants.TagName.ENTITY_ID);
+            }
+            if (storageAndColumnMap.containsKey(Record.TIME_BUCKET)) {
+                storageAndTagMap.put(Record.TIME_BUCKET, InfluxConstants.TagName.TIME_BUCKET);
+            }
+            if (storageAndColumnMap.containsKey(ServiceTraffic.NODE_TYPE)) {
+                storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
+            }
+            if (storageAndColumnMap.containsKey(SegmentRecord.SERVICE_ID)) {
+                storageAndTagMap.put(SegmentRecord.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
+            }
         }
 
         TableMetaInfo info = TableMetaInfo.builder()

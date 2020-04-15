@@ -48,7 +48,7 @@ public class RecordDAO implements IRecordDAO {
         final long timestamp = TimeBucket.getTimestamp(
             record.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
 
-        InfluxInsertRequest request = new InfluxInsertRequest(model, record, storageBuilder)
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, record, storageBuilder)
             .time(timestamp, TimeUnit.NANOSECONDS);
         TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
             request.addFieldAsTag(field, tag);

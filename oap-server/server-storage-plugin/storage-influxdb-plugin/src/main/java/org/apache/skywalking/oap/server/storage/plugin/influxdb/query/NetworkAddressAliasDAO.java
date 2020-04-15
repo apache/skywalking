@@ -72,8 +72,8 @@ public class NetworkAddressAliasDAO implements INetworkAddressAliasDAO {
                                                                  .getStorageAndColumnMap();
             for (List<Object> values : result) {
                 Map<String, Object> map = Maps.newHashMap();
-                for (int i = 0; i < columns.size(); i++) {
-                    map.put(columnAndFieldMap.get(columns.get(i)), values.get(1 + i));
+                for (int i = 1; i < columns.size(); i++) {
+                    map.put(columnAndFieldMap.get(columns.get(i)), values.get(i));
                 }
                 networkAddressAliases.add(builder.map2Data(map));
             }
