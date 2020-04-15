@@ -622,6 +622,9 @@
                             <exclude>org/apache/skywalking/oap/server/core/remote/grpc/proto/*.class</exclude>
                             <exclude>org/apache/skywalking/oal/rt/grammar/*.class</exclude>
                             <exclude>org/apache/skywalking/oap/server/exporter/grpc/*.class</exclude>
+                            <exclude>org/apache/skywalking/apm/toolkit/**/*Activation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation.class</exclude>
+                            <exclude>org/apache/skywalking/apm/plugin/**/*Instrumentation$*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
