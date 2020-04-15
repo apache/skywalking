@@ -17,13 +17,9 @@ version: '2.1'
 
 services:
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=oap:12800
+    extends:
+      file: ../base-compose.yml
+      service: ui
     depends_on:
       oap:
         condition: service_healthy

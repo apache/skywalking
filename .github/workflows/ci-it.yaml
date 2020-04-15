@@ -23,17 +23,17 @@ on:
       - master
     tags:
       - 'v*'
-    
+
+env:
+  MAVEN_OPTS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   CI:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
@@ -44,20 +44,16 @@ jobs:
           java-version: 8
       - name: 'Install & Test'
         run: |
-          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
           ./mvnw --batch-mode -P"agent,backend,ui,dist,CI-with-IT" clean cobertura:cobertura verify install javadoc:javadoc
-          CODECOV_TOKEN="d2065307-8f01-4637-9715-2781ef096db7" bash <(curl -s https://codecov.io/bash)
+          bash <(curl -s https://codecov.io/bash)
       - name: 'Check Dependencies Licenses'
         run: tools/dependencies/check-LICENSE.sh
 
   CI-on-Windows:
-    runs-on: Windows-latest
+    runs-on: windows-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
@@ -67,19 +63,14 @@ jobs:
         with:
           java-version: 8
       - name: 'Install & Test'
-        run: |
-          set MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
 
 
   CI-on-MacOS:
     runs-on: macos-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v2
-      # In the checkout@v2, it doesn't support git submodule. Execute the commands manually.
       - name: checkout submodules
         shell: bash
         run: |
@@ -89,6 +80,4 @@ jobs:
         with:
           java-version: 8
       - name: 'Install & Test'
-        run: |
-          export MAVEN_OPTS='-XX:+TieredCompilation -XX:TieredStopAtLevel=1 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit -Xmx3g'
-          ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
+        run: ./mvnw --batch-mode -P"agent,backend,ui,dist" clean verify install
