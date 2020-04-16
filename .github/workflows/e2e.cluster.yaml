@@ -26,6 +26,8 @@ on:
 
 env:
   SKIP_TEST: true
+  SW_AGENT_JDK_VERSION: 8
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   CoordinatorsStorage:
@@ -52,6 +54,8 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Cluster with ${{ matrix.coordinator }} and ${{ matrix.storage }}
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.ClusterE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

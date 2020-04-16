@@ -31,6 +31,7 @@ docker run \
         </#if>
         -v ${agent_home}:/usr/local/skywalking/scenario/agent \
         -v ${scenario_home}:/usr/local/skywalking/scenario \
+        -v ${jacoco_home}:/jacoco \
         ${docker_image_name}:${docker_image_version} 1>${scenario_home}/logs/container.log
 
 status="$?"
