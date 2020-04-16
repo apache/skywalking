@@ -16,20 +16,6 @@
 version: '2.1'
 
 services:
-  h2db:
-    build:
-      context: .
-      dockerfile: Dockerfile.h2
-    networks:
-      - e2e
-    expose:
-      - 1521
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
   influxdb:
     image: influxdb:1.7.9
     expose:
@@ -54,7 +40,6 @@ services:
     environment:
       - SW_STORAGE=influxdb
       - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-      - SW_STORAGE_METABASE_URL=jdbc:h2:tcp://h2db:1521/skywalking-oap-db
     restart: on-failure
     depends_on:
       h2db:
