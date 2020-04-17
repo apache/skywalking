@@ -22,6 +22,8 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -40,9 +42,19 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class MetricsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private MetricQueryService metricQueryService;
+    private AggregationQueryService queryService;
 
     public MetricsQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private AggregationQueryService getQueryService() {
+        if (queryService == null) {
+            this.queryService = moduleManager.find(CoreModule.NAME)
+                                             .provider()
+                                             .getService(AggregationQueryService.class);
+        }
+        return queryService;
     }
 
     /**
@@ -78,7 +90,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * @since 8.0.0
      */
     public List<SelectedRecord> sortMetrics(TopNCondition metrics, Duration duration) throws IOException {
-        return Collections.emptyList();
+        return getQueryService().sortMetrics(metrics, duration);
     }
 
     /**

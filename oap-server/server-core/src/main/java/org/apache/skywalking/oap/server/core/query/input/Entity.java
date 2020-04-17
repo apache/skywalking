@@ -59,4 +59,10 @@ public class Entity {
     private boolean destIsNormal;
     private String destServiceInstanceName;
     private String destEndpointName;
+
+    public boolean isService(){
+        return Scope.Service.equals(scope);
+    }
+
+
 }

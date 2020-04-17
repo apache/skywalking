@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.core.query.type;
 import lombok.Getter;
 import lombok.Setter;
 
-
+/**
+ * @since 8.0.0 replaced by {@link SelectedRecord}
+ */
 @Deprecated
 @Getter
 @Setter
@@ -29,4 +31,13 @@ public class TopNEntity {
     private String name;
     private String id;
     private long value;
+
+    public TopNEntity() {
+    }
+
+    public TopNEntity(SelectedRecord record) {
+        this.name = record.getName();
+        this.id = record.getId();
+        this.value = Long.parseLong(record.getValue());
+    }
 }

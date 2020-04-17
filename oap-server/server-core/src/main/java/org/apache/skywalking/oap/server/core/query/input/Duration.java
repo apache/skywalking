@@ -18,12 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
-import lombok.Getter;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
-@Getter
 public class Duration {
     private String start;
     private String end;
     private Step step;
+
+    /**
+     * See {@link DurationUtils#convertToTimeBucket(String)}
+     */
+    public long getStartTimeBucket() {
+        return DurationUtils.INSTANCE.convertToTimeBucket(start);
+    }
+
+    /**
+     * See {@link DurationUtils#convertToTimeBucket(String)}
+     */
+    public long getEndTimeBucket() {
+        return DurationUtils.INSTANCE.convertToTimeBucket(end);
+    }
 }

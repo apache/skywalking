@@ -41,7 +41,11 @@ public enum DurationUtils {
     private static final DateTimeFormatter YYYYMMDDHHMM = DateTimeFormat.forPattern("yyyyMMddHHmm");
     private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    public long exchangeToTimeBucket(String dateStr) {
+    /**
+     * Convert date in `yyyy-MM-dd HHmmss` style to `yyyyMMddHHmmss` no matter the precision. Such as, in day precision,
+     * this covert `yyyy-MM-dd` style to `yyyyMMdd`.
+     */
+    public long convertToTimeBucket(String dateStr) {
         dateStr = dateStr.replaceAll(Const.LINE, Const.EMPTY_STRING);
         dateStr = dateStr.replaceAll(Const.SPACE, Const.EMPTY_STRING);
         return Long.parseLong(dateStr);
@@ -51,16 +55,16 @@ public enum DurationUtils {
         long secondTimeBucket = 0;
         switch (step) {
             case DAY:
-                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 * 100 * 100;
+                secondTimeBucket = convertToTimeBucket(dateStr) * 100 * 100 * 100;
                 break;
             case HOUR:
-                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 * 100;
+                secondTimeBucket = convertToTimeBucket(dateStr) * 100 * 100;
                 break;
             case MINUTE:
-                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100;
+                secondTimeBucket = convertToTimeBucket(dateStr) * 100;
                 break;
             case SECOND:
-                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                secondTimeBucket = convertToTimeBucket(dateStr);
                 break;
         }
         return secondTimeBucket;
@@ -70,16 +74,16 @@ public enum DurationUtils {
         long secondTimeBucket = 0;
         switch (step) {
             case DAY:
-                secondTimeBucket = ((exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99;
+                secondTimeBucket = ((convertToTimeBucket(dateStr) * 100 + 99) * 100 + 99) * 100 + 99;
                 break;
             case HOUR:
-                secondTimeBucket = (exchangeToTimeBucket(dateStr) * 100 + 99) * 100 + 99;
+                secondTimeBucket = (convertToTimeBucket(dateStr) * 100 + 99) * 100 + 99;
                 break;
             case MINUTE:
-                secondTimeBucket = exchangeToTimeBucket(dateStr) * 100 + 99;
+                secondTimeBucket = convertToTimeBucket(dateStr) * 100 + 99;
                 break;
             case SECOND:
-                secondTimeBucket = exchangeToTimeBucket(dateStr);
+                secondTimeBucket = convertToTimeBucket(dateStr);
                 break;
         }
         return secondTimeBucket;

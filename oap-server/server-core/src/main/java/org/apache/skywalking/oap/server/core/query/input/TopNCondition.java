@@ -19,13 +19,16 @@
 package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
 /**
  * Top N query condition.
  *
  * @since 8.0.0
  */
+@Setter
 @Getter
 public class TopNCondition {
     /**
@@ -35,7 +38,13 @@ public class TopNCondition {
     /**
      * See {@link Entity}
      */
-    private Entity parentEntity;
+    private String parentService;
+    /**
+     * Indicate the metrics entity scope. Because this is a top list, don't need to set the Entity like the
+     * MetricsCondition. Only accept scope = {@link Scope#Service} {@link Scope#ServiceInstance} and {@link
+     * Scope#Endpoint}, ignore others due to those are pointless.
+     */
+    private Scope scope;
     private int topN;
     private Order order;
 }

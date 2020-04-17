@@ -56,8 +56,8 @@ public class MetricQuery implements GraphQLQueryResolver {
     }
 
     public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
 
         return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownSampling.transform(duration
             .getStep()), startTimeBucket, endTimeBucket);
@@ -65,8 +65,8 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
         final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
 
         return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownSampling.transform(duration
             .getStep()), startTimeBucket, endTimeBucket);
@@ -74,8 +74,8 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear,
         final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
 
         return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownSampling
             .transform(duration.getStep()), startTimeBucket, endTimeBucket);
@@ -83,8 +83,8 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public List<IntValues> getSubsetOfMultipleLinearIntValues(final MetricCondition metrics,
         final List<Integer> linearIndex, final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
 
         return getMetricQueryService().getSubsetOfMultipleLinearIntValues(metrics.getName(), metrics.getId(), linearIndex, StepToDownSampling
             .transform(duration.getStep()), startTimeBucket, endTimeBucket);
@@ -92,8 +92,8 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics,
         final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
+        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
+        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
 
         return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownSampling.transform(duration
             .getStep()), startTimeBucket, endTimeBucket);

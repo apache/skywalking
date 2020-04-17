@@ -16,14 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
+package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2AggregationQueryDAO;
-
-public class MySQLAggregationQueryDAO extends H2AggregationQueryDAO {
-
-    public MySQLAggregationQueryDAO(JDBCHikariCPClient client) {
-        super(client);
-    }
+/**
+ * MetricsRegister has the metadata of all metrics type
+ *
+ * @since 8.0.0
+ */
+public class MetricsRegister {
 }
