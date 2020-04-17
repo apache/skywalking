@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.query.enumeration;
 
 public enum Language {
     UNKNOWN, JAVA, DOTNET, NODEJS, PYTHON, RUBY, GO, LUA, PHP;

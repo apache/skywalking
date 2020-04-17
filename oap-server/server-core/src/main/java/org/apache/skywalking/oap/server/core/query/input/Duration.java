@@ -16,10 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.type;
+package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.query.type.Step;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
 @Getter
 public class Duration {

@@ -22,13 +22,13 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.StepToDownSampling;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
-import org.apache.skywalking.oap.server.core.query.entity.ServiceInstanceTopology;
-import org.apache.skywalking.oap.server.core.query.entity.Topology;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
+import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class TopologyQuery implements GraphQLQueryResolver {

@@ -18,5 +18,29 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-public class TopNRecords {
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * SelectedRecord is an abtract data element, including id, name, value and a reference id.
+ */
+@Setter
+@Getter
+public class SelectedRecord {
+    /**
+     * Literal string name for visualization
+     */
+    private String name;
+    /**
+     * ID represents the owner of this entity.
+     */
+    private String id;
+    /**
+     * Usually an integer value as this is metrics.
+     */
+    private String value;
+    /**
+     * Have value, Only if the record has related trace id. UI should show this as an attached value.
+     */
+    private String refId;
 }

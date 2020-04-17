@@ -25,10 +25,14 @@ import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
-import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @since 8.0.0 This query is replaced by {@link MetricsQuery}
+ */
+@Deprecated
 public class TopNRecordsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private TopNRecordsQueryService topNRecordsQueryService;

@@ -20,14 +20,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
-import org.apache.skywalking.oap.server.core.query.entity.AlarmTrend;
-import org.apache.skywalking.oap.server.core.query.entity.Alarms;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
-import org.apache.skywalking.oap.server.core.query.entity.Scope;
+import org.apache.skywalking.oap.server.core.query.type.AlarmTrend;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class AlarmQuery implements GraphQLQueryResolver {

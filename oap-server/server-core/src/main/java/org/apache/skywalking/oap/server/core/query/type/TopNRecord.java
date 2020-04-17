@@ -21,6 +21,10 @@ package org.apache.skywalking.oap.server.core.query.type;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @since 8.0.0 replaced by {@link SelectedRecord}
+ */
+@Deprecated
 @Setter
 @Getter
 public class TopNRecord {

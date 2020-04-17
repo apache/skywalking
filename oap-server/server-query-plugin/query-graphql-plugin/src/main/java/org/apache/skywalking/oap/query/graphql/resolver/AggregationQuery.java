@@ -21,15 +21,19 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.StepToDownSampling;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
-import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.type.TopNEntity;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @since 8.0.0 This query is replaced by {@link MetricsQuery}
+ */
+@Deprecated
 public class AggregationQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;

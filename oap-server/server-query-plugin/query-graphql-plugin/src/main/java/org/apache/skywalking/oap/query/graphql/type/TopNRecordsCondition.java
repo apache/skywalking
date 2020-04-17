@@ -20,7 +20,8 @@ package org.apache.skywalking.oap.query.graphql.type;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 
 @Getter
 @Setter

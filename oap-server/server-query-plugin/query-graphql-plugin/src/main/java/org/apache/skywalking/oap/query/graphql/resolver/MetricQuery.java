@@ -23,16 +23,20 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.query.graphql.type.MetricCondition;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.MetricCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.MetricQueryService;
 import org.apache.skywalking.oap.server.core.query.StepToDownSampling;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
-import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
+import org.apache.skywalking.oap.server.core.query.type.IntValues;
+import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+/**
+ * @since 8.0.0 This query is replaced by {@link MetricsQuery}
+ */
+@Deprecated
 public class MetricQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
