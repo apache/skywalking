@@ -258,8 +258,6 @@ public class TopologyQuery implements ITopologyQueryDAO {
         List<Call.CallDetail> calls = new ArrayList<>();
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
-            System.out.println(values.get(1));
-            System.out.println(values.get(2));
             String entityId = String.valueOf(values.get(1));
             int componentId = (int) values.get(2);
             call.buildFromServiceRelation(entityId, componentId, detectPoint);
