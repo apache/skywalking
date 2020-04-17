@@ -28,14 +28,13 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.Point;
 
 /**
  * InfluxDB Point wrapper.
  */
 public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
-    public static final String ID = "id";
-
     private Point.Builder builder;
     private Map<String, Object> fields = Maps.newHashMap();
 
@@ -55,7 +54,7 @@ public class InfluxInsertRequest implements InsertRequest, UpdateRequest {
             }
         }
         builder = Point.measurement(model.getName())
-                       .addField(ID, storageData.id())
+                       .addField(InfluxConstants.ID_COLUMN, storageData.id())
                        .fields(fields);
     }
 

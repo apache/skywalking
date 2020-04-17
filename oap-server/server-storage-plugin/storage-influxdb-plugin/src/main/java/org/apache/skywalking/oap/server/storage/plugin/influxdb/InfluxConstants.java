@@ -29,6 +29,8 @@ public interface InfluxConstants {
 
     String SORT_ASC = "bottom";
 
+    String DURATION = "\"" + "duration" + "\"";
+
     interface TagName {
 
         String ID_COLUMN = "_id";

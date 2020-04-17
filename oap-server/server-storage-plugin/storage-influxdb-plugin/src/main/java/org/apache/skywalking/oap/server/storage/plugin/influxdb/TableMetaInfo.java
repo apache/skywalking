@@ -40,7 +40,6 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 @AllArgsConstructor
 public class TableMetaInfo {
     private static final Map<String, TableMetaInfo> TABLES = new HashMap<>();
-    private static final String PREFIX = "_";
 
     private Map<String, String> storageAndColumnMap;
     private Map<String, String> storageAndTagMap;
@@ -55,15 +54,15 @@ public class TableMetaInfo {
             storageAndColumnMap.put(columnName.getStorageName(), columnName.getName());
         });
 
-        if (model.getName().endsWith("_traffic")) { // It is not a good way. It has performance issue.
+        if (model.getName().endsWith("_traffic")) {
             // instance_traffic name, service_id
             // endpoint_traffic name, service_id
-            // service_traffic  name, node_type
             storageAndTagMap.put(InstanceTraffic.NAME, InfluxConstants.TagName.NAME);
             if ("instance_traffic".equals(model.getName())
                 || "endpoint_traffic".equals(model.getName())) {
                 storageAndTagMap.put(EndpointTraffic.SERVICE_ID, InfluxConstants.TagName.SERVICE_ID);
             } else {
+                // service_traffic  name, node_type
                 storageAndTagMap.put(ServiceTraffic.NODE_TYPE, InfluxConstants.TagName.NODE_TYPE);
             }
         } else {

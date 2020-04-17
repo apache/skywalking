@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.NoneStreamDAO;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
@@ -40,8 +41,6 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class ProfileTaskQuery implements IProfileTaskQueryDAO {
-    private static final String DURATION = "\"" + "duration" + "\"";
-    private static final String ID_COLUMN = "id";
     private final InfluxClient client;
 
     public ProfileTaskQuery(InfluxClient client) {
@@ -55,19 +54,22 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
                                          final Long endTimeBucket,
                                          final Integer limit) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query =
-            select(ID_COLUMN, ProfileTaskRecord.SERVICE_ID,
-                   ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
-                   ProfileTaskRecord.CREATE_TIME,
-                   DURATION,
-                   ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                   ProfileTaskRecord.DUMP_PERIOD,
-                   ProfileTaskRecord.MAX_SAMPLING_COUNT
+            select(
+                InfluxConstants.ID_COLUMN,
+                ProfileTaskRecord.SERVICE_ID,
+                ProfileTaskRecord.ENDPOINT_NAME,
+                ProfileTaskRecord.START_TIME,
+                ProfileTaskRecord.CREATE_TIME,
+                InfluxConstants.DURATION,
+                ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+                ProfileTaskRecord.DUMP_PERIOD,
+                ProfileTaskRecord.MAX_SAMPLING_COUNT
             )
                 .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
                 .where();
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.and(eq(NoneStreamDAO.TAG_SERVICE_ID, serviceId));
+            query.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(endpointName)) {
             query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
@@ -100,17 +102,20 @@ public class ProfileTaskQuery implements IProfileTaskQueryDAO {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
-        SelectQueryImpl query = select(ID_COLUMN, ProfileTaskRecord.SERVICE_ID,
-                                       ProfileTaskRecord.ENDPOINT_NAME, ProfileTaskRecord.START_TIME,
-                                       ProfileTaskRecord.CREATE_TIME,
-                                       DURATION,
-                                       ProfileTaskRecord.MIN_DURATION_THRESHOLD,
-                                       ProfileTaskRecord.DUMP_PERIOD,
-                                       ProfileTaskRecord.MAX_SAMPLING_COUNT
+        SelectQueryImpl query = select(
+            InfluxConstants.ID_COLUMN,
+            ProfileTaskRecord.SERVICE_ID,
+            ProfileTaskRecord.ENDPOINT_NAME,
+            ProfileTaskRecord.START_TIME,
+            ProfileTaskRecord.CREATE_TIME,
+            InfluxConstants.DURATION,
+            ProfileTaskRecord.MIN_DURATION_THRESHOLD,
+            ProfileTaskRecord.DUMP_PERIOD,
+            ProfileTaskRecord.MAX_SAMPLING_COUNT
         )
             .from(client.getDatabase(), ProfileTaskRecord.INDEX_NAME)
             .where()
-            .and(eq(ID_COLUMN, id))
+            .and(eq(InfluxConstants.ID_COLUMN, id))
             .limit(1);
 
         QueryResult.Series series = client.queryForSingleSeries(query);

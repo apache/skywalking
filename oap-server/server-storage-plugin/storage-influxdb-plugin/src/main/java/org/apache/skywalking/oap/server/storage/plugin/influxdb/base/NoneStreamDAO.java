@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 
 public class NoneStreamDAO implements INoneStreamDAO {
-    public static final String TAG_SERVICE_ID = "_service_id";
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
@@ -44,8 +43,8 @@ public class NoneStreamDAO implements INoneStreamDAO {
 
     @Override
     public void insert(final Model model, final NoneStream noneStream) throws IOException {
-        final long timestamp = TimeBucket.getTimestamp(
-            noneStream.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
+        final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())
+            * PADDING_SIZE + SUFFIX.getAndIncrement();
 
         final InfluxInsertRequest request = new InfluxInsertRequest(model, noneStream, storageBuilder)
             .time(timestamp, TimeUnit.NANOSECONDS);

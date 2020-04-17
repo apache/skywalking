@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 
 public class RecordDAO implements IRecordDAO {
-    public static final String TAG_SERVICE_ID = "_service_id";
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
@@ -45,8 +44,8 @@ public class RecordDAO implements IRecordDAO {
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        final long timestamp = TimeBucket.getTimestamp(
-            record.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
+        final long timestamp = TimeBucket.getTimestamp(record.getTimeBucket(), model.getDownsampling())
+            * PADDING_SIZE + SUFFIX.getAndIncrement();
 
         final InfluxInsertRequest request = new InfluxInsertRequest(model, record, storageBuilder)
             .time(timestamp, TimeUnit.NANOSECONDS);

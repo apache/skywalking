@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -75,7 +76,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         }
 
         query = select()
-            .function("bottom", SegmentRecord.START_TIME, segments.size())
+            .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_NAME)
