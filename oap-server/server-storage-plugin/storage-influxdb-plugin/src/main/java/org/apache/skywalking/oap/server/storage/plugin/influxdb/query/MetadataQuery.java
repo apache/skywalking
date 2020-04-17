@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -93,7 +92,10 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public int numOfConjectural(final int nodeTypeValue) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().raw("count(distinct " + ID_COLUMN + ")")
                                                         .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(nodeTypeValue)));
+                                                        .where(eq(
+                                                            InfluxConstants.TagName.NODE_TYPE,
+                                                            String.valueOf(nodeTypeValue)
+                                                        ));
         return client.getCounter(query);
     }
 
