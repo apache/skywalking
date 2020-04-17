@@ -86,16 +86,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
             StringBuilder clauseBuilder = new StringBuilder();
             for (KeyValues kv : whereKeyValues) {
                 final List<String> values = kv.getValues();
+                ids.addAll(values);
 
                 Class<?> type = columnTypes.get(kv.getKey());
                 if (values.size() == 1) {
                     String value = kv.getValues().get(0);
-                    if (type != String.class) {
+                    if (type == String.class) {
                         value = "'" + value + "'";
                     }
                     clauseBuilder.append(kv.getKey()).append("=").append(value).append(" OR ");
                 } else {
-                    ids.addAll(values);
                     if (type == String.class) {
                         clauseBuilder.append(kv.getKey())
                                      .append(" =~ /")
@@ -103,7 +103,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
                                      .append("/ OR ");
                     } else {
                         for (String value : values) {
-                            clauseBuilder.append(kv.getKey()).append(" = ").append(value).append(" OR ");
+                            clauseBuilder.append(kv.getKey()).append(" = '").append(value).append("' OR ");
                         }
                     }
                 }

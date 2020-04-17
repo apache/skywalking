@@ -93,7 +93,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
     public int numOfConjectural(final int nodeTypeValue) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().raw("count(distinct " + ID_COLUMN + ")")
                                                         .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.TagName.NODE_TYPE, nodeTypeValue));
+                                                        .where(eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(nodeTypeValue)));
         return client.getCounter(query);
     }
 
@@ -199,13 +199,9 @@ public class MetadataQuery implements IMetadataQueryDAO {
         List<Endpoint> list = new ArrayList<>(limit);
         if (series != null) {
             series.getValues().forEach(values -> {
-                EndpointTraffic endpointTraffic = new EndpointTraffic();
-                endpointTraffic.setServiceId((String) values.get(1));
-                endpointTraffic.setName((String) values.get(2));
-
                 Endpoint endpoint = new Endpoint();
-                endpoint.setId(IDManager.EndpointID.buildId(endpointTraffic.getServiceId(), endpointTraffic.getName()));
-                endpoint.setName(endpointTraffic.getName());
+                endpoint.setId((String) values.get(1));
+                endpoint.setName((String) values.get(2));
                 list.add(endpoint);
             });
         }

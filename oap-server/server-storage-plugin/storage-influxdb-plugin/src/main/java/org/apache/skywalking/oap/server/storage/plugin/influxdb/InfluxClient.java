@@ -74,6 +74,7 @@ public class InfluxClient implements Client {
                                          InfluxDB.ResponseFormat.MSGPACK
         );
         influx.query(new Query("CREATE DATABASE " + database));
+        influx.enableGzip();
 
         influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
         influx.setDatabase(database);
@@ -100,7 +101,7 @@ public class InfluxClient implements Client {
         }
 
         try {
-            QueryResult result = getInflux().query(query);
+            QueryResult result = getInflux().query(new Query(query.getCommand()));
             if (result.hasError()) {
                 throw new IOException(result.getError());
             }
