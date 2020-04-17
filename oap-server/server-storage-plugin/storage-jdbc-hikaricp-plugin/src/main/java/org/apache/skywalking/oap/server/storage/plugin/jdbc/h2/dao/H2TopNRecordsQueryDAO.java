@@ -24,8 +24,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -38,35 +42,36 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
     }
 
     @Override
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, String serviceId,
-        int topN, Order order) throws IOException {
-        StringBuilder sql = new StringBuilder("select * from " + metricName + " where ");
+    public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final Duration duration) throws IOException {
+        StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
         List<Object> parameters = new ArrayList<>(10);
 
         sql.append(" service_id = ? ");
+        final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
         parameters.add(serviceId);
 
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" >= ?");
-        parameters.add(startSecondTB);
+        parameters.add(duration.getStartTimeBucket());
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
-        parameters.add(endSecondTB);
+        parameters.add(duration.getEndTimeBucket());
 
         sql.append(" order by ").append(TopN.LATENCY);
-        if (order.equals(Order.DES)) {
+        if (condition.getOrder().equals(Order.DES)) {
             sql.append(" desc ");
         } else {
             sql.append(" asc ");
         }
-        sql.append(" limit ").append(topN);
+        sql.append(" limit ").append(condition.getTopN());
 
-        List<TopNRecord> results = new ArrayList<>();
+        List<SelectedRecord> results = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
-                    TopNRecord record = new TopNRecord();
-                    record.setStatement(resultSet.getString(TopN.STATEMENT));
-                    record.setTraceId(resultSet.getString(TopN.TRACE_ID));
-                    record.setLatency(resultSet.getLong(TopN.LATENCY));
+                    SelectedRecord record = new SelectedRecord();
+                    record.setName(resultSet.getString(TopN.STATEMENT));
+                    record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    record.setValue(resultSet.getString(TopN.LATENCY));
                     results.add(record);
                 }
             }
@@ -76,4 +81,5 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
 
         return results;
     }
+
 }

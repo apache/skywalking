@@ -39,8 +39,11 @@ public class IDManager {
          * @return encoded service id
          */
         public static String buildId(String name, NodeType type) {
-            return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(
-                type.equals(NodeType.Normal));
+            return buildId(name, type.equals(NodeType.Normal));
+        }
+
+        public static String buildId(String name, boolean isNormal) {
+            return encode(name) + Const.SERVICE_ID_CONNECTOR + BooleanUtils.booleanToValue(isNormal);
         }
 
         /**

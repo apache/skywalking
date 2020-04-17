@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricQueryService;
+import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
@@ -43,6 +44,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private MetricQueryService metricQueryService;
     private AggregationQueryService queryService;
+    private TopNRecordsQueryService topNRecordsQueryService;
 
     public MetricsQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -57,10 +59,17 @@ public class MetricsQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
+    private TopNRecordsQueryService getTopNRecordsQueryService() {
+        if (topNRecordsQueryService == null) {
+            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(TopNRecordsQueryService.class);
+        }
+        return topNRecordsQueryService;
+    }
+
     /**
      * Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
-     *
-     * @since 8.0.0
      */
     public MetricsType typeOfMetrics(String name) throws IOException {
         return MetricsType.UNKNOWN;
@@ -68,38 +77,31 @@ public class MetricsQuery implements GraphQLQueryResolver {
 
     /**
      * Read metrics single value in the duration of required metrics
-     *
-     * @since 8.0.0
      */
-    public int readMetricsValue(MetricsCondition metrics, Duration duration) throws IOException {
+    public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
         return 0;
     }
 
     /**
      * Read time-series values in the duration of required metrics
-     *
-     * @since 8.0.0
      */
-    public List<MetricsValues> readMetricsValues(MetricsCondition metrics, Duration duration) throws IOException {
+    public List<MetricsValues> readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
         return Collections.emptyList();
     }
 
     /**
      * Read entity list of required metrics and parent entity type.
-     *
-     * @since 8.0.0
      */
-    public List<SelectedRecord> sortMetrics(TopNCondition metrics, Duration duration) throws IOException {
-        return getQueryService().sortMetrics(metrics, duration);
+    public List<SelectedRecord> sortMetrics(TopNCondition condition, Duration duration) throws IOException {
+        return getQueryService().sortMetrics(condition, duration);
     }
 
     /**
      * Read value in the given time duration, usually as a linear.
      *
      * @param labels the labels you need to query.
-     * @since 8.0.0
      */
-    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition metrics,
+    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
         return Collections.emptyList();
@@ -107,19 +109,15 @@ public class MetricsQuery implements GraphQLQueryResolver {
 
     /**
      * Heatmap is bucket based value statistic result.
-     *
-     * @since 8.0.0
      */
-    public HeatMap readHeatMap(MetricsCondition metrics, Duration duration) throws IOException {
+    public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
         return new HeatMap();
     }
 
     /**
      * Read the sampled records.
-     *
-     * @since 8.0.0
      */
-    public List<SelectedRecord> readSampledRecords(TopNCondition metrics, Duration duration) throws IOException {
-        return Collections.emptyList();
+    public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
+        return getTopNRecordsQueryService().readSampledRecords(condition, duration);
     }
 }

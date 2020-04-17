@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
@@ -52,18 +52,18 @@ public class AggregationQueryService implements Service {
         return aggregationQueryDAO;
     }
 
-    public List<SelectedRecord> sortMetrics(TopNCondition metrics, Duration duration) throws IOException {
-        final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(metrics.getName());
+    public List<SelectedRecord> sortMetrics(TopNCondition condition, Duration duration) throws IOException {
+        final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(condition.getName());
         List<KeyValue> additionalConditions = null;
-        if (StringUtil.isNotEmpty(metrics.getParentService())) {
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
             additionalConditions = new ArrayList<>(1);
-            final String serviceId = IDManager.ServiceID.buildId(metrics.getParentService(), NodeType.Normal);
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
             additionalConditions.add(new KeyValue(InstanceTraffic.SERVICE_ID, serviceId));
         }
         final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetrics(
-            metrics, valueCName, duration, additionalConditions);
+            condition, valueCName, duration, additionalConditions);
         selectedRecords.forEach(selectedRecord -> {
-            switch (metrics.getScope()) {
+            switch (condition.getScope()) {
                 case Service:
                     selectedRecord.setName(IDManager.ServiceID.analysisId(selectedRecord.getId()).getName());
                     break;
@@ -71,8 +71,10 @@ public class AggregationQueryService implements Service {
                     selectedRecord.setName(IDManager.ServiceInstanceID.analysisId(selectedRecord.getId()).getName());
                     break;
                 case Endpoint:
-                    selectedRecord.setName(IDManager.ServiceInstanceID.analysisId(selectedRecord.getId()).getName());
+                    selectedRecord.setName(IDManager.EndpointID.analysisId(selectedRecord.getId()).getEndpointName());
                     break;
+                default:
+                    selectedRecord.setName(Const.UNKNOWN);
             }
         });
         return selectedRecords;

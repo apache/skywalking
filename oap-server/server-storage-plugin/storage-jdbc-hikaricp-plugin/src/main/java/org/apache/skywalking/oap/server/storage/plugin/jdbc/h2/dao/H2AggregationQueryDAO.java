@@ -26,16 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.query.type.TopNEntity;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -62,7 +58,9 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
            .append(" from ")
            .append(metrics.getName())
            .append(" where ");
-        this.setTimeRangeCondition(sql, conditions, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
+        conditions.add(duration.getStartTimeBucket());
+        conditions.add(duration.getEndTimeBucket());
         if (additionalConditions != null) {
             additionalConditions.forEach(condition -> {
                 sql.append(" and ").append(condition.getKey()).append("=?");
@@ -88,12 +86,5 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             throw new IOException(e);
         }
         return topNEntities;
-    }
-
-    protected void setTimeRangeCondition(StringBuilder sql, List<Object> conditions, long startTimestamp,
-                                         long endTimestamp) {
-        sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
-        conditions.add(startTimestamp);
-        conditions.add(endTimestamp);
     }
 }

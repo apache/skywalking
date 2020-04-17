@@ -20,8 +20,9 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.enumeration.Order;
-import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -44,8 +45,7 @@ public class TopNRecordsQueryService implements Service {
         return topNRecordsQueryDAO;
     }
 
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, String serviceId,
-        int topN, Order order) throws IOException {
-        return getTopNRecordsQueryDAO().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
+    public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
+        return getTopNRecordsQueryDAO().readSampledRecords(condition, duration);
     }
 }
