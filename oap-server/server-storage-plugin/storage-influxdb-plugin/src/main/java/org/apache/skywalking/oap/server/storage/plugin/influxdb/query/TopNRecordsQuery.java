@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
@@ -69,7 +68,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             .and(lte(TopN.TIME_BUCKET, endSecondTB));
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.and(eq(RecordDAO.TAG_SERVICE_ID, serviceId));
+            query.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
 
         QueryResult.Series series = client.queryForSingleSeries(query);
