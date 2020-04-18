@@ -19,9 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
+import org.apache.skywalking.oap.server.core.query.PointOfTime;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -36,26 +40,6 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
 
     public EsDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    protected final void queryBuild(SearchSourceBuilder sourceBuilder, Where where, long startTB, long endTB) {
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).gte(startTB).lte(endTB);
-        if (where.getKeyValues().isEmpty()) {
-            sourceBuilder.query(rangeQueryBuilder);
-        } else {
-            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            boolQuery.must().add(rangeQueryBuilder);
-
-            where.getKeyValues().forEach(keyValues -> {
-                if (keyValues.getValues().size() > 1) {
-                    boolQuery.must().add(QueryBuilders.termsQuery(keyValues.getKey(), keyValues.getValues()));
-                } else {
-                    boolQuery.must().add(QueryBuilders.termQuery(keyValues.getKey(), keyValues.getValues().get(0)));
-                }
-            });
-            sourceBuilder.query(boolQuery);
-        }
-        sourceBuilder.size(0);
     }
 
     protected XContentBuilder map2builder(Map<String, Object> objectMap) throws IOException {

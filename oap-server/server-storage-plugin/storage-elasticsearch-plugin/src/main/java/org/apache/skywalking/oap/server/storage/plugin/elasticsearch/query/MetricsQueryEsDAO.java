@@ -24,22 +24,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -52,133 +57,6 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     public MetricsQueryEsDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    /**
-     * Read metrics single value in the duration of required metrics
-     */
-    public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        return 0;
-    }
-
-    /**
-     * Read time-series values in the duration of required metrics
-     */
-    public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
-        return null;
-    }
-
-    @Override
-    public IntValues getValues(String indexName, DownSampling downsampling, long startTB, long endTB, Where where,
-                               String valueCName, Function function) throws IOException {
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        queryBuild(sourceBuilder, where, startTB, endTB);
-
-        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
-                                                                         .field(Metrics.ENTITY_ID)
-                                                                         .size(1000);
-        functionAggregation(function, entityIdAggregation, valueCName);
-
-        sourceBuilder.aggregation(entityIdAggregation);
-
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
-
-        IntValues intValues = new IntValues();
-        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
-        for (Terms.Bucket idBucket : idTerms.getBuckets()) {
-            long value;
-            switch (function) {
-                case Sum:
-                    Sum sum = idBucket.getAggregations().get(valueCName);
-                    value = (long) sum.getValue();
-                    break;
-                case Avg:
-                    Avg avg = idBucket.getAggregations().get(valueCName);
-                    value = (long) avg.getValue();
-                    break;
-                default:
-                    avg = idBucket.getAggregations().get(valueCName);
-                    value = (long) avg.getValue();
-                    break;
-            }
-
-            KVInt kvInt = new KVInt();
-            kvInt.setId(idBucket.getKeyAsString());
-            kvInt.setValue(value);
-            intValues.addKVInt(kvInt);
-        }
-
-        return intValues;
-    }
-
-    protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
-        switch (function) {
-            case Avg:
-                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
-                break;
-            case Sum:
-                parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
-                break;
-            default:
-                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
-                break;
-        }
-    }
-
-    @Override
-    public IntValues getLinearIntValues(String indexName, DownSampling downsampling, List<String> ids,
-                                        String valueCName) throws IOException {
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
-        Map<String, Map<String, Object>> idMap = toMap(response);
-
-        IntValues intValues = new IntValues();
-        for (String id : ids) {
-            KVInt kvInt = new KVInt();
-            kvInt.setId(id);
-            kvInt.setValue(0);
-            if (idMap.containsKey(id)) {
-                Map<String, Object> source = idMap.get(id);
-                kvInt.setValue(((Number) source.getOrDefault(valueCName, 0)).longValue());
-            }
-            intValues.addKVInt(kvInt);
-        }
-
-        return intValues;
-    }
-
-    @Override
-    public IntValues[] getMultipleLinearIntValues(String indexName, DownSampling downsampling, List<String> ids,
-                                                  List<Integer> linearIndex, String valueCName) throws IOException {
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
-        Map<String, Map<String, Object>> idMap = toMap(response);
-
-        IntValues[] intValuesArray = new IntValues[linearIndex.size()];
-        for (int i = 0; i < intValuesArray.length; i++) {
-            intValuesArray[i] = new IntValues();
-        }
-
-        for (String id : ids) {
-            for (int i = 0; i < intValuesArray.length; i++) {
-                KVInt kvInt = new KVInt();
-                kvInt.setId(id);
-                kvInt.setValue(0);
-                intValuesArray[i].addKVInt(kvInt);
-            }
-
-            if (idMap.containsKey(id)) {
-                Map<String, Object> source = idMap.get(id);
-                DataTable multipleValues = new DataTable(5);
-                multipleValues.toObject((String) source.getOrDefault(valueCName, ""));
-
-                for (int i = 0; i < linearIndex.size(); i++) {
-                    Integer index = linearIndex.get(i);
-                    intValuesArray[i].getLast().setValue(multipleValues.get(index).getValue());
-                }
-            }
-
-        }
-
-        return intValuesArray;
     }
 
     @Override
@@ -221,6 +99,168 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
 
         return thermodynamic;
+    }
+
+    @Override
+    public int readMetricsValue(final MetricsCondition condition,
+                                final String valueColumnName,
+                                final Duration duration) throws IOException {
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        buildQuery(sourceBuilder, condition, duration);
+
+        TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
+                                                                         .field(Metrics.ENTITY_ID)
+                                                                         .size(1);
+        final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+        functionAggregation(function, entityIdAggregation, valueColumnName);
+
+        sourceBuilder.aggregation(entityIdAggregation);
+
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
+
+        Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
+        for (Terms.Bucket idBucket : idTerms.getBuckets()) {
+            switch (function) {
+                case Sum:
+                    Sum sum = idBucket.getAggregations().get(valueColumnName);
+                    return (int) sum.getValue();
+                case Avg:
+                    Avg avg = idBucket.getAggregations().get(valueColumnName);
+                    return (int) avg.getValue();
+                default:
+                    avg = idBucket.getAggregations().get(valueColumnName);
+                    return (int) avg.getValue();
+            }
+        }
+        return ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+    }
+
+    @Override
+    public MetricsValues readMetricsValues(final MetricsCondition condition,
+                                           final String valueColumnName,
+                                           final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
+        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        Map<String, Map<String, Object>> idMap = toMap(response);
+
+        MetricsValues metricsValues = new MetricsValues();
+        // Label is null, because in readMetricsValues, no label parameter.
+        IntValues intValues = metricsValues.getValues();
+        for (String id : ids) {
+            KVInt kvInt = new KVInt();
+            kvInt.setId(id);
+            kvInt.setValue(0);
+            if (idMap.containsKey(id)) {
+                Map<String, Object> source = idMap.get(id);
+                kvInt.setValue(((Number) source.getOrDefault(valueColumnName, 0)).longValue());
+            } else {
+                kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+            }
+            intValues.addKVInt(kvInt);
+        }
+
+        metricsValues.setValues(
+            Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+        );
+
+        return metricsValues;
+    }
+
+    @Override
+    public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
+                                                        final String valueColumnName,
+                                                        final List<String> labels,
+                                                        final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
+        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        Map<String, Map<String, Object>> idMap = toMap(response);
+
+        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
+        labels.forEach(label -> {
+            MetricsValues labelValue = new MetricsValues();
+            labelValue.setLabel(label);
+
+            labeledValues.put(label, labelValue);
+        });
+
+        for (String id : ids) {
+            if (idMap.containsKey(id)) {
+                Map<String, Object> source = idMap.get(id);
+                DataTable multipleValues = new DataTable((String) source.getOrDefault(valueColumnName, ""));
+
+                labels.forEach(label -> {
+                    final Long data = multipleValues.get(label);
+                    final IntValues values = labeledValues.get(label).getValues();
+                    KVInt kv = new KVInt();
+                    kv.setId(id);
+                    kv.setValue(data);
+                    values.addKVInt(kv);
+                });
+            }
+
+        }
+
+        return Util.sortValues(
+            new ArrayList<>(labeledValues.values()),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
+    }
+
+    @Override
+    public HeatMap readHeatMap(final MetricsCondition condition,
+                               final String valueColumnName,
+                               final Duration duration) throws IOException {
+        return null;
+    }
+
+    protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {
+        switch (function) {
+            case Avg:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+                break;
+            case Sum:
+                parentAggBuilder.subAggregation(AggregationBuilders.sum(valueCName).field(valueCName));
+                break;
+            default:
+                parentAggBuilder.subAggregation(AggregationBuilders.avg(valueCName).field(valueCName));
+                break;
+        }
+    }
+
+    protected final void buildQuery(SearchSourceBuilder sourceBuilder, MetricsCondition condition, Duration duration) {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
+                                                           .gte(duration.getStartTimeBucket())
+                                                           .lte(duration.getEndTimeBucket());
+
+        final String entityId = condition.getEntity().buildId();
+
+        if (entityId == null) {
+            sourceBuilder.query(rangeQueryBuilder);
+        } else {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            boolQuery.must().add(rangeQueryBuilder);
+            boolQuery.must().add(QueryBuilders.termsQuery(Metrics.ENTITY_ID, entityId));
+
+            sourceBuilder.query(boolQuery);
+        }
+        sourceBuilder.size(0);
     }
 
     private Map<String, Map<String, Object>> toMap(SearchResponse response) {

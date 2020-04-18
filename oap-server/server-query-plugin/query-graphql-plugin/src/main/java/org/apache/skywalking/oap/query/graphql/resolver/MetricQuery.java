@@ -50,15 +50,25 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException {
         IntValues values = new IntValues();
-        for (final String id : metrics.getIds()) {
+        if (metrics.getIds().size() == 0) {
             KVInt kv = new KVInt();
-            kv.setId(id);
 
             MetricsCondition condition = new MetricsCondition();
             condition.setName(metrics.getName());
-            condition.setEntity(new MockEntity(id));
+            condition.setEntity(new MockEntity(null));
 
             kv.setValue(query.readMetricsValue(condition, duration));
+        } else {
+            for (final String id : metrics.getIds()) {
+                KVInt kv = new KVInt();
+                kv.setId(id);
+
+                MetricsCondition condition = new MetricsCondition();
+                condition.setName(metrics.getName());
+                condition.setEntity(new MockEntity(id));
+
+                kv.setValue(query.readMetricsValue(condition, duration));
+            }
         }
 
         return values;

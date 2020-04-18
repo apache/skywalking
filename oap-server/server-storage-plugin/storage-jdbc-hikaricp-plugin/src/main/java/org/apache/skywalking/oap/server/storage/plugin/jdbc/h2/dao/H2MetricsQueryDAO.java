@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -62,16 +61,21 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             default:
                 op = "sum";
         }
+        StringBuilder sql = new StringBuilder(
+            "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + condition.getName() + " where ");
+        final String entityId = condition.getEntity().buildId();
+        List<Object> parameters = new ArrayList();
+        if (entityId != null) {
+            sql.append(Metrics.ENTITY_ID + " = ? and ");
+            parameters.add(entityId);
+        }
+        sql.append(Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=?" + " group by " + Metrics.ENTITY_ID);
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + " id, " + op + "(" + valueColumnName + ") value from " + condition.getName() + " where "
-                    + Metrics.ENTITY_ID + " = ? and "
-                    + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=?" + " group by " + Metrics.ENTITY_ID,
-                condition.getEntity().buildId(),
-                duration.getStartTimeBucket(),
-                duration.getEndTimeBucket()
+                sql.toString(),
+                parameters.toArray(new Object[0])
             )) {
                 while (resultSet.next()) {
                     return resultSet.getInt("value");
@@ -126,7 +130,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         }
 
         metricsValues.setValues(
-            sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+            Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
         );
         return metricsValues;
     }
@@ -187,7 +191,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             throw new IOException(e);
         }
 
-        return sortValues(
+        return Util.sortValues(
             new ArrayList<>(labeledValues.values()),
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
@@ -233,32 +237,5 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         } catch (SQLException e) {
             throw new IOException(e);
         }
-    }
-
-    /**
-     * Make sure the order is same as the expected order, add defaultValue if absent.
-     */
-    private IntValues sortValues(IntValues origin, List<String> expectedOrder, int defaultValue) {
-        IntValues intValues = new IntValues();
-
-        expectedOrder.forEach(id -> {
-            KVInt e = new KVInt();
-            e.setId(id);
-            e.setValue(origin.findValue(id, defaultValue));
-            intValues.addKVInt(e);
-        });
-
-        return intValues;
-    }
-
-    /**
-     * Make sure the order is same as the expected order, add defaultValue if absent.
-     */
-    private List<MetricsValues> sortValues(List<MetricsValues> origin, List<String> expectedOrder, int defaultValue) {
-        for (int i = 0; i < origin.size(); i++) {
-            final MetricsValues metricsValues = origin.get(i);
-            metricsValues.setValues(sortValues(metricsValues.getValues(), expectedOrder, defaultValue));
-        }
-        return origin;
     }
 }

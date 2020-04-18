@@ -36,6 +36,7 @@ public class PointOfTime {
      * @return the row id
      */
     public String id(String entityId) {
+        // null means scope = all or unexpected entity.
         if (entityId == null) {
             return String.valueOf(point);
         } else {

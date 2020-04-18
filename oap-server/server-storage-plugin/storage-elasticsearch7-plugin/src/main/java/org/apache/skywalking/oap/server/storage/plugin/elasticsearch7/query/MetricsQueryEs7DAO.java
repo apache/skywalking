@@ -45,7 +45,7 @@ public class MetricsQueryEs7DAO extends MetricsQueryEsDAO {
     public IntValues getValues(String indexName, DownSampling downsampling, long startTB, long endTB, Where where,
                                String valueCName, Function function) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        queryBuild(sourceBuilder, where, startTB, endTB);
+        buildQuery(sourceBuilder, where, startTB, endTB);
 
         TermsAggregationBuilder entityIdAggregation = AggregationBuilders.terms(Metrics.ENTITY_ID)
                                                                          .field(Metrics.ENTITY_ID)
