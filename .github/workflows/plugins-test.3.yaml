@@ -33,10 +33,10 @@ jobs:
       fail-fast: true
       matrix:
         case:
+          - { name: 'mysql-scenario', title: 'MySQL 5.1.2-8.0.15 (30)' }
           - { name: 'undertow-scenario', title: 'Undertow 1.3.0-2.0.27 (23)' }
           - { name: 'webflux-scenario', title: 'Spring-WebFlux 2.x (7)' }
           - { name: 'zookeeper-scenario', title: 'Zookeeper 3.4.x (14)' }
-          - { name: 'mysql-scenario', title: 'MySQL 5.1.2-8.0.15 (30)' }
     steps:
       - uses: actions/checkout@v2
       - name: checkout submodules
@@ -55,11 +55,6 @@ jobs:
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
 
   Oracle:
     name: Oracle
@@ -87,8 +82,3 @@ jobs:
           bash test/plugin/run.sh oracle-scenario
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: logs
-          path: logs
