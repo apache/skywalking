@@ -18,21 +18,11 @@ name: PluginsTest
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/plugins-test*.yaml'
-      - 'apm-application-toolkit/**'
-      - 'apm-commons/**'
-      - 'apm-protocol/**'
-      - 'apm-sniffer/**'
-      - 'test/plugin/**'
-      - '**/pom.xml'
-      - '!test/e2e/**'
-      - '!apm-webapp/**'
-      - '!apm-dist/**'
-      - '!apm-dist-es7/**'
-      - '!apm-docker/**'
-      - '!docs/**'
-      - '!oap-server/**'
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
 
 jobs:
   PluginsTest:
@@ -74,3 +64,5 @@ jobs:
         run: ./mvnw --batch-mode -f test/plugin/pom.xml clean package -DskipTests docker:build -DBUILD_NO=local
       - name: ${{ matrix.case.title }}
         run: bash test/plugin/run.sh ${{ matrix.case.name }}
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh

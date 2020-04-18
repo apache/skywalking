@@ -17,6 +17,5 @@
 type: tomcat
 entryService: '"http://localhost:8080/httpclient-3.x-scenario/case/httpclient?q1=v1&chinese=%e4%b8%ad%e6%96%87"'
 healthCheck: http://localhost:8080/httpclient-3.x-scenario/healthCheck
-framework: httpclient
 environment:
   - CATALINA_OPTS="-Dskywalking.plugin.tomcat.collect_http_params=true"

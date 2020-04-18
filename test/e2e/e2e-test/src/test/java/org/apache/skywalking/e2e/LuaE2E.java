@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.e2e;
 
+import java.net.URL;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
@@ -51,8 +52,10 @@ import org.apache.skywalking.e2e.topo.TopoQuery;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
@@ -81,10 +84,6 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     @ContainerHostAndPort(name = "provider-entry", port = 9090)
     private HostAndPort entryProvider;
 
-    @SuppressWarnings("unused")
-    @ContainerHostAndPort(name = "nginx", port = 8080)
-    private HostAndPort nginxHostPort;
-
     private final String nginxServiceName = "User_Service_Name";
     private final String entryServiceName = "e2e-service-entry-provider";
 
@@ -92,12 +91,19 @@ public class LuaE2E extends SkyWalkingTestAdapter {
     public void setUp() throws Exception {
         queryClient(swWebappHostPort);
 
-        trafficController(entryProvider, "/nginx/entry/info?backend=" + nginxHostPort.host() + ":" + nginxHostPort.port());
+        trafficController(entryProvider, "/nginx/entry/info");
     }
 
     @AfterAll
     public void tearDown() {
         trafficController.stop();
+    }
+
+    @RetryableTest
+    void correlation() throws Exception {
+        final URL url = new URL("http", entryProvider.host(), entryProvider.port(), "/nginx/entry/info");
+        final ResponseEntity<String> response = restTemplate.postForEntity(url.toURI(), trafficData, String.class);
+        Assert.assertEquals(response.getBody(), "entry_value_nginx_value");
     }
 
     @RetryableTest
@@ -213,7 +219,7 @@ public class LuaE2E extends SkyWalkingTestAdapter {
 
     private void verifyEndpointsMetrics(Endpoints endpoints) throws Exception {
         for (Endpoint endpoint : endpoints.getEndpoints()) {
-            if (!endpoint.getLabel().equals("/info") && !endpoint.getLabel().equals("/nginx/info")) {
+            if (!endpoint.getLabel().equals("/nginx/end/info") && !endpoint.getLabel().equals("/nginx/info")) {
                 continue;
             }
             for (final String metricName : ALL_ENDPOINT_METRICS) {

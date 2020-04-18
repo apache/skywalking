@@ -42,7 +42,7 @@ If the plugin is in **Optional²** catalog, go to [optional plugins](#optional-p
 - The default logging output folder is `/logs`.
 
 ## Install javaagent FAQs
-- Linux Tomcat 7, Tomcat 8  
+- Linux Tomcat 7, Tomcat 8, Tomcat 9  
 Change the first line of `tomcat/bin/catalina.sh`.
 ```shell
 CATALINA_OPTS="$CATALINA_OPTS -javaagent:/path/to/skywalking-agent/skywalking-agent.jar"; export CATALINA_OPTS
@@ -85,7 +85,7 @@ property key | Description | Default |
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
-`collector.app_and_service_register_check_interval`|application and service registry check interval.|`3`|
+`collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
 `collector.grpc_upstream_timeout`|How long grpc client will timeout in sending data to upstream. Unit is second.|`30` seconds|
 `collector.get_profile_task_interval`|Sniffer get profile task list interval.|`20`|

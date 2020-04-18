@@ -51,6 +51,7 @@ fi
 
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
+JACOCO_HOME=${JACOCO_HOME:-/jacoco}
 
 unzip -q ${SCENARIO_HOME}/*.zip -d /var/run/
 if [[ ! -f /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
@@ -62,9 +63,11 @@ ${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null &
 healthCheck http://localhost:12800/receiveData
 
 # start applications
-export agent_opts="-javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
+export agent_opts="
+    -javaagent:${JACOCO_HOME}/jacocoagent.jar=classdumpdir=${JACOCO_HOME}/classes/${SCENARIO_NAME}${SCENARIO_VERSION},destfile=${JACOCO_HOME}/${SCENARIO_NAME}${SCENARIO_VERSION}.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*:org.apache.skywalking.apm.testcase.*
+    -javaagent:${SCENARIO_HOME}/agent/skywalking-agent.jar
     -Dskywalking.collector.grpc_channel_check_interval=2
-    -Dskywalking.collector.app_and_service_register_check_interval=2
+    -Dskywalking.collector.heartbeat_period=2
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
