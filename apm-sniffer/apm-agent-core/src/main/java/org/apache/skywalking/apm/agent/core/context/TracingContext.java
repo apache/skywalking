@@ -111,6 +111,7 @@ public class TracingContext implements AbstractTracerContext {
     private final ProfileStatusReference profileStatus;
 
     private final CorrelationContext correlationContext;
+    private final ExtensionContext extensionContext;
 
     /**
      * Initialize all fields with default value.
@@ -134,6 +135,7 @@ public class TracingContext implements AbstractTracerContext {
             this, segment.getTraceSegmentId(), firstOPName);
 
         this.correlationContext = new CorrelationContext();
+        this.extensionContext = new ExtensionContext();
     }
 
     /**
@@ -177,6 +179,7 @@ public class TracingContext implements AbstractTracerContext {
         carrier.setAddressUsedAtClient(peer);
 
         this.correlationContext.inject(carrier);
+        this.extensionContext.inject(carrier);
     }
 
     /**
@@ -195,6 +198,8 @@ public class TracingContext implements AbstractTracerContext {
         }
 
         this.correlationContext.extract(carrier);
+        this.extensionContext.extract(carrier);
+        this.extensionContext.handle(span);
     }
 
     /**
@@ -209,7 +214,8 @@ public class TracingContext implements AbstractTracerContext {
             activeSpan().getSpanId(),
             getPrimaryTraceId(),
             first().getOperationName(),
-            this.correlationContext
+            this.correlationContext,
+            this.extensionContext
         );
 
         return snapshot;
@@ -228,6 +234,7 @@ public class TracingContext implements AbstractTracerContext {
             this.activeSpan().ref(segmentRef);
             this.segment.relatedGlobalTraces(snapshot.getTraceId());
             this.correlationContext.continued(snapshot);
+            this.extensionContext.continued(snapshot);
         }
     }
 
@@ -529,6 +536,7 @@ public class TracingContext implements AbstractTracerContext {
             firstSpan = span;
         }
         activeSpanStack.addLast(span);
+        this.extensionContext.handle(span);
         return span;
     }
 

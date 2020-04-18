@@ -120,6 +120,10 @@ public class NoopSpan implements AbstractSpan {
     }
 
     @Override
+    public void skipAnalysis() {
+    }
+
+    @Override
     public AbstractSpan prepareForAsync() {
         return this;
     }

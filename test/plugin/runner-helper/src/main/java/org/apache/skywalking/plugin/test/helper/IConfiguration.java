@@ -57,4 +57,6 @@ public interface IConfiguration {
     String jacocoHome();
 
     Map<String, Object> toMap();
+
+    String extendEntryHeader();
 }

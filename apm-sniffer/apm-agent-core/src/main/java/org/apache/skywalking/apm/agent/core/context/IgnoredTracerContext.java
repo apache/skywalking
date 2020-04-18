@@ -53,7 +53,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     @Override
     public ContextSnapshot capture() {
-        return new ContextSnapshot(null, -1, null, null, correlationContext);
+        return new ContextSnapshot(null, -1, null, null, correlationContext, new ExtensionContext());
     }
 
     @Override
