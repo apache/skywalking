@@ -208,7 +208,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/callable
@@ -241,7 +241,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/runnable
@@ -264,7 +264,7 @@ segmentItems:
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
           null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/supplier
@@ -281,7 +281,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get
       operationId: 0
       parentSpanId: -1
@@ -297,7 +297,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/supplier
@@ -320,4 +320,4 @@ segmentItems:
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
           null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'

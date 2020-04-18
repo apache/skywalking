@@ -235,6 +235,7 @@ public class TracingContext implements AbstractTracerContext {
             this.segment.relatedGlobalTraces(snapshot.getTraceId());
             this.correlationContext.continued(snapshot);
             this.extensionContext.continued(snapshot);
+            this.extensionContext.handle(this.activeSpan());
         }
     }
 
