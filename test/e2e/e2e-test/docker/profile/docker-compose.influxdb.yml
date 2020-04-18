@@ -33,9 +33,7 @@ services:
       file: ../base-compose.yml
       service: oap
     environment:
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-    restart: on-failure
+      SW_STORAGE: influxdb
     depends_on:
       influxdb:
         condition: service_healthy
