@@ -216,7 +216,7 @@ public class ConfigurationImpl implements IConfiguration {
         }
         StringBuilder headerString = new StringBuilder("\"");
         for (RequestHeader header : headers) {
-            headerString.append(" --header ").append("\'").append(header.getKey()).append(": ").append(header.getValue()).append("\'").append(" ");
+            headerString.append(" -H ").append(header.getKey()).append(":").append(header.getValue()).append(" ");
         }
         return headerString.append("\"").toString();
     }
