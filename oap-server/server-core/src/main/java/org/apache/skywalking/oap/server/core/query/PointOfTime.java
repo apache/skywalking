@@ -18,26 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-public class DurationPoint {
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.Const;
+
+/**
+ * PointOfTime represents any point of time based on different precisions.
+ */
+@Getter
+public class PointOfTime {
     private long point;
-    private long secondsBetween;
-    private long minutesBetween;
 
-    public DurationPoint(long point, long secondsBetween, long minutesBetween) {
+    public PointOfTime(long point) {
         this.point = point;
-        this.secondsBetween = secondsBetween;
-        this.minutesBetween = minutesBetween;
     }
 
-    public long getPoint() {
-        return point;
-    }
-
-    public long getSecondsBetween() {
-        return secondsBetween;
-    }
-
-    public long getMinutesBetween() {
-        return minutesBetween;
+    /**
+     * @return the row id
+     */
+    public String id(String entityId) {
+        if (entityId == null) {
+            return String.valueOf(point);
+        } else {
+            return point + Const.ID_CONNECTOR + entityId;
+        }
     }
 }

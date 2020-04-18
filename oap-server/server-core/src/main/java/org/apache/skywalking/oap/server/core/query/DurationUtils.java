@@ -141,50 +141,40 @@ public enum DurationUtils {
         }
     }
 
-    public List<DurationPoint> getDurationPoints(DownSampling downsampling, long startTimeBucket, long endTimeBucket) {
-        DateTime dateTime = parseToDateTime(downsampling, startTimeBucket);
+    public List<PointOfTime> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) {
+        DateTime dateTime = parseToDateTime(step, startTimeBucket);
 
-        List<DurationPoint> durations = new LinkedList<>();
-        durations.add(new DurationPoint(startTimeBucket, secondsBetween(downsampling, dateTime),
-                                        minutesBetween(downsampling, dateTime)
-        ));
+        List<PointOfTime> durations = new LinkedList<>();
+        durations.add(new PointOfTime(startTimeBucket));
 
         int i = 0;
         do {
-            switch (downsampling) {
-                case Day:
+            switch (step) {
+                case DAY:
                     dateTime = dateTime.plusDays(1);
                     String timeBucket = YYYYMMDD.print(dateTime);
-                    durations.add(new DurationPoint(Long.parseLong(timeBucket), secondsBetween(downsampling, dateTime),
-                                                    minutesBetween(downsampling, dateTime)
-                    ));
+                    durations.add(new PointOfTime(Long.parseLong(timeBucket)));
                     break;
-                case Hour:
+                case HOUR:
                     dateTime = dateTime.plusHours(1);
                     timeBucket = YYYYMMDDHH.print(dateTime);
-                    durations.add(new DurationPoint(Long.parseLong(timeBucket), secondsBetween(downsampling, dateTime),
-                                                    minutesBetween(downsampling, dateTime)
-                    ));
+                    durations.add(new PointOfTime(Long.parseLong(timeBucket)));
                     break;
-                case Minute:
+                case MINUTE:
                     dateTime = dateTime.plusMinutes(1);
                     timeBucket = YYYYMMDDHHMM.print(dateTime);
-                    durations.add(new DurationPoint(Long.parseLong(timeBucket), secondsBetween(downsampling, dateTime),
-                                                    minutesBetween(downsampling, dateTime)
-                    ));
+                    durations.add(new PointOfTime(Long.parseLong(timeBucket)));
                     break;
-                case Second:
+                case SECOND:
                     dateTime = dateTime.plusSeconds(1);
                     timeBucket = YYYYMMDDHHMMSS.print(dateTime);
-                    durations.add(new DurationPoint(Long.parseLong(timeBucket), secondsBetween(downsampling, dateTime),
-                                                    minutesBetween(downsampling, dateTime)
-                    ));
+                    durations.add(new PointOfTime(Long.parseLong(timeBucket)));
                     break;
             }
             i++;
             if (i > 500) {
                 throw new UnexpectedException(
-                    "Duration data error, step: " + downsampling.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
+                    "Duration data error, step: " + step.name() + ", start: " + startTimeBucket + ", end: " + endTimeBucket);
             }
         }
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
@@ -192,17 +182,17 @@ public enum DurationUtils {
         return durations;
     }
 
-    private DateTime parseToDateTime(DownSampling downsampling, long time) {
-        switch (downsampling) {
-            case Day:
+    private DateTime parseToDateTime(Step step, long time) {
+        switch (step) {
+            case DAY:
                 return YYYYMMDD.parseDateTime(String.valueOf(time));
-            case Hour:
+            case HOUR:
                 return YYYYMMDDHH.parseDateTime(String.valueOf(time));
-            case Minute:
+            case MINUTE:
                 return YYYYMMDDHHMM.parseDateTime(String.valueOf(time));
-            case Second:
+            case SECOND:
                 return YYYYMMDDHHMMSS.parseDateTime(String.valueOf(time));
         }
-        throw new UnexpectedException("Unexpected downsampling: " + downsampling.name());
+        throw new UnexpectedException("Unexpected downsampling: " + step.name());
     }
 }

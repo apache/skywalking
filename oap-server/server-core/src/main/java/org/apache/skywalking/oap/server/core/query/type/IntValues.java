@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IntValues {
-
-    private LinkedList<KVInt> values = new LinkedList<>();
+    private List<KVInt> values = new ArrayList<>();
 
     public void addKVInt(KVInt e) {
         values.add(e);
@@ -35,18 +35,5 @@ public class IntValues {
             }
         }
         return defaultValue;
-    }
-
-    public KVInt getLast() {
-        return values.getLast();
-    }
-
-    public boolean contain(String id) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -18,9 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @since 8.0.0
  */
+@Getter
+@Setter
 public class MetricsCondition {
     /**
      * Metrics name

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
@@ -38,5 +40,12 @@ public class Duration {
      */
     public long getEndTimeBucket() {
         return DurationUtils.INSTANCE.convertToTimeBucket(end);
+    }
+
+    /**
+     * Assemble time point based on {@link #step} and {@link #start} / {@link #end}
+     */
+    public List<PointOfTime> assembleDurationPoints() {
+        return DurationUtils.INSTANCE.getDurationPoints(step, getStartTimeBucket(), getEndTimeBucket());
     }
 }

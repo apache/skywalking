@@ -20,11 +20,10 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -42,7 +41,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 public class MetricsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
-    private MetricQueryService metricQueryService;
+    private MetricsQueryService metricsQueryService;
     private AggregationQueryService queryService;
     private TopNRecordsQueryService topNRecordsQueryService;
 
@@ -68,6 +67,15 @@ public class MetricsQuery implements GraphQLQueryResolver {
         return topNRecordsQueryService;
     }
 
+    private MetricsQueryService getMetricsQueryService() {
+        if (metricsQueryService == null) {
+            this.metricsQueryService = moduleManager.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(MetricsQueryService.class);
+        }
+        return metricsQueryService;
+    }
+
     /**
      * Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
      */
@@ -79,14 +87,14 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read metrics single value in the duration of required metrics
      */
     public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        return 0;
+        return getMetricsQueryService().readMetricsValue(condition, duration);
     }
 
     /**
      * Read time-series values in the duration of required metrics
      */
-    public List<MetricsValues> readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
-        return Collections.emptyList();
+    public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
+        return getMetricsQueryService().readMetricsValues(condition, duration);
     }
 
     /**
@@ -104,14 +112,14 @@ public class MetricsQuery implements GraphQLQueryResolver {
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
-        return Collections.emptyList();
+        return getMetricsQueryService().readLabeledMetricsValues(condition, labels, duration);
     }
 
     /**
      * Heatmap is bucket based value statistic result.
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
-        return new HeatMap();
+        return getMetricsQueryService().readHeatMap(condition, duration);
     }
 
     /**

@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class ModelColumnTest {
         Assert.assertEquals(true, column.isStorageOnly());
         Assert.assertEquals("abc", column.getColumnName().getName());
 
-        column = new ModelColumn(new ColumnName("", "abc"), IntKeyLongValueHashMap.class, true,
+        column = new ModelColumn(new ColumnName("", "abc"), DataTable.class, true,
                                  false, true, 200
         );
         Assert.assertEquals(true, column.isStorageOnly());

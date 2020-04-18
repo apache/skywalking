@@ -23,13 +23,13 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ThermodynamicMetricsTest {
+public class HistogramMetricsTest {
     private int step = 10; //ms
     private int maxNumOfSteps = 10; //count
 
     @Test
     public void testEntrance() {
-        ThermodynamicMetricsMocker metricsMocker = new ThermodynamicMetricsMocker();
+        HistogramMetricsMocker metricsMocker = new HistogramMetricsMocker();
 
         metricsMocker.combine(2000, step, maxNumOfSteps);
         metricsMocker.combine(110, step, maxNumOfSteps);
@@ -45,7 +45,7 @@ public class ThermodynamicMetricsTest {
         metricsMocker.combine(100, step, maxNumOfSteps);
         metricsMocker.combine(100, step, maxNumOfSteps);
 
-        Map<Integer, IntKeyLongValue> index = metricsMocker.getDetailGroup();
+        Map<Integer, IntKeyLongValue> index = metricsMocker.getDataset();
         Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
@@ -56,7 +56,7 @@ public class ThermodynamicMetricsTest {
 
     @Test
     public void testMerge() {
-        ThermodynamicMetricsMocker metricsMocker = new ThermodynamicMetricsMocker();
+        HistogramMetricsMocker metricsMocker = new HistogramMetricsMocker();
 
         metricsMocker.combine(2000, step, maxNumOfSteps);
         metricsMocker.combine(110, step, maxNumOfSteps);
@@ -66,7 +66,7 @@ public class ThermodynamicMetricsTest {
         metricsMocker.combine(50, step, maxNumOfSteps);
         metricsMocker.combine(50, step, maxNumOfSteps);
 
-        ThermodynamicMetricsMocker metricsMocker1 = new ThermodynamicMetricsMocker();
+        HistogramMetricsMocker metricsMocker1 = new HistogramMetricsMocker();
 
         metricsMocker1.combine(28, step, maxNumOfSteps);
         metricsMocker1.combine(50, step, maxNumOfSteps);
@@ -77,7 +77,7 @@ public class ThermodynamicMetricsTest {
 
         metricsMocker.combine(metricsMocker1);
 
-        Map<Integer, IntKeyLongValue> index = metricsMocker.getDetailGroup();
+        Map<Integer, IntKeyLongValue> index = metricsMocker.getDataset();
         Assert.assertEquals(4, index.size());
 
         Assert.assertEquals(1, index.get(2).getValue());
@@ -86,7 +86,7 @@ public class ThermodynamicMetricsTest {
         Assert.assertEquals(8, index.get(10).getValue());
     }
 
-    public class ThermodynamicMetricsMocker extends ThermodynamicMetrics {
+    public class HistogramMetricsMocker extends HistogramMetrics {
 
         @Override
         public String id() {

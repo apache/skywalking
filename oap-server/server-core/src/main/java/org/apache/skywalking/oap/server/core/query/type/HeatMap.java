@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.core.query.type;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 
 /**
  * HeatMap represents the value distribution in the defined buckets.
@@ -29,6 +32,76 @@ import lombok.Getter;
  */
 @Getter
 public class HeatMap {
-    private List<IntValues> values = new ArrayList<>(10);
+    private List<HeatMapColumn> values = new ArrayList<>(10);
     private List<Bucket> buckets = new ArrayList<>(10);
+
+    public void addBucket(Bucket bucket) {
+        this.buckets.add(bucket);
+    }
+
+    /**
+     * Build one heatmap value column based on rawdata in the storage and row id.
+     *
+     * @param id      of the row
+     * @param rawdata literal string, represent a {@link DataTable}
+     */
+    public void buildColumn(String id, String rawdata) {
+        DataTable dataset = new DataTable(rawdata);
+
+        final List<String> sortedKeys = dataset.sortedKeys(
+            Comparator.comparingInt(Integer::parseInt));
+        if (buckets == null) {
+            buckets = new ArrayList<>(dataset.size());
+            for (int i = 0; i < sortedKeys.size(); i++) {
+                if (i == 0) {
+                    this.addBucket(new Bucket(0, Integer.parseInt(sortedKeys.get(i))));
+                } else {
+                    this.addBucket(new Bucket(
+                        Integer.parseInt(sortedKeys.get(i - 1)),
+                        Integer.parseInt(sortedKeys.get(i))
+                    ));
+                }
+            }
+        }
+
+        HeatMap.HeatMapColumn column = new HeatMap.HeatMapColumn();
+        column.setId(id);
+        sortedKeys.forEach(key -> {
+            column.addValue(dataset.get(key));
+
+        });
+    }
+
+    public void fixMissingColumns(List<String> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            final String expectedId = ids.get(i);
+            final HeatMapColumn column = values.get(i);
+            if (expectedId.equals(column.id)) {
+                continue;
+            } else {
+                final HeatMapColumn emptyColumn = buildMissingColumn(expectedId);
+                values.add(i, emptyColumn);
+            }
+        }
+    }
+
+    private HeatMapColumn buildMissingColumn(String id) {
+        HeatMapColumn column = new HeatMapColumn();
+        column.setId(id);
+        buckets.forEach(bucket -> {
+            column.addValue(0L);
+        });
+        return column;
+    }
+
+    @Getter
+    public static class HeatMapColumn {
+        @Setter
+        private String id;
+        private List<Long> values = new ArrayList<>();
+
+        public void addValue(Long value) {
+            values.add(value);
+        }
+    }
 }

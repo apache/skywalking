@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.sql.Where;
@@ -49,6 +52,20 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     public MetricsQueryEsDAO(ElasticSearchClient client) {
         super(client);
+    }
+
+    /**
+     * Read metrics single value in the duration of required metrics
+     */
+    public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
+        return 0;
+    }
+
+    /**
+     * Read time-series values in the duration of required metrics
+     */
+    public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
+        return null;
     }
 
     @Override
@@ -150,7 +167,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
             if (idMap.containsKey(id)) {
                 Map<String, Object> source = idMap.get(id);
-                IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
+                DataTable multipleValues = new DataTable(5);
                 multipleValues.toObject((String) source.getOrDefault(valueCName, ""));
 
                 for (int i = 0; i < linearIndex.size(); i++) {
@@ -180,12 +197,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 // add empty list to represent no data exist for this time bucket
                 thermodynamicValueMatrix.add(new ArrayList<>());
             } else {
-                int axisYStep = ((Number) source.get(ThermodynamicMetrics.STEP)).intValue();
+                int axisYStep = ((Number) source.get(HistogramMetrics.STEP)).intValue();
                 thermodynamic.setAxisYStep(axisYStep);
-                numOfSteps = ((Number) source.get(ThermodynamicMetrics.NUM_OF_STEPS)).intValue() + 1;
+                numOfSteps = ((Number) source.get(HistogramMetrics.NUM_OF_STEPS)).intValue() + 1;
 
-                String value = (String) source.get(ThermodynamicMetrics.DETAIL_GROUP);
-                IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
+                String value = (String) source.get(HistogramMetrics.DATASET);
+                DataTable intKeyLongValues = new DataTable(5);
                 intKeyLongValues.toObject(value);
 
                 List<Long> axisYValues = new ArrayList<>();

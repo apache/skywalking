@@ -21,9 +21,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class IntKeyLongValueHashMapTestCase {
+public class DataTableTestCase {
 
-    private IntKeyLongValueHashMap intKeyLongValueHashMap;
+    private DataTable dataTable;
 
     @Before
     public void init() {
@@ -33,36 +33,36 @@ public class IntKeyLongValueHashMapTestCase {
         IntKeyLongValue v4 = new IntKeyLongValue(2, 200);
         IntKeyLongValue v5 = new IntKeyLongValue(7, 700);
 
-        intKeyLongValueHashMap = new IntKeyLongValueHashMap();
-        intKeyLongValueHashMap.put(v1.getKey(), v1);
-        intKeyLongValueHashMap.put(v2.getKey(), v2);
-        intKeyLongValueHashMap.put(v3.getKey(), v3);
-        intKeyLongValueHashMap.put(v4.getKey(), v4);
-        intKeyLongValueHashMap.put(v5.getKey(), v5);
+        dataTable = new DataTable();
+        dataTable.put(v1.getKey(), v1);
+        dataTable.put(v2.getKey(), v2);
+        dataTable.put(v3.getKey(), v3);
+        dataTable.put(v4.getKey(), v4);
+        dataTable.put(v5.getKey(), v5);
     }
 
     @Test
     public void toStorageData() {
-        Assert.assertEquals("1,100|2,200|5,500|6,600|7,700", intKeyLongValueHashMap.toStorageData());
+        Assert.assertEquals("1,100|2,200|5,500|6,600|7,700", dataTable.toStorageData());
     }
 
     @Test
     public void toObject() {
-        IntKeyLongValueHashMap intKeyLongValueHashMap = new IntKeyLongValueHashMap();
-        intKeyLongValueHashMap.toObject("1,100|2,200|5,500|6,600|7,700");
+        DataTable dataTable = new DataTable();
+        dataTable.toObject("1,100|2,200|5,500|6,600|7,700");
 
-        Assert.assertEquals(100, intKeyLongValueHashMap.get(1).getValue());
-        Assert.assertEquals(200, intKeyLongValueHashMap.get(2).getValue());
-        Assert.assertEquals(500, intKeyLongValueHashMap.get(5).getValue());
-        Assert.assertEquals(600, intKeyLongValueHashMap.get(6).getValue());
-        Assert.assertEquals(700, intKeyLongValueHashMap.get(7).getValue());
+        Assert.assertEquals(100, dataTable.get(1).getValue());
+        Assert.assertEquals(200, dataTable.get(2).getValue());
+        Assert.assertEquals(500, dataTable.get(5).getValue());
+        Assert.assertEquals(600, dataTable.get(6).getValue());
+        Assert.assertEquals(700, dataTable.get(7).getValue());
     }
 
     @Test
     public void copyFrom() {
-        IntKeyLongValueHashMap intKeyLongValueHashMap = new IntKeyLongValueHashMap();
-        intKeyLongValueHashMap.copyFrom(this.intKeyLongValueHashMap);
+        DataTable dataTable = new DataTable();
+        dataTable.append(this.dataTable);
 
-        Assert.assertEquals("1,100|2,200|5,500|6,600|7,700", intKeyLongValueHashMap.toStorageData());
+        Assert.assertEquals("1,100|2,200|5,500|6,600|7,700", dataTable.toStorageData());
     }
 }

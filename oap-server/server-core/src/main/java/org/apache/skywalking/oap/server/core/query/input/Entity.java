@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
 /**
@@ -60,9 +61,52 @@ public class Entity {
     private String destServiceInstanceName;
     private String destEndpointName;
 
-    public boolean isService(){
+    public boolean isService() {
         return Scope.Service.equals(scope);
     }
 
-
+    /**
+     * @return entity id based on the definition.
+     */
+    public String buildId() {
+        switch (scope) {
+            case All:
+                // This is unnecessary. Just for making core clear.
+                return null;
+            case Service:
+                return IDManager.ServiceID.buildId(serviceName, isNormal);
+            case ServiceInstance:
+                return IDManager.ServiceInstanceID.buildId(
+                    IDManager.ServiceID.buildId(serviceName, isNormal), serviceInstanceName);
+            case Endpoint:
+                return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, isNormal), endpointName);
+            case ServiceRelation:
+                return IDManager.ServiceID.buildRelationId(
+                    new IDManager.ServiceID.ServiceRelationDefine(
+                        IDManager.ServiceID.buildId(serviceName, isNormal),
+                        IDManager.ServiceID.buildId(destServiceName, destIsNormal)
+                    )
+                );
+            case ServiceInstanceRelation:
+                return IDManager.ServiceInstanceID.buildRelationId(
+                    new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
+                        IDManager.ServiceInstanceID.buildId(
+                            IDManager.ServiceID.buildId(serviceName, isNormal), serviceInstanceName),
+                        IDManager.ServiceInstanceID.buildId(
+                            IDManager.ServiceID.buildId(destServiceName, destIsNormal), destServiceInstanceName)
+                    )
+                );
+            case EndpointRelation:
+                return IDManager.EndpointID.buildRelationId(
+                    new IDManager.EndpointID.EndpointRelationDefine(
+                        IDManager.ServiceID.buildId(serviceName, isNormal),
+                        endpointName,
+                        IDManager.ServiceID.buildId(destServiceName, destIsNormal),
+                        destEndpointName
+                    )
+                );
+            default:
+                return null;
+        }
+    }
 }

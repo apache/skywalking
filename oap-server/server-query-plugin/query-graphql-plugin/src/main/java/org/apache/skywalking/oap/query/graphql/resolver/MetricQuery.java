@@ -21,15 +21,19 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.MetricCondition;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
-import org.apache.skywalking.oap.server.core.query.MetricQueryService;
-import org.apache.skywalking.oap.server.core.query.StepToDownSampling;
+import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
+import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
+import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -38,64 +42,118 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 @Deprecated
 public class MetricQuery implements GraphQLQueryResolver {
-
-    private final ModuleManager moduleManager;
-    private MetricQueryService metricQueryService;
+    private MetricsQuery query;
 
     public MetricQuery(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
-    private MetricQueryService getMetricQueryService() {
-        if (metricQueryService == null) {
-            this.metricQueryService = moduleManager.find(CoreModule.NAME)
-                                                   .provider()
-                                                   .getService(MetricQueryService.class);
-        }
-        return metricQueryService;
+        query = new MetricsQuery(moduleManager);
     }
 
     public IntValues getValues(final BatchMetricConditions metrics, final Duration duration) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
+        IntValues values = new IntValues();
+        for (final String id : metrics.getIds()) {
+            KVInt kv = new KVInt();
+            kv.setId(id);
 
-        return getMetricQueryService().getValues(metrics.getName(), metrics.getIds(), StepToDownSampling.transform(duration
-            .getStep()), startTimeBucket, endTimeBucket);
+            MetricsCondition condition = new MetricsCondition();
+            condition.setName(metrics.getName());
+            condition.setEntity(new MockEntity(id));
+
+            kv.setValue(query.readMetricsValue(condition, duration));
+        }
+
+        return values;
     }
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
-        final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
+                                        final Duration duration) throws IOException, ParseException {
 
-        return getMetricQueryService().getLinearIntValues(metrics.getName(), metrics.getId(), StepToDownSampling.transform(duration
-            .getStep()), startTimeBucket, endTimeBucket);
+        MetricsCondition condition = new MetricsCondition();
+        condition.setName(metrics.getName());
+        condition.setEntity(new MockEntity(metrics.getId()));
+
+        final MetricsValues metricsValues = query.readMetricsValues(condition, duration);
+        return metricsValues.getValues();
     }
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear,
-        final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
+                                                      final Duration duration) throws IOException, ParseException {
+        MetricsCondition condition = new MetricsCondition();
+        condition.setName(metrics.getName());
+        condition.setEntity(new MockEntity(metrics.getId()));
 
-        return getMetricQueryService().getMultipleLinearIntValues(metrics.getName(), metrics.getId(), numOfLinear, StepToDownSampling
-            .transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        List<String> labels = new ArrayList<>(numOfLinear);
+        for (int i = 0; i < numOfLinear; i++) {
+            labels.add(String.valueOf(i));
+        }
+
+        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
+        List<IntValues> response = new ArrayList<>(metricsValues.size());
+        metricsValues.forEach(value -> {
+            response.add(value.getValues());
+        });
+
+        return response;
     }
 
     public List<IntValues> getSubsetOfMultipleLinearIntValues(final MetricCondition metrics,
-        final List<Integer> linearIndex, final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
+                                                              final List<Integer> linearIndex,
+                                                              final Duration duration) throws IOException, ParseException {
+        MetricsCondition condition = new MetricsCondition();
+        condition.setName(metrics.getName());
+        condition.setEntity(new MockEntity(metrics.getId()));
 
-        return getMetricQueryService().getSubsetOfMultipleLinearIntValues(metrics.getName(), metrics.getId(), linearIndex, StepToDownSampling
-            .transform(duration.getStep()), startTimeBucket, endTimeBucket);
+        List<String> labels = new ArrayList<>(linearIndex.size());
+        linearIndex.forEach(i -> labels.add(String.valueOf(i)));
+
+        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
+        List<IntValues> response = new ArrayList<>(metricsValues.size());
+        metricsValues.forEach(value -> {
+            response.add(value.getValues());
+        });
+
+        return response;
     }
 
     public Thermodynamic getThermodynamic(final MetricCondition metrics,
-        final Duration duration) throws IOException, ParseException {
-        long startTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.convertToTimeBucket(duration.getEnd());
+                                          final Duration duration) throws IOException, ParseException {
+        MetricsCondition condition = new MetricsCondition();
+        condition.setName(metrics.getName());
+        condition.setEntity(new MockEntity(metrics.getId()));
 
-        return getMetricQueryService().getThermodynamic(metrics.getName(), metrics.getId(), StepToDownSampling.transform(duration
-            .getStep()), startTimeBucket, endTimeBucket);
+        final HeatMap heatMap = query.readHeatMap(condition, duration);
+
+        Thermodynamic thermodynamic = new Thermodynamic();
+        final List<Bucket> buckets = heatMap.getBuckets();
+
+        if (buckets.size() > 0) {
+            // Use the first bucket size as the axis Y step, because in the previous(before 8.x),
+            // We only use equilong bucket.
+            thermodynamic.setAxisYStep(buckets.get(0).duration());
+        } else {
+            // Used to be a static config.
+            thermodynamic.setAxisYStep(200);
+        }
+
+        final List<List<Long>> nodeMatrix = thermodynamic.getNodes();
+        for (int x = 0; x < heatMap.getValues().size(); x++) {
+            final HeatMap.HeatMapColumn heatMapColumn = heatMap.getValues().get(x);
+            List<Long> column = new ArrayList<>(23);
+            for (int y = 0; y < heatMapColumn.getValues().size(); y++) {
+                column.add(heatMapColumn.getValues().get(y));
+            }
+            nodeMatrix.add(column);
+        }
+
+        return thermodynamic;
+    }
+
+    @RequiredArgsConstructor
+    private static class MockEntity extends Entity {
+        private final String id;
+
+        @Override
+        public String buildId() {
+            return id;
+        }
     }
 }

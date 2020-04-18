@@ -18,13 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 /**
  * @since 8.0.0
  */
 @Setter
+@AllArgsConstructor
 public class Bucket {
-    private int start;
-    private int end;
+    /**
+     * The min value of this bucket representing.
+     */
+    private int min;
+    /**
+     * The max value of this bucket representing.
+     */
+    private int max;
+
+    public int duration() {
+        return this.max - this.min;
+    }
 }

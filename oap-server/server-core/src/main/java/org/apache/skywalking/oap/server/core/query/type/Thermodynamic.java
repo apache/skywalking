@@ -23,6 +23,10 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Replaced by {@link HeatMap}
+ */
+@Deprecated
 @Getter
 public class Thermodynamic {
     private final List<List<Long>> nodes;

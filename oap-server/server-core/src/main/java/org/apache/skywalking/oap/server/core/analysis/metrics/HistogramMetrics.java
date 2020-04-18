@@ -27,73 +27,67 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceF
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * Thermodynamic metrics represents the calculator for heat map.
+ * Histogram metrics represents the calculator for heat map.
  * <p>
  * It groups the given collection of values by the given step and number of steps.
  * <p>
  * A heat map (or heatmap) is a graphical representation of data where the individual values contained in a matrix are
  * represented as colors.
  */
-@MetricsFunction(functionName = "thermodynamic")
-public abstract class ThermodynamicMetrics extends GroupMetrics {
+@MetricsFunction(functionName = "histogram")
+public abstract class HistogramMetrics extends Metrics {
 
-    public static final String DETAIL_GROUP = "detail_group";
-    public static final String STEP = "step";
-    public static final String NUM_OF_STEPS = "num_of_steps";
+    public static final String DATASET = "dataset";
 
-    @Getter
-    @Setter
-    @Column(columnName = STEP, storageOnly = true)
-    private int step = 0;
-    @Getter
-    @Setter
-    @Column(columnName = NUM_OF_STEPS, storageOnly = true)
-    private int numOfSteps = 0;
     /**
-     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link
-     * IntKeyLongValueHashMap} type, this column can't be query by the aggregation way.
+     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link DataTable} type,
+     * this column can't be query by the aggregation way.
      */
     @Getter
     @Setter
-    @Column(columnName = DETAIL_GROUP, isValue = true, storageOnly = true)
-    private IntKeyLongValueHashMap detailGroup = new IntKeyLongValueHashMap(30);
+    @Column(columnName = DATASET, isValue = true, storageOnly = true)
+    private DataTable dataset = new DataTable(30);
 
     /**
      * Data will be grouped in
-     * <p>
-     * [0, step), [step, step * 2), ..., [step * (maxNumOfSteps - 1), step * maxNumOfSteps), [step * maxNumOfSteps,
-     * MAX)
+     * <pre>
+     * key = 100, represents [0, 100), value = count of requests in the latency range.
+     * key = 200, represents [100, 200), value = count of requests in the latency range.
+     * ...
+     * key = step * maxNumOfSteps, represents [step * maxNumOfSteps, MAX)
+     * </pre>
      *
      * @param step          the size of each step. A positive integer.
      * @param maxNumOfSteps Steps are used to group incoming value.
      */
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
-        if (this.step == 0) {
-            this.step = step;
-        }
-        if (this.numOfSteps == 0) {
-            this.numOfSteps = maxNumOfSteps;
+        if (!dataset.hasData()) {
+            for (int i = 1; i <= maxNumOfSteps; i++) {
+                String key = String.valueOf(i * step);
+                dataset.put(key, 0L);
+            }
         }
 
-        int index = value / step;
+        int index = value / step + 1;
         if (index > maxNumOfSteps) {
-            index = numOfSteps;
+            index = maxNumOfSteps;
         }
+        String idx = String.valueOf(index * step);
 
-        IntKeyLongValue element = detailGroup.get(index);
+        Long element = dataset.get(idx);
         if (element == null) {
-            element = new IntKeyLongValue(index, 1);
-            detailGroup.put(element.getKey(), element);
+            element = 1L;
         } else {
-            element.addValue(1);
+            element++;
         }
+        dataset.put(idx, element);
     }
 
     @Override
     public void combine(Metrics metrics) {
-        ThermodynamicMetrics thermodynamicMetrics = (ThermodynamicMetrics) metrics;
-        combine(thermodynamicMetrics.getDetailGroup(), this.detailGroup);
+        HistogramMetrics histogramMetrics = (HistogramMetrics) metrics;
+        this.dataset.append(histogramMetrics.dataset);
     }
 
     /**

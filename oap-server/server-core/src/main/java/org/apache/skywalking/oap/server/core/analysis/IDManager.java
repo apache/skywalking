@@ -160,11 +160,11 @@ public class IDManager {
         @EqualsAndHashCode
         public static class ServiceInstanceRelationDefine {
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceInstanceID#buildId(String, String)}
              */
             private final String sourceId;
             /**
-             * Built by {@link ServiceID#buildId(String, NodeType)}
+             * Built by {@link ServiceInstanceID#buildId(String, String)}
              */
             private final String destId;
         }

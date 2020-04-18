@@ -28,8 +28,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
-import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
@@ -216,7 +216,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             return intValues;
         }
         series.get(0).getValues().forEach(values -> {
-            IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
+            DataTable multipleValues = new DataTable(5);
             multipleValues.toObject((String) values.get(2));
 
             final String id = (String) values.get(1);
@@ -250,9 +250,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
                                           String valueCName)
         throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .column(ThermodynamicMetrics.STEP)
-            .column(ThermodynamicMetrics.NUM_OF_STEPS)
-            .column(ThermodynamicMetrics.DETAIL_GROUP)
+            .column(HistogramMetrics.STEP)
+            .column(HistogramMetrics.NUM_OF_STEPS)
+            .column(HistogramMetrics.DATASET)
             .column("id")
             .from(client.getDatabase(), measurement)
             .where(contains("id", Joiner.on("|").join(ids)));
@@ -272,7 +272,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         for (List<Object> values : series.getValues()) {
             numOfSteps = (int) values.get(2) + 1;
             axisYStep = (int) values.get(1);
-            IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
+            DataTable intKeyLongValues = new DataTable(5);
             intKeyLongValues.toObject((String) values.get(3));
             List<Long> axisYValues = new ArrayList<>(numOfSteps);
             for (int i = 0; i < numOfSteps; i++) {
