@@ -47,10 +47,10 @@ public class JaegerSpan extends Source {
     private String spanId;
     @Setter
     @Getter
-    private int serviceId;
+    private String serviceId;
     @Setter
     @Getter
-    private int serviceInstanceId;
+    private String serviceInstanceId;
     @Setter
     @Getter
     private String endpointName;

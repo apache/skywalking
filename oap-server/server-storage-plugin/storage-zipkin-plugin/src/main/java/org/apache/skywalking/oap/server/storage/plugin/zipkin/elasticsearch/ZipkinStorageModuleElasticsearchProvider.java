@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider;
@@ -46,9 +45,6 @@ public class ZipkinStorageModuleElasticsearchProvider extends StorageModuleElast
     @Override
     public void notifyAfterCompleted() {
         super.notifyAfterCompleted();
-        traceQueryEsDAO.setServiceInventoryCache(getManager().find(CoreModule.NAME)
-                                                             .provider()
-                                                             .getService(ServiceInventoryCache.class));
     }
 
     @Override

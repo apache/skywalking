@@ -30,7 +30,7 @@
     </parent>
 
     <artifactId>tomcat-container</artifactId>
-    <name>name>SkyWalking Tomcat Runner Image</name>
+    <name>SkyWalking Tomcat Runner Image</name>
 
     <properties>
         <skip.docker>false</skip.docker>

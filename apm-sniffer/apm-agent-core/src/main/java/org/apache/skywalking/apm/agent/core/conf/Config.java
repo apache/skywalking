@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.apm.agent.core.conf;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.logging.core.LogLevel;
 import org.apache.skywalking.apm.agent.core.logging.core.LogOutput;
 import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.skywalking.apm.util.Length;
 
 /**
  * This is the core config in sniffer agent.
@@ -41,6 +41,7 @@ public class Config {
          * Service name is showed in skywalking-ui. Suggestion: set a unique name for each service, service instance
          * nodes share the same code
          */
+        @Length(50)
         public static String SERVICE_NAME = "";
 
         /**
@@ -75,7 +76,8 @@ public class Config {
         /**
          * The identifier of the instance
          */
-        public static String INSTANCE_UUID = "";
+        @Length(50)
+        public volatile static String INSTANCE_NAME = "";
 
         /*
          * service instance properties
@@ -90,21 +92,23 @@ public class Config {
         public static int CAUSE_EXCEPTION_DEPTH = 5;
 
         /**
-         * How long should the agent wait (in minute) before re-registering to the OAP server after receiving reset
-         * command
-         */
-        public static int COOL_DOWN_THRESHOLD = 10;
-
-        /**
          * Force reconnection period of grpc, based on grpc_channel_check_interval. If count of check grpc channel
          * status more than this number. The channel check will call channel.getState(true) to requestConnection.
          */
         public static long FORCE_RECONNECTION_PERIOD = 1;
 
         /**
-         * Limit the length of the operationName to prevent errors when inserting elasticsearch
-         **/
-        public static int OPERATION_NAME_THRESHOLD = 500;
+         * Limit the length of the operationName to prevent the overlength issue in the storage.
+         *
+         * <p>NOTICE</p>
+         * In the current practice, we don't recommend the length over 190.
+         */
+        public static int OPERATION_NAME_THRESHOLD = 150;
+
+        /**
+         * Keep tracing even the backend is not available.
+         */
+        public static boolean KEEP_TRACING = false;
     }
 
     public static class Collector {
@@ -113,9 +117,9 @@ public class Config {
          */
         public static long GRPC_CHANNEL_CHECK_INTERVAL = 30;
         /**
-         * service and endpoint registry check interval
+         * The period in which the agent report a heartbeat to the backend.
          */
-        public static long APP_AND_SERVICE_REGISTER_CHECK_INTERVAL = 3;
+        public static long HEARTBEAT_PERIOD = 30;
         /**
          * Collector skywalking trace receiver service addresses.
          */
@@ -169,15 +173,6 @@ public class Config {
         public static int CHANNEL_SIZE = 5;
 
         public static int BUFFER_SIZE = 300;
-    }
-
-    public static class Dictionary {
-        /**
-         * The buffer size of application codes and peer
-         */
-        public static int SERVICE_CODE_BUFFER_SIZE = 10 * 10000;
-
-        public static int ENDPOINT_NAME_BUFFER_SIZE = 1000 * 10000;
     }
 
     public static class Logging {

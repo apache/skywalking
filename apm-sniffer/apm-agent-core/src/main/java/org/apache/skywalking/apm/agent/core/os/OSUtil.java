@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.skywalking.apm.network.common.KeyStringValuePair;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 public class OSUtil {
     private static volatile String OS_NAME;
@@ -69,6 +69,8 @@ public class OSUtil {
                             String addressStr = address.getHostAddress();
                             if ("127.0.0.1".equals(addressStr)) {
                                 continue;
+                            } else if ("localhost".equals(addressStr)) {
+                                continue;
                             }
                             IPV4_LIST.add(addressStr);
                         }
@@ -79,6 +81,15 @@ public class OSUtil {
             }
         }
         return IPV4_LIST;
+    }
+
+    public static String getIPV4() {
+        final List<String> allIPV4 = getAllIPV4();
+        if (allIPV4.size() > 0) {
+            return allIPV4.get(0);
+        } else {
+            return "no-hostname";
+        }
     }
 
     public static int getProcessNo() {
@@ -97,11 +108,11 @@ public class OSUtil {
 
         String osName = getOsName();
         if (osName != null) {
-            osInfo.add(KeyStringValuePair.newBuilder().setKey("os_name").setValue(osName).build());
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("OS Name").setValue(osName).build());
         }
         String hostName = getHostName();
         if (hostName != null) {
-            osInfo.add(KeyStringValuePair.newBuilder().setKey("host_name").setValue(hostName).build());
+            osInfo.add(KeyStringValuePair.newBuilder().setKey("hostname").setValue(hostName).build());
         }
         List<String> allIPV4 = getAllIPV4();
         if (allIPV4.size() > 0) {
@@ -109,7 +120,7 @@ public class OSUtil {
                 osInfo.add(KeyStringValuePair.newBuilder().setKey("ipv4").setValue(ipv4).build());
             }
         }
-        osInfo.add(KeyStringValuePair.newBuilder().setKey("process_no").setValue(getProcessNo() + "").build());
+        osInfo.add(KeyStringValuePair.newBuilder().setKey("Process No.").setValue(getProcessNo() + "").build());
         osInfo.add(KeyStringValuePair.newBuilder().setKey("language").setValue("java").build());
         return osInfo;
     }

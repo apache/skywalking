@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
@@ -30,10 +33,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDAO {
     private final int queryMaxSize;
@@ -68,13 +67,11 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
         return ProfileTaskLog.builder()
                              .id(data.getId())
                              .taskId((String) data.getSourceAsMap().get(ProfileTaskLogRecord.TASK_ID))
-                             .instanceId(((Number) data.getSourceAsMap()
-                                                       .get(ProfileTaskLogRecord.INSTANCE_ID)).intValue())
-                             .operationType(ProfileTaskLogOperationType.parse(((Number) data.getSourceAsMap()
-                                                                                            .get(ProfileTaskLogRecord.OPERATION_TYPE))
-                                 .intValue()))
-                             .operationTime(((Number) data.getSourceAsMap()
-                                                          .get(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
+                             .instanceId((String) data.getSourceAsMap().get(ProfileTaskLogRecord.INSTANCE_ID))
+                             .operationType(ProfileTaskLogOperationType.parse(
+                                 ((Number) data.getSourceAsMap().get(ProfileTaskLogRecord.OPERATION_TYPE)).intValue()))
+                             .operationTime(
+                                 ((Number) data.getSourceAsMap().get(ProfileTaskLogRecord.OPERATION_TIME)).longValue())
                              .build();
     }
 }

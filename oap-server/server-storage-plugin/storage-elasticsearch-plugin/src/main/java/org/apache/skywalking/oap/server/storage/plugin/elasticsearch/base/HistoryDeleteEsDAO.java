@@ -21,85 +21,54 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTL;
-import org.apache.skywalking.oap.server.core.storage.ttl.TTLCalculator;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
-
-    private static final Logger logger = LoggerFactory.getLogger(HistoryDeleteEsDAO.class);
-
-    private final StorageTTL storageTTL;
-    private final ModuleDefineHolder moduleDefineHolder;
-    private final boolean enablePackedDownsampling;
-
-    public HistoryDeleteEsDAO(ModuleDefineHolder moduleDefineHolder, ElasticSearchClient client,
-                              StorageTTL storageTTL, boolean enablePackedDownsampling) {
+    public HistoryDeleteEsDAO(ElasticSearchClient client) {
         super(client);
-        this.moduleDefineHolder = moduleDefineHolder;
-        this.storageTTL = storageTTL;
-        this.enablePackedDownsampling = enablePackedDownsampling;
     }
 
     @Override
-    public void deleteHistory(Model model, String timeBucketColumnName) throws IOException {
-        ConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
-                                                        .provider()
-                                                        .getService(ConfigService.class);
-        Downsampling downsampling = model.getDownsampling();
-        if (enablePackedDownsampling) {
-            if (Downsampling.Hour.equals(downsampling) || Downsampling.Day.equals(downsampling)) {
-                /**
-                 * Once enablePackedDownsampling, only minute TTL works.
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
+        ElasticSearchClient client = getClient();
+
+        long deadline;
+        if (!model.isRecord()) {
+            if (!DownSampling.Minute.equals(model.getDownsampling())) {
+                /*
+                 * In ElasticSearch storage, the TTL triggers the index deletion directly.
+                 * As all metrics data in different down sampling rule of one day are in the same index, the deletion operation
+                 * is only required to run once.
                  */
                 return;
             }
         }
+        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMdd"));
 
-        ElasticSearchClient client = getClient();
-        TTLCalculator ttlCalculator;
-        if (model.isRecord()) {
-            ttlCalculator = storageTTL.recordCalculator();
-        } else {
-            ttlCalculator = storageTTL.metricsCalculator(downsampling);
+        List<String> indexes = client.retrievalIndexByAliases(model.getName());
+
+        List<String> prepareDeleteIndexes = new ArrayList<>();
+        List<String> leftIndices = new ArrayList<>();
+        for (String index : indexes) {
+            long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
+            if (deadline >= timeSeries) {
+                prepareDeleteIndexes.add(index);
+            } else {
+                leftIndices.add(index);
+            }
         }
-        long timeBefore = ttlCalculator.timeBefore(new DateTime(), configService.getDataTTLConfig());
-
-        if (model.isCapableOfTimeSeries()) {
-            List<String> indexes = client.retrievalIndexByAliases(model.getName());
-
-            List<String> prepareDeleteIndexes = new ArrayList<>();
-            for (String index : indexes) {
-                long timeSeries = TimeSeriesUtils.indexTimeSeries(index);
-                if (timeBefore >= timeSeries) {
-                    prepareDeleteIndexes.add(index);
-                }
-            }
-
-            if (indexes.size() == prepareDeleteIndexes.size()) {
-                client.createIndex(TimeSeriesUtils.timeSeries(model));
-            }
-
-            for (String prepareDeleteIndex : prepareDeleteIndexes) {
-                client.deleteByIndexName(prepareDeleteIndex);
-            }
-        } else {
-            int statusCode = client.delete(model.getName(), timeBucketColumnName, timeBefore);
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "Delete history from {} index, status code {}", client.formatIndexName(model.getName()),
-                    statusCode
-                );
-            }
+        for (String prepareDeleteIndex : prepareDeleteIndexes) {
+            client.deleteByIndexName(prepareDeleteIndex);
+        }
+        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
+        if (!leftIndices.contains(latestIndex)) {
+            client.createIndex(latestIndex);
         }
     }
 }

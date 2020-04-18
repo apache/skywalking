@@ -34,19 +34,17 @@ import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.commands.CommandService;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.remote.GRPCStreamServiceStatus;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskCommandQuery;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskFinishReport;
-import org.apache.skywalking.apm.network.language.profile.ProfileTaskGrpc;
-import org.apache.skywalking.apm.network.language.profile.ThreadSnapshot;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskCommandQuery;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskFinishReport;
+import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskGrpc;
+import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
@@ -78,45 +76,41 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
 
     @Override
     public void run() {
-        if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
-            && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()) {
-            if (status == GRPCChannelStatus.CONNECTED) {
-                try {
-                    ProfileTaskCommandQuery.Builder builder = ProfileTaskCommandQuery.newBuilder();
+        if (status == GRPCChannelStatus.CONNECTED) {
+            try {
+                ProfileTaskCommandQuery.Builder builder = ProfileTaskCommandQuery.newBuilder();
 
-                    // sniffer info
-                    builder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
-                           .setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+                // sniffer info
+                builder.setService(Config.Agent.SERVICE_NAME)
+                       .setServiceInstance(Config.Agent.INSTANCE_NAME);
 
-                    // last command create time
-                    builder.setLastCommandTime(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class)
-                                                                      .getLastCommandCreateTime());
+                // last command create time
+                builder.setLastCommandTime(ServiceManager.INSTANCE.findService(ProfileTaskExecutionService.class)
+                                                                  .getLastCommandCreateTime());
 
-                    Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
-                                                               .getProfileTaskCommands(builder.build());
+                Commands commands = profileTaskBlockingStub.withDeadlineAfter(GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS)
+                                                           .getProfileTaskCommands(builder.build());
 
-                    ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
-                } catch (Throwable t) {
-                    if (!(t instanceof StatusRuntimeException)) {
-                        logger.error(t, "Query profile task from backend fail.");
-                        return;
+                ServiceManager.INSTANCE.findService(CommandService.class).receiveCommand(commands);
+            } catch (Throwable t) {
+                if (!(t instanceof StatusRuntimeException)) {
+                    logger.error(t, "Query profile task from backend fail.");
+                    return;
+                }
+                final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) t;
+                if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+                    logger.warn("Backend doesn't support profiling, profiling will be disabled");
+                    if (getTaskListFuture != null) {
+                        getTaskListFuture.cancel(true);
                     }
-                    final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) t;
-                    if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
-                        logger.warn("Backend doesn't support profiling, profiling will be disabled");
-                        if (getTaskListFuture != null) {
-                            getTaskListFuture.cancel(true);
-                        }
 
-                        // stop snapshot sender
-                        if (sendSnapshotFuture != null) {
-                            sendSnapshotFuture.cancel(true);
-                        }
+                    // stop snapshot sender
+                    if (sendSnapshotFuture != null) {
+                        sendSnapshotFuture.cancel(true);
                     }
                 }
             }
         }
-
     }
 
     @Override
@@ -190,8 +184,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
         try {
             final ProfileTaskFinishReport.Builder reportBuilder = ProfileTaskFinishReport.newBuilder();
             // sniffer info
-            reportBuilder.setServiceId(RemoteDownstreamConfig.Agent.SERVICE_ID)
-                         .setInstanceId(RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID);
+            reportBuilder.setService(Config.Agent.SERVICE_NAME)
+                         .setServiceInstance(Config.Agent.INSTANCE_NAME);
             // task info
             reportBuilder.setTaskId(task.getTaskId());
 
@@ -212,7 +206,8 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
         public void run() {
             if (status == GRPCChannelStatus.CONNECTED) {
                 try {
-                    ArrayList<TracingThreadSnapshot> buffer = new ArrayList<>(Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
+                    ArrayList<TracingThreadSnapshot> buffer = new ArrayList<>(
+                        Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
                     snapshotQueue.drainTo(buffer);
                     if (buffer.size() > 0) {
                         final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);

@@ -201,7 +201,8 @@ public class RestMappingMethodInterceptorTest {
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("deleteRequestURL");
                 when(request.getRequestURI()).thenReturn("/test/testRequestURL");
-                when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/deleteRequestURL"));
+                when(request.getRequestURL()).thenReturn(
+                    new StringBuffer("http://localhost:8080/test/deleteRequestURL"));
                 ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
                 RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
@@ -227,7 +228,8 @@ public class RestMappingMethodInterceptorTest {
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("patchRequestURL");
                 when(request.getRequestURI()).thenReturn("/test/testRequestURL");
-                when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/patchRequestURL"));
+                when(request.getRequestURL()).thenReturn(
+                    new StringBuffer("http://localhost:8080/test/patchRequestURL"));
                 ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
                 RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
@@ -299,7 +301,7 @@ public class RestMappingMethodInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        MatcherAssert.assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }

@@ -13,75 +13,63 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-registryItems:
-  services:
-    - {'armeria-0.96minus-scenario': 2}
-  instances:
-    - {'armeria-0.96minus-scenario': 1}
-  heartbeat: []
 segmentItems:
-  - serviceName: armeria-0.96minus-scenario
-    segmentSize: ge 2
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: /greet/skywalking
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 79
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: 127.0.0.1:8085
-            peerId: 0
-            tags:
-              - {key: url, value: /greet/skywalking}
-              - {key: http.method, value: GET}
-            refs:
-              - {parentEndpointId: 0, parentEndpoint: /greet/skywalking, networkAddressId: 0,
-                 entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstanceId: 1, networkAddress: '127.0.0.1:8085', entryEndpoint: /greet/skywalking,
-                 entryServiceInstanceId: 1}
-      - segmentId: not null
-        spans:
-          - operationName: /greet/skywalking
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 79
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: 127.0.0.1:8085
-            peerId: 0
-            tags:
-              - {key: http.method, value: GET}
-          - operationName: /greet/skywalking
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/greet/skywalking'}
-              - {key: http.method, value: GET}
-              - key: http.params
-                value: |-
-                  q1=[v1]
-                  chinese=[中文]
+- serviceName: armeria-0.96minus-scenario
+  segmentSize: ge 2
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /greet/skywalking
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 79
+      isError: false
+      spanType: Entry
+      peer: 127.0.0.1:8085
+      tags:
+      - {key: url, value: /greet/skywalking}
+      - {key: http.method, value: GET}
+      refs:
+      - {parentEndpoint: /greet/skywalking, networkAddress: '127.0.0.1:8085', refType: CrossProcess,
+        parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: /greet/skywalking
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 79
+      isError: false
+      spanType: Exit
+      peer: 127.0.0.1:8085
+      tags:
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+    - operationName: /greet/skywalking
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/greet/skywalking'}
+      - {key: http.method, value: GET}
+      - key: http.params
+        value: |-
+          q1=[v1]
+          chinese=[中文]
+      skipAnalysis: 'false'

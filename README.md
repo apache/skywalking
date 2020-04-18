@@ -12,6 +12,7 @@ microservices, cloud native and container-based (Docker, Kubernetes, Mesos) arch
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.skywalking/apache-skywalking-apm.svg)](http://skywalking.apache.org/downloads/)
 [![CI/IT Tests](https://github.com/apache/skywalking/workflows/CI%20AND%20IT/badge.svg?branch=master)](https://github.com/apache/skywalking/actions?query=branch%3Amaster+event%3Apush+workflow%3A%22CI+AND+IT%22)
 [![E2E Tests](https://github.com/apache/skywalking/workflows/E2E/badge.svg?branch=master)](https://github.com/apache/skywalking/actions?query=branch%3Amaster+event%3Apush+workflow%3AE2E)
+[![Code Coverage](https://codecov.io/gh/apache/skywalking/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/skywalking/branch/master)
 
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
@@ -40,21 +41,15 @@ including
 1. Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh. 
 1. Istio telemetry format.
 1. Envoy Metrics Service format.
-1. Zipkin v1/v2 format.
-1. Jaeger gRPC format.
-
+1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental)
 
 # Document
-- [7.x Documentation, dev version](docs/README.md).
-- [7.0.0 Documentation](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md).
-- [6.6 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
-- [6.5 Documentation](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md).
+[8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
 
-The documentation links works after the official release.
+NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous released. 
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
-
 
 # Code of conduct
 This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
@@ -91,10 +86,11 @@ Host in Beijing. Go to [demo](http://122.112.182.72:8080).
 Follow this [document](docs/en/guides/How-to-build.md).
 
 # Contact Us
-* Submit an [issue](https://github.com/apache/skywalking/issues)
 * Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
 * Join `skywalking` channel at [Apache Slack](https://join.slack.com/t/the-asf/shared_invite/enQtNzc2ODE3MjI1MDk1LTAyZGJmNTg1NWZhNmVmOWZjMjA2MGUyOGY4MjE5ZGUwOTQxY2Q3MDBmNTM5YTllNGU4M2QyMzQ4M2U4ZjQ5YmY). If the link is not working, find the latest one at [Apache INFRA WIKI](https://cwiki.apache.org/confluence/display/INFRA/Slack+Guest+Invites).
-* QQ Group: 392443393(2000/2000, not available), 901167865(available)
+* Twitter, [ASFSkyWalking](https://twitter.com/ASFSkyWalking)
+* QQ Group: 901167865(Recommended), 392443393
+* [bilibili B站 视频](https://space.bilibili.com/390683219)
 
 # Who Uses SkyWalking?
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.

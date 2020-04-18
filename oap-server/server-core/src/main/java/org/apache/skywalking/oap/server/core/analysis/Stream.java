@@ -27,14 +27,13 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * Stream annotation represents a metadata definition. Include the key values of the distributed streaming calculation.
- * See {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link InventoryStreamProcessor}, {@link
- * TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
+ * See {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link TopNStreamProcessor} and {@link
+ * NoneStreamingProcessor} for more details.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -55,8 +54,8 @@ public @interface Stream {
     Class<? extends StorageBuilder> builder();
 
     /**
-     * @return the stream processor type, see {@link MetricsStreamProcessor}, {@link RecordStreamProcessor}, {@link
-     * InventoryStreamProcessor}, {@link TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
+     * @return the stream processor type, see {@link MetricsStreamProcessor}, {@link RecordStreamProcessor},  {@link
+     * TopNStreamProcessor} and {@link NoneStreamingProcessor} for more details.
      */
     Class<? extends StreamProcessor> processor();
 }

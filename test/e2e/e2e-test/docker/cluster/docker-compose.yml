@@ -17,11 +17,9 @@ version: '2.1'
 
 services:
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: ui
     environment:
       - SW_OAP_ADDRESS=oap1:12800,oap2:12800
     depends_on:
@@ -31,57 +29,44 @@ services:
         condition: service_healthy
 
   provider1:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+    extends:
+      file: ../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
-      - SW_AGENT_NAME=e2e-service-provider
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
+      SW_AGENT_NAME: e2e-service-provider
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider1,destfile=/jacoco/provider1.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
+        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider1
     depends_on:
-      oap2:
+      oap1:
         condition: service_healthy
 
   provider2:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+    extends:
+      file: ../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap2:11800
-      - SW_AGENT_NAME=e2e-service-provider
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap2:11800
+      SW_AGENT_NAME: e2e-service-provider
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/provider2,destfile=/jacoco/provider2.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
+        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=provider2
     depends_on:
       oap2:
         condition: service_healthy
 
   consumer:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.consumer
-    networks:
-      - e2e
-    expose:
-      - 9092
+    extends:
+      file: ../base-compose.yml
+      service: consumer
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap1:11800
-      - SW_AGENT_NAME=e2e-service-consumer
-      - PROVIDER_URL=http://provider1:9090,http://provider2:9090
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap1:11800
+      SW_AGENT_NAME: e2e-service-consumer
+      PROVIDER_URL: http://provider1:9090,http://provider2:9090
+      JAVA_OPTS: >-
+        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/consumer,destfile=/jacoco/consumer.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
+        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE,agent.instance_name=consumer
     depends_on:
       oap1:
         condition: service_healthy

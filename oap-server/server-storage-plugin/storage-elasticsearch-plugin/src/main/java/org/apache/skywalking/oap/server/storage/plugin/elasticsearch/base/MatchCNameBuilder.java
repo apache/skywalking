@@ -24,6 +24,6 @@ public enum MatchCNameBuilder {
     INSTANCE;
 
     public String build(String termCName) {
-        return termCName + Const.ID_SPLIT + "match";
+        return termCName + Const.ID_CONNECTOR + "match";
     }
 }

@@ -80,7 +80,7 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
                                              .id((String) values.get(columnsMap.get("id")))
                                              .taskId((String) values.get(columnsMap.get(ProfileTaskLogRecord.TASK_ID)))
                                              .instanceId(
-                                                 (int) values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
+                                                 (String) values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
                                              .operationTime(
                                                  (Long) values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TIME)))
                                              .operationType(ProfileTaskLogOperationType.parse(

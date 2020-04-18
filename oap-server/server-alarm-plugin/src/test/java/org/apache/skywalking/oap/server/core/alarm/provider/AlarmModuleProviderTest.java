@@ -31,7 +31,6 @@ import org.powermock.reflect.Whitebox;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 public class AlarmModuleProviderTest {
@@ -66,8 +65,6 @@ public class AlarmModuleProviderTest {
     public void notifyAfterCompleted() throws Exception {
 
         NotifyHandler handler = mock(NotifyHandler.class);
-
-        doNothing().when(handler).initCache(null);
 
         Whitebox.setInternalState(moduleProvider, "notifyHandler", handler);
         moduleProvider.notifyAfterCompleted();

@@ -24,6 +24,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.entity.QueryOrder;
@@ -61,8 +62,8 @@ public class TraceQuery implements ITraceQueryDAO {
                                        long minDuration,
                                        long maxDuration,
                                        String endpointName,
-                                       int serviceId,
-                                       int serviceInstanceId,
+                                       String serviceId,
+                                       String serviceInstanceId,
                                        String endpointId,
                                        String traceId,
                                        int limit,
@@ -100,10 +101,10 @@ public class TraceQuery implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(endpointName)) {
             recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!com.google.common.base.Strings.isNullOrEmpty(endpointId)) {
@@ -169,6 +170,7 @@ public class TraceQuery implements ITraceQueryDAO {
         WhereQueryImpl query = select().column(SegmentRecord.SEGMENT_ID)
                                        .column(SegmentRecord.TRACE_ID)
                                        .column(SegmentRecord.SERVICE_ID)
+                                       .column(SegmentRecord.SERVICE_INSTANCE_ID)
                                        .column(SegmentRecord.ENDPOINT_NAME)
                                        .column(SegmentRecord.START_TIME)
                                        .column(SegmentRecord.END_TIME)
@@ -192,12 +194,13 @@ public class TraceQuery implements ITraceQueryDAO {
 
             segmentRecord.setSegmentId((String) values.get(1));
             segmentRecord.setTraceId((String) values.get(2));
-            segmentRecord.setServiceId((int) values.get(3));
-            segmentRecord.setEndpointName((String) values.get(4));
-            segmentRecord.setStartTime((long) values.get(5));
-            segmentRecord.setEndTime((long) values.get(6));
-            segmentRecord.setLatency((int) values.get(7));
-            segmentRecord.setIsError((int) values.get(8));
+            segmentRecord.setServiceId((String) values.get(3));
+            segmentRecord.setServiceInstanceId((String) values.get(4));
+            segmentRecord.setEndpointName((String) values.get(5));
+            segmentRecord.setStartTime((long) values.get(6));
+            segmentRecord.setEndTime((long) values.get(7));
+            segmentRecord.setLatency((int) values.get(8));
+            segmentRecord.setIsError((int) values.get(9));
             segmentRecord.setVersion((int) values.get(10));
 
             String base64 = (String) values.get(9);

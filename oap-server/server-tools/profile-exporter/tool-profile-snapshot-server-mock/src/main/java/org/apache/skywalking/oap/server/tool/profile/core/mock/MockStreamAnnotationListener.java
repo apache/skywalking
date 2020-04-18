@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.tool.profile.core.mock;
 
+import java.lang.annotation.Annotation;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
-import org.apache.skywalking.oap.server.core.register.worker.InventoryStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-
-import java.lang.annotation.Annotation;
 
 /**
  * Mock from {@link StreamAnnotationListener}
@@ -50,16 +48,14 @@ public class MockStreamAnnotationListener implements AnnotationListener {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 
-            // remove metrics and top N mock
-            if (stream.processor().equals(InventoryStreamProcessor.class)) {
-                InventoryStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-            } else if (stream.processor().equals(RecordStreamProcessor.class)) {
+            if (stream.processor().equals(RecordStreamProcessor.class)) {
                 RecordStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else if (stream.processor().equals(NoneStreamingProcessor.class)) {
                 NoneStreamingProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             }
         } else {
-            throw new UnexpectedException("Stream annotation listener could only parse the class present stream annotation.");
+            throw new UnexpectedException(
+                "Stream annotation listener could only parse the class present stream annotation.");
         }
     }
 }

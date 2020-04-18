@@ -53,7 +53,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
 
     @Override
     public ContextSnapshot capture() {
-        return new ContextSnapshot(null, -1, null, correlationContext);
+        return new ContextSnapshot(null, -1, null, null, correlationContext);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public String getReadableGlobalTraceId() {
+    public String getReadablePrimaryTraceId() {
         return "[Ignored Trace]";
     }
 

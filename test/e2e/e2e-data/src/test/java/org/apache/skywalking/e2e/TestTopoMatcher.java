@@ -58,8 +58,8 @@ public class TestTopoMatcher {
                             .setIsReal("true"));
 
         final List<Call> calls = new ArrayList<>();
-        calls.add(new Call().setId("1_2").setSource("1").setTarget("2"));
-        calls.add(new Call().setId("1_3").setSource("1").setTarget("3"));
+        calls.add(new Call().setId("1-2").setSource("1").setTarget("2"));
+        calls.add(new Call().setId("1-3").setSource("1").setTarget("3"));
 
         final Topology topology = new Topology().setNodes(nodes).setCalls(calls);
 
@@ -81,8 +81,8 @@ public class TestTopoMatcher {
                                 .setIsReal("true"));
 
             final List<Call> calls = new ArrayList<>();
-            calls.add(new Call().setId("1_2").setSource("1").setTarget("2"));
-            calls.add(new Call().setId("1_3").setSource("1").setTarget("3"));
+            calls.add(new Call().setId("1-2").setSource("1").setTarget("2"));
+            calls.add(new Call().setId("1-3").setSource("1").setTarget("3"));
 
             final Topology topology = new Topology().setNodes(nodes).setCalls(calls);
 

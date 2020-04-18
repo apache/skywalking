@@ -45,16 +45,12 @@ public class DefaultScopeDefine {
     public static final int SERVICE_RELATION = 4;
     public static final int SERVICE_INSTANCE_RELATION = 5;
     public static final int ENDPOINT_RELATION = 6;
-    public static final int NETWORK_ADDRESS = 7;
     public static final int SERVICE_INSTANCE_JVM_CPU = 8;
     public static final int SERVICE_INSTANCE_JVM_MEMORY = 9;
     public static final int SERVICE_INSTANCE_JVM_MEMORY_POOL = 10;
     public static final int SERVICE_INSTANCE_JVM_GC = 11;
     public static final int SEGMENT = 12;
     public static final int ALARM = 13;
-    public static final int SERVICE_INVENTORY = 14;
-    public static final int SERVICE_INSTANCE_INVENTORY = 15;
-    public static final int ENDPOINT_TRAFFIC = 16;
     public static final int DATABASE_ACCESS = 17;
     public static final int DATABASE_SLOW_STATEMENT = 18;
     public static final int SERVICE_INSTANCE_CLR_CPU = 19;
@@ -67,6 +63,9 @@ public class DefaultScopeDefine {
     public static final int PROFILE_TASK = 26;
     public static final int PROFILE_TASK_LOG = 27;
     public static final int PROFILE_TASK_SEGMENT_SNAPSHOT = 28;
+    public static final int SERVICE_UPDATE = 29;
+    public static final int SERVICE_INSTANCE_UPDATE = 30;
+    public static final int NETWORK_ADDRESS_ALIAS = 31;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

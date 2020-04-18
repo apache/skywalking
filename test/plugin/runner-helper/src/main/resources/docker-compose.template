@@ -48,6 +48,7 @@ services:
         volumes:
             - ${agent_home}:/usr/local/skywalking/scenario/agent
             - ${scenario_home}:/usr/local/skywalking/scenario
+            - ${jacoco_home}:/jacoco
         <#if depends_on??>
         depends_on:
         <#list depends_on as item>

@@ -20,4 +20,3 @@ healthCheck: http://localhost:8080/healthCheck
 runningMode: with_bootstrap
 withPlugins: apm-jdk-threading-plugin-*.jar
 startScript: ./bin/startup.sh
-framework: jdk-threading-scenario

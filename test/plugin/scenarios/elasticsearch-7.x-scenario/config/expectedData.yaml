@@ -13,12 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  services:
-  - {elasticsearch-7.x-scenario: nq 0}
-  instances:
-  - {elasticsearch-7.x-scenario: 1}
-  heartbeat: []
 segmentItems:
 - serviceName: elasticsearch-7.x-scenario
   segmentSize: ge 1
@@ -33,13 +27,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/GetSettings
       operationId: 0
       parentSpanId: 0
@@ -48,13 +41,12 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/PutSettings
       operationId: 0
       parentSpanId: 0
@@ -63,14 +55,13 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/CreateRequest
       operationId: 0
       parentSpanId: 0
@@ -79,15 +70,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/IndexRequest
       operationId: 0
       parentSpanId: 0
@@ -96,15 +86,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/GetRequest
       operationId: 0
       parentSpanId: 0
@@ -113,15 +102,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/SearchRequest
       operationId: 0
       parentSpanId: 0
@@ -130,15 +118,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/UpdateRequest
       operationId: 0
       parentSpanId: 0
@@ -147,15 +134,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
       - {key: db.statement, value: not null}
+      skipAnalysis: 'false'
     - operationName: Elasticsearch/DeleteRequest
       operationId: 0
       parentSpanId: 0
@@ -164,14 +150,13 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 77
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
       - {key: db.type, value: Elasticsearch}
       - {key: db.instance, value: not null}
+      skipAnalysis: 'false'
     - operationName: /elasticsearch-case/case/elasticsearch
       operationId: 0
       parentSpanId: -1
@@ -180,11 +165,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
       - {key: url, value: 'http://localhost:8080/elasticsearch-case/case/elasticsearch'}
       - {key: http.method, value: GET}
+      skipAnalysis: 'false'

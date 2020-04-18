@@ -60,11 +60,11 @@ public class JaegerSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    private int serviceId;
+    private String serviceId;
     @Setter
     @Getter
     @Column(columnName = SERVICE_INSTANCE_ID)
-    private int serviceInstanceId;
+    private String serviceInstanceId;
     @Setter
     @Getter
     @Column(columnName = ENDPOINT_NAME, matchQuery = true)
@@ -133,8 +133,8 @@ public class JaegerSpanRecord extends Record {
             JaegerSpanRecord record = new JaegerSpanRecord();
             record.setTraceId((String) dbMap.get(TRACE_ID));
             record.setSpanId((String) dbMap.get(SPAN_ID));
-            record.setServiceId(((Number) dbMap.get(SERVICE_ID)).intValue());
-            record.setServiceInstanceId(((Number) dbMap.get(SERVICE_INSTANCE_ID)).intValue());
+            record.setServiceId((String) dbMap.get(SERVICE_ID));
+            record.setServiceInstanceId((String) dbMap.get(SERVICE_INSTANCE_ID));
             record.setEndpointName((String) dbMap.get(ENDPOINT_NAME));
             record.setEndpointId((String) dbMap.get(ENDPOINT_ID));
             record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());

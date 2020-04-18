@@ -14,26 +14,26 @@
 # limitations under the License.
 
 nodes:
-  - id: 1
+  - id: VXNlcg==.0
     name: User
     type: USER
     isReal: false
-  - id: 2
+  - id: WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
     name: Your_ApplicationName
     type: Tomcat
     isReal: true
-  - id: 3
+  - id: not null
     name: "localhost:-1"
     type: H2
     isReal: false
 calls:
-  - id: 2_3
-    source: 2
+  - id: not null
+    source: WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
+    target: not null
     detectPoints:
       - CLIENT
-    target: 3
-  - id: 1_2
-    source: 1
+  - id: VXNlcg==.0-WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
+    source: VXNlcg==.0
+    target: WW91cl9BcHBsaWNhdGlvbk5hbWU=.1
     detectPoints:
       - SERVER
-    target: 2

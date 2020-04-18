@@ -16,7 +16,6 @@ type: jvm
 entryService: http://localhost:8080/rabbitmq-scenario/case/rabbitmq
 healthCheck: http://localhost:8080/rabbitmq-scenario/case/healthcheck
 startScript: ./bin/startup.sh
-framework: rabbitmq
 environment:
   - RABBITMQ_HOST=rabbitmq-server
 dependencies:

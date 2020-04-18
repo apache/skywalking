@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/customize-scenario/case/customize
 healthCheck: http://localhost:8080/customize-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: customize-scenario
 runningMode: with_optional
 withPlugins: apm-customize-enhance-plugin-*.jar

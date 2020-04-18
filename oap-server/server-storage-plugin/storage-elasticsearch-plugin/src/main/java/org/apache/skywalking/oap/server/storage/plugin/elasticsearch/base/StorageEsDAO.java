@@ -21,11 +21,9 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.register.RegisterSource;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
-import org.apache.skywalking.oap.server.core.storage.IRegisterDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -39,11 +37,6 @@ public class StorageEsDAO extends EsDAO implements StorageDAO {
     @Override
     public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
         return new MetricsEsDAO(getClient(), storageBuilder);
-    }
-
-    @Override
-    public IRegisterDAO newRegisterDao(StorageBuilder<RegisterSource> storageBuilder) {
-        return new RegisterEsDAO(getClient(), storageBuilder);
     }
 
     @Override

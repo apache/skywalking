@@ -14,7 +14,9 @@
 # limitations under the License.
 
 services:
-  - key: gt 0
-    label: "Your_ApplicationName"
-  - key: gt 0
+  - key: ZTJlLXNlcnZpY2UtZW50cnktcHJvdmlkZXI=.1
+    label: "e2e-service-entry-provider"
+  - key: VXNlcl9TZXJ2aWNlX05hbWU=.1
     label: "User_Service_Name"
+  - key: ZTJlLXNlcnZpY2UtZW5kLXByb3ZpZGVy.1
+    label: "e2e-service-end-provider"

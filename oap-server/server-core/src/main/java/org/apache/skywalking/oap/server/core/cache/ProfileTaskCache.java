@@ -43,7 +43,7 @@ public class ProfileTaskCache implements Service {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileTaskCache.class);
 
-    private final Cache<Integer, List<ProfileTask>> profileTaskDownstreamCache;
+    private final Cache<String, List<ProfileTask>> profileTaskDownstreamCache;
     private final Cache<String, ProfileTask> profileTaskIdCache;
 
     private final ModuleManager moduleManager;
@@ -80,7 +80,7 @@ public class ProfileTaskCache implements Service {
     /**
      * query executable profile task
      */
-    public List<ProfileTask> getProfileTaskList(int serviceId) {
+    public List<ProfileTask> getProfileTaskList(String serviceId) {
         // read profile task list from cache only, use cache update timer mechanism
         List<ProfileTask> profileTaskList = profileTaskDownstreamCache.getIfPresent(serviceId);
         return profileTaskList;
@@ -109,7 +109,7 @@ public class ProfileTaskCache implements Service {
     /**
      * save service task list
      */
-    public void saveTaskList(int serviceId, List<ProfileTask> taskList) {
+    public void saveTaskList(String serviceId, List<ProfileTask> taskList) {
         if (taskList == null) {
             taskList = Collections.emptyList();
         }

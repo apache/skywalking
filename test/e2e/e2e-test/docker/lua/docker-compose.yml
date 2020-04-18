@@ -17,49 +17,37 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+    extends:
+      file: ../base-compose.yml
+      service: oap
 
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=oap:12800
+    extends:
+      file: ../base-compose.yml
+      service: ui
     depends_on:
       oap:
         condition: service_healthy
 
-  provider:
-    build:
-      context: ../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-    networks:
-      - e2e
-    expose:
-      - 9090
+  provider-entry:
+    extends:
+      file: ../base-compose.yml
+      service: provider
     environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap:11800
+      SW_AGENT_NAME: e2e-service-entry-provider
     depends_on:
       oap:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 9090"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+
+  provider-end:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_NAME: e2e-service-end-provider
+    depends_on:
+      oap:
+        condition: service_healthy
 
   nginx:
     build:
@@ -72,7 +60,9 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-      provider: # Just to make sure that the service id > provider service id
+      provider-entry:
+        condition: service_healthy
+      provider-end:
         condition: service_healthy
     volumes:
       - ../lua/nginx.conf:/var/nginx/conf.d/nginx.conf

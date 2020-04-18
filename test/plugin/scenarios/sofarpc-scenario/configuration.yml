@@ -18,4 +18,3 @@ type: jvm
 entryService: http://localhost:8080/sofarpc-scenario/case/sofarpc
 healthCheck: http://localhost:8080/sofarpc-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: sofarpc

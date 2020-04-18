@@ -37,10 +37,8 @@ telemetry:
 ```
 
 ### Grafana Visualization
-Provide two grafana dashboard settings.
-1. Use [SkyWalking trace-mode dashboard](telemetry/trace-mode-grafana.json) when SkyWalking is used with tracing agent.
-1. Use [SkyWalking mesh-mode dashboard](telemetry/mesh-mode-grafana.json) when SkyWalking is used with service mesh
-telemetry, including istio, envoy. 
+Provide the grafana dashboard settings. Check [SkyWalking Telemetry dashboard](grafana.json) config.
+
 
 ## Self Observability
 

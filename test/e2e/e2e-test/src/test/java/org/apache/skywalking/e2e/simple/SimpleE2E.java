@@ -176,8 +176,8 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
             new ServiceInstanceTopologyQuery().stepByMinute()
                                               .start(startTime.minusDays(1))
                                               .end(now())
-                                              .clientServiceId("1")
-                                              .serverServiceId("2"));
+                                              .clientServiceId("VXNlcg==.0")
+                                              .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
 
         LOGGER.info("instance topology: {}", topology);
 

@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.query.entity.Step;
 @Getter
 public class ProfileTaskCreationRequest {
 
-    private int serviceId;
+    private String serviceId;
     private String endpointName;
     private Long startTime;
     private int duration;

@@ -20,13 +20,16 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
 
 @ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceRelation extends Source {
+    private String entityId;
 
     @Override
     public int scope() {
@@ -35,33 +38,41 @@ public class ServiceInstanceRelation extends Source {
 
     @Override
     public String getEntityId() {
-        return String.valueOf(sourceServiceInstanceId) + Const.ID_SPLIT + String.valueOf(destServiceInstanceId);
+        if (StringUtil.isEmpty(entityId)) {
+            entityId = IDManager.ServiceInstanceID.buildRelationId(
+                new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
+                    sourceServiceInstanceId,
+                    destServiceInstanceId
+                )
+            );
+        }
+        return entityId;
     }
 
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_id")
-    private int sourceServiceInstanceId;
+    private String sourceServiceInstanceId;
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_id")
-    private int sourceServiceId;
+    private String sourceServiceId;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
     private String sourceServiceName;
+    @Setter
+    private NodeType sourceServiceNodeType;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
     private String sourceServiceInstanceName;
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_id")
-    private int destServiceInstanceId;
+    private String destServiceInstanceId;
     @Getter
-    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_id")
-    private int destServiceId;
+    private String destServiceId;
+    @Setter
+    private NodeType destServiceNodeType;
     @Getter
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_name", requireDynamicActive = true)
@@ -91,4 +102,12 @@ public class ServiceInstanceRelation extends Source {
     @Getter
     @Setter
     private DetectPoint detectPoint;
+
+    @Override
+    public void prepare() {
+        sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceServiceNodeType);
+        destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceNodeType);
+        sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceInstanceName);
+        destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceInstanceName);
+    }
 }

@@ -16,7 +16,7 @@
 traces:
   - key: not null
     endpointNames:
-      - /info
+      - /nginx/entry/info
     duration: ge 0
     start: gt 0
     isError: false
@@ -26,6 +26,15 @@ traces:
   - key: not null
     endpointNames:
       - /nginx/info
+    duration: ge 0
+    start: gt 0
+    isError: false
+    traceIds:
+      - not null
+
+  - key: not null
+    endpointNames:
+      - /nginx/end/info
     duration: ge 0
     start: gt 0
     isError: false
