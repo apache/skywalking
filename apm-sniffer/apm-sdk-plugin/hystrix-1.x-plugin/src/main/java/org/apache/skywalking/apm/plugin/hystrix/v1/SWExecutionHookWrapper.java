@@ -23,12 +23,17 @@ import com.netflix.hystrix.HystrixInvokable;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.hystrix.strategy.executionhook.HystrixCommandExecutionHook;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 
 /**
  * {@link SWExecutionHookWrapper} wrapper the HystrixCommandExecutionHook object for tracing.
  */
 public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
+
+    private static final ILog logger = LogManager.getLogger(SWExecutionHookWrapper.class);
+
     private final HystrixCommandExecutionHook actual;
 
     public SWExecutionHookWrapper(HystrixCommandExecutionHook actual) {
@@ -44,10 +49,15 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
 
         EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
-        if (ContextManager.isActive()) {
-            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        try {
+            if (ContextManager.isActive()) {
+                enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+            }
+        } catch (Exception ex) {
+            logger.error("Hystrix command wrapper error", ex);
+        } finally {
+            actual.onStart(commandInstance);
         }
-        actual.onStart(commandInstance);
     }
 
     @Override
@@ -196,10 +206,15 @@ public class SWExecutionHookWrapper extends HystrixCommandExecutionHook {
 
         EnhancedInstance enhancedInstance = (EnhancedInstance) commandInstance;
         EnhanceRequireObjectCache enhanceRequireObjectCache = (EnhanceRequireObjectCache) enhancedInstance.getSkyWalkingDynamicField();
-        if (ContextManager.isActive()) {
-            enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+        try {
+            if (ContextManager.isActive()) {
+                enhanceRequireObjectCache.setContextSnapshot(ContextManager.capture());
+            }
+        } catch (Exception ex) {
+            logger.error("Hystrix command wrapper error", ex);
+        } finally {
+            actual.onStart(commandInstance);
         }
-        actual.onStart(commandInstance);
     }
 
     @Override
