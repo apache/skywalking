@@ -96,7 +96,6 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Override
     public final void calculate() {
-
         if (!isCalculated) {
             long total = dataset.sumOfValues();
 
@@ -109,15 +108,15 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
             final List<String> sortedKeys = dataset.sortedKeys(Comparator.comparingInt(Integer::parseInt));
 
             int loopIndex = 0;
-            for (String index : sortedKeys) {
-                final Long value = dataset.get(index);
+            for (String key : sortedKeys) {
+                final Long value = dataset.get(key);
 
                 count += value;
-                for (int i = loopIndex; i < roofs.length; i++) {
-                    int roof = roofs[i];
+                for (int rankIdx = loopIndex; rankIdx < roofs.length; rankIdx++) {
+                    int roof = roofs[rankIdx];
 
                     if (count >= roof) {
-                        percentileValues.put(index, Long.parseLong(index) * precision);
+                        percentileValues.put(String.valueOf(rankIdx), Long.parseLong(key) * precision);
                         loopIndex++;
                     } else {
                         break;

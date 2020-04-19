@@ -102,6 +102,14 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
 
     @Override
     public void append(DataTable dataTable) {
-        dataTable.data.forEach(this.data::put);
+        dataTable.data.forEach((key, value) -> {
+            Long current = this.data.get(key);
+            if (current == null) {
+                current = value;
+            } else {
+                current += value;
+            }
+            this.data.put(key, current);
+        });
     }
 }

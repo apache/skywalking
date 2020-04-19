@@ -24,13 +24,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
@@ -47,9 +47,11 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
         List<Object> parameters = new ArrayList<>(10);
 
-        sql.append(" service_id = ? ");
-        final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-        parameters.add(serviceId);
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
+            sql.append(" service_id = ? ");
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            parameters.add(serviceId);
+        }
 
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(duration.getStartTimeBucket());
@@ -66,7 +68,8 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
 
         List<SelectedRecord> results = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     SelectedRecord record = new SelectedRecord();
                     record.setName(resultSet.getString(TopN.STATEMENT));

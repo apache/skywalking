@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -50,8 +51,11 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET)
                                                  .gte(duration.getStartTimeBucket())
                                                  .lte(duration.getEndTimeBucket()));
-        final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+        }
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(condition.getTopN())

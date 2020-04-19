@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  * @since 8.0.0
  */
 public interface IAggregationQueryDAO extends DAO {
-    List<SelectedRecord> sortMetrics(TopNCondition metrics,
+    List<SelectedRecord> sortMetrics(TopNCondition condition,
                                      String valueColumnName,
                                      Duration duration,
                                      List<KeyValue> additionalConditions) throws IOException;

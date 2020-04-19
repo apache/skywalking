@@ -47,7 +47,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
     }
 
     @Override
-    public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
+    public List<SelectedRecord> sortMetrics(final TopNCondition condition,
                                             final String valueColumnName,
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) throws IOException {
@@ -57,7 +57,7 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
                                          .gte(duration.getStartTimeBucket()));
 
         boolean asc = false;
-        if (metrics.getOrder().equals(Order.ASC)) {
+        if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
 
@@ -65,11 +65,11 @@ public class AggregationQueryEs7DAO extends AggregationQueryEsDAO {
             AggregationBuilders.terms(Metrics.ENTITY_ID)
                                .field(Metrics.ENTITY_ID)
                                .order(BucketOrder.aggregation(valueColumnName, asc))
-                               .size(metrics.getTopN())
+                               .size(condition.getTopN())
                                .subAggregation(AggregationBuilders.avg(valueColumnName).field(valueColumnName))
         );
 
-        SearchResponse response = getClient().search(metrics.getName(), sourceBuilder);
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
 
         List<SelectedRecord> topNList = new ArrayList<>();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
