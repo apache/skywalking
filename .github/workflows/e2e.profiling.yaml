@@ -36,7 +36,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['h2', 'mysql', 'es6', 'es7'] #TODO: 'influxdb'
+        storage: ['h2', 'mysql', 'es6', 'es7', 'influxdb']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
