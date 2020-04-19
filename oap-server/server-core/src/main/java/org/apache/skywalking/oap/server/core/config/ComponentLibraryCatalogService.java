@@ -22,7 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
