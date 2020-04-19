@@ -23,15 +23,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.influxdb.dto.Point;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 
 public class NoneStreamDAO implements INoneStreamDAO {
-    public static final String TAG_SERVICE_ID = "_service_id";
     private static final int PADDING_SIZE = 1_000_000;
     private static final AtomicRangeInteger SUFFIX = new AtomicRangeInteger(0, PADDING_SIZE);
 
@@ -45,13 +43,14 @@ public class NoneStreamDAO implements INoneStreamDAO {
 
     @Override
     public void insert(final Model model, final NoneStream noneStream) throws IOException {
-        final long timestamp = TimeBucket.getTimestamp(
-            noneStream.getTimeBucket(), model.getDownsampling()) * PADDING_SIZE + SUFFIX.getAndIncrement();
+        final long timestamp = TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())
+            * PADDING_SIZE + SUFFIX.getAndIncrement();
 
-        Point point = new InfluxInsertRequest(model, noneStream, storageBuilder)
-            .time(timestamp, TimeUnit.NANOSECONDS)
-            .addFieldAsTag(ProfileTaskRecord.SERVICE_ID, TAG_SERVICE_ID).getPoint();
-
-        client.write(point);
+        final InfluxInsertRequest request = new InfluxInsertRequest(model, noneStream, storageBuilder)
+            .time(timestamp, TimeUnit.NANOSECONDS);
+        TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
+            request.addFieldAsTag(field, tag);
+        });
+        client.write(request.getPoint());
     }
 }

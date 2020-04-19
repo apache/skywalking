@@ -19,17 +19,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -49,8 +48,8 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .function("top", ProfileTaskLogRecord.OPERATION_TIME, fetchTaskLogMaxSize)
-            .column("id")
+            .function(InfluxConstants.SORT_DES, ProfileTaskLogRecord.OPERATION_TIME, fetchTaskLogMaxSize)
+            .column(InfluxConstants.ID_COLUMN)
             .column(ProfileTaskLogRecord.TASK_ID)
             .column(ProfileTaskLogRecord.INSTANCE_ID)
             .column(ProfileTaskLogRecord.OPERATION_TIME)
@@ -65,26 +64,18 @@ public class ProfileTaskLogQuery implements IProfileTaskLogQueryDAO {
         if (series == null) {
             return Collections.emptyList();
         }
-        List<String> columns = series.getColumns();
-        Map<String, Integer> columnsMap = Maps.newHashMap();
-        for (int i = 0; i < columns.size(); i++) {
-            columnsMap.put(columns.get(i), i);
-        }
-
-        List<ProfileTaskLog> taskLogs = Lists.newArrayList();
+        final List<ProfileTaskLog> taskLogs = Lists.newArrayList();
         series.getValues().stream()
               // re-sort by self, because of the result order by time.
               .sorted((a, b) -> Long.compare(((Number) b.get(1)).longValue(), ((Number) a.get(1)).longValue()))
               .forEach(values -> {
                   taskLogs.add(ProfileTaskLog.builder()
-                                             .id((String) values.get(columnsMap.get("id")))
-                                             .taskId((String) values.get(columnsMap.get(ProfileTaskLogRecord.TASK_ID)))
-                                             .instanceId(
-                                                 (String) values.get(columnsMap.get(ProfileTaskLogRecord.INSTANCE_ID)))
-                                             .operationTime(
-                                                 (Long) values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TIME)))
+                                             .id((String) values.get(2))
+                                             .taskId((String) values.get(3))
+                                             .instanceId((String) values.get(4))
+                                             .operationTime(((Number) values.get(5)).longValue())
                                              .operationType(ProfileTaskLogOperationType.parse(
-                                                 (int) values.get(columnsMap.get(ProfileTaskLogRecord.OPERATION_TYPE))))
+                                                 ((Number) values.get(6)).intValue()))
                                              .build());
               });
         return taskLogs;

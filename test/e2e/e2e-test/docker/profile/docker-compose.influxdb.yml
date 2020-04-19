@@ -22,8 +22,6 @@ services:
       - 8086
     networks:
       - e2e
-    depends_on:
-      - h2db
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8086"]
       interval: 5s
@@ -37,8 +35,6 @@ services:
     environment:
       SW_STORAGE: influxdb
     depends_on:
-      h2db:
-        condition: service_healthy
       influxdb:
         condition: service_healthy
 
