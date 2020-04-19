@@ -65,7 +65,7 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
     @Override
     public String getServerNameBasedOnComponent(int componentId) {
         Integer serverComponentId = componentId2ServerId.get(componentId);
-        return serverComponentId == null ? getComponentName(serverComponentId) : getComponentName(serverComponentId);
+        return serverComponentId == null ? getComponentName(componentId) : getComponentName(serverComponentId);
     }
 
     private void init() throws InitialComponentCatalogException {
