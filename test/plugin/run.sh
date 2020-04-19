@@ -187,7 +187,6 @@ fi
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
 do
-    waitForAvailable
     testcase_name="${scenario_name}-${version}"
 
     # testcase working directory, there are logs, data and packages.
@@ -218,8 +217,10 @@ do
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log &
+    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log
     sleep 3
+    waitForAvailable
+    rm -rf ${case_work_base}
 done
 
 echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"
