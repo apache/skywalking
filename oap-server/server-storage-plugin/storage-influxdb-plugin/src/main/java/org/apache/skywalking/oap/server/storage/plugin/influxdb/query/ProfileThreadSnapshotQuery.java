@@ -26,6 +26,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
@@ -33,6 +35,7 @@ import org.apache.skywalking.oap.server.core.query.entity.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -43,6 +46,7 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
+@Slf4j
 public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDAO {
     private final InfluxClient client;
 
@@ -60,7 +64,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
 
         final LinkedList<String> segments = new LinkedList<>();
         QueryResult.Series series = client.queryForSingleSeries(query);
-        if (series == null) {
+        if (Objects.isNull(series)) {
             return Collections.emptyList();
         }
         series.getValues().forEach(values -> {
@@ -72,7 +76,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
         }
 
         query = select()
-            .function("bottom", SegmentRecord.START_TIME, segments.size())
+            .function(InfluxConstants.SORT_ASC, SegmentRecord.START_TIME, segments.size())
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_NAME)
@@ -130,8 +134,15 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .and(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence))
             .and(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence));
 
+        QueryResult.Series series = client.queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
+        if (Objects.isNull(series)) {
+            return Collections.EMPTY_LIST;
+        }
         ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
-        client.queryForSingleSeries(query).getValues().forEach(values -> {
+        series.getValues().forEach(values -> {
             ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
 
             record.setTaskId((String) values.get(1));
@@ -165,7 +176,10 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
                 .where()
                 .and(eq(SegmentRecord.SEGMENT_ID, segmentId));
         List<QueryResult.Series> series = client.queryForSeries(query);
-        if (series == null || series.isEmpty()) {
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result set: {}", query.getCommand(), series);
+        }
+        if (Objects.isNull(series) || series.isEmpty()) {
             return null;
         }
 
@@ -198,10 +212,6 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             .and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
             .and(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start))
             .and(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end));
-        QueryResult.Series series = client.queryForSingleSeries(query);
-        if (series == null) {
-            return -1;
-        }
-        return ((Number) series.getValues().get(0).get(1)).intValue();
+        return client.getCounter(query);
     }
 }
