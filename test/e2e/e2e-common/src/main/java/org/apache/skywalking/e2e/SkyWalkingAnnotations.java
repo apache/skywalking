@@ -209,7 +209,7 @@ public final class SkyWalkingAnnotations {
         compose.withPull(true)
                .withLocalCompose(true)
                .withTailChildContainers(true)
-               .withRemoveImages(DockerComposeContainer.RemoveImages.LOCAL);
+               .withRemoveImages(DockerComposeContainer.RemoveImages.ALL);
 
         if (IS_CI) {
             initLoggers(files, compose);
