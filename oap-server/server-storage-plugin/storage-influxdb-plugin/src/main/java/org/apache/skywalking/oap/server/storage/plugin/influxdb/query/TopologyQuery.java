@@ -231,14 +231,14 @@ public class TopologyQuery implements ITopologyQueryDAO {
             .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)));
 
         StringBuilder builder = new StringBuilder("((");
-        builder.append(sourceCName).append("=").append(sourceServiceId)
-               .append(" and ")
-               .append(destCName).append("=").append(destServiceId)
-               .append(") or (")
-               .append(sourceCName).append("=").append(destServiceId)
-               .append(") and (")
-               .append(destCName).append("=").append(sourceServiceId)
-               .append("))");
+        builder.append(sourceCName).append("='").append(sourceServiceId)
+               .append("' and ")
+               .append(destCName).append("='").append(destServiceId)
+               .append("') or (")
+               .append(sourceCName).append("='").append(destServiceId)
+               .append("') and (")
+               .append(destCName).append("='").append(sourceServiceId)
+               .append("'))");
         subQuery.where(builder.toString());
         subQuery.groupBy(InfluxConstants.TagName.ENTITY_ID);
         return subQuery;
