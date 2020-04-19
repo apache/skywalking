@@ -48,12 +48,8 @@ public class LogQuery implements GraphQLQueryResolver {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration()
-                                                                                                .getStep(), condition.getQueryDuration()
-                                                                                                                     .getStart());
-            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration()
-                                                                                            .getStep(), condition.getQueryDuration()
-                                                                                                                 .getEnd());
+            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
+            endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
 
         return getQueryService().queryLogs(condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition
