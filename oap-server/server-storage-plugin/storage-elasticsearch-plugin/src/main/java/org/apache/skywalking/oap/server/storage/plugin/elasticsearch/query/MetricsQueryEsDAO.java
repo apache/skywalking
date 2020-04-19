@@ -23,10 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -36,7 +34,6 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -57,48 +54,6 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     public MetricsQueryEsDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    @Override
-    public Thermodynamic getThermodynamic(String indexName, DownSampling downsampling, List<String> ids,
-                                          String valueCName) throws IOException {
-        Thermodynamic thermodynamic = new Thermodynamic();
-        List<List<Long>> thermodynamicValueMatrix = new ArrayList<>();
-
-        SearchResponse response = getClient().ids(indexName, ids.toArray(new String[0]));
-        Map<String, Map<String, Object>> idMap = toMap(response);
-
-        int numOfSteps = 0;
-        for (String id : ids) {
-            Map<String, Object> source = idMap.get(id);
-            if (source == null) {
-                // add empty list to represent no data exist for this time bucket
-                thermodynamicValueMatrix.add(new ArrayList<>());
-            } else {
-                int axisYStep = ((Number) source.get(HistogramMetrics.STEP)).intValue();
-                thermodynamic.setAxisYStep(axisYStep);
-                numOfSteps = ((Number) source.get(HistogramMetrics.NUM_OF_STEPS)).intValue() + 1;
-
-                String value = (String) source.get(HistogramMetrics.DATASET);
-                DataTable intKeyLongValues = new DataTable(5);
-                intKeyLongValues.toObject(value);
-
-                List<Long> axisYValues = new ArrayList<>();
-                for (int i = 0; i < numOfSteps; i++) {
-                    axisYValues.add(0L);
-                }
-
-                for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
-                    axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
-                }
-
-                thermodynamicValueMatrix.add(axisYValues);
-            }
-        }
-
-        thermodynamic.fromMatrixData(thermodynamicValueMatrix, numOfSteps);
-
-        return thermodynamic;
     }
 
     @Override
@@ -221,7 +176,28 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
                                final Duration duration) throws IOException {
-        return null;
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
+        SearchResponse response = getClient().ids(condition.getName(), ids.toArray(new String[0]));
+        Map<String, Map<String, Object>> idMap = toMap(response);
+
+        HeatMap heatMap = new HeatMap();
+
+        for (String id : ids) {
+            Map<String, Object> source = idMap.get(id);
+            if (source != null) {
+                String value = (String) source.get(HistogramMetrics.DATASET);
+                heatMap.buildColumn(id, value);
+            }
+        }
+
+        heatMap.fixMissingColumns(ids);
+
+        return heatMap;
     }
 
     protected void functionAggregation(Function function, TermsAggregationBuilder parentAggBuilder, String valueCName) {

@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class HistogramMetricsTest {
+public class HeatMapMetricsTest {
     private int step = 10; //ms
     private int maxNumOfSteps = 10; //count
 
@@ -45,13 +44,13 @@ public class HistogramMetricsTest {
         metricsMocker.combine(100, step, maxNumOfSteps);
         metricsMocker.combine(100, step, maxNumOfSteps);
 
-        Map<Integer, IntKeyLongValue> index = metricsMocker.getDataset();
-        Assert.assertEquals(4, index.size());
+        final DataTable dataset = metricsMocker.getDataset();
+        Assert.assertEquals(10, dataset.size());
 
-        Assert.assertEquals(1, index.get(2).getValue());
-        Assert.assertEquals(3, index.get(5).getValue());
-        Assert.assertEquals(1, index.get(6).getValue());
-        Assert.assertEquals(8, index.get(10).getValue());
+        Assert.assertEquals(1, dataset.get("20").intValue());
+        Assert.assertEquals(3, dataset.get("50").intValue());
+        Assert.assertEquals(1, dataset.get("60").intValue());
+        Assert.assertEquals(8, dataset.get("100").intValue());
     }
 
     @Test
@@ -77,13 +76,13 @@ public class HistogramMetricsTest {
 
         metricsMocker.combine(metricsMocker1);
 
-        Map<Integer, IntKeyLongValue> index = metricsMocker.getDataset();
-        Assert.assertEquals(4, index.size());
+        final DataTable dataset = metricsMocker.getDataset();
+        Assert.assertEquals(10, dataset.size());
 
-        Assert.assertEquals(1, index.get(2).getValue());
-        Assert.assertEquals(3, index.get(5).getValue());
-        Assert.assertEquals(1, index.get(6).getValue());
-        Assert.assertEquals(8, index.get(10).getValue());
+        Assert.assertEquals(1, dataset.get("20").intValue());
+        Assert.assertEquals(3, dataset.get("50").intValue());
+        Assert.assertEquals(1, dataset.get("60").intValue());
+        Assert.assertEquals(8, dataset.get("100").intValue());
     }
 
     public class HistogramMetricsMocker extends HistogramMetrics {

@@ -53,12 +53,13 @@ public class HeatMap {
         if (buckets == null) {
             buckets = new ArrayList<>(dataset.size());
             for (int i = 0; i < sortedKeys.size(); i++) {
-                if (i == 0) {
-                    this.addBucket(new Bucket(0, Integer.parseInt(sortedKeys.get(i))));
+                if (i == sortedKeys.size() - 1) {
+                    // last element
+                    this.addBucket(new Bucket(Integer.parseInt(sortedKeys.get(i)), Integer.MAX_VALUE));
                 } else {
                     this.addBucket(new Bucket(
-                        Integer.parseInt(sortedKeys.get(i - 1)),
-                        Integer.parseInt(sortedKeys.get(i))
+                        Integer.parseInt(sortedKeys.get(i)),
+                        Integer.parseInt(sortedKeys.get(i + 1))
                     ));
                 }
             }

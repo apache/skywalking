@@ -117,6 +117,16 @@ public class MetricsQuery implements GraphQLQueryResolver {
 
     /**
      * Heatmap is bucket based value statistic result.
+     *
+     * @return heapmap including the latency distribution
+     * {@link HeatMap#getBuckets()}
+     * {@link HeatMap.HeatMapColumn#getValues()} follows this rule.
+     * <pre>
+     *      key = 0, represents [0, 100), value = count of requests in the latency range.
+     *      key = 100, represents [100, 200), value = count of requests in the latency range.
+     *      ...
+     *      key = step * maxNumOfSteps, represents [step * maxNumOfSteps, MAX)
+     * </pre>
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
         return getMetricsQueryService().readHeatMap(condition, duration);

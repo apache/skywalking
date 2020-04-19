@@ -27,18 +27,12 @@ public class DataTableTestCase {
 
     @Before
     public void init() {
-        IntKeyLongValue v1 = new IntKeyLongValue(5, 500);
-        IntKeyLongValue v2 = new IntKeyLongValue(6, 600);
-        IntKeyLongValue v3 = new IntKeyLongValue(1, 100);
-        IntKeyLongValue v4 = new IntKeyLongValue(2, 200);
-        IntKeyLongValue v5 = new IntKeyLongValue(7, 700);
-
         dataTable = new DataTable();
-        dataTable.put(v1.getKey(), v1);
-        dataTable.put(v2.getKey(), v2);
-        dataTable.put(v3.getKey(), v3);
-        dataTable.put(v4.getKey(), v4);
-        dataTable.put(v5.getKey(), v5);
+        dataTable.put("5", 500L);
+        dataTable.put("6", 600L);
+        dataTable.put("1", 100L);
+        dataTable.put("2", 200L);
+        dataTable.put("7", 700L);
     }
 
     @Test
@@ -51,11 +45,11 @@ public class DataTableTestCase {
         DataTable dataTable = new DataTable();
         dataTable.toObject("1,100|2,200|5,500|6,600|7,700");
 
-        Assert.assertEquals(100, dataTable.get(1).getValue());
-        Assert.assertEquals(200, dataTable.get(2).getValue());
-        Assert.assertEquals(500, dataTable.get(5).getValue());
-        Assert.assertEquals(600, dataTable.get(6).getValue());
-        Assert.assertEquals(700, dataTable.get(7).getValue());
+        Assert.assertEquals(100, dataTable.get("1").intValue());
+        Assert.assertEquals(200, dataTable.get("2").intValue());
+        Assert.assertEquals(500, dataTable.get("5").intValue());
+        Assert.assertEquals(600, dataTable.get("6").intValue());
+        Assert.assertEquals(700, dataTable.get("7").intValue());
     }
 
     @Test

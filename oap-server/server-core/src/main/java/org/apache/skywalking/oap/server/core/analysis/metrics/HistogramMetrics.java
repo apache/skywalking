@@ -51,8 +51,8 @@ public abstract class HistogramMetrics extends Metrics {
     /**
      * Data will be grouped in
      * <pre>
-     * key = 100, represents [0, 100), value = count of requests in the latency range.
-     * key = 200, represents [100, 200), value = count of requests in the latency range.
+     * key = 0, represents [0, 100), value = count of requests in the latency range.
+     * key = 100, represents [100, 200), value = count of requests in the latency range.
      * ...
      * key = step * maxNumOfSteps, represents [step * maxNumOfSteps, MAX)
      * </pre>
@@ -69,7 +69,7 @@ public abstract class HistogramMetrics extends Metrics {
             }
         }
 
-        int index = value / step + 1;
+        int index = value / step;
         if (index > maxNumOfSteps) {
             index = maxNumOfSteps;
         }
