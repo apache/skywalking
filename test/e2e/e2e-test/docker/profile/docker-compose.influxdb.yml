@@ -16,28 +16,12 @@
 version: '2.1'
 
 services:
-  h2db:
-    build:
-      context: .
-      dockerfile: Dockerfile.h2
-    networks:
-      - e2e
-    expose:
-      - 1521
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 1521"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
   influxdb:
     image: influxdb:1.7.9
     expose:
       - 8086
     networks:
       - e2e
-    depends_on:
-      - h2db
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8086"]
       interval: 5s
@@ -45,27 +29,14 @@ services:
       retries: 120
 
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
+    extends:
+      file: ../base-compose.yml
+      service: oap
     environment:
-      - SW_STORAGE=influxdb
-      - SW_STORAGE_INFLUXDB_URL=http://influxdb:8086
-      - SW_STORAGE_METABASE_URL=jdbc:h2:tcp://h2db:1521/skywalking-oap-db
-    restart: on-failure
+      SW_STORAGE: influxdb
     depends_on:
-      h2db:
-        condition: service_healthy
       influxdb:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
 networks:
   e2e:

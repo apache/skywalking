@@ -26,6 +26,8 @@ on:
 
 env:
   SKIP_TEST: true
+  SW_AGENT_JDK_VERSION: 8
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   StoragePlugins:
@@ -34,7 +36,7 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        storage: ['mysql', 'es6', 'es7'] #TODO: 'influxdb'
+        storage: ['mysql', 'es6', 'es7', 'influxdb']
     env:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
@@ -50,6 +52,8 @@ jobs:
         run: cp -R dist test/e2e/
       - name: Storage ${{ matrix.storage }}
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.storage.StorageE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

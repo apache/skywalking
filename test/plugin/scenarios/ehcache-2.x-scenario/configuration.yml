@@ -17,4 +17,3 @@
 type: tomcat
 entryService: http://localhost:8080/ehcache-2.x-scenario/case/ehcache
 healthCheck: http://localhost:8080/ehcache-2.x-scenario/healthCheck
-framework: ehcache-2.x

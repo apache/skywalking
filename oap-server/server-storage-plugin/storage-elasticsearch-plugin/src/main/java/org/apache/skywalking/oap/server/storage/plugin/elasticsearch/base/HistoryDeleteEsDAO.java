@@ -54,19 +54,21 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         List<String> indexes = client.retrievalIndexByAliases(model.getName());
 
         List<String> prepareDeleteIndexes = new ArrayList<>();
+        List<String> leftIndices = new ArrayList<>();
         for (String index : indexes) {
             long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
             if (deadline >= timeSeries) {
                 prepareDeleteIndexes.add(index);
+            } else {
+                leftIndices.add(index);
             }
         }
-
-        if (indexes.size() == prepareDeleteIndexes.size()) {
-            client.createIndex(TimeSeriesUtils.latestWriteIndexName(model));
-        }
-
         for (String prepareDeleteIndex : prepareDeleteIndexes) {
             client.deleteByIndexName(prepareDeleteIndex);
+        }
+        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
+        if (!leftIndices.contains(latestIndex)) {
+            client.createIndex(latestIndex);
         }
     }
 }

@@ -18,6 +18,5 @@ type: jvm
 entryService: http://localhost:8080/hystrix-scenario/case/hystrix-scenario
 healthCheck: http://localhost:8080/hystrix-scenario/case/healthCheck
 startScript: ./bin/startup.sh
-framework: hystrix-scenario
 environment:
 dependencies:

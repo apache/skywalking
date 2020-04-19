@@ -17,45 +17,59 @@ version: '2.1'
 
 services:
   oap:
-    image: skywalking/oap:latest
-    expose:
-      - 11800
-      - 12800
-    networks:
-      - e2e
-    restart: on-failure
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+    extends:
+      file: ../base-compose.yml
+      service: oap
 
   ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=oap:12800
+    extends:
+      file: ../base-compose.yml
+      service: ui
     depends_on:
       oap:
         condition: service_healthy
 
-  provider:
+  java-provider:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_NAME: e2e-service-java-provider
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  go2sky:
     build:
-      context: ../../../../
-      dockerfile: e2e-test/docker/Dockerfile.provider
-      args:
-        - DIST_PACKAGE=http://archive.apache.org/dist/skywalking/6.5.0/apache-skywalking-apm-6.5.0.tar.gz
+      context: .
+      dockerfile: Dockerfile.go
     networks:
       - e2e
     expose:
-      - 9090
-    environment:
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICES=oap:11800
+      - 8080
     depends_on:
       oap:
+        condition: service_healthy
+      java-provider:
+        condition: service_healthy
+    command: ['--grpc', '--oap-server', 'oap:11800', '--upstream-url', 'http://java-provider:9090/info']
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  java-consumer:
+    extends:
+      file: ../base-compose.yml
+      service: consumer
+    environment:
+      SW_AGENT_NAME: e2e-service-java-consumer
+      PROVIDER_URL: http://go2sky:8080
+    depends_on:
+      oap:
+        condition: service_healthy
+      go2sky:
         condition: service_healthy
 
 networks:

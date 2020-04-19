@@ -18,9 +18,26 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
-public interface InfluxModelConstants {
-    /**
-     * Override column because the 'duration' is the identifier of InfluxDB.
-     */
-    String DURATION = "dur";
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+public class InfluxTableInstaller extends ModelInstaller {
+
+    public InfluxTableInstaller(ModuleManager moduleManager) {
+        super(moduleManager);
+    }
+
+    @Override
+    protected boolean isExists(final Client client, final Model model) throws StorageException {
+        TableMetaInfo.addModel(model);
+        return true;
+    }
+
+    @Override
+    protected void createTable(final Client client, final Model model) throws StorageException {
+        // Automatically create table
+    }
 }

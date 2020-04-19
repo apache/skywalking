@@ -16,12 +16,27 @@
  *
  */
 
-import java.nio.charset.StandardCharsets;
+package org.apache.skywalking.oap.server.core.query.entity;
 
-public class Main {
-    public static void main(String[] args) {
-        String abc = "3_b3JnLnNreXdha2luZy5hcG0udGVzdGNhc2UuZHViYm8uc2VydmljZXMuR3JlZXRTZXJ2aWNlSW1wbC5kb0J1c2luZXNzKCk=_0";
-        System.out.println(abc.length());
-        System.out.println(abc.getBytes(StandardCharsets.UTF_8).length);
-    }
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+/**
+ * create profile task result
+ */
+@Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProfileTaskCreationResult {
+
+    // if null or empty means the task create success, otherwise get create error reason
+    private String errorReason;
+    // get data id when create success
+    private String id;
+
 }

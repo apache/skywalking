@@ -16,7 +16,6 @@ type: jvm
 entryService: http://localhost:8080/elasticsearch-case/case/elasticsearch
 healthCheck: http://localhost:8080/elasticsearch-case/case/healthcheck
 startScript: ./bin/startup.sh
-framework: elasticsearch
 environment:
   - elasticsearch.server=elasticsearch-server-6.x:9200
 dependencies:
