@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -78,7 +78,7 @@ public class TraceQuery implements ITraceQueryDAO {
         }
 
         WhereQueryImpl<SelectQueryImpl> recallQuery = select()
-            .function("top", orderBy, limit + from)
+            .function(InfluxConstants.SORT_DES, orderBy, limit + from)
             .column(SegmentRecord.SEGMENT_ID)
             .column(SegmentRecord.START_TIME)
             .column(SegmentRecord.ENDPOINT_NAME)
@@ -102,7 +102,7 @@ public class TraceQuery implements ITraceQueryDAO {
             recallQuery.and(contains(SegmentRecord.ENDPOINT_NAME, endpointName.replaceAll("/", "\\\\/")));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
+            recallQuery.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
             recallQuery.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
@@ -201,9 +201,9 @@ public class TraceQuery implements ITraceQueryDAO {
             segmentRecord.setEndTime((long) values.get(7));
             segmentRecord.setLatency((int) values.get(8));
             segmentRecord.setIsError((int) values.get(9));
-            segmentRecord.setVersion((int) values.get(10));
+            segmentRecord.setVersion((int) values.get(11));
 
-            String base64 = (String) values.get(9);
+            String base64 = (String) values.get(10);
             if (!Strings.isNullOrEmpty(base64)) {
                 segmentRecord.setDataBinary(Base64.getDecoder().decode(base64));
             }

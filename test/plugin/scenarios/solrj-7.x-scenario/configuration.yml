@@ -25,6 +25,7 @@ dependencies:
   solr-server:
     image: solr:${CASE_SERVER_IMAGE_VERSION}
     hostname: solr-server
+    removeOnExit: true
     entrypoint:
       - docker-entrypoint.sh
       - solr-precreate

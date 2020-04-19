@@ -25,13 +25,11 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.query.enumeration.Order;
-import org.apache.skywalking.oap.server.core.query.type.TopNEntity;
+import org.apache.skywalking.oap.server.core.query.entity.Order;
+import org.apache.skywalking.oap.server.core.query.entity.TopNEntity;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.MetricsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectSubQueryImpl;
@@ -68,7 +66,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                                                    long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
-            subQuery(InstanceTraffic.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
+            subQuery(InfluxConstants.TagName.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
         );
     }
 
@@ -84,7 +82,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                                             long startTB, long endTB, Order order) throws IOException {
         return getTopNEntity(
             downsampling, indName,
-            subQuery(EndpointTraffic.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
+            subQuery(InfluxConstants.TagName.SERVICE_ID, serviceId, indName, valueCName, startTB, endTB), order, topN
         );
     }
 
@@ -95,14 +93,14 @@ public class AggregationQuery implements IAggregationQueryDAO {
                                            int topN) throws IOException {
         // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNEntity> comparator = DESCENDING;
-        String functionName = "top";
+        String functionName = InfluxConstants.SORT_DES;
         if (order == Order.ASC) {
-            functionName = "bottom";
+            functionName = InfluxConstants.SORT_ASC;
             comparator = ASCENDING;
         }
 
         SelectQueryImpl query = select().function(functionName, "mean", topN).as("value")
-                                        .column(MetricsDAO.TAG_ENTITY_ID)
+                                        .column(InfluxConstants.TagName.ENTITY_ID)
                                         .from(client.getDatabase(), measurement);
         query.setSubQuery(subQuery);
 
@@ -135,7 +133,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                        .and(eq(serviceColumnName, serviceId))
                        .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
                        .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
-                       .groupBy(MetricsDAO.TAG_ENTITY_ID);
+                       .groupBy(InfluxConstants.TagName.ENTITY_ID);
     }
 
     private SelectSubQueryImpl<SelectQueryImpl> subQuery(String name, String columnName, long startTB, long endTB) {
@@ -143,7 +141,7 @@ public class AggregationQuery implements IAggregationQueryDAO {
                        .where()
                        .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB)))
                        .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB)))
-                       .groupBy(MetricsDAO.TAG_ENTITY_ID);
+                       .groupBy(InfluxConstants.TagName.ENTITY_ID);
     }
 
     private static final Comparator<TopNEntity> ASCENDING = Comparator.comparingLong(TopNEntity::getValue);

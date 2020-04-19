@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.WhereQueryImpl;
 
@@ -50,11 +50,11 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
     @Override
     public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName,
                                            String serviceId, int topN, Order order) throws IOException {
-        String function = "bottom";
+        String function = InfluxConstants.SORT_ASC;
         // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
         Comparator<TopNRecord> comparator = Comparator.comparingLong(TopNRecord::getLatency);
         if (order.equals(Order.DES)) {
-            function = "top";
+            function = InfluxConstants.SORT_DES;
             comparator = (a, b) -> Long.compare(b.getLatency(), a.getLatency());
         }
 
@@ -68,7 +68,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             .and(lte(TopN.TIME_BUCKET, endSecondTB));
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            query.and(eq(RecordDAO.TAG_SERVICE_ID, serviceId));
+            query.and(eq(InfluxConstants.TagName.SERVICE_ID, serviceId));
         }
 
         QueryResult.Series series = client.queryForSingleSeries(query);
