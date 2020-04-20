@@ -54,18 +54,18 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     public List<Service> getAllServices(final Duration duration) throws IOException, ParseException {
-        return getMetadataQueryService().getAllServices(duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getMetadataQueryService().getAllServices(duration.getStartTimestamp(), duration.getEndTimestamp());
     }
 
     public List<Service> getAllBrowserServices(final Duration duration) throws IOException, ParseException {
         return getMetadataQueryService().getAllBrowserServices(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket());
+            duration.getStartTimestamp(), duration.getEndTimestamp());
     }
 
     public List<Service> searchServices(final Duration duration,
                                         final String keyword) throws IOException, ParseException {
         return getMetadataQueryService().searchServices(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), keyword);
+            duration.getStartTimestamp(), duration.getEndTimestamp(), keyword);
     }
 
     public Service searchService(final String serviceCode) throws IOException {
@@ -75,7 +75,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     public List<ServiceInstance> getServiceInstances(final Duration duration,
                                                      final String serviceId) throws IOException, ParseException {
         return getMetadataQueryService().getServiceInstances(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), serviceId);
+            duration.getStartTimestamp(), duration.getEndTimestamp(), serviceId);
     }
 
     public List<Endpoint> searchEndpoint(final String keyword, final String serviceId,

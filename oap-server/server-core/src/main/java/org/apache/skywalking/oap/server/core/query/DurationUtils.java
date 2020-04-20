@@ -30,6 +30,11 @@ import org.joda.time.format.DateTimeFormatter;
 public enum DurationUtils {
     INSTANCE;
 
+    private static final DateTimeFormatter YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter YYYY_MM_DD_HH = DateTimeFormat.forPattern("yyyy-MM-dd HH");
+    private static final DateTimeFormatter YYYY_MM_DD_HHMM = DateTimeFormat.forPattern("yyyy-MM-dd HHmm");
+    private static final DateTimeFormatter YYYY_MM_DD_HHMMSS = DateTimeFormat.forPattern("yyyy-MM-dd HHmmss");
+
     private static final DateTimeFormatter YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter YYYYMMDDHH = DateTimeFormat.forPattern("yyyyMMddHH");
     private static final DateTimeFormatter YYYYMMDDHHMM = DateTimeFormat.forPattern("yyyyMMddHHmm");
@@ -122,6 +127,34 @@ public enum DurationUtils {
         while (endTimeBucket != durations.get(durations.size() - 1).getPoint());
 
         return durations;
+    }
+
+    public long startTimeToTimestamp(Step step, String dateStr) {
+        switch (step) {
+            case DAY:
+                return YYYY_MM_DD.parseMillis(dateStr);
+            case HOUR:
+                return YYYY_MM_DD_HH.parseMillis(dateStr);
+            case MINUTE:
+                return YYYY_MM_DD_HHMM.parseMillis(dateStr);
+            case SECOND:
+                return YYYY_MM_DD_HHMMSS.parseMillis(dateStr);
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
+    public long endTimeToTimestamp(Step step, String dateStr) {
+        switch (step) {
+            case DAY:
+                return YYYY_MM_DD.parseDateTime(dateStr).plusDays(1).getMillis();
+            case HOUR:
+                return YYYY_MM_DD_HH.parseDateTime(dateStr).plusHours(1).getMillis();
+            case MINUTE:
+                return YYYY_MM_DD_HHMM.parseDateTime(dateStr).plusMinutes(1).getMillis();
+            case SECOND:
+                return YYYY_MM_DD_HHMMSS.parseDateTime(dateStr).plusSeconds(1).getMillis();
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
     }
 
     private DateTime parseToDateTime(Step step, long time) {

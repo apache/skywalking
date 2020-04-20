@@ -44,6 +44,14 @@ public class Duration {
         return DurationUtils.INSTANCE.convertToTimeBucket(end);
     }
 
+    public long getStartTimestamp() {
+        return DurationUtils.INSTANCE.startTimeToTimestamp(step, start);
+    }
+
+    public long getEndTimestamp() {
+        return DurationUtils.INSTANCE.startTimeToTimestamp(step, end);
+    }
+
     public long getStartTimeBucketInSec() {
         return DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(step, start);
     }
