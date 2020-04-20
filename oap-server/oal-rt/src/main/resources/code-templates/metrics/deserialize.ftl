@@ -16,7 +16,7 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
 </#list>
 
 <#list serializeFields.dataTableFields as field>
-    ${field.setter}(new org.apache.skywalking.oap.server.core.analysis.metrics.DataTable(remoteData.getDataStrings(${field?index})));
+    ${field.setter}(new org.apache.skywalking.oap.server.core.analysis.metrics.DataTable(remoteData.getDataTableStrings(${field?index})));
 </#list>
 
 }
