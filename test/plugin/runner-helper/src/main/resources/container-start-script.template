@@ -30,7 +30,7 @@ docker run \
         --env CATALINA_OPTS=${catalina_opts} \
         </#if>
         <#if debug_mode??>
-        --eve DEBUG_MODE=${debug_mode} \
+        --env DEBUG_MODE=${debug_mode} \
         </#if>
         -v ${agent_home}:/usr/local/skywalking/scenario/agent \
         -v ${scenario_home}:/usr/local/skywalking/scenario \
