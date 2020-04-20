@@ -20,9 +20,9 @@ set -ex
 
 home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
-parallel_run_size=1
 force_build="off"
 cleanup="off"
+debug_mode=
 
 mvnw=${home}/../../mvnw
 agent_home="${home}"/../../skywalking-agent
@@ -32,7 +32,6 @@ scenarios_home="${home}/scenarios"
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
-    echo -e "\t--parallel_run_size, \t\t parallel size of test cases. Default: 1"
     echo -e "\t--cleanup, \t\t\t remove the related images and directories"
 }
 
@@ -47,19 +46,10 @@ parse_commandline() {
             --cleanup)
                 cleanup="on"
                 ;;
-            --parallel_run_size)
-                test $# -lt 2 && exitWithMessage "Missing value for the optional argument '$_key'."
-                parallel_run_size="$2"
-                shift
-                ;;
-            --parallel_run_size=*)
-                parallel_run_size="${_key##--parallel_run_size=}"
+            --debug)
+                debug_mode="on";
                 ;;
             -h|--help)
-                print_help
-                exit 0
-                ;;
-            -h*)
                 print_help
                 exit 0
                 ;;
@@ -78,27 +68,14 @@ exitWithMessage() {
 
 exitAndClean() {
     elapsed=$(( `date +%s` - $start_stamp ))
-    num_of_testcases="`ls -l ${task_state_house} |grep -c FINISH`"
     [[ $1 -eq 1 ]] && printSystemInfo
-    printf "Scenarios: %s, Testcases: %d, parallel_run_size: %d, Elapsed: %02d:%02d:%02d \n" \
-        ${scenario_name} "${num_of_testcases}" "${parallel_run_size}" \
+    printf "Scenarios: ${scenario_name}, Testcases: ${num_of_testcases}, Elapsed: %02d:%02d:%02d \n" \
         $(( ${elapsed}/3600 )) $(( ${elapsed}%3600/60 )) $(( ${elapsed}%60 ))
     exit $1
 }
 
 printSystemInfo(){
   bash ${home}/script/systeminfo.sh
-}
-
-waitForAvailable() {
-    while [[ `ls -l ${task_state_house} |grep -c RUNNING` -ge ${parallel_run_size} ]]
-    do
-        sleep 2
-    done
-
-    if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
-        exitAndClean 1
-    fi
 }
 
 do_cleanup() {
@@ -155,9 +132,7 @@ fi
 [[ "$force_build" == "on" ]] && ${mvnw} --batch-mode -f ${home}/pom.xml clean package -DskipTests -DBUILD_NO=${BUILD_NO:=local} docker:build
 
 workspace="${home}/workspace/${scenario_name}"
-task_state_house="${workspace}/.states"
 [[ -d ${workspace} ]] && rm -rf $workspace
-mkdir -p ${task_state_house}
 
 plugin_runner_helper="${home}/dist/plugin-runner-helper.jar"
 if [[ ! -f ${plugin_runner_helper} ]]; then
@@ -211,27 +186,22 @@ do
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${_agent_home} \
         -Djacoco.home=${jacoco_home} \
+        -Ddebug.mode=${debug_mode} \
         -Ddocker.image.version=${BUILD_NO:=local} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log
-    sleep 3
-    waitForAvailable
-    rm -rf ${case_work_base}
+    bash ${case_work_base}/scenario.sh $debug 1>${case_work_logs_dir}/${testcase_name}.log
+    status=$?
+    if [[ $status == 0 ]]; then
+        rm -rf ${case_work_base}
+    else
+        exitWithMessage "Testcase ${testcase_name} failed!"
+    fi
 done
 
 echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"
-
-# wait to finish
-while [[ `ls -l ${task_state_house} |grep -c RUNNING` -gt 0 ]]; do
-    sleep 1
-done
-
-if [[ `ls -l ${task_state_house} |grep -c FAILURE` -gt 0 ]]; then
-    exitAndClean 1
-fi
 
 exitAndClean 0

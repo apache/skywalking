@@ -160,6 +160,11 @@ public class ConfigurationImpl implements IConfiguration {
     }
 
     @Override
+    public String debugMode() {
+        return System.getProperty("debug.mode");
+    }
+
+    @Override
     public Map<String, Object> toMap() {
         final Map<String, Object> root = new HashMap<>();
 
@@ -175,6 +180,7 @@ public class ConfigurationImpl implements IConfiguration {
         root.put("docker_image_version", dockerImageVersion());
         root.put("docker_container_name", dockerContainerName());
         root.put("jacoco_home", jacocoHome());
+        root.put("debug_mode", debugMode());
 
         root.put("expose", caseConfiguration().getExpose());
         root.put("hostname", caseConfiguration().getHostname());

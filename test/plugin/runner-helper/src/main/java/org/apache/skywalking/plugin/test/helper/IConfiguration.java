@@ -56,5 +56,7 @@ public interface IConfiguration {
 
     String jacocoHome();
 
+    String debugFlag();
+
     Map<String, Object> toMap();
 }
