@@ -55,7 +55,9 @@ public class HeatMap {
             for (int i = 0; i < sortedKeys.size(); i++) {
                 if (i == sortedKeys.size() - 1) {
                     // last element
-                    this.addBucket(new Bucket(Integer.parseInt(sortedKeys.get(i)), Integer.MAX_VALUE));
+                    this.addBucket(
+                        new Bucket().setMin(Integer.parseInt(sortedKeys.get(i))).infiniteMax()
+                    );
                 } else {
                     this.addBucket(new Bucket(
                         Integer.parseInt(sortedKeys.get(i)),

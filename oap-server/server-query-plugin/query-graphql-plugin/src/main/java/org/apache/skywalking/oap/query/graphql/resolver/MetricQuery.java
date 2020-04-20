@@ -135,10 +135,11 @@ public class MetricQuery implements GraphQLQueryResolver {
         Thermodynamic thermodynamic = new Thermodynamic();
         final List<Bucket> buckets = heatMap.getBuckets();
 
-        if (buckets.size() > 0) {
+        if (buckets.size() > 1) {
             // Use the first bucket size as the axis Y step, because in the previous(before 8.x),
             // We only use equilong bucket.
-            thermodynamic.setAxisYStep(buckets.get(0).duration());
+            // Use 1 to avoid `infinite-` as bucket#min
+            thermodynamic.setAxisYStep(buckets.get(1).duration());
         } else {
             // Used to be a static config.
             thermodynamic.setAxisYStep(200);
