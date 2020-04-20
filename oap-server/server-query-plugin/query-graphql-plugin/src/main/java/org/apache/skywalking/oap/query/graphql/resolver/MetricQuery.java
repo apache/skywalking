@@ -145,14 +145,11 @@ public class MetricQuery implements GraphQLQueryResolver {
             thermodynamic.setAxisYStep(200);
         }
 
-        final List<List<Long>> nodeMatrix = thermodynamic.getNodes();
         for (int x = 0; x < heatMap.getValues().size(); x++) {
             final HeatMap.HeatMapColumn heatMapColumn = heatMap.getValues().get(x);
-            List<Long> column = new ArrayList<>(23);
             for (int y = 0; y < heatMapColumn.getValues().size(); y++) {
-                column.add(heatMapColumn.getValues().get(y));
+                thermodynamic.addNodeValue(x, y, heatMapColumn.getValues().get(y));
             }
-            nodeMatrix.add(column);
         }
 
         return thermodynamic;

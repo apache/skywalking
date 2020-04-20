@@ -101,6 +101,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
     }
 
     @Override
+    public void copyFrom(final DataTable source) {
+        this.append(source);
+    }
+
     public void append(DataTable dataTable) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);

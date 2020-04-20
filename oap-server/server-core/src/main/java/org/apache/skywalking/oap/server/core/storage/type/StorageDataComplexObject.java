@@ -35,5 +35,5 @@ public interface StorageDataComplexObject<T> {
     /**
      * Initialize the object based on the given source.
      */
-    void append(T source);
+    void copyFrom(T source);
 }

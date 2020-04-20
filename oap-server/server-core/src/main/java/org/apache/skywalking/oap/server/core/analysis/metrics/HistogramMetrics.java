@@ -63,7 +63,7 @@ public abstract class HistogramMetrics extends Metrics {
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
         if (!dataset.hasData()) {
-            for (int i = 1; i <= maxNumOfSteps; i++) {
+            for (int i = 0; i <= maxNumOfSteps; i++) {
                 String key = String.valueOf(i * step);
                 dataset.put(key, 0L);
             }

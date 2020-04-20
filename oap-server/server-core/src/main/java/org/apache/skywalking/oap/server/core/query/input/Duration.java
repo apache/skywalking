@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.core.query.input;
 
 import java.util.List;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
+@Getter
 public class Duration {
     private String start;
     private String end;
@@ -47,7 +49,7 @@ public class Duration {
     }
 
     public long getEndTimeBucketInSec() {
-        return DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(step, start);
+        return DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(step, end);
     }
 
     /**

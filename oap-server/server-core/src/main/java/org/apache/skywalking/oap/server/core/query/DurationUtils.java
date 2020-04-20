@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -30,11 +29,6 @@ import org.joda.time.format.DateTimeFormatter;
 
 public enum DurationUtils {
     INSTANCE;
-
-    private static final DateTimeFormatter YYYY_MM_DD = DateTimeFormat.forPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter YYYY_MM_DD_HH = DateTimeFormat.forPattern("yyyy-MM-dd HH");
-    private static final DateTimeFormatter YYYY_MM_DD_HHMM = DateTimeFormat.forPattern("yyyy-MM-dd HHmm");
-    private static final DateTimeFormatter YYYY_MM_DD_HHMMSS = DateTimeFormat.forPattern("yyyy-MM-dd HHmmss");
 
     private static final DateTimeFormatter YYYYMMDD = DateTimeFormat.forPattern("yyyyMMdd");
     private static final DateTimeFormatter YYYYMMDDHH = DateTimeFormat.forPattern("yyyyMMddHH");
@@ -87,58 +81,6 @@ public enum DurationUtils {
                 break;
         }
         return secondTimeBucket;
-    }
-
-    public long startTimeToTimestamp(Step step, String dateStr) {
-        switch (step) {
-            case DAY:
-                return YYYY_MM_DD.parseMillis(dateStr);
-            case HOUR:
-                return YYYY_MM_DD_HH.parseMillis(dateStr);
-            case MINUTE:
-                return YYYY_MM_DD_HHMM.parseMillis(dateStr);
-            case SECOND:
-                return YYYY_MM_DD_HHMMSS.parseMillis(dateStr);
-        }
-        throw new UnexpectedException("Unsupported step " + step.name());
-    }
-
-    public long endTimeToTimestamp(Step step, String dateStr) {
-        switch (step) {
-            case DAY:
-                return YYYY_MM_DD.parseDateTime(dateStr).plusDays(1).getMillis();
-            case HOUR:
-                return YYYY_MM_DD_HH.parseDateTime(dateStr).plusHours(1).getMillis();
-            case MINUTE:
-                return YYYY_MM_DD_HHMM.parseDateTime(dateStr).plusMinutes(1).getMillis();
-            case SECOND:
-                return YYYY_MM_DD_HHMMSS.parseDateTime(dateStr).plusSeconds(1).getMillis();
-        }
-        throw new UnexpectedException("Unsupported step " + step.name());
-    }
-
-    public int minutesBetween(DownSampling downsampling, DateTime dateTime) {
-        switch (downsampling) {
-            case Day:
-                return 24 * 60;
-            case Hour:
-                return 60;
-            default:
-                return 1;
-        }
-    }
-
-    public int secondsBetween(DownSampling downsampling, DateTime dateTime) {
-        switch (downsampling) {
-            case Day:
-                return 24 * 60 * 60;
-            case Hour:
-                return 60 * 60;
-            case Minute:
-                return 60;
-            default:
-                return 1;
-        }
     }
 
     public List<PointOfTime> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) {

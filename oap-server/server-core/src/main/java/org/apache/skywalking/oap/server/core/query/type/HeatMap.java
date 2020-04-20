@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 @Getter
 public class HeatMap {
     private List<HeatMapColumn> values = new ArrayList<>(10);
-    private List<Bucket> buckets = new ArrayList<>(10);
+    private List<Bucket> buckets = null;
 
     public void addBucket(Bucket bucket) {
         this.buckets.add(bucket);
@@ -71,17 +71,20 @@ public class HeatMap {
         column.setId(id);
         sortedKeys.forEach(key -> {
             column.addValue(dataset.get(key));
-
         });
+        values.add(column);
     }
 
     public void fixMissingColumns(List<String> ids) {
         for (int i = 0; i < ids.size(); i++) {
             final String expectedId = ids.get(i);
-            final HeatMapColumn column = values.get(i);
-            if (expectedId.equals(column.id)) {
-                continue;
-            } else {
+            boolean found = false;
+            for (final HeatMapColumn value : values) {
+                if (expectedId.equals(value.id)) {
+                    found = true;
+                }
+            }
+            if (!found) {
                 final HeatMapColumn emptyColumn = buildMissingColumn(expectedId);
                 values.add(i, emptyColumn);
             }

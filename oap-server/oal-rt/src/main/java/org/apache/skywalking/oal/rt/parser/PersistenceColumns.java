@@ -64,7 +64,7 @@ public class PersistenceColumns {
         return intFields;
     }
 
-    public List<PersistenceField> getIntKeyLongValueHashMapFields() {
+    public List<PersistenceField> getDataTableFields() {
         return dataTableFields;
     }
 }
