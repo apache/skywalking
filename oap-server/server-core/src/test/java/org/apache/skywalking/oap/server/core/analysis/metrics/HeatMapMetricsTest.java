@@ -45,7 +45,7 @@ public class HeatMapMetricsTest {
         metricsMocker.combine(100, step, maxNumOfSteps);
 
         final DataTable dataset = metricsMocker.getDataset();
-        Assert.assertEquals(10, dataset.size());
+        Assert.assertEquals(11, dataset.size());
 
         Assert.assertEquals(1, dataset.get("20").intValue());
         Assert.assertEquals(3, dataset.get("50").intValue());
@@ -77,7 +77,7 @@ public class HeatMapMetricsTest {
         metricsMocker.combine(metricsMocker1);
 
         final DataTable dataset = metricsMocker.getDataset();
-        Assert.assertEquals(10, dataset.size());
+        Assert.assertEquals(11, dataset.size());
 
         Assert.assertEquals(1, dataset.get("20").intValue());
         Assert.assertEquals(3, dataset.get("50").intValue());
