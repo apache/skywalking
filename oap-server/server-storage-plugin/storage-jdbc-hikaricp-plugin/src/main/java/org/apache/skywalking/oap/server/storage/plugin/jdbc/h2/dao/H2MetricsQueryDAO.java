@@ -70,6 +70,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             parameters.add(entityId);
         }
         sql.append(Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=?" + " group by " + Metrics.ENTITY_ID);
+        parameters.add(duration.getStartTimeBucket());
+        parameters.add(duration.getEndTimeBucket());
 
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
