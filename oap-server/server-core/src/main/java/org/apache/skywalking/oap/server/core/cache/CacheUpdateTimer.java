@@ -26,8 +26,10 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.entity.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
@@ -55,7 +57,9 @@ public enum CacheUpdateTimer {
 
     private void update(ModuleDefineHolder moduleDefineHolder) {
         updateNetAddressAliasCache(moduleDefineHolder);
-        updateProfileTask(moduleDefineHolder);
+        if (!DisableRegister.INSTANCE.include(ProfileTaskRecord.INDEX_NAME)) {
+            updateProfileTask(moduleDefineHolder);
+        }
     }
 
     /**
