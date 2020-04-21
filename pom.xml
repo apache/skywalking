@@ -219,6 +219,7 @@
         <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     </properties>
 
     <dependencies>
@@ -258,7 +259,7 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
+            <version>${javax.annotation-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
