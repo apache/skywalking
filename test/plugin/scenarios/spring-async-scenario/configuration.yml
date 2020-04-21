@@ -17,4 +17,3 @@
 type: tomcat
 entryService: http://localhost:8080/spring-async-scenario/case/spring-async
 healthCheck: http://localhost:8080/spring-async-scenario/case/healthCheck
-framework: spring-async

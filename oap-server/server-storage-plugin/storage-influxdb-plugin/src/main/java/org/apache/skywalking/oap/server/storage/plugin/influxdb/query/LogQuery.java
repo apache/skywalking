@@ -26,14 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
-import org.apache.skywalking.oap.server.core.query.entity.ContentType;
-import org.apache.skywalking.oap.server.core.query.entity.Log;
-import org.apache.skywalking.oap.server.core.query.entity.LogState;
-import org.apache.skywalking.oap.server.core.query.entity.Logs;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import org.apache.skywalking.oap.server.core.query.type.ContentType;
+import org.apache.skywalking.oap.server.core.query.type.Log;
+import org.apache.skywalking.oap.server.core.query.type.LogState;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.RecordDAO;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
 import org.elasticsearch.common.Strings;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
@@ -51,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.STATUS_CODE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants.ALL_FIELDS;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.eq;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.gte;
 import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.lte;
@@ -68,11 +70,11 @@ public class LogQuery implements ILogQueryDAO {
     public Logs queryLogs(String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
                           LogState state, String stateCode, Pagination paging, int from, int limit,
                           long startTB, long endTB) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> recallQuery = select().regex("*::field")
+        WhereQueryImpl<SelectQueryImpl> recallQuery = select().raw(ALL_FIELDS)
                                                               .from(client.getDatabase(), metricName)
                                                               .where();
         if (serviceId != Const.NONE) {
-            recallQuery.and(eq(RecordDAO.TAG_SERVICE_ID, String.valueOf(serviceId)));
+            recallQuery.and(eq(InfluxConstants.TagName.SERVICE_ID, String.valueOf(serviceId)));
         }
         if (serviceInstanceId != Const.NONE) {
             recallQuery.and(eq(SERVICE_INSTANCE_ID, serviceInstanceId));
@@ -131,8 +133,12 @@ public class LogQuery implements ILogQueryDAO {
                 Map<String, Object> data = Maps.newHashMap();
                 Log log = new Log();
 
-                for (int i = 0; i < columns.size(); i++) {
-                    data.put(columns.get(i), values.get(i));
+                for (int i = 1; i < columns.size(); i++) {
+                    Object value = values.get(i);
+                    if (value instanceof StorageDataComplexObject) {
+                        value = ((StorageDataComplexObject) value).toStorageData();
+                    }
+                    data.put(columns.get(i), value);
                 }
                 log.setContent((String) data.get(CONTENT));
                 log.setContentType(ContentType.instanceOf((int) data.get(CONTENT_TYPE)));

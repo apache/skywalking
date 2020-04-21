@@ -48,6 +48,11 @@ public @interface Column {
     Function function() default Function.None;
 
     /**
+     * The default value of this column, when its {@link #isValue()} == true.
+     */
+    int defaultValue() default 0;
+
+    /**
      * Match query means using analyzer(if storage have) to do key word match query.
      */
     boolean matchQuery() default false;

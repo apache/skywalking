@@ -33,7 +33,7 @@ public enum MockContextSnapshot {
         distributedTraceIds.add(new NewDistributedTraceId());
 
         contextSnapshot = new ContextSnapshot(
-            "1, 2, 3", 1, new NewDistributedTraceId(), "/for-test-entryOperationName", new CorrelationContext());
+            "1, 2, 3", 1, new NewDistributedTraceId(), "/for-test-entryOperationName", new CorrelationContext(), new ExtensionContext());
     }
 
     public ContextSnapshot mockContextSnapshot() {

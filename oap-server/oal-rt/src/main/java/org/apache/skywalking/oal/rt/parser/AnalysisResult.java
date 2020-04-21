@@ -140,8 +140,8 @@ public class AnalysisResult {
                 case "long":
                     serializeFields.addLongField(column.getFieldName());
                     break;
-                case "IntKeyLongValueHashMap":
-                    serializeFields.addIntKeyLongValueHashMapField(column.getFieldName());
+                case "DataTable":
+                    serializeFields.addDataTableField(column.getFieldName());
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field type [" + type + "] of persistence column [" + column

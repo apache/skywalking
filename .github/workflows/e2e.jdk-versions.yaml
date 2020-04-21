@@ -26,6 +26,7 @@ on:
 
 env:
   SKIP_TEST: true
+  CODECOV_TOKEN: d2065307-8f01-4637-9715-2781ef096db7
 
 jobs:
   JavaVersions:
@@ -38,6 +39,7 @@ jobs:
     env:
       SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
+      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine
     steps:
       - uses: actions/checkout@v2
       - name: Checkout Submodules
@@ -45,12 +47,18 @@ jobs:
         run: |
           git submodule sync --recursive
           git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+      - name: Set Up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.jdk }}
       - name: Build Docker Image
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
       - name: Agent on JDK Version ${{ matrix.jdk }}
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.simple.SimpleE2E
+      - name: Report Coverage
+        run: bash -x tools/coverage/report.sh
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

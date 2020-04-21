@@ -21,9 +21,13 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
-import org.apache.skywalking.oap.server.core.query.entity.TopNRecord;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -40,24 +44,31 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
     }
 
     @Override
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, String serviceId,
-        int topN, Order order) throws IOException {
+    public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET)
+                                                 .gte(duration.getStartTimeBucket())
+                                                 .lte(duration.getEndTimeBucket()));
+
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            boolQueryBuilder.must().add(QueryBuilders.termQuery(TopN.SERVICE_ID, serviceId));
+        }
 
         sourceBuilder.query(boolQueryBuilder);
-        sourceBuilder.size(topN).sort(TopN.LATENCY, order.equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
-        SearchResponse response = getClient().search(metricName, sourceBuilder);
+        sourceBuilder.size(condition.getTopN())
+                     .sort(TopN.LATENCY, condition.getOrder().equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
 
-        List<TopNRecord> results = new ArrayList<>();
+        List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            TopNRecord record = new TopNRecord();
-            record.setStatement((String) searchHit.getSourceAsMap().get(TopN.STATEMENT));
-            record.setTraceId((String) searchHit.getSourceAsMap().get(TopN.TRACE_ID));
-            record.setLatency(((Number) searchHit.getSourceAsMap().get(TopN.LATENCY)).longValue());
+            SelectedRecord record = new SelectedRecord();
+            record.setName((String) searchHit.getSourceAsMap().get(TopN.STATEMENT));
+            record.setRefId((String) searchHit.getSourceAsMap().get(TopN.TRACE_ID));
+            record.setValue(((Number) searchHit.getSourceAsMap().get(TopN.LATENCY)).toString());
             results.add(record);
         }
 

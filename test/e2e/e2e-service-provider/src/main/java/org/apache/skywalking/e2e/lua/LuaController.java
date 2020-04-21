@@ -19,6 +19,7 @@
 package org.apache.skywalking.e2e.lua;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,8 +37,15 @@ public class LuaController {
     @PostMapping("/nginx/entry/info")
     private String nginxEntry(String backend) throws MalformedURLException, URISyntaxException {
         final URL url = new URL("http://nginx:8080/nginx/info");
+        TraceContext.putCorrelation("entry", "entry_value");
         final ResponseEntity<String> response = restTemplate.postForEntity(url.toURI(), null, String.class);
         return response.getBody();
+    }
+
+    @PostMapping("/nginx/end/info")
+    private String nginxEnd() throws MalformedURLException, URISyntaxException {
+        return TraceContext.getCorrelation("entry").orElse("")
+            + "_" + TraceContext.getCorrelation("nginx").orElse("");
     }
 
 }

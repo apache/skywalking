@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -ex
+
 home="$(cd "$(dirname $0)"; pwd)"
 scenario_name=""
 parallel_run_size=1
@@ -23,7 +25,8 @@ force_build="off"
 cleanup="off"
 
 mvnw=${home}/../../mvnw
-agent_home=${home}"/../../skywalking-agent"
+agent_home="${home}"/../../skywalking-agent
+jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
 
 print_help() {
@@ -34,7 +37,6 @@ print_help() {
 }
 
 parse_commandline() {
-    _positionals_count=0
     while test $# -gt 0
     do
         _key="$1"
@@ -185,7 +187,6 @@ fi
 supported_versions=`grep -v -E "^$|^#" ${supported_version_file}`
 for version in ${supported_versions}
 do
-    waitForAvailable
     testcase_name="${scenario_name}-${version}"
 
     # testcase working directory, there are logs, data and packages.
@@ -209,14 +210,17 @@ do
         -Dscenario.version=${version} \
         -Doutput.dir=${case_work_base} \
         -Dagent.dir=${_agent_home} \
+        -Djacoco.home=${jacoco_home} \
         -Ddocker.image.version=${BUILD_NO:=local} \
         ${plugin_runner_helper} 1>${case_work_logs_dir}/helper.log
 
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log &
+    bash ${case_work_base}/scenario.sh ${task_state_house} 1>${case_work_logs_dir}/${testcase_name}.log
     sleep 3
+    waitForAvailable
+    rm -rf ${case_work_base}
 done
 
 echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"
