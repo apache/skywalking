@@ -28,6 +28,11 @@ ls -alh "${JACOCO_HOME}"
 for exec_data in "${JACOCO_HOME}"/*.exec; do
   exec_data=${exec_data/*\//}
   exec_data=${exec_data/.exec/}
+
+  sudo rm -rf "${JACOCO_HOME}"/classes/"${exec_data}"/org/apache/skywalking/oap/server/core/query/entity || true
+  sudo rm -rf "${JACOCO_HOME}"/classes/"${exec_data}"/org/apache/skywalking/testcase || true
+  sudo rm -rf "${JACOCO_HOME}"/classes/"${exec_data}"/org/apache/skywalking/e2e || true
+
   java -jar "${JACOCO_HOME}"/jacococli.jar report \
     --classfiles "${JACOCO_HOME}"/classes/"$exec_data" \
     --xml=/tmp/report-"$exec_data".xml \
