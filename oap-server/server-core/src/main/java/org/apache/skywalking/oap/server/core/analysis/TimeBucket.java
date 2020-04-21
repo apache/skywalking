@@ -95,14 +95,6 @@ public class TimeBucket {
     }
 
     /**
-     * The format of timeBucket in month Unit is "yyyyMM", so which means the TimeBucket must be between 100000 and
-     * 999999.
-     */
-    public static boolean isMonthBucket(long timeBucket) {
-        return timeBucket < 999999L && timeBucket > 100000L;
-    }
-
-    /**
      * Convert TimeBucket to Timestamp in millisecond.
      *
      * @param timeBucket   long
