@@ -55,7 +55,7 @@ public class MetadataQuery implements GraphQLQueryResolver {
     }
 
     /**
-     * @return all 0 of metadata. 
+     * @return all 0 of metadata.
      */
     @Deprecated
     public ClusterBrief getGlobalBrief(final Duration duration) throws IOException, ParseException {
