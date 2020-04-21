@@ -80,18 +80,9 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
         WhereQueryImpl<SelectQueryImpl> queryWhereQuery = query.from(client.getDatabase(), measurement).where();
 
-        Map<String, Class<?>> columnTypes = Maps.newHashMap();
-        for (ModelColumn column : TableMetaInfo.get(measurement).getModel().getColumns()) {
-            columnTypes.put(column.getColumnName().getStorageName(), column.getType());
-        }
-
-        List<String> ids = new ArrayList<>(20);
-
         final String entityId = condition.getEntity().buildId();
         if (entityId != null) {
-            StringBuilder clauseBuilder = new StringBuilder();
-            clauseBuilder.append(Metrics.ENTITY_ID).append("=").append(entityId);
-            queryWhereQuery.where(clauseBuilder.toString());
+            queryWhereQuery.and(eq(InfluxConstants.TagName.ENTITY_ID, entityId));
         }
 
         queryWhereQuery
@@ -171,16 +162,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
         });
 
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .column("id")
+            .column(ID_COLUMN)
             .column(valueColumnName)
             .from(client.getDatabase(), condition.getName())
             .where();
 
         if (CollectionUtils.isNotEmpty(ids)) {
             if (ids.size() == 1) {
-                query.where(eq("id", ids.get(0)));
+                query.where(eq(ID_COLUMN, ids.get(0)));
             } else {
-                query.where(contains("id", Joiner.on("|").join(ids)));
+                query.where(contains(ID_COLUMN, Joiner.on("|").join(ids)));
             }
         }
         List<QueryResult.Series> series = client.queryForSeries(query);
