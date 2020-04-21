@@ -57,6 +57,7 @@ public enum CacheUpdateTimer {
 
     private void update(ModuleDefineHolder moduleDefineHolder) {
         updateNetAddressAliasCache(moduleDefineHolder);
+        // Profile could be disabled by the OAL script. Only load the task when it is activated.
         if (!DisableRegister.INSTANCE.include(ProfileTaskRecord.INDEX_NAME)) {
             updateProfileTask(moduleDefineHolder);
         }
