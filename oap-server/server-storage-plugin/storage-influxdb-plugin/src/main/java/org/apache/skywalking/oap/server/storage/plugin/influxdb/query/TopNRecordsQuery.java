@@ -52,6 +52,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
 
     @Override
     public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final String valueColumnName,
                                                    final Duration duration) throws IOException {
         String function = InfluxConstants.SORT_ASC;
         // Have to re-sort here. Because the function, top()/bottom(), get the result ordered by the `time`.
@@ -62,7 +63,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
         }
 
         WhereQueryImpl query = select()
-            .function(function, TopN.LATENCY, condition.getTopN())
+            .function(function, valueColumnName, condition.getTopN())
             .column(TopN.STATEMENT)
             .column(TopN.TRACE_ID)
             .from(client.getDatabase(), condition.getName())
