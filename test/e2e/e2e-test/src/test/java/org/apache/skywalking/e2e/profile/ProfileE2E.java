@@ -257,12 +257,14 @@ public class ProfileE2E extends SkyWalkingTestAdapter {
             "/skywalking/tools/profile-exporter/profile_exporter.sh --taskid=%s --traceid=%s /tmp",
             taskId, traceId
         );
-        final Container.ExecResult exportResult = oapContainer.execInContainer("/bin/bash", "-c", exportShell);
+        final Container.ExecResult exportResult = oapContainer.execInContainer("/bin/sh", "-c", exportShell);
 
         LOGGER.info("exported result: {}", exportResult);
 
+        assertThat(exportResult.getExitCode()).isEqualTo(0);
+
         final String lsExportedFileShell = String.format("ls /tmp/%s.tar.gz", traceId);
-        final Container.ExecResult checkExportedFileResult = oapContainer.execInContainer("/bin/bash", "-c", lsExportedFileShell);
+        final Container.ExecResult checkExportedFileResult = oapContainer.execInContainer("/bin/sh", "-c", lsExportedFileShell);
 
         LOGGER.info("check exported file result: {}", checkExportedFileResult);
 
