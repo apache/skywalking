@@ -31,9 +31,9 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.query.entity.Call;
-import org.apache.skywalking.oap.server.core.query.entity.Node;
-import org.apache.skywalking.oap.server.core.query.entity.Topology;
+import org.apache.skywalking.oap.server.core.query.type.Call;
+import org.apache.skywalking.oap.server.core.query.type.Node;
+import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
