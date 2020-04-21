@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
@@ -34,8 +35,8 @@ public enum ValueColumnMetadata {
     /**
      * Register the new metadata for the given model name.
      */
-    public void putIfAbsent(String modelName, String valueCName, Function function) {
-        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, function));
+    public void putIfAbsent(String modelName, String valueCName, Function function, int defaultValue) {
+        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, function, defaultValue));
     }
 
     /**
@@ -52,6 +53,10 @@ public enum ValueColumnMetadata {
         return findColumn(metricsName).function;
     }
 
+    public int getDefaultValue(String metricsName) {
+        return findColumn(metricsName).defaultValue;
+    }
+
     private ValueColumn findColumn(String metricsName) {
         ValueColumn column = mapping.get(metricsName);
         if (column == null) {
@@ -60,13 +65,10 @@ public enum ValueColumnMetadata {
         return column;
     }
 
+    @RequiredArgsConstructor
     class ValueColumn {
         private final String valueCName;
         private final Function function;
-
-        private ValueColumn(String valueCName, Function function) {
-            this.valueCName = valueCName;
-            this.function = function;
-        }
+        private final int defaultValue;
     }
 }

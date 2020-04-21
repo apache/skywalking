@@ -25,8 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackElement;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileStackTree;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 
 /**
  * Work for profiling stacks, intermediate state of the {@link ProfileStackElement} and {@link ProfileStack}

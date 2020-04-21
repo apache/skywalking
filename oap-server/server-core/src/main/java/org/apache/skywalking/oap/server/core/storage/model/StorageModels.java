@@ -81,7 +81,8 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.isValue()) {
-                    ValueColumnMetadata.INSTANCE.putIfAbsent(modelName, column.columnName(), column.function());
+                    ValueColumnMetadata.INSTANCE.putIfAbsent(
+                        modelName, column.columnName(), column.function(), column.defaultValue());
                 }
 
                 List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();

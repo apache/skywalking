@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.entity.LogState;
-import org.apache.skywalking.oap.server.core.query.entity.Logs;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import org.apache.skywalking.oap.server.core.query.type.LogState;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ILogQueryDAO extends Service {
