@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogServi
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.query.entity.ProfileAnalyzeTimeRange;
+import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;

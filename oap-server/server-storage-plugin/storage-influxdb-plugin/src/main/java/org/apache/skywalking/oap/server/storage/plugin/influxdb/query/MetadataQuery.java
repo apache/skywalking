@@ -35,13 +35,12 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
-import org.apache.skywalking.oap.server.core.query.entity.Attribute;
-import org.apache.skywalking.oap.server.core.query.entity.Database;
-import org.apache.skywalking.oap.server.core.query.entity.Endpoint;
-import org.apache.skywalking.oap.server.core.query.entity.Language;
-import org.apache.skywalking.oap.server.core.query.entity.LanguageTrans;
-import org.apache.skywalking.oap.server.core.query.entity.Service;
-import org.apache.skywalking.oap.server.core.query.entity.ServiceInstance;
+import org.apache.skywalking.oap.server.core.query.enumeration.Language;
+import org.apache.skywalking.oap.server.core.query.type.Attribute;
+import org.apache.skywalking.oap.server.core.query.type.Database;
+import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Service;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
@@ -67,36 +66,6 @@ public class MetadataQuery implements IMetadataQueryDAO {
 
     public MetadataQuery(final InfluxClient client) {
         this.client = client;
-    }
-
-    @Override
-    public int numOfService(final long startTimestamp, final long endTimestamp) throws IOException {
-        WhereQueryImpl query = select().raw("count(distinct " + ID_COLUMN + ")")
-                                       .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-                                       .where()
-                                       .and(
-                                           eq(InfluxConstants.TagName.NODE_TYPE, String.valueOf(NodeType.Normal.value())
-                                           ));
-        return client.getCounter(query);
-    }
-
-    @Override
-    public int numOfEndpoint() throws IOException {
-        SelectQueryImpl query = select()
-            .raw("count(distinct " + ID_COLUMN + ")")
-            .from(client.getDatabase(), EndpointTraffic.INDEX_NAME);
-        return client.getCounter(query);
-    }
-
-    @Override
-    public int numOfConjectural(final int nodeTypeValue) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> query = select().raw("count(distinct " + ID_COLUMN + ")")
-                                                        .from(client.getDatabase(), ServiceTraffic.INDEX_NAME)
-                                                        .where(eq(
-                                                            InfluxConstants.TagName.NODE_TYPE,
-                                                            String.valueOf(nodeTypeValue)
-                                                        ));
-        return client.getCounter(query);
     }
 
     @Override
@@ -256,7 +225,7 @@ public class MetadataQuery implements IMetadataQueryDAO {
                     String key = property.getKey();
                     String value = property.getValue().getAsString();
                     if (key.equals(InstanceTraffic.PropertyUtil.LANGUAGE)) {
-                        serviceInstance.setLanguage(LanguageTrans.INSTANCE.value(value));
+                        serviceInstance.setLanguage(Language.value(value));
                     } else {
                         serviceInstance.getAttributes().add(new Attribute(key, value));
                     }

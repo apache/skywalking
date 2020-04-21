@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.entity.Alarms;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
