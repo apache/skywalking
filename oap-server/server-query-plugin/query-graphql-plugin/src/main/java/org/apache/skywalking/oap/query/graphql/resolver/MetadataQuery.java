@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.ClusterBrief;
 import org.apache.skywalking.oap.server.core.query.type.Database;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
@@ -51,6 +52,14 @@ public class MetadataQuery implements GraphQLQueryResolver {
                                                      .getService(MetadataQueryService.class);
         }
         return metadataQueryService;
+    }
+
+    /**
+     * @return all 0 of metadata. 
+     */
+    @Deprecated
+    public ClusterBrief getGlobalBrief(final Duration duration) throws IOException, ParseException {
+        return new ClusterBrief();
     }
 
     public List<Service> getAllServices(final Duration duration) throws IOException, ParseException {
