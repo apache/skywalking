@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -99,15 +101,31 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
     }
 
     public static class AvgStorageBuilder implements StorageBuilder<Avg> {
-
         @Override
         public Avg map2Data(final Map<String, Object> dbMap) {
-            return null;
+            Avg metrics = new Avg() {
+                @Override
+                public AcceptableValue<Long> createNew() {
+                    throw new UnexpectedException("createNew should not be called");
+                }
+            };
+            metrics.setSummation(((Number) dbMap.get(SUMMATION)).longValue());
+            metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
+            metrics.setCount(((Number) dbMap.get(COUNT)).longValue());
+            metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            metrics.setEntityId((String) dbMap.get(ENTITY_ID));
+            return metrics;
         }
 
         @Override
         public Map<String, Object> data2Map(final Avg storageData) {
-            return null;
+            Map<String, Object> map = new HashMap<>();
+            map.put(SUMMATION, storageData.getSummation());
+            map.put(VALUE, storageData.getValue());
+            map.put(COUNT, storageData.getCount());
+            map.put(TIME_BUCKET, storageData.getTimeBucket());
+            map.put(ENTITY_ID, storageData.getEntityId());
+            return map;
         }
     }
 }
