@@ -47,13 +47,9 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         99
     };
 
-    /**
-     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link DataTable} type,
-     * this column can't be query by the aggregation way.
-     */
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, storageOnly = true)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     private DataTable percentileValues;
     @Getter
     @Setter
