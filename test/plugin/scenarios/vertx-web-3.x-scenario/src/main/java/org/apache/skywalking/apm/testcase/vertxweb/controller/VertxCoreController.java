@@ -20,22 +20,14 @@ package org.apache.skywalking.apm.testcase.vertxweb.controller;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
 public class VertxCoreController extends AbstractVerticle {
-
-    private static final Logger logger = LogManager.getLogger(VertxCoreController.class);
 
     @Override
     public void start() {
-        logger.info("VertxCoreController started");
-
         Router router = Router.router(vertx);
         router.get("/vertx-web-3-scenario/case/web-case").handler(this::handleCoreCase);
-        router.get("/vertx-web-3-scenario/case/healthCheck").handler(this::healthCheck);
+        router.head("/vertx-web-3-scenario/case/healthCheck").handler(this::healthCheck);
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
     }
 

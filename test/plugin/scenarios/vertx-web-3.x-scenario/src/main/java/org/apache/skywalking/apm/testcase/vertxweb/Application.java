@@ -18,17 +18,11 @@
 package org.apache.skywalking.apm.testcase.vertxweb;
 
 import io.vertx.core.Vertx;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.apache.skywalking.apm.testcase.vertxweb.controller.VertxCoreController;
 
 public class Application {
 
-    private static final Logger logger = LogManager.getLogger(Application.class);
-
     public static void main(String[] args) {
-        logger.info("Application started");
-
         System.setProperty("vertx.disableFileCPResolving", "true");
         Vertx.vertx().deployVerticle(new VertxCoreController(), it -> {
             if (it.failed()) {
