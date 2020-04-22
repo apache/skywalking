@@ -34,12 +34,22 @@ public class ProfileStackTreeMatcher extends AbstractMatcher<ProfileAnalyzation.
 
     @Override
     public void verify(ProfileAnalyzation.ProfileStackTree profileStackTree) {
-        Assertions.assertThat(profileStackTree.getElements()).hasSameSizeAs(this.elements);
-
         int size = this.elements.size();
 
         for (int i = 0; i < size; i++) {
-            elements.get(i).verify(profileStackTree.getElements().get(i));
+            boolean hasVerified = false;
+            for (int dataElement = 0; dataElement < profileStackTree.getElements().size(); dataElement++) {
+                try {
+                    elements.get(i).verify(profileStackTree.getElements().get(dataElement));
+                    hasVerified = true;
+                    break;
+                } catch (Throwable e) {
+                }
+            }
+
+            if (!hasVerified) {
+                throw new IllegalStateException("Cannot found " + elements.get(i).getCodeSignature());
+            }
         }
     }
 }

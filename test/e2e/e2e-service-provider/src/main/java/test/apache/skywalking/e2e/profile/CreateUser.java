@@ -16,16 +16,17 @@
  *
  */
 
-package org.apache.skywalking.e2e.controller;
+package test.apache.skywalking.e2e.profile;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.Data;
+import test.apache.skywalking.e2e.User;
 
-@RestController
-@SuppressWarnings("SameReturnValue")
-public class HealthController {
-    @GetMapping("/health")
-    public String hello() {
-        return "healthy";
+@Data
+public class CreateUser {
+    private String name;
+    private boolean enableProfiling;
+
+    public User toUser() {
+        return User.builder().name(name).build();
     }
 }

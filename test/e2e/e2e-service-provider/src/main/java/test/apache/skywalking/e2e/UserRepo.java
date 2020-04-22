@@ -16,27 +16,9 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package test.apache.skywalking.e2e;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Data
-@Entity
-@Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column
-    private String name;
+public interface UserRepo extends JpaRepository<User, Long> {
 }

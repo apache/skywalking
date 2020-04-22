@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package test.apache.skywalking.e2e;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

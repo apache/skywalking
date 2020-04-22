@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.e2e.lua;
+package test.apache.skywalking.e2e.lua;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
