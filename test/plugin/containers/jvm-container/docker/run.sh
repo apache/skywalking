@@ -55,9 +55,9 @@ fi
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
 JACOCO_HOME=${JACOCO_HOME:-/jacoco}
-LOGS_HOME=${SCENARIO_NAME}/logs
+LOGS_HOME=${SCENARIO_HOME}/logs
 
-mkdi -p ${LOGS_HOME}
+[[ ! -d $LOGS_HOME ]] && mkdir -p ${LOGS_HOME}
 
 unzip -q ${SCENARIO_HOME}/*.zip -d /var/run/
 if [[ ! -f /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
