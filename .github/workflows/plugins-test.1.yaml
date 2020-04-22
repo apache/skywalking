@@ -47,6 +47,7 @@ jobs:
           - { name: 'lettuce-scenario', title: 'Lettuce 5.x (17)' }
           - { name: 'mongodb-3.x-scenario', title: 'Mongodb 3.4.0-3.11.1 (22)' }
           - { name: 'netty-socketio-scenario', title: 'Netty-SocketIO 1.x (4)' }
+          - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
     steps:
       - uses: actions/checkout@v2
       - name: checkout submodules

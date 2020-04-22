@@ -43,6 +43,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
 
     @Override
     public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final String valueColumnName,
                                                    final Duration duration) throws IOException {
         StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
         List<Object> parameters = new ArrayList<>(10);
@@ -58,7 +59,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
         parameters.add(duration.getEndTimeBucket());
 
-        sql.append(" order by ").append(TopN.LATENCY);
+        sql.append(" order by ").append(valueColumnName);
         if (condition.getOrder().equals(Order.DES)) {
             sql.append(" desc ");
         } else {
@@ -74,7 +75,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                     SelectedRecord record = new SelectedRecord();
                     record.setName(resultSet.getString(TopN.STATEMENT));
                     record.setRefId(resultSet.getString(TopN.TRACE_ID));
-                    record.setValue(resultSet.getString(TopN.LATENCY));
+                    record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }
             }
