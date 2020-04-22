@@ -13,16 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  applications:
-  - {vertx-web-3.x-scenario: 2}
-  instances:
-  - {vertx-web-3.x-scenario: 1}
-  operationNames:
-  - vertx-web-3.x-scenario: [
-    "/vertx-web-3-scenario/case/healthCheck",
-    "/vertx-web-3-scenario/case/web-case"
-  ]
 segmentItems:
   - serviceName: vertx-web-3.x-scenario
     segmentSize: 2
