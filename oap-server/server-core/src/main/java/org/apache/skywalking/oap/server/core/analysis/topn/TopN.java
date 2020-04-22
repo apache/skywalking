@@ -39,7 +39,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private String statement;
     @Getter
     @Setter
-    @Column(columnName = LATENCY)
+    @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Getter
     @Setter

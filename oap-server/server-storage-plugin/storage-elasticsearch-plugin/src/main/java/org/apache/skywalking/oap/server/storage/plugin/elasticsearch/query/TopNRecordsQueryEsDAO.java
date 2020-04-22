@@ -45,6 +45,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
     @Override
     public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final String valueColumnName,
                                                    final Duration duration) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -59,7 +60,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
 
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(condition.getTopN())
-                     .sort(TopN.LATENCY, condition.getOrder().equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
+                     .sort(valueColumnName, condition.getOrder().equals(Order.DES) ? SortOrder.DESC : SortOrder.ASC);
         SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
 
         List<SelectedRecord> results = new ArrayList<>(condition.getTopN());
@@ -68,7 +69,7 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
             SelectedRecord record = new SelectedRecord();
             record.setName((String) searchHit.getSourceAsMap().get(TopN.STATEMENT));
             record.setRefId((String) searchHit.getSourceAsMap().get(TopN.TRACE_ID));
-            record.setValue(((Number) searchHit.getSourceAsMap().get(TopN.LATENCY)).toString());
+            record.setValue(((Number) searchHit.getSourceAsMap().get(valueColumnName)).toString());
             results.add(record);
         }
 

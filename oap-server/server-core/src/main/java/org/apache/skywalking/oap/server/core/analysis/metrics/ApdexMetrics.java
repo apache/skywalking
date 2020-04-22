@@ -60,7 +60,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     private int tNum;
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     private int value;
 
     @Entrance

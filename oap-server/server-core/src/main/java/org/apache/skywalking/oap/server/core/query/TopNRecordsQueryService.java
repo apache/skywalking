@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -46,6 +47,7 @@ public class TopNRecordsQueryService implements Service {
     }
 
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
-        return getTopNRecordsQueryDAO().readSampledRecords(condition, duration);
+        return getTopNRecordsQueryDAO().readSampledRecords(
+            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
 }
