@@ -23,7 +23,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Assertions;
 
 @Data
 @ToString(callSuper = true)
