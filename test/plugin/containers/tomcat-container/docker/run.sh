@@ -16,16 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[[ -n $DEBUG_MODE ]] && set -ex
+
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
 }
 
 function exitAndClean() {
-    [[ -z $DEBUG_MODE ]] && exit $1
+    [[ -n $DEBUG_MODE ]] && exit $1
 
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
-    [[ -d ${LOGS_HOME} ]] && rm -rf 1>${LOGS_HOME}
+    [[ -d ${LOGS_HOME} ]] && rm -rf ${LOGS_HOME}
     exit $1
 }
 
@@ -48,7 +50,7 @@ function healthCheck() {
 
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
-LOGS_HOME=${SCENARIO_HOME}/logs
+export LOGS_HOME=${SCENARIO_HOME}/logs # share to catalina.sh
 
 [[ ! -d ${LOGS_HOME} ]] && mkdir $LOGS_HOME
 

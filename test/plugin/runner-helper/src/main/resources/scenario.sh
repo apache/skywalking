@@ -16,6 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[[ -n $1 ]] && set -ex
+
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 [ -z "$SCENARIO_HOME" ] && SCENARIO_HOME=`cd "$PRGDIR" >/dev/null; pwd`

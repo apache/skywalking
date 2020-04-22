@@ -28,11 +28,13 @@ mvnw=${home}/../../mvnw
 agent_home="${home}"/../../skywalking-agent
 jacoco_home="${home}"/../jacoco
 scenarios_home="${home}/scenarios"
+num_of_testcases=0
 
 print_help() {
     echo  "Usage: run.sh [OPTION] SCENARIO_NAME"
     echo -e "\t-f, --force_build \t\t do force to build Plugin-Test tools and images"
     echo -e "\t--cleanup, \t\t\t remove the related images and directories"
+    echo -e "\t--debug, \t\t\t to save the log files and actualData.yaml"
 }
 
 parse_commandline() {
@@ -193,13 +195,14 @@ do
     [[ $? -ne 0 ]] && exitWithMessage "${testcase_name}, generate script failure!"
 
     echo "start container of testcase.name=${testcase_name}"
-    bash ${case_work_base}/scenario.sh $debug 1>${case_work_logs_dir}/${testcase_name}.log
+    bash ${case_work_base}/scenario.sh $debug_mode 1>${case_work_logs_dir}/${testcase_name}.log
     status=$?
     if [[ $status == 0 ]]; then
-        rm -rf ${case_work_base}
+        [[ -z $debug_mode ]] && rm -rf ${case_work_base}
     else
         exitWithMessage "Testcase ${testcase_name} failed!"
     fi
+    num_of_testcases=$(($num_of_testcases+1))
 done
 
 echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"

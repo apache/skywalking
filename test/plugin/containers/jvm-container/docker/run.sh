@@ -16,16 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[[ -n $DEBUG_MODE ]] && set -ex
+
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
 }
 
 function exitAndClean() {
-    [[ -z $DEBUG_MODE ]] && exit $1;
+    [[ -n $DEBUG_MODE ]] && exit $1;
 
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
-    [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
+    [[ -d ${LOGS_HOME} ]] && rm -rf ${LOGS_HOME}
     exit $1
 }
 
@@ -53,6 +55,7 @@ fi
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
 JACOCO_HOME=${JACOCO_HOME:-/jacoco}
+LOGS_HOME=${SCENARIO_NAME}/logs
 
 mkdi -p ${LOGS_HOME}
 
@@ -62,7 +65,7 @@ if [[ ! -f /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} ]]; then
 fi
 
 echo "To start mock collector"
-${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>${SCENARIO_HOME}/logs/collector.out &
+${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>${LOGS_HOME}/collector.out &
 healthCheck http://localhost:12800/receiveData
 
 # start applications
@@ -74,10 +77,10 @@ export agent_opts="
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
-    -Dskywalking.logging.dir=${SCENARIO_HOME}/logs
+    -Dskywalking.logging.dir=${LOGS_HOME}
     -Dskywalking.agent.authentication=test-token
     -Xms256m -Xmx256m ${agent_opts}"
-exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${SCENARIO_HOME}/logs/scenario.out &
+exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.out &
 
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
@@ -94,7 +97,7 @@ java -jar \
     -Xmx256m -Xms256m \
     -DcaseName="${SCENARIO_NAME}-${SCENARIO_VERSION}" \
     -DtestCasePath=${SCENARIO_HOME}/data/ \
-    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>1>${SCENARIO_HOME}/logs/validator.out
+    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${LOGS_HOME}/validatolr.out
 status=$?
 
 if [[ $status -eq 0 ]]; then
