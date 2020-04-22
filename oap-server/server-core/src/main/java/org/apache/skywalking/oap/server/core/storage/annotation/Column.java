@@ -66,6 +66,9 @@ public @interface Column {
     int length() default 200;
 
     /**
+     * Column with data type != {@link ValueDataType#NOT_VALUE} represents this is a value column. Indicate it would be
+     * queried by UI/CLI.
+     *
      * @return the data type of this value column. The value column is the query related value Set {@link
      * ValueDataType#NOT_VALUE} if this is not the value column, read {@link ValueDataType} for more details.
      * @since 8.0.0
