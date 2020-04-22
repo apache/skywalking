@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationSe
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterFactory;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
@@ -151,6 +152,12 @@ public class CoreModuleProvider extends ModuleProvider {
             oalEngine.setDispatcherListener(receiver.getDispatcherManager());
             oalEngine.start(getClass().getClassLoader());
         } catch (Exception e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
+        try {
+            MeterFactory.init(getManager());
+        } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
