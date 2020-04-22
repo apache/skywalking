@@ -19,7 +19,7 @@
 package test.apache.skywalking.e2e.profile;
 
 import lombok.Data;
-import test.apache.skywalking.e2e.User;
+import org.apache.skywalking.e2e.User;
 
 @Data
 public class CreateUser {

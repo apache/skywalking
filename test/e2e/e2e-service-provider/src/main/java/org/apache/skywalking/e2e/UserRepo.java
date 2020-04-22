@@ -16,16 +16,9 @@
  *
  */
 
-package test.apache.skywalking.e2e.controller;
+package org.apache.skywalking.e2e;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@RestController
-@SuppressWarnings("SameReturnValue")
-public class HealthController {
-    @GetMapping("/health")
-    public String hello() {
-        return "healthy";
-    }
+public interface UserRepo extends JpaRepository<User, Long> {
 }

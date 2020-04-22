@@ -16,16 +16,27 @@
  *
  */
 
-package test.apache.skywalking.e2e;
+package org.apache.skywalking.e2e;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
-@EnableJpaRepositories
-@SpringBootApplication
-public class Service0Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Service0Application.class, args);
-    }
+@Data
+@Entity
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
+public class User {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column
+    private String name;
 }

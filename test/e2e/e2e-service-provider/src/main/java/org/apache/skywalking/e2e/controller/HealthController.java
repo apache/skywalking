@@ -16,27 +16,16 @@
  *
  */
 
-package test.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.controller;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Data
-@Entity
-@Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column
-    private String name;
+@RestController
+@SuppressWarnings("SameReturnValue")
+public class HealthController {
+    @GetMapping("/health")
+    public String hello() {
+        return "healthy";
+    }
 }

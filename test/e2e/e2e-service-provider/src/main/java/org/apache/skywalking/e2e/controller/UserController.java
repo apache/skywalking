@@ -16,11 +16,11 @@
  *
  */
 
-package test.apache.skywalking.e2e.controller;
+package org.apache.skywalking.e2e.controller;
 
 import lombok.RequiredArgsConstructor;
-import test.apache.skywalking.e2e.User;
-import test.apache.skywalking.e2e.UserRepo;
+import org.apache.skywalking.e2e.User;
+import org.apache.skywalking.e2e.UserRepo;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
