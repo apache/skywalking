@@ -34,7 +34,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <finagle.version>6.34.0</finagle.version>
-        <scala.library.version>2.11.8</scala.library.version>
+        <scala.library.version>2.11.12</scala.library.version>
     </properties>
 
     <dependencies>

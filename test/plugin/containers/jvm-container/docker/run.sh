@@ -85,7 +85,7 @@ exec /var/run/${SCENARIO_NAME}/${SCENARIO_START_SCRIPT} 1>${LOGS_HOME}/scenario.
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
-curl -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}
+`echo curl ${SCENARIO_EXTEND_ENTRY_HEADER} -s --max-time 3 ${SCENARIO_ENTRY_SERVICE}`
 sleep 5
 
 echo "To receive actual data"

@@ -59,4 +59,6 @@ public interface IConfiguration {
     String debugMode();
 
     Map<String, Object> toMap();
+
+    String extendEntryHeader();
 }
