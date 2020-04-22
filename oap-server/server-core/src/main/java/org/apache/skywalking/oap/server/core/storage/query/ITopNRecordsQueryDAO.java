@@ -33,5 +33,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * @since 8.0.0
  */
 public interface ITopNRecordsQueryDAO extends Service {
-    List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException;
+    List<SelectedRecord> readSampledRecords(TopNCondition condition,
+                                            final String valueColumnName,
+                                            Duration duration) throws IOException;
 }

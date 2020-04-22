@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
@@ -90,6 +91,7 @@ public class CoreModule extends ModuleDefine {
 
     private void addQueryService(List<Class> classes) {
         classes.add(TopologyQueryService.class);
+        classes.add(MetricsMetadataQueryService.class);
         classes.add(MetricsQueryService.class);
         classes.add(TraceQueryService.class);
         classes.add(LogQueryService.class);

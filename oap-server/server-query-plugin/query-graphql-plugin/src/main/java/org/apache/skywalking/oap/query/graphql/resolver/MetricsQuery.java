@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
@@ -44,9 +45,19 @@ public class MetricsQuery implements GraphQLQueryResolver {
     private MetricsQueryService metricsQueryService;
     private AggregationQueryService queryService;
     private TopNRecordsQueryService topNRecordsQueryService;
+    private MetricsMetadataQueryService metricsMetadataQueryService;
 
     public MetricsQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+    }
+
+    private MetricsMetadataQueryService getMetricsMetadataQueryService() {
+        if (metricsMetadataQueryService == null) {
+            this.metricsMetadataQueryService = moduleManager.find(CoreModule.NAME)
+                                                            .provider()
+                                                            .getService(MetricsMetadataQueryService.class);
+        }
+        return metricsMetadataQueryService;
     }
 
     private AggregationQueryService getQueryService() {
@@ -80,7 +91,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
      */
     public MetricsType typeOfMetrics(String name) throws IOException {
-        return MetricsType.UNKNOWN;
+        return getMetricsMetadataQueryService().typeOfMetrics(name);
     }
 
     /**
@@ -118,9 +129,8 @@ public class MetricsQuery implements GraphQLQueryResolver {
     /**
      * Heatmap is bucket based value statistic result.
      *
-     * @return heapmap including the latency distribution
-     * {@link HeatMap#getBuckets()}
-     * {@link HeatMap.HeatMapColumn#getValues()} follows this rule.
+     * @return heapmap including the latency distribution {@link HeatMap#getBuckets()} {@link
+     * HeatMap.HeatMapColumn#getValues()} follows this rule.
      * <pre>
      *      key = 0, represents [0, 100), value = count of requests in the latency range.
      *      key = 100, represents [100, 200), value = count of requests in the latency range.

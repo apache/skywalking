@@ -39,13 +39,9 @@ public abstract class HistogramMetrics extends Metrics {
 
     public static final String DATASET = "dataset";
 
-    /**
-     * The special case when the column is isValue = true, but storageOnly = true, because it is {@link DataTable} type,
-     * this column can't be query by the aggregation way.
-     */
     @Getter
     @Setter
-    @Column(columnName = DATASET, isValue = true, storageOnly = true)
+    @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true)
     private DataTable dataset = new DataTable(30);
 
     /**

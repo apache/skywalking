@@ -43,7 +43,7 @@ public abstract class PxxMetrics extends Metrics implements IntValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, isValue = true, function = Function.Avg)
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.HISTOGRAM, function = Function.Avg)
     private int value;
     @Getter
     @Setter
