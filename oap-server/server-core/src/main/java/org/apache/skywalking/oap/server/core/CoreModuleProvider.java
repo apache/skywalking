@@ -252,6 +252,8 @@ public class CoreModuleProvider extends ModuleProvider {
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
+
+        MeterSystem.closeMeterCreationChannel();
     }
 
     @Override

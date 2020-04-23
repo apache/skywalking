@@ -42,9 +42,6 @@ public abstract class ModelInstaller {
      * Entrance of the storage entity installation work.
      */
     public final void install(Client client) throws StorageException {
-        // Can't create new module, as the model installation begins.
-        MeterSystem.closeMeterCreationChannel();
-
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
 
         List<Model> models = modelGetter.allModels();
