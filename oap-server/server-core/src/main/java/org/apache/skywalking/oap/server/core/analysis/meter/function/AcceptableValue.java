@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
 /**
  * Indicate this function accepting the data of type T.
  */
 public interface AcceptableValue<T> {
-    void accept(String entityId, T value);
+    void accept(MeterEntity entity, T value);
 
     /**
      * @return a new instance based on the implementation, it should be the same class.
@@ -35,4 +36,6 @@ public interface AcceptableValue<T> {
      * @return builder
      */
     Class<? extends StorageBuilder> builder();
+
+    void setTimeBucket(long timeBucket);
 }

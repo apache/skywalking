@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -31,6 +33,10 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avg")
+@EqualsAndHashCode(of = {
+    "entityId",
+    "timeBucket"
+})
 public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long> {
     @Setter
     @Getter
@@ -89,8 +95,8 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
     }
 
     @Override
-    public void accept(final String entityId, final Long value) {
-        this.entityId = entityId;
+    public void accept(final MeterEntity entity, final Long value) {
+        this.entityId = entity.id();
         this.summation += value;
         this.count += 1;
     }

@@ -23,7 +23,9 @@ import com.google.common.reflect.ClassPath;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -32,6 +34,7 @@ import javassist.CtConstructor;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,20 +56,36 @@ import org.apache.skywalking.oap.server.library.module.Service;
 @Slf4j
 public class MeterSystem implements Service {
     private static final String METER_CLASS_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.meter.dynamic.";
-    private ModuleManager MANAGER;
-    private ClassPool CLASS_POOL;
-    private Map<String, Class<? extends MeterFunction>> FUNCTION_REGISTER = new HashMap<>();
+    private static ModuleManager MANAGER;
+    private static ClassPool CLASS_POOL;
+    private static List<NewMeter> TO_BE_CREATED_METERS = new ArrayList<>();
+    private static Map<String, Class<? extends MeterFunction>> FUNCTION_REGISTER = new HashMap<>();
     /**
      * Host the dynamic meter prototype classes. These classes could be create dynamically through {@link
      * Object#clone()} in the runtime;
      */
     private static Map<String, MeterDefinition> METER_PROTOTYPES = new HashMap<>();
+    private static MeterSystem METER_SYSTEM;
+    private static boolean METER_CREATABLE = true;
 
-    public MeterSystem(final ModuleManager manager) throws IOException {
+    private MeterSystem() {
+
+    }
+
+    public synchronized static MeterSystem meterSystem(final ModuleManager manager) {
+        if (METER_SYSTEM != null) {
+            return METER_SYSTEM;
+        }
+
         MANAGER = manager;
         CLASS_POOL = ClassPool.getDefault();
 
-        ClassPath classpath = ClassPath.from(MeterSystem.class.getClassLoader());
+        ClassPath classpath = null;
+        try {
+            classpath = ClassPath.from(MeterSystem.class.getClassLoader());
+        } catch (IOException e) {
+            throw new UnexpectedException("Load class path failure.");
+        }
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
             Class<?> functionClass = classInfo.load();
@@ -83,10 +102,12 @@ public class MeterSystem implements Service {
                 );
             }
         }
+        METER_SYSTEM = new MeterSystem();
+        return METER_SYSTEM;
     }
 
     /**
-     * Create streaming calculable {@link AcceptableValue}. This methods is synchronized due to heavy implementation
+     * Create streaming calculation of the given metrics name. This methods is synchronized due to heavy implementation
      * including creating dynamic class. Don't use this in concurrency runtime.
      *
      * @param metricsName  The name used as the storage eneity and in the query stage.
@@ -99,10 +120,32 @@ public class MeterSystem implements Service {
                                            String functionName,
                                            ScopeType type,
                                            Class<T> dataType) throws IllegalArgumentException {
-        MeterDefinition meterDefinition = METER_PROTOTYPES.get(metricsName);
-        if (meterDefinition != null) {
+        if (!METER_CREATABLE) {
+            throw new IllegalStateException("Can't create new metrics anymore");
+        }
+
+        final NewMeter newMeter = new NewMeter(metricsName, functionName, type, dataType);
+        if (TO_BE_CREATED_METERS.contains(newMeter)) {
             return false;
-        } else {
+        }
+
+        TO_BE_CREATED_METERS.add(newMeter);
+        return true;
+    }
+
+    /**
+     * Close the {@link #create(String, String, ScopeType, Class)} channel, and build the model and streaming
+     * definitions.
+     */
+    public static void closeMeterCreationChannel() {
+        METER_CREATABLE = false;
+
+        TO_BE_CREATED_METERS.forEach(newMeter -> {
+            String metricsName = newMeter.metricsName;
+            String functionName = newMeter.functionName;
+            ScopeType type = newMeter.type;
+            Class<?> dataType = newMeter.dataType;
+
             /**
              * Create a new meter class dynamically.
              */
@@ -135,7 +178,8 @@ public class MeterSystem implements Service {
             try {
                 parentClass = CLASS_POOL.get(meterFunction.getCanonicalName());
                 if (!Metrics.class.isAssignableFrom(meterFunction)) {
-                    throw new IllegalArgumentException("Function " + functionName + " doesn't inherit from Metrics.");
+                    throw new IllegalArgumentException(
+                        "Function " + functionName + " doesn't inherit from Metrics.");
                 }
             } catch (NotFoundException e) {
                 throw new IllegalArgumentException("Function " + functionName + " can't be found by javaassist.");
@@ -147,7 +191,8 @@ public class MeterSystem implements Service {
              * Create empty construct
              */
             try {
-                CtConstructor defaultConstructor = CtNewConstructor.make("public " + className + "() {}", metricsClass);
+                CtConstructor defaultConstructor = CtNewConstructor.make(
+                    "public " + className + "() {}", metricsClass);
                 metricsClass.addConstructor(defaultConstructor);
             } catch (CannotCompileException e) {
                 log.error("Can't add empty constructor in " + className + ".", e);
@@ -183,17 +228,16 @@ public class MeterSystem implements Service {
                         metricsName, type.getScopeId(), prototype.builder(), MetricsStreamProcessor.class),
                     targetClass
                 );
-                return true;
             } catch (CannotCompileException | IllegalAccessException | InstantiationException e) {
                 log.error("Can't compile/load/init " + className + ".", e);
                 throw new UnexpectedException(e.getMessage(), e);
             }
-        }
+        });
     }
 
     /**
      * Create an {@link AcceptableValue} instance for streaming calculation. AcceptableValue instance is stateful,
-     * shouldn't do {@link AcceptableValue#accept(String, Object)} once it is pushed into {@link
+     * shouldn't do {@link AcceptableValue#accept(MeterEntity, Object)} once it is pushed into {@link
      * #doStreamingCalculation(AcceptableValue)}.
      *
      * @param metricsName A defined metrics name. Use {@link #create(String, String, ScopeType, Class)} to define a new
@@ -207,7 +251,7 @@ public class MeterSystem implements Service {
         if (meterDefinition == null) {
             throw new IllegalArgumentException("Uncreated metrics " + metricsName);
         }
-        if (!meterDefinition.getScopeType().equals(dataType)) {
+        if (!meterDefinition.getDataType().equals(dataType)) {
             throw new IllegalArgumentException(
                 "Unmatched metrics data type, request for " + dataType.getName()
                     + ", but defined as " + meterDefinition.getDataType());
@@ -225,13 +269,22 @@ public class MeterSystem implements Service {
         MetricsStreamProcessor.getInstance().in((Metrics) acceptableValue);
     }
 
-    private String formatName(String metricsName) {
+    private static String formatName(String metricsName) {
         return metricsName.toLowerCase();
     }
 
     @RequiredArgsConstructor
+    @EqualsAndHashCode
+    public static class NewMeter {
+        private final String metricsName;
+        private final String functionName;
+        private final ScopeType type;
+        private final Class<?> dataType;
+    }
+
+    @RequiredArgsConstructor
     @Getter
-    private class MeterDefinition {
+    private static class MeterDefinition {
         private final ScopeType scopeType;
         private final AcceptableValue meterPrototype;
         private final Class<?> dataType;

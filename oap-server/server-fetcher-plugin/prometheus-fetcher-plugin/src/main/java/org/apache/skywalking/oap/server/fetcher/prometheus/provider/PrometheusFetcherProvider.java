@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
@@ -55,14 +57,13 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
+        final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
+        meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        service.create(
-            "test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
+
     }
 
     @Override
@@ -73,7 +74,8 @@ public class PrometheusFetcherProvider extends ModuleProvider {
             @Override
             public void run() {
                 final AcceptableValue<Long> value = testLongMetrics.createNew();
-                value.accept("abc", 5L);
+                value.accept(MeterEntity.newService("abc"), 5L);
+                value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
                 service.doStreamingCalculation(value);
             }
         }, 2, 2, TimeUnit.SECONDS);

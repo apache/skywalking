@@ -155,12 +155,8 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        try {
-            MeterSystem meterSystem = new MeterSystem(getManager());
-            this.registerServiceImplementation(MeterSystem.class, meterSystem);
-        } catch (IOException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
+        MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
+        this.registerServiceImplementation(MeterSystem.class, meterSystem);
 
         AnnotationScan oalDisable = new AnnotationScan();
         oalDisable.registerListener(DisableRegister.INSTANCE);

@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,6 +42,9 @@ public abstract class ModelInstaller {
      * Entrance of the storage entity installation work.
      */
     public final void install(Client client) throws StorageException {
+        // Can't create new module, as the model installation begins.
+        MeterSystem.closeMeterCreationChannel();
+
         IModelManager modelGetter = moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
 
         List<Model> models = modelGetter.allModels();
