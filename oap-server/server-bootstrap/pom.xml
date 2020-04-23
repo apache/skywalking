@@ -89,7 +89,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-register-receiver-plugin</artifactId>
+            <artifactId>skywalking-management-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
