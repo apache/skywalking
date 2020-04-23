@@ -69,11 +69,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        final AcceptableValue<Long> testLongMetrics = service.buildMetrics("test_long_metrics", Long.class);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                final AcceptableValue<Long> value = testLongMetrics.createNew();
+                final AcceptableValue<Long> value = service.buildMetrics("test_long_metrics", Long.class);
                 value.accept(MeterEntity.newService("abc"), 5L);
                 value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
                 service.doStreamingCalculation(value);
