@@ -18,13 +18,13 @@
 package org.apache.skywalking.apm.testcase.vertxweb;
 
 import io.vertx.core.Vertx;
-import org.apache.skywalking.apm.testcase.vertxweb.controller.VertxCoreController;
+import org.apache.skywalking.apm.testcase.vertxweb.controller.VertxWebController;
 
 public class Application {
 
     public static void main(String[] args) {
         System.setProperty("vertx.disableFileCPResolving", "true");
-        Vertx.vertx().deployVerticle(new VertxCoreController(), it -> {
+        Vertx.vertx().deployVerticle(new VertxWebController(), it -> {
             if (it.failed()) {
                 it.cause().printStackTrace();
                 System.exit(-1);

@@ -21,7 +21,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
-public class VertxCoreController extends AbstractVerticle {
+public class VertxWebController extends AbstractVerticle {
 
     @Override
     public void start() {
