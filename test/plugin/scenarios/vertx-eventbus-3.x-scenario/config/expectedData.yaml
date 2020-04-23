@@ -107,15 +107,15 @@ segmentItems:
             peer: ''
             skipAnalysis: false
             refs:
-              - {parentEndpoint: cluster-message-receiver, networkAddress: 'localhost:41615',
+              - {parentEndpoint: cluster-message-receiver, networkAddress: not null,
                  refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: vertx-eventbus-3.x-scenario,
                  traceId: not null}
-      - segmentId: not nullnot null
+      - segmentId: not null
         spans:
           - {operationName: cluster-message-receiver, operationId: 0, parentSpanId: -1,
              spanId: 0, spanLayer: RPCFramework, startTime: nq 0, endTime: nq 0,
-             componentId: 59, isError: false, spanType: Exit, peer: 'localhost:41615', skipAnalysis: false}
+             componentId: 59, isError: false, spanType: Exit, peer: not null, skipAnalysis: false}
       - segmentId: not null
         spans:
           - operationName: /vertx-eventbus-3-scenario/case/executeTest
