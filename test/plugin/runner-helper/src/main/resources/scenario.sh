@@ -16,22 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[[ -n $1 ]] && set -ex
+
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 [ -z "$SCENARIO_HOME" ] && SCENARIO_HOME=`cd "$PRGDIR" >/dev/null; pwd`
 
-state_house=$1
 testcase_name=${scenario_name}-${scenario_version}
 
 status=1
-<#noparse>touch ${state_house}/${testcase_name}.RUNNING</#noparse>
 
 ${running_script}
 
-<#noparse>
-if [[ ${status} -eq 0 ]]; then
-  mv ${state_house}/${testcase_name}.RUNNING ${state_house}/${testcase_name}.FINISH
-else
-  mv ${state_house}/${testcase_name}.RUNNING ${state_house}/${testcase_name}.FAILURE
-fi
-</#noparse>
+exit $status
