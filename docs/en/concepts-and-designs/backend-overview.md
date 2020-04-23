@@ -23,7 +23,7 @@ even for Zipkin data format. The OAP analysis the segments to get metrics, and p
 the streaming aggregation.
 1. Consider tracing as some kinds of logging only. Just provide save and visualization capabilities for trace. 
 
-Also, SkyWalking accepts trace formats from other project, such as Zipkin, Jeager, OpenCensus.
+Also, SkyWalking accepts trace formats from other project, such as Zipkin, Jaeger, OpenCensus.
 These formats could be processed in the two ways too.
 
 ## Metrics in OAP
