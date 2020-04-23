@@ -252,12 +252,11 @@ public class CoreModuleProvider extends ModuleProvider {
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
-
-        MeterSystem.closeMeterCreationChannel();
     }
 
     @Override
     public void start() throws ModuleStartException {
+        MeterSystem.closeMeterCreationChannel();
 
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
