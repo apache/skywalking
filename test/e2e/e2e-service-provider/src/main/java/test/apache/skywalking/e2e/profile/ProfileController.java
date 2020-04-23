@@ -16,17 +16,27 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile;
+package test.apache.skywalking.e2e.profile;
 
-import lombok.Data;
+import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.e2e.User;
+import org.apache.skywalking.e2e.UserRepo;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Data
-public class CreateUser {
-    private String name;
-    private boolean enableProfiling;
+@RestController
+@RequiredArgsConstructor
+public class ProfileController {
+    private final UserRepo userRepo;
 
-    public User toUser() {
-        return User.builder().name(name).build();
+    @PostMapping("/profile/{name}")
+    public User createAuthor(@RequestBody final CreateUser createUser) throws InterruptedException {
+        final User user = userRepo.save(createUser.toUser());
+        if (createUser.isEnableProfiling()) {
+            TimeUnit.MILLISECONDS.sleep(6200);
+        }
+        return user;
     }
 }
