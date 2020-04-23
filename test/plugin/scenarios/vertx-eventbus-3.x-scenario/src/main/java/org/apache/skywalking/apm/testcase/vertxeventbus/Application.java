@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbus
 public class Application {
 
     public static void main(String[] args) {
+        System.setProperty("vertx.disableFileCPResolving", "true");
         ClusterManager mgr = new HazelcastClusterManager();
         VertxOptions options = new VertxOptions().setClusterManager(mgr);
         Vertx.clusteredVertx(options, cluster -> {
