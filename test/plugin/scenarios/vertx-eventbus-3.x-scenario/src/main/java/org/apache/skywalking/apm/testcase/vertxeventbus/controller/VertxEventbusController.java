@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-
 package org.apache.skywalking.apm.testcase.vertxeventbus.controller;
 
 import io.vertx.core.AbstractVerticle;
@@ -48,12 +47,11 @@ public class VertxEventbusController extends AbstractVerticle {
 
     private void executeTest(RoutingContext routingContext) {
         Future<Void> localMessageFuture = Future.future();
-        CustomMessage localMessage = new CustomMessage(200,
-                "a0000001", "Local message!");
+        CustomMessage localMessage = new CustomMessage("local-message-receiver request");
         vertx.eventBus().send("local-message-receiver", localMessage, reply -> {
             if (reply.succeeded()) {
                 CustomMessage replyMessage = (CustomMessage) reply.result().body();
-                System.out.println("Received local reply: " + replyMessage.getSummary());
+                System.out.println("Received local reply: " + replyMessage.getMessage());
                 localMessageFuture.complete();
             } else {
                 localMessageFuture.fail(reply.cause());
@@ -61,12 +59,11 @@ public class VertxEventbusController extends AbstractVerticle {
         });
 
         Future<Void> clusterMessageFuture = Future.future();
-        CustomMessage clusterWideMessage = new CustomMessage(200,
-                "a00000001", "Message sent from publisher!");
+        CustomMessage clusterWideMessage = new CustomMessage("cluster-message-receiver request");
         vertx.eventBus().send("cluster-message-receiver", clusterWideMessage, reply -> {
             if (reply.succeeded()) {
                 CustomMessage replyMessage = (CustomMessage) reply.result().body();
-                System.out.println("Received reply: " + replyMessage.getSummary());
+                System.out.println("Received cluster reply: " + replyMessage.getMessage());
                 clusterMessageFuture.complete();
             } else {
                 clusterMessageFuture.fail(reply.cause());
