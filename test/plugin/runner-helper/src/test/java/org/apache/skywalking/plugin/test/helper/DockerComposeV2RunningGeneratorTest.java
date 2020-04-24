@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundException;
 import org.apache.skywalking.plugin.test.helper.exception.GenerateFailedException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import static org.junit.Assert.assertTrue;
 
@@ -46,12 +46,6 @@ public class DockerComposeV2RunningGeneratorTest {
         System.setProperty("output.dir", TARGET_DIR);
 
         configuration = new ConfigurationImpl();
-    }
-
-    @Test
-    public void testGenerateDockerCompose() {
-        String runningScript = dockerComposeRunningGenerator.runningScript(configuration);
-//        assertEquals(String.format("docker-compose -f %s/docker-compose.yml up", TARGET_DIR), runningScript);
     }
 
     @Test

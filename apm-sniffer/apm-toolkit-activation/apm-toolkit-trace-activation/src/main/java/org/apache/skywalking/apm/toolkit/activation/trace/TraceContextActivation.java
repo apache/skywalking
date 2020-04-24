@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,18 +28,20 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInte
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * Active the toolkit class "TraceContext".
- * Should not dependency or import any class in "skywalking-toolkit-trace-context" module.
- * Activation's classloader is diff from "TraceContext",
- * using direct will trigger classloader issue.
+ * Active the toolkit class "TraceContext". Should not dependency or import any class in
+ * "skywalking-toolkit-trace-context" module. Activation's classloader is diff from "TraceContext", using direct will
+ * trigger classloader issue.
  * <p>
- * Created by xin on 2016/12/15.
  */
 public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefine {
 
     public static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.TraceContextInterceptor";
     public static final String ENHANCE_CLASS = "org.apache.skywalking.apm.toolkit.trace.TraceContext";
     public static final String ENHANCE_METHOD = "traceId";
+    public static final String ENHANCE_GET_CORRELATION_METHOD = "getCorrelation";
+    public static final String INTERCEPT_GET_CORRELATION_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.CorrelationContextGetInterceptor";
+    public static final String ENHANCE_PUT_CORRELATION_METHOD = "putCorrelation";
+    public static final String INTERCEPT_PUT_CORRELATION_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.CorrelationContextPutInterceptor";
 
     /**
      * @return the target class, which needs active.
@@ -68,7 +69,40 @@ public class TraceContextActivation extends ClassStaticMethodsEnhancePluginDefin
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_GET_CORRELATION_METHOD);
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_GET_CORRELATION_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(ENHANCE_PUT_CORRELATION_METHOD);
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return INTERCEPT_PUT_CORRELATION_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 public abstract class AbstractURLParser implements ConnectionURLParser {

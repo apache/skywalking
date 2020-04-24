@@ -104,16 +104,20 @@
 #                   case the default is "true"
 # -----------------------------------------------------------------------------
 
+JACOCO_HOME=${JACOCO_HOME:-/jacoco}
+
 export AGENT_FILE_PATH=/usr/local/skywalking/scenario/agent
-echo "${AGENT_FILE_PATH}/skywalking-agent.jar"
 if [ -f "${AGENT_FILE_PATH}/skywalking-agent.jar" ]; then
-    CATALINA_OPTS="$CATALINA_OPTS -javaagent:${AGENT_FILE_PATH}/skywalking-agent.jar
+    CATALINA_OPTS="$CATALINA_OPTS
+    -javaagent:${JACOCO_HOME}/jacocoagent.jar=classdumpdir=${JACOCO_HOME}/classes/${SCENARIO_NAME}${SCENARIO_VERSION},destfile=${JACOCO_HOME}/${SCENARIO_NAME}${SCENARIO_VERSION}.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*:org.apache.skywalking.apm.testcase.*
+    -javaagent:${AGENT_FILE_PATH}/skywalking-agent.jar
     -Dskywalking.collector.grpc_channel_check_interval=2
-    -Dskywalking.collector.app_and_service_register_check_interval=2
+    -Dskywalking.collector.heartbeat_period=2
     -Dskywalking.collector.discovery_check_interval=2
     -Dskywalking.collector.backend_service=localhost:19876
     -Dskywalking.agent.service_name=${SCENARIO_NAME}
-    -Dskywalking.logging.dir=/usr/local/skywalking/scenario/logs
+    -Dskywalking.agent.authentication=test-token
+    -Dskywalking.logging.dir=${LOGS_HOME}
     -Xms256m -Xmx256m -XX:PermSize=64M -XX:MaxPermSize=64"
 fi
 

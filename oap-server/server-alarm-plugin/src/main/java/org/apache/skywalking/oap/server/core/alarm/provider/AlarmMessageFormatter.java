@@ -24,12 +24,10 @@ import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 
 /**
  * This is a formatter especially for alarm message.
- *
+ * <p>
  * Format string in alarm-settings.yml, such as:
- *
+ * <p>
  * - Successful rate of endpoint {name} is lower than 75%
- *
- * @author wusheng
  */
 public class AlarmMessageFormatter {
     private List<String> formatSegments;

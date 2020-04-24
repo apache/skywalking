@@ -20,53 +20,52 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.cache.EndpointInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInstanceInventoryCache;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
+import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
+import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.register.service.IEndpointInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.INetworkAddressInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInstanceInventoryRegister;
-import org.apache.skywalking.oap.server.core.register.service.IServiceInventoryRegister;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.storage.model.IModelGetter;
+import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.core.storage.model.IModelSetter;
+import org.apache.skywalking.oap.server.core.storage.model.INewModel;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * @author peng-yongsheng
+ * Core module definition. Define all open services to other modules.
  */
 public class CoreModule extends ModuleDefine {
-
     public static final String NAME = "core";
 
     public CoreModule() {
         super(NAME);
     }
 
-    @Override public Class[] services() {
+    @Override
+    public Class[] services() {
         List<Class> classes = new ArrayList<>();
         classes.add(ConfigService.class);
-        classes.add(DownsamplingConfigService.class);
+        classes.add(DownSamplingConfigService.class);
+        classes.add(NamingLengthControl.class);
         classes.add(IComponentLibraryCatalogService.class);
 
         classes.add(IWorkerInstanceGetter.class);
@@ -75,18 +74,25 @@ public class CoreModule extends ModuleDefine {
         addServerInterface(classes);
         addReceiverInterface(classes);
         addInsideService(classes);
-        addRegisterService(classes);
         addCacheService(classes);
         addQueryService(classes);
+        addProfileService(classes);
 
         classes.add(CommandService.class);
 
         return classes.toArray(new Class[] {});
     }
 
+    private void addProfileService(List<Class> classes) {
+        classes.add(ProfileTaskMutationService.class);
+        classes.add(ProfileTaskQueryService.class);
+        classes.add(ProfileTaskCache.class);
+    }
+
     private void addQueryService(List<Class> classes) {
         classes.add(TopologyQueryService.class);
-        classes.add(MetricQueryService.class);
+        classes.add(MetricsMetadataQueryService.class);
+        classes.add(MetricsQueryService.class);
         classes.add(TraceQueryService.class);
         classes.add(LogQueryService.class);
         classes.add(MetadataQueryService.class);
@@ -101,25 +107,15 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addInsideService(List<Class> classes) {
-        classes.add(IModelSetter.class);
-        classes.add(IModelGetter.class);
+        classes.add(INewModel.class);
+        classes.add(IModelManager.class);
         classes.add(IModelOverride.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);
     }
 
-    private void addRegisterService(List<Class> classes) {
-        classes.add(IServiceInventoryRegister.class);
-        classes.add(IServiceInstanceInventoryRegister.class);
-        classes.add(IEndpointInventoryRegister.class);
-        classes.add(INetworkAddressInventoryRegister.class);
-    }
-
     private void addCacheService(List<Class> classes) {
-        classes.add(ServiceInventoryCache.class);
-        classes.add(ServiceInstanceInventoryCache.class);
-        classes.add(EndpointInventoryCache.class);
-        classes.add(NetworkAddressInventoryCache.class);
+        classes.add(NetworkAddressAliasCache.class);
     }
 
     private void addReceiverInterface(List<Class> classes) {

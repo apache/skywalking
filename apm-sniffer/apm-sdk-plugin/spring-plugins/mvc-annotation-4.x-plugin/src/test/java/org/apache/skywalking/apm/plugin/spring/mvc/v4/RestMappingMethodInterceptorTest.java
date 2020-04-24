@@ -104,15 +104,22 @@ public class RestMappingMethodInterceptorTest {
         when(response.getStatus()).thenReturn(200);
         when(nativeWebRequest.getNativeResponse()).thenReturn(response);
 
-        arguments = new Object[] {request, response};
-        argumentType = new Class[] {request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
 
     }
 
     @Test
     public void testGetMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("getRequestURL");
@@ -136,7 +143,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPostMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("postRequestURL");
@@ -161,7 +169,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPutMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("putRequestURL");
@@ -186,12 +195,14 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testDeleteMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("deleteRequestURL");
                 when(request.getRequestURI()).thenReturn("/test/testRequestURL");
-                when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/deleteRequestURL"));
+                when(request.getRequestURL()).thenReturn(
+                    new StringBuffer("http://localhost:8080/test/deleteRequestURL"));
                 ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
                 RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
@@ -211,12 +222,14 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testPatchMapping() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("patchRequestURL");
                 when(request.getRequestURI()).thenReturn("/test/testRequestURL");
-                when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/patchRequestURL"));
+                when(request.getRequestURL()).thenReturn(
+                    new StringBuffer("http://localhost:8080/test/patchRequestURL"));
                 ServletRequestAttributes servletRequestAttributes = new ServletRequestAttributes(request, response);
                 RequestContextHolder.setRequestAttributes(servletRequestAttributes);
 
@@ -235,7 +248,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testDummy() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("dummy");
@@ -260,7 +274,8 @@ public class RestMappingMethodInterceptorTest {
     @Test
     public void testWithOccurException() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RestMappingClass1 mappingClass1 = new RestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("getRequestURL");
@@ -286,7 +301,7 @@ public class RestMappingMethodInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        MatcherAssert.assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }

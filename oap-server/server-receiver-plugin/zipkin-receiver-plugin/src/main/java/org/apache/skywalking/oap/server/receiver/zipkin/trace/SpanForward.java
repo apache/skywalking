@@ -20,36 +20,24 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.util.*;
-import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.*;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
 import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 
-/**
- * @author wusheng
- */
 public class SpanForward {
     private ZipkinReceiverConfig config;
     private SourceReceiver receiver;
-    private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
-    private int encode;
 
-    public SpanForward(ZipkinReceiverConfig config, SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache, int encode) {
+    public SpanForward(ZipkinReceiverConfig config, SourceReceiver receiver) {
         this.config = config;
         this.receiver = receiver;
-        this.serviceInventoryCache = serviceInventoryCache;
-        this.endpointInventoryCache = endpointInventoryCache;
-        this.encode = encode;
     }
 
     public void send(List<Span> spanList) {
@@ -58,33 +46,18 @@ public class SpanForward {
             zipkinSpan.setTraceId(span.traceId());
             zipkinSpan.setSpanId(span.id());
             String serviceName = span.localServiceName();
-            int serviceId = Const.NONE;
-            if (!StringUtil.isEmpty(serviceName)) {
-                serviceId = serviceInventoryCache.getServiceId(serviceName);
-                if (serviceId != Const.NONE) {
-                    zipkinSpan.setServiceId(serviceId);
-                } else {
-                    /**
-                     * Only register, but don't wait.
-                     * For this span, service id will be missed.
-                     */
-                    CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(serviceName, null);
-                }
+            if (StringUtil.isEmpty(serviceName)) {
+                serviceName = "Unknown";
             }
+            zipkinSpan.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
 
             String spanName = span.name();
             Span.Kind kind = span.kind();
             switch (kind) {
                 case SERVER:
                 case CONSUMER:
-                    if (!StringUtil.isEmpty(spanName) && serviceId != Const.NONE) {
-                        int endpointId = endpointInventoryCache.getEndpointId(serviceId, spanName,
-                            DetectPoint.SERVER.ordinal());
-                        if (endpointId != Const.NONE) {
-                            zipkinSpan.setEndpointId(endpointId);
-                        } else if (config.isRegisterZipkinEndpoint()) {
-                            CoreRegisterLinker.getEndpointInventoryRegister().getOrCreate(serviceId, spanName, DetectPoint.SERVER);
-                        }
+                    if (!StringUtil.isEmpty(spanName)) {
+                        zipkinSpan.setEndpointId(IDManager.EndpointID.buildId(zipkinSpan.getServiceId(), span.name()));
                     }
             }
             if (!StringUtil.isEmpty(spanName)) {
@@ -102,7 +75,7 @@ public class SpanForward {
             zipkinSpan.setEndTime(startTime + latency);
             zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
             zipkinSpan.setEncode(SpanEncode.PROTO3);
-            zipkinSpan.setLatency((int)latency);
+            zipkinSpan.setLatency((int) latency);
             zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
 
             receiver.receive(zipkinSpan);

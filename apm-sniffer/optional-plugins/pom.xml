@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-sniffer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,7 +33,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <sdk.plugin.related.dir />
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent
+        </agent.package.dest.dir>
         <optional.plugin.dest.dir>${agent.package.dest.dir}/optional-plugins</optional.plugin.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>
@@ -44,10 +45,9 @@
         <module>optional-spring-plugins</module>
         <module>trace-ignore-plugin</module>
         <module>gson-2.8.x-plugin</module>
-        <module>lettuce-5.x-plugin</module>
         <module>zookeeper-3.4.x-plugin</module>
         <module>customize-enhance-plugin</module>
-        <module>play-2.x-plugin</module>
+        <module>kotlin-coroutine-plugin</module>
     </modules>
 
     <dependencies>

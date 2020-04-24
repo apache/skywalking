@@ -18,17 +18,22 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Short column name unsupported for now. No define in @Column annotation. The storage implementation need to use name
  * to do match.
- *
- * @author peng-yongsheng
  */
+@Slf4j
+@ToString
 public class ColumnName {
+    private final String modelName;
     private String fullName;
     private String storageName = null;
 
-    public ColumnName(String fullName) {
+    public ColumnName(String modelName, String fullName) {
+        this.modelName = modelName;
         this.fullName = fullName;
     }
 
@@ -40,7 +45,13 @@ public class ColumnName {
         return storageName != null ? storageName : fullName;
     }
 
-    public void setStorageName(String storageName) {
-        this.storageName = storageName;
+    public void overrideName(String oldName, String storageName) {
+        if (fullName.equals(oldName)) {
+            log.debug(
+                "Model {} column {} has been override. The new column name is {}.",
+                modelName, oldName, storageName
+            );
+            this.storageName = storageName;
+        }
     }
 }

@@ -18,16 +18,26 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import io.envoyproxy.envoy.service.accesslog.v2.*;
+import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
+import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v2.StreamAccessLogsResponse;
 import io.grpc.stub.StreamObserver;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.envoy.als.*;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
+import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
@@ -54,12 +64,9 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
 
         MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        histogram = metricCreator.createHistogramMetric("envoy_als_in_latency", "The process latency of service ALS metric receiver",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        sourceDispatcherCounter = metricCreator.createCounter("envoy_als_source_dispatch_count", "The count of envoy ALS metric received",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        counter = metricCreator.createCounter("envoy_als_in_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        histogram = metricCreator.createHistogramMetric("envoy_als_in_latency", "The process latency of service ALS metric receiver", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        sourceDispatcherCounter = metricCreator.createCounter("envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
     }
 
     public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
@@ -69,7 +76,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             private Role role;
             private StreamAccessLogsMessage.Identifier identifier;
 
-            @Override public void onNext(StreamAccessLogsMessage message) {
+            @Override
+            public void onNext(StreamAccessLogsMessage message) {
                 counter.inc();
 
                 HistogramMetrics.Timer timer = histogram.createTimer();
@@ -86,8 +94,9 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                     StreamAccessLogsMessage.LogEntriesCase logCase = message.getLogEntriesCase();
 
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}",
-                            identifier.getNode().getId(), role, logCase, message);
+                        logger.debug("Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
+                            .getNode()
+                            .getId(), role, logCase, message);
                     }
 
                     switch (logCase) {
@@ -109,12 +118,14 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                 }
             }
 
-            @Override public void onError(Throwable throwable) {
+            @Override
+            public void onError(Throwable throwable) {
                 logger.error("Error in receiving access log from envoy", throwable);
                 responseObserver.onCompleted();
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(StreamAccessLogsResponse.newBuilder().build());
                 responseObserver.onCompleted();
             }

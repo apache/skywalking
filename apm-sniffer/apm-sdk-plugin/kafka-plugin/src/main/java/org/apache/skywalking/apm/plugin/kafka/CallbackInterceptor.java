@@ -31,27 +31,30 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import java.lang.reflect.Method;
 
 /**
- * @author zhang xin, stalary
+ *
  **/
 public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         CallbackCache cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
         if (null != cache) {
             ContextSnapshot snapshot = getSnapshot(cache);
             RecordMetadata metadata = (RecordMetadata) allArguments[0];
             AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
             activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
-            Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
+            if (metadata != null) {
+                // Null if an error occurred during processing of this record
+                Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
+            }
             ContextManager.continued(snapshot);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
         CallbackCache cache = (CallbackCache) objInst.getSkyWalkingDynamicField();
         if (null != cache) {
             ContextSnapshot snapshot = getSnapshot(cache);
@@ -68,7 +71,7 @@ public class CallbackInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 

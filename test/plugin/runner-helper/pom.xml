@@ -28,7 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runner-helper</artifactId>
-    <name>plugin-runner-helper</name>
+    <name>SkyWalking Plugin Test Runner Helper</name>
 
     <dependencies>
         <dependency>
@@ -43,12 +43,6 @@
             <artifactId>mockito-core</artifactId>
             <version>3.0.0</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
@@ -73,7 +67,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>org.apache.skywalking.plugin.test.helper.Main</Main-Class>
                                     </manifestEntries>

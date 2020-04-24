@@ -18,6 +18,8 @@
 
 package test.org.apache.skywalking.apm.testcase.redisson.controller;
 
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.redisson.Redisson;
 import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
@@ -29,12 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.PostConstruct;
-import java.util.concurrent.TimeUnit;
-
-/**
- * @author zhaoyuguang
- */
 @Controller
 @RequestMapping("/case")
 @PropertySource("classpath:application.properties")

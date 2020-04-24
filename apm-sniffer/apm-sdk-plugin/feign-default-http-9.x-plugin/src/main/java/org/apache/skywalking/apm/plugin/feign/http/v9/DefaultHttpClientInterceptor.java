@@ -44,8 +44,6 @@ import java.util.Map;
 
 /**
  * {@link DefaultHttpClientInterceptor} intercept the default implementation of http calls by the Feign.
- *
- * @author peng-yongsheng
  */
 public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -59,8 +57,8 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * @throws Throwable NoSuchFieldException or IllegalArgumentException
      */
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         Request request = (Request) allArguments[0];
         URL url = new URL(request.url());
         ContextCarrier contextCarrier = new ContextCarrier();
@@ -112,8 +110,8 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
      * @return origin ret
      */
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) {
         Response response = (Response) ret;
         if (response != null) {
             int statusCode = response.status();
@@ -132,7 +130,7 @@ public class DefaultHttpClientInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.log(t);
         activeSpan.errorOccurred();

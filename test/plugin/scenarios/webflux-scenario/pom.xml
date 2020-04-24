@@ -35,7 +35,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <test.framework.version>2.0.0.RELEASE</test.framework.version>
+        <test.framework.version>2.1.1.RELEASE</test.framework.version>
         <docker.image.version>${test.framework.version}</docker.image.version>
     </properties>
 

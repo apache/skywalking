@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author peng-yongsheng
- */
 @MetricsFunction(functionName = "doubleAvg")
 public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHolder {
 
@@ -33,9 +34,18 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     protected static final String COUNT = "count";
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = SUMMATION) private double summation;
-    @Getter @Setter @Column(columnName = COUNT) private long count;
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private double value;
+    @Getter
+    @Setter
+    @Column(columnName = SUMMATION, storageOnly = true)
+    private double summation;
+    @Getter
+    @Setter
+    @Column(columnName = COUNT, storageOnly = true)
+    private long count;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    private double value;
 
     @Entrance
     public final void combine(@SourceFrom double summation, @ConstOne long count) {
@@ -43,12 +53,14 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
         this.count += count;
     }
 
-    @Override public final void combine(Metrics metrics) {
-        DoubleAvgMetrics doubleAvgMetrics = (DoubleAvgMetrics)metrics;
+    @Override
+    public final void combine(Metrics metrics) {
+        DoubleAvgMetrics doubleAvgMetrics = (DoubleAvgMetrics) metrics;
         combine(doubleAvgMetrics.summation, doubleAvgMetrics.count);
     }
 
-    @Override public final void calculate() {
+    @Override
+    public final void calculate() {
         this.value = this.summation / this.count;
     }
 }

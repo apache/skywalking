@@ -30,8 +30,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * enhance socketio get event
- *
- * @author MrPro
  */
 public class NettySocketIOPluginNameSpaceInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

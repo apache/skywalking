@@ -13,68 +13,57 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  applications:
-    - {redisson-scenario: 2}
-  instances:
-    - {redisson-scenario: 1}
-  operationNames:
-    - redisson-scenario: [/case/healthCheck, Redisson/BATCH_EXECUTE, Redisson/SET, /case/redisson-case]
-  heartbeat: []
 segmentItems:
-  - applicationCode: redisson-scenario
-    segmentSize: nq 0
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: Redisson/SET
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Cache
-            startTime: not null
-            endTime: not null
-            componentId: 56
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.instance, value: not null}
-              - {key: db.statement, value: 'SET key_a ?'}
-          - operationName: Redisson/BATCH_EXECUTE
-            operationId: 0
-            parentSpanId: 0
-            spanId: nq 0
-            spanLayer: Cache
-            startTime: not null
-            endTime: not null
-            componentId: 56
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.instance, value: not null}
-              - {key: db.statement, value: 'SET batch_k_a ?;SET batch_k_b ?;PEXPIRE batch_k_b 20000;'}
-          - operationName: /case/redisson-case
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: not null
-            endTime: not null
-            componentId: 14
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: not null}
-              - {key: http.method, value: GET}
+- serviceName: redisson-scenario
+  segmentSize: nq 0
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: Redisson/SET
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Cache
+      startTime: not null
+      endTime: not null
+      componentId: 56
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.instance, value: not null}
+      - {key: db.statement, value: 'SET key_a ?'}
+      skipAnalysis: 'false'
+    - operationName: Redisson/BATCH_EXECUTE
+      operationId: 0
+      parentSpanId: 0
+      spanId: nq 0
+      spanLayer: Cache
+      startTime: not null
+      endTime: not null
+      componentId: 56
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.instance, value: not null}
+      - {key: db.statement, value: 'SET batch_k_a ?;SET batch_k_b ?;PEXPIRE batch_k_b
+          20000;'}
+      skipAnalysis: 'false'
+    - operationName: /case/redisson-case
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: not null
+      endTime: not null
+      componentId: 14
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

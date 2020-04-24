@@ -18,31 +18,30 @@
 
 package org.apache.skywalking.oap.server.exporter.provider;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-/**
- * @author wusheng
- */
 @Setter
 public class MetricFormatter {
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
-
     protected String getEntityName(MetricsMetaInfo meta) {
         int scope = meta.getScope();
         if (DefaultScopeDefine.inServiceCatalog(scope)) {
-            int entityId = Integer.valueOf(meta.getId());
-            return serviceInventoryCache.get(entityId).getName();
+            final String serviceId = meta.getId();
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                serviceId);
+            return serviceIDDefinition.getName();
         } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
-            int entityId = Integer.valueOf(meta.getId());
-            return serviceInstanceInventoryCache.get(entityId).getName();
+            final String instanceId = meta.getId();
+            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                instanceId);
+            return instanceIDDefinition.getName();
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
-            int entityId = Integer.valueOf(meta.getId());
-            return endpointInventoryCache.get(entityId).getName();
+            final String endpointId = meta.getId();
+            final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                endpointId);
+            return endpointIDDefinition.getEndpointName();
         } else if (scope == DefaultScopeDefine.ALL) {
             return "";
         } else {

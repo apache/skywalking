@@ -17,10 +17,6 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v6.interceptor;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpHost;
@@ -38,12 +34,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-/**
- * @author aderm
- */
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest(value = {RestClientBuilder.class, HttpHost.class})
+@PrepareForTest(value = {
+    RestClientBuilder.class,
+    HttpHost.class
+})
 public class RestHighLevelClientConInterceptorTest {
 
     @Mock
@@ -52,24 +52,19 @@ public class RestHighLevelClientConInterceptorTest {
     @Mock
     private RestClient restClient;
 
-    @Mock
-    private HttpHost httpHost;
-
-
     private Object[] allArguments;
 
     private RestHighLevelClientConInterceptor restHighLevelClientConInterceptor;
 
     @Before
     public void setUp() throws Exception {
-        when(httpHost.getHostName()).thenReturn("127.0.0.1");
-        when(httpHost.getPort()).thenReturn(9200);
         List<Node> nodeList = new ArrayList<Node>();
-        nodeList.add(new Node(httpHost));
+        nodeList.add(new Node(new HttpHost("127.0.0.1", 9200)));
+        nodeList.add(new Node(new HttpHost("127.0.0.1", 9300)));
         restHighLevelClientConInterceptor = new RestHighLevelClientConInterceptor();
         when(restClientBuilder.build()).thenReturn(restClient);
         when(restClient.getNodes()).thenReturn(nodeList);
-        allArguments = new Object[]{restClientBuilder};
+        allArguments = new Object[] {restClientBuilder};
     }
 
     @Test
@@ -77,6 +72,7 @@ public class RestHighLevelClientConInterceptorTest {
 
         final EnhancedInstance objInst = new EnhancedInstance() {
             private Object object = null;
+
             @Override
             public Object getSkyWalkingDynamicField() {
                 return object;
@@ -91,6 +87,6 @@ public class RestHighLevelClientConInterceptorTest {
         restHighLevelClientConInterceptor.onConstruct(objInst, allArguments);
 
         assertThat(objInst.getSkyWalkingDynamicField() instanceof RestClientEnhanceInfo, is(true));
-        assertThat(((RestClientEnhanceInfo)objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200"));
+        assertThat(((RestClientEnhanceInfo) objInst.getSkyWalkingDynamicField()).getPeers(), is("127.0.0.1:9200,127.0.0.1:9300"));
     }
 }

@@ -18,46 +18,56 @@
 
 package org.apache.skywalking.oap.server.core.analysis.generated.service.serviceavg;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.annotation.*;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * This class is auto generated. Please don't change this class manually.
- *
- * @author Observability Analysis Language code generator
  */
 @Stream(name = "service_avg", scopeId = 1, builder = ServiceAvgMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
 
-    @Setter @Getter @Column(columnName = "entity_id") @IDColumn private java.lang.String entityId;
+    @Setter
+    @Getter
+    @Column(columnName = "entity_id")
+    private java.lang.String entityId;
 
-    @Override public String id() {
+    @Override
+    public String id() {
         String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_SPLIT + entityId;
+        splitJointId += Const.ID_CONNECTOR + entityId;
         return splitJointId;
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
-        result = 31 * result + (int)getTimeBucket();
+        result = 31 * result + (int) getTimeBucket();
         return result;
     }
 
-    @Override public int remoteHashCode() {
+    @Override
+    public int remoteHashCode() {
         int result = 17;
         result = 31 * result + entityId.hashCode();
         return result;
     }
 
-    @Override public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
@@ -65,7 +75,7 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         if (getClass() != obj.getClass())
             return false;
 
-        ServiceAvgMetrics metrics = (ServiceAvgMetrics)obj;
+        ServiceAvgMetrics metrics = (ServiceAvgMetrics) obj;
         if (!entityId.equals(metrics.entityId))
             return false;
 
@@ -75,7 +85,8 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         return true;
     }
 
-    @Override public RemoteData.Builder serialize() {
+    @Override
+    public RemoteData.Builder serialize() {
         RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataStrings(getEntityId());
         remoteBuilder.addDataStrings(getStringField());
@@ -84,13 +95,13 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         remoteBuilder.addDataLongs(getValue());
         remoteBuilder.addDataLongs(getTimeBucket());
 
-
         remoteBuilder.addDataIntegers(getCount());
 
         return remoteBuilder;
     }
 
-    @Override public void deserialize(RemoteData remoteData) {
+    @Override
+    public void deserialize(RemoteData remoteData) {
         setEntityId(remoteData.getDataStrings(0));
         setStringField(remoteData.getDataStrings(1));
 
@@ -98,13 +109,12 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
         setValue(remoteData.getDataLongs(1));
         setTimeBucket(remoteData.getDataLongs(2));
 
-
         setCount(remoteData.getDataIntegers(0));
-
 
     }
 
-    @Override public MetricsMetaInfo getMeta() {
+    @Override
+    public MetricsMetaInfo getMeta() {
         return new MetricsMetaInfo("generate_metrics", 1, entityId);
     }
 
@@ -146,7 +156,8 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
 
     public static class Builder implements StorageBuilder<ServiceAvgMetrics> {
 
-        @Override public Map<String, Object> data2Map(ServiceAvgMetrics storageData) {
+        @Override
+        public Map<String, Object> data2Map(ServiceAvgMetrics storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put("entity_id", storageData.getEntityId());
             map.put("summation", storageData.getSummation());
@@ -157,14 +168,15 @@ public class ServiceAvgMetrics extends LongAvgMetrics implements WithMetadata {
             return map;
         }
 
-        @Override public ServiceAvgMetrics map2Data(Map<String, Object> dbMap) {
+        @Override
+        public ServiceAvgMetrics map2Data(Map<String, Object> dbMap) {
             ServiceAvgMetrics metrics = new ServiceAvgMetrics();
-            metrics.setEntityId((String)dbMap.get("entity_id"));
-            metrics.setSummation(((Number)dbMap.get("summation")).longValue());
-            metrics.setCount(((Number)dbMap.get("count")).intValue());
-            metrics.setValue(((Number)dbMap.get("value")).longValue());
-            metrics.setTimeBucket(((Number)dbMap.get("time_bucket")).longValue());
-            metrics.setStringField((String)dbMap.get("string_field"));
+            metrics.setEntityId((String) dbMap.get("entity_id"));
+            metrics.setSummation(((Number) dbMap.get("summation")).longValue());
+            metrics.setCount(((Number) dbMap.get("count")).intValue());
+            metrics.setValue(((Number) dbMap.get("value")).longValue());
+            metrics.setTimeBucket(((Number) dbMap.get("time_bucket")).longValue());
+            metrics.setStringField((String) dbMap.get("string_field"));
             return metrics;
         }
     }

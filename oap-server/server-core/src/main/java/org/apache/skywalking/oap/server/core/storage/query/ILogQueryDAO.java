@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.type.LogState;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author wusheng
- */
 public interface ILogQueryDAO extends Service {
-    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB, final long endTB) throws IOException;
+    Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, String endpointId, String traceId,
+        LogState state, String stateCode, Pagination paging, int from, int limit, final long startTB,
+        final long endTB) throws IOException;
 }

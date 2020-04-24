@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,6 +38,7 @@
         <spring-cloud-dependencies.version>Edgware.SR1</spring-cloud-dependencies.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
         <logback-classic.version>1.2.3</logback-classic.version>
+        <jackson-version>2.9.10</jackson-version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
     </properties>
@@ -64,6 +65,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>${spring.boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- https://www.cvedetails.com/cve/CVE-2019-17267/ -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -118,7 +131,7 @@
                 <version>${frontend-maven-plugin.version}</version>
                 <configuration>
                     <workingDirectory>${ui.path}</workingDirectory>
-                    <nodeVersion>v8.9.4</nodeVersion>
+                    <nodeVersion>v8.17.0</nodeVersion>
                 </configuration>
                 <executions>
                     <execution>

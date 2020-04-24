@@ -28,30 +28,24 @@ import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context.SWTran
 
 import java.lang.reflect.Method;
 
-
-/**
- * @author zhaoyuguang
- */
 public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                              Object ret) throws Throwable {
+        Object ret) throws Throwable {
 
         SWTransmitter transmitter = (SWTransmitter) objInst.getSkyWalkingDynamicField();
         if (transmitter != null) {
             HttpResponseStatus response = (HttpResponseStatus) ret;
             if (response.code() >= 400) {
                 Tags.STATUS_CODE.set(transmitter.getSpanGateway().errorOccurred(), String.valueOf(response.code()));
-                Tags.STATUS_CODE.set(transmitter.getSpanWebflux().errorOccurred(), String.valueOf(response.code()));
             }
             transmitter.getSpanGateway().asyncFinish();
-            transmitter.getSpanWebflux().asyncFinish();
             objInst.setSkyWalkingDynamicField(null);
         }
         return ret;
@@ -59,7 +53,7 @@ public class HttpClientOperationsStatusInterceptor implements InstanceMethodsAro
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

@@ -65,9 +65,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author lican
- */
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 @PrepareForTest(HttpHost.class)
@@ -194,7 +191,7 @@ public class HttpAsyncClientInterceptorTest {
 
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(findNeedSegemnt());
         assertHttpSpan(spans.get(0));
-        verify(requestWrapper).setHeader(anyString(), anyString());
+        verify(requestWrapper, times(3)).setHeader(anyString(), anyString());
 
     }
 
@@ -211,8 +208,18 @@ public class HttpAsyncClientInterceptorTest {
     }
 
     private Thread baseTest() throws Throwable {
-        Object[] allArguments = new Object[] {producer, consumer, httpContext, callback};
-        Class[] types = new Class[] {HttpAsyncRequestProducer.class, HttpAsyncResponseConsumer.class, HttpContext.class, FutureCallback.class};
+        Object[] allArguments = new Object[] {
+            producer,
+            consumer,
+            httpContext,
+            callback
+        };
+        Class[] types = new Class[] {
+            HttpAsyncRequestProducer.class,
+            HttpAsyncResponseConsumer.class,
+            HttpContext.class,
+            FutureCallback.class
+        };
         httpAsyncClientInterceptor.beforeMethod(enhancedInstance, null, allArguments, types, null);
         Assert.assertEquals(CONTEXT_LOCAL.get(), httpContext);
         Assert.assertTrue(allArguments[1] instanceof HttpAsyncResponseConsumerWrapper);

@@ -16,16 +16,14 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.trace;
 
+import java.util.Optional;
+
 /**
- * Try to access the sky-walking tracer context.
- * The context is not existed, always.
- * only the middleware, component, or rpc-framework are supported in the current invoke stack, in the same thread,
- * the context will be available.
+ * Try to access the sky-walking tracer context. The context is not existed, always. only the middleware, component, or
+ * rpc-framework are supported in the current invoke stack, in the same thread, the context will be available.
  * <p>
- * Created by xin on 2016/12/15.
  */
 public class TraceContext {
 
@@ -37,4 +35,23 @@ public class TraceContext {
     public static String traceId() {
         return "";
     }
+
+    /**
+     * Try to get the custom value from trace context.
+     *
+     * @return custom data value.
+     */
+    public static Optional<String> getCorrelation(String key) {
+        return Optional.empty();
+    }
+
+    /**
+     * Put the custom key/value into trace context.
+     *
+     * @return previous value if it exists.
+     */
+    public static Optional<String> putCorrelation(String key, String value) {
+        return Optional.empty();
+    }
+
 }

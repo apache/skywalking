@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.junit.Test;
@@ -77,6 +76,14 @@ public class URLParserTest {
     @Test
     public void testParseOracleJDBCURLWithHostAndPort() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522:orcl");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
+    }
+
+    @Test
+    public void testParseOracleSID() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522/orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));

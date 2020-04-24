@@ -23,14 +23,13 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import io.undertow.util.Headers;
 import io.undertow.util.Methods;
+import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
 
 public class Application {
 
@@ -46,21 +45,19 @@ public class Application {
     }
 
     private static void undertow() {
-        Undertow server = Undertow.builder()
-            .addHttpListener(8080, "0.0.0.0")
-            .setHandler(exchange -> {
-                if (CASE_URL.equals(exchange.getRequestPath())) {
-                    exchange.dispatch(() -> {
-                        try {
-                            visit("http://localhost:8081/undertow-routing-scenario/case/undertow?send=httpHandler");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }
-                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                exchange.getResponseSender().send("Success");
-            }).build();
+        Undertow server = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(exchange -> {
+            if (CASE_URL.equals(exchange.getRequestPath())) {
+                exchange.dispatch(() -> {
+                    try {
+                        visit("http://localhost:8081/undertow-routing-scenario/case/undertow?send=httpHandler");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+            exchange.getResponseSender().send("Success");
+        }).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         server.start();
     }
@@ -76,9 +73,7 @@ public class Application {
         RoutingHandler handler = new RoutingHandler();
         handler.add(Methods.GET, TEMPLATE, httpHandler);
         handler.add(Methods.HEAD, TEMPLATE, httpHandler);
-        Undertow server = Undertow.builder()
-            .addHttpListener(8081, "0.0.0.0")
-            .setHandler(handler).build();
+        Undertow server = Undertow.builder().addHttpListener(8081, "0.0.0.0").setHandler(handler).build();
         Runtime.getRuntime().addShutdownHook(new Thread(server::stop));
         server.start();
     }

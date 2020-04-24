@@ -18,15 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 
-/**
- * @author wusheng
- */
 public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
     private AtomicReference<Map<String, Integer>> thresholds;
     private AtomicReference<String> settingsString;
@@ -65,7 +63,8 @@ public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
         }
     }
 
-    @Override public void notify(ConfigChangeEvent value) {
+    @Override
+    public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
             activeSetting("");
         } else {
@@ -73,7 +72,8 @@ public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
         }
     }
 
-    @Override public String value() {
+    @Override
+    public String value() {
         return settingsString.get();
     }
 }

@@ -23,25 +23,22 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class PercentMetricsTest {
     @Test
     public void testEntranceCombine() {
         PercentMetricsImpl impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true,true));
-        impl.combine(new EqualMatch().match(true,false));
-        impl.combine(new EqualMatch().match(true,false));
+        impl.combine(new EqualMatch().match(true, true));
+        impl.combine(new EqualMatch().match(true, false));
+        impl.combine(new EqualMatch().match(true, false));
 
         impl.calculate();
 
         Assert.assertEquals(3333, impl.getValue());
 
         impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true,true));
-        impl.combine(new EqualMatch().match(true,true));
-        impl.combine(new EqualMatch().match(true,false));
+        impl.combine(new EqualMatch().match(true, true));
+        impl.combine(new EqualMatch().match(true, true));
+        impl.combine(new EqualMatch().match(true, false));
 
         impl.calculate();
 
@@ -51,14 +48,14 @@ public class PercentMetricsTest {
     @Test
     public void testSelfCombine() {
         PercentMetricsImpl impl = new PercentMetricsImpl();
-        impl.combine(new EqualMatch().match(true,true));
-        impl.combine(new EqualMatch().match(true,false));
-        impl.combine(new EqualMatch().match(true,false));
+        impl.combine(new EqualMatch().match(true, true));
+        impl.combine(new EqualMatch().match(true, false));
+        impl.combine(new EqualMatch().match(true, false));
 
         PercentMetricsImpl impl2 = new PercentMetricsImpl();
-        impl2.combine(new EqualMatch().match(true,true));
-        impl2.combine(new EqualMatch().match(true,true));
-        impl2.combine(new EqualMatch().match(true,false));
+        impl2.combine(new EqualMatch().match(true, true));
+        impl2.combine(new EqualMatch().match(true, true));
+        impl2.combine(new EqualMatch().match(true, false));
 
         impl.combine(impl2);
 
@@ -69,31 +66,33 @@ public class PercentMetricsTest {
 
     public class PercentMetricsImpl extends PercentMetrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public void deserialize(RemoteData remoteData) {
+
+        }
+
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
-
-        }
-
-        @Override public RemoteData.Builder serialize() {
-            return null;
-        }
-
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
     }

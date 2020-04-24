@@ -23,6 +23,10 @@ public final class StringUtil {
         return str == null || str.length() == 0;
     }
 
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
+    }
+
     public static String join(final char delimiter, final String... strings) {
         if (strings.length == 0) {
             return null;
@@ -68,5 +72,23 @@ public final class StringUtil {
             return str;
         }
         return str.substring(0, threshold);
+    }
+
+    public static String trim(final String str, final char ch) {
+        if (isEmpty(str)) {
+            return null;
+        }
+
+        final char[] chars = str.toCharArray();
+
+        int i = 0, j = chars.length - 1;
+        // noinspection StatementWithEmptyBody
+        for (; i < chars.length && chars[i] == ch; i++) {
+        }
+        // noinspection StatementWithEmptyBody
+        for (; j > 0 && chars[j] == ch; j--) {
+        }
+
+        return new String(chars, i, j - i + 1);
     }
 }

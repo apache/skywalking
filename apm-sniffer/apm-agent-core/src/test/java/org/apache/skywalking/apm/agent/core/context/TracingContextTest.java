@@ -18,35 +18,37 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
-import org.junit.*;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TracingContextTest {
     @BeforeClass
-    public static void setup() {
-        ServiceManager.INSTANCE.boot();
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 5;
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
     @AfterClass
-    public static void clear() {
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 0;
-        ServiceManager.INSTANCE.shutdown();
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
     }
 
     @Test
     public void testSpanLimit() {
         final boolean[] dataReceived = {false};
         TracingContextListener listener = new TracingContextListener() {
-            @Override public void afterFinished(TraceSegment traceSegment) {
+            @Override
+            public void afterFinished(TraceSegment traceSegment) {
                 dataReceived[0] = true;
             }
         };
         TracingContext.ListenerManager.add(listener);
         try {
-            TracingContext tracingContext = new TracingContext();
+            TracingContext tracingContext = new TracingContext("/url");
             AbstractSpan span = tracingContext.createEntrySpan("/url");
 
             for (int i = 0; i < 10; i++) {
@@ -67,6 +69,5 @@ public class TracingContextTest {
             TracingContext.ListenerManager.remove(listener);
         }
     }
-
 
 }

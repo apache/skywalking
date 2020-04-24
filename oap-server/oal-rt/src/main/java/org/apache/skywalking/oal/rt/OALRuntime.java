@@ -65,7 +65,6 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.IDColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
@@ -74,8 +73,6 @@ import org.slf4j.LoggerFactory;
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
  * is loaded dynamically.
- *
- * @author wusheng
  */
 public class OALRuntime implements OALEngine {
     private static final Logger logger = LoggerFactory.getLogger(OALRuntime.class);
@@ -90,10 +87,21 @@ public class OALRuntime implements OALEngine {
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
     private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
-    private static final String[] METRICS_CLASS_METHODS =
-        {"id", "hashCode", "remoteHashCode", "equals", "serialize", "deserialize", "getMeta", "toHour", "toDay", "toMonth"};
-    private static final String[] METRICS_BUILDER_CLASS_METHODS =
-        {"data2Map", "map2Data"};
+    private static final String[] METRICS_CLASS_METHODS = {
+        "id",
+        "hashCode",
+        "remoteHashCode",
+        "equals",
+        "serialize",
+        "deserialize",
+        "getMeta",
+        "toHour",
+        "toDay"
+    };
+    private static final String[] METRICS_BUILDER_CLASS_METHODS = {
+        "data2Map",
+        "map2Data"
+    };
     private final ClassPool classPool;
     private ClassLoader currentClassLoader;
     private Configuration configuration;
@@ -115,15 +123,18 @@ public class OALRuntime implements OALEngine {
         openEngineDebug = !StringUtil.isEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
     }
 
-    @Override public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
+    @Override
+    public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
         this.streamAnnotationListener = listener;
     }
 
-    @Override public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
+    @Override
+    public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
         dispatcherDetectorListener = listener;
     }
 
-    @Override public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
+    @Override
+    public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
         prepareRTTempFolder();
 
         this.currentClassLoader = currentClassLoader;
@@ -152,7 +163,8 @@ public class OALRuntime implements OALEngine {
         this.generateClassAtRuntime(oalScripts);
     }
 
-    @Override public void notifyAllListeners() throws ModuleStartException {
+    @Override
+    public void notifyAllListeners() throws ModuleStartException {
         metricsClasses.forEach(streamAnnotationListener::notify);
         for (Class dispatcherClass : dispatcherClasses) {
             try {
@@ -183,10 +195,6 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate metrics class, and inject it to classloader
-     *
-     * @param metricsStmt
-     * @return
-     * @throws OALCompileException
      */
     private Class generateMetricsClass(AnalysisResult metricsStmt) throws OALCompileException {
         String className = metricsClassName(metricsStmt, false);
@@ -226,33 +234,31 @@ public class OALRuntime implements OALEngine {
          */
         for (SourceColumn field : metricsStmt.getFieldsFromSource()) {
             try {
-                CtField newField = CtField.make("private " + field.getType().getName() + " " + field.getFieldName() + ";", metricsClass);
+                CtField newField = CtField.make(
+                    "private " + field.getType()
+                                      .getName() + " " + field.getFieldName() + ";", metricsClass);
 
                 metricsClass.addField(newField);
 
                 metricsClass.addMethod(CtNewMethod.getter(field.getFieldGetter(), newField));
                 metricsClass.addMethod(CtNewMethod.setter(field.getFieldSetter(), newField));
 
-                AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+                AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(
+                    constPool, AnnotationsAttribute.visibleTag);
                 /**
                  * Add @Column(columnName = "${sourceField.columnName}")
                  */
                 Annotation columnAnnotation = new Annotation(Column.class.getName(), constPool);
                 columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
+                if (field.getType().equals(String.class)) {
+                    columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
+                }
                 annotationsAttribute.addAnnotation(columnAnnotation);
 
-                if (field.isID()) {
-                    /**
-                     * Add @IDColumn
-                     */
-                    Annotation idAnnotation = new Annotation(IDColumn.class.getName(), constPool);
-                    annotationsAttribute.addAnnotation(idAnnotation);
-                }
-
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
-
             } catch (CannotCompileException e) {
-                logger.error("Can't add field(including set/get) " + field.getFieldName() + " in " + className + ".", e);
+                logger.error(
+                    "Can't add field(including set/get) " + field.getFieldName() + " in " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -276,11 +282,13 @@ public class OALRuntime implements OALEngine {
          *
          * at Stream(name = "${tableName}", scopeId = ${sourceScopeId}, builder = ${metricsName}Metrics.Builder.class, processor = MetricsStreamProcessor.class)
          */
-        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+        AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(
+            constPool, AnnotationsAttribute.visibleTag);
         Annotation streamAnnotation = new Annotation(Stream.class.getName(), constPool);
         streamAnnotation.addMemberValue("name", new StringMemberValue(metricsStmt.getTableName(), constPool));
         streamAnnotation.addMemberValue("scopeId", new IntegerMemberValue(constPool, metricsStmt.getSourceScopeId()));
-        streamAnnotation.addMemberValue("builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt, true), constPool));
+        streamAnnotation.addMemberValue(
+            "builder", new ClassMemberValue(metricsBuilderClassName(metricsStmt, true), constPool));
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
 
         annotationsAttribute.addAnnotation(streamAnnotation);
@@ -302,9 +310,6 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate metrics class builder and inject it to classloader
-     *
-     * @param metricsStmt
-     * @throws OALCompileException
      */
     private void generateMetricsBuilderClass(AnalysisResult metricsStmt) throws OALCompileException {
         String className = metricsBuilderClassName(metricsStmt, false);
@@ -316,14 +321,12 @@ public class OALRuntime implements OALEngine {
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        ClassFile metricsClassClassFile = metricsBuilderClass.getClassFile();
-        ConstPool constPool = metricsClassClassFile.getConstPool();
-
         /**
          * Create empty construct
          */
         try {
-            CtConstructor defaultConstructor = CtNewConstructor.make("public " + className + "() {}", metricsBuilderClass);
+            CtConstructor defaultConstructor = CtNewConstructor.make(
+                "public " + className + "() {}", metricsBuilderClass);
             metricsBuilderClass.addConstructor(defaultConstructor);
         } catch (CannotCompileException e) {
             logger.error("Can't add empty constructor in " + className + ".", e);
@@ -356,11 +359,9 @@ public class OALRuntime implements OALEngine {
 
     /**
      * Generate SourceDispatcher class and inject it to classloader
-     *
-     * @throws OALCompileException
      */
     private Class generateDispatcherClass(String scopeName,
-        DispatcherContext dispatcherContext) throws OALCompileException {
+                                          DispatcherContext dispatcherContext) throws OALCompileException {
 
         String className = dispatcherClassName(scopeName, false);
         CtClass dispatcherClass = classPool.makeClass(dispatcherClassName(scopeName, true));
@@ -373,12 +374,22 @@ public class OALRuntime implements OALEngine {
              * Set generic signature
              */
             String sourceClassName = SOURCE_PACKAGE + dispatcherContext.getSource();
-            SignatureAttribute.ClassSignature dispatcherSignature = new SignatureAttribute.ClassSignature(null, null,
-                // Set interface and its generic params
-                new SignatureAttribute.ClassType[] {
-                    new SignatureAttribute.ClassType(SourceDispatcher.class.getCanonicalName(),
-                        new SignatureAttribute.TypeArgument[] {new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(sourceClassName))}
-                    )});
+            SignatureAttribute.ClassSignature dispatcherSignature =
+                new SignatureAttribute.ClassSignature(
+                    null, null,
+                    // Set interface and its generic params
+                    new SignatureAttribute.ClassType[] {
+                        new SignatureAttribute.ClassType(
+                            SourceDispatcher.class
+                                .getCanonicalName(),
+                            new SignatureAttribute.TypeArgument[] {
+                                new SignatureAttribute.TypeArgument(
+                                    new SignatureAttribute.ClassType(
+                                        sourceClassName))
+                            }
+                        )
+                    }
+                );
 
             dispatcherClass.setGenericSignature(dispatcherSignature.encode());
         } catch (NotFoundException e) {
@@ -395,7 +406,10 @@ public class OALRuntime implements OALEngine {
                 configuration.getTemplate("dispatcher/doMetrics.ftl").process(dispatcherContextMetric, methodEntity);
                 dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
             } catch (Exception e) {
-                logger.error("Can't generate method do" + dispatcherContextMetric.getMetricsName() + " for " + className + ".", e);
+                logger.error(
+                    "Can't generate method do" + dispatcherContextMetric.getMetricsName() + " for " + className + ".",
+                    e
+                );
                 logger.error("Method body as following" + System.lineSeparator() + "{}", methodEntity);
                 throw new OALCompileException(e.getMessage(), e);
             }

@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.query.entity.ContentType;
+import org.apache.skywalking.oap.server.core.query.type.ContentType;
 
 @Setter
 @Getter
@@ -29,14 +30,16 @@ public abstract class AbstractLog extends Source {
     private long timestamp;
     private int serviceId;
     private int serviceInstanceId;
-    private int endpointId;
+    private String endpointId;
+    private String endpointName;
     private String traceId;
     private int isError;
     private String statusCode;
     private ContentType contentType = ContentType.NONE;
     private String content;
 
-    @Override public String getEntityId() {
+    @Override
+    public String getEntityId() {
         throw new UnexpectedException("getEntityId is not supported in AbstractLog source");
     }
 }

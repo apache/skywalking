@@ -1,0 +1,34 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ARG SW_AGENT_JDK_VERSION=8
+ARG AGENT_JDK_BASE=adoptopenjdk/openjdk${SW_AGENT_JDK_VERSION}:alpine
+
+FROM ${AGENT_JDK_BASE}
+
+WORKDIR /skywalking
+
+ARG DIST_PACKAGE=dist/apache-skywalking-apm-bin.tar.gz
+ADD ${DIST_PACKAGE} .
+RUN tar -zxf apache-skywalking-apm*.gz --strip=1 || true
+RUN mv apache-skywalking-apm-bin/* . || true
+
+VOLUME /services
+
+ADD e2e-service-provider/target/e2e-service-provider-1.0.0.jar /services/
+
+ENV JAVA_OPTS=""
+
+CMD ["sh", "-c", "java $JAVA_OPTS -jar /services/e2e-service-provider-1.0.0.jar"]

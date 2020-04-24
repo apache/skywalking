@@ -15,8 +15,10 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.resttemplate;
 
+import java.io.IOException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -28,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import test.org.apache.skywalking.apm.testcase.entity.User;
-
-import java.io.IOException;
 
 @Controller
 public class RestTemplateController {
@@ -64,12 +64,10 @@ public class RestTemplateController {
         return SUCCESS;
     }
 
-
     @RequestMapping("/healthCheck")
     @ResponseBody
     public String healthCheck() {
         return SUCCESS;
     }
-
 
 }

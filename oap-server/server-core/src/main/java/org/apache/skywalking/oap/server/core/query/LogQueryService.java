@@ -19,24 +19,20 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.query.type.LogState;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.*;
 
-/**
- * @author wusheng
- */
 public class LogQueryService implements Service {
-    
+
     private final ModuleManager moduleManager;
     private ILogQueryDAO logQueryDAO;
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
 
     public LogQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -49,44 +45,33 @@ public class LogQueryService implements Service {
         return logQueryDAO;
     }
 
-    private ServiceInventoryCache getServiceInventoryCache() {
-        if (serviceInventoryCache == null) {
-            this.serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        }
-        return serviceInventoryCache;
-    }
-
-    private ServiceInstanceInventoryCache getServiceInstanceInventoryCache() {
-        if (serviceInstanceInventoryCache == null) {
-            this.serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        }
-        return serviceInstanceInventoryCache;
-    }
-
-    private EndpointInventoryCache getEndpointInventoryCache() {
-        if (endpointInventoryCache == null) {
-            this.endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
-        }
-        return endpointInventoryCache;
-    }
-
-    public Logs queryLogs(final String metricName, int serviceId, int serviceInstanceId, int endpointId,
-        String traceId, LogState state, String stateCode, Pagination paging, final long startTB,
-        final long endTB) throws IOException {
+    public Logs queryLogs(final String metricName,
+                          int serviceId,
+                          int serviceInstanceId,
+                          String endpointId,
+                          String traceId,
+                          LogState state,
+                          String stateCode,
+                          Pagination paging,
+                          final long startTB,
+                          final long endTB) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        Logs logs = getLogQueryDAO().queryLogs(metricName, serviceId, serviceInstanceId, endpointId,
-            traceId, state, stateCode, paging, page.getFrom(), page.getLimit(), startTB, endTB);
+        Logs logs = getLogQueryDAO().queryLogs(
+            metricName, serviceId, serviceInstanceId, endpointId, traceId, state, stateCode, paging, page
+                .getFrom(), page.getLimit(), startTB, endTB);
         logs.getLogs().forEach(log -> {
-            if (log.getServiceId() != Const.NONE) {
-                log.setServiceName(getServiceInventoryCache().get(log.getServiceId()).getName());
+            if (StringUtil.isNotEmpty(log.getServiceId())) {
+                final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                    log.getServiceId());
+                log.setServiceName(serviceIDDefinition.getName());
             }
-            if (log.getServiceInstanceId() != Const.NONE) {
-                log.setServiceInstanceName(getServiceInstanceInventoryCache().get(log.getServiceInstanceId()).getName());
+            if (StringUtil.isNotEmpty(log.getServiceInstanceId())) {
+                final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
+                    .analysisId(log.getServiceInstanceId());
+                log.setServiceInstanceName(instanceIDDefinition.getName());
             }
-            if (log.getEndpointId() != Const.NONE) {
-                log.setEndpointName(getEndpointInventoryCache().get(log.getEndpointId()).getName());
-            }
+            log.setEndpointId(log.getEndpointId());
         });
         return logs;
     }

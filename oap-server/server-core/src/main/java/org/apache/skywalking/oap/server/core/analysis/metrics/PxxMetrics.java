@@ -19,36 +19,47 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import java.util.Comparator;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * PxxMetrics is a parent metrics for p99/p95/p90/p75/p50 metrics. P(xx) metrics is also for P(xx) percentile.
- *
+ * <p>
  * A percentile (or a centile) is a measure used in statistics indicating the value below which a given percentage of
  * observations in a group of observations fall. For example, the 20th percentile is the value (or score) below which
  * 20% of the observations may be found.
- *
- * @author wusheng, peng-yongsheng
  */
-public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder {
+public abstract class PxxMetrics extends Metrics implements IntValueHolder {
 
     protected static final String DETAIL_GROUP = "detail_group";
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
-    @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueHashMap detailGroup;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.HISTOGRAM, function = Function.Avg)
+    private int value;
+    @Getter
+    @Setter
+    @Column(columnName = PRECISION, storageOnly = true)
+    private int precision;
+    @Getter
+    @Setter
+    @Column(columnName = DETAIL_GROUP, storageOnly = true)
+    private DataTable detailGroup;
 
     private final int percentileRank;
     private boolean isCalculated;
 
     public PxxMetrics(int percentileRank) {
         this.percentileRank = percentileRank;
-        detailGroup = new IntKeyLongValueHashMap(30);
+        detailGroup = new DataTable(30);
     }
 
     @Entrance
@@ -56,41 +67,39 @@ public abstract class PxxMetrics extends GroupMetrics implements IntValueHolder 
         this.isCalculated = false;
         this.precision = precision;
 
-        int index = value / precision;
-        IntKeyLongValue element = detailGroup.get(index);
+        String index = String.valueOf(value / precision);
+        Long element = detailGroup.get(index);
         if (element == null) {
-            element = new IntKeyLongValue(index, 1);
-            detailGroup.put(element.getKey(), element);
+            element = 1L;
         } else {
-            element.addValue(1);
+            element++;
         }
+        detailGroup.put(index, element);
     }
 
     @Override
     public void combine(Metrics metrics) {
         this.isCalculated = false;
 
-        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-        combine(pxxMetrics.getDetailGroup(), this.detailGroup);
+        PxxMetrics pxxMetrics = (PxxMetrics) metrics;
+        this.detailGroup.append(pxxMetrics.detailGroup);
     }
 
     @Override
     public final void calculate() {
 
         if (!isCalculated) {
-            int total = detailGroup.values().stream().mapToInt(element -> (int)element.getValue()).sum();
+            long total = detailGroup.sumOfValues();
             int roof = Math.round(total * percentileRank * 1.0f / 100);
 
-            int count = 0;
-            IntKeyLongValue[] sortedData = detailGroup.values().stream().sorted(new Comparator<IntKeyLongValue>() {
-                @Override public int compare(IntKeyLongValue o1, IntKeyLongValue o2) {
-                    return o1.getKey() - o2.getKey();
-                }
-            }).toArray(IntKeyLongValue[]::new);
-            for (IntKeyLongValue element : sortedData) {
-                count += element.getValue();
+            long count = 0;
+            final List<String> sortedKeys = detailGroup.sortedKeys(Comparator.comparingInt(Integer::parseInt));
+
+            for (String index : sortedKeys) {
+                final Long value = detailGroup.get(index);
+                count += value;
                 if (count >= roof) {
-                    value = element.getKey() * precision;
+                    this.value = Integer.parseInt(index) * precision;
                     return;
                 }
             }

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm-protocol</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,12 +29,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.6</compiler.version>
-        <grpc.version>1.14.0</grpc.version>
-        <netty.version>4.1.27.Final</netty.version>
-        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
-        <os-maven-plugin.version>1.5.0.Final</os-maven-plugin.version>
-        <protobuf-maven-plugin.version>0.5.0</protobuf-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -42,37 +36,40 @@
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
             <version>${grpc.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
             <version>${grpc.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
             <version>${grpc.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative-boringssl-static</artifactId>
             <version>${netty-tcnative-boringssl-static.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <extensions>
-            <extension>
+
+        <plugins>
+            <plugin>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
                 <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
-        <plugins>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -83,14 +80,17 @@
                       protobuf-java directly, you will be transitively depending on the
                       protobuf-java version that grpc depends on.
                     -->
-                    <protocArtifact>com.google.protobuf:protoc:3.3.0:exe:${os.detected.classifier}
+                    <protocArtifact>
+                        com.google.protobuf:protoc:${com.google.protobuf.protoc.version}:exe:${os.detected.classifier}
                     </protocArtifact>
                     <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.8.0:exe:${os.detected.classifier}
+                    <pluginArtifact>
+                        io.grpc:protoc-gen-grpc-java:${protoc-gen-grpc-java.plugin.version}:exe:${os.detected.classifier}
                     </pluginArtifact>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>grpc-build</id>
                         <goals>
                             <goal>compile</goal>
                             <goal>compile-custom</goal>

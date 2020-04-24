@@ -9,12 +9,21 @@ Right now, SkyWalking supports following dynamic configurations.
 |receiver-trace.default.slowDBAccessThreshold| Thresholds of slow Database statement, override `receiver-trace/default/slowDBAccessThreshold` of `applciation.yml`. | default:200,mongodb:50|
 |receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
+|core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
 
 
-This feature depends on upstream service, so it is **OFF** as default.
+This feature depends on upstream service, so it is **DISABLED** by default.
+
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:none}
   none:
+  apollo:
+    apolloMeta: http://106.12.25.204:8080
+    apolloCluster: default
+    appId: skywalking
+    period: 5
+  # ... other implementations
 ```
 
 ## Dynamic Configuration Service, DCS
@@ -24,13 +33,10 @@ The SkyWalking OAP fetches the configuration from the implementation(any system)
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:grpc}
   grpc:
-    # Upstream system hostname
     host: 127.0.0.1
-    # Upstream system port
     port: 9555
-    #period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    #clusterName: "default" # the name of current cluster, set the name if you want to upstream system known.  
 ```
 
 ## Dynamic Configuration Apollo Implementation
@@ -39,10 +45,10 @@ configuration:
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:apollo}
   apollo:
     apolloMeta: <your apollo meta address>
     apolloCluster: default
-    # apolloEnv: # defaults to null
     appId: skywalking
     period: 5
 ```
@@ -53,19 +59,15 @@ configuration:
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:nacos}
   nacos:
-    # Nacos Server Host
     serverAddr: 127.0.0.1
-    # Nacos Server Port
     port: 8848
-    # Nacos Configuration Group
     group: 'skywalking'
-    # Nacos Configuration namespace
     namespace: ''
-    # Unit seconds, sync period. Default fetch every 60 seconds.
     period : 60
-    # the name of current cluster, set the name if you want to upstream system known.
     clusterName: "default"
+  # ... other configurations
 ```
 
 
@@ -75,13 +77,14 @@ configuration:
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:zookeeper}
   zookeeper:
     period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
     nameSpace: /default
     hostPort: localhost:2181
-    #Retry Policy
     baseSleepTimeMs: 1000 # initial amount of time to wait between retries
     maxRetries: 3 # max number of times to retry
+  # ... other configurations
 ```
 
 ## Dynamic Configuration Etcd Implementation
@@ -90,11 +93,13 @@ configuration:
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:etcd}
   etcd:
     period : 60 # Unit seconds, sync period. Default fetch every 60 seconds.
     group :  'skywalking'
     serverAddr: localhost:2379
     clusterName: "default"
+  # ... other configurations
 ```
 
 ## Dynamic Configuration Consul Implementation
@@ -103,11 +108,15 @@ configuration:
 
 ```yaml
 configuration:
+  selector: ${SW_CONFIGURATION:consul}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
     hostAndPorts: 127.0.0.1:8500
     # Sync period in seconds. Defaults to 60 seconds.
     period: 60
+    # aclToken of connection consul (optional)
+    aclToken: ${consul.aclToken}
+  # ... other configurations
 ```
 
 

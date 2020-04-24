@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import java.util.ArrayList;
@@ -27,12 +26,9 @@ import org.apache.skywalking.apm.util.StringUtil;
 
 /**
  * {@link OracleURLParser} presents that how to parse oracle connection url.
- *
- * Note: {@link OracleURLParser} can parse the commons connection url. the commons
- * connection url is of the form: <code>jdbc:oracle:(drivertype):@(database)</code>,the other
- * the form of connection url cannot be parsed success.
- *
- * @author zhangxin
+ * <p>
+ * Note: {@link OracleURLParser} can parse the commons connection url. the commons connection url is of the form:
+ * <code>jdbc:oracle:(drivertype):@(database)</code>,the other the form of connection url cannot be parsed success.
  */
 public class OracleURLParser extends AbstractURLParser {
 
@@ -136,6 +132,25 @@ public class OracleURLParser extends AbstractURLParser {
 
     private String[] splitDatabaseAddress(String address) {
         String[] hostSegment = address.split(":");
-        return hostSegment;
+        if (hostSegment.length == 1 && super.fetchDatabaseNameFromURL().contains("/")) {
+            String[] portAndDatabaseName = super.fetchDatabaseNameFromURL().split("/");
+            return new String[] {
+                hostSegment[0],
+                portAndDatabaseName[0]
+            };
+        } else {
+            return hostSegment;
+        }
+    }
+
+    @Override
+    protected String fetchDatabaseNameFromURL() {
+        String databaseName = super.fetchDatabaseNameFromURL();
+        if (databaseName.contains("/")) {
+            String[] portAndDatabaseName = databaseName.split("/");
+            return portAndDatabaseName[1];
+        } else {
+            return databaseName;
+        }
     }
 }

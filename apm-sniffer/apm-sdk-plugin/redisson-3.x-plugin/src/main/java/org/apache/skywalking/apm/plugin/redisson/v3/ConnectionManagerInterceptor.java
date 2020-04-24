@@ -15,8 +15,12 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.redisson.v3;
 
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.util.Collection;
 import org.apache.skywalking.apm.agent.core.context.util.PeerFormat;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
@@ -24,28 +28,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.plugin.redisson.v3.util.ClassUtil;
-import org.redisson.config.*;
+import org.redisson.config.Config;
 import org.redisson.connection.ConnectionManager;
 
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.util.Collection;
-
-/**
- * @author zhaoyuguang
- */
 public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterceptor {
 
     private static final ILog logger = LogManager.getLogger(ConnectionManagerInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         try {
             ConnectionManager connectionManager = (ConnectionManager) objInst;
             Config config = connectionManager.getCfg();
@@ -95,9 +92,9 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
     }
 
     /**
-     * In some high versions of redisson, such as 3.11.1.
-     * The attribute address in the RedisClientConfig class is changed from the lower version of the URI to the String.
-     * So use the following code for compatibility.
+     * In some high versions of redisson, such as 3.11.1. The attribute address in the RedisClientConfig class is
+     * changed from the lower version of the URI to the String. So use the following code for compatibility.
+     *
      * @param obj Address object
      * @return the sw peer
      */
@@ -115,6 +112,6 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
     }
 }

@@ -103,8 +103,14 @@ public class RequestMappingMethodInterceptorTest {
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/test/testRequestURL"));
         when(response.getStatus()).thenReturn(200);
 
-        arguments = new Object[] {request, response};
-        argumentType = new Class[] {request.getClass(), response.getClass()};
+        arguments = new Object[] {
+            request,
+            response
+        };
+        argumentType = new Class[] {
+            request.getClass(),
+            response.getClass()
+        };
 
     }
 
@@ -132,7 +138,8 @@ public class RequestMappingMethodInterceptorTest {
     @Test
     public void testWithOccurException() throws Throwable {
         SpringTestCaseHelper.createCaseHandler(request, response, new SpringTestCaseHelper.CaseHandler() {
-            @Override public void handleCase() throws Throwable {
+            @Override
+            public void handleCase() throws Throwable {
                 controllerConstructorInterceptor.onConstruct(enhancedInstance, null);
                 RequestMappingClass1 mappingClass1 = new RequestMappingClass1();
                 Method m = mappingClass1.getClass().getMethod("testRequestURL");
@@ -155,7 +162,7 @@ public class RequestMappingMethodInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         assertThat(SegmentRefHelper.getSpanId(ref), is(3));
         assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.444.555"));
     }

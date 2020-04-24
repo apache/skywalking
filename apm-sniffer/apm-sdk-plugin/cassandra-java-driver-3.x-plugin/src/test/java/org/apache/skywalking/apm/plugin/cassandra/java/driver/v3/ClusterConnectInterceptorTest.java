@@ -29,9 +29,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.Method;
 
-/**
- * @author stone.wlg
- */
 @RunWith(PowerMockRunner.class)
 public class ClusterConnectInterceptorTest {
 
@@ -61,7 +58,7 @@ public class ClusterConnectInterceptorTest {
 
     @Test
     public void afterMethod() throws Throwable {
-        EnhancedInstance ret = (EnhancedInstance) interceptor.afterMethod(enhancedInstance, method, new Object[]{"test"}, null, enhancedInstance);
+        EnhancedInstance ret = (EnhancedInstance) interceptor.afterMethod(enhancedInstance, method, new Object[] {"test"}, null, enhancedInstance);
         ConnectionInfo connectionInfo = (ConnectionInfo) ret.getSkyWalkingDynamicField();
         Assert.assertThat(connectionInfo.getKeyspace(), Is.is("test"));
     }

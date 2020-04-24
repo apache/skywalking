@@ -16,11 +16,7 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
-/**
- * @author wusheng
- */
 public interface ClassMatch {
 }

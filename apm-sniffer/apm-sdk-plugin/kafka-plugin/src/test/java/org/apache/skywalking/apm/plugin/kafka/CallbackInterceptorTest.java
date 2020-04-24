@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.kafka;
 
+import java.util.List;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.skywalking.apm.agent.core.context.MockContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
@@ -26,7 +27,12 @@ import org.apache.skywalking.apm.agent.core.context.trace.TraceSegmentRef;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.helper.SpanHelper;
-import org.apache.skywalking.apm.agent.test.tools.*;
+import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
+import org.apache.skywalking.apm.agent.test.tools.SegmentRefAssert;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
+import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
+import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
+import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,8 +41,6 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -62,13 +66,15 @@ public class CallbackInterceptorTest {
     private Class[] argumentTypes;
 
     private EnhancedInstance callBackInstance = new EnhancedInstance() {
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             CallbackCache cache = new CallbackCache();
             cache.setSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
             return cache;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     };
@@ -78,14 +84,17 @@ public class CallbackInterceptorTest {
         callbackInterceptor = new CallbackInterceptor();
 
         arguments = new Object[] {
-            recordMetadata, null
+            recordMetadata,
+            null
         };
         argumentsWithException = new Object[] {
-            recordMetadata, new RuntimeException()
+            recordMetadata,
+            new RuntimeException()
         };
 
         argumentTypes = new Class[] {
-            RecordMetadata.class, Exception.class
+            RecordMetadata.class,
+            Exception.class
         };
 
     }
@@ -136,7 +145,6 @@ public class CallbackInterceptorTest {
 
         TraceSegmentRef segmentRef = refs.get(0);
         SegmentRefAssert.assertSpanId(segmentRef, 1);
-        assertThat(segmentRef.getEntryEndpointName(), is("/for-test-entryOperationName"));
     }
 
     private void assertCallbackSpan(AbstractTracingSpan span) {

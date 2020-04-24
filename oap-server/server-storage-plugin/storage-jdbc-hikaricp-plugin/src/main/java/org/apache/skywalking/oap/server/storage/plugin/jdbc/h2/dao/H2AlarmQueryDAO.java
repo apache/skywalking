@@ -18,19 +18,24 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.*;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.elasticsearch.common.Strings;
 
-/**
- * @author wusheng
- */
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class H2AlarmQueryDAO implements IAlarmQueryDAO {
+
     private JDBCHikariCPClient client;
 
     public H2AlarmQueryDAO(JDBCHikariCPClient client) {
@@ -40,7 +45,6 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, long startTB,
         long endTB) throws IOException {
-
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
         sql.append("from ").append(AlarmRecord.INDEX_NAME).append(" where ");
@@ -64,7 +68,8 @@ public class H2AlarmQueryDAO implements IAlarmQueryDAO {
         Alarms alarms = new Alarms();
         try (Connection connection = client.getConnection()) {
 
-            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = client.executeQuery(connection, "select count(1) total from (select 1 " + sql.toString() + " )", parameters
+                .toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     alarms.setTotal(resultSet.getInt("total"));
                 }

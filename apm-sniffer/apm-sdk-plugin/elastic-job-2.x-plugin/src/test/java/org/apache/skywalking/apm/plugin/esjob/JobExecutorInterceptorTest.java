@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.esjob;
 
 import com.dangdang.ddframe.job.executor.ShardingContexts;
@@ -51,17 +50,20 @@ public class JobExecutorInterceptorTest {
 
     @Rule
     public AgentServiceRule serviceRule = new AgentServiceRule();
-    
+
     private JobExecutorInterceptor jobExecutorInterceptor;
 
     @Before
     public void setUp() throws SQLException {
         jobExecutorInterceptor = new JobExecutorInterceptor();
     }
-    
+
     @Test
     public void assertSuccess() throws Throwable {
-        jobExecutorInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob", 1), 1}, null, null);
+        jobExecutorInterceptor.beforeMethod(null, null, new Object[] {
+            mockShardingContext("fooJob", 1),
+            1
+        }, null, null);
         jobExecutorInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
@@ -70,24 +72,36 @@ public class JobExecutorInterceptorTest {
         assertThat(spans.get(0).transform().getOperationName(), is("fooJob-test"));
         assertThat(spans.get(0).transform().getComponentId(), is(24));
         assertThat(spans.get(0).transform().getTags(0).getKey(), is("sharding_context"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("ShardingContext(jobName=fooJob, taskId=fooJob1, shardingTotalCount=2, jobParameter=, shardingItem=1, shardingParameter=test)"));
+        assertThat(spans.get(0)
+                        .transform()
+                        .getTags(0)
+                        .getValue(), is("ShardingContext(jobName=fooJob, taskId=fooJob1, shardingTotalCount=2, jobParameter=, shardingItem=1, shardingParameter=test)"));
     }
 
     @Test
     public void assertSuccessWithoutSharding() throws Throwable {
-        jobExecutorInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob", 0), 0}, null, null);
+        jobExecutorInterceptor.beforeMethod(null, null, new Object[] {
+            mockShardingContext("fooJob", 0),
+            0
+        }, null, null);
         jobExecutorInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).transform().getOperationName(), is("fooJob"));
-        assertThat(spans.get(0).transform().getTags(0).getValue(), is("ShardingContext(jobName=fooJob, taskId=fooJob0, shardingTotalCount=1, jobParameter=, shardingItem=0, shardingParameter=null)"));
+        assertThat(spans.get(0)
+                        .transform()
+                        .getTags(0)
+                        .getValue(), is("ShardingContext(jobName=fooJob, taskId=fooJob0, shardingTotalCount=1, jobParameter=, shardingItem=0, shardingParameter=null)"));
     }
 
     @Test
     public void assertError() throws Throwable {
-        jobExecutorInterceptor.beforeMethod(null, null, new Object[]{mockShardingContext("fooJob", 0), 0}, null, null);
+        jobExecutorInterceptor.beforeMethod(null, null, new Object[] {
+            mockShardingContext("fooJob", 0),
+            0
+        }, null, null);
         jobExecutorInterceptor.handleMethodException(null, null, null, null, new Exception("fooError"));
         jobExecutorInterceptor.afterMethod(null, null, null, null, null);
         TraceSegment segment = segmentStorage.getTraceSegments().get(0);
@@ -97,7 +111,7 @@ public class JobExecutorInterceptorTest {
         assertThat(spans.get(0).transform().getIsError(), is(true));
         assertThat(spans.get(0).transform().getLogs(0).getDataList().size(), is(4));
     }
-    
+
     private ShardingContexts mockShardingContext(String jobName, int shardingItem) {
         Map<Integer, String> shardingMap = new HashMap<Integer, String>(1);
         if (shardingItem >= 1) {

@@ -19,18 +19,22 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.base.Strings;
-import com.orbitz.consul.*;
-import com.orbitz.consul.model.agent.*;
+import com.orbitz.consul.AgentClient;
+import com.orbitz.consul.Consul;
+import com.orbitz.consul.HealthClient;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.cluster.*;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
-/**
- * @author peng-yongsheng
- */
 public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
 
     private final Consul client;
@@ -44,7 +48,8 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         this.serviceName = config.getServiceName();
     }
 
-    @Override public List<RemoteInstance> queryRemoteNodes() {
+    @Override
+    public List<RemoteInstance> queryRemoteNodes() {
         HealthClient healthClient = client.healthClient();
 
         // Discover only "passing" nodes
@@ -65,7 +70,8 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         return remoteInstances;
     }
 
-    @Override public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
+    @Override
+    public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         if (needUsingInternalAddr()) {
             remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
         }
@@ -76,12 +82,15 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
 
         Registration registration = ImmutableRegistration.builder()
-            .id(remoteInstance.getAddress().toString())
-            .name(serviceName)
-            .address(remoteInstance.getAddress().getHost())
-            .port(remoteInstance.getAddress().getPort())
-            .check(Registration.RegCheck.grpc(remoteInstance.getAddress().getHost() + ":" + remoteInstance.getAddress().getPort(), 5)) // registers with a TTL of 5 seconds
-            .build();
+                                                         .id(remoteInstance.getAddress().toString())
+                                                         .name(serviceName)
+                                                         .address(remoteInstance.getAddress().getHost())
+                                                         .port(remoteInstance.getAddress().getPort())
+                                                         .check(Registration.RegCheck.grpc(remoteInstance.getAddress()
+                                                                                                         .getHost() + ":" + remoteInstance
+                                                             .getAddress()
+                                                             .getPort(), 5)) // registers with a TTL of 5 seconds
+                                                         .build();
 
         agentClient.register(registration);
     }

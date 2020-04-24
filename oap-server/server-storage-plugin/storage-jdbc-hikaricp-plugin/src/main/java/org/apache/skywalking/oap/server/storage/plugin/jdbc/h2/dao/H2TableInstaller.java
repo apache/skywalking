@@ -18,89 +18,107 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import java.sql.*;
-
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import com.google.gson.JsonObject;
+import java.sql.Connection;
+import java.sql.SQLException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
+/**
+ * H2 table initialization. Create tables without Indexes. H2 is for the demonstration only, so, keep the logic as
+ * simple as possible.
+ */
+@Slf4j
 public class H2TableInstaller extends ModelInstaller {
-    private static final Logger logger = LoggerFactory.getLogger(H2TableInstaller.class);
+    public static final String ID_COLUMN = "id";
 
     public H2TableInstaller(ModuleManager moduleManager) {
         super(moduleManager);
     }
 
-    @Override protected boolean isExists(Client client, Model model) throws StorageException {
+    @Override
+    protected boolean isExists(Client client, Model model) throws StorageException {
         TableMetaInfo.addModel(model);
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
-        try (Connection conn = h2Client.getConnection()) {
-            try (ResultSet rset = conn.getMetaData().getTables(null, null, model.getName(), null)) {
-                if (rset.next()) {
-                    return true;
-                }
-            }
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
-        } catch (JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
         return false;
     }
 
-    @Override protected void createTable(Client client, Model model) throws StorageException {
-        JDBCHikariCPClient h2Client = (JDBCHikariCPClient)client;
-        SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
-        tableCreateSQL.appendLine("id VARCHAR(300) PRIMARY KEY, ");
-        for (int i = 0; i < model.getColumns().size(); i++) {
-            ModelColumn column = model.getColumns().get(i);
-            ColumnName name = column.getColumnName();
-            tableCreateSQL.appendLine(name.getStorageName() + " " + getColumnType(model, name, column.getType()) + (i != model.getColumns().size() - 1 ? "," : ""));
-        }
-        tableCreateSQL.appendLine(")");
+    @Override
+    protected void createTable(Client client, Model model) throws StorageException {
+        JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
+        try (Connection connection = jdbcHikariCPClient.getConnection()) {
+            SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");
+            /**
+             * 512 is also the ElasticSearch ID size.
+             */
+            tableCreateSQL.appendLine("id VARCHAR(512) PRIMARY KEY, ");
+            for (int i = 0; i < model.getColumns().size(); i++) {
+                ModelColumn column = model.getColumns().get(i);
+                ColumnName name = column.getColumnName();
+                tableCreateSQL.appendLine(
+                    name.getStorageName() + " " + getColumnType(column) + (i != model
+                        .getColumns()
+                        .size() - 1 ? "," : ""));
+            }
+            tableCreateSQL.appendLine(")");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-        }
+            if (log.isDebugEnabled()) {
+                log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
+            }
 
-        try (Connection connection = h2Client.getConnection()) {
-            h2Client.execute(connection, tableCreateSQL.toString());
-        } catch (JDBCClientException e) {
+            jdbcHikariCPClient.execute(connection, tableCreateSQL.toString());
+
+            createTableIndexes(jdbcHikariCPClient, connection, model);
+        } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
         }
-
     }
 
-    protected String getColumnType(Model model, ColumnName name, Class<?> type) {
-        if (Integer.class.equals(type) || int.class.equals(type)) {
+    /**
+     * Set up the data type mapping between Java type and H2 database type
+     */
+    protected String getColumnType(ModelColumn column) {
+        final Class<?> type = column.getType();
+        if (Integer.class.equals(type) || int.class.equals(type) || NodeType.class.equals(type)) {
             return "INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "BIGINT";
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
-            return "VARCHAR(2000)";
-        } else if (IntKeyLongValueHashMap.class.equals(type)) {
+            return "VARCHAR(" + column.getLength() + ")";
+        } else if (DataTable.class.equals(type)) {
             return "VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
-            if (DefaultScopeDefine.SEGMENT == model.getScopeId()) {
-                if (name.getName().equals(SegmentRecord.DATA_BINARY)) {
-                    return "MEDIUMTEXT";
-                }
-            }
-            return "VARCHAR(20000)";
+            return "MEDIUMTEXT";
+        } else if (JsonObject.class.equals(type)) {
+            return "VARCHAR(" + column.getLength() + ")";
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
+    }
+
+    protected void createTableIndexes(JDBCHikariCPClient client,
+                                      Connection connection,
+                                      Model model) throws JDBCClientException {
+    }
+
+    protected void createIndex(JDBCHikariCPClient client, Connection connection, Model model,
+                               SQLBuilder indexSQL) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("create index for table {}, sql: {} ", model.getName(), indexSQL.toStringInNewLine());
+        }
+        client.execute(connection, indexSQL.toString());
     }
 }

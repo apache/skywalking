@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper;
 
 import org.junit.Before;
@@ -40,7 +41,6 @@ public class DockerContainerRunningGeneratorTest {
         when(configuration.dockerImageName()).thenReturn("skyapm/agent-tomcat");
         when(configuration.entryService()).thenReturn("http://localhost:8080/entryService");
         when(configuration.healthCheck()).thenReturn("http://localhost:8080/healthCheck");
-        when(configuration.testFramework()).thenReturn("http");
         when(configuration.scenarioVersion()).thenReturn("4.3.2");
         when(configuration.scenarioHome()).thenReturn("./scenario");
         when(configuration.scenarioName()).thenReturn("test");

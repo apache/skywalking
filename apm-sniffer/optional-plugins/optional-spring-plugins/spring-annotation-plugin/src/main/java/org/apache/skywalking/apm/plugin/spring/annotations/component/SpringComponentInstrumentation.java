@@ -27,7 +27,8 @@ public class SpringComponentInstrumentation extends AbstractSpringBeanInstrument
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Component";
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }

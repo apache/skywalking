@@ -49,12 +49,14 @@ public class ProducerConstructorInterceptorTest {
 
         private ProducerEnhanceRequiredInfo requiredInfo;
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return requiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            this.requiredInfo = (ProducerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            this.requiredInfo = (ProducerEnhanceRequiredInfo) value;
         }
     };
 
@@ -67,7 +69,10 @@ public class ProducerConstructorInterceptorTest {
 
     @Test
     public void testOnConsumer() {
-        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {pulsarClient, TOPIC_NAME});
+        constructorInterceptor.onConstruct(enhancedInstance, new Object[] {
+            pulsarClient,
+            TOPIC_NAME
+        });
         ProducerEnhanceRequiredInfo requiredInfo = (ProducerEnhanceRequiredInfo) enhancedInstance.getSkyWalkingDynamicField();
         assertThat(requiredInfo.getServiceUrl(), is(SERVICE_URL));
         assertThat(requiredInfo.getTopic(), is(TOPIC_NAME));

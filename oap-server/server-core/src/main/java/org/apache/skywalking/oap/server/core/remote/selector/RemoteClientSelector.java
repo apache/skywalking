@@ -19,12 +19,9 @@
 package org.apache.skywalking.oap.server.core.remote.selector;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
+import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
-/**
- * @author peng-yongsheng
- */
 public interface RemoteClientSelector {
     RemoteClient select(List<RemoteClient> clients, StreamData streamData);
 }

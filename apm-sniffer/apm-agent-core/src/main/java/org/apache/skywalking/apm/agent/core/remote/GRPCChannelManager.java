@@ -37,9 +37,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-/**
- * @author wusheng, zhang xin
- */
 @DefaultImplementor
 public class GRPCChannelManager implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(GRPCChannelManager.class);
@@ -47,42 +44,42 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile GRPCChannel managedChannel = null;
     private volatile ScheduledFuture<?> connectCheckFuture;
     private volatile boolean reconnect = true;
-    private Random random = new Random();
-    private List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<GRPCChannelListener>());
+    private final Random random = new Random();
+    private final List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<>());
     private volatile List<String> grpcServers;
     private volatile int selectedIdx = -1;
     private volatile int reconnectCount = 0;
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
 
     }
 
     @Override
-    public void boot() throws Throwable {
+    public void boot() {
         if (Config.Collector.BACKEND_SERVICE.trim().length() == 0) {
             logger.error("Collector server addresses are not set.");
             logger.error("Agent will not uplink any data.");
             return;
         }
         grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
-        connectCheckFuture = Executors
-            .newSingleThreadScheduledExecutor(new DefaultNamedThreadFactory("GRPCChannelManager"))
-            .scheduleAtFixedRate(new RunnableWithExceptionProtection(this, new RunnableWithExceptionProtection.CallbackWhenException() {
-                @Override
-                public void handle(Throwable t) {
-                    logger.error("unexpected exception.", t);
-                }
-            }), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS);
+        connectCheckFuture = Executors.newSingleThreadScheduledExecutor(
+            new DefaultNamedThreadFactory("GRPCChannelManager")
+        ).scheduleAtFixedRate(
+            new RunnableWithExceptionProtection(
+                this,
+                t -> logger.error("unexpected exception.", t)
+            ), 0, Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL, TimeUnit.SECONDS
+        );
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
 
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         if (connectCheckFuture != null) {
             connectCheckFuture.cancel(true);
         }
@@ -111,11 +108,11 @@ public class GRPCChannelManager implements BootService, Runnable {
                         }
 
                         managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
-                            .addManagedChannelBuilder(new StandardChannelBuilder())
-                            .addManagedChannelBuilder(new TLSChannelBuilder())
-                            .addChannelDecorator(new AgentIDDecorator())
-                            .addChannelDecorator(new AuthenticationDecorator())
-                            .build();
+                                                    .addManagedChannelBuilder(new StandardChannelBuilder())
+                                                    .addManagedChannelBuilder(new TLSChannelBuilder())
+                                                    .addChannelDecorator(new AgentIDDecorator())
+                                                    .addChannelDecorator(new AuthenticationDecorator())
+                                                    .build();
                         notify(GRPCChannelStatus.CONNECTED);
                         reconnectCount = 0;
                         reconnect = false;
@@ -134,7 +131,10 @@ public class GRPCChannelManager implements BootService, Runnable {
                 }
             }
 
-            logger.debug("Selected collector grpc service is not available. Wait {} seconds to retry", Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL);
+            logger.debug(
+                "Selected collector grpc service is not available. Wait {} seconds to retry",
+                Config.Collector.GRPC_CHANNEL_CHECK_INTERVAL
+            );
         }
     }
 
@@ -148,8 +148,6 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     /**
      * If the given expcetion is triggered by network problem, connect in background.
-     *
-     * @param throwable
      */
     public void reportError(Throwable throwable) {
         if (isNetworkError(throwable)) {
@@ -171,12 +169,9 @@ public class GRPCChannelManager implements BootService, Runnable {
     private boolean isNetworkError(Throwable throwable) {
         if (throwable instanceof StatusRuntimeException) {
             StatusRuntimeException statusRuntimeException = (StatusRuntimeException) throwable;
-            return statusEquals(statusRuntimeException.getStatus(),
-                Status.UNAVAILABLE,
-                Status.PERMISSION_DENIED,
-                Status.UNAUTHENTICATED,
-                Status.RESOURCE_EXHAUSTED,
-                Status.UNKNOWN
+            return statusEquals(
+                statusRuntimeException.getStatus(), Status.UNAVAILABLE, Status.PERMISSION_DENIED,
+                Status.UNAUTHENTICATED, Status.RESOURCE_EXHAUSTED, Status.UNKNOWN
             );
         }
         return false;

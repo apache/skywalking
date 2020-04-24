@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.Before;
@@ -25,39 +29,38 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 
-/**
- * @author kezhenxu94
- */
 public class AlarmRulesWatcherTest {
     @Spy
     private AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), null);
 
     private AlarmRule.AlarmRuleBuilder rulePrototypeBuilder = AlarmRule.builder()
-        .alarmRuleName("name1")
-        .count(1)
-        .includeNames(new ArrayList<String>() {
-            {
-                add("1");
-                add("2");
-            }
-        })
-        .message("test")
-        .metricsName("metrics1")
-        .op(">")
-        .period(1)
-        .silencePeriod(2)
-        .threshold("2");
+                                                                       .alarmRuleName("name1")
+                                                                       .count(1)
+                                                                       .includeNames(new ArrayList<String>() {
+                                                                           {
+                                                                               add("1");
+                                                                               add("2");
+                                                                           }
+                                                                       })
+                                                                       .excludeNames(new ArrayList<String>() {
+                                                                           {
+                                                                               add("3");
+                                                                               add("4");
+                                                                           }
+                                                                       })
+                                                                       .message("test")
+                                                                       .metricsName("metrics1")
+                                                                       .op(">")
+                                                                       .period(1)
+                                                                       .silencePeriod(2)
+                                                                       .threshold("2");
 
     @Before
     public void setUp() {
@@ -76,6 +79,8 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(2, alarmRulesWatcher.getRules().size());
         assertEquals(2, alarmRulesWatcher.getWebHooks().size());
+        assertNotNull(alarmRulesWatcher.getGrpchookSetting());
+        assertEquals(9888, alarmRulesWatcher.getGrpchookSetting().getTargetPort());
         assertEquals(2, alarmRulesWatcher.getRunningContext().size());
     }
 
@@ -90,6 +95,7 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(0, alarmRulesWatcher.getRules().size());
         assertEquals(0, alarmRulesWatcher.getWebHooks().size());
+        assertNull(alarmRulesWatcher.getGrpchookSetting());
         assertEquals(0, alarmRulesWatcher.getRunningContext().size());
     }
 
@@ -114,10 +120,10 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(2, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).size());
-        assertEquals(
-            "The same alarm rule should map to the same existed running rule",
-            runningRule, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).get(0)
-        );
+        assertEquals("The same alarm rule should map to the same existed running rule", runningRule, alarmRulesWatcher.getRunningContext()
+                                                                                                                      .get(rule
+                                                                                                                          .getMetricsName())
+                                                                                                                      .get(0));
     }
 
     @Test
@@ -141,10 +147,10 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(1, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).size());
-        assertNotEquals(
-            "The new alarm rule should map to a different running rule",
-            runningRule, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).get(0)
-        );
+        assertNotEquals("The new alarm rule should map to a different running rule", runningRule, alarmRulesWatcher.getRunningContext()
+                                                                                                                   .get(rule
+                                                                                                                       .getMetricsName())
+                                                                                                                   .get(0));
     }
 
     @Test
@@ -161,12 +167,12 @@ public class AlarmRulesWatcherTest {
 
         Rules updatedRules = new Rules();
         // replace the original alarm rules
-        updatedRules.getRules().addAll(
-            Arrays.asList(
-                ruleBuilder.alarmRuleName("name2").metricsName("metrics2").build(),
-                ruleBuilder.alarmRuleName("name3").metricsName("metrics3").build()
-            )
-        );
+        updatedRules.getRules()
+                    .addAll(Arrays.asList(ruleBuilder.alarmRuleName("name2")
+                                                     .metricsName("metrics2")
+                                                     .build(), ruleBuilder.alarmRuleName("name3")
+                                                                          .metricsName("metrics3")
+                                                                          .build()));
 
         alarmRulesWatcher.notify(updatedRules);
 

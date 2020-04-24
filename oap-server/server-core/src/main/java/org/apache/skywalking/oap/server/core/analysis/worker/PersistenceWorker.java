@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.data.*;
+import java.util.Collection;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.data.SWCollection;
+import org.apache.skywalking.oap.server.core.analysis.data.Window;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author peng-yongsheng
+ * PersistenceWorker take the responsibility to pushing data to the final storage. The target storage is based on the
+ * activate storage implementation. This worker controls the persistence flow.
+ *
+ * @param <INPUT> The type of worker input. All inputs will be merged and saved.
+ * @param <CACHE> Cache type to hold all input.
  */
 public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends Window<INPUT>> extends AbstractWorker<INPUT> {
 
@@ -37,16 +44,34 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         super(moduleDefineHolder);
     }
 
+    /**
+     * Accept the input, and push the data into the cache.
+     */
     void onWork(INPUT input) {
         cacheData(input);
     }
 
+    /**
+     * Cache data based on different strategies. See the implementations for more details.
+     */
     public abstract void cacheData(INPUT input);
 
     public abstract CACHE getCache();
 
+    /**
+     * The persistence process is driven by the {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}.
+     * This is a notification method for the worker when every round finished.
+     *
+     * @param tookTime The time costs in this round.
+     */
     public abstract void endOfRound(long tookTime);
 
+    /**
+     * For every cache implementation(see {@link Window}), there are two dataset, switch them when one persistence round
+     * is beginning, in order to make cached data immutable.
+     *
+     * @return true if switch successfully.
+     */
     public boolean flushAndSwitch() {
         boolean isSwitch;
         try {
@@ -59,6 +84,13 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
         return isSwitch;
     }
 
+    /**
+     * Prepare the batch persistence, transfer all prepared data to the executable data format based on the storage
+     * implementations.
+     *
+     * @param lastCollection  the source of transformation, they are in memory object format.
+     * @param prepareRequests data in the formats for the final persistence operations.
+     */
     public abstract void prepareBatch(Collection<INPUT> lastCollection, List<PrepareRequest> prepareRequests);
 
     public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {

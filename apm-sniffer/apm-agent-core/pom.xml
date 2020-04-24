@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-agent-core</artifactId>
@@ -33,10 +33,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jetty.version>9.4.2.v20170220</jetty.version>
-        <grpc.version>1.14.0</grpc.version>
         <guava.version>20.0</guava.version>
-        <bytebuddy.version>1.10.1</bytebuddy.version>
+        <bytebuddy.version>1.10.7</bytebuddy.version>
         <wiremock.version>2.6.0</wiremock.version>
         <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
         <os-maven-plugin.version>1.4.1.Final</os-maven-plugin.version>
@@ -49,6 +47,8 @@
         <shade.io.netty.target>${shade.package}.${shade.io.netty.source}</shade.io.netty.target>
         <shade.io.opencensus.source>io.opencensus</shade.io.opencensus.source>
         <shade.io.opencensus.target>${shade.package}.${shade.io.opencensus.source}</shade.io.opencensus.target>
+        <shade.io.perfmark.source>io.perfmark</shade.io.perfmark.source>
+        <shade.io.perfmark.target>${shade.package}.${shade.io.perfmark.source}</shade.io.perfmark.target>
         <ststem-rules.version>1.18.0</ststem-rules.version>
     </properties>
 
@@ -68,42 +68,11 @@
             <artifactId>byte-buddy</artifactId>
             <version>${bytebuddy.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-tcnative-boringssl-static</artifactId>
-            <version>${netty-tcnative-boringssl-static.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
             <version>${bytebuddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -146,14 +115,20 @@
         </dependencies>
     </dependencyManagement>
     <build>
-        <extensions>
-            <extension>
+        <plugins>
+            <plugin>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
                 <version>${os-maven-plugin.version}</version>
-            </extension>
-        </extensions>
-        <plugins>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
                 <executions>
@@ -168,6 +143,10 @@
                                     <exclude>net.bytebuddy:byte-buddy:jar:</exclude>
                                     <exclude>com.google.errorprone:error_prone_annotations:jar:</exclude>
                                     <exclude>com.google.code.findbugs:jsr305:jar:</exclude>
+                                    <exclude>com.google.android:annotations:jar:</exclude>
+                                    <exclude>com.google.api.grpc:proto-google-common-protos:jar:</exclude>
+                                    <exclude>org.checkerframework:checker-compat-qual:jar:</exclude>
+                                    <exclude>org.codehaus.mojo:animal-sniffer-annotations:jar:</exclude>
                                 </excludes>
                             </artifactSet>
                             <relocations>
@@ -186,6 +165,10 @@
                                 <relocation>
                                     <pattern>${shade.io.opencensus.source}</pattern>
                                     <shadedPattern>${shade.io.opencensus.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.io.perfmark.source}</pattern>
+                                    <shadedPattern>${shade.io.perfmark.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>

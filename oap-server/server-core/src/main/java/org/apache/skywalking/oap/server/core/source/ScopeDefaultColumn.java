@@ -24,27 +24,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)
  * automatically.
- *
- * @author wusheng
  */
 @Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
 public class ScopeDefaultColumn {
     private String fieldName;
     private String columnName;
     private Class<?> type;
     private boolean isID;
+    private int length;
 
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID) {
+    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.isID = isID;
+        this.length = length;
     }
 
     @Target({ElementType.FIELD})
@@ -52,7 +50,17 @@ public class ScopeDefaultColumn {
     public @interface DefinedByField {
         String columnName();
 
-        boolean isID() default false;
+        /**
+         * Dynamic active means this column is only activated through core setting explicitly.
+         *
+         * @return
+         */
+        boolean requireDynamicActive() default false;
+
+        /**
+         * Define column length, only effective when the type is String.
+         */
+        int length() default 256;
     }
 
     @Target({ElementType.TYPE})
@@ -65,5 +73,10 @@ public class ScopeDefaultColumn {
         Class type();
 
         boolean isID() default false;
+
+        /**
+         * Define column length, only effective when the type is String.
+         */
+        int length() default 512;
     }
 }

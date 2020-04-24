@@ -16,3 +16,8 @@
 
 elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.RestHighLevelClientInstrumentation
 elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.IndicesClientInstrumentation
+elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.ClusterClientInstrumentation
+elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.AdapterActionFutureInstrumentation
+elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.TransportServiceInstrumentation
+elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.TransportActionNodeProxyInstrumentation
+elasticsearch-6.x=org.apache.skywalking.apm.plugin.elasticsearch.v6.define.TransportClientNodesServiceInstrumentation

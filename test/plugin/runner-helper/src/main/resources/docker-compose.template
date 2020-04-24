@@ -38,14 +38,18 @@ services:
             - ${env}
         </#list>
         </#if>
+        <#if start_script??>
             - SCENARIO_START_SCRIPT=${start_script}
+        </#if>
             - SCENARIO_NAME=${scenario_name}
             - SCENARIO_VERSION=${scenario_version}
             - SCENARIO_ENTRY_SERVICE=${entry_service}
             - SCENARIO_HEALTH_CHECK_URL=${health_check}
+            - SCENARIO_EXTEND_ENTRY_HEADER=${extend_entry_header}
         volumes:
             - ${agent_home}:/usr/local/skywalking/scenario/agent
             - ${scenario_home}:/usr/local/skywalking/scenario
+            - ${jacoco_home}:/jacoco
         <#if depends_on??>
         depends_on:
         <#list depends_on as item>
@@ -56,6 +60,9 @@ services:
     ${service.name}:
         image: ${service.imageName}
         hostname: ${service.hostname}
+        <#if service.remoteOnExit??>
+        remoteOnExit: ${service.remoteOnExit}
+        </#if>
         <#if service.volumes??>
         volumes:
         <#list service.volumes as volume>
@@ -72,6 +79,12 @@ services:
         expose:
         <#list service.expose as expose>
             - ${expose}
+        </#list>
+        </#if>
+        <#if service.startScript??>
+        command:
+        <#list service.startScript as startScript>
+            - ${startScript}
         </#list>
         </#if>
         <#if service.depends_on??>

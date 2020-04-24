@@ -18,45 +18,85 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.Const;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_RELATION;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = ENDPOINT_RELATION, name = "EndpointRelation")
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class EndpointRelation extends Source {
 
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.ENDPOINT_RELATION;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(endpointId) + Const.ID_SPLIT + String.valueOf(childEndpointId);
+    @Override
+    public String getEntityId() {
+        return IDManager.EndpointID.buildRelationId(new IDManager.EndpointID.EndpointRelationDefine(
+            serviceId, endpoint, childServiceId, childEndpoint
+        ));
     }
 
-    @Getter @Setter private int endpointId;
-    @Getter @Setter private String endpoint;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
-    @Getter @Setter private String serviceName;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_instance_id") private int serviceInstanceId;
-    @Getter @Setter private String serviceInstanceName;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_endpoint_name")
+    private String endpoint;
 
-    @Getter @Setter private int childEndpointId;
-    @Getter @Setter private String childEndpoint;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id") private int childServiceId;
-    @Getter @Setter private String childServiceName;
-    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "child_service_instance_id") private int childServiceInstanceId;
-    @Getter @Setter private String childServiceInstanceName;
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    private String serviceId;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
+    private String serviceName;
+    @Setter
+    private NodeType serviceNodeType;
+    @Getter
+    @Setter
+    private String serviceInstanceName;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_endpoint_name")
+    private String childEndpoint;
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_id")
+    private String childServiceId;
+    @Setter
+    @Getter
+    @ScopeDefaultColumn.DefinedByField(columnName = "child_service_name", requireDynamicActive = true)
+    private String childServiceName;
+    @Setter
+    private NodeType childServiceNodeType;
+    @Getter
+    @Setter
+    private String childServiceInstanceName;
+    @Getter
+    @Setter
+    private int componentId;
+    @Getter
+    @Setter
+    private int rpcLatency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
+    @Getter
+    @Setter
+    private DetectPoint detectPoint;
 
-    @Getter @Setter private int componentId;
-    @Getter @Setter private int rpcLatency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
-    @Getter @Setter private DetectPoint detectPoint;
+    @Override
+    public void prepare() {
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceNodeType);
+        childServiceId = IDManager.ServiceID.buildId(childServiceName, childServiceNodeType);
+    }
 }
 

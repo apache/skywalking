@@ -18,30 +18,50 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
 
-/**
- * @author wusheng, peng-yongsheng
- */
 @ScopeDeclaration(id = SERVICE, name = "Service", catalog = SERVICE_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Service extends Source {
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.SERVICE;
     }
 
-    @Override public String getEntityId() {
-        return String.valueOf(id);
+    @Override
+    public String getEntityId() {
+        return IDManager.ServiceID.buildId(name, nodeType);
     }
 
-    @Getter @Setter private int id;
-    @Getter @Setter private String name;
-    @Getter @Setter private String serviceInstanceName;
-    @Getter @Setter private String endpointName;
-    @Getter @Setter private int latency;
-    @Getter @Setter private boolean status;
-    @Getter @Setter private int responseCode;
-    @Getter @Setter private RequestType type;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    private String name;
+    @Setter
+    @Getter
+    private NodeType nodeType;
+    @Getter
+    @Setter
+    private String serviceInstanceName;
+    @Getter
+    @Setter
+    private String endpointName;
+    @Getter
+    @Setter
+    private int latency;
+    @Getter
+    @Setter
+    private boolean status;
+    @Getter
+    @Setter
+    private int responseCode;
+    @Getter
+    @Setter
+    private RequestType type;
 }

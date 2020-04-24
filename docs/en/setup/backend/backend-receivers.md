@@ -13,6 +13,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
+1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter.
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -20,19 +21,12 @@ receiver-register:
   default:
 receiver-trace:
   default:
-    bufferPath: ../trace-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 receiver-jvm:
   default:
 service-mesh:
   default:
-    bufferPath: ../mesh-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
 envoy-metric:
@@ -42,6 +36,8 @@ receiver_zipkin:
     host: 0.0.0.0
     port: 9411
     contextPath: /
+receiver-profile:
+  default:
 ```
 
 ## gRPC/HTTP server for receiver

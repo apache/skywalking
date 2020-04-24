@@ -18,102 +18,23 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
-import com.google.gson.JsonObject;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
-import org.apache.skywalking.oap.server.core.register.NodeType;
-import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.*;
-import org.junit.*;
-import org.powermock.reflect.Whitebox;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
+import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.ZipkinTrace;
+import org.junit.Assert;
+import org.junit.Test;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesDecoder;
 
-/**
- * @author wusheng
- */
 public class SpringSleuthSegmentBuilderTest implements SegmentListener {
-    private Map<String, Integer> applicationInstRegister = new HashMap<>();
-    private Map<String, Integer> applicationRegister = new HashMap<>();
-    private int appIdSeg = 1;
-    private int appInstIdSeq = 1;
-
     @Test
     public void testTransform() throws Exception {
-
-        IServiceInventoryRegister applicationIDService = new IServiceInventoryRegister() {
-            @Override public int getOrCreate(String serviceName, JsonObject properties) {
-                String key = "AppCode:" + serviceName;
-                if (applicationRegister.containsKey(key)) {
-                    return applicationRegister.get(key);
-                } else {
-                    int id = appIdSeg++;
-                    applicationRegister.put(key, id);
-                    return id;
-                }
-            }
-
-            @Override public int getOrCreate(int addressId, String serviceName, JsonObject properties) {
-                String key = "Address:" + serviceName;
-                if (applicationRegister.containsKey(key)) {
-                    return applicationRegister.get(key);
-                } else {
-                    int id = appIdSeg++;
-                    applicationRegister.put(key, id);
-                    return id;
-                }
-            }
-
-            @Override public void update(int serviceId, NodeType nodeType, JsonObject properties) {
-            }
-
-            @Override public void heartbeat(int serviceId, long heartBeatTime) {
-
-            }
-
-            @Override public void updateMapping(int serviceId, int mappingServiceId) {
-
-            }
-
-            @Override public void resetMapping(final int serviceId) {
-
-            }
-        };
-
-        IServiceInstanceInventoryRegister instanceIDService = new IServiceInstanceInventoryRegister() {
-            @Override public int getOrCreate(int serviceId, String serviceInstanceName, String uuid, long registerTime,
-                JsonObject osInfo) {
-                String key = "AppCode:" + serviceId + ",UUID:" + uuid;
-                if (applicationInstRegister.containsKey(key)) {
-                    return applicationInstRegister.get(key);
-                } else {
-                    int id = appInstIdSeq++;
-                    applicationInstRegister.put(key, id);
-                    return id;
-                }
-            }
-
-            @Override public int getOrCreate(int serviceId, int addressId, long registerTime) {
-                String key = "VitualAppCode:" + serviceId + ",getAddress:" + addressId;
-                if (applicationInstRegister.containsKey(key)) {
-                    return applicationInstRegister.get(key);
-                } else {
-                    int id = appInstIdSeq++;
-                    applicationInstRegister.put(key, id);
-                    return id;
-                }
-            }
-
-            @Override public void heartbeat(int serviceInstanceId, long heartBeatTime) {
-
-            }
-        };
-
-        Whitebox.setInternalState(CoreRegisterLinker.class, "SERVICE_INVENTORY_REGISTER", applicationIDService);
-        Whitebox.setInternalState(CoreRegisterLinker.class, "SERVICE_INSTANCE_INVENTORY_REGISTER", instanceIDService);
 
         Zipkin2SkyWalkingTransfer.INSTANCE.addListener(this);
 
@@ -145,16 +66,14 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
         SegmentObject.Builder builder = segments.get(0);
         SegmentObject.Builder builder1 = segments.get(1);
         SegmentObject.Builder front, end;
-        if (builder.getServiceId() == applicationRegister.get("AppCode:frontend")) {
+        if (builder.getService().equals("frontend")) {
             front = builder;
             end = builder1;
-            Assert.assertEquals(applicationRegister.get("AppCode:backend").longValue(), builder1.getServiceId());
-        } else if (builder.getServiceId() == applicationRegister.get("AppCode:backend")) {
+        } else if (builder.getService().equals("backend")) {
             end = builder;
             front = builder1;
-            Assert.assertEquals(applicationRegister.get("AppCode:frontend").longValue(), builder1.getServiceId());
         } else {
-            Assert.fail("Can't find frontend and backend applications. ");
+            Assert.fail("Can't find frontend and backend applications, " + builder.getService());
             return;
         }
 
@@ -179,13 +98,12 @@ public class SpringSleuthSegmentBuilderTest implements SegmentListener {
             Assert.assertTrue(spanObject.getTagsCount() > 0);
         });
 
-        SpanObjectV2 spanObject = end.getSpans(0);
+        SpanObject spanObject = end.getSpans(0);
 
         Assert.assertEquals(1, spanObject.getRefsCount());
         SegmentReference spanObjectRef = spanObject.getRefs(0);
-        Assert.assertEquals("get", spanObjectRef.getEntryEndpoint());
-        Assert.assertEquals("get", spanObjectRef.getParentEndpoint());
-        //Assert.assertEquals("192.168.72.220", spanObjectRef.getNetworkAddress());
+        Assert.assertEquals("get /", spanObjectRef.getParentEndpoint());
+        Assert.assertEquals("192.168.72.220", spanObjectRef.getNetworkAddressUsedAtPeer());
         Assert.assertEquals(1, spanObjectRef.getParentSpanId());
         Assert.assertEquals(front.getTraceSegmentId(), spanObjectRef.getParentTraceSegmentId());
 

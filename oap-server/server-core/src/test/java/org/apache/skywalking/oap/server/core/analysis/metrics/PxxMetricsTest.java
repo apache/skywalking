@@ -22,11 +22,8 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class PxxMetricsTest {
-    private int precision = 10;//ms
+    private int precision = 10; //ms
 
     @Test
     public void p99Test() {
@@ -99,38 +96,40 @@ public class PxxMetricsTest {
             super(percentileRank);
         }
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public void deserialize(RemoteData remoteData) {
+
+        }
+
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
-
-        }
-
-        @Override public RemoteData.Builder serialize() {
-            return null;
-        }
-
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
     }
 
     @Test
     public void testAccurate() {
-        IntKeyLongValueHashMap map = new IntKeyLongValueHashMap();
+        DataTable map = new DataTable();
         map.toObject("0,109|128,3|130,1|131,1|132,2|5,16|6,23|10,1|12,1|13,25|14,10|15,2|17,1|146,2|18,1|19,16|20,9|21,4|22,1|23,2|152,1|25,4|26,4|27,3|28,1|31,1|32,2|34,1|44,1|318,1|319,7|320,2|321,1|323,1|324,1|325,2|326,1|327,3|328,1|330,2|205,27|206,14|208,1|337,1|219,15|220,2|221,2|222,1|224,1|352,1|225,1|226,3|227,1|229,1|232,2|105,16|233,1|106,13|108,1|113,20|114,4|115,3|116,2|118,6|119,12|120,4|121,4|122,6|250,1|124,4|125,1|126,4|127,2");
 
         PxxMetricsMocker metrics50Mocker = new PxxMetricsMocker(50);

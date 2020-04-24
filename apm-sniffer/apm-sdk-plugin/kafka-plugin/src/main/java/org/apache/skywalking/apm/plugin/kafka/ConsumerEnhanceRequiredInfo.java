@@ -29,7 +29,7 @@ public class ConsumerEnhanceRequiredInfo {
     private long startTime;
 
     public void setBrokerServers(List<String> brokerServers) {
-        this.brokerServers =  StringUtil.join(';', brokerServers.toArray(new String[0]));
+        this.brokerServers = StringUtil.join(';', brokerServers.toArray(new String[0]));
     }
 
     public void setTopics(Collection<String> topics) {

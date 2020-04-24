@@ -1,40 +1,48 @@
-# Backend and UI
+# Backend, UI, and CLI setup
 
-SkyWalking backend distribution package includes following parts
-1. **bin/cmd scripts**, in `/bin` folder. Include startup linux shell and Windows cmd scripts for Backend
+
+SkyWalking backend distribution package includes the following parts:
+
+1. **bin/cmd scripts**, in `/bin` folder. Includes startup linux shell and Windows cmd scripts for Backend
 server and UI startup.
-1. **Backend config**, in `/config` folder. Include setting files of backend, which are `application.yml`,
-`log4j.xml` and `alarm-settings.yml`. Most open settings are in these files.
-1. **Libraries of backend**, in `/oap-libs` folder. All jar files of backend are in it.
-1. **Webapp env**, in `webapp` folder. UI frontend jar file is in here and its `webapp.yml` setting file. 
+
+2. **Backend config**, in `/config` folder. Includes settings files of the backend, which are:
+   * `application.yml`
+   * `log4j.xml`
+   * `alarm-settings.yml`
+
+3. **Libraries of backend**, in `/oap-libs` folder. All the dependencies of the backend are in it.
+
+4. **Webapp env**, in `webapp` folder. UI frontend jar file is here, with its `webapp.yml` setting file. 
 
 ## Quick start
+
+### Requirements and default settings
+
 Requirement: **JDK8 to JDK12 are tested**, other versions are not tested and may or may not work.
 
-Before you do quick start, you should know, quick start is to run skywalking backend and UI for preview
-or demonstration. In here, performance and long-term running are not our goals. 
+Before you start, you should know that the quickstart aims to get you a basic configuration mostly for previews/demo, performance and long-term running are not our goals. 
 
-Want to deploy to product/test env? Go to [Backend and UI deployment documents](#deploy-backend-and-ui)
+For production/QA/tests environments, you should head to [Backend and UI deployment documents](#deploy-backend-and-ui).
 
-You can use `bin/startup.sh`(or cmd) to startup backend and UI in default settings, which include the following
-things you need to know.
-- Storage, use H2 by default, in order to make sure, don't need further deployment.
+You can use `bin/startup.sh` (or cmd) to startup the backend and UI with their default settings, which are:
+
+- Backend storage uses **H2 by default** (for an easier start)
 - Backend listens `0.0.0.0/11800` for gRPC APIs and `0.0.0.0/12800` for http rest APIs.
-In Java, .NetCore, Node.js, Istio agents/probe, set the gRPC service address to `ip/host:11800`. 
-(ip/host is where the backend at)
-- UI listens `8080` port and request `127.0.0.1/12800` to do GraphQL query.  
+
+In Java, .NetCore, Node.js, Istio agents/probe, you should set the gRPC service address to `ip/host:11800`, with ip/host where your backend is.
+- UI listens on `8080` port and request `127.0.0.1/12800` to do GraphQL query.  
 
 ## Deploy Backend and UI
-After the quick start, you should want to deploy the backend and UI in the distributed env.
-Before that, you should know how agent/probe, backend, UI communicate with each other.
+
+Before deploying Skywalking in your distributed environment, you should know how agents/probes, backend, UI communicates with each other:
 
 <img src="http://skywalking.apache.org/doc-graph/communication-net.png"/>
 
-- All native agents and probes, either language based or mesh probe, are using gRPC service(`core/default/gRPC*` in `application.yml`) to report
-data to backend. Also, jetty service supported in JSON format. 
-- UI uses GraphQL(HTTP) query to access backend also in Jetty service(`core/default/rest*` in `application.yml`).
+- All native agents and probes, either language based or mesh probe, are using gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, jetty service supported in JSON format. 
+- UI uses GraphQL (HTTP) query to access the backend also in Jetty service (`core/default/rest*` in `application.yml`).
 
-Now, let's continue with the backend and UI setting documents.
+Now, let's continue with the backend, UI and CLI setting documents.
 - [Backend setup document](backend-setup.md)
 - [UI setup document](ui-setup.md)
-
+- [CLI set up document](https://github.com/apache/skywalking-cli)

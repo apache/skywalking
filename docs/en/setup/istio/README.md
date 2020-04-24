@@ -4,7 +4,7 @@ Instructions for transport Istio's metrics to SkyWalking OAP server.
 
 ## Prerequisites
 
-Istio should be installed in kubernetes cluster. Follow [Istio quick start](https://istio.io/docs/setup/kubernetes/quick-start/)
+Istio should be installed in kubernetes cluster. Follow [Istio getting start](https://istio.io/docs/setup/getting-started/)
 to finish it.
 
 ## Deploy Skywalking backend

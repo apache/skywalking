@@ -18,27 +18,28 @@
 
 package test.org.apache.skywalking.apm.testcase.toolkit.controller;
 
+import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.skywalking.apm.toolkit.trace.ActiveSpan;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.io.IOException;
-
-/**
- * @author caoyixiong
- */
 @RestController
 @RequestMapping("/case")
 public class TestController {
 
     private static final String SUCCESS = "Success";
+
+    private static final String CORRELATION_CONTEXT_KEY = "toolkit-test";
+    private static final String CORRELATION_CONTEXT_VALUE = "correlationValueTest";
+    private static final String CORRELATION_CONTEXT_TAG_KEY = "correlation";
 
     @Autowired
     private TestService testService;
@@ -46,11 +47,14 @@ public class TestController {
     @RequestMapping("/tool-kit")
     public String toolKitCase() {
         testService.testTag();
-        testService.testInfo();
+        testService.testInfo("testInfoParam");
         testService.testDebug();
         testService.testError();
         testService.testErrorMsg();
         testService.testErrorThrowable();
+        testService.testTagAnnotation("testTagAnnotationParam1", "testTagAnnotationParam2");
+        testService.testTagAnnotationReturnInfo("zhangsan", 15);
+        TraceContext.putCorrelation(CORRELATION_CONTEXT_KEY, CORRELATION_CONTEXT_VALUE);
         testService.asyncCallable(() -> {
             visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable");
             return true;
@@ -62,7 +66,7 @@ public class TestController {
                 // ignore
             }
         });
-        testService.asyncSupplier(()->{
+        testService.asyncSupplier(() -> {
             try {
                 visit("http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier");
             } catch (IOException e) {
@@ -80,19 +84,21 @@ public class TestController {
 
     @RequestMapping("/asyncVisit/runnable")
     public String asyncVisitRunnable() {
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, TraceContext.getCorrelation(CORRELATION_CONTEXT_KEY).orElse(""));
         return SUCCESS;
     }
 
     @RequestMapping("/asyncVisit/callable")
     public String asyncVisitCallable() {
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, TraceContext.getCorrelation(CORRELATION_CONTEXT_KEY).orElse(""));
         return SUCCESS;
     }
 
     @RequestMapping("/asyncVisit/supplier")
     public String asyncVisitSupplier() {
-    	return SUCCESS;
+        ActiveSpan.tag(CORRELATION_CONTEXT_TAG_KEY, TraceContext.getCorrelation(CORRELATION_CONTEXT_KEY).orElse(""));
+        return SUCCESS;
     }
-
 
     private static void visit(String url) throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();

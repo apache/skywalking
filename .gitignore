@@ -10,7 +10,7 @@ target/
 packages/
 **/dependency-reduced-pom.xml
 /skywalking-agent/
-/dist/
+**/dist/
 /docker/snapshot/*.gz
 .mvn/wrapper/*.jar
 OALLexer.tokens
@@ -18,3 +18,5 @@ OALLexer.tokens
 .vscode 
 .checkstyle
 .externalToolBuilders
+/test/plugin/dist
+/test/plugin/workspace

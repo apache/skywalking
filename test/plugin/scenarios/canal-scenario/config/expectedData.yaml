@@ -13,54 +13,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  applications:
-    - {canal-scenario: 2}
-  instances:
-    - {canal-scenario: 1}
-  operationNames:
-    - canal-scenario: [Canal/example, /canal-scenario/case/canal-case]
-  heartbeat: []
 segmentItems:
-  - applicationCode: canal-scenario
-    segmentSize: gt 1
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: Canal/example
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Unknown
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 54
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: batchSize, value: '1000'}
-              - {key: destination, value: example}
-          - operationName: /canal-scenario/case/canal-case
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/canal-scenario/case/canal-case'}
-              - {key: http.method, value: GET}
-
-
-
-
-
+- serviceName: canal-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: Canal/example
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 54
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: batchSize, value: '1000'}
+      - {key: destination, value: example}
+      skipAnalysis: 'false'
+    - operationName: /canal-scenario/case/canal-case
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/canal-scenario/case/canal-case'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

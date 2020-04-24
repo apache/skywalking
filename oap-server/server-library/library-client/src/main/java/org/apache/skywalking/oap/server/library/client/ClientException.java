@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.client;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class ClientException extends Exception {
     public ClientException(String message) {
         super(message);

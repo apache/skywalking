@@ -19,7 +19,11 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.oap.server.exporter.grpc.*;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
+import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
+import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
@@ -59,7 +63,10 @@ public class ExporterMockReceiver {
         @Override
         public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
             responseObserver.onNext(SubscriptionsResp.newBuilder()
-                    .addMetricNames("all_p99").addMetricNames("service_cpm").addMetricNames("endpoint_sla").build());
+                                                     .addMetricNames("all_p99")
+                                                     .addMetricNames("service_cpm")
+                                                     .addMetricNames("endpoint_sla")
+                                                     .build());
             responseObserver.onCompleted();
         }
     }

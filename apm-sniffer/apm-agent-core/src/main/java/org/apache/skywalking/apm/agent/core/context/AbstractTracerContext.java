@@ -22,8 +22,6 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
 /**
  * The <code>AbstractTracerContext</code> represents the tracer context manager.
- *
- * @author wusheng
  */
 public interface AbstractTracerContext {
     /**
@@ -62,7 +60,7 @@ public interface AbstractTracerContext {
      *
      * @return the string represents the id.
      */
-    String getReadableGlobalTraceId();
+    String getReadablePrimaryTraceId();
 
     /**
      * Create an entry span
@@ -84,7 +82,8 @@ public interface AbstractTracerContext {
      * Create an exit span
      *
      * @param operationName most likely a service name of remote
-     * @param remotePeer the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.)
+     * @param remotePeer    the network id(ip:port, hostname:port or ip1:port1,ip2,port, etc.). Remote peer could be set
+     *                      later, but must be before injecting.
      * @return the span represent an exit point of this segment.
      */
     AbstractSpan createExitSpan(String operationName, String remotePeer);
@@ -115,4 +114,9 @@ public interface AbstractTracerContext {
      * @param span to be stopped.
      */
     void asyncStop(AsyncSpan span);
+
+    /**
+     * Get current correlation context
+     */
+    CorrelationContext getCorrelationContext();
 }

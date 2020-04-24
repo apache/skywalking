@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-library</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,7 @@
 
     <properties>
         <ststem-rules.version>1.18.0</ststem-rules.version>
+        <protobuf-java.version>3.11.4</protobuf-java.version>
     </properties>
 
     <dependencies>
@@ -51,6 +52,17 @@
             <artifactId>system-rules</artifactId>
             <version>${ststem-rules.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
-/**
- * @author peng-yongsheng
- */
 public interface Serializable {
     Command.Builder serialize();
 }

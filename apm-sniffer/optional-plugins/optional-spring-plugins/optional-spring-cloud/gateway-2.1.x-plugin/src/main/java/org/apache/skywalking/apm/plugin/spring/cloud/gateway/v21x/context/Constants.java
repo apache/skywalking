@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.context;
 
-/**
- * @author zhaoyuguang
- */
-
 public interface Constants {
     String SPRING_CLOUD_GATEWAY_TRANSMITTER = "spring.cloud.gateway.transmitter";
 }

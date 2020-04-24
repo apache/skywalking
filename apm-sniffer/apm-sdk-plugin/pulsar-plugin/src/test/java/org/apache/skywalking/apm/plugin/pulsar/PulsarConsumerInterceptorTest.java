@@ -19,7 +19,7 @@
 package org.apache.skywalking.apm.plugin.pulsar;
 
 import org.apache.pulsar.common.api.proto.PulsarApi;
-import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -33,7 +33,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,18 +63,19 @@ public class PulsarConsumerInterceptorTest {
     private MockMessage msg;
 
     private EnhancedInstance consumerInstance = new EnhancedInstance() {
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             return consumerEnhanceRequiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
-            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo)value;
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
+            consumerEnhanceRequiredInfo = (ConsumerEnhanceRequiredInfo) value;
         }
     };
 
     @Before
     public void setUp() {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         consumerInterceptor = new PulsarConsumerInterceptor();
         consumerEnhanceRequiredInfo = new ConsumerEnhanceRequiredInfo();
 
@@ -83,20 +83,16 @@ public class PulsarConsumerInterceptorTest {
         consumerEnhanceRequiredInfo.setServiceUrl("pulsar://localhost:6650");
         consumerEnhanceRequiredInfo.setSubscriptionName("my-sub");
         msg = new MockMessage();
-        msg.getMessageBuilder().addProperties(PulsarApi.KeyValue.newBuilder()
-                .setKey("sw3")
-                .setValue("1.234.111|3|1|1|#192.168.1.8:18002|#/portal/|#testEntrySpan|#AQA*#AQA*Et0We0tQNQA*"));
-    }
-
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
+        msg.getMessageBuilder()
+           .addProperties(PulsarApi.KeyValue.newBuilder()
+                                            .setKey(SW8CarrierItem.HEADER_NAME)
+                                            .setValue("1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA="));
     }
 
     @Test
     public void testConsumerWithNullMessage() throws Throwable {
-        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{null}, new Class[0], null);
-        consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{null}, new Class[0], null);
+        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[] {null}, new Class[0], null);
+        consumerInterceptor.afterMethod(consumerInstance, null, new Object[] {null}, new Class[0], null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         assertThat(traceSegments.size(), is(0));
@@ -104,8 +100,8 @@ public class PulsarConsumerInterceptorTest {
 
     @Test
     public void testConsumerWithMessage() throws Throwable {
-        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
-        consumerInterceptor.afterMethod(consumerInstance, null, new Object[]{msg}, new Class[0], null);
+        consumerInterceptor.beforeMethod(consumerInstance, null, new Object[] {msg}, new Class[0], null);
+        consumerInterceptor.afterMethod(consumerInstance, null, new Object[] {msg}, new Class[0], null);
 
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         assertThat(traceSegments.size(), is(1));
@@ -129,8 +125,8 @@ public class PulsarConsumerInterceptorTest {
     }
 
     private void assertTraceSegmentRef(TraceSegmentRef ref) {
-        MatcherAssert.assertThat(SegmentRefHelper.getEntryServiceInstanceId(ref), is(1));
+        MatcherAssert.assertThat(SegmentRefHelper.getParentServiceInstance(ref), is("instance"));
         MatcherAssert.assertThat(SegmentRefHelper.getSpanId(ref), is(3));
-        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("1.234.111"));
+        MatcherAssert.assertThat(SegmentRefHelper.getTraceSegmentId(ref).toString(), is("3.4.5"));
     }
 }

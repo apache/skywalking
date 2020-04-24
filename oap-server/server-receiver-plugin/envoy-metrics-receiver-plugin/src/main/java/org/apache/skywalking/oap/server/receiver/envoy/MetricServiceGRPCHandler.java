@@ -19,41 +19,47 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import io.envoyproxy.envoy.api.v2.core.Node;
-import io.envoyproxy.envoy.service.metrics.v2.*;
+import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
+import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsMessage;
+import io.envoyproxy.envoy.service.metrics.v2.StreamMetricsResponse;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.register.service.*;
-import org.apache.skywalking.oap.server.core.source.*;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.source.EnvoyInstanceMetric;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.*;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-/**
- * @author wusheng
- */
+@Slf4j
 public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceImplBase {
-    private static final Logger logger = LoggerFactory.getLogger(MetricServiceGRPCHandler.class);
-
-    private final IServiceInventoryRegister serviceInventoryRegister;
-    private final IServiceInstanceInventoryRegister serviceInstanceInventoryRegister;
     private final SourceReceiver sourceReceiver;
     private CounterMetrics counter;
     private HistogramMetrics histogram;
 
     public MetricServiceGRPCHandler(ModuleManager moduleManager) {
-        serviceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInventoryRegister.class);
-        serviceInstanceInventoryRegister = moduleManager.find(CoreModule.NAME).provider().getService(IServiceInstanceInventoryRegister.class);
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        counter = metricsCreator.createCounter("envoy_metric_in_count", "The count of envoy service metrics received",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        histogram = metricsCreator.createHistogramMetric("envoy_metric_in_latency", "The process latency of service metrics receiver",
-            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        counter = metricsCreator.createCounter(
+            "envoy_metric_in_count", "The count of envoy service metrics received", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
+        histogram = metricsCreator.createHistogramMetric(
+            "envoy_metric_in_latency", "The process latency of service metrics receiver", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE
+        );
     }
 
     @Override
@@ -61,13 +67,12 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
         return new StreamObserver<StreamMetricsMessage>() {
             private volatile boolean isFirst = true;
             private String serviceName = null;
-            private int serviceId = Const.NONE;
             private String serviceInstanceName = null;
-            private int serviceInstanceId = Const.NONE;
 
-            @Override public void onNext(StreamMetricsMessage message) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Received msg {}", message);
+            @Override
+            public void onNext(StreamMetricsMessage message) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Received msg {}", message);
                 }
 
                 if (isFirst) {
@@ -93,15 +98,23 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                     }
                 }
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Envoy metrics reported from service[{}], service instance[{}]", serviceName, serviceInstanceName);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                        "Envoy metrics reported from service[{}], service instance[{}]", serviceName,
+                        serviceInstanceName
+                    );
                 }
 
-                if (serviceInstanceId != Const.NONE) {
+                if (StringUtil.isNotEmpty(serviceName) && StringUtil.isNotEmpty(serviceInstanceName)) {
                     List<Metrics.MetricFamily> list = message.getEnvoyMetricsList();
                     boolean needHeartbeatUpdate = true;
                     for (int i = 0; i < list.size(); i++) {
                         counter.inc();
+
+                        final String serviceId = IDManager.ServiceID.buildId(serviceName, NodeType.Normal);
+                        final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(
+                            serviceId, serviceInstanceName);
+
                         HistogramMetrics.Timer timer = histogram.createTimer();
                         try {
                             Metrics.MetricFamily metricFamily = list.get(i);
@@ -143,32 +156,28 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                             }
                             if (needHeartbeatUpdate) {
                                 // Send heartbeat
-                                serviceInventoryRegister.heartbeat(serviceId, timestamp);
-                                serviceInstanceInventoryRegister.heartbeat(serviceInstanceId, timestamp);
+                                ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
+                                serviceInstanceUpdate.setName(serviceInstanceName);
+                                serviceInstanceUpdate.setServiceId(serviceId);
+                                serviceInstanceUpdate.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
+                                sourceReceiver.receive(serviceInstanceUpdate);
                                 needHeartbeatUpdate = false;
                             }
                         } finally {
                             timer.finish();
                         }
                     }
-                } else if (serviceName != null && serviceInstanceName != null) {
-                    if (serviceId == Const.NONE) {
-                        logger.debug("Register envoy service [{}].", serviceName);
-                        serviceId = serviceInventoryRegister.getOrCreate(serviceName, null);
-                    }
-                    if (serviceId != Const.NONE) {
-                        logger.debug("Register envoy service instance [{}].", serviceInstanceName);
-                        serviceInstanceId = serviceInstanceInventoryRegister.getOrCreate(serviceId, serviceInstanceName, serviceInstanceName, System.currentTimeMillis(), null);
-                    }
                 }
             }
 
-            @Override public void onError(Throwable throwable) {
-                logger.error("Error in receiving metrics from envoy", throwable);
+            @Override
+            public void onError(Throwable throwable) {
+                log.error("Error in receiving metrics from envoy", throwable);
                 responseObserver.onCompleted();
             }
 
-            @Override public void onCompleted() {
+            @Override
+            public void onCompleted() {
                 responseObserver.onNext(StreamMetricsResponse.newBuilder().build());
                 responseObserver.onCompleted();
             }

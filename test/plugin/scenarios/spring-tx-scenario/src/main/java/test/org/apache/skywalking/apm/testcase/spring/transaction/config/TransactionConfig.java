@@ -15,23 +15,20 @@
  * limitations under the License.
  *
  */
+
 package test.org.apache.skywalking.apm.testcase.spring.transaction.config;
 
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.sql.DataSource;
-
-/**
- * @author zhaoyuguang
- */
 @Configuration
 public class TransactionConfig {
 
     @Bean
-    public PlatformTransactionManager transactionManager(DataSource dataSource){
+    public PlatformTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 

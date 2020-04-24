@@ -18,50 +18,39 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.mock;
 
-import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v3.RefType;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
-/**
- * @author peng-yongsheng
- */
 class ServiceCMock {
+    public static String SERVICE_NAME = "mock_c_service";
+    public static String SERVICE_INSTANCE_NAME = "mock_c_service_instance";
 
-    private final RegisterMock registerMock;
-    private static int SERVICE_ID;
-    private static int SERVICE_INSTANCE_ID;
-
-    ServiceCMock(RegisterMock registerMock) {
-        this.registerMock = registerMock;
+    void mock(StreamObserver<SegmentObject> streamObserver, String traceId,
+              String segmentId, String parentSegmentId, long startTimestamp) {
+        streamObserver.onNext(createSegment(startTimestamp, traceId, segmentId, parentSegmentId).build());
     }
 
-    void register() throws InterruptedException {
-        SERVICE_ID = registerMock.registerService("rocket-mq-consumer");
-        SERVICE_INSTANCE_ID = registerMock.registerServiceInstance(SERVICE_ID, "pengysC");
-    }
-
-    void mock(StreamObserver<UpstreamSegment> streamObserver, UniqueId.Builder traceId,
-        UniqueId.Builder segmentId, UniqueId.Builder parentTraceSegmentId, long startTimestamp, boolean isPrepare) {
-        UpstreamSegment.Builder upstreamSegment = UpstreamSegment.newBuilder();
-        upstreamSegment.addGlobalTraceIds(traceId);
-        upstreamSegment.setSegment(createSegment(startTimestamp, segmentId, parentTraceSegmentId, isPrepare));
-
-        streamObserver.onNext(upstreamSegment.build());
-    }
-
-    private ByteString createSegment(long startTimestamp, UniqueId.Builder segmentId,
-        UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
-        TraceSegmentObject.Builder segment = TraceSegmentObject.newBuilder();
+    private SegmentObject.Builder createSegment(long startTimestamp,
+                                                String traceId,
+                                                String segmentId,
+                                                String parentSegmentId) {
+        SegmentObject.Builder segment = SegmentObject.newBuilder();
+        segment.setTraceId(traceId);
         segment.setTraceSegmentId(segmentId);
-        segment.setApplicationInstanceId(SERVICE_INSTANCE_ID);
-        segment.setApplicationId(SERVICE_ID);
-        segment.addSpans(createEntrySpan(startTimestamp, parentTraceSegmentId, isPrepare));
+        segment.setService(SERVICE_NAME);
+        segment.setServiceInstance(SERVICE_INSTANCE_NAME);
+        segment.addSpans(createEntrySpan(startTimestamp, traceId, parentSegmentId));
 
-        return segment.build().toByteString();
+        return segment;
     }
 
-    private SpanObject.Builder createEntrySpan(long startTimestamp, UniqueId.Builder uniqueId, boolean isPrepare) {
+    private SpanObject.Builder createEntrySpan(long startTimestamp, String traceId, String parentSegmentId) {
         SpanObject.Builder span = SpanObject.newBuilder();
         span.setSpanId(0);
         span.setSpanType(SpanType.Entry);
@@ -71,33 +60,21 @@ class ServiceCMock {
         span.setEndTime(startTimestamp + 5000);
         span.setComponentId(ComponentsDefine.ROCKET_MQ_CONSUMER.getId());
         span.setIsError(false);
-        span.addRefs(createReference(uniqueId, isPrepare));
-
-        if (isPrepare) {
-            span.setOperationName(ServiceBMock.ROCKET_MQ_ENDPOINT);
-        } else {
-            span.setOperationNameId(5);
-        }
+        span.addRefs(createReference(traceId, parentSegmentId));
+        span.setOperationName(ServiceBMock.ROCKET_MQ_ENDPOINT);
         return span;
     }
 
-    private TraceSegmentReference.Builder createReference(UniqueId.Builder parentTraceSegmentId, boolean isPrepare) {
-        TraceSegmentReference.Builder reference = TraceSegmentReference.newBuilder();
+    private SegmentReference.Builder createReference(String traceId, String parentTraceSegmentId) {
+        SegmentReference.Builder reference = SegmentReference.newBuilder();
+        reference.setTraceId(traceId);
         reference.setParentTraceSegmentId(parentTraceSegmentId);
-        reference.setParentApplicationInstanceId(ServiceBMock.SERVICE_INSTANCE_ID);
+        reference.setParentService(ServiceBMock.SERVICE_NAME);
+        reference.setParentServiceInstance(ServiceBMock.SERVICE_INSTANCE_NAME);
         reference.setParentSpanId(2);
-        reference.setEntryApplicationInstanceId(ServiceAMock.SERVICE_INSTANCE_ID);
         reference.setRefType(RefType.CrossProcess);
-
-        if (isPrepare) {
-            reference.setParentServiceName(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
-            reference.setNetworkAddress(ServiceBMock.ROCKET_MQ_ADDRESS);
-            reference.setEntryServiceName(ServiceAMock.REST_ENDPOINT);
-        } else {
-            reference.setParentServiceId(8);
-            reference.setNetworkAddressId(4);
-            reference.setEntryServiceId(2);
-        }
+        reference.setNetworkAddressUsedAtPeer(ServiceBMock.ROCKET_MQ_ADDRESS);
+        reference.setParentEndpoint(ServiceBMock.DUBBO_PROVIDER_ENDPOINT);
         return reference;
     }
 }

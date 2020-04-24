@@ -13,99 +13,84 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  applications:
-    - {jedis-scenario: 2}
-  instances:
-    - {jedis-scenario: 1}
-  operationNames:
-    - jedis-scenario: [Jedis/set, Jedis/echo, Jedis/del,
-                       Jedis/get, /jedis-scenario/case/jedis-scenario]
-  heartbeat: []
 segmentItems:
-  - applicationCode: jedis-scenario
-    segmentSize: gt 1
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: Jedis/echo
-            operationId: 0
-            parentSpanId: 0
-            spanId: 1
-            spanLayer: Cache
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 30
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: redis-server:6379
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: echo Test}
-          - operationName: Jedis/set
-            operationId: 0
-            parentSpanId: 0
-            spanId: 2
-            spanLayer: Cache
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 30
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: redis-server:6379
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: set a}
-          - operationName: Jedis/get
-            operationId: 0
-            parentSpanId: 0
-            spanId: 3
-            spanLayer: Cache
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 30
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: redis-server:6379
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: get a}
-          - operationName: Jedis/del
-            operationId: 0
-            parentSpanId: 0
-            spanId: 4
-            spanLayer: Cache
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 30
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: redis-server:6379
-            peerId: 0
-            tags:
-              - {key: db.type, value: Redis}
-              - {key: db.statement, value: del a}
-          - operationName: /jedis-scenario/case/jedis-scenario
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/jedis-scenario/case/jedis-scenario'}
-              - {key: http.method, value: GET}
+- serviceName: jedis-scenario
+  segmentSize: gt 1
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: Jedis/echo
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 30
+      isError: false
+      spanType: Exit
+      peer: redis-server:6379
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: echo Test}
+      skipAnalysis: 'false'
+    - operationName: Jedis/set
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 30
+      isError: false
+      spanType: Exit
+      peer: redis-server:6379
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: set a}
+      skipAnalysis: 'false'
+    - operationName: Jedis/get
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 30
+      isError: false
+      spanType: Exit
+      peer: redis-server:6379
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: get a}
+      skipAnalysis: 'false'
+    - operationName: Jedis/del
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Cache
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 30
+      isError: false
+      spanType: Exit
+      peer: redis-server:6379
+      tags:
+      - {key: db.type, value: Redis}
+      - {key: db.statement, value: del a}
+      skipAnalysis: 'false'
+    - operationName: /jedis-scenario/case/jedis-scenario
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/jedis-scenario/case/jedis-scenario'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'

@@ -19,25 +19,25 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.*;
-import org.apache.skywalking.oap.server.core.analysis.Downsampling;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.entity.*;
-import org.apache.skywalking.oap.server.core.register.*;
-import org.apache.skywalking.oap.server.core.storage.model.ModelName;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.avg.Avg;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-/**
- * @author peng-yongsheng
- */
 public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO {
 
     public AggregationQueryEsDAO(ElasticSearchClient client) {
@@ -45,94 +45,41 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
     }
 
     @Override
-    public List<TopNEntity> getServiceTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
-        long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
+    public List<SelectedRecord> sortMetrics(final TopNCondition condition,
+                                            final String valueColumnName,
+                                            final Duration duration,
+                                            final List<KeyValue> additionalConditions) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
+        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
+                                         .lte(duration.getEndTimeBucket())
+                                         .gte(duration.getStartTimeBucket()));
 
-    @Override public List<TopNEntity> getAllServiceInstanceTopN(String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
-
-    @Override public List<TopNEntity> getServiceInstanceTopN(int serviceId, String indName, String valueCName, int topN,
-        Downsampling downsampling, long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceInstanceInventory.SERVICE_ID, serviceId));
-
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
-
-    @Override
-    public List<TopNEntity> getAllEndpointTopN(String indName, String valueCName, int topN, Downsampling downsampling, long startTB,
-        long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
-
-    @Override
-    public List<TopNEntity> getEndpointTopN(int serviceId, String indName, String valueCName, int topN, Downsampling downsampling,
-        long startTB, long endTB, Order order) throws IOException {
-        String indexName = ModelName.build(downsampling, indName);
-
-        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        sourceBuilder.query(boolQueryBuilder);
-
-        boolQueryBuilder.must().add(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET).lte(endTB).gte(startTB));
-        boolQueryBuilder.must().add(QueryBuilders.termQuery(EndpointInventory.SERVICE_ID, serviceId));
-
-        return aggregation(indexName, valueCName, sourceBuilder, topN, order);
-    }
-
-    private List<TopNEntity> aggregation(String indexName, String valueCName, SearchSourceBuilder sourceBuilder,
-        int topN, Order order) throws IOException {
         boolean asc = false;
-        if (order.equals(Order.ASC)) {
+        if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
         }
 
-        TermsAggregationBuilder aggregationBuilder = AggregationBuilders
-            .terms(Metrics.ENTITY_ID)
-            .field(Metrics.ENTITY_ID)
-            .order(BucketOrder.aggregation(valueCName, asc))
-            .size(topN)
-            .subAggregation(
-                AggregationBuilders.avg(valueCName).field(valueCName)
-            );
-        sourceBuilder.aggregation(aggregationBuilder);
+        sourceBuilder.aggregation(
+            AggregationBuilders.terms(Metrics.ENTITY_ID)
+                               .field(Metrics.ENTITY_ID)
+                               .order(BucketOrder.aggregation(valueColumnName, asc))
+                               .size(condition.getTopN())
+                               .subAggregation(AggregationBuilders.avg(valueColumnName).field(valueColumnName))
+        );
 
-        SearchResponse response = getClient().search(indexName, sourceBuilder);
+        SearchResponse response = getClient().search(condition.getName(), sourceBuilder);
 
-        List<TopNEntity> topNEntities = new ArrayList<>();
+        List<SelectedRecord> topNList = new ArrayList<>();
         Terms idTerms = response.getAggregations().get(Metrics.ENTITY_ID);
         for (Terms.Bucket termsBucket : idTerms.getBuckets()) {
-            TopNEntity topNEntity = new TopNEntity();
-            topNEntity.setId(termsBucket.getKeyAsString());
-            Avg value = termsBucket.getAggregations().get(valueCName);
-            topNEntity.setValue((long)value.getValue());
-            topNEntities.add(topNEntity);
+            SelectedRecord record = new SelectedRecord();
+            record.setId(termsBucket.getKeyAsString());
+            Avg value = termsBucket.getAggregations().get(valueColumnName);
+            record.setValue(String.valueOf((long) value.getValue()));
+            topNList.add(record);
         }
 
-        return topNEntities;
+        return topNList;
     }
+
 }

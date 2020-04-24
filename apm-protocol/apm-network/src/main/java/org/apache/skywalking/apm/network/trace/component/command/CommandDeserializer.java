@@ -17,17 +17,14 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.Command;
+import org.apache.skywalking.apm.network.common.v3.Command;
 
-/**
- * @author kezhenxu94
- */
 public class CommandDeserializer {
 
     public static BaseCommand deserialize(final Command command) {
         final String commandName = command.getCommand();
-        if (ServiceResetCommand.NAME.equals(commandName)) {
-            return ServiceResetCommand.DESERIALIZER.deserialize(command);
+        if (ProfileTaskCommand.NAME.equals(commandName)) {
+            return ProfileTaskCommand.DESERIALIZER.deserialize(command);
         }
         throw new UnsupportedCommandException(command);
     }

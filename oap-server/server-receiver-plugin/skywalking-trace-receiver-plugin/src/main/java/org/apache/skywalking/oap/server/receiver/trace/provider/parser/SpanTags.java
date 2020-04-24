@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
 public class SpanTags {
+    public static final String STATUS_CODE = "status_code";
+
     public static final String DB_STATEMENT = "db.statement";
 
     public static final String DB_TYPE = "db.type";

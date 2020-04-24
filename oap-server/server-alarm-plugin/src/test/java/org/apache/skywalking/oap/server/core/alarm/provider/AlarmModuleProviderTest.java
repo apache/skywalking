@@ -15,8 +15,11 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.Iterator;
+import java.util.ServiceLoader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
@@ -25,16 +28,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doNothing;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-/**
- * Created by dengming, 2019.04.22
- */
 public class AlarmModuleProviderTest {
 
     private AlarmModuleProvider moduleProvider;
@@ -68,8 +66,6 @@ public class AlarmModuleProviderTest {
 
         NotifyHandler handler = mock(NotifyHandler.class);
 
-        doNothing().when(handler).initCache(null);
-
         Whitebox.setInternalState(moduleProvider, "notifyHandler", handler);
         moduleProvider.notifyAfterCompleted();
     }
@@ -77,6 +73,9 @@ public class AlarmModuleProviderTest {
     @Test
     public void requiredModules() {
         String[] modules = moduleProvider.requiredModules();
-        assertArrayEquals(new String[]{CoreModule.NAME, ConfigurationModule.NAME}, modules);
+        assertArrayEquals(new String[] {
+            CoreModule.NAME,
+            ConfigurationModule.NAME
+        }, modules);
     }
 }

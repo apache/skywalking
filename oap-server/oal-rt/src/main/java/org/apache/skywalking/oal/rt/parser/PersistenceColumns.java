@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PersistenceColumns {
     private List<PersistenceField> stringFields = new LinkedList<>();
     private List<PersistenceField> longFields = new LinkedList<>();
     private List<PersistenceField> doubleFields = new LinkedList<>();
     private List<PersistenceField> intFields = new LinkedList<>();
-    private List<PersistenceField> intKeyLongValueHashMap = new LinkedList<>();
+    private List<PersistenceField> dataTableFields = new LinkedList<>();
 
     public void addStringField(String fieldName) {
         stringFields.add(new PersistenceField(fieldName));
@@ -43,8 +44,8 @@ public class PersistenceColumns {
         intFields.add(new PersistenceField(fieldName));
     }
 
-    public void addIntKeyLongValueHashMapField(String fieldName) {
-        intKeyLongValueHashMap.add(new PersistenceField(fieldName));
+    public void addDataTableField(String fieldName) {
+        dataTableFields.add(new PersistenceField(fieldName));
     }
 
     public List<PersistenceField> getStringFields() {
@@ -63,7 +64,7 @@ public class PersistenceColumns {
         return intFields;
     }
 
-    public List<PersistenceField> getIntKeyLongValueHashMapFields() {
-        return intKeyLongValueHashMap;
+    public List<PersistenceField> getDataTableFields() {
+        return dataTableFields;
     }
 }

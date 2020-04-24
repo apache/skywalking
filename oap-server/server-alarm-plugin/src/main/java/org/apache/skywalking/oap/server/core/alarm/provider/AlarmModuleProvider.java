@@ -18,13 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.io.*;
-
+import java.io.FileNotFoundException;
+import java.io.Reader;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence;
+import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
@@ -32,19 +38,23 @@ public class AlarmModuleProvider extends ModuleProvider {
     private NotifyHandler notifyHandler;
     private AlarmRulesWatcher alarmRulesWatcher;
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return AlarmModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return new AlarmSettings();
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         Reader applicationReader;
         try {
             applicationReader = ResourceUtils.read("alarm-settings.yml");
@@ -61,16 +71,24 @@ public class AlarmModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME).provider().getService(DynamicConfigurationService.class);
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
+        DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
+                                                                              .provider()
+                                                                              .getService(
+                                                                                  DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(alarmRulesWatcher);
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        notifyHandler.initCache(getManager());
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, ConfigurationModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            CoreModule.NAME,
+            ConfigurationModule.NAME
+        };
     }
 }

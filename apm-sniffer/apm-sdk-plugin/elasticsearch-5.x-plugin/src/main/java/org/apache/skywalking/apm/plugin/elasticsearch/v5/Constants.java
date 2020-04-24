@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
-/**
- * @author oatiz.
- */
-class Constants {
+import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+
+public class Constants {
+
+    public static final String INET_SOCKET_TRANSPORT_ADDRESS_WITNESS_CLASS = "org.elasticsearch.common.transport.InetSocketTransportAddress";
 
     static final String DB_TYPE = "Elasticsearch";
 
@@ -29,16 +31,16 @@ class Constants {
 
     static final String BASE_FUTURE_METHOD = "actionGet";
 
-    static final String ES_NODE = "node.address";
+    static final AbstractTag<String> ES_NODE = Tags.ofKey("node.address");
 
-    static final String ES_INDEX = "es.indices";
+    static final AbstractTag<String> ES_INDEX = Tags.ofKey("es.indices");
 
-    static final String ES_TYPE = "es.types";
+    static final AbstractTag<String> ES_TYPE = Tags.ofKey("es.types");
 
-    static final String ES_TOOK_MILLIS = "es.took_millis";
+    static final AbstractTag<String> ES_TOOK_MILLIS = Tags.ofKey("es.took_millis");
 
-    static final String ES_TOTAL_HITS = "es.total_hits";
+    static final AbstractTag<String> ES_TOTAL_HITS = Tags.ofKey("es.total_hits");
 
-    static final String ES_INGEST_TOOK_MILLIS = "es.ingest_took_millis";
+    static final AbstractTag<String> ES_INGEST_TOOK_MILLIS = Tags.ofKey("es.ingest_took_millis");
 
 }

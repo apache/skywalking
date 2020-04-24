@@ -1,11 +1,11 @@
 # Plugin automatic test framework
 
-Plugin test frameworks is designed for verifying the plugin function and compatible status. As there are dozens of plugins and
-hundreds versions need to be verified, it is impossible to do manually.
+Plugin test framework is designed for verifying the plugins' function and compatible status. As there are dozens of plugins and
+hundreds of versions need to be verified, it is impossible to do manually.
 The test framework uses container based tech stack, requires a set of real services with agent installed, then the test mock
-OAP backend is running to check the segment and register data sent from agents.
+OAP backend is running to check the segments and register data sent from agents.
 
-Every plugin maintained in the main repo is required having its test cases, also matching the versions in the supported list doc. 
+Every plugin maintained in the main repo requires corresponding test cases, also matching the versions in the supported list doc.
 
 ## Environment Requirements
 
@@ -187,7 +187,7 @@ as the version number, it will be changed in the test for every version.
 
 **Take following test cases as examples**
 * [dubbo-2.7.x with JVM-container](../../../test/plugin/scenarios/dubbo-2.7.x-scenario/configuration.yml)
-* [jetty with Tomcat-container](../../../test/plugin/scenarios/jetty-scenario/configuration.yml)
+* [jetty with JVM-container](../../../test/plugin/scenarios/jetty-scenario/configuration.yml)
 * [gateway with runningMode](../../../test/plugin/scenarios/gateway-scenario/configuration.yml)
 * [canal with docker-compose](../../../test/plugin/scenarios/canal-scenario/configuration.yml)
 
@@ -214,30 +214,29 @@ as the version number, it will be changed in the test for every version.
 **Register verify description format**
 ```yml
 registryItems:
-  applications:
-  - APPLICATION_CODE: APPLICATION_ID(int)
+  services:
+  - { SERVICE_NAME: SERVICE_ID(int) }
   ...
   instances:
-  - APPLICATION_CODE: INSTANCE_COUNT(int)
+  - { SERVICE_CODE: INSTANCE_COUNT(int) }
   ...
   operationNames:
-  - APPLICATION_CODE: [ SPAN_OPERATION(string), ... ]
   ...
 ```
 
 
 | Field | Description
 | --- | ---
-| applications | The registered service codes. Normally, not 0 should be enough.
+| services | The registered service codes. Normally, not 0 should be enough.
 | instances | The number of service instances exists in this test case.
-| operationNames | All endpoint registered in this test case. Also means, the operation names of all entry and exit spans.
+| operationNames | Since 7.1.0, there is no operation name register. Ignore this.
 
 
 **Segment verify description format**
 ```yml
 segments:
 -
-  applicationCode: APPLICATION_CODE(string)
+  serviceName: SERVICE_CODE(string)
   segmentSize: SEGMENT_SIZE(int)
   segments:
   - segmentId: SEGMENT_ID(string)
@@ -248,7 +247,7 @@ segments:
 
 | Field |  Description
 | --- | ---  
-| applicationCode | Service code.
+| serviceName | Service code.
 | segmentSize | The number of segments is expected.
 | segmentId | trace ID.
 | spans | segment span list. Follow the next section to see how to describe every span.
@@ -281,10 +280,14 @@ segments:
     - {
        parentSpanId: PARENT_SPAN_ID(int),
        parentTraceSegmentId: PARENT_TRACE_SEGMENT_ID(string),
-       entryServiceName: ENTRY_SERVICE_NAME(string),
+       entryServiceInstanceId: ENTRY_SERVICE_INSTANCE_ID(int)
+       parentServiceInstanceId: PARENT_SERVICE_INSTANCE_ID(int),
        networkAddress: NETWORK_ADDRESS(string),
-       parentServiceName: PARENT_SERVICE_NAME(string),
-       entryApplicationInstanceId: ENTRY_APPLICATION_INSTANCE_ID(int)
+       networkAddressId: NETWORK_ADDRESS_ID(int),
+       parentEndpoint: PARENT_ENDPOINT_NAME(string),
+       parentEndpointId: PARENT_ENDPOINT_ID(int),
+       entryEndpoint: ENTRY_ENDPOINT_NAME(string),
+       entryServiceInstanceId: ENTRY_ENDPOINT_ID(int),
      }
    ...
 ```
@@ -313,12 +316,10 @@ The verify description for SegmentRef,
 | Field | Description 
 |---- |---- 
 | parentSpanId | Parent SpanID, pointing to the span id in the parent segment.
-| parentTraceSegmentId | Parent SegmentID. Format is `${APPLICATION_CODE[SEGMENT_INDEX]}`, pointing to the index of parent service segment list. 
-| entryServiceName | Entrance service code of the whole distributed call chain. Such HttpClient entryServiceName is `/httpclient-case/case/httpclient` 
-| networkAddress | The peer value of parent exit span. 
-| parentServiceName | Parent service code.
-| entryApplicationInstanceId | Not 0 should be enough.
-
+| entryServiceInstanceId/parentServiceInstanceId | Not 0 should be enough
+| networkAddress/networkAddressId | The peer value of parent exit span. `networkAddressId` should be 0, as the mock tool doesn't do register for real.
+| parentEndpoint/parentEndpointId | The endpoint of parent/downstream service. Usually set `parentEndpoint` as literal string name, unless there is no parent endpoint, set `parentEndpointId` as -1.
+| entryEndpoint/entryServiceInstanceId | The endpoint of first service in the distributed chain. Usually set `entryEndpoint` as literal string name, unless there is no endpoint at the entry service, set `entryServiceInstanceId` as -1.
 
 ### startup.sh
 
@@ -446,7 +447,7 @@ HttpClient test case is running in Tomcat container, only one instance exists, s
 
 ```yml
 registryItems:
-  applications:
+  services:
   - {httpclient-case: nq 0}
   instances:
   - {httpclient-case: 1}
@@ -462,7 +463,7 @@ By following the flow of HttpClient case, there should be two segments created.
 
 ```yml
 segments:
-  - applicationCode: httpclient-case
+  - serviceName: httpclient-case
     segmentSize: ge 2 # Could have more than one health check segments, because, the dependency is not standby.
 ```
 
@@ -548,7 +549,7 @@ You could run test by using following commands
 
 ```bash
 cd ${SKYWALKING_HOME}
-bash ./test/pugin/run.sh -f ${scenario_name}
+bash ./test/plugin/run.sh -f ${scenario_name}
 ```
 
 **Notice**，if codes in `./apm-sniffer` have been changed, no matter because your change or git update，
@@ -557,127 +558,23 @@ rather than recompiling it every time.
 
 Use `${SKYWALKING_HOME}/test/plugin/run.sh -h` to know more command options.
 
-If the local test passed, then you could add it to Jenkins file, which will drive the tests running on the official SkyWalking INFRA.
-We have 3 JenkinsFile to control the test jobs, `jenkinsfile-agent-test`, `jenkinsfile-agent-test-2` and `jenkinsfile-agent-test-3`(maybe will have 4 later)
-each file declares two parallel groups. Please check the prev agent related PRs, and add your case to the fastest group,
-in order to make the whole test finished as soon as possible.
+If the local test passed, then you could add it to `.github/workflows/plugins-test.<n>.yaml` file, which will drive the tests running on the Github Actions of official SkyWalking repository.
+Based on your plugin's name, please add the test case into file `.github/workflows/plugins-test.<n>.yaml`, by alphabetical orders.
 
-Every test case is a Jenkins stage. Please use the scenario name, version range and version number to combine the name,
-take the existing one as a reference. And update the total case number in `Test Cases Report` stage.
+Every test case is a Github Actions Job. Please use the `<scenario name> + <version range> + (<supported version count>)` as the Job `title`, and the scenario directory as the Job `name`,
+mostly you'll just need to decide which file (`plugins-test.<n>.yaml`) to add your test case, and simply put one line (as follows) in it, take the existed cases as examples.
 
-Example
-
+```yaml
+jobs:
+  PluginsTest:
+    name: Plugin
+    runs-on: ubuntu-18.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        case:
+          # ...
+          - { name: '<your case name>', title: '<PluginName, i.e. Spring> (<Supported Version Count, i.e 12>)' } # <<== insert one line by alphabetical orders
+          # ...
 ```
-stage('Test Cases Report (15)') { # 15=12+3 The total number of test cases
-    steps {
-        echo "Test Cases Report"
-    }
-}
-
-stage('Run Agent Plugin Tests') {
-    when {
-        expression {
-            return sh(returnStatus: true, script: 'bash tools/ci/agent-build-condition.sh')
-        }
-    }
-    parallel {
-        stage('Group1') {
-            stages {
-                stage('spring-cloud-gateway 2.1.x (3)') { # For Spring clound gateway 2.1.x, having 3 versions to be tested.
-                    steps {
-                        sh 'bash test/plugin/run.sh gateway-scenario'
-                    }
-                }
-            }
-            ...
-        }
-        stage('Group2') {
-            stages {
-                stage('solrj 7.x (12)') { # For Solrj 7.x, having 12 versions to be tested.
-                    steps {
-                        sh 'bash test/plugin/run.sh solrj-7.x-scenario'
-                    }
-                }
-            }
-            ...
-        }
-    }
-}
-```
-
-## The elapsed time list of plugins
-
-### How to get the Elapsed time of your task?
- 
-Find the button 'detail' of your Workload in the PR page. Enter to the page and get the elapsed time of your task.
-
-### Workload 1
-#### Group 1 (2709.00s)
-scenario name | versions | elapsed time (sec)
----|---|---
-apm-toolkit-trace | 1 | 87.00
-jetty 9.x | 63 | 2043.00
-netty-socketio 1.x | 4 | 117.00
-rabbitmq-scenario | 12 | 462
-
-#### Group 2 (2291.98s)
-scenario name | versions | elapsed time (sec)
----|---|---
-feign 9.0.0-9.5.1 | 8 | 172.00
-customize | 1 | 85.64
-postgresql 9.4.1207+ | 62 | 1820.29
-canal 1.0.24-1.1.2 | 5 | 214.05
-
-
-### Workload 2
-#### Group 1 (2906.54s)
-scenario name | versions | elapsed time (sec)
----|---|---
-spring-tx 4.x+ | 10 | 555.00
-spring 4.3.x-5.2.x | 54 | 1769.32
-dubbo 2.5.x-2.6.x | 10 | 367.23
-dubbo 2.7.x | 4 | 214.99
-
-#### Group 2 (2550.66s)
-scenario name | versions | elapsed time (sec)
----|---|---
-redisson 3.x | 37 | 1457.77
-spring 3.1.x-4.0.x | 25 | 760.22
-spring-cloud-gateway 2.1.x | 3 | 190.52
-elasticsearch 5.x | 3 | 142.15
-
-
-### Workload 3
-#### Group 1 (3090.912s)
-scenario name | versions | elapsed time (sec)
----|---|---
-hystrix-scenario | 20 | 799.00
-postgresql 9.2.x-9.4.x | 36 | 1243.03
-sofarpc 5.4.0-5.6.2 | 23 | 817.77
-spring 3.0.x | 8 | 231.11
-
-#### Group 2 (2433.33s)
-scenario name | versions | elapsed time (sec)
----|---|---
-spring async 4.3.x-5.1.x | 35 | 967.70
-mongodb 3.4.0-3.11.1 | 17 | 1465.63
-
-### Workload 4
-#### Group 1 (2463.00s)
-scenario name | versions | elapsed time (sec)
----|---|---
-elasticsearch-6.x-scenario | 7 | 273.00
-kafka 0.11.0.0-2.3.0 | 16 | 628.00
-ehcache 2.8.x-2.10.x | 19 | 442.00
-undertow 1.3.0-2.0.27 | 23 | 596.00
-jedis 2.4.0-2.9.0 ｜ 18 ｜ 524.00
-
-#### Group 2 (2398.155s)
-scenario name | versions | elapsed time (sec)
----|---|---
-elasticsearch-7.x-scenario | 11 | 250.00
-spring-webflux 2.x | 18 | 705.60
-spring 4.1.x-4.2.x | 20 | 574.75
-solrj 7.x | 12 | 367.05
-httpclient 4.3.x-4.5.x | 14 | 300.61
-httpasyncclient 4.0-4.1.3 | 7 | 200.11

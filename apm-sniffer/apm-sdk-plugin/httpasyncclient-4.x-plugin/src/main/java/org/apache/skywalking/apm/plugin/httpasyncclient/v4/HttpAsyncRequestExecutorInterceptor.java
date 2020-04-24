@@ -40,13 +40,12 @@ import static org.apache.skywalking.apm.plugin.httpasyncclient.v4.SessionRequest
 
 /**
  * the actual point request begin fetch the request from thread local .
- * @author lican
  */
 public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroundInterceptor {
 
-
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         HttpContext context = CONTEXT_LOCAL.get();
         CONTEXT_LOCAL.remove();
         if (context == null) {
@@ -73,12 +72,14 @@ public class HttpAsyncRequestExecutorInterceptor implements InstanceMethodsAroun
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

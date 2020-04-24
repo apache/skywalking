@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin.analysis;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.SegmentListener;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform.Zipkin2SkyWalkingTransfer;
 
 /**
  * Send the segments to Analysis module, like receiving segments from native SkyWalking agents.
@@ -33,16 +32,9 @@ public class Receiver2AnalysisBridge implements SegmentListener {
         this.segmentParseService = segmentParseService;
     }
 
-    /**
-     * Add this bridge as listener to Zipkin span transfer.
-     */
-    public void build() {
-        Zipkin2SkyWalkingTransfer.INSTANCE.addListener(this);
-    }
-
     @Override
     public void notify(SkyWalkingTrace trace) {
-        trace.toUpstreamSegment().forEach(upstream -> segmentParseService.send(upstream.build()));
+        trace.getSegmentList().forEach(upstream -> segmentParseService.send(upstream.build()));
 
     }
 }

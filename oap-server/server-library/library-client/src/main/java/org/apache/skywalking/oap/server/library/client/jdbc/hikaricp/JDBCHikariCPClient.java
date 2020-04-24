@@ -18,17 +18,21 @@
 
 package org.apache.skywalking.oap.server.library.client.jdbc.hikaricp;
 
-import com.zaxxer.hikari.*;
-import java.sql.*;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
- *
- * @author wusheng
  */
 public class JDBCHikariCPClient implements Client {
     private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
@@ -40,18 +44,17 @@ public class JDBCHikariCPClient implements Client {
         hikariConfig = new HikariConfig(properties);
     }
 
-    @Override public void connect() {
+    @Override
+    public void connect() {
         dataSource = new HikariDataSource(hikariConfig);
     }
 
-    @Override public void shutdown() {
+    @Override
+    public void shutdown() {
     }
 
     /**
-     * Default getConnection is not set in auto-commit.
-     *
-     * @return
-     * @throws JDBCClientException
+     * Default getConnection is set in auto-commit.
      */
     public Connection getConnection() throws JDBCClientException {
         return getConnection(true);
@@ -124,8 +127,8 @@ public class JDBCHikariCPClient implements Client {
         return rs;
     }
 
-    private void setStatementParam(PreparedStatement statement, Object[] params)
-        throws SQLException, JDBCClientException {
+    private void setStatementParam(PreparedStatement statement,
+        Object[] params) throws SQLException, JDBCClientException {
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
@@ -138,8 +141,7 @@ public class JDBCHikariCPClient implements Client {
                 } else if (param instanceof Long) {
                     statement.setLong(i + 1, (long) param);
                 } else {
-                    throw new JDBCClientException(
-                        "Unsupported data type, type=" + param.getClass().getName());
+                    throw new JDBCClientException("Unsupported data type, type=" + param.getClass().getName());
                 }
             }
         }

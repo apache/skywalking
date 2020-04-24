@@ -24,14 +24,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.Properties;
 
-/**
- * 
- * @author panjuan
- */
 @Setter
 @Getter
 public final class MySQLStorageConfig extends ModuleConfig {
-    
+
     private int metadataQueryMaxSize = 5000;
     private Properties properties;
 }

@@ -42,9 +42,6 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Objects.isNull;
 
-/**
- * @author kezhenxu94
- */
 @Slf4j
 public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     private final AtomicReference<String> settingsString;
@@ -85,10 +82,10 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
         if (isNull(gateways)) {
             gatewayInstanceKeyedByAddress = Collections.emptyMap();
         } else {
-            gatewayInstanceKeyedByAddress =
-                    StreamSupport.stream(gateways.spliterator(), false)
-                            .flatMap(instance -> instance.getInstances().stream())
-                            .collect(Collectors.toMap(GatewayInstanceInfo::getAddress, Function.identity()));
+            gatewayInstanceKeyedByAddress = StreamSupport.stream(gateways.spliterator(), false)
+                                                         .flatMap(instance -> instance.getInstances().stream())
+                                                         .collect(Collectors.toMap(GatewayInstanceInfo::getAddress, Function
+                                                             .identity()));
         }
     }
 

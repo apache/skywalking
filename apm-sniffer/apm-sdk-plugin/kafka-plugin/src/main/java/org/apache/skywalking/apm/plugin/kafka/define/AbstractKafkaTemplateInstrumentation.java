@@ -22,11 +22,11 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 
 /**
  * Compatible with KafkaTemplate
- * @author stalary
  */
 public abstract class AbstractKafkaTemplateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    @Override protected String[] witnessClasses() {
-        return new String[]{"org.springframework.kafka.core.KafkaTemplate"};
+    @Override
+    protected String[] witnessClasses() {
+        return new String[] {"org.springframework.kafka.core.KafkaTemplate"};
     }
 }

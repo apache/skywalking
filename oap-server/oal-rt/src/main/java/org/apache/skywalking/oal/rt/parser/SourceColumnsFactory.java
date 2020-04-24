@@ -23,16 +23,15 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 
-/**
- * @author wusheng
- */
 public class SourceColumnsFactory {
     public static List<SourceColumn> getColumns(String source) {
         List<SourceColumn> sourceColumns = new ArrayList<>();
 
         List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
         for (ScopeDefaultColumn defaultColumn : columns) {
-            sourceColumns.add(new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn.getType(), defaultColumn.isID()));
+            sourceColumns.add(
+                new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
+                    .getType(), defaultColumn.isID(), defaultColumn.getLength()));
         }
         return sourceColumns;
     }

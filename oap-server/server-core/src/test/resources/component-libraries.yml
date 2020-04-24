@@ -236,6 +236,22 @@ rest-high-level-client:
 spring-tx:
   id: 78
   languages: Java
+Armeria:
+  id: 79
+  languages: Java
+JdkThreading:
+  id: 80
+  languages: Java
+AvroServer:
+  id: 82
+  languages: Java
+AvroClient:
+  id: 83
+  languages: Java
+Finagle:
+  id: 85
+  languages: Java,Scala
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

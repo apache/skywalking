@@ -13,15 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-registryItems:
-  applications:
-  - {rabbitmq-scenario: nq 0}
-  instances:
-  - {rabbitmq-scenario: 1}
-  operationNames:
-  - rabbitmq-scenario: [/rabbitmq-scenario/case/rabbitmq,RabbitMQ/Topic/Queue/test/Producer,RabbitMQ/Topic/Queue/test/Consumer]
 segmentItems:
-- applicationCode: rabbitmq-scenario
+- serviceName: rabbitmq-scenario
   segmentSize: gt 2
   segments:
   - segmentId: not null
@@ -34,17 +27,18 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 53
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
-      - {key: mq.broker, value: 'not null'}
+      - {key: mq.broker, value: not null}
       - {key: mq.topic, value: ''}
       - {key: mq.queue, value: test}
       refs:
-      - {parentEndpointId: 0, parentEndpoint: /rabbitmq-scenario/case/rabbitmq, networkAddressId: 0,entryEndpointId: 0, refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,parentServiceInstanceId: nq 0, networkAddress: not null, entryEndpoint: /rabbitmq-scenario/case/rabbitmq,entryServiceInstanceId: nq 0}
+      - {parentEndpoint: /rabbitmq-scenario/case/rabbitmq, networkAddress: not null,
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+          null, parentService: not null, traceId: not null}
+      skipAnalysis: 'false'
   - segmentId: not null
     spans:
     - operationName: RabbitMQ/Topic/Queue/test/Producer
@@ -55,15 +49,14 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 52
-      componentName: ''
       isError: false
       spanType: Exit
       peer: not null
-      peerId: 0
       tags:
-      - {key: mq.broker, value: 'not null'}
+      - {key: mq.broker, value: not null}
       - {key: mq.queue, value: test}
       - {key: mq.topic, value: ''}
+      skipAnalysis: 'false'
     - operationName: /rabbitmq-scenario/case/rabbitmq
       operationId: 0
       parentSpanId: -1
@@ -72,12 +65,10 @@ segmentItems:
       startTime: nq 0
       endTime: nq 0
       componentId: 1
-      componentName: ''
       isError: false
       spanType: Entry
       peer: ''
-      peerId: 0
       tags:
       - {key: url, value: 'http://localhost:8080/rabbitmq-scenario/case/rabbitmq'}
       - {key: http.method, value: GET}
-
+      skipAnalysis: 'false'

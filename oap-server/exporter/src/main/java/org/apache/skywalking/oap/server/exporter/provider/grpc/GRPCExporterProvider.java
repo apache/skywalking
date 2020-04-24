@@ -19,49 +19,52 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.exporter.*;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
+import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-/**
- * @author wusheng
- */
 public class GRPCExporterProvider extends ModuleProvider {
     private GRPCExporterSetting setting;
     private GRPCExporter exporter;
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "grpc";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return ExporterModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         setting = new GRPCExporterSetting();
         return setting;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         exporter = new GRPCExporter(setting);
         this.registerServiceImplementation(MetricValuesExportService.class, exporter);
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        ModuleServiceHolder serviceHolder = getManager().find(CoreModule.NAME).provider();
-        exporter.setServiceInventoryCache(serviceHolder.getService(ServiceInventoryCache.class));
-        exporter.setServiceInstanceInventoryCache(serviceHolder.getService(ServiceInstanceInventoryCache.class));
-        exporter.setEndpointInventoryCache(serviceHolder.getService(EndpointInventoryCache.class));
-
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         exporter.initSubscriptionList();
     }
 
-    @Override public String[] requiredModules() {
+    @Override
+    public String[] requiredModules() {
         return new String[] {CoreModule.NAME};
     }
 }

@@ -18,35 +18,61 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jaeger;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.source.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.source.Source;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.*;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JAEGER_SPAN;
 
-/**
- * @author peng-yongsheng
- */
 @ScopeDeclaration(id = JAEGER_SPAN, name = "JaegerSpan")
 public class JaegerSpan extends Source {
 
-    @Override public int scope() {
+    @Override
+    public int scope() {
         return DefaultScopeDefine.JAEGER_SPAN;
     }
 
-    @Override public String getEntityId() {
+    @Override
+    public String getEntityId() {
         return traceId + spanId;
     }
 
-    @Setter @Getter private String traceId;
-    @Setter @Getter private String spanId;
-    @Setter @Getter private int serviceId;
-    @Setter @Getter private int serviceInstanceId;
-    @Setter @Getter private String endpointName;
-    @Setter @Getter private int endpointId;
-    @Setter @Getter private long startTime;
-    @Setter @Getter private long endTime;
-    @Setter @Getter private int latency;
-    @Setter @Getter private int isError;
-    @Setter @Getter private byte[] dataBinary;
-    @Setter @Getter private int encode;
+    @Setter
+    @Getter
+    private String traceId;
+    @Setter
+    @Getter
+    private String spanId;
+    @Setter
+    @Getter
+    private String serviceId;
+    @Setter
+    @Getter
+    private String serviceInstanceId;
+    @Setter
+    @Getter
+    private String endpointName;
+    @Setter
+    @Getter
+    private String endpointId;
+    @Setter
+    @Getter
+    private long startTime;
+    @Setter
+    @Getter
+    private long endTime;
+    @Setter
+    @Getter
+    private int latency;
+    @Setter
+    @Getter
+    private int isError;
+    @Setter
+    @Getter
+    private byte[] dataBinary;
+    @Setter
+    @Getter
+    private int encode;
 }

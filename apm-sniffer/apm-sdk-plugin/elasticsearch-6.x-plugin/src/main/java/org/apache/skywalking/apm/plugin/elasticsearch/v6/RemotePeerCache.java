@@ -15,14 +15,12 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
 /**
- *
- * Used for store ES connection related information, remotePeers will store the IP address and port,
- * separated by commas when multiple connections are made.
- *
- * @author aderm
+ * Used for store ES connection related information, remotePeers will store the IP address and port, separated by commas
+ * when multiple connections are made.
  */
 public class RemotePeerCache {
 
@@ -34,7 +32,7 @@ public class RemotePeerCache {
         if (remotePeers.isEmpty()) {
             remotePeers = hostPort;
         } else {
-            remotePeers = "," + hostPort;
+            remotePeers = remotePeers + "," + hostPort;
         }
     }
 

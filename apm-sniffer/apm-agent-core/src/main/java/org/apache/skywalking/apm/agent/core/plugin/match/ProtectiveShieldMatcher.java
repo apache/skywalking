@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.apm.agent.core.plugin.match;
 
 import net.bytebuddy.matcher.ElementMatcher;
@@ -24,14 +25,12 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 /**
  * In some cases, some frameworks and libraries use some binary codes tech too. From the community feedback, some of
  * them have compatible issues with byte-buddy core, which trigger "Can't resolve type description" exception.
- *
+ * <p>
  * So I build this protective shield by a nested matcher. When the origin matcher(s) can't resolve the type, the
  * SkyWalking agent ignores this types.
- *
+ * <p>
  * Notice: this ignore mechanism may miss some instrumentations, but at most cases, it's same. If missing happens,
  * please pay attention to the WARNING logs.
- *
- * @author wu-sheng
  */
 public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.AbstractBase<T> {
     private static final ILog logger = LogManager.getLogger(ProtectiveShieldMatcher.class);
@@ -46,7 +45,9 @@ public class ProtectiveShieldMatcher<T> extends ElementMatcher.Junction.Abstract
         try {
             return this.matcher.matches(target);
         } catch (Throwable t) {
-            logger.warn(t, "Byte-buddy occurs exception when match type.");
+            if (logger.isDebugEnable()) {
+                logger.debug(t, "Byte-buddy occurs exception when match type.");
+            }
             return false;
         }
     }

@@ -13,85 +13,62 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-registryItems:
-  applications:
-    - {netty-socketio-scenario: 2}
-  instances:
-    - {netty-socketio-scenario: 1}
-  operationNames:
-    - netty-socketio-scenario: [/netty-socketio-scenario/case/netty-socketio, /socket.io/,
-                                /netty-socketio-scenario/healthCheck, SocketIO/onConnect, SocketIO/send_data/receive]
-  heartbeat: []
 segmentItems:
-  - applicationCode: netty-socketio-scenario
-    segmentSize: ge 5
-    segments:
-      - segmentId: not null
-        spans:
-          - operationName: /netty-socketio-scenario/case/netty-socketio
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 1
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: url, value: 'http://localhost:8080/netty-socketio-scenario/case/netty-socketio'}
-              - {key: http.method, value: GET}
-      - segmentId: not null
-        spans:
-          - operationName: SocketIO/onConnect
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 76
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-            tags:
-              - {key: from, value: not null}
-      - segmentId: not null
-        spans:
-          - operationName: SocketIO/send_data/receive
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 76
-            componentName: ''
-            isError: false
-            spanType: Entry
-            peer: ''
-            peerId: 0
-      - segmentId: not null
-        spans:
-          - operationName: /socket.io/
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 12
-            componentName: ''
-            isError: false
-            spanType: Exit
-            peer: not null
-            peerId: 0
-            tags:
-              - {key: http.method, value: not null}
-              - {key: url, value: not null}
+- serviceName: netty-socketio-scenario
+  segmentSize: ge 5
+  segments:
+  - segmentId: not null
+    spans:
+    - operationName: /netty-socketio-scenario/case/netty-socketio
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 1
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: url, value: 'http://localhost:8080/netty-socketio-scenario/case/netty-socketio'}
+      - {key: http.method, value: GET}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - operationName: SocketIO/onConnect
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 76
+      isError: false
+      spanType: Entry
+      peer: ''
+      tags:
+      - {key: from, value: not null}
+      skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+    - {operationName: SocketIO/send_data/receive, operationId: 0, parentSpanId: -1,
+      spanId: 0, spanLayer: Http, startTime: nq 0, endTime: nq 0, componentId: 76,
+      isError: false, spanType: Entry, peer: '', skipAnalysis: 'false'}
+  - segmentId: not null
+    spans:
+    - operationName: /socket.io/
+      operationId: 0
+      parentSpanId: -1
+      spanId: 0
+      spanLayer: Http
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 12
+      isError: false
+      spanType: Exit
+      peer: not null
+      tags:
+      - {key: http.method, value: not null}
+      - {key: url, value: not null}
+      skipAnalysis: 'false'

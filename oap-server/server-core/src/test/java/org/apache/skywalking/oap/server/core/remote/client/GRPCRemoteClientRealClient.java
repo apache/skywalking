@@ -35,9 +35,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-/**
- * @author peng-yongsheng
- */
 public class GRPCRemoteClientRealClient {
 
     public static void main(String[] args) throws InterruptedException {
@@ -45,11 +42,13 @@ public class GRPCRemoteClientRealClient {
         ModuleManagerTesting moduleManager = new ModuleManagerTesting();
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
         when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
-            @Override public void inc() {
+            @Override
+            public void inc() {
 
             }
 
-            @Override public void inc(double value) {
+            @Override
+            public void inc(double value) {
 
             }
         });
@@ -57,7 +56,7 @@ public class GRPCRemoteClientRealClient {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10));
+        GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10, null));
         remoteClient.connect();
 
         for (int i = 0; i < 10000; i++) {
@@ -72,15 +71,18 @@ public class GRPCRemoteClientRealClient {
 
         private long value;
 
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
+        @Override
+        public void deserialize(RemoteData remoteData) {
             this.value = remoteData.getDataLongs(0);
         }
 
-        @Override public RemoteData.Builder serialize() {
+        @Override
+        public RemoteData.Builder serialize() {
             RemoteData.Builder builder = RemoteData.newBuilder();
             builder.addDataLongs(987);
             return builder;
@@ -93,8 +95,9 @@ public class GRPCRemoteClientRealClient {
             super(moduleDefineHolder);
         }
 
-        @Override public void in(Object o) {
-            TestStreamData streamData = (TestStreamData)o;
+        @Override
+        public void in(Object o) {
+            TestStreamData streamData = (TestStreamData) o;
             Assert.assertEquals(987, streamData.value);
         }
     }

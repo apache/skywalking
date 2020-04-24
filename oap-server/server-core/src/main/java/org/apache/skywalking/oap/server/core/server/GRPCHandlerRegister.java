@@ -18,15 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.server;
 
-import io.grpc.*;
+import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerServiceDefinition;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * @author peng-yongsheng
- */
 public interface GRPCHandlerRegister extends Service {
 
     void addHandler(BindableService handler);
 
     void addHandler(ServerServiceDefinition definition);
+
+    void addFilter(ServerInterceptor interceptor);
 }

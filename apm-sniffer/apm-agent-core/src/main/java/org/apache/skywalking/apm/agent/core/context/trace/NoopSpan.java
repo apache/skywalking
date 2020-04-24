@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.context.trace;
 
 import java.util.Map;
@@ -25,11 +24,8 @@ import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
 import org.apache.skywalking.apm.network.trace.component.Component;
 
 /**
- * The <code>NoopSpan</code> represents a span implementation without any actual operation.
- * This span implementation is for {@link IgnoredTracerContext},
- * for keeping the memory and gc cost as low as possible.
- *
- * @author wusheng
+ * The <code>NoopSpan</code> represents a span implementation without any actual operation. This span implementation is
+ * for {@link IgnoredTracerContext}, for keeping the memory and gc cost as low as possible.
  */
 public class NoopSpan implements AbstractSpan {
     public NoopSpan() {
@@ -40,7 +36,8 @@ public class NoopSpan implements AbstractSpan {
         return this;
     }
 
-    @Override public AbstractSpan errorOccurred() {
+    @Override
+    public AbstractSpan errorOccurred() {
         return this;
     }
 
@@ -48,15 +45,13 @@ public class NoopSpan implements AbstractSpan {
 
     }
 
-    @Override public AbstractSpan setComponent(Component component) {
+    @Override
+    public AbstractSpan setComponent(Component component) {
         return this;
     }
 
-    @Override public AbstractSpan setComponent(String componentName) {
-        return this;
-    }
-
-    @Override public AbstractSpan setLayer(SpanLayer layer) {
+    @Override
+    public AbstractSpan setLayer(SpanLayer layer) {
         return this;
     }
 
@@ -65,62 +60,76 @@ public class NoopSpan implements AbstractSpan {
         return this;
     }
 
-    @Override public AbstractSpan tag(AbstractTag tag, String value) {
+    @Override
+    public AbstractSpan tag(AbstractTag<?> tag, String value) {
         return this;
     }
 
-    @Override public boolean isEntry() {
+    @Override
+    public boolean isEntry() {
         return false;
     }
 
-    @Override public boolean isExit() {
+    @Override
+    public boolean isExit() {
         return false;
     }
 
-    @Override public AbstractSpan log(long timestamp, Map<String, ?> event) {
+    @Override
+    public AbstractSpan log(long timestamp, Map<String, ?> event) {
         return this;
     }
 
-    @Override public AbstractSpan setOperationName(String operationName) {
+    @Override
+    public AbstractSpan setOperationName(String operationName) {
         return this;
     }
 
-    @Override public AbstractSpan start() {
+    @Override
+    public AbstractSpan start() {
         return this;
     }
 
-    @Override public int getSpanId() {
+    @Override
+    public int getSpanId() {
         return 0;
     }
 
-    @Override public int getOperationId() {
-        return 0;
-    }
-
-    @Override public String getOperationName() {
+    @Override
+    public String getOperationName() {
         return "";
     }
 
-    @Override public AbstractSpan setOperationId(int operationId) {
+    @Override
+    public void ref(TraceSegmentRef ref) {
+    }
+
+    @Override
+    public AbstractSpan start(long startTime) {
         return this;
     }
 
-    @Override public void ref(TraceSegmentRef ref) {
-    }
-
-    @Override public AbstractSpan start(long startTime) {
+    @Override
+    public AbstractSpan setPeer(String remotePeer) {
         return this;
     }
 
-    @Override public AbstractSpan setPeer(String remotePeer) {
+    @Override
+    public boolean isProfiling() {
+        return false;
+    }
+
+    @Override
+    public void skipAnalysis() {
+    }
+
+    @Override
+    public AbstractSpan prepareForAsync() {
         return this;
     }
 
-    @Override public AbstractSpan prepareForAsync() {
-        return this;
-    }
-
-    @Override public AbstractSpan asyncFinish() {
+    @Override
+    public AbstractSpan asyncFinish() {
         return this;
     }
 }

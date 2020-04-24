@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
@@ -24,10 +23,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link Mysql50ConnectionInstrumentation} interceptor the com.mysql.jdbc.Connection class in the 5.0.x version
- * of mysql driver jar.
- *
- * @author zhangxin
+ * {@link Mysql50ConnectionInstrumentation} interceptor the com.mysql.jdbc.Connection class in the 5.0.x version of
+ * mysql driver jar.
  */
 public class Mysql50ConnectionInstrumentation extends AbstractConnectionInstrumentation {
     @Override
@@ -35,7 +32,8 @@ public class Mysql50ConnectionInstrumentation extends AbstractConnectionInstrume
         return byName("com.mysql.jdbc.Connection");
     }
 
-    @Override protected String[] witnessClasses() {
+    @Override
+    protected String[] witnessClasses() {
         return new String[] {"com.mysql.jdbc.CursorRowProvider"};
     }
 }

@@ -35,9 +35,6 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * @author Alan Lau
- */
 public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     private final static Logger logger = LoggerFactory.getLogger(EtcdConfigWatcherRegister.class);
@@ -67,7 +64,8 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
         responsePromiseByKey = new ConcurrentHashMap<>();
     }
 
-    @Override public ConfigTable readConfig(Set<String> keys) {
+    @Override
+    public Optional<ConfigTable> readConfig(Set<String> keys) {
         removeUninterestedKeys(keys);
         registerKeyListeners(keys);
         final ConfigTable table = new ConfigTable();
@@ -83,7 +81,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             }
         }
 
-        return table;
+        return Optional.of(table);
     }
 
     private void registerKeyListeners(final Set<String> keys) {
@@ -135,7 +133,7 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
             configItemKeyedByName.put(key, Optional.ofNullable(value));
         } catch (Exception e) {
             if (e instanceof EtcdException) {
-                if (EtcdErrorCode.KeyNotFound == ((EtcdException)e).errorCode) {
+                if (EtcdErrorCode.KeyNotFound == ((EtcdException) e).errorCode) {
                     configItemKeyedByName.put(key, Optional.empty());
                     return;
                 }
@@ -146,10 +144,6 @@ public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
 
     /**
      * get real key in etcd cluster which is removed "/${group}" from the key retrive from etcd.
-     *
-     * @param key
-     * @param group
-     * @return
      */
     private String getRealKey(String key, String group) {
         int index = key.indexOf(group);

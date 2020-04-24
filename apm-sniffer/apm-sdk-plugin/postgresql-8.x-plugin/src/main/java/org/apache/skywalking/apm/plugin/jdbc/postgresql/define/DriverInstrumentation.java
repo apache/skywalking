@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.postgresql.define;
 
 import org.apache.skywalking.apm.plugin.jdbc.define.AbstractDriverInstrumentation;
@@ -26,8 +25,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link DriverInstrumentation} presents that skywalking intercepts {@link org.postgresql.Driver}.
- *
- * @author zhangxin
  */
 public class DriverInstrumentation extends AbstractDriverInstrumentation {
 

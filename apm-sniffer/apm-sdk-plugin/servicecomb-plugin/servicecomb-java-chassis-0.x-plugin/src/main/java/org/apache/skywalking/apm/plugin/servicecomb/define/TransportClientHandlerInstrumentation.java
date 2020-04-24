@@ -29,10 +29,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link io.servicecomb.core.handler.impl.TransportClientHandler} by
- * using linkTransportClientHandlerInterceptor
- *
- * @author lytscu
+ * {@link TransportClientHandlerInstrumentation} represents that skywalking intercept {@link
+ * io.servicecomb.core.handler.impl.TransportClientHandler} by using linkTransportClientHandlerInterceptor
  */
 public class TransportClientHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -64,10 +62,11 @@ public class TransportClientHandlerInstrumentation extends ClassInstanceMethodsE
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
-        };
+            };
     }
 }

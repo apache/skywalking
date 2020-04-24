@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * MetricsFunction annotation represent this a function in OAL script.
- *
- * @author wusheng
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

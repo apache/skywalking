@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,6 +34,7 @@
         <module>server-storage-plugin</module>
         <module>server-library</module>
         <module>server-starter</module>
+        <module>server-starter-es7</module>
         <module>server-query-plugin</module>
         <module>server-alarm-plugin</module>
         <module>server-testing</module>
@@ -42,24 +43,23 @@
         <module>oal-grammar</module>
         <module>exporter</module>
         <module>server-configuration</module>
+        <module>server-bootstrap</module>
+        <module>server-tools</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j.version>2.9.0</log4j.version>
-        <guava.version>23.1-jre</guava.version>
+        <guava.version>28.1-jre</guava.version>
         <snakeyaml.version>1.18</snakeyaml.version>
-        <gson.version>2.8.1</gson.version>
+        <gson.version>2.8.6</gson.version>
         <graphql-java-tools.version>5.2.3</graphql-java-tools.version>
         <graphql-java.version>8.0</graphql-java.version>
         <zookeeper.version>3.4.10</zookeeper.version>
-        <grpc.version>1.15.1</grpc.version>
-        <netty-tcnative-boringssl-static.version>2.0.7.Final</netty-tcnative-boringssl-static.version>
-        <jetty.version>9.4.2.v20170220</jetty.version>
-        <lombok.version>1.18.0</lombok.version>
+        <netty-tcnative-boringssl-static.version>2.0.26.Final</netty-tcnative-boringssl-static.version>
+        <jetty.version>9.4.28.v20200408</jetty.version>
         <h2.version>1.4.196</h2.version>
-        <shardingjdbc.version>2.0.3</shardingjdbc.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
@@ -82,13 +82,14 @@
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
         <etcd.version>v3.2.3</etcd.version>
-        <netty.version>4.1.27.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
         <jackson-module-afterburner.version>2.9.5</jackson-module-afterburner.version>
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
+        <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
 
     </properties>
 
@@ -118,10 +119,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -249,6 +246,12 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-core</artifactId>
                 <version>${grpc.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.android</groupId>
+                        <artifactId>annotations</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
@@ -260,6 +263,13 @@
                 <artifactId>grpc-protobuf</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java-util</artifactId>
+                <version>${protobuf-java-util.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-stub</artifactId>
@@ -303,17 +313,6 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.shardingjdbc</groupId>
-                <artifactId>sharding-jdbc-core</artifactId>
-                <version>${shardingjdbc.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-dbcp</groupId>

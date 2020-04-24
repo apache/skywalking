@@ -20,27 +20,26 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-/**
- * @author wusheng
- */
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter(AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
+@ToString
 public class AlarmRule {
     private String alarmRuleName;
 
     private String metricsName;
-    private ArrayList includeNames;
+    private ArrayList<String> includeNames;
+    private ArrayList<String> excludeNames;
     private String threshold;
     private String op;
     private int period;
@@ -60,19 +59,14 @@ public class AlarmRule {
 
         final AlarmRule alarmRule = (AlarmRule) o;
 
-        return period == alarmRule.period
-            && count == alarmRule.count
-            && silencePeriod == alarmRule.silencePeriod
-            && Objects.equals(alarmRuleName, alarmRule.alarmRuleName)
-            && Objects.equals(metricsName, alarmRule.metricsName)
-            && Objects.equals(includeNames, alarmRule.includeNames)
-            && Objects.equals(threshold, alarmRule.threshold)
-            && Objects.equals(op, alarmRule.op)
-            && Objects.equals(message, alarmRule.message);
+        return period == alarmRule.period && count == alarmRule.count && silencePeriod == alarmRule.silencePeriod && Objects
+            .equals(alarmRuleName, alarmRule.alarmRuleName) && Objects.equals(metricsName, alarmRule.metricsName) && Objects
+            .equals(includeNames, alarmRule.includeNames) && Objects.equals(excludeNames, alarmRule.excludeNames) && Objects
+            .equals(threshold, alarmRule.threshold) && Objects.equals(op, alarmRule.op) && Objects.equals(message, alarmRule.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(alarmRuleName, metricsName, includeNames, threshold, op, period, count, silencePeriod, message);
+        return Objects.hash(alarmRuleName, metricsName, includeNames, excludeNames, threshold, op, period, count, silencePeriod, message);
     }
 }

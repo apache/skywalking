@@ -23,8 +23,6 @@ import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 
 /**
  * Self implementation ring queue.
- *
- * @author wusheng
  */
 public class Buffer<T> implements QueueBuffer<T> {
     private final Object[] buffer;
@@ -40,7 +38,6 @@ public class Buffer<T> implements QueueBuffer<T> {
     public void setStrategy(BufferStrategy strategy) {
         this.strategy = strategy;
     }
-
 
     public boolean save(T data) {
         int i = index.getAndIncrement();
@@ -74,7 +71,7 @@ public class Buffer<T> implements QueueBuffer<T> {
     void obtain(List<T> consumeList, int start, int end) {
         for (int i = start; i < end; i++) {
             if (buffer[i] != null) {
-                consumeList.add((T)buffer[i]);
+                consumeList.add((T) buffer[i]);
                 buffer[i] = null;
             }
         }

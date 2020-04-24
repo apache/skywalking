@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.mongodb.v3.interceptor.v30;
 
 import com.mongodb.connection.Cluster;
@@ -34,15 +33,15 @@ import org.apache.skywalking.apm.plugin.mongodb.v3.support.MongoSpanHelper;
 import java.lang.reflect.Method;
 
 /**
- * Intercept method of {@code com.mongodb.Mongo#execute(ReadOperation, ReadPreference)} or
- * {@code com.mongodb.Mongo#execute(WriteOperation)}. record the MongoDB host, operation name and the key of the
- * operation.
+ * Intercept method of {@code com.mongodb.Mongo#execute(ReadOperation, ReadPreference)} or {@code
+ * com.mongodb.Mongo#execute(WriteOperation)}. record the MongoDB host, operation name and the key of the operation.
  * <p>
  * only supported: 3.0.x-3.5.x
- *
- * @author scolia
  */
-@SuppressWarnings({"deprecation", "Duplicates"})
+@SuppressWarnings({
+    "deprecation",
+    "Duplicates"
+})
 public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final ILog logger = LogManager.getLogger(MongoDBInterceptor.class);
@@ -54,10 +53,9 @@ public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, Ins
         objInst.setSkyWalkingDynamicField(peers);
     }
 
-
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) {
         String executeMethod = allArguments[0].getClass().getSimpleName();
         String remotePeer = (String) objInst.getSkyWalkingDynamicField();
         if (logger.isDebugEnable()) {
@@ -67,15 +65,15 @@ public class MongoDBInterceptor implements InstanceMethodsAroundInterceptor, Ins
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan activeSpan = ContextManager.activeSpan();
         activeSpan.errorOccurred();
         activeSpan.log(t);

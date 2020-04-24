@@ -30,6 +30,8 @@
     </parent>
 
     <artifactId>containers</artifactId>
+    <name>SkyWalking Plugin Test Runner Images</name>
+
     <modules>
         <module>tomcat-container</module>
         <module>jvm-container</module>
@@ -37,6 +39,7 @@
 
     <properties>
         <skip.docker>true</skip.docker>
+        <docker.image.name>skywalking/${project.name}</docker.image.name>
     </properties>
 
     <build>
@@ -46,15 +49,16 @@
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>${docker-maven-plugin.version}</version>
                 <configuration>
-                    <imageName>skywalking/${project.name}:${BUILD_NO}</imageName>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <imageName>${docker.image.name}:${BUILD_NO}</imageName>
                     <dockerDirectory>${project.basedir}/docker</dockerDirectory>
                     <skipDocker>${skip.docker}</skipDocker>
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>
-                            <directory>${project.basedir}/../../dist</directory>
+                            <directory>${project.basedir}/../../agent-test-tools/dist</directory>
                             <include>skywalking-mock-collector.tar.gz</include>
-                            <include>skywalking-validator-tools.jar</include>
+                            <include>skywalking-validator.jar</include>
                         </resource>
                     </resources>
                 </configuration>

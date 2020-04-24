@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import java.lang.reflect.Method;
@@ -30,8 +29,6 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.SWStatement;
 /**
  * {@link JDBCStatementInterceptor} return {@link SWStatement} instance that wrapper the real Statement instance when
  * the client call <code>createStatement</code> method.
- *
- * @author zhangxin
  */
 public class JDBCStatementInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
@@ -46,10 +43,11 @@ public class JDBCStatementInterceptor implements InstanceMethodsAroundIntercepto
         if (objInst.getSkyWalkingDynamicField() == null) {
             return ret;
         }
-        return new SWStatement((Connection)objInst, (java.sql.Statement)ret, (ConnectionInfo)objInst.getSkyWalkingDynamicField());
+        return new SWStatement((Connection) objInst, (java.sql.Statement) ret, (ConnectionInfo) objInst.getSkyWalkingDynamicField());
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

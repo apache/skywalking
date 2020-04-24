@@ -18,22 +18,30 @@
 
 package org.apache.skywalking.oap.server.receiver.sharing.server;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-/**
- * @author peng-yongsheng,yantaowu
- */
 @Getter
 @Setter
 public class SharingServerConfig extends ModuleConfig {
     private String restHost;
+    /**
+     * Only setting the real port(not 0) makes the jetty server online.
+     */
     private int restPort;
     private String restContextPath;
     private String gRPCHost;
+    /**
+     * Only setting the real port(not 0) makes the gRPC server online.
+     */
     private int gRPCPort;
     private int maxConcurrentCallsPerConnection;
     private int maxMessageSize;
     private int gRPCThreadPoolSize;
     private int gRPCThreadPoolQueueSize;
+    private String authentication;
+    private boolean gRPCSslEnabled = false;
+    private String gRPCSslKeyPath;
+    private String gRPCSslCertChainPath;
 }

@@ -16,14 +16,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[[ -n $DEBUG_MODE ]] && set -ex
+
 function exitOnError() {
     echo -e "\033[31m[ERROR] $1\033[0m">&2
     exitAndClean 1
 }
 
 function exitAndClean() {
+    [[ -n $DEBUG_MODE ]] && exit $1
+
     [[ -f ${SCENARIO_HOME}/data/actualData.yaml ]] && rm -rf ${SCENARIO_HOME}/data/actualData.yaml
-    [[ -d ${SCENARIO_HOME}/logs ]] && rm -rf ${SCENARIO_HOME}/logs
+    [[ -d ${LOGS_HOME} ]] && rm -rf ${LOGS_HOME}
     exit $1
 }
 
@@ -46,6 +50,9 @@ function healthCheck() {
 
 TOOLS_HOME=/usr/local/skywalking/tools
 SCENARIO_HOME=/usr/local/skywalking/scenario
+export LOGS_HOME=${SCENARIO_HOME}/logs # share to catalina.sh
+
+[[ ! -d ${LOGS_HOME} ]] && mkdir $LOGS_HOME
 
 # Speed up launch tomcat
 rm /usr/local/tomcat/webapps/* -rf # remove needn't app
@@ -56,13 +63,12 @@ cp ${SCENARIO_HOME}/*.war /usr/local/tomcat/webapps/
 
 # start mock collector
 echo "To start mock collector"
-${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>/dev/null &
+${TOOLS_HOME}/skywalking-mock-collector/bin/collector-startup.sh 1>${LOGS_HOME}/collector.out &
 healthCheck http://localhost:12800/receiveData
 
 echo "To start tomcat"
-/usr/local/tomcat/bin/catalina.sh start 1>/dev/null &
+/usr/local/tomcat/bin/catalina.sh start 1>${LOGS_HOME}/catalina.out &
 
-healthCheck http://localhost:12800/status 10
 healthCheck ${SCENARIO_HEALTH_CHECK_URL}
 
 echo "To visit entry service"
@@ -78,7 +84,7 @@ java -jar \
     -Xmx256m -Xms256m \
     -DcaseName="${SCENARIO_NAME}-${SCENARIO_VERSION}" \
     -DtestCasePath=${SCENARIO_HOME}/data/ \
-    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>/dev/null
+    ${TOOLS_HOME}/skywalking-validator-tools.jar 1>${LOGS_HOME}/validator.out
 status=$?
 
 if [[ $status -eq 0 ]]; then

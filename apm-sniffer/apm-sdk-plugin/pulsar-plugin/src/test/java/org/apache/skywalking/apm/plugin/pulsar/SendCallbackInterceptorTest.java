@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.pulsar;
 
+import java.util.List;
 import org.apache.skywalking.apm.agent.core.context.MockContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -37,8 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-
-import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -61,14 +60,16 @@ public class SendCallbackInterceptorTest {
 
     private EnhancedInstance callBackInstance = new EnhancedInstance() {
 
-        @Override public Object getSkyWalkingDynamicField() {
+        @Override
+        public Object getSkyWalkingDynamicField() {
             SendCallbackEnhanceRequiredInfo requiredInfo = new SendCallbackEnhanceRequiredInfo();
             requiredInfo.setTopic("persistent://my-tenant/my-ns/my-topic");
             requiredInfo.setContextSnapshot(MockContextSnapshot.INSTANCE.mockContextSnapshot());
             return requiredInfo;
         }
 
-        @Override public void setSkyWalkingDynamicField(Object value) {
+        @Override
+        public void setSkyWalkingDynamicField(Object value) {
 
         }
     };
@@ -135,7 +136,6 @@ public class SendCallbackInterceptorTest {
 
         TraceSegmentRef segmentRef = refs.get(0);
         SegmentRefAssert.assertSpanId(segmentRef, 1);
-        assertThat(segmentRef.getEntryEndpointName(), is("/for-test-entryOperationName"));
     }
 
     private void assertCallbackSpan(AbstractTracingSpan span) {

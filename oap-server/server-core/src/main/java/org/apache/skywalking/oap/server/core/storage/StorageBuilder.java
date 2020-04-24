@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.core.storage;
 import java.util.Map;
 
 /**
- * @author peng-yongsheng
+ * Converter between the give T and Map.
+ *
+ * @param <T> A storage entity implementation.
  */
 public interface StorageBuilder<T extends StorageData> {
 

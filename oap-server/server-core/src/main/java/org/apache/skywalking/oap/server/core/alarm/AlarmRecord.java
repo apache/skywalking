@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.*;
-import lombok.*;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.*;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
-/**
- * @author peng-yongsheng
- */
 @Getter
 @Setter
 @ScopeDeclaration(id = ALARM, name = "Alarm")
@@ -47,20 +47,28 @@ public class AlarmRecord extends Record {
     public static final String START_TIME = "start_time";
     public static final String ALARM_MESSAGE = "alarm_message";
 
-    @Override public String id() {
-        return getTimeBucket() + Const.ID_SPLIT + scope + Const.ID_SPLIT + id0 + Const.ID_SPLIT + id1;
+    @Override
+    public String id() {
+        return getTimeBucket() + Const.ID_CONNECTOR + scope + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
     }
 
-    @Column(columnName = SCOPE) private int scope;
-    @Column(columnName = NAME) private String name;
-    @Column(columnName = ID0) private int id0;
-    @Column(columnName = ID1) private int id1;
-    @Column(columnName = START_TIME) private long startTime;
-    @Column(columnName = ALARM_MESSAGE, matchQuery = true) private String alarmMessage;
+    @Column(columnName = SCOPE)
+    private int scope;
+    @Column(columnName = NAME, storageOnly = true)
+    private String name;
+    @Column(columnName = ID0, storageOnly = true)
+    private String id0;
+    @Column(columnName = ID1, storageOnly = true)
+    private String id1;
+    @Column(columnName = START_TIME)
+    private long startTime;
+    @Column(columnName = ALARM_MESSAGE, matchQuery = true)
+    private String alarmMessage;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
 
-        @Override public Map<String, Object> data2Map(AlarmRecord storageData) {
+        @Override
+        public Map<String, Object> data2Map(AlarmRecord storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SCOPE, storageData.getScope());
             map.put(NAME, storageData.getName());
@@ -72,15 +80,16 @@ public class AlarmRecord extends Record {
             return map;
         }
 
-        @Override public AlarmRecord map2Data(Map<String, Object> dbMap) {
+        @Override
+        public AlarmRecord map2Data(Map<String, Object> dbMap) {
             AlarmRecord record = new AlarmRecord();
-            record.setScope(((Number)dbMap.get(SCOPE)).intValue());
-            record.setName((String)dbMap.get(NAME));
-            record.setId0(((Number)dbMap.get(ID0)).intValue());
-            record.setId1(((Number)dbMap.get(ID1)).intValue());
-            record.setAlarmMessage((String)dbMap.get(ALARM_MESSAGE));
-            record.setStartTime(((Number)dbMap.get(START_TIME)).longValue());
-            record.setTimeBucket(((Number)dbMap.get(TIME_BUCKET)).longValue());
+            record.setScope(((Number) dbMap.get(SCOPE)).intValue());
+            record.setName((String) dbMap.get(NAME));
+            record.setId0((String) dbMap.get(ID0));
+            record.setId1((String) dbMap.get(ID1));
+            record.setAlarmMessage((String) dbMap.get(ALARM_MESSAGE));
+            record.setStartTime(((Number) dbMap.get(START_TIME)).longValue());
+            record.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             return record;
         }
     }

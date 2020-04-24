@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.skywalking.plugin.test.helper.vo;
 
 import java.io.FileNotFoundException;
@@ -42,7 +43,6 @@ public class CaseIConfigurationTest {
         CaseConfiguration caseConfiguration = yaml.loadAs(configurationFile, CaseConfiguration.class);
         assertNotNull(caseConfiguration);
 
-        assertThat(caseConfiguration.getFramework(), is("solrj"));
         assertThat(caseConfiguration.getDependencies().size(), is(1));
     }
 }

@@ -18,20 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.*;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.alarm.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
-import org.apache.skywalking.oap.server.core.cache.*;
-import org.apache.skywalking.oap.server.core.register.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
+import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCCallback;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+@Slf4j
 public class NotifyHandler implements MetricsNotify {
-    private ServiceInventoryCache serviceInventoryCache;
-    private ServiceInstanceInventoryCache serviceInstanceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
-
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
 
@@ -40,47 +45,51 @@ public class NotifyHandler implements MetricsNotify {
         core = new AlarmCore(alarmRulesWatcher);
     }
 
-    @Override public void notify(Metrics metrics) {
-        WithMetadata withMetadata = (WithMetadata)metrics;
+    @Override
+    public void notify(Metrics metrics) {
+        WithMetadata withMetadata = (WithMetadata) metrics;
         MetricsMetaInfo meta = withMetadata.getMeta();
         int scope = meta.getScope();
 
-        if (!DefaultScopeDefine.inServiceCatalog(scope)
-            && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
-            && !DefaultScopeDefine.inEndpointCatalog(scope)) {
+        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(
+            scope) && !DefaultScopeDefine
+            .inEndpointCatalog(scope)) {
             return;
         }
 
         MetaInAlarm metaInAlarm;
         if (DefaultScopeDefine.inServiceCatalog(scope)) {
-            int serviceId = Integer.parseInt(meta.getId());
-            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
+            final String serviceId = meta.getId();
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                serviceId);
             ServiceMetaInAlarm serviceMetaInAlarm = new ServiceMetaInAlarm();
             serviceMetaInAlarm.setMetricsName(meta.getMetricsName());
             serviceMetaInAlarm.setId(serviceId);
-            serviceMetaInAlarm.setName(serviceInventory.getName());
+            serviceMetaInAlarm.setName(serviceIDDefinition.getName());
             metaInAlarm = serviceMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
-            int serviceInstanceId = Integer.parseInt(meta.getId());
-            ServiceInstanceInventory serviceInstanceInventory = serviceInstanceInventoryCache.get(serviceInstanceId);
+            final String instanceId = meta.getId();
+            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                instanceId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                instanceIDDefinition.getServiceId());
             ServiceInstanceMetaInAlarm instanceMetaInAlarm = new ServiceInstanceMetaInAlarm();
             instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
-            instanceMetaInAlarm.setId(serviceInstanceId);
-            instanceMetaInAlarm.setName(serviceInstanceInventory.getName());
+            instanceMetaInAlarm.setId(instanceId);
+            instanceMetaInAlarm.setName(instanceIDDefinition.getName() + " of " + serviceIDDefinition.getName());
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
-            int endpointId = Integer.parseInt(meta.getId());
-            EndpointInventory endpointInventory = endpointInventoryCache.get(endpointId);
+            final String endpointId = meta.getId();
+            final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                endpointId);
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                endpointIDDefinition.getServiceId());
+
             EndpointMetaInAlarm endpointMetaInAlarm = new EndpointMetaInAlarm();
             endpointMetaInAlarm.setMetricsName(meta.getMetricsName());
-            endpointMetaInAlarm.setId(endpointId);
-
-            int serviceId = endpointInventory.getServiceId();
-            ServiceInventory serviceInventory = serviceInventoryCache.get(serviceId);
-
-            String textName = endpointInventory.getName() + " in " + serviceInventory.getName();
-
-            endpointMetaInAlarm.setName(textName);
+            endpointMetaInAlarm.setId(meta.getId());
+            endpointMetaInAlarm.setName(
+                endpointIDDefinition.getEndpointName() + " in " + serviceIDDefinition.getName());
             metaInAlarm = endpointMetaInAlarm;
         } else {
             return;
@@ -97,12 +106,7 @@ public class NotifyHandler implements MetricsNotify {
     public void init(AlarmCallback... callbacks) {
         List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
+        allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
         core.start(allCallbacks);
-    }
-
-    public void initCache(ModuleManager moduleManager) {
-        serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        serviceInstanceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInstanceInventoryCache.class);
-        endpointInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
     }
 }

@@ -16,13 +16,13 @@ type: jvm
 entryService: http://localhost:8080/elasticsearch-case/case/elasticsearch
 healthCheck: http://localhost:8080/elasticsearch-case/case/healthcheck
 startScript: ./bin/startup.sh
-framework: elasticsearch
 environment:
   - elasticsearch.server=elasticsearch-server-5.x
 dependencies:
   elasticsearch-server-5.x:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.4.0
     hostname: elasticsearch-server-5.x
+    removeOnExit: true
     expose:
       - 9300
       - 9200

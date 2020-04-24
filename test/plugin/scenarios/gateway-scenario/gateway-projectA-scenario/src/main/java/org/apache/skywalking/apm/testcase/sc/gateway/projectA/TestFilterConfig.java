@@ -24,12 +24,12 @@ import org.springframework.context.annotation.Configuration;
 public class TestFilterConfig {
 
     @Bean
-    public Test1Filter test1Filter(){
+    public Test1Filter test1Filter() {
         return new Test1Filter();
     }
 
     @Bean
-    public Test2Filter test2Filter(){
+    public Test2Filter test2Filter() {
         return new Test2Filter();
     }
 }
