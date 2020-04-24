@@ -101,8 +101,8 @@ File Name | Descriptions
 | Field | description
 | --- | ---
 | type | Image type, options, `jvm` or `tomcat`. Required.
-| entryService | The entrance endpoint(URL) for test case access. Required.
-| healthCheck | The health check endpoint(URL) for test case access. Required.
+| entryService | The entrance endpoint(URL) for test case access. Required. (Verb: GET)
+| healthCheck | The health check endpoint(URL) for test case access. Required. (Verb: HEAD)
 | startScript | Path of start up script. Required in `type: jvm` only.
 | framework | Case name.
 | runningMode | Running mode whether with the optional plugin, options, `default`(default), `with_optional`, `with_bootstrap`
