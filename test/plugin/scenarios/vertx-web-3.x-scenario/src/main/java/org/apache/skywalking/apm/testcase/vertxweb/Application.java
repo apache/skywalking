@@ -32,10 +32,12 @@ public class Application {
         //ensures .vertx files are uncreated/deleted
         System.setProperty("vertx.disableFileCPResolving", "true");
         Vertx vertx = Vertx.vertx();
-        Files.walk(new File(".vertx").toPath())
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        if (new File(".vertx").exists()) {
+            Files.walk(new File(".vertx").toPath())
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
 
         vertx.deployVerticle(new VertxWebController(), it -> {
             if (it.failed()) {
