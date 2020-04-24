@@ -20,11 +20,24 @@ package org.apache.skywalking.apm.testcase.vertxweb;
 import io.vertx.core.Vertx;
 import org.apache.skywalking.apm.testcase.vertxweb.controller.VertxWebController;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        //ensures .vertx files are uncreated/deleted
         System.setProperty("vertx.disableFileCPResolving", "true");
-        Vertx.vertx().deployVerticle(new VertxWebController(), it -> {
+        Vertx vertx = Vertx.vertx();
+        Files.walk(new File(".vertx").toPath())
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+
+        vertx.deployVerticle(new VertxWebController(), it -> {
             if (it.failed()) {
                 it.cause().printStackTrace();
                 System.exit(-1);
