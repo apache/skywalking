@@ -16,16 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.analysis;
 
-import org.junit.Assert;
-import org.junit.Test;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+@RequiredArgsConstructor
+@Getter
+public class StreamDefinition {
+    private final String name;
+    private final int scopeId;
+    private final Class<? extends StorageBuilder> builder;
+    private final Class<? extends StreamProcessor> processor;
 
-        Assert.assertEquals(29, coreModule.services().length);
+    public static StreamDefinition from(Stream stream) {
+        return new StreamDefinition(stream.name(), stream.scopeId(), stream.builder(), stream.processor());
     }
+
 }

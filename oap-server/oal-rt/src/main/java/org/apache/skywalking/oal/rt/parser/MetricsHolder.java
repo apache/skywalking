@@ -23,10 +23,11 @@ import com.google.common.reflect.ClassPath;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 
 public class MetricsHolder {
-    private static Map<String, Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics>> REGISTER = new HashMap<>();
+    private static Map<String, Class<? extends Metrics>> REGISTER = new HashMap<>();
 
     public static void init() throws IOException {
         ClassPath classpath = ClassPath.from(MetricsHolder.class.getClassLoader());
@@ -38,16 +39,16 @@ public class MetricsHolder {
                 MetricsFunction metricsFunction = aClass.getAnnotation(MetricsFunction.class);
                 REGISTER.put(
                     metricsFunction.functionName(),
-                    (Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics>) aClass
+                    (Class<? extends Metrics>) aClass
                 );
             }
         }
     }
 
-    public static Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> find(
+    public static Class<? extends Metrics> find(
         String functionName) {
         String func = functionName;
-        Class<? extends org.apache.skywalking.oap.server.core.analysis.metrics.Metrics> metricsClass = REGISTER.get(
+        Class<? extends Metrics> metricsClass = REGISTER.get(
             func);
         if (metricsClass == null) {
             throw new IllegalArgumentException("Can't find metrics, " + func);
