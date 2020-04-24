@@ -57,8 +57,12 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
-        meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
+        if (config.isActive()) {
+            // TODO. This is only a demo about creating new metrics
+            // We should create it based on metrics configuration.
+            final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
+            meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
+        }
     }
 
     @Override
@@ -68,16 +72,19 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                final AcceptableValue<Long> value = service.buildMetrics("test_long_metrics", Long.class);
-                value.accept(MeterEntity.newService("abc"), 5L);
-                value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-                service.doStreamingCalculation(value);
-            }
-        }, 2, 2, TimeUnit.SECONDS);
+        if (config.isActive()) {
+            // TODO. This is only a demo about fetching the data and push into the calculation stream.
+            final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    final AcceptableValue<Long> value = service.buildMetrics("test_long_metrics", Long.class);
+                    value.accept(MeterEntity.newService("abc"), 5L);
+                    value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+                    service.doStreamingCalculation(value);
+                }
+            }, 2, 2, TimeUnit.SECONDS);
+        }
     }
 
     @Override
