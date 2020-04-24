@@ -16,16 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+/**
+ * Indicate this function accepting the data of type T.
+ */
+public interface AcceptableValue<T> {
+    void accept(MeterEntity entity, T value);
 
-        Assert.assertEquals(29, coreModule.services().length);
-    }
+    /**
+     * @return a new instance based on the implementation, it should be the same class.
+     */
+    AcceptableValue<T> createNew();
+
+    /**
+     * @return builder
+     */
+    Class<? extends StorageBuilder> builder();
+
+    void setTimeBucket(long timeBucket);
 }

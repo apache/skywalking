@@ -194,6 +194,11 @@ envoy-metric:
   default:
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
 
+prometheus-fetcher:
+  selector: ${SW_PROMETHEUS_FETCHER:default}
+  default:
+    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:

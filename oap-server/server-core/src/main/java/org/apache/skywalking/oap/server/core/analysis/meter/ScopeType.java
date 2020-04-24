@@ -16,16 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.analysis.meter;
 
-import org.junit.Assert;
-import org.junit.Test;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+public enum ScopeType {
+    SERVICE(DefaultScopeDefine.SERVICE),
+    SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
+    ENDPOINT(DefaultScopeDefine.ENDPOINT);
 
-        Assert.assertEquals(29, coreModule.services().length);
+    @Getter
+    private final int scopeId;
+
+    ScopeType(final int scopeId) {
+        this.scopeId = scopeId;
     }
 }
