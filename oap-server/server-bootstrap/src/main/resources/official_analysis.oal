@@ -18,7 +18,7 @@
 
 // All scope metrics
 all_percentile = from(All.latency).percentile(10);  // Multiple values including p50, p75, p90, p95, p99
-all_heatmap = from(All.latency).thermodynamic(100, 20);
+all_heatmap = from(All.latency).histogram(100, 20);
 
 // Service scope metrics
 service_resp_time = from(Service.latency).longAvg();

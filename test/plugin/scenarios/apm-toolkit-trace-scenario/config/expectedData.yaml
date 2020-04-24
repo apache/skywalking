@@ -32,7 +32,7 @@ segmentItems:
       peer: ''
       tags:
       - {key: key, value: value}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo(java.lang.String)
       operationId: 0
       parentSpanId: 0
@@ -50,7 +50,7 @@ segmentItems:
         - {key: message, value: TestInfoMsg}
       tags:
       - {key: testTag, value: testInfoParam}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testDebug()
       operationId: 0
       parentSpanId: 0
@@ -66,11 +66,11 @@ segmentItems:
       - logEvent:
         - {key: event, value: debug}
         - {key: message, value: TestDebugMsg}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - {operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testError(),
       operationId: 0, parentSpanId: 0, spanId: 4, spanLayer: Unknown, startTime: nq
         0, endTime: nq 0, componentId: 0, isError: true, spanType: Local, peer: '',
-      skipAnalysis: 'false'}
+      skipAnalysis: 'true'}
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorMsg()
       operationId: 0
       parentSpanId: 0
@@ -86,7 +86,7 @@ segmentItems:
       - logEvent:
         - {key: event, value: error}
         - {key: message, value: TestErrorMsg}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorThrowable()
       operationId: 0
       parentSpanId: 0
@@ -104,7 +104,7 @@ segmentItems:
         - {key: error.kind, value: java.lang.RuntimeException}
         - {key: message, value: Test-Exception}
         - {key: stack, value: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotation(java.lang.String,java.lang.String)
       operationId: 0
       parentSpanId: 0
@@ -119,7 +119,7 @@ segmentItems:
       tags:
       - {key: p1, value: testTagAnnotationParam1}
       - {key: p2, value: testTagAnnotationParam2}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotationReturnInfo(java.lang.String,java.lang.Integer)
       operationId: 0
       parentSpanId: 0
@@ -133,7 +133,7 @@ segmentItems:
       peer: ''
       tags:
       - {key: username, value: zhangsan}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: /case/tool-kit
       operationId: 0
       parentSpanId: -1
@@ -148,7 +148,11 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/tool-kit'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
+      refs:
+      - {parentEndpoint: /app, networkAddress: '127.0.0.1:8080', refType: CrossProcess,
+         parentSpanId: 4, parentTraceSegmentId: 1.2.3, parentServiceInstance: instance,
+         parentService: service, traceId: 3.4.5}
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/callable
@@ -171,7 +175,7 @@ segmentItems:
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
           null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/runnable
@@ -188,7 +192,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/runnable'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run
       operationId: 0
       parentSpanId: -1
@@ -204,7 +208,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/callable
@@ -221,7 +225,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/callable'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call
       operationId: 0
       parentSpanId: -1
@@ -237,7 +241,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/runnable
@@ -260,7 +264,7 @@ segmentItems:
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
           null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/supplier
@@ -277,7 +281,7 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/apm-toolkit-trace-scenario/case/asyncVisit/supplier'}
       - {key: http.method, value: GET}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get
       operationId: 0
       parentSpanId: -1
@@ -293,7 +297,7 @@ segmentItems:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/supplier
@@ -316,4 +320,4 @@ segmentItems:
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
         parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
           null, traceId: not null}
-      skipAnalysis: 'false'
+      skipAnalysis: 'true'
