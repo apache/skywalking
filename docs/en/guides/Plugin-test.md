@@ -101,8 +101,8 @@ File Name | Descriptions
 | Field | description
 | --- | ---
 | type | Image type, options, `jvm` or `tomcat`. Required.
-| entryService | The entrance endpoint(URL) for test case access. Required.
-| healthCheck | The health check endpoint(URL) for test case access. Required.
+| entryService | The entrance endpoint (URL) for test case access. This endpoint must respond to HTTP GET requests. Required.
+| healthCheck | The health check endpoint (URL) for test case access. This endpoint must respond to HTTP HEAD requests. Required.
 | startScript | Path of start up script. Required in `type: jvm` only.
 | framework | Case name.
 | runningMode | Running mode whether with the optional plugin, options, `default`(default), `with_optional`, `with_bootstrap`
@@ -111,7 +111,7 @@ File Name | Descriptions
 | depends_on | Same as `docker-compose#depends_on`.
 | dependencies | Same as `docker-compose#services`, `image、links、hostname、environment、depends_on` are supported.
 
-**Notice:, `docker-compose` active only when `dependencies` is only blank.**
+**Notice: `docker-compose` is active only when `dependencies` is blank.**
 
 **runningMode** option description.
 
