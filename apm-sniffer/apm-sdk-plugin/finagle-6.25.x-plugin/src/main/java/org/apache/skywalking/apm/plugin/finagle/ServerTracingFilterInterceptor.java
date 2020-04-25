@@ -61,6 +61,10 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
         final AbstractSpan finagleSpan = getSpan();
         getLocalContextHolder().remove(FinagleCtxs.SW_SPAN);
+
+        /*
+         * If the intercepted method throws exception, the ret will be null
+         */
         if (ret == null) {
             ContextManager.stopSpan(finagleSpan);
         } else {

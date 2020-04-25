@@ -66,6 +66,9 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
         getLocalContextHolder().remove(SW_SPAN);
         getMarshalledContextHolder().remove(SWContextCarrier$.MODULE$);
 
+        /*
+         * If the intercepted method throws exception, the ret will be null
+         */
         if (ret == null) {
             ContextManager.stopSpan(finagleSpan);
         } else {

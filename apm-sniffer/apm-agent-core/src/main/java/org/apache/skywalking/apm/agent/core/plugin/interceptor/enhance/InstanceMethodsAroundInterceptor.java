@@ -36,7 +36,7 @@ public interface InstanceMethodsAroundInterceptor {
     /**
      * called after target method invocation. Even method's invocation triggers an exception.
      *
-     * @param ret the method's original return value.
+     * @param ret the method's original return value. May be null if the method triggers an exception.
      * @return the method's actual return value.
      */
     Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
