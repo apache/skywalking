@@ -379,7 +379,7 @@ and don't include the segments of heartbeat service in the expected segment data
 
 ### The example Process of Writing Expected Data
 
-Expected data file, `expectedData.yaml`, include `SegmentIntems`.
+Expected data file, `expectedData.yaml`, include `SegmentItems`.
 
 We are using the HttpClient plugin to show how to write the expected data.
 
