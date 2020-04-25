@@ -50,7 +50,7 @@ public class ContextSnapshot {
     }
 
     public boolean isFromCurrent() {
-        return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
+        return traceSegmentId != null && traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
     }
 
     public CorrelationContext getCorrelationContext() {
