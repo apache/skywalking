@@ -14,42 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: finagle-6.25.x-scenario
-  segmentSize: gt 2
+- serviceName: canal-scenario
+  segmentSize: gt 1
   segments:
   - segmentId: not null
     spans:
-    - operationName: hello
-      operationId: 0
-      parentSpanId: -1
-      spanId: 0
-      spanLayer: RPCFramework
-      startTime: nq 0
-      endTime: nq 0
-      componentId: 85
-      isError: false
-      spanType: Entry
-      peer: ''
-      refs:
-      - {parentEndpoint: /finagle-6.25.x-scenario/case/finagle, networkAddress: '127.0.0.1:12220',
-        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: 'finagle-6.25.x-scenario', traceId: not null}
-      skipAnalysis: 'false'
-  - segmentId: not null
-    spans:
-    - operationName: hello
+    - operationName: Canal/example
       operationId: 0
       parentSpanId: 0
       spanId: 1
-      spanLayer: RPCFramework
+      spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
-      componentId: 85
+      componentId: 54
       isError: false
       spanType: Exit
-      peer: '127.0.0.1:12220'
+      peer: not null
+      tags:
+      - {key: batchSize, value: '1000'}
+      - {key: destination, value: example}
       skipAnalysis: 'false'
-    - operationName: /finagle-6.25.x-scenario/case/finagle
+    - operationName: /canal-scenario/case/canal-case
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -61,6 +46,6 @@ segmentItems:
       spanType: Entry
       peer: ''
       tags:
-      - {key: url, value: 'http://localhost:8080/finagle-6.25.x-scenario/case/finagle'}
+      - {key: url, value: 'http://localhost:8080/canal-scenario/case/canal-case'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'
