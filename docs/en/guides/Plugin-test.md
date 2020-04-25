@@ -291,7 +291,7 @@ The verify description for SegmentRef
 | parentServiceInstance | The instance of parent/downstream service instance name.
 | parentEndpoint |  The endpoint of parent/downstream service.
 | networkAddress | The peer value of parent exit span.
-| refType | Ref type, options, CrossProcess or CrossThread .
+| refType | Ref type, options, CrossProcess or CrossThread.
 
 ### startup.sh
 
