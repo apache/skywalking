@@ -151,8 +151,8 @@ segmentItems:
       skipAnalysis: 'true'
       refs:
       - {parentEndpoint: /app, networkAddress: '127.0.0.1:8080', refType: CrossProcess,
-         parentSpanId: 4, parentTraceSegmentId: 1.2.3, parentServiceInstance: instance,
-         parentService: service, traceId: 3.4.5}
+        parentSpanId: 4, parentTraceSegmentId: 1.2.3, parentServiceInstance: instance,
+        parentService: service, traceId: 3.4.5}
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/callable
@@ -173,8 +173,8 @@ segmentItems:
       refs:
       - {parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
-        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
-          null, traceId: not null}
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: apm-toolkit-trace-scenario,
+        traceId: not null}
       skipAnalysis: 'true'
   - segmentId: not null
     spans:
@@ -207,7 +207,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: apm-toolkit-trace-scenario, traceId: not null}
       skipAnalysis: 'true'
   - segmentId: not null
     spans:
@@ -240,7 +240,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: apm-toolkit-trace-scenario, traceId: not null}
       skipAnalysis: 'true'
   - segmentId: not null
     spans:
@@ -262,8 +262,8 @@ segmentItems:
       refs:
       - {parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
-        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
-          null, traceId: not null}
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: apm-toolkit-trace-scenario,
+        traceId: not null}
       skipAnalysis: 'true'
   - segmentId: not null
     spans:
@@ -296,7 +296,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /case/tool-kit, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: apm-toolkit-trace-scenario, traceId: not null}
       skipAnalysis: 'true'
   - segmentId: not null
     spans:
@@ -318,6 +318,6 @@ segmentItems:
       refs:
       - {parentEndpoint: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get,
         networkAddress: 'localhost:8080', refType: CrossProcess, parentSpanId: 1,
-        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not
-          null, traceId: not null}
+        parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: apm-toolkit-trace-scenario,
+        traceId: not null}
       skipAnalysis: 'true'

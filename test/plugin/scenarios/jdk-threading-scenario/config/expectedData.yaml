@@ -65,7 +65,7 @@ segmentItems:
       refs:
       - {parentEndpoint: '/greet/{username}', networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: jdk-threading-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -98,5 +98,5 @@ segmentItems:
       refs:
       - {parentEndpoint: '/greet/{username}', networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: jdk-threading-scenario, traceId: not null}
       skipAnalysis: 'false'

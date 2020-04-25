@@ -37,7 +37,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /rabbitmq-scenario/case/rabbitmq, networkAddress: not null,
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: rabbitmq-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
