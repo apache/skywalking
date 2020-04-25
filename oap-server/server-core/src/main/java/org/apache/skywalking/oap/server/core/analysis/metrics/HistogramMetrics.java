@@ -41,7 +41,7 @@ public abstract class HistogramMetrics extends Metrics {
 
     @Getter
     @Setter
-    @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true)
+    @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
     private DataTable dataset = new DataTable(30);
 
     /**

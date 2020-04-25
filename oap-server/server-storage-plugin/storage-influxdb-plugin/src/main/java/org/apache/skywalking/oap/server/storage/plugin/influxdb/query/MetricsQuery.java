@@ -183,6 +183,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
             labeledValues.put(label, labelValue);
         });
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         if (!CollectionUtils.isEmpty(series)) {
             series.get(0).getValues().forEach(values -> {
                 final String id = (String) values.get(1);
@@ -190,7 +191,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
                 multipleValues.toObject((String) values.get(2));
 
                 labels.forEach(label -> {
-                    final Long data = multipleValues.get(label);
+                    Long data = multipleValues.get(label);
+                    if (data == null) {
+                        data = (long) defaultValue;
+                    }
                     final IntValues intValues = labeledValues.get(label).getValues();
                     KVInt kv = new KVInt();
                     kv.setId(id);
@@ -203,7 +207,7 @@ public class MetricsQuery implements IMetricsQueryDAO {
         return Util.sortValues(
             new ArrayList<>(labeledValues.values()),
             ids,
-            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+            defaultValue
         );
     }
 
@@ -229,14 +233,16 @@ public class MetricsQuery implements IMetricsQueryDAO {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+
         HeatMap heatMap = new HeatMap();
         if (series != null) {
             for (List<Object> values : series.getValues()) {
-                heatMap.buildColumn(values.get(1).toString(), values.get(2).toString());
+                heatMap.buildColumn(values.get(1).toString(), values.get(2).toString(), defaultValue);
             }
         }
 
-        heatMap.fixMissingColumns(ids);
+        heatMap.fixMissingColumns(ids, defaultValue);
 
         return heatMap;
     }
