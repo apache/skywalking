@@ -58,7 +58,9 @@ public class ClientDestTracingFilterInterceptor extends AbstractInterceptor {
     @Override
     public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                           Class<?>[] classes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 
     private String getRemote(Object[] objects) {

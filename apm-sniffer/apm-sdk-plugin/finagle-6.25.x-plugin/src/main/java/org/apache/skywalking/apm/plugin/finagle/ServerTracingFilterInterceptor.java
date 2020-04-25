@@ -61,27 +61,33 @@ public class ServerTracingFilterInterceptor extends AbstractInterceptor {
     public Object afterMethodImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object ret) throws Throwable {
         final AbstractSpan finagleSpan = getSpan();
         getLocalContextHolder().remove(FinagleCtxs.SW_SPAN);
-        finagleSpan.prepareForAsync();
-        ContextManager.stopSpan(finagleSpan);
-        ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {
-            @Override
-            public void onSuccess(Object value) {
-                finagleSpan.asyncFinish();
-            }
+        if (ret == null) {
+            ContextManager.stopSpan(finagleSpan);
+        } else {
+            finagleSpan.prepareForAsync();
+            ContextManager.stopSpan(finagleSpan);
+            ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {
+                @Override
+                public void onSuccess(Object value) {
+                    finagleSpan.asyncFinish();
+                }
 
-            @Override
-            public void onFailure(Throwable cause) {
-                finagleSpan.errorOccurred();
-                finagleSpan.log(cause);
-                finagleSpan.asyncFinish();
-            }
-        });
+                @Override
+                public void onFailure(Throwable cause) {
+                    finagleSpan.errorOccurred();
+                    finagleSpan.log(cause);
+                    finagleSpan.asyncFinish();
+                }
+            });
+        }
         return ret;
     }
 
     @Override
     public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects,
                                           Class<?>[] classes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+        if (ContextManager.isActive()) {
+            ContextManager.activeSpan().errorOccurred().log(t);
+        }
     }
 }
