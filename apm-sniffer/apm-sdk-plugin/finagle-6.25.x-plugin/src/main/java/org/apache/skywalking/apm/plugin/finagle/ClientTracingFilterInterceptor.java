@@ -91,8 +91,6 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
 
     @Override
     public void handleMethodExceptionImpl(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
-        if (ContextManager.isActive()) {
-            ContextManager.activeSpan().errorOccurred().log(throwable);
-        }
+        ContextManager.activeSpan().errorOccurred().log(throwable);
     }
 }
