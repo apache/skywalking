@@ -71,6 +71,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         return !data.isEmpty();
     }
 
+    public boolean hasKey(String key) {
+        return data.containsKey(key);
+    }
+
     public int size() {
         return data.size();
     }
