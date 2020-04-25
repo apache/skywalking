@@ -16,16 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
 
-import org.junit.Assert;
-import org.junit.Test;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+@Getter
+public class PrometheusFetcherConfig extends ModuleConfig {
+    private boolean active;
 
-        Assert.assertEquals(29, coreModule.services().length);
-    }
 }

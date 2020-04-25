@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assert.assertEquals(29, coreModule.services().length);
-    }
+/**
+ * Meter function indicate this class is used in SkyWalking meter system. The meter system accepts data from any number
+ * based metrics ecosystem, typically like Prometheus and Micrometer Application Monitoring
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MeterFunction {
+    String functionName();
 }
