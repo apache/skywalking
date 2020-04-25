@@ -38,7 +38,7 @@ including
 1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents.
 1. [Go agent](https://github.com/tetratelabs/go2sky).
 1. [LUA agent](https://github.com/apache/skywalking-nginx-lua), especially for Nginx, OpenResty.
-1. Service Mesh Observability, including Envoy gRPC Access Log Service (ALS) format in Istio controlled service mesh, Istio telemetry. 
+1. Service Mesh Observability. Support Mixer telemetry. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
 1. Metrics system, including Prometheus, Spring Sleuth(Micrometer).
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
 

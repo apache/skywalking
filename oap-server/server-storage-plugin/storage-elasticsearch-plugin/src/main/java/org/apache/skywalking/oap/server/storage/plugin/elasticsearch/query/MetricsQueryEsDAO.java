@@ -148,14 +148,18 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             labeledValues.put(label, labelValue);
         });
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         for (String id : ids) {
             if (idMap.containsKey(id)) {
                 Map<String, Object> source = idMap.get(id);
                 DataTable multipleValues = new DataTable((String) source.getOrDefault(valueColumnName, ""));
 
                 labels.forEach(label -> {
-                    final Long data = multipleValues.get(label);
                     final IntValues values = labeledValues.get(label).getValues();
+                    Long data = multipleValues.get(label);
+                    if (data == null) {
+                        data = (long) defaultValue;
+                    }
                     KVInt kv = new KVInt();
                     kv.setId(id);
                     kv.setValue(data);
@@ -168,7 +172,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return Util.sortValues(
             new ArrayList<>(labeledValues.values()),
             ids,
-            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+            defaultValue
         );
     }
 
@@ -187,15 +191,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         HeatMap heatMap = new HeatMap();
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         for (String id : ids) {
             Map<String, Object> source = idMap.get(id);
             if (source != null) {
                 String value = (String) source.get(HistogramMetrics.DATASET);
-                heatMap.buildColumn(id, value);
+                heatMap.buildColumn(id, value, defaultValue);
             }
         }
 
-        heatMap.fixMissingColumns(ids);
+        heatMap.fixMissingColumns(ids, defaultValue);
 
         return heatMap;
     }

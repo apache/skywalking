@@ -45,7 +45,7 @@ public class HeatMap {
      * @param id      of the row
      * @param rawdata literal string, represent a {@link DataTable}
      */
-    public void buildColumn(String id, String rawdata) {
+    public void buildColumn(String id, String rawdata, int defaultValue) {
         DataTable dataset = new DataTable(rawdata);
 
         final List<String> sortedKeys = dataset.sortedKeys(
@@ -70,12 +70,16 @@ public class HeatMap {
         HeatMap.HeatMapColumn column = new HeatMap.HeatMapColumn();
         column.setId(id);
         sortedKeys.forEach(key -> {
-            column.addValue(dataset.get(key));
+            if (dataset.hasKey(key)) {
+                column.addValue(dataset.get(key));
+            } else {
+                column.addValue((long) defaultValue);
+            }
         });
         values.add(column);
     }
 
-    public void fixMissingColumns(List<String> ids) {
+    public void fixMissingColumns(List<String> ids, int defaultValue) {
         for (int i = 0; i < ids.size(); i++) {
             final String expectedId = ids.get(i);
             boolean found = false;
@@ -85,17 +89,17 @@ public class HeatMap {
                 }
             }
             if (!found) {
-                final HeatMapColumn emptyColumn = buildMissingColumn(expectedId);
+                final HeatMapColumn emptyColumn = buildMissingColumn(expectedId, defaultValue);
                 values.add(i, emptyColumn);
             }
         }
     }
 
-    private HeatMapColumn buildMissingColumn(String id) {
+    private HeatMapColumn buildMissingColumn(String id, int defaultValue) {
         HeatMapColumn column = new HeatMapColumn();
         column.setId(id);
         buckets.forEach(bucket -> {
-            column.addValue(0L);
+            column.addValue((long) defaultValue);
         });
         return column;
     }
