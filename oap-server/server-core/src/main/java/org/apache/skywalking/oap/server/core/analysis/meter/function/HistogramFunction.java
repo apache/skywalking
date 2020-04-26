@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
@@ -34,6 +35,10 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
+/**
+ * Histogram includes data range buckets and the amount matched/grouped in the buckets.
+ * This is for original histogram graph visualization
+ */
 @MeterFunction(functionName = "histogram")
 @Slf4j
 @EqualsAndHashCode(of = {
@@ -81,7 +86,16 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
 
     @Override
     public void combine(final Metrics metrics) {
+        final long[] existedBuckets = dataset.keys().stream().mapToLong(Long::parseLong).sorted().toArray();
+
         HistogramFunction histogram = (HistogramFunction) metrics;
+        final long[] buckets2 = dataset.keys().stream().mapToLong(Long::parseLong).sorted().toArray();
+        if (!Arrays.equals(existedBuckets, buckets2)) {
+            log.warn("Incompatible BucketedValues [{}}] for current HistogramFunction[{}], metrics: {}, entity {}",
+                     buckets2, existedBuckets, this.getClass().getName(), entityId
+            );
+            return;
+        }
         this.dataset.append(histogram.dataset);
     }
 
