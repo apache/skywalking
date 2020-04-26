@@ -40,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -266,6 +267,11 @@ public class MeterSystem implements Service {
      * @param acceptableValue should only be created through {@link #create(String, String, ScopeType, Class)}
      */
     public void doStreamingCalculation(AcceptableValue acceptableValue) {
+        final long timeBucket = acceptableValue.getTimeBucket();
+        if (timeBucket == 0L) {
+            // Avoid no timestamp data, which could be harmful for the storage.
+            acceptableValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        }
         MetricsStreamProcessor.getInstance().in((Metrics) acceptableValue);
     }
 

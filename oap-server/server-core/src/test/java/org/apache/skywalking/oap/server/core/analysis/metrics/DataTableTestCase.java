@@ -28,11 +28,11 @@ public class DataTableTestCase {
     @Before
     public void init() {
         dataTable = new DataTable();
-        dataTable.put("5", 500L);
-        dataTable.put("6", 600L);
-        dataTable.put("1", 100L);
-        dataTable.put("2", 200L);
-        dataTable.put("7", 700L);
+        dataTable.valueAccumulation("5", 500L);
+        dataTable.valueAccumulation("6", 600L);
+        dataTable.valueAccumulation("1", 100L);
+        dataTable.valueAccumulation("2", 200L);
+        dataTable.valueAccumulation("7", 700L);
     }
 
     @Test

@@ -25,6 +25,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongAvgMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -37,17 +38,25 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
     "entityId",
     "timeBucket"
 })
-public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long> {
+public abstract class AvgFunction extends LongAvgMetrics implements AcceptableValue<Long> {
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
     private String entityId;
+    /**
+     * Service ID is required for sort query.
+     */
+    @Setter
+    @Getter
+    @Column(columnName = InstanceTraffic.SERVICE_ID)
+    private String serviceId;
 
     @Override
     public Metrics toHour() {
-        Avg metrics = (Avg) createNew();
+        AvgFunction metrics = (AvgFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
+        metrics.setServiceId(getServiceId());
         metrics.setSummation(getSummation());
         metrics.setCount(getCount());
         return metrics;
@@ -55,9 +64,10 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
 
     @Override
     public Metrics toDay() {
-        Avg metrics = (Avg) createNew();
+        AvgFunction metrics = (AvgFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
+        metrics.setServiceId(getServiceId());
         metrics.setSummation(getSummation());
         metrics.setCount(getCount());
         return metrics;
@@ -75,6 +85,7 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
         setTimeBucket(remoteData.getDataLongs(2));
 
         this.entityId = remoteData.getDataStrings(0);
+        this.serviceId = remoteData.getDataStrings(1);
     }
 
     @Override
@@ -85,6 +96,7 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(entityId);
+        remoteBuilder.addDataStrings(serviceId);
 
         return remoteBuilder;
     }
@@ -97,6 +109,7 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
     @Override
     public void accept(final MeterEntity entity, final Long value) {
         this.entityId = entity.id();
+        this.serviceId = entity.serviceId();
         this.summation += value;
         this.count += 1;
     }
@@ -106,10 +119,10 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
         return AvgStorageBuilder.class;
     }
 
-    public static class AvgStorageBuilder implements StorageBuilder<Avg> {
+    public static class AvgStorageBuilder implements StorageBuilder<AvgFunction> {
         @Override
-        public Avg map2Data(final Map<String, Object> dbMap) {
-            Avg metrics = new Avg() {
+        public AvgFunction map2Data(final Map<String, Object> dbMap) {
+            AvgFunction metrics = new AvgFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
                     throw new UnexpectedException("createNew should not be called");
@@ -119,17 +132,19 @@ public abstract class Avg extends LongAvgMetrics implements AcceptableValue<Long
             metrics.setValue(((Number) dbMap.get(VALUE)).longValue());
             metrics.setCount(((Number) dbMap.get(COUNT)).longValue());
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
+            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> data2Map(final Avg storageData) {
+        public Map<String, Object> data2Map(final AvgFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(VALUE, storageData.getValue());
             map.put(COUNT, storageData.getCount());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
+            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
