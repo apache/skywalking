@@ -44,6 +44,6 @@ public class ActiveSpan {
     public static void info(String infoMsg) {
     }
 
-    public static void setOperationName(String operationName){
+    public static void setOperationName(String operationName) {
     }
 }
