@@ -78,6 +78,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setScope(Scope.ServiceInstance);
         final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
         condition.setParentService(serviceIDDefinition.getName());
+        condition.setNormal(true);
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
@@ -110,6 +111,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setScope(Scope.Endpoint);
         final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
         condition.setParentService(serviceIDDefinition.getName());
+        condition.setNormal(true);
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
