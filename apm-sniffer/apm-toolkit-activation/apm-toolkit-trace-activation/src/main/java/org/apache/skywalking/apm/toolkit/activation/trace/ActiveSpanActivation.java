@@ -52,6 +52,9 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
     private static final String INFO_INTERCEPTOR_METHOD_NAME = "info";
     private static final String INFO_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanInfoInterceptor";
 
+    private static final String SET_OPERATION_NAME_METHOD_NAME = "setOperationName";
+    private static final String SET_OPERATION_NAME_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.toolkit.activation.trace.ActiveSpanSetOperationNameInterceptor";
+
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
@@ -149,6 +152,22 @@ public class ActiveSpanActivation extends ClassStaticMethodsEnhancePluginDefine 
                 @Override
                 public String getMethodsInterceptor() {
                     return ERROR_INTERCEPTOR_CLASS;
+                }
+
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new StaticMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(SET_OPERATION_NAME_METHOD_NAME).and(takesArguments(0));
+                }
+
+                @Override
+                public String getMethodsInterceptor() {
+                    return SET_OPERATION_NAME_INTERCEPTOR_CLASS;
                 }
 
                 @Override
