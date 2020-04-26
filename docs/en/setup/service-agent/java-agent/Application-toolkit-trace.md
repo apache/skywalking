@@ -50,7 +50,7 @@ ActiveSpan.debug("Test-debug-Msg");
 @Tag(key = "username", value = "returnedObj.username")
 @Tag(key = "age", value = "returnedObj.age")
 public User methodYouWantToTrace(String param1, String param2) {
-    // ActiveSpan.setOperationName("Customize your own methodYouWantToTrace");
+    // ActiveSpan.setOperationName("Customize your own operation name, if this is an entry span, this would be an endpoint name");
     // ...
 }
 ```
