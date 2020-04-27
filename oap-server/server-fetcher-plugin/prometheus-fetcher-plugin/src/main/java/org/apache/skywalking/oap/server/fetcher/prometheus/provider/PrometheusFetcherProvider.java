@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -62,6 +63,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
             // We should create it based on metrics configuration.
             final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
             meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
+            meterSystem.create("test_histogram_metrics", "histogram", ScopeType.SERVICE, BucketedValues.class);
         }
     }
 
@@ -78,10 +80,35 @@ public class PrometheusFetcherProvider extends ModuleProvider {
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+                    final MeterEntity servEntity = MeterEntity.newService("mock_service");
+
+                    // Long Avg Example
                     final AcceptableValue<Long> value = service.buildMetrics("test_long_metrics", Long.class);
-                    value.accept(MeterEntity.newService("abc"), 5L);
+                    value.accept(servEntity, 5L);
                     value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
                     service.doStreamingCalculation(value);
+
+                    // Histogram Example
+                    final AcceptableValue<BucketedValues> histogramMetrics = service.buildMetrics(
+                        "test_histogram_metrics", BucketedValues.class);
+                    value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+                    histogramMetrics.accept(servEntity, new BucketedValues(
+                        new int[] {
+                            Integer.MIN_VALUE,
+                            0,
+                            50,
+                            100,
+                            250
+                        },
+                        new long[] {
+                            3,
+                            1,
+                            4,
+                            10,
+                            10
+                        }
+                    ));
+                    service.doStreamingCalculation(histogramMetrics);
                 }
             }, 2, 2, TimeUnit.SECONDS);
         }

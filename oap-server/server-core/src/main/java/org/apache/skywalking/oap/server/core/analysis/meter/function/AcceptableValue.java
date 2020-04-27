@@ -38,4 +38,6 @@ public interface AcceptableValue<T> {
     Class<? extends StorageBuilder> builder();
 
     void setTimeBucket(long timeBucket);
+
+    long getTimeBucket();
 }
