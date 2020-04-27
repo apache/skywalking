@@ -117,7 +117,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /shardingsphere-4.x-RC1-RC2-scenario/case/execute, networkAddress: '',
         refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: shardingsphere-4.x-RC1-RC2-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

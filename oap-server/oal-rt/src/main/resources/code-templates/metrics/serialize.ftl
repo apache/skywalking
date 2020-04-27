@@ -16,8 +16,8 @@ org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder remot
     remoteBuilder.addDataIntegers(${field.getter}());
 </#list>
 
-<#list serializeFields.dataTableFields as field>
-    remoteBuilder.addDataTableStrings(${field.getter}().toStorageData());
+<#list serializeFields.objectFields as field>
+    remoteBuilder.addDataObjectStrings(${field.getter}().toStorageData());
 </#list>
 
 return remoteBuilder;

@@ -31,7 +31,9 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -50,13 +52,25 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
-                                         .lte(duration.getEndTimeBucket())
-                                         .gte(duration.getStartTimeBucket()));
+        final RangeQueryBuilder queryBuilder = QueryBuilders.rangeQuery(Metrics.TIME_BUCKET)
+                                                            .lte(duration.getEndTimeBucket())
+                                                            .gte(duration.getStartTimeBucket());
 
         boolean asc = false;
         if (condition.getOrder().equals(Order.ASC)) {
             asc = true;
+        }
+
+        if (additionalConditions != null && additionalConditions.size() > 0) {
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            additionalConditions.forEach(additionalCondition -> {
+                boolQuery.must()
+                         .add(QueryBuilders.termsQuery(additionalCondition.getKey(), additionalCondition.getValue()));
+            });
+            boolQuery.must().add(queryBuilder);
+            sourceBuilder.query(boolQuery);
+        } else {
+            sourceBuilder.query(queryBuilder);
         }
 
         sourceBuilder.aggregation(

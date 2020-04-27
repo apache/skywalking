@@ -170,6 +170,8 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
             labeledValues.put(label, labelValue);
         });
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+
         try (Connection connection = h2Client.getConnection()) {
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, sql.toString(), parameters.toArray(new Object[0]))) {
@@ -180,7 +182,10 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
                     multipleValues.toObject(resultSet.getString(valueColumnName));
 
                     labels.forEach(label -> {
-                        final Long data = multipleValues.get(label);
+                        Long data = multipleValues.get(label);
+                        if (data == null) {
+                            data = (long) defaultValue;
+                        }
                         final IntValues values = labeledValues.get(label).getValues();
                         KVInt kv = new KVInt();
                         kv.setId(id);
@@ -196,7 +201,7 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         return Util.sortValues(
             new ArrayList<>(labeledValues.values()),
             ids,
-            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+            defaultValue
         );
     }
 
@@ -223,17 +228,20 @@ public class H2MetricsQueryDAO extends H2SQLExecutor implements IMetricsQueryDAO
         }
         sql.append(")");
 
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+
         try (Connection connection = h2Client.getConnection()) {
             HeatMap heatMap = new HeatMap();
             try (ResultSet resultSet = h2Client.executeQuery(
                 connection, sql.toString(), parameters.toArray(new Object[0]))) {
 
                 while (resultSet.next()) {
-                    heatMap.buildColumn(resultSet.getString("id"), resultSet.getString("dataset"));
+                    heatMap.buildColumn(
+                        resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
                 }
             }
 
-            heatMap.fixMissingColumns(ids);
+            heatMap.fixMissingColumns(ids, defaultValue);
 
             return heatMap;
         } catch (SQLException e) {
