@@ -71,13 +71,7 @@ public abstract class HistogramMetrics extends Metrics {
         }
         String idx = String.valueOf(index * step);
 
-        Long element = dataset.get(idx);
-        if (element == null) {
-            element = 1L;
-        } else {
-            element++;
-        }
-        dataset.put(idx, element);
+        dataset.valueAccumulation(idx, 1L);
     }
 
     @Override

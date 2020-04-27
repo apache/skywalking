@@ -26,7 +26,7 @@ public class PersistenceColumns {
     private List<PersistenceField> longFields = new LinkedList<>();
     private List<PersistenceField> doubleFields = new LinkedList<>();
     private List<PersistenceField> intFields = new LinkedList<>();
-    private List<PersistenceField> dataTableFields = new LinkedList<>();
+    private List<PersistenceField> objectFields = new LinkedList<>();
 
     public void addStringField(String fieldName) {
         stringFields.add(new PersistenceField(fieldName));
@@ -44,8 +44,8 @@ public class PersistenceColumns {
         intFields.add(new PersistenceField(fieldName));
     }
 
-    public void addDataTableField(String fieldName) {
-        dataTableFields.add(new PersistenceField(fieldName));
+    public void addObjectField(String fieldName) {
+        objectFields.add(new PersistenceField(fieldName));
     }
 
     public List<PersistenceField> getStringFields() {
@@ -64,7 +64,7 @@ public class PersistenceColumns {
         return intFields;
     }
 
-    public List<PersistenceField> getDataTableFields() {
-        return dataTableFields;
+    public List<PersistenceField> getObjectFields() {
+        return objectFields;
     }
 }

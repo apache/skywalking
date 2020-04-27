@@ -48,7 +48,7 @@ public class Entity {
      * Normal service is the service having installed agent or metrics reported directly. Unnormal service is
      * conjectural service, usually detected by the agent.
      */
-    private boolean isNormal;
+    private boolean normal;
     private String serviceInstanceName;
     private String endpointName;
 
@@ -57,7 +57,7 @@ public class Entity {
      * Normal service is the service having installed agent or metrics reported directly. Unnormal service is
      * conjectural service, usually detected by the agent.
      */
-    private boolean destIsNormal;
+    private boolean destNormal;
     private String destServiceInstanceName;
     private String destEndpointName;
 
@@ -74,34 +74,34 @@ public class Entity {
                 // This is unnecessary. Just for making core clear.
                 return null;
             case Service:
-                return IDManager.ServiceID.buildId(serviceName, isNormal);
+                return IDManager.ServiceID.buildId(serviceName, normal);
             case ServiceInstance:
                 return IDManager.ServiceInstanceID.buildId(
-                    IDManager.ServiceID.buildId(serviceName, isNormal), serviceInstanceName);
+                    IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName);
             case Endpoint:
-                return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, isNormal), endpointName);
+                return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, normal), endpointName);
             case ServiceRelation:
                 return IDManager.ServiceID.buildRelationId(
                     new IDManager.ServiceID.ServiceRelationDefine(
-                        IDManager.ServiceID.buildId(serviceName, isNormal),
-                        IDManager.ServiceID.buildId(destServiceName, destIsNormal)
+                        IDManager.ServiceID.buildId(serviceName, normal),
+                        IDManager.ServiceID.buildId(destServiceName, destNormal)
                     )
                 );
             case ServiceInstanceRelation:
                 return IDManager.ServiceInstanceID.buildRelationId(
                     new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
                         IDManager.ServiceInstanceID.buildId(
-                            IDManager.ServiceID.buildId(serviceName, isNormal), serviceInstanceName),
+                            IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName),
                         IDManager.ServiceInstanceID.buildId(
-                            IDManager.ServiceID.buildId(destServiceName, destIsNormal), destServiceInstanceName)
+                            IDManager.ServiceID.buildId(destServiceName, destNormal), destServiceInstanceName)
                     )
                 );
             case EndpointRelation:
                 return IDManager.EndpointID.buildRelationId(
                     new IDManager.EndpointID.EndpointRelationDefine(
-                        IDManager.ServiceID.buildId(serviceName, isNormal),
+                        IDManager.ServiceID.buildId(serviceName, normal),
                         endpointName,
-                        IDManager.ServiceID.buildId(destServiceName, destIsNormal),
+                        IDManager.ServiceID.buildId(destServiceName, destNormal),
                         destEndpointName
                     )
                 );
