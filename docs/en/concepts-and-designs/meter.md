@@ -17,4 +17,5 @@ The values of scope entity name, such as service name, are required when metrics
 NOTICE, the metrics must be declared in the bootstrap stage, no runtime changed.
 
 Meter System supports following binding functions
-- **Avg**, calculate the avg value for every entity in the same metrics name.
+- **avg**, calculate the avg value for every entity in the same metrics name.
+- **histogram**. aggregate the counts in the configurable buckets.

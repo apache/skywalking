@@ -73,13 +73,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
         this.precision = precision;
 
         String index = String.valueOf(value / precision);
-        Long element = dataset.get(index);
-        if (element == null) {
-            element = 1L;
-        } else {
-            element++;
-        }
-        dataset.put(index, element);
+        dataset.valueAccumulation(index, 1L);
     }
 
     @Override
