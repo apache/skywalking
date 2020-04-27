@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
+import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,18 +31,25 @@ import org.junit.Test;
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.HistogramFunction.DATASET;
 
 public class HistogramFunctionTest {
-    private static final long[] BUCKETS = new long[] {
+    private static final int[] BUCKETS = new int[] {
         0,
         50,
         100,
         250
     };
 
-    private static final long[] BUCKETS_2ND = new long[] {
+    private static final int[] BUCKETS_2ND = new int[] {
         0,
         51,
         100,
         250
+    };
+
+    private static final int[] INFINITE_BUCKETS = new int[] {
+        Integer.MIN_VALUE,
+        -5,
+        0,
+        10
     };
 
     @Test
@@ -69,7 +77,7 @@ public class HistogramFunctionTest {
             })
         );
 
-        final int[] results = inst.getDataset().sortedValues(Comparator.comparingInt(Integer::parseInt)).stream()
+        final int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
                                   .flatMapToInt(l -> IntStream.of(l.intValue()))
                                   .toArray();
         Assert.assertArrayEquals(new int[] {
@@ -78,6 +86,34 @@ public class HistogramFunctionTest {
             13,
             14
         }, results);
+    }
+
+    @Test
+    public void testFunctionWithInfinite() {
+        HistogramFunctionInst inst = new HistogramFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test"),
+            new BucketedValues(
+                INFINITE_BUCKETS, new long[] {
+                0,
+                4,
+                10,
+                10
+            })
+        );
+
+        inst.accept(
+            MeterEntity.newService("service-test"),
+            new BucketedValues(
+                INFINITE_BUCKETS, new long[] {
+                1,
+                2,
+                3,
+                4
+            })
+        );
+
+        Assert.assertEquals(1L, inst.getDataset().get(Bucket.INFINITE_NEGATIVE).longValue());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -113,6 +149,28 @@ public class HistogramFunctionTest {
             MeterEntity.newService("service-test"),
             new BucketedValues(
                 BUCKETS, new long[] {
+                1,
+                4,
+                10,
+                10
+            })
+        );
+
+        final HistogramFunctionInst inst2 = new HistogramFunctionInst();
+        inst2.deserialize(inst.serialize().build());
+
+        Assert.assertEquals(inst, inst2);
+        // HistogramFunction equal doesn't include dataset.
+        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+    }
+
+    @Test
+    public void testSerializationInInfinite() {
+        HistogramFunctionInst inst = new HistogramFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test"),
+            new BucketedValues(
+                INFINITE_BUCKETS, new long[] {
                 1,
                 4,
                 10,

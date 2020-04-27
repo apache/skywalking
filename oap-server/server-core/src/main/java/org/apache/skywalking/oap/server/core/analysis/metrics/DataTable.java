@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -77,8 +76,11 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         return data.values().stream().mapToLong(element -> element).sum();
     }
 
-    public Set<String> keys() {
-        return data.keySet();
+    public boolean keysEqual(DataTable that) {
+        if (this.data.keySet().size() != that.data.keySet().size()) {
+            return false;
+        }
+        return this.data.keySet().equals(that.data.keySet());
     }
 
     public List<String> sortedKeys(Comparator<String> keyComparator) {

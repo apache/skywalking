@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 
@@ -48,22 +49,34 @@ public class HeatMap {
     public void buildColumn(String id, String rawdata, int defaultValue) {
         DataTable dataset = new DataTable(rawdata);
 
-        final List<String> sortedKeys = dataset.sortedKeys(
-            Comparator.comparingInt(Integer::parseInt));
+        final List<String> sortedKeys = dataset.sortedKeys(new KeyComparator(true));
         if (buckets == null) {
             buckets = new ArrayList<>(dataset.size());
             for (int i = 0; i < sortedKeys.size(); i++) {
+                final Bucket bucket = new Bucket();
+                final String minValue = sortedKeys.get(i);
+
+                if (Bucket.INFINITE_NEGATIVE.equals(minValue)) {
+                    bucket.infiniteMin();
+                } else {
+                    bucket.setMin(Integer.parseInt(minValue));
+                }
+
                 if (i == sortedKeys.size() - 1) {
                     // last element
-                    this.addBucket(
-                        new Bucket().setMin(Integer.parseInt(sortedKeys.get(i))).infiniteMax()
-                    );
+                    bucket.infiniteMax();
                 } else {
-                    this.addBucket(new Bucket(
-                        Integer.parseInt(sortedKeys.get(i)),
-                        Integer.parseInt(sortedKeys.get(i + 1))
-                    ));
+                    final String max = sortedKeys.get(i + 1);
+                    if (Bucket.INFINITE_POSITIVE.equals(max)) {
+                        // If reach the infinite positive before the last element, ignore all other.
+                        // Only for fail safe.
+                        bucket.infiniteMax();
+                        break;
+                    } else {
+                        bucket.setMax(Integer.parseInt(max));
+                    }
                 }
+                this.addBucket(bucket);
             }
         }
 
@@ -112,6 +125,28 @@ public class HeatMap {
 
         public void addValue(Long value) {
             values.add(value);
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class KeyComparator implements Comparator<String> {
+        private final boolean asc;
+
+        @Override
+        public int compare(final String key1, final String key2) {
+            int result;
+
+            if (key1.equals(key2)) {
+                result = 0;
+            } else if (Bucket.INFINITE_NEGATIVE.equals(key1) || Bucket.INFINITE_POSITIVE.equals(key2)) {
+                result = -1;
+            } else if (Bucket.INFINITE_NEGATIVE.equals(key2) || Bucket.INFINITE_POSITIVE.equals(key1)) {
+                result = 1;
+            } else {
+                result = Integer.parseInt(key1) - Integer.parseInt(key2);
+            }
+
+            return asc ? result : 0 - result;
         }
     }
 }

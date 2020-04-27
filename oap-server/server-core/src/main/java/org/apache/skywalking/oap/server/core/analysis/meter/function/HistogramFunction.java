@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -31,13 +31,14 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * Histogram includes data range buckets and the amount matched/grouped in the buckets.
- * This is for original histogram graph visualization
+ * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
+ * graph visualization
  */
 @MeterFunction(functionName = "histogram")
 @Slf4j
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
     "entityId",
     "timeBucket"
 })
+@ToString
 public abstract class HistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
 
@@ -79,20 +81,19 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
             final long bucket = value.getBuckets()[i];
+            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
             final long bucketValue = values[i];
-            dataset.valueAccumulation(String.valueOf(bucket), bucketValue);
+            dataset.valueAccumulation(bucketName, bucketValue);
         }
     }
 
     @Override
     public void combine(final Metrics metrics) {
-        final long[] existedBuckets = dataset.keys().stream().mapToLong(Long::parseLong).sorted().toArray();
-
         HistogramFunction histogram = (HistogramFunction) metrics;
-        final long[] buckets2 = dataset.keys().stream().mapToLong(Long::parseLong).sorted().toArray();
-        if (!Arrays.equals(existedBuckets, buckets2)) {
-            log.warn("Incompatible BucketedValues [{}}] for current HistogramFunction[{}], metrics: {}, entity {}",
-                     buckets2, existedBuckets, this.getClass().getName(), entityId
+
+        if (!dataset.keysEqual(histogram.getDataset())) {
+            log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
+                     histogram, this, entityId
             );
             return;
         }
@@ -136,7 +137,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         this.setEntityId(remoteData.getDataStrings(0));
         this.setServiceId(remoteData.getDataStrings(1));
 
-        this.setDataset(new DataTable(remoteData.getDataTableStrings(0)));
+        this.setDataset(new DataTable(remoteData.getDataObjectStrings(0)));
     }
 
     @Override
@@ -147,7 +148,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         remoteBuilder.addDataStrings(entityId);
         remoteBuilder.addDataStrings(serviceId);
 
-        remoteBuilder.addDataTableStrings(dataset.toStorageData());
+        remoteBuilder.addDataObjectStrings(dataset.toStorageData());
 
         return remoteBuilder;
     }

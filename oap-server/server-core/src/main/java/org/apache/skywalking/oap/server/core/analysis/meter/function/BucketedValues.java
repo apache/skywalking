@@ -19,9 +19,12 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.Arrays;
+import java.util.List;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.query.type.Bucket;
+import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 
 /**
  * BucketedValues represents a value set, which elements are grouped by time bucket.
@@ -32,15 +35,21 @@ public class BucketedValues {
     /**
      * The element in the buckets represent the minimal value of this bucket, the max is defined by the next element.
      * Such as 0, 10, 50, 100 means buckets are [0, 10), [10, 50), [50, 100), [100, infinite+).
+     *
+     * The {@link Integer#MIN_VALUE} could be the first bucket element to indicate there is no minimal value.
      */
-    private long[] buckets;
+    private int[] buckets;
     /**
      * {@link #buckets} and {@link #values} arrays should have the same length. The element in the values, represents
      * the amount in the same index bucket.
      */
     private long[] values;
 
-    public BucketedValues(final long[] buckets, final long[] values) {
+    /**
+     * @param buckets Read {@link #buckets}
+     * @param values  Read {@link #values}
+     */
+    public BucketedValues(final int[] buckets, final long[] values) {
         if (buckets == null || values == null || buckets.length == 0 || values.length == 0) {
             throw new IllegalArgumentException("buckets and values can't be null.");
         }
@@ -55,7 +64,17 @@ public class BucketedValues {
      * @return true if the bucket is same.
      */
     public boolean isCompatible(DataTable dataset) {
-        final long[] existedBuckets = dataset.keys().stream().mapToLong(Long::parseLong).sorted().toArray();
+        final List<String> sortedKeys = dataset.sortedKeys(new HeatMap.KeyComparator(true));
+        int[] existedBuckets = new int[sortedKeys.size()];
+        for (int i = 0; i < sortedKeys.size(); i++) {
+            final String key = sortedKeys.get(i);
+            if (key.equals(Bucket.INFINITE_NEGATIVE)) {
+                existedBuckets[i] = Integer.MIN_VALUE;
+            } else {
+                existedBuckets[i] = Integer.parseInt(key);
+            }
+        }
+
         return Arrays.equals(buckets, existedBuckets);
     }
 }

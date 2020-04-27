@@ -22,8 +22,8 @@ package org.apache.skywalking.oap.server.core.query.type;
  * @since 8.0.0
  */
 public class Bucket {
-    private static final String INFINITE_NEGATIVE = "infinite-";
-    private static final String INFINITE_POSITIVE = "infinite+";
+    public static final String INFINITE_NEGATIVE = "infinite-";
+    public static final String INFINITE_POSITIVE = "infinite+";
 
     /**
      * The min value of this bucket representing.

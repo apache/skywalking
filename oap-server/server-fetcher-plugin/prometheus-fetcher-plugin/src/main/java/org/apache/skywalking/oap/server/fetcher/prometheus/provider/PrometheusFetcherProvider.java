@@ -93,14 +93,16 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                         "test_histogram_metrics", BucketedValues.class);
                     value.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
                     histogramMetrics.accept(servEntity, new BucketedValues(
-                        new long[] {
+                        new int[] {
+                            Integer.MIN_VALUE,
                             0,
                             50,
                             100,
                             250
                         },
                         new long[] {
-                            0,
+                            3,
+                            1,
                             4,
                             10,
                             10
