@@ -41,11 +41,8 @@ jobs:
       SW_STORAGE: ${{ matrix.storage }}
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - name: Compile and Build
         run: make docker && ES_VERSION=es7 TAG=latest-es7 make docker.oap
       - name: Copy dist package
