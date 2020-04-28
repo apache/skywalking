@@ -41,11 +41,8 @@ jobs:
       SW_SIMPLE_CASE: ${{ matrix.case }}
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout Submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
@@ -66,11 +63,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
@@ -91,11 +85,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - name: Compile and Build
         run: make docker
       - name: Copy dist package
