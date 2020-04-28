@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ExtraQueryIndex;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -105,7 +106,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
 
     @Override
     protected String getColumnType(final ModelColumn column) {
-        if (DataTable.class.equals(column.getType())) {
+        if (StorageDataComplexObject.class.isAssignableFrom(column.getType())) {
             return "MEDIUMTEXT";
         }
         return super.getColumnType(column);
