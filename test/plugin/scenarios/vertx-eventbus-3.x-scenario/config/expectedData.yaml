@@ -58,6 +58,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: status_code, value: '200'}
           - operationName: /vertx-eventbus-3-scenario/case/eventbus-case
             operationId: 0
             parentSpanId: -1
