@@ -29,10 +29,12 @@ public class PersistenceField {
     private String fieldName;
     private String setter;
     private String getter;
+    private String fieldType;
 
-    public PersistenceField(String fieldName) {
+    public PersistenceField(String fieldName, String fieldType) {
         this.fieldName = fieldName;
         this.setter = ClassMethodUtil.toSetMethod(fieldName);
         this.getter = ClassMethodUtil.toGetMethod(fieldName);
+        this.fieldType = fieldType;
     }
 }
