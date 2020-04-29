@@ -18,31 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface SWCollection<DATA> {
+/**
+ * BufferedData represents a data collection in the memory. Data could be accepted and be drain to other collection.
+ *
+ * {@link #accept(Object)} and {@link #read()} wouldn't be required to thread-safe. BufferedData usually hosts by {@link
+ * ReadWriteSafeCache}.
+ */
+public interface BufferedData<T> {
+    /**
+     * Accept the data into the cache if it fits the conditions. The implementation maybe wouldn't accept the new input
+     * data.
+     *
+     * @param data to be added potentially.
+     */
+    void accept(T data);
 
-    void reading();
-
-    boolean isReading();
-
-    void writing();
-
-    boolean isWriting();
-
-    void clear();
-
-    int size();
-
-    void finishReading();
-
-    void finishWriting();
-
-    Collection<DATA> collection();
-
-    boolean containsKey(DATA key);
-
-    DATA get(DATA key);
-
-    void put(DATA value);
+    /**
+     * Read all existing buffered data, and clear the memory.
+     */
+    List<T> read();
 }
