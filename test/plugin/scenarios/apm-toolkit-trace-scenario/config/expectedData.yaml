@@ -19,10 +19,12 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
+    - {operationName: tool-kit-set-operation-name, parentSpanId: 0,
+      spanId: 1, spanLayer: Unknown, startTime: nq 0, endTime: nq 0,
+      componentId: 0, isError: false, spanType: Local, peer: '', skipAnalysis: true}
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTag()
-      operationId: 0
       parentSpanId: 0
-      spanId: 1
+      spanId: 2
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -34,9 +36,8 @@ segmentItems:
       - {key: key, value: value}
       skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testInfo(java.lang.String)
-      operationId: 0
       parentSpanId: 0
-      spanId: 2
+      spanId: 3
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -52,9 +53,8 @@ segmentItems:
       - {key: testTag, value: testInfoParam}
       skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testDebug()
-      operationId: 0
       parentSpanId: 0
-      spanId: 3
+      spanId: 4
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -68,13 +68,12 @@ segmentItems:
         - {key: message, value: TestDebugMsg}
       skipAnalysis: 'true'
     - {operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testError(),
-      operationId: 0, parentSpanId: 0, spanId: 4, spanLayer: Unknown, startTime: nq
-        0, endTime: nq 0, componentId: 0, isError: true, spanType: Local, peer: '',
+       parentSpanId: 0, spanId: 5, spanLayer: Unknown, startTime: nq 0, endTime: nq 0,
+       componentId: 0, isError: true, spanType: Local, peer: '',
       skipAnalysis: 'true'}
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorMsg()
-      operationId: 0
       parentSpanId: 0
-      spanId: 5
+      spanId: 6
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -88,9 +87,8 @@ segmentItems:
         - {key: message, value: TestErrorMsg}
       skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testErrorThrowable()
-      operationId: 0
       parentSpanId: 0
-      spanId: 6
+      spanId: 7
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -106,9 +104,8 @@ segmentItems:
         - {key: stack, value: not null}
       skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotation(java.lang.String,java.lang.String)
-      operationId: 0
       parentSpanId: 0
-      spanId: 7
+      spanId: 8
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -121,9 +118,8 @@ segmentItems:
       - {key: p2, value: testTagAnnotationParam2}
       skipAnalysis: 'true'
     - operationName: test.org.apache.skywalking.apm.testcase.toolkit.controller.TestService.testTagAnnotationReturnInfo(java.lang.String,java.lang.Integer)
-      operationId: 0
       parentSpanId: 0
-      spanId: 8
+      spanId: 9
       spanLayer: Unknown
       startTime: nq 0
       endTime: nq 0
@@ -135,7 +131,6 @@ segmentItems:
       - {key: username, value: zhangsan}
       skipAnalysis: 'true'
     - operationName: /case/tool-kit
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
@@ -153,10 +148,10 @@ segmentItems:
       - {parentEndpoint: /app, networkAddress: '127.0.0.1:8080', refType: CrossProcess,
         parentSpanId: 4, parentTraceSegmentId: 1.2.3, parentServiceInstance: instance,
         parentService: service, traceId: 3.4.5}
+
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/callable
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
@@ -179,7 +174,6 @@ segmentItems:
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/runnable
-      operationId: 0
       parentSpanId: 0
       spanId: 1
       spanLayer: Http
@@ -194,7 +188,6 @@ segmentItems:
       - {key: http.method, value: GET}
       skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.RunnableWrapper/run
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Unknown
@@ -212,7 +205,6 @@ segmentItems:
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/callable
-      operationId: 0
       parentSpanId: 0
       spanId: 1
       spanLayer: Http
@@ -227,7 +219,7 @@ segmentItems:
       - {key: http.method, value: GET}
       skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.CallableWrapper/call
-      operationId: 0
+
       parentSpanId: -1
       spanId: 0
       spanLayer: Unknown
@@ -245,7 +237,6 @@ segmentItems:
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/runnable
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
@@ -268,7 +259,6 @@ segmentItems:
   - segmentId: not null
     spans:
     - operationName: /apm-toolkit-trace-scenario/case/asyncVisit/supplier
-      operationId: 0
       parentSpanId: 0
       spanId: 1
       spanLayer: Http
@@ -283,7 +273,6 @@ segmentItems:
       - {key: http.method, value: GET}
       skipAnalysis: 'true'
     - operationName: Thread/org.apache.skywalking.apm.toolkit.trace.SupplierWrapper/get
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Unknown
@@ -301,7 +290,6 @@ segmentItems:
   - segmentId: not null
     spans:
     - operationName: /case/asyncVisit/supplier
-      operationId: 0
       parentSpanId: -1
       spanId: 0
       spanLayer: Http
