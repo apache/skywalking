@@ -15,8 +15,49 @@
 # limitations under the License.
 segmentItems:
   - serviceName: vertx-web-3.x-scenario
-    segmentSize: 2
+    segmentSize: 4
     segments:
+      - segmentId: not null
+        spans:
+          - operationName: /vertx-web-3-scenario/case/healthCheck
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: HEAD}
+              - {key: url, value: /vertx-web-3-scenario/case/healthCheck}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
+          - operationName: /vertx-web-3-scenario/case/healthCheck
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: /vertx-web-3-scenario/case/healthCheck}
+              - {key: status_code, value: '404'}
+            refs:
+              - {parentEndpoint: /vertx-web-3-scenario/case/web-case, networkAddress: 'localhost:8080',
+                 refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: vertx-web-3.x-scenario,
+                 traceId: not null}
       - segmentId: not null
         spans:
           - operationName: /vertx-web-3-scenario/case/healthCheck
@@ -34,6 +75,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-web-3-scenario/case/healthCheck}
+              - {key: status_code, value: '404'}
           - operationName: /vertx-web-3-scenario/case/web-case
             operationId: 0
             parentSpanId: -1
@@ -49,6 +91,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-web-3-scenario/case/web-case}
+              - {key: status_code, value: '404'}
       - segmentId: not null
         spans:
           - operationName: '#/vertx-web-3-scenario/case/healthCheck'
@@ -68,4 +111,3 @@ segmentItems:
                  refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: vertx-web-3.x-scenario,
                  traceId: not null}
-
