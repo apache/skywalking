@@ -50,9 +50,9 @@ segmentItems:
             peer: ''
             skipAnalysis: false
             tags:
-              - {key: http.method, value: GET}
+              - {key: http.method, value: HEAD}
               - {key: url, value: /vertx-web-3-scenario/case/healthCheck}
-              - {key: status_code, value: '404'}
+              - {key: status_code, value: '200'}
             refs:
               - {parentEndpoint: /vertx-web-3-scenario/case/web-case, networkAddress: 'localhost:8080',
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
@@ -73,9 +73,9 @@ segmentItems:
             peer: localhost:8080
             skipAnalysis: false
             tags:
-              - {key: http.method, value: GET}
+              - {key: http.method, value: HEAD}
               - {key: url, value: /vertx-web-3-scenario/case/healthCheck}
-              - {key: status_code, value: '404'}
+              - {key: status_code, value: '200'}
           - operationName: /vertx-web-3-scenario/case/web-case
             operationId: 0
             parentSpanId: -1
@@ -91,7 +91,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-web-3-scenario/case/web-case}
-              - {key: status_code, value: '404'}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: '#/vertx-web-3-scenario/case/healthCheck'
