@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileFunction;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -64,6 +65,10 @@ public class PrometheusFetcherProvider extends ModuleProvider {
             final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
             meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
             meterSystem.create("test_histogram_metrics", "histogram", ScopeType.SERVICE, BucketedValues.class);
+            meterSystem.create(
+                "test_percentile_metrics", "percentile", ScopeType.SERVICE,
+                PercentileFunction.PercentileArgument.class
+            );
         }
     }
 
@@ -109,6 +114,38 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                         }
                     ));
                     service.doStreamingCalculation(histogramMetrics);
+
+                    // Percentile Example
+                    final AcceptableValue<PercentileFunction.PercentileArgument> testPercentileMetrics = service.buildMetrics(
+                        "test_percentile_metrics", PercentileFunction.PercentileArgument.class);
+                    testPercentileMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+                    testPercentileMetrics.accept(
+                        MeterEntity.newService("service-test"),
+                        new PercentileFunction.PercentileArgument(
+                            new BucketedValues(
+                                // Buckets
+                                new int[] {
+                                    0,
+                                    51,
+                                    100,
+                                    250
+                                },
+                                // Values
+                                new long[] {
+                                    10,
+                                    20,
+                                    30,
+                                    40
+                                }
+                            ),
+                            // Ranks
+                            new int[] {
+                                50,
+                                90
+                            }
+                        )
+                    );
+                    service.doStreamingCalculation(testPercentileMetrics);
                 }
             }, 2, 2, TimeUnit.SECONDS);
         }

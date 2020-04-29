@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.storage.model.DataTypeMapping;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 public class ColumnTypeEsMapping implements DataTypeMapping {
 
@@ -35,7 +35,7 @@ public class ColumnTypeEsMapping implements DataTypeMapping {
             return "double";
         } else if (String.class.equals(type)) {
             return "keyword";
-        } else if (DataTable.class.equals(type)) {
+        } else if (StorageDataComplexObject.class.isAssignableFrom(type)) {
             return "text";
         } else if (byte[].class.equals(type)) {
             return "binary";

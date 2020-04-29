@@ -50,11 +50,8 @@ jobs:
           - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8
