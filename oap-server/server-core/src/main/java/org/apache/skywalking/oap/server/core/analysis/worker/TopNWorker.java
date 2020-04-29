@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.Collection;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeBufferedData;
@@ -29,16 +30,12 @@ import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Top N worker is a persistence worker. Cache and order the data, flush in longer period.
  */
+@Slf4j
 public class TopNWorker extends PersistenceWorker<TopN> {
-
-    private static final Logger logger = LoggerFactory.getLogger(TopNWorker.class);
-
     private final IRecordDAO recordDAO;
     private final Model model;
     private final DataCarrier<TopN> dataCarrier;
@@ -80,7 +77,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
             try {
                 prepareRequests.add(recordDAO.prepareBatchInsert(model, record));
             } catch (Throwable t) {
-                logger.error(t.getMessage(), t);
+                log.error(t.getMessage(), t);
             }
         });
     }
@@ -98,24 +95,18 @@ public class TopNWorker extends PersistenceWorker<TopN> {
     }
 
     private class TopNConsumer implements IConsumer<TopN> {
-
         @Override
         public void init() {
-
         }
 
         @Override
         public void consume(List<TopN> data) {
-            /*
-             * TopN is not following the batch size trigger mode.
-             * No need to implement this method, the memory size is limited always.
-             */
-            data.forEach(TopNWorker.this::onWork);
+            TopNWorker.this.onWork(data);
         }
 
         @Override
         public void onError(List<TopN> data, Throwable t) {
-            logger.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         }
 
         @Override

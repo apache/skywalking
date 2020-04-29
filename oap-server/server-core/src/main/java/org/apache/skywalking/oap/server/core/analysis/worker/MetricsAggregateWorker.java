@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Iterator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.commons.datacarrier.DataCarrier;
@@ -27,7 +26,6 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactor
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
-import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
@@ -46,14 +44,14 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private AbstractWorker<Metrics> nextWorker;
     private final DataCarrier<Metrics> dataCarrier;
-    private final ReadWriteSafeCache<Metrics> mergeDataCache;
+    private final MergableBufferedData<Metrics> mergeDataCache;
     private CounterMetrics aggregationCounter;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
                            String modelName) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
-        this.mergeDataCache = new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData());
+        this.mergeDataCache = new MergableBufferedData();
         String name = "METRICS_L1_AGGREGATION";
         this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
 
@@ -64,7 +62,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer(this));
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer());
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
@@ -75,54 +73,44 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         );
     }
 
+    /**
+     * MetricsAggregateWorker#in operation does include enqueue only
+     */
     @Override
     public final void in(Metrics metrics) {
-        metrics.resetEndOfBatch();
         dataCarrier.produce(metrics);
     }
 
-    private void onWork(Metrics metrics) {
-        aggregationCounter.inc();
-        mergeDataCache.write(metrics);
+    /**
+     * Dequeue consuming. According to {@link IConsumer#consume(List)}, this is a serial operation for every work
+     * instance.
+     *
+     * @param metricsList from the queue.
+     */
+    private void onWork(List<Metrics> metricsList) {
+        metricsList.forEach(metrics -> {
+            aggregationCounter.inc();
+            mergeDataCache.accept(metrics);
+        });
 
-        if (metrics.isEndOfBatch()) {
-            mergeDataCache.read().forEach(
-                data -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug(data.toString());
-                    }
-                    nextWorker.in(data);
+        mergeDataCache.read().forEach(
+            data -> {
+                if (log.isDebugEnabled()) {
+                    log.debug(data.toString());
                 }
-            );
-        }
+                nextWorker.in(data);
+            }
+        );
     }
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
-
-        private final MetricsAggregateWorker aggregator;
-
-        private AggregatorConsumer(MetricsAggregateWorker aggregator) {
-            this.aggregator = aggregator;
-        }
-
         @Override
         public void init() {
-
         }
 
         @Override
         public void consume(List<Metrics> data) {
-            Iterator<Metrics> inputIterator = data.iterator();
-
-            int i = 0;
-            while (inputIterator.hasNext()) {
-                Metrics metrics = inputIterator.next();
-                i++;
-                if (i == data.size()) {
-                    metrics.asEndOfBatch();
-                }
-                aggregator.onWork(metrics);
-            }
+            MetricsAggregateWorker.this.onWork(data);
         }
 
         @Override
