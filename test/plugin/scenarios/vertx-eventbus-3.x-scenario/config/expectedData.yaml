@@ -74,6 +74,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/eventbus-case}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: '#/vertx-eventbus-3-scenario/case/executeTest'
@@ -134,6 +135,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: status_code, value: '200'}
             refs:
               - {parentEndpoint: /vertx-eventbus-3-scenario/case/eventbus-case, networkAddress: 'localhost:8080',
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
