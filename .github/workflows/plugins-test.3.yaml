@@ -41,7 +41,7 @@ jobs:
           - { name: 'spring-4.1.x-scenario', title: 'Spring 4.1.x-4.2.x (20)' }
           - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
           - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
-          - { name: 'vertx-eventbus-3.x-scenario', title: 'Vert.x EventBus 3.2.x-3.7.x (19)' }
+          - { name: 'vertx-eventbus-3.x-scenario', title: 'Vert.x EventBus 3.2.x-3.7.x (27)' }
           - { name: 'vertx-web-3.x-scenario', title: 'Vert.x Web 3.0.x-3.7.x (21)' }
     steps:
       - uses: actions/checkout@v2

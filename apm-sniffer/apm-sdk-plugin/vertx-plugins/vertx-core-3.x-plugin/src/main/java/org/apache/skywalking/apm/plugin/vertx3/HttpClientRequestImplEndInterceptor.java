@@ -40,11 +40,17 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         String host;
         int port;
         if (allArguments[3] instanceof Integer) {
+            //ver. 3.0.x - 3.3.x
             host = (String) allArguments[2];
             port = (Integer) allArguments[3];
-        } else {
+        } else if (allArguments[4] instanceof Integer) {
+            //ver. 3.4.x - 3.7.x
             host = (String) allArguments[3];
             port = (Integer) allArguments[4];
+        } else {
+            //ver. 3.8.x+
+            host = (String) allArguments[4];
+            port = (Integer) allArguments[5];
         }
         objInst.setSkyWalkingDynamicField(host + ":" + port);
     }

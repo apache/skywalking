@@ -30,7 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>3.7.0</test.framework.version>
+        <test.framework.version>3.9.0</test.framework.version>
     </properties>
 
     <name>skywalking-vertx-eventbus-3.x-scenario</name>
