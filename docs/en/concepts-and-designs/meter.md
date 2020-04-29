@@ -17,5 +17,8 @@ The values of scope entity name, such as service name, are required when metrics
 NOTICE, the metrics must be declared in the bootstrap stage, no runtime changed.
 
 Meter System supports following binding functions
-- **avg**, calculate the avg value for every entity in the same metrics name.
-- **histogram**. aggregate the counts in the configurable buckets.
+- **avg**. Calculate the avg value for every entity in the same metrics name.
+- **histogram**. Aggregate the counts in the configurable buckets, buckets is configurable but must be assigned in the declaration stage.
+- **percentile**. Read [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile). Unlike in the OAL, we provide
+50/75/90/95/99 in default, in the meter system function, percentile function accepts several ranks, which should be in
+the (0, 100) range.

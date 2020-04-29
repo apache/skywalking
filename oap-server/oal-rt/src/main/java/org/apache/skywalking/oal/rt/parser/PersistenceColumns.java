@@ -29,23 +29,23 @@ public class PersistenceColumns {
     private List<PersistenceField> objectFields = new LinkedList<>();
 
     public void addStringField(String fieldName) {
-        stringFields.add(new PersistenceField(fieldName));
+        stringFields.add(new PersistenceField(fieldName, "String"));
     }
 
     public void addLongField(String fieldName) {
-        longFields.add(new PersistenceField(fieldName));
+        longFields.add(new PersistenceField(fieldName, "long"));
     }
 
     public void addDoubleField(String fieldName) {
-        doubleFields.add(new PersistenceField(fieldName));
+        doubleFields.add(new PersistenceField(fieldName, "double"));
     }
 
     public void addIntField(String fieldName) {
-        intFields.add(new PersistenceField(fieldName));
+        intFields.add(new PersistenceField(fieldName, "int"));
     }
 
-    public void addObjectField(String fieldName) {
-        objectFields.add(new PersistenceField(fieldName));
+    public void addObjectField(String fieldName, String fieldType) {
+        objectFields.add(new PersistenceField(fieldName, fieldType));
     }
 
     public List<PersistenceField> getStringFields() {
