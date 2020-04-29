@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
@@ -91,18 +92,24 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
      * @param stream             definition of the metrics class.
      * @param metricsClass       data type of the streaming calculation.
      */
-    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) {
-        if (DisableRegister.INSTANCE.include(stream.name())) {
+        this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void create(ModuleDefineHolder moduleDefineHolder,
+                       StreamDefinition stream,
+                       Class<? extends Metrics> metricsClass) {
+        if (DisableRegister.INSTANCE.include(stream.getName())) {
             return;
         }
 
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IMetricsDAO metricsDAO;
         try {
-            metricsDAO = storageDAO.newMetricsDao(stream.builder().newInstance());
+            metricsDAO = storageDAO.newMetricsDao(stream.getBuilder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " metrics DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.getBuilder().getSimpleName() + " metrics DAO failure.", e);
         }
 
         INewModel modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(INewModel.class);
@@ -128,25 +135,25 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Hour), false);
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Hour), false);
                 hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
-                    metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Day), false);
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Day), false);
                 dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
             }
 
             transWorker = new MetricsTransWorker(
-                moduleDefineHolder, stream.name(), hourPersistentWorker, dayPersistentWorker);
+                moduleDefineHolder, stream.getName(), hourPersistentWorker, dayPersistentWorker);
         }
 
         Model model = modelSetter.add(
-            metricsClass, stream.scopeId(), new Storage(stream.name(), DownSampling.Minute), false);
+            metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Minute), false);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
             moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 
-        String remoteReceiverWorkerName = stream.name() + "_rec";
+        String remoteReceiverWorkerName = stream.getName() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
                                                                        .provider()
                                                                        .getService(IWorkerInstanceSetter.class);
@@ -154,7 +161,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
-            moduleDefineHolder, remoteWorker, stream.name());
+            moduleDefineHolder, remoteWorker, stream.getName());
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }

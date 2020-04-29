@@ -42,14 +42,11 @@ jobs:
           - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
           - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
           - { name: 'vertx-eventbus-3.x-scenario', title: 'Vert.x EventBus 3.2.x-3.7.x (19)' }
-          - { name: 'vertx-web-3.x-scenario', title: 'Vert.x Web 3.0.x-3.7.x (21)' }  
+          - { name: 'vertx-web-3.x-scenario', title: 'Vert.x Web 3.0.x-3.7.x (21)' }
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8
@@ -68,11 +65,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8

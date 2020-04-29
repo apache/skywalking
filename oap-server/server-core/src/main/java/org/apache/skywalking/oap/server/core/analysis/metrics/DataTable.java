@@ -22,12 +22,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 /**
  * DataTable includes a hashmap to store string key and long value. It enhanced the serialization capability.
  */
+@ToString
+@EqualsAndHashCode
 public class DataTable implements StorageDataComplexObject<DataTable> {
     private HashMap<String, Long> data;
 
@@ -52,8 +56,31 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         data.put(key, value);
     }
 
+    /**
+     * Accumulate the value with existing value in the same given key.
+     */
+    public void valueAccumulation(String key, Long value) {
+        Long element = data.get(key);
+        if (element == null) {
+            element = value;
+        } else {
+            element += value;
+        }
+        data.put(key, element);
+    }
+
+    /**
+     * @return the sum of all values.
+     */
     public long sumOfValues() {
         return data.values().stream().mapToLong(element -> element).sum();
+    }
+
+    public boolean keysEqual(DataTable that) {
+        if (this.data.keySet().size() != that.data.keySet().size()) {
+            return false;
+        }
+        return this.data.keySet().equals(that.data.keySet());
     }
 
     public List<String> sortedKeys(Comparator<String> keyComparator) {
@@ -69,6 +96,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
 
     public boolean hasData() {
         return !data.isEmpty();
+    }
+
+    public boolean hasKey(String key) {
+        return data.containsKey(key);
     }
 
     public int size() {

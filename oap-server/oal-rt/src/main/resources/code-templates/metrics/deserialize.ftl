@@ -15,8 +15,8 @@ public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.
     ${field.setter}(remoteData.getDataIntegers(${field?index}));
 </#list>
 
-<#list serializeFields.dataTableFields as field>
-    ${field.setter}(new org.apache.skywalking.oap.server.core.analysis.metrics.DataTable(remoteData.getDataTableStrings(${field?index})));
+<#list serializeFields.objectFields as field>
+    ${field.setter}(new ${field.fieldType}(remoteData.getDataObjectStrings(${field?index})));
 </#list>
 
 }

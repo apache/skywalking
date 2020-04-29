@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
@@ -107,6 +108,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
+        MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
+        this.registerServiceImplementation(MeterSystem.class, meterSystem);
+
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
@@ -156,6 +160,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        MeterSystem.closeMeterCreationChannel();
+
         try {
             annotationScan.scan();
         } catch (IOException e) {

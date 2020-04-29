@@ -80,9 +80,11 @@ Read this before you try to initial a new cluster.
 1. [Deploy in kubernetes](backend-k8s.md). Guide you to build and use SkyWalking image, and deploy in k8s.
 1. [Choose storage](backend-storage.md). As we know, in default quick start, backend is running with H2
 DB. But clearly, it doesn't fit the product env. In here, you could find what other choices do you have.
-Choose the one you like, we are also welcome anyone to contribute new storage implementor,
+Choose the ones you like, we are also welcome anyone to contribute new storage implementor.
 1. [Set receivers](backend-receivers.md). You could choose receivers by your requirements, most receivers
 are harmless, at least our default receivers are. You would set and active all receivers provided.
+1. [Open fetchers](backend-fetcher.md). You could open different fetchers to read metrics from the target applications.
+These ones works like receivers, but in pulling mode, typically like Prometheus.
 1. [Token authentication](backend-token-auth.md). You could add token authentication mechanisms to avoid `OAP` receiving untrusted data.  
 1. Do [trace sampling](trace-sampling.md) at backend. This sample keep the metrics accurate, only don't save some of traces
 in storage based on rate.

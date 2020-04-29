@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
@@ -70,6 +71,8 @@ public class CoreModule extends ModuleDefine {
 
         classes.add(IWorkerInstanceGetter.class);
         classes.add(IWorkerInstanceSetter.class);
+
+        classes.add(MeterSystem.class);
 
         addServerInterface(classes);
         addReceiverInterface(classes);
