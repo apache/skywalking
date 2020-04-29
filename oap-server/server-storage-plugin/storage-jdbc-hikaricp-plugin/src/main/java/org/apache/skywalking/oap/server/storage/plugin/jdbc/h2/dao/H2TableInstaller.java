@@ -23,12 +23,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
@@ -98,7 +98,7 @@ public class H2TableInstaller extends ModelInstaller {
             return "DOUBLE";
         } else if (String.class.equals(type)) {
             return "VARCHAR(" + column.getLength() + ")";
-        } else if (DataTable.class.equals(type)) {
+        } else if (StorageDataComplexObject.class.isAssignableFrom(type)) {
             return "VARCHAR(20000)";
         } else if (byte[].class.equals(type)) {
             return "MEDIUMTEXT";
