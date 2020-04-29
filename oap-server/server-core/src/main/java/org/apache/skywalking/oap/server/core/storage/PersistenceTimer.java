@@ -62,14 +62,26 @@ public enum PersistenceTimer {
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-        errorCounter = metricsCreator.createCounter("persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        prepareLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        executeLatency = metricsCreator.createHistogramMetric("persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        errorCounter = metricsCreator.createCounter(
+            "persistence_timer_bulk_error_count", "Error execution of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        prepareLatency = metricsCreator.createHistogramMetric(
+            "persistence_timer_bulk_prepare_latency", "Latency of the prepare stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
+        executeLatency = metricsCreator.createHistogramMetric(
+            "persistence_timer_bulk_execute_latency", "Latency of the execute stage in persistence timer",
+            MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
+        );
 
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
-                     .scheduleWithFixedDelay(new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> logger
-                         .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(), TimeUnit.SECONDS);
+                     .scheduleWithFixedDelay(
+                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> logger
+                             .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
+                         TimeUnit.SECONDS
+                     );
 
             this.isStarted = true;
         }
@@ -95,9 +107,7 @@ public enum PersistenceTimer {
                         logger.debug("extract {} worker data and save", worker.getClass().getName());
                     }
 
-                    if (worker.flushAndSwitch()) {
-                        worker.buildBatchRequests(prepareRequests);
-                    }
+                    worker.buildBatchRequests(prepareRequests);
 
                     worker.endOfRound(System.currentTimeMillis() - lastTime);
                 });
