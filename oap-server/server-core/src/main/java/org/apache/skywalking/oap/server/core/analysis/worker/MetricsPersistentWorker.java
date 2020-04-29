@@ -32,7 +32,8 @@ import org.apache.skywalking.apm.commons.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.apm.commons.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.data.MergeDataCache;
+import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
+import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -45,10 +46,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
  * MetricsPersistentWorker is an extension of {@link PersistenceWorker} and focuses on the Metrics data persistent.
  */
 @Slf4j
-public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDataCache<Metrics>> {
+public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private final Model model;
     private final Map<Metrics, Metrics> context;
-    private final MergeDataCache<Metrics> mergeDataCache;
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
     private final Optional<AbstractWorker<ExportEvent>> nextExportWorker;
@@ -60,11 +60,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                             MetricsTransWorker transWorker, boolean enableDatabaseSession, boolean supportUpdate) {
-        super(moduleDefineHolder);
+        super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.context = new HashMap<>(100);
         this.enableDatabaseSession = enableDatabaseSession;
-        this.mergeDataCache = new MergeDataCache<>();
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
@@ -109,11 +108,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
     @Override
     public void in(Metrics metrics) {
         dataCarrier.produce(metrics);
-    }
-
-    @Override
-    public MergeDataCache<Metrics> getCache() {
-        return mergeDataCache;
     }
 
     @Override
@@ -195,21 +189,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics, MergeDat
         nextAlarmWorker.ifPresent(nextAlarmWorker -> nextAlarmWorker.in(metrics));
         nextExportWorker.ifPresent(
             nextExportWorker -> nextExportWorker.in(new ExportEvent(metrics, ExportEvent.EventType.TOTAL)));
-    }
-
-    @Override
-    public void cacheData(Metrics input) {
-        mergeDataCache.writing();
-        if (mergeDataCache.containsKey(input)) {
-            Metrics metrics = mergeDataCache.get(input);
-            metrics.combine(input);
-            metrics.calculate();
-        } else {
-            input.calculate();
-            mergeDataCache.put(input);
-        }
-
-        mergeDataCache.finishWriting();
     }
 
     /**
