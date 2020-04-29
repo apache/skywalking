@@ -23,18 +23,18 @@ import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LimitedSizeDataCollectionTest {
+public class LimitedSizeBufferedDataTest {
     @Test
     public void testPut() {
-        LimitedSizeDataCollection<MockStorageData> collection = new LimitedSizeDataCollection<>(5);
-        collection.put(new MockStorageData(1));
-        collection.put(new MockStorageData(3));
-        collection.put(new MockStorageData(5));
-        collection.put(new MockStorageData(7));
-        collection.put(new MockStorageData(9));
+        LimitedSizeBufferedData<MockStorageData> collection = new LimitedSizeBufferedData<>(5);
+        collection.accept(new MockStorageData(1));
+        collection.accept(new MockStorageData(3));
+        collection.accept(new MockStorageData(5));
+        collection.accept(new MockStorageData(7));
+        collection.accept(new MockStorageData(9));
 
         MockStorageData income = new MockStorageData(4);
-        collection.put(income);
+        collection.accept(income);
 
         int[] expected = new int[] {
             3,
@@ -44,7 +44,7 @@ public class LimitedSizeDataCollectionTest {
             9
         };
         int i = 0;
-        for (MockStorageData data : collection.collection()) {
+        for (MockStorageData data : collection.read()) {
             Assert.assertEquals(expected[i++], data.latency);
         }
     }
@@ -64,7 +64,7 @@ public class LimitedSizeDataCollectionTest {
 
         @Override
         public String id() {
-            return null;
+            return "id";
         }
 
         @Override
