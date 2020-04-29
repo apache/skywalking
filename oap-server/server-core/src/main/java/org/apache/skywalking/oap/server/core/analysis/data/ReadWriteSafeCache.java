@@ -26,30 +26,27 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ReadWriteSafeCache<T> {
     /**
-     * The buffer1 is used for read or write.
-     */
-    private BufferedData<T> buffer1;
-    /**
-     * The buffer2 is used for read or write.
-     */
-    private BufferedData<T> buffer2;
-
-    /**
-     * Read pointer should be pointing to {@link #buffer1} or {@link #buffer2}, and always not NULL.
+     * Pointer of read buffer.
      */
     private volatile BufferedData<T> readBufferPointer;
     /**
-     * Write pointer should be pointing to {@link #buffer1} or {@link #buffer2}, and always not NULL.
+     * Pointer of write buffer.
      */
     private volatile BufferedData<T> writeBufferPointer;
-
+    /**
+     * Read/Write lock.
+     */
     private final ReentrantLock lock;
 
+    /**
+     * Build the Cache through two given buffer instances.
+     *
+     * @param buffer1 read/write switchable buffer
+     * @param buffer2 read/write switchable buffer. It is the write buffer at the beginning.
+     */
     public ReadWriteSafeCache(BufferedData<T> buffer1, BufferedData<T> buffer2) {
-        this.buffer1 = buffer1;
-        this.buffer2 = buffer2;
-        readBufferPointer = this.buffer1;
-        writeBufferPointer = this.buffer2;
+        readBufferPointer = buffer1;
+        writeBufferPointer = buffer2;
         lock = new ReentrantLock();
     }
 
