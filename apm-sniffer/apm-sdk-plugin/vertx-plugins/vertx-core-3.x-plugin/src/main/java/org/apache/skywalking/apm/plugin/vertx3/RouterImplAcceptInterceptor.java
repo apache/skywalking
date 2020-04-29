@@ -60,9 +60,7 @@ public class RouterImplAcceptInterceptor implements InstanceMethodsAroundInterce
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        AbstractSpan span = ContextManager.activeSpan();
-        Tags.STATUS_CODE.set(span, Integer.toString(((HttpServerRequest) allArguments[0]).response().getStatusCode()));
-        ContextManager.stopSpan(span);
+        ContextManager.stopSpan();
         return ret;
     }
 
