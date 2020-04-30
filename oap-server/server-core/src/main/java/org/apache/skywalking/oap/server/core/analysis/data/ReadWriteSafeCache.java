@@ -50,10 +50,29 @@ public class ReadWriteSafeCache<T> {
         lock = new ReentrantLock();
     }
 
+    /**
+     * Write the into the {@link #writeBufferPointer} buffer.
+     *
+     * @param data to enqueue.
+     */
     public void write(T data) {
         lock.lock();
         try {
             writeBufferPointer.accept(data);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Write the collection of data into the {@link #writeBufferPointer} buffer.
+     *
+     * @param data to enqueue.
+     */
+    public void write(List<T> data) {
+        lock.lock();
+        try {
+            data.forEach(writeBufferPointer::accept);
         } finally {
             lock.unlock();
         }
