@@ -22,19 +22,5 @@ import org.apache.skywalking.oap.server.core.remote.Deserializable;
 import org.apache.skywalking.oap.server.core.remote.Serializable;
 
 public abstract class StreamData implements Serializable, Deserializable {
-    private boolean endOfBatch = false;
-
-    public void resetEndOfBatch() {
-        this.endOfBatch = false;
-    }
-
-    public void asEndOfBatch() {
-        this.endOfBatch = true;
-    }
-
-    public boolean isEndOfBatch() {
-        return this.endOfBatch;
-    }
-
     public abstract int remoteHashCode();
 }

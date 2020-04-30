@@ -48,14 +48,7 @@ public abstract class PersistenceWorker<INPUT extends StorageData> extends Abstr
     /**
      * Accept the input, and push the data into the cache.
      */
-    void onWork(INPUT input) {
-        cacheData(input);
-    }
-
-    /**
-     * Cache data based on different strategies. See the implementations for more details.
-     */
-    public void cacheData(INPUT input) {
+    void onWork(List<INPUT> input) {
         cache.write(input);
     }
 

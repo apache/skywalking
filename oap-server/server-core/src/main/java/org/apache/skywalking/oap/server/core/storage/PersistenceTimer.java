@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -35,14 +36,10 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public enum PersistenceTimer {
     INSTANCE;
-
-    private static final Logger logger = LoggerFactory.getLogger(PersistenceTimer.class);
-
     private Boolean isStarted = false;
     private final Boolean debug;
     private CounterMetrics errorCounter;
@@ -56,7 +53,7 @@ public enum PersistenceTimer {
     }
 
     public void start(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
-        logger.info("persistence timer start");
+        log.info("persistence timer start");
         IBatchDAO batchDAO = moduleManager.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
 
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
@@ -78,7 +75,7 @@ public enum PersistenceTimer {
         if (!isStarted) {
             Executors.newSingleThreadScheduledExecutor()
                      .scheduleWithFixedDelay(
-                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> logger
+                         new RunnableWithExceptionProtection(() -> extractDataAndSave(batchDAO), t -> log
                              .error("Extract data and save failure.", t)), 5, moduleConfig.getPersistentPeriod(),
                          TimeUnit.SECONDS
                      );
@@ -88,8 +85,8 @@ public enum PersistenceTimer {
     }
 
     private void extractDataAndSave(IBatchDAO batchDAO) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Extract data and save");
+        if (log.isDebugEnabled()) {
+            log.debug("Extract data and save");
         }
 
         long startTime = System.currentTimeMillis();
@@ -103,8 +100,8 @@ public enum PersistenceTimer {
                 persistenceWorkers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
                 persistenceWorkers.forEach(worker -> {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("extract {} worker data and save", worker.getClass().getName());
+                    if (log.isDebugEnabled()) {
+                        log.debug("extract {} worker data and save", worker.getClass().getName());
                     }
 
                     worker.buildBatchRequests(prepareRequests);
@@ -113,7 +110,7 @@ public enum PersistenceTimer {
                 });
 
                 if (debug) {
-                    logger.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+                    log.info("build batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
                 }
             } finally {
                 timer.finish();
@@ -129,10 +126,10 @@ public enum PersistenceTimer {
             }
         } catch (Throwable e) {
             errorCounter.inc();
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } finally {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Persistence data save finish");
+            if (log.isDebugEnabled()) {
+                log.debug("Persistence data save finish");
             }
 
             prepareRequests.clear();
@@ -140,7 +137,7 @@ public enum PersistenceTimer {
         }
 
         if (debug) {
-            logger.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
+            log.info("Batch persistence duration: {} ms", System.currentTimeMillis() - startTime);
         }
     }
 }
