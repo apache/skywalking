@@ -83,7 +83,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         }
 
         this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, 2000);
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer(this));
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
     }
 
     /**
@@ -95,11 +95,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
              null, null, null,
              enableDatabaseSession, supportUpdate
         );
-    }
-
-    @Override
-    void onWork(Metrics metrics) {
-        cacheData(metrics);
     }
 
     /**
@@ -235,13 +230,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * ID is declared through {@link Object#hashCode()} and {@link Object#equals(Object)} as usual.
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
-
-        private final MetricsPersistentWorker persistent;
-
-        private PersistentConsumer(MetricsPersistentWorker persistent) {
-            this.persistent = persistent;
-        }
-
         @Override
         public void init() {
 
@@ -249,7 +237,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
         @Override
         public void consume(List<Metrics> data) {
-            data.forEach(persistent::onWork);
+            MetricsPersistentWorker.this.onWork(data);
         }
 
         @Override
