@@ -33,35 +33,42 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
 
-    @Override
-    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        String host;
-        int port;
-        if (allArguments[3] instanceof Integer) {
-            //ver. 3.0.x - 3.3.x
-            host = (String) allArguments[2];
-            port = (Integer) allArguments[3];
-        } else if (allArguments[4] instanceof Integer) {
-            //ver. 3.4.x - 3.7.x
-            host = (String) allArguments[3];
-            port = (Integer) allArguments[4];
-        } else {
-            //ver. 3.8.x+
-            host = (String) allArguments[4];
-            port = (Integer) allArguments[5];
+    public static class Version30XTo33XConstructorInterceptor implements InstanceConstructorInterceptor {
+        @Override
+        public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+            String host = (String) allArguments[2];
+            int port = (Integer) allArguments[3];
+            objInst.setSkyWalkingDynamicField(host + ":" + port);
         }
-        objInst.setSkyWalkingDynamicField(host + ":" + port);
+    }
+
+    public static class Version34XTo37XConstructorInterceptor implements InstanceConstructorInterceptor {
+        @Override
+        public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+            String host = (String) allArguments[3];
+            int port = (Integer) allArguments[4];
+            objInst.setSkyWalkingDynamicField(host + ":" + port);
+        }
+    }
+
+    public static class Version38PlusConstructorInterceptor implements InstanceConstructorInterceptor {
+        @Override
+        public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+            String host = (String) allArguments[4];
+            int port = (Integer) allArguments[5];
+            objInst.setSkyWalkingDynamicField(host + ":" + port);
+        }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) {
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier, (String) objInst.getSkyWalkingDynamicField());
+        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
+                (String) objInst.getSkyWalkingDynamicField());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -77,14 +84,14 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 
