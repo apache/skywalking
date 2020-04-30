@@ -31,6 +31,7 @@ import org.apache.skywalking.plugin.test.helper.exception.ConfigureFileNotFoundE
 import org.apache.skywalking.plugin.test.helper.vo.CaseConfiguration;
 import org.apache.skywalking.plugin.test.helper.vo.DependencyComponent;
 import org.apache.skywalking.plugin.test.helper.vo.DockerService;
+import org.apache.skywalking.plugin.test.helper.vo.RequestHeader;
 import org.yaml.snakeyaml.Yaml;
 
 public class ConfigurationImpl implements IConfiguration {
@@ -160,6 +161,11 @@ public class ConfigurationImpl implements IConfiguration {
     }
 
     @Override
+    public String debugMode() {
+        return System.getProperty("debug.mode");
+    }
+
+    @Override
     public Map<String, Object> toMap() {
         final Map<String, Object> root = new HashMap<>();
 
@@ -175,6 +181,7 @@ public class ConfigurationImpl implements IConfiguration {
         root.put("docker_image_version", dockerImageVersion());
         root.put("docker_container_name", dockerContainerName());
         root.put("jacoco_home", jacocoHome());
+        root.put("debug_mode", debugMode());
 
         root.put("expose", caseConfiguration().getExpose());
         root.put("hostname", caseConfiguration().getHostname());
@@ -183,6 +190,7 @@ public class ConfigurationImpl implements IConfiguration {
 
         root.put("network_name", dockerNetworkName());
         root.put("services", convertDockerServices(scenarioVersion(), caseConfiguration().getDependencies()));
+        root.put("extend_entry_header", extendEntryHeader());
 
         root.put("docker_compose_file", outputDir() + File.separator + "docker-compose.yml");
         root.put("build_id", dockerImageVersion());
@@ -204,6 +212,19 @@ public class ConfigurationImpl implements IConfiguration {
         root.put("removeImagesScript", removeImagesScript.toString());
 
         return root;
+    }
+
+    @Override
+    public String extendEntryHeader() {
+        final List<RequestHeader> headers = this.configuration.getExtendEntryHeader();
+        if (headers == null || headers.isEmpty()) {
+            return "";
+        }
+        StringBuilder headerString = new StringBuilder("\"");
+        for (RequestHeader header : headers) {
+            headerString.append(" -H ").append(header.getKey()).append(":").append(header.getValue()).append(" ");
+        }
+        return headerString.append("\"").toString();
     }
 
     protected List<DockerService> convertDockerServices(final String version,

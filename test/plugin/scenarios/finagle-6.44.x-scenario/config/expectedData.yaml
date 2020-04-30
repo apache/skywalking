@@ -33,7 +33,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /finagle-6.44.x-scenario/case/finagle, networkAddress: '127.0.0.1:12220',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: finagle-6.44.x-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

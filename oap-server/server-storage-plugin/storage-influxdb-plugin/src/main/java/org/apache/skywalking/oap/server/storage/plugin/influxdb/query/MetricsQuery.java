@@ -19,29 +19,26 @@
 package org.apache.skywalking.oap.server.storage.plugin.influxdb.query;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValue;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntKeyLongValueHashMap;
-import org.apache.skywalking.oap.server.core.analysis.metrics.ThermodynamicMetrics;
-import org.apache.skywalking.oap.server.core.query.entity.IntValues;
-import org.apache.skywalking.oap.server.core.query.entity.KVInt;
-import org.apache.skywalking.oap.server.core.query.entity.Thermodynamic;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.query.PointOfTime;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.query.sql.KeyValues;
-import org.apache.skywalking.oap.server.core.query.sql.Where;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.query.type.HeatMap;
+import org.apache.skywalking.oap.server.core.query.type.IntValues;
+import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.SelectionQueryImpl;
@@ -63,87 +60,60 @@ public class MetricsQuery implements IMetricsQueryDAO {
     }
 
     @Override
-    public IntValues getValues(String measurement, DownSampling downsampling, long startTB, long endTB,
-                               Where where, String valueCName, Function function) throws IOException {
+    public int readMetricsValue(final MetricsCondition condition,
+                                final String valueColumnName,
+                                final Duration duration) throws IOException {
+        final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+        final String measurement = condition.getName();
+
         SelectionQueryImpl query = select();
         switch (function) {
             case Avg:
-                query.mean(valueCName);
+                query.mean(valueColumnName);
                 break;
             default:
-                query.sum(valueCName);
+                query.sum(valueColumnName);
         }
         WhereQueryImpl<SelectQueryImpl> queryWhereQuery = query.from(client.getDatabase(), measurement).where();
 
-        Map<String, Class<?>> columnTypes = Maps.newHashMap();
-        for (ModelColumn column : TableMetaInfo.get(measurement).getModel().getColumns()) {
-            columnTypes.put(column.getColumnName().getStorageName(), column.getType());
+        final String entityId = condition.getEntity().buildId();
+        if (entityId != null) {
+            queryWhereQuery.and(eq(InfluxConstants.TagName.ENTITY_ID, entityId));
         }
 
-        List<String> ids = new ArrayList<>(20);
-        List<KeyValues> whereKeyValues = where.getKeyValues();
-        if (!whereKeyValues.isEmpty()) {
-            StringBuilder clauseBuilder = new StringBuilder();
-            for (KeyValues kv : whereKeyValues) {
-                final List<String> values = kv.getValues();
-                ids.addAll(values);
-
-                Class<?> type = columnTypes.get(kv.getKey());
-                if (values.size() == 1) {
-                    String value = kv.getValues().get(0);
-                    if (type == String.class) {
-                        value = "'" + value + "'";
-                    }
-                    clauseBuilder.append(kv.getKey()).append("=").append(value).append(" OR ");
-                } else {
-                    if (type == String.class) {
-                        clauseBuilder.append(kv.getKey())
-                                     .append(" =~ /")
-                                     .append(Joiner.on("|").join(values))
-                                     .append("/ OR ");
-                    } else {
-                        for (String value : values) {
-                            clauseBuilder.append(kv.getKey()).append(" = '").append(value).append("' OR ");
-                        }
-                    }
-                }
-            }
-            queryWhereQuery.where(clauseBuilder.substring(0, clauseBuilder.length() - 4));
-        }
         queryWhereQuery
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(startTB, downsampling)))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(endTB, downsampling)))
+            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getStartTimeBucket())))
+            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getEndTimeBucket())))
             .groupBy(InfluxConstants.TagName.ENTITY_ID);
 
-        IntValues intValues = new IntValues();
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", queryWhereQuery.getCommand(), seriesList);
         }
         if (CollectionUtils.isNotEmpty(seriesList)) {
             for (QueryResult.Series series : seriesList) {
-                KVInt kv = new KVInt();
-                kv.setId(series.getTags().get(InfluxConstants.TagName.ENTITY_ID));
                 Number value = (Number) series.getValues().get(0).get(1);
-                kv.setValue(value.longValue());
-
-                intValues.addKVInt(kv);
+                return value.intValue();
             }
         }
 
-        return orderWithDefault0(intValues, ids);
+        return ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
     }
 
     @Override
-    public IntValues getLinearIntValues(String measurement,
-                                        DownSampling downsampling,
-                                        List<String> ids,
-                                        String valueCName)
-        throws IOException {
+    public MetricsValues readMetricsValues(final MetricsCondition condition,
+                                           final String valueColumnName,
+                                           final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
         WhereQueryImpl<SelectQueryImpl> query = select()
             .column(ID_COLUMN)
-            .column(valueCName)
-            .from(client.getDatabase(), measurement)
+            .column(valueColumnName)
+            .from(client.getDatabase(), condition.getName())
             .where();
 
         if (CollectionUtils.isNotEmpty(ids)) {
@@ -158,7 +128,10 @@ public class MetricsQuery implements IMetricsQueryDAO {
             log.debug("SQL: {} result set: {}", query.getCommand(), seriesList);
         }
 
-        IntValues intValues = new IntValues();
+        MetricsValues metricsValues = new MetricsValues();
+        // Label is null, because in readMetricsValues, no label parameter.
+        final IntValues intValues = metricsValues.getValues();
+
         if (CollectionUtils.isNotEmpty(seriesList)) {
             seriesList.get(0).getValues().forEach(values -> {
                 KVInt kv = new KVInt();
@@ -167,96 +140,91 @@ public class MetricsQuery implements IMetricsQueryDAO {
                 intValues.addKVInt(kv);
             });
         }
-        return orderWithDefault0(intValues, ids);
-    }
-
-    /**
-     * Make sure the order is same as the expected order, and keep default value as 0.
-     *
-     * @param origin        IntValues
-     * @param expectedOrder List
-     * @return
-     */
-    private IntValues orderWithDefault0(IntValues origin, List<String> expectedOrder) {
-        IntValues intValues = new IntValues();
-
-        expectedOrder.forEach(id -> {
-            KVInt e = new KVInt();
-            e.setId(id);
-            e.setValue(origin.findValue(id, 0));
-            intValues.addKVInt(e);
-        });
-
-        return intValues;
+        metricsValues.setValues(
+            Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+        );
+        return metricsValues;
     }
 
     @Override
-    public IntValues[] getMultipleLinearIntValues(String measurement, DownSampling downsampling, List<String> ids,
-                                                  List<Integer> linearIndex, String valueCName) throws IOException {
+    public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
+                                                        final String valueColumnName,
+                                                        final List<String> labels,
+                                                        final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .column("id")
-            .column(valueCName)
-            .from(client.getDatabase(), measurement)
+            .column(ID_COLUMN)
+            .column(valueColumnName)
+            .from(client.getDatabase(), condition.getName())
             .where();
 
         if (CollectionUtils.isNotEmpty(ids)) {
             if (ids.size() == 1) {
-                query.where(eq("id", ids.get(0)));
+                query.where(eq(ID_COLUMN, ids.get(0)));
             } else {
-                query.where(contains("id", Joiner.on("|").join(ids)));
+                query.where(contains(ID_COLUMN, Joiner.on("|").join(ids)));
             }
         }
         List<QueryResult.Series> series = client.queryForSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        IntValues[] intValues = new IntValues[linearIndex.size()];
-        for (int i = 0; i < intValues.length; i++) {
-            intValues[i] = new IntValues();
-        }
-        if (CollectionUtils.isEmpty(series)) {
-            return intValues;
-        }
-        series.get(0).getValues().forEach(values -> {
-            IntKeyLongValueHashMap multipleValues = new IntKeyLongValueHashMap(5);
-            multipleValues.toObject((String) values.get(2));
 
-            final String id = (String) values.get(1);
-            for (int i = 0; i < intValues.length; i++) {
-                Integer index = linearIndex.get(i);
-                KVInt kv = new KVInt();
-                kv.setId(id);
-                kv.setValue(multipleValues.get(index).getValue());
-                intValues[i].addKVInt(kv);
-            }
+        Map<String, MetricsValues> labeledValues = new HashMap<>(labels.size());
+        labels.forEach(label -> {
+            MetricsValues labelValue = new MetricsValues();
+            labelValue.setLabel(label);
+
+            labeledValues.put(label, labelValue);
         });
-        return orderWithDefault0(intValues, ids);
-    }
 
-    /**
-     * Make sure the order is same as the expected order, and keep default value as 0.
-     *
-     * @param origin        IntValues[]
-     * @param expectedOrder List
-     * @return
-     */
-    private IntValues[] orderWithDefault0(IntValues[] origin, List<String> expectedOrder) {
-        for (int i = 0; i < origin.length; i++) {
-            origin[i] = orderWithDefault0(origin[i], expectedOrder);
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        if (!CollectionUtils.isEmpty(series)) {
+            series.get(0).getValues().forEach(values -> {
+                final String id = (String) values.get(1);
+                DataTable multipleValues = new DataTable(5);
+                multipleValues.toObject((String) values.get(2));
+
+                labels.forEach(label -> {
+                    Long data = multipleValues.get(label);
+                    if (data == null) {
+                        data = (long) defaultValue;
+                    }
+                    final IntValues intValues = labeledValues.get(label).getValues();
+                    KVInt kv = new KVInt();
+                    kv.setId(id);
+                    kv.setValue(data);
+                    intValues.addKVInt(kv);
+                });
+            });
         }
-        return origin;
+
+        return Util.sortValues(
+            new ArrayList<>(labeledValues.values()),
+            ids,
+            defaultValue
+        );
     }
 
     @Override
-    public Thermodynamic getThermodynamic(String measurement, DownSampling downsampling, List<String> ids,
-                                          String valueCName)
-        throws IOException {
+    public HeatMap readHeatMap(final MetricsCondition condition,
+                               final String valueColumnName,
+                               final Duration duration) throws IOException {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        pointOfTimes.forEach(pointOfTime -> {
+            ids.add(pointOfTime.id(condition.getEntity().buildId()));
+        });
+
         WhereQueryImpl<SelectQueryImpl> query = select()
-            .column(ThermodynamicMetrics.STEP)
-            .column(ThermodynamicMetrics.NUM_OF_STEPS)
-            .column(ThermodynamicMetrics.DETAIL_GROUP)
             .column(ID_COLUMN)
-            .from(client.getDatabase(), measurement)
+            .column(valueColumnName)
+            .from(client.getDatabase(), condition.getName())
             .where(contains(ID_COLUMN, Joiner.on("|").join(ids)));
         Map<String, List<Long>> thermodynamicValueMatrix = new HashMap<>();
 
@@ -264,38 +232,18 @@ public class MetricsQuery implements IMetricsQueryDAO {
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result set: {}", query.getCommand(), series);
         }
-        if (series == null) {
-            return new Thermodynamic();
+
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+
+        HeatMap heatMap = new HeatMap();
+        if (series != null) {
+            for (List<Object> values : series.getValues()) {
+                heatMap.buildColumn(values.get(1).toString(), values.get(2).toString(), defaultValue);
+            }
         }
 
-        int numOfSteps = 0, axisYStep = 0;
-        List<List<Long>> thermodynamicValueCollection = new ArrayList<>();
-        Thermodynamic thermodynamic = new Thermodynamic();
-        for (List<Object> values : series.getValues()) {
-            numOfSteps = (int) values.get(2) + 1;
-            axisYStep = (int) values.get(1);
-            IntKeyLongValueHashMap intKeyLongValues = new IntKeyLongValueHashMap(5);
-            intKeyLongValues.toObject((String) values.get(3));
-            List<Long> axisYValues = new ArrayList<>(numOfSteps);
-            for (int i = 0; i < numOfSteps; i++) {
-                axisYValues.add(0L);
-            }
-            for (IntKeyLongValue intKeyLongValue : intKeyLongValues.values()) {
-                axisYValues.set(intKeyLongValue.getKey(), intKeyLongValue.getValue());
-            }
-            thermodynamicValueMatrix.put((String) values.get(4), axisYValues);
-        }
-        // try to add default values when there is no data in that time bucket.
-        ids.forEach(id -> {
-            if (thermodynamicValueMatrix.containsKey(id)) {
-                thermodynamicValueCollection.add(thermodynamicValueMatrix.get(id));
-            } else {
-                thermodynamicValueCollection.add(new ArrayList<>());
-            }
-        });
-        thermodynamic.fromMatrixData(thermodynamicValueCollection, numOfSteps);
-        thermodynamic.setAxisYStep(axisYStep);
+        heatMap.fixMissingColumns(ids, defaultValue);
 
-        return thermodynamic;
+        return heatMap;
     }
 }

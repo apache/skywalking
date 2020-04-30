@@ -41,7 +41,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    entrypoint: ['bash', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
 
 networks:
   e2e:

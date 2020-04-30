@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
-import org.apache.skywalking.oap.server.core.query.entity.Call;
+import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
@@ -55,7 +54,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB,
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB,
                                                                           long endTB,
                                                                           List<String> serviceIds) throws IOException {
         String measurement = ServiceRelationServerSideMetrics.INDEX_NAME;
@@ -72,7 +71,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB,
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB,
                                                                          long endTB,
                                                                          List<String> serviceIds) throws IOException {
         String measurement = ServiceRelationClientSideMetrics.INDEX_NAME;
@@ -88,7 +87,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(DownSampling downsampling, long startTB,
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(long startTB,
                                                                           long endTB) throws IOException {
         String measurement = ServiceRelationServerSideMetrics.INDEX_NAME;
         WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = buildServiceCallsQuery(
@@ -103,7 +102,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(DownSampling downsampling, long startTB,
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(long startTB,
                                                                          long endTB) throws IOException {
         String tableName = ServiceRelationClientSideMetrics.INDEX_NAME;
         WhereSubQueryImpl<SelectSubQueryImpl<SelectQueryImpl>, SelectQueryImpl> subQuery = buildServiceCallsQuery(
@@ -120,7 +119,6 @@ public class TopologyQuery implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
         String measurement = ServiceInstanceRelationServerSideMetrics.INDEX_NAME;
@@ -138,7 +136,6 @@ public class TopologyQuery implements ITopologyQueryDAO {
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
                                                                           String serverServiceId,
-                                                                          DownSampling downsampling,
                                                                           long startTB,
                                                                           long endTB) throws IOException {
         String measurement = ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
@@ -154,8 +151,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadEndpointRelation(DownSampling downsampling,
-                                                      long startTB,
+    public List<Call.CallDetail> loadEndpointRelation(long startTB,
                                                       long endTB,
                                                       String destEndpointId) throws IOException {
         String measurement = EndpointRelationServerSideMetrics.INDEX_NAME;

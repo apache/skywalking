@@ -45,6 +45,7 @@
         <module>server-configuration</module>
         <module>server-bootstrap</module>
         <module>server-tools</module>
+        <module>server-fetcher-plugin</module>
     </modules>
 
     <properties>

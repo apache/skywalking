@@ -85,6 +85,11 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
      */
     protected List<TraceSegmentRef> refs;
 
+    /**
+     * Tracing Mode. If true means represents all spans generated in this context should skip analysis.
+     */
+    protected boolean skipAnalysis;
+
     protected AbstractTracingSpan(int spanId, int parentSpanId, String operationName, TracingContext owner) {
         this.operationName = operationName;
         this.spanId = spanId;
@@ -246,6 +251,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(endTime);
         spanBuilder.setOperationName(operationName);
+        spanBuilder.setSkipAnalysis(skipAnalysis);
         if (isEntry()) {
             spanBuilder.setSpanType(SpanType.Entry);
         } else if (isExit()) {
@@ -316,5 +322,10 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
     @Override
     public boolean isProfiling() {
         return this.owner.profileStatus().isProfiling();
+    }
+
+    @Override
+    public void skipAnalysis() {
+        this.skipAnalysis = true;
     }
 }

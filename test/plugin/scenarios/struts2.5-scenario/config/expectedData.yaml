@@ -39,7 +39,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /struts2.5-scenario/struts-scenario/case.action, networkAddress: 'localhost:8080',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: struts2.5-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:

@@ -119,4 +119,9 @@ public interface AbstractSpan extends AsyncSpan {
      * @return true if the span's owner(tracing context main thread) is been profiled.
      */
     boolean isProfiling();
+
+    /**
+     * Should skip analysis in the backend.
+     */
+    void skipAnalysis();
 }

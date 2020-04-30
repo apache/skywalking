@@ -34,8 +34,7 @@ jobs:
       matrix:
         case:
           - { name: 'okhttp-scenario', title: 'OKHttp 3.0.x-3.14.x (34)' }
-          - { name: 'play-scenario', title: 'Play! Framework' }
-          - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
+          - { name: 'play-scenario', title: 'Play! Framework (12)' }
           - { name: 'postgresql-scenario', title: 'PostgreSQL 9.2.x-9.4.x (36)' }
           - { name: 'pulsar-scenario', title: 'Pulsar 2.2.0-2.4.1 (7)' }
           - { name: 'rabbitmq-scenario', title: 'RabbitMQ (12)' }
@@ -49,10 +48,6 @@ jobs:
           - { name: 'sofarpc-scenario', title: 'SofaRPC 5.4.0-5.6.2 (23)' }
           - { name: 'solrj-7.x-scenario', title: 'SolrJ 7.x (12)' }
           - { name: 'spring-3.0.x-scenario', title: 'Spring 3.0.x (8)' }
-          - { name: 'spring-3.1.x-scenario', title: 'Spring 3.1.x-4.0.x (25)' }
-          - { name: 'spring-4.1.x-scenario', title: 'Spring 4.1.x-4.2.x (20)' }
-          - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
-          - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
           - { name: 'spring-cloud-feign-1.1.x-scenario', title: 'SpringCloud Feign 1.1.x (8)' }
           - { name: 'spring-cloud-feign-1.2.x-scenario', title: 'SpringCloud Feign 1.2.x-1.4.x (23)' }
           - { name: 'spring-cloud-feign-2.x-scenario', title: 'SpringCloud Feign 2.x (14)' }
@@ -61,11 +56,8 @@ jobs:
           - { name: 'struts2.5-scenario', title: 'Struts2.5 (14)' }
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8

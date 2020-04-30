@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
@@ -36,7 +37,8 @@ import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.MetricQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -106,6 +108,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
+        MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
+        this.registerServiceImplementation(MeterSystem.class, meterSystem);
+
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
         this.registerServiceImplementation(
@@ -132,7 +137,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
             NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
 
         this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager()));
-        this.registerServiceImplementation(MetricQueryService.class, new MetricQueryService(getManager()));
+        this.registerServiceImplementation(MetricsMetadataQueryService.class, new MetricsMetadataQueryService());
+        this.registerServiceImplementation(MetricsQueryService.class, new MetricsQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
         this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
         this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
@@ -154,6 +160,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        MeterSystem.closeMeterCreationChannel();
+
         try {
             annotationScan.scan();
         } catch (IOException e) {

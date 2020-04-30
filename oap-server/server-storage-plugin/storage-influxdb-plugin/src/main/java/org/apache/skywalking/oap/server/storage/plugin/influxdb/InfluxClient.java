@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -191,13 +190,6 @@ public class InfluxClient implements Client {
     @Override
     public void shutdown() throws IOException {
         influx.close();
-    }
-
-    /**
-     * Convert to InfluxDB {@link TimeInterval}.
-     */
-    public static TimeInterval timeInterval(long timeBucket, DownSampling downsampling) {
-        return ti(TimeBucket.getTimestamp(timeBucket, downsampling), "ms");
     }
 
     /**
