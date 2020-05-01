@@ -311,7 +311,7 @@ public abstract class AbstractTracingSpan implements AbstractSpan {
             throw new RuntimeException("Span is not in async mode, please use '#prepareForAsync' to active.");
         }
         if (isAsyncStopped) {
-            throw new RuntimeException("Can not do async finish for the span repeately.");
+            throw new RuntimeException("Can not do async finish for the span repeatedly.");
         }
         this.endTime = System.currentTimeMillis();
         owner.asyncStop(this);

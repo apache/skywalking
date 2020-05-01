@@ -30,7 +30,7 @@ public class VertxEventbusController extends AbstractVerticle {
     @Override
     public void start() {
         Router router = Router.router(vertx);
-        router.get("/vertx-eventbus-3-scenario/case/eventbus-case").handler(this::handleCoreCase);
+        router.get("/vertx-eventbus-3-scenario/case/eventbus-case").handler(this::handleEventbusCase);
         router.get("/vertx-eventbus-3-scenario/case/executeTest").handler(this::executeTest);
         router.head("/vertx-eventbus-3-scenario/case/healthCheck").handler(this::healthCheck);
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
@@ -39,7 +39,7 @@ public class VertxEventbusController extends AbstractVerticle {
         vertx.deployVerticle(LocalReceiver.class.getName());
     }
 
-    private void handleCoreCase(RoutingContext routingContext) {
+    private void handleEventbusCase(RoutingContext routingContext) {
         vertx.createHttpClient().getNow(8080, "localhost",
                 "/vertx-eventbus-3-scenario/case/executeTest",
                 it -> routingContext.response().setStatusCode(it.statusCode()).end());
