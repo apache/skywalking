@@ -15,8 +15,26 @@
 # limitations under the License.
 segmentItems:
   - serviceName: vertx-eventbus-3.x-scenario
-    segmentSize: 7
+    segmentSize: 8
     segments:
+      - segmentId: not null
+        spans:
+          - operationName: /vertx-eventbus-3-scenario/case/healthCheck
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: HEAD}
+              - {key: url, value: /vertx-eventbus-3-scenario/case/healthCheck}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: local-message-receiver
@@ -58,6 +76,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: status_code, value: '200'}
           - operationName: /vertx-eventbus-3-scenario/case/eventbus-case
             operationId: 0
             parentSpanId: -1
@@ -73,6 +92,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/eventbus-case}
+              - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
           - operationName: '#/vertx-eventbus-3-scenario/case/executeTest'
@@ -133,6 +153,7 @@ segmentItems:
             tags:
               - {key: http.method, value: GET}
               - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: status_code, value: '200'}
             refs:
               - {parentEndpoint: /vertx-eventbus-3-scenario/case/eventbus-case, networkAddress: 'localhost:8080',
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,

@@ -26,8 +26,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
  * {@link HttpClientRequestImplEndInstrumentation} enhance the <code>end</code> method in
@@ -42,40 +42,62 @@ public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethod
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-            new ConstructorInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return any();
-                }
+        return new ConstructorInterceptPoint[]{
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return takesArgument(3, int.class);
+                    }
 
-                @Override
-                public String getConstructorInterceptor() {
-                    return INTERCEPT_CLASS;
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS + "$Version30XTo33XConstructorInterceptor";
+                    }
+                },
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return takesArgument(4, int.class);
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS + "$Version34XTo37XConstructorInterceptor";
+                    }
+                },
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return takesArgument(5, int.class);
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS + "$Version38PlusConstructorInterceptor";
+                    }
                 }
-            }
         };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
-                }
+        return new InstanceMethodsInterceptPoint[]{
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(ENHANCE_METHOD);
+                    }
 
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
-                }
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return INTERCEPT_CLASS;
+                    }
 
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
                 }
-            }
         };
     }
 
