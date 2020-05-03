@@ -58,8 +58,8 @@ public class ConnectionManagerInterceptor implements InstanceMethodsAroundInterc
             EnhancedInstance retInst = (EnhancedInstance) ret;
 
             if (singleServerConfig != null) {
-                Object SingleAddress = ClassUtil.getObjectField(singleServerConfig, "address");
-                peer.append(getPeer(SingleAddress));
+                Object singleAddress = ClassUtil.getObjectField(singleServerConfig, "address");
+                peer.append(getPeer(singleAddress));
                 retInst.setSkyWalkingDynamicField(PeerFormat.shorten(peer.toString()));
                 return ret;
             }

@@ -84,7 +84,6 @@ public class RedisConnectionMethodInterceptorTest {
         MatcherAssert.assertThat((String) mockRedisConnectionInstance.getSkyWalkingDynamicField(), Is.is("127.0.0.1:6379;127.0.0.1:6378;"));
     }
 
-
     @Test
     public void testSingleServerMode() throws Throwable {
         String redisAddress = "redis://127.0.0.1:6379";
