@@ -57,6 +57,10 @@ public class MergableBufferedData<METRICS extends Metrics> implements BufferedDa
 
     @Override
     public List<METRICS> read() {
-        return buffer.values().stream().collect(Collectors.toList());
+        try {
+            return buffer.values().stream().collect(Collectors.toList());
+        } finally {
+            buffer.clear();
+        }
     }
 }
