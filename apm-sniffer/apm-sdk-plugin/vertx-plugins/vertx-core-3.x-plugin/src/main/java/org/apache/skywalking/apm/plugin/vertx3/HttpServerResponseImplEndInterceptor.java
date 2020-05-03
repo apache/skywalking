@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.vertx.core.http.HttpServerResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -28,13 +30,11 @@ import java.lang.reflect.Method;
 public class HttpServerResponseImplEndInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        if (allArguments.length == 0) {
-            VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-            context.getSpan().asyncFinish();
-        }
+        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpServerResponse) objInst).getStatusCode()));
+        context.getSpan().asyncFinish();
     }
 
     @Override
