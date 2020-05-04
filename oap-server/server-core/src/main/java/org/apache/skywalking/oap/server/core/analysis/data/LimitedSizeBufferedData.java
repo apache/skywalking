@@ -74,8 +74,12 @@ public class LimitedSizeBufferedData<STORAGE_DATA extends ComparableStorageData 
 
     @Override
     public List<STORAGE_DATA> read() {
-        List<STORAGE_DATA> collection = new ArrayList<>();
-        data.values().forEach(e -> e.forEach(collection::add));
-        return collection;
+        try {
+            List<STORAGE_DATA> collection = new ArrayList<>();
+            data.values().forEach(collection::addAll);
+            return collection;
+        } finally {
+            data.clear();
+        }
     }
 }
