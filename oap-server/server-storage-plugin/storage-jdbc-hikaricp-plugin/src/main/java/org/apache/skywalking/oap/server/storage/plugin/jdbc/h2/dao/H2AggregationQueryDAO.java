@@ -68,7 +68,7 @@ public class H2AggregationQueryDAO implements IAggregationQueryDAO {
             });
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
-        sql.append(") order by value ")
+        sql.append(")  as T order by value ")
            .append(metrics.getOrder().equals(Order.ASC) ? "asc" : "desc")
            .append(" limit ")
            .append(metrics.getTopN());
