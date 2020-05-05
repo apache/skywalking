@@ -169,6 +169,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                     nextExportWorker.ifPresent(exportEvenWorker -> exportEvenWorker.in(
                         new ExportEvent(metrics, ExportEvent.EventType.INCREMENT)));
                 } else {
+                    metrics.calculate();
                     prepareRequests.add(metricsDAO.prepareBatchInsert(model, metrics));
                     nextWorker(metrics);
                 }

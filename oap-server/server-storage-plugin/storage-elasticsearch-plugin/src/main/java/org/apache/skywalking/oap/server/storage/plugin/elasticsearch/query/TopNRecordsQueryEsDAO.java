@@ -50,8 +50,8 @@ public class TopNRecordsQueryEsDAO extends EsDAO implements ITopNRecordsQueryDAO
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         boolQueryBuilder.must().add(QueryBuilders.rangeQuery(TopN.TIME_BUCKET)
-                                                 .gte(duration.getStartTimeBucket())
-                                                 .lte(duration.getEndTimeBucket()));
+                                                 .gte(duration.getStartTimeBucketInSec())
+                                                 .lte(duration.getEndTimeBucketInSec()));
 
         if (StringUtil.isNotEmpty(condition.getParentService())) {
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
