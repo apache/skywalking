@@ -19,14 +19,13 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest;
 
 import com.google.gson.JsonElement;
-import java.io.BufferedReader;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyJsonHandler;
-import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.TraceAnalyzer;
@@ -37,7 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class TraceSegmentReportServletHandler extends JettyJsonHandler {
+public abstract class TraceSegmentReportBaseServletHandler extends JettyJsonHandler {
 
     private final ModuleManager moduleManager;
     private final SegmentParserListenerManager listenerManager;
@@ -45,9 +44,9 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
 
-    public TraceSegmentReportServletHandler(ModuleManager moduleManager,
-                                            SegmentParserListenerManager listenerManager,
-                                            TraceServiceModuleConfig config) {
+    public TraceSegmentReportBaseServletHandler(ModuleManager moduleManager,
+                                                SegmentParserListenerManager listenerManager,
+                                                TraceServiceModuleConfig config) {
         this.moduleManager = moduleManager;
         this.listenerManager = listenerManager;
         this.config = config;
@@ -64,11 +63,6 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
     }
 
     @Override
-    public String pathSpec() {
-        return "/v3/segments";
-    }
-
-    @Override
     protected JsonElement doGet(HttpServletRequest req) {
         throw new UnsupportedOperationException();
     }
@@ -81,14 +75,7 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
         HistogramMetrics.Timer timer = histogram.createTimer();
 
         try {
-            final ArrayList<SegmentObject> segments = new ArrayList<>();
-            BufferedReader reader = req.getReader();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                SegmentObject.Builder upstreamSegmentBuilder = SegmentObject.newBuilder();
-                ProtoBufJsonUtils.fromJSON(line, upstreamSegmentBuilder);
-                segments.add(upstreamSegmentBuilder.build());
-            }
+            final List<SegmentObject> segments = parseSegments(req);
 
             for (SegmentObject segment : segments) {
                 final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
@@ -103,4 +90,10 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
 
         return null;
     }
+
+    /**
+     * parsing segment list from request
+     */
+    protected abstract List<SegmentObject> parseSegments(HttpServletRequest request) throws IOException;
+
 }
