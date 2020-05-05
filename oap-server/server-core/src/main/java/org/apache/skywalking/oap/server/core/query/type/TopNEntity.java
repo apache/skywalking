@@ -38,6 +38,6 @@ public class TopNEntity {
     public TopNEntity(SelectedRecord record) {
         this.name = record.getName();
         this.id = record.getId();
-        this.value = Long.parseLong(record.getValue());
+        this.value = Double.valueOf(record.getValue()).longValue();
     }
 }
