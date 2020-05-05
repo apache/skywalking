@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest
 
 import com.google.gson.JsonElement;
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -79,19 +80,20 @@ public class TraceSegmentReportServletHandler extends JettyJsonHandler {
         }
         HistogramMetrics.Timer timer = histogram.createTimer();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
         try {
+            final ArrayList<SegmentObject> segments = new ArrayList<>();
             BufferedReader reader = req.getReader();
+            String line;
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
+                SegmentObject.Builder upstreamSegmentBuilder = SegmentObject.newBuilder();
+                ProtoBufJsonUtils.fromJSON(line, upstreamSegmentBuilder);
+                segments.add(upstreamSegmentBuilder.build());
             }
 
-            SegmentObject.Builder upstreamSegmentBuilder = SegmentObject.newBuilder();
-            ProtoBufJsonUtils.fromJSON(stringBuilder.toString(), upstreamSegmentBuilder);
-
-            final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
-            traceAnalyzer.doAnalysis(upstreamSegmentBuilder.build());
+            for (SegmentObject segment : segments) {
+                final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
+                traceAnalyzer.doAnalysis(segment);
+            }
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
