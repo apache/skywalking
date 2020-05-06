@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -53,8 +54,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThre
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MySQL storage provider should be secondary choice for production usage as SkyWalking storage solution. It enhanced
@@ -64,9 +63,8 @@ import org.slf4j.LoggerFactory;
  * this storage implementation, we could also use this in MySQL-compatible projects, such as, Apache ShardingSphere,
  * TiDB
  */
+@Slf4j
 public class MySQLStorageProvider extends ModuleProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(MySQLStorageProvider.class);
 
     private MySQLStorageConfig config;
     private JDBCHikariCPClient mysqlClient;
@@ -118,20 +116,18 @@ public class MySQLStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
-        try {
-            mysqlClient.connect();
+    public void start() throws ServiceNotProvidedException {
+        mysqlClient.connect();
+    }
 
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+        try {
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
             installer.install(mysqlClient);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
     }
 
     @Override

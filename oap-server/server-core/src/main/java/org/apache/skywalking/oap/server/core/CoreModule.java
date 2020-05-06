@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
@@ -80,6 +81,7 @@ public class CoreModule extends ModuleDefine {
         addCacheService(classes);
         addQueryService(classes);
         addProfileService(classes);
+        addOALService(classes);
 
         classes.add(CommandService.class);
 
@@ -90,6 +92,10 @@ public class CoreModule extends ModuleDefine {
         classes.add(ProfileTaskMutationService.class);
         classes.add(ProfileTaskQueryService.class);
         classes.add(ProfileTaskCache.class);
+    }
+
+    private void addOALService(List<Class> classes) {
+        classes.add(OALEngineLoaderService.class);
     }
 
     private void addQueryService(List<Class> classes) {

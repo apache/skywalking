@@ -42,8 +42,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
-import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
-import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoader;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
@@ -103,7 +102,6 @@ public class CoreModuleProvider extends ModuleProvider {
     private final AnnotationScan annotationScan;
     private final StorageModels storageModels;
     private final SourceReceiverImpl receiver;
-    private OALEngine oalEngine;
     private ApdexThresholdConfig apdexThresholdConfig;
 
     public CoreModuleProvider() {
@@ -146,11 +144,6 @@ public class CoreModuleProvider extends ModuleProvider {
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         try {
             scopeScan.scan();
-
-            oalEngine = OALEngineLoader.get();
-            oalEngine.setStreamListener(streamAnnotationListener);
-            oalEngine.setDispatcherListener(receiver.getDispatcherManager());
-            oalEngine.start(getClass().getClassLoader());
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -236,6 +229,9 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
+        // add oal engine loader service implementations
+        this.registerServiceImplementation(OALEngineLoaderService.class, new OALEngineLoaderService(getManager()));
+
         annotationScan.registerListener(streamAnnotationListener);
 
         if (moduleConfig.isGRPCSslEnabled()) {
@@ -264,9 +260,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
         try {
             receiver.scan();
-            annotationScan.scan();
-
-            oalEngine.notifyAllListeners();
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -296,9 +289,14 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
+            /**
+             * The scan begins after OALEngine calls {@link DisableRegister#add}
+             */
+            annotationScan.scan();
+
             grpcServer.start();
             jettyServer.start();
-        } catch (ServerException e) {
+        } catch (ServerException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 

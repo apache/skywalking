@@ -183,16 +183,19 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
     public void start() throws ModuleStartException {
         try {
             elasticSearch7Client.connect();
-
-            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config);
-            installer.install(elasticSearch7Client);
-        } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
+        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void notifyAfterCompleted() {
+    public void notifyAfterCompleted() throws ModuleStartException {
+        try {
+            StorageEs7Installer installer = new StorageEs7Installer(getManager(), config);
+            installer.install(elasticSearch7Client);
+        } catch (StorageException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override

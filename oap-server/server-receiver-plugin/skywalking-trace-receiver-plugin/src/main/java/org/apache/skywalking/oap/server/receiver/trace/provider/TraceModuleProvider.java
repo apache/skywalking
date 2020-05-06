@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -81,6 +83,12 @@ public class TraceModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        // loader official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .loader(OALDefine.OFFICIAL);
+
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()
                                                                               .getService(

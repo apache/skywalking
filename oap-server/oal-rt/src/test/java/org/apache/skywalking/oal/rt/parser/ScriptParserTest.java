@@ -28,6 +28,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ScriptParserTest {
+
+    private static final String TEST_SOURCE_PACKAGE = ScriptParserTest.class.getPackage().getName() + ".test.source.";
+
     @BeforeClass
     public static void init() throws IOException {
         MetricsHolder.init();
@@ -44,7 +47,10 @@ public class ScriptParserTest {
 
     @Test
     public void testParse() throws IOException {
-        ScriptParser parser = ScriptParser.createFromScriptText("Endpoint_avg = from(Endpoint.latency).longAvg(); //comment test" + "\n" + "Service_avg = from(Service.latency).longAvg()");
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "Endpoint_avg = from(Endpoint.latency).longAvg(); //comment test" + "\n" + "Service_avg = from(Service.latency).longAvg()",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         Assert.assertEquals(2, results.size());
@@ -64,7 +70,8 @@ public class ScriptParserTest {
 
     @Test
     public void testParse2() throws IOException {
-        ScriptParser parser = ScriptParser.createFromScriptText("Endpoint_percent = from(Endpoint.*).percent(status == true);");
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "Endpoint_percent = from(Endpoint.*).percent(status == true);", TEST_SOURCE_PACKAGE);
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
@@ -79,7 +86,10 @@ public class ScriptParserTest {
 
     @Test
     public void testParse3() throws IOException {
-        ScriptParser parser = ScriptParser.createFromScriptText("Endpoint_percent = from(Endpoint.*).filter(status == true).filter(name == \"/product/abc\").longAvg();");
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "Endpoint_percent = from(Endpoint.*).filter(status == true).filter(name == \"/product/abc\").longAvg();",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult endpointPercent = results.get(0);
@@ -104,7 +114,13 @@ public class ScriptParserTest {
 
     @Test
     public void testParse4() throws IOException {
-        ScriptParser parser = ScriptParser.createFromScriptText("service_response_s1_summary = from(Service.latency).filter(latency > 1000).sum();" + "\n" + "service_response_s2_summary = from(Service.latency).filter(latency < 2000).sum();" + "\n" + "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n" + "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();");
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_response_s1_summary = from(Service.latency).filter(latency > 1000).sum();" + "\n"
+                + "service_response_s2_summary = from(Service.latency).filter(latency < 2000).sum();" + "\n"
+                + "service_response_s3_summary = from(Service.latency).filter(latency >= 3000).sum();" + "\n"
+                + "service_response_s4_summary = from(Service.latency).filter(latency <= 4000).sum();",
+            TEST_SOURCE_PACKAGE
+        );
         List<AnalysisResult> results = parser.parse().getMetricsStmts();
 
         AnalysisResult responseSummary = results.get(0);
@@ -154,7 +170,7 @@ public class ScriptParserTest {
 
     @Test
     public void testDisable() throws IOException {
-        ScriptParser parser = ScriptParser.createFromScriptText("disable(segment);");
+        ScriptParser parser = ScriptParser.createFromScriptText("disable(segment);", TEST_SOURCE_PACKAGE);
         DisableCollection collection = parser.parse().getDisableCollection();
         List<String> sources = collection.getAllDisableSources();
         Assert.assertEquals(1, sources.size());
