@@ -81,28 +81,6 @@ public class TraceSegmentReportServletHandlerTest {
     }
 
     @Test
-    public void testMultipleLine() throws IOException {
-        String multipleLineJson = "{" +
-            "   \"traceId\":\"c480c738-b628-490d-ace7-69f7030d77cb\"," +
-            "   \"spans\":[" +
-            "       {\"operationName\":\"\\/ingress\"}" +
-            "   ]" +
-            "}\r\n" +
-            "{" +
-            "   \"traceId\":\"e9673310-cf3a-467e-8f47-eaec26b57f76\"," +
-            "   \"spans\":[" +
-            "       {\"operationName\":\"\\/ingress\"}" +
-            "]}";
-
-        final TraceSegmentReportMultipleLineServletHandler singleServletHandler =
-            new TraceSegmentReportMultipleLineServletHandler(moduleManager, null, null);
-
-        when(request.getReader()).thenReturn(new BufferedReader(new StringReader(multipleLineJson)));
-        final List<SegmentObject> segmentObjects = singleServletHandler.parseSegments(request);
-        Assert.assertEquals(segmentObjects.size(), 2);
-    }
-
-    @Test
     public void testListJson() throws IOException {
         String listJson = "[{" +
             "   \"traceId\":\"c480c738-b628-490d-ace7-69f7030d77cb\"," +
@@ -116,8 +94,8 @@ public class TraceSegmentReportServletHandlerTest {
             "   ]" +
             "}]";
 
-        final TraceSegmentReportListJsonServletHandler singleServletHandler =
-            new TraceSegmentReportListJsonServletHandler(moduleManager, null, null);
+        final TraceSegmentReportListServletHandler singleServletHandler =
+            new TraceSegmentReportListServletHandler(moduleManager, null, null);
 
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(listJson)));
         final List<SegmentObject> segmentObjects = singleServletHandler.parseSegments(request);

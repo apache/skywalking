@@ -37,11 +37,11 @@ import java.util.List;
 /**
  * Parsing segments from list json
  */
-public class TraceSegmentReportListJsonServletHandler extends TraceSegmentReportBaseServletHandler {
+public class TraceSegmentReportListServletHandler extends TraceSegmentReportBaseServletHandler {
 
     private final Gson gson = new Gson();
 
-    public TraceSegmentReportListJsonServletHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
+    public TraceSegmentReportListServletHandler(ModuleManager moduleManager, SegmentParserListenerManager listenerManager, TraceServiceModuleConfig config) {
         super(moduleManager, listenerManager, config);
     }
 
@@ -70,6 +70,6 @@ public class TraceSegmentReportListJsonServletHandler extends TraceSegmentReport
 
     @Override
     public String pathSpec() {
-        return "/v3/segmentList";
+        return "/v3/segments";
     }
 }

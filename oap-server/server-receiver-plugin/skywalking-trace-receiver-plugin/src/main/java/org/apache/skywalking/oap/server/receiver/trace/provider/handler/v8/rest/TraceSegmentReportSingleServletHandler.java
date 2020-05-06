@@ -55,6 +55,6 @@ public class TraceSegmentReportSingleServletHandler extends TraceSegmentReportBa
 
     @Override
     public String pathSpec() {
-        return "/v3/segmentSingle";
+        return "/v3/segment";
     }
 }
