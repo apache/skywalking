@@ -22,6 +22,6 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 public class MariadbURLParser extends MysqlURLParser {
     public MariadbURLParser(String url) {
-        super(url, "Mariadb", ComponentsDefine.MARIADB);
+        super(url, "Mariadb", ComponentsDefine.MARIADB_JDBC);
     }
 }

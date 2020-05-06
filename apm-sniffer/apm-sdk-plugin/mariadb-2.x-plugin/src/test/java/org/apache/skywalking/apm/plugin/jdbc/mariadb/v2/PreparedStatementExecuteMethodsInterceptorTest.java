@@ -80,7 +80,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
         enhanceRequireCacheObject = new StatementEnhanceInfos(connectionInfo, SQL, "PreparedStatement");
         when(objectInstance.getSkyWalkingDynamicField()).thenReturn(enhanceRequireCacheObject);
         when(method.getName()).thenReturn("executeQuery");
-        when(connectionInfo.getComponent()).thenReturn(ComponentsDefine.MARIADB);
+        when(connectionInfo.getComponent()).thenReturn(ComponentsDefine.MARIADB_JDBC);
         when(connectionInfo.getDBType()).thenReturn("Mariadb");
         when(connectionInfo.getDatabaseName()).thenReturn("test");
         when(connectionInfo.getDatabasePeer()).thenReturn("localhost:3306");

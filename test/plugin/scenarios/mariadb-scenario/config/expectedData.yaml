@@ -43,7 +43,7 @@ segmentItems:
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
-      componentId: 86
+      componentId: 87
       isError: false
       spanType: Exit
       peer: mariadb-server:3306
@@ -61,7 +61,7 @@ segmentItems:
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
-      componentId: 86
+      componentId: 87
       isError: false
       spanType: Exit
       peer: mariadb-server:3306
@@ -77,7 +77,7 @@ segmentItems:
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
-      componentId: 86
+      componentId: 87
       isError: false
       spanType: Exit
       peer: mariadb-server:3306
@@ -93,7 +93,7 @@ segmentItems:
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
-      componentId: 86
+      componentId: 87
       isError: false
       spanType: Exit
       peer: mariadb-server:3306
@@ -109,7 +109,7 @@ segmentItems:
       spanLayer: Database
       startTime: nq 0
       endTime: nq 0
-      componentId: 86
+      componentId: 87
       isError: false
       spanType: Exit
       peer: mariadb-server:3306
