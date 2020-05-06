@@ -35,7 +35,7 @@ The core features are following.
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
 including
-1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs), [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) and [Python Agent](https://github.com/apache/skywalking-python) auto-instrument agents.
+1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs), [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) and [Python](https://github.com/apache/skywalking-python) auto-instrument agents.
 1. [Go agent](https://github.com/tetratelabs/go2sky).
 1. [LUA agent](https://github.com/apache/skywalking-nginx-lua), especially for Nginx, OpenResty.
 1. Service Mesh Observability. Support Mixer telemetry. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
