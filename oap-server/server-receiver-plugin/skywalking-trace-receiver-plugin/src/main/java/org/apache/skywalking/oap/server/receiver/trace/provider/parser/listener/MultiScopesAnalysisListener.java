@@ -276,7 +276,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
-            sourceReceiver.receive(exitSourceBuilder.toService());		
+            sourceReceiver.receive(exitSourceBuilder.toService());	
             sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
 
             /*
