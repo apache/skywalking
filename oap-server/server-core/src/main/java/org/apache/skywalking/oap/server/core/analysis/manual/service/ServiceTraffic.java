@@ -72,6 +72,8 @@ public class ServiceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setName(remoteData.getDataStrings(0));
         setNodeType(NodeType.valueOf(remoteData.getDataIntegers(0)));
+        // Time bucket is not a part of persistent, but still is required in the first time insert.
+        setTimeBucket(remoteData.getDataLongs(0));
     }
 
     @Override
@@ -79,6 +81,8 @@ public class ServiceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(name);
         builder.addDataIntegers(nodeType.value());
+        // Time bucket is not a part of persistent, but still is required in the first time insert.
+        builder.addDataLongs(getTimeBucket());
         return builder;
     }
 
