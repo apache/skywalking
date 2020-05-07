@@ -68,10 +68,19 @@ public class AggregationQueryService implements Service {
                     selectedRecord.setName(IDManager.ServiceID.analysisId(selectedRecord.getId()).getName());
                     break;
                 case ServiceInstance:
-                    selectedRecord.setName(IDManager.ServiceInstanceID.analysisId(selectedRecord.getId()).getName());
+                    final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition
+                        = IDManager.ServiceInstanceID.analysisId(selectedRecord.getId());
+                    IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition =
+                        IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId());
+                    selectedRecord.setName(serviceIDDefinition.getName() + " - " + instanceIDDefinition.getName());
                     break;
                 case Endpoint:
-                    selectedRecord.setName(IDManager.EndpointID.analysisId(selectedRecord.getId()).getEndpointName());
+                    final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition
+                        = IDManager.EndpointID.analysisId(selectedRecord.getId());
+                    serviceIDDefinition =
+                        IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId());
+                    selectedRecord.setName(serviceIDDefinition.getName()
+                                               + " - " + endpointIDDefinition.getEndpointName());
                     break;
                 default:
                     selectedRecord.setName(Const.UNKNOWN);
