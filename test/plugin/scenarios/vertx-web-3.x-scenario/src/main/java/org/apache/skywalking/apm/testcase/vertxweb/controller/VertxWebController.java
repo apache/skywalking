@@ -32,7 +32,7 @@ public class VertxWebController extends AbstractVerticle {
     }
 
     private void handleCoreCase(RoutingContext routingContext) {
-        vertx.createHttpClient().getNow(8080, "localhost",
+        vertx.createHttpClient().headNow(8080, "localhost",
                 "/vertx-web-3-scenario/case/healthCheck",
                 it -> routingContext.response().setStatusCode(it.statusCode()).end());
     }

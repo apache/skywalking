@@ -372,6 +372,11 @@ Nginx:
   id: 6000
   languages: Lua
 
+# [7000, 8000) are reserved for Python components
+Python:
+  id: 7000
+  languages: Python
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server

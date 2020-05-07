@@ -35,7 +35,7 @@ The core features are following.
 SkyWalking supports to collect telemetry (traces and metrics) data from multiple sources
 and multiple formats,
 including
-1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs) and [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) auto-instrument agents.
+1. Java, [.NET Core](https://github.com/SkyAPM/SkyAPM-dotnet), [NodeJS](https://github.com/SkyAPM/SkyAPM-nodejs), [PHP](https://github.com/SkyAPM/SkyAPM-php-sdk) and [Python](https://github.com/apache/skywalking-python) auto-instrument agents.
 1. [Go agent](https://github.com/tetratelabs/go2sky).
 1. [LUA agent](https://github.com/apache/skywalking-nginx-lua), especially for Nginx, OpenResty.
 1. Service Mesh Observability. Support Mixer telemetry. Recommend to use Envoy Access Log Service (ALS) for better performance, first introduced at [KubeCon 2019](https://www.youtube.com/watch?v=tERm39ju9ew).
@@ -45,7 +45,7 @@ including
 # Document
 [8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
 
-NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous released. 
+NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous released.
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.

@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
  * {@link HttpServerResponseImplEndInstrumentation} enhance the <code>end</code> method in
@@ -36,8 +37,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String ENHANCE_METHOD = "end";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplEndInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplEndInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,12 +50,17 @@ public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMetho
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("end0") //ver. 3.0.0 - 3.5.4
+                            .or(named("end") //ver. 3.6.0 - 3.7.0
+                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer")))
+                            .or(named("end") //ver. 3.7.1+
+                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer"))
+                                    .and(takesArgumentWithType(1, "io.netty.channel.ChannelPromise")));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override

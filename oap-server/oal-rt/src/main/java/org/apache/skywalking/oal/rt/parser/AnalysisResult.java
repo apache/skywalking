@@ -139,7 +139,7 @@ public class AnalysisResult {
             } else if (columnType.equals(long.class)) {
                 serializeFields.addLongField(column.getFieldName());
             } else if (StorageDataComplexObject.class.isAssignableFrom(columnType)) {
-                serializeFields.addObjectField(column.getFieldName());
+                serializeFields.addObjectField(column.getFieldName(), columnType.getName());
             } else {
                 throw new IllegalStateException(
                     "Unexpected field type [" + columnType.getSimpleName() + "] of persistence column [" + column

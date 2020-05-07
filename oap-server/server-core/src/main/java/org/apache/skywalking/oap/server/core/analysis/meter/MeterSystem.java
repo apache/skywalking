@@ -159,13 +159,18 @@ public class MeterSystem implements Service {
             boolean foundDataType = false;
             String acceptance = null;
             for (final Type genericInterface : meterFunction.getGenericInterfaces()) {
-                ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
-                if (parameterizedType.getRawType().getTypeName().equals(AcceptableValue.class.getName())) {
-                    Type[] arguments = parameterizedType.getActualTypeArguments();
-                    if (arguments[0].equals(dataType)) {
-                        foundDataType = true;
-                    } else {
-                        acceptance = arguments[0].getTypeName();
+                if (genericInterface instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                    if (parameterizedType.getRawType().getTypeName().equals(AcceptableValue.class.getName())) {
+                        Type[] arguments = parameterizedType.getActualTypeArguments();
+                        if (arguments[0].equals(dataType)) {
+                            foundDataType = true;
+                        } else {
+                            acceptance = arguments[0].getTypeName();
+                        }
+                    }
+                    if (foundDataType) {
+                        break;
                     }
                 }
             }

@@ -27,7 +27,6 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -58,13 +57,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     @Setter
     @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
     private DataTable dataset = new DataTable(30);
-    /**
-     * Service ID is required for sort query.
-     */
-    @Setter
-    @Getter
-    @Column(columnName = InstanceTraffic.SERVICE_ID)
-    private String serviceId;
 
     @Override
     public void accept(final MeterEntity entity, final BucketedValues value) {
@@ -76,7 +68,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         }
 
         this.entityId = entity.id();
-        this.serviceId = entity.serviceId();
 
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
@@ -110,7 +101,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setServiceId(getServiceId());
         metrics.setDataset(getDataset());
         return metrics;
     }
@@ -120,7 +110,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setServiceId(getServiceId());
         metrics.setDataset(getDataset());
         return metrics;
     }
@@ -135,7 +124,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         this.setTimeBucket(remoteData.getDataLongs(0));
 
         this.setEntityId(remoteData.getDataStrings(0));
-        this.setServiceId(remoteData.getDataStrings(1));
 
         this.setDataset(new DataTable(remoteData.getDataObjectStrings(0)));
     }
@@ -146,7 +134,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
         remoteBuilder.addDataLongs(getTimeBucket());
 
         remoteBuilder.addDataStrings(entityId);
-        remoteBuilder.addDataStrings(serviceId);
 
         remoteBuilder.addDataObjectStrings(dataset.toStorageData());
 
@@ -175,7 +162,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
             };
             metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) dbMap.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
             return metrics;
         }
@@ -185,7 +171,6 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
-            map.put(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }

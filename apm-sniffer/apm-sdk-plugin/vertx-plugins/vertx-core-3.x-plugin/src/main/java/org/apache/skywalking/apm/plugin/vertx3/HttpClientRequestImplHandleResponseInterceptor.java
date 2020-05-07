@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.vertx.core.http.HttpClientResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -31,10 +33,10 @@ import java.lang.reflect.Method;
 public class HttpClientRequestImplHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
         context.getSpan().asyncFinish();
 
         AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
