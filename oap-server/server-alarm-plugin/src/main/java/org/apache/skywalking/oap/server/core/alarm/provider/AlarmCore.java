@@ -56,7 +56,6 @@ public class AlarmCore {
                 LocalDateTime checkTime = LocalDateTime.now();
                 int minutes = Minutes.minutesBetween(lastExecuteTime, checkTime).getMinutes();
                 boolean[] hasExecute = new boolean[] {false};
-                //update alarm settings dynamically
                 alarmRulesWatcher.getRunningContext().values().forEach(ruleList -> ruleList.forEach(runningRule -> {
                     if (minutes > 0) {
                         runningRule.moveTo(checkTime);
