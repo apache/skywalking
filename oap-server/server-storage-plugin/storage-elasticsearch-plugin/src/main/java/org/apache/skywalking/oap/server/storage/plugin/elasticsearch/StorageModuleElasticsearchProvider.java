@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -186,6 +187,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
+            /**
+             * Wait for all {@link OALDefine} to be activated.
+             */
             StorageEsInstaller installer = new StorageEsInstaller(getManager(), config);
             installer.install(elasticSearchClient);
         } catch (StorageException e) {

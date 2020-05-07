@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.receiver.istio.telemetry.provider;
 
 import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.oal.rt.OfficialOALDefine;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -52,6 +54,12 @@ public class IstioTelemetryReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // loader official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .loader(OfficialOALDefine.INSTANCE);
+
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);

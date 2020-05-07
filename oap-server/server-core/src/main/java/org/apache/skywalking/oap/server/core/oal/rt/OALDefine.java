@@ -18,6 +18,8 @@
 package org.apache.skywalking.oap.server.core.oal.rt;
 
 import lombok.Getter;
+import lombok.ToString;
+import org.apache.skywalking.oap.server.core.Const;
 
 import static java.util.Objects.requireNonNull;
 
@@ -25,23 +27,18 @@ import static java.util.Objects.requireNonNull;
  * Define multiple OAL configuration
  */
 @Getter
-public enum OALDefine {
-
-    OFFICIAL("official_analysis.oal", "org.apache.skywalking.oap.server.core.source.",
-             "org.apache.skywalking.oal.rt.official.metrics.",
-             "org.apache.skywalking.oal.rt.official.metrics.builder.",
-             "org.apache.skywalking.oal.rt.official.dispatcher."
-    );
+@ToString
+public abstract class OALDefine {
 
     OALDefine(final String configFile,
               final String sourcePackage,
               final String dynamicMetricsClassPackage,
               final String dynamicMetricsBuilderClassPackage, final String dynamicDispatcherClassPackage) {
         this.configFile = requireNonNull(configFile);
-        this.sourcePackage = requireNonNull(sourcePackage);
-        this.dynamicMetricsClassPackage = requireNonNull(dynamicMetricsClassPackage);
-        this.dynamicMetricsBuilderClassPackage = requireNonNull(dynamicMetricsBuilderClassPackage);
-        this.dynamicDispatcherClassPackage = requireNonNull(dynamicDispatcherClassPackage);
+        this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
+        this.dynamicMetricsClassPackage = appendPoint(requireNonNull(dynamicMetricsClassPackage));
+        this.dynamicMetricsBuilderClassPackage = appendPoint(requireNonNull(dynamicMetricsBuilderClassPackage));
+        this.dynamicDispatcherClassPackage = appendPoint(requireNonNull(dynamicDispatcherClassPackage));
     }
 
     private final String configFile;
@@ -49,4 +46,11 @@ public enum OALDefine {
     private final String dynamicMetricsClassPackage;
     private final String dynamicMetricsBuilderClassPackage;
     private final String dynamicDispatcherClassPackage;
+
+    private String appendPoint(String classPackage) {
+        if (classPackage.endsWith(Const.POINT)) {
+            return classPackage;
+        }
+        return classPackage + Const.POINT;
+    }
 }

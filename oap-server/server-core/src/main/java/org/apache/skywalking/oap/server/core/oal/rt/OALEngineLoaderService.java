@@ -26,9 +26,13 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
 
+/**
+ * Activate {@link OALEngine} according to {@link OALDefine}
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class OALEngineLoaderService implements Service {
@@ -36,15 +40,22 @@ public class OALEngineLoaderService implements Service {
     private final Set<OALDefine> oalDefineSet = new HashSet<>();
     private final ModuleManager moduleManager;
 
+    /**
+     * Normally it is invoked in the {@link ModuleProvider#start()} of the receiver-plugin module.
+     */
     public void loader(OALDefine define) throws ModuleStartException {
         if (oalDefineSet.contains(define)) {
+            // each oal define will only be activated once
             return;
         }
         try {
             OALEngine engine = loadOALEngine(define);
             StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(moduleManager);
             engine.setStreamListener(streamAnnotationListener);
-            engine.setDispatcherListener(moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class).getDispatcherDetectorListener());
+            engine.setDispatcherListener(moduleManager.find(CoreModule.NAME)
+                                                      .provider()
+                                                      .getService(SourceReceiver.class)
+                                                      .getDispatcherDetectorListener());
 
             engine.start(OALEngineLoaderService.class.getClassLoader());
             engine.notifyAllListeners();

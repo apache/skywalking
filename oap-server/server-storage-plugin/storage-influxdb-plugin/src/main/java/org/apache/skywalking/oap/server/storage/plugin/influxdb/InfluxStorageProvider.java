@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -118,6 +119,9 @@ public class InfluxStorageProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         try {
+            /**
+             * Wait for all {@link OALDefine} to be activated.
+             */
             InfluxTableInstaller installer = new InfluxTableInstaller(getManager());
             installer.install(client);
         } catch (StorageException e) {
