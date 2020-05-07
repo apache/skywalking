@@ -42,7 +42,6 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -291,7 +290,7 @@ public class CoreModuleProvider extends ModuleProvider {
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
             /**
-             * Wait for all {@link OALDefine} to be activated.
+             * Wait for all OALDefine to be activated.
              */
             annotationScan.scan();
 

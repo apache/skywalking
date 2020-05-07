@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -125,7 +124,7 @@ public class MySQLStorageProvider extends ModuleProvider {
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         try {
             /**
-             * Wait for all {@link OALDefine} to be activated.
+             * Wait for all OALDefine to be activated.
              */
             MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
             installer.install(mysqlClient);
