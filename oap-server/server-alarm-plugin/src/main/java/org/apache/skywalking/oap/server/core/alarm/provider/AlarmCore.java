@@ -47,14 +47,6 @@ public class AlarmCore {
         return alarmRulesWatcher.getRunningContext().get(metricsName);
     }
 
-    /**
-     * Perform a series of tasks every 10 seconds, including update alarm settings dynamically,
-     * check alarm rules by check function, and calling doAlarm for alarm if trigger the
-     * rules (Send alarm message to webhook(s) through HTTP post).
-     * the operation of time windows(The time window is an important concept in stream computing,
-     * this is similar to the window in spark streaming, but only specially matches the own alarm
-     * business scenarios) is the key of the whole process.
-     */
     public void start(List<AlarmCallback> allCallbacks) {
         LocalDateTime now = LocalDateTime.now();
         lastExecuteTime = now;
