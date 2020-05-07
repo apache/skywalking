@@ -276,6 +276,9 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         exitSourceBuilders.forEach(exitSourceBuilder -> {
+            sourceReceiver.receive(exitSourceBuilder.toService());		
+            sourceReceiver.receive(exitSourceBuilder.toServiceRelation());
+
             /*
              * Some of the agent can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              */
