@@ -38,7 +38,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE,
     builder = ServiceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {
+    "name",
+    "nodeType"
+})
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
