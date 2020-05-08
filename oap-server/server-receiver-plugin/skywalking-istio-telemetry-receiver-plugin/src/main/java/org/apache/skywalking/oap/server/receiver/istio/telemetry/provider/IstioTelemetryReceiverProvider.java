@@ -54,11 +54,11 @@ public class IstioTelemetryReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        // loader official analysis
+        // load official analysis
         getManager().find(CoreModule.NAME)
                     .provider()
                     .getService(OALEngineLoaderService.class)
-                    .loader(OfficialOALDefine.INSTANCE);
+                    .load(OfficialOALDefine.INSTANCE);
 
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()

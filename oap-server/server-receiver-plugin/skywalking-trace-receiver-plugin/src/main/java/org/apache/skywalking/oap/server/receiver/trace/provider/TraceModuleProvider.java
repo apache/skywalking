@@ -83,11 +83,11 @@ public class TraceModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        // loader official analysis
+        // load official analysis
         getManager().find(CoreModule.NAME)
                     .provider()
                     .getService(OALEngineLoaderService.class)
-                    .loader(OfficialOALDefine.INSTANCE);
+                    .load(OfficialOALDefine.INSTANCE);
 
         DynamicConfigurationService dynamicConfigurationService = getManager().find(ConfigurationModule.NAME)
                                                                               .provider()

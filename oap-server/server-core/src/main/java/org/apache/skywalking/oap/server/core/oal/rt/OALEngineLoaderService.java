@@ -43,7 +43,7 @@ public class OALEngineLoaderService implements Service {
     /**
      * Normally it is invoked in the {@link ModuleProvider#start()} of the receiver-plugin module.
      */
-    public void loader(OALDefine define) throws ModuleStartException {
+    public void load(OALDefine define) throws ModuleStartException {
         if (oalDefineSet.contains(define)) {
             // each oal define will only be activated once
             return;
@@ -61,7 +61,7 @@ public class OALEngineLoaderService implements Service {
             engine.notifyAllListeners();
 
             oalDefineSet.add(define);
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException | OALCompileException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
