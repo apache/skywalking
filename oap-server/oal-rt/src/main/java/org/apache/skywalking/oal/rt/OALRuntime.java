@@ -47,6 +47,7 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
@@ -63,30 +64,25 @@ import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
  * is loaded dynamically.
  */
+@Slf4j
 public class OALRuntime implements OALEngine {
-    private static final Logger logger = LoggerFactory.getLogger(OALRuntime.class);
 
     private static final String CLASS_FILE_CHARSET = "UTF-8";
     private static final String METRICS_FUNCTION_PACKAGE = "org.apache.skywalking.oap.server.core.analysis.metrics.";
-    private static final String DYNAMIC_METRICS_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.";
-    private static final String DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.metrics.builder.";
-    private static final String DYNAMIC_DISPATCHER_CLASS_PACKAGE = "org.apache.skywalking.oal.rt.dispatcher.";
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
     private static final String STORAGE_BUILDER_INTERFACE = "org.apache.skywalking.oap.server.core.storage.StorageBuilder";
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
-    private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS = {
         "id",
@@ -103,6 +99,8 @@ public class OALRuntime implements OALEngine {
         "data2Map",
         "map2Data"
     };
+
+    private final OALDefine oalDefine;
     private final ClassPool classPool;
     private ClassLoader currentClassLoader;
     private Configuration configuration;
@@ -113,7 +111,8 @@ public class OALRuntime implements OALEngine {
     private final List<Class> dispatcherClasses;
     private final boolean openEngineDebug;
 
-    public OALRuntime() {
+    public OALRuntime(OALDefine define) {
+        oalDefine = define;
         classPool = ClassPool.getDefault();
         configuration = new Configuration(new Version("2.3.28"));
         configuration.setEncoding(Locale.ENGLISH, CLASS_FILE_CHARSET);
@@ -121,7 +120,7 @@ public class OALRuntime implements OALEngine {
         allDispatcherContext = new AllDispatcherContext();
         metricsClasses = new ArrayList<>();
         dispatcherClasses = new ArrayList<>();
-        openEngineDebug = !StringUtil.isEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
+        openEngineDebug = StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
     }
 
     @Override
@@ -148,14 +147,14 @@ public class OALRuntime implements OALEngine {
         }
 
         try {
-            read = ResourceUtils.read("official_analysis.oal");
+            read = ResourceUtils.read(oalDefine.getConfigFile());
         } catch (FileNotFoundException e) {
-            throw new ModuleStartException("Can't locate official_analysis.oal", e);
+            throw new ModuleStartException("Can't locate " + oalDefine.getConfigFile(), e);
         }
 
         OALScripts oalScripts;
         try {
-            ScriptParser scriptParser = ScriptParser.createFromFile(read);
+            ScriptParser scriptParser = ScriptParser.createFromFile(read, oalDefine.getSourcePackage());
             oalScripts = scriptParser.parse();
         } catch (IOException e) {
             throw new ModuleStartException("OAL script parse analysis failure.", e);
@@ -209,14 +208,14 @@ public class OALRuntime implements OALEngine {
         try {
             parentMetricsClass = classPool.get(METRICS_FUNCTION_PACKAGE + metricsStmt.getMetricsClassName());
         } catch (NotFoundException e) {
-            logger.error("Can't find parent class for " + className + ".", e);
+            log.error("Can't find parent class for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
         CtClass metricsClass = classPool.makeClass(metricsClassName(metricsStmt, true), parentMetricsClass);
         try {
             metricsClass.addInterface(classPool.get(WITH_METADATA_INTERFACE));
         } catch (NotFoundException e) {
-            logger.error("Can't find WithMetadata interface for " + className + ".", e);
+            log.error("Can't find WithMetadata interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -230,7 +229,7 @@ public class OALRuntime implements OALEngine {
             CtConstructor defaultConstructor = CtNewConstructor.make("public " + className + "() {}", metricsClass);
             metricsClass.addConstructor(defaultConstructor);
         } catch (CannotCompileException e) {
-            logger.error("Can't add empty constructor in " + className + ".", e);
+            log.error("Can't add empty constructor in " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -264,7 +263,7 @@ public class OALRuntime implements OALEngine {
 
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
             } catch (CannotCompileException e) {
-                logger.error(
+                log.error(
                     "Can't add field(including set/get) " + field.getFieldName() + " in " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
@@ -279,7 +278,7 @@ public class OALRuntime implements OALEngine {
                 configuration.getTemplate("metrics/" + method + ".ftl").process(metricsStmt, methodEntity);
                 metricsClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsClass));
             } catch (Exception e) {
-                logger.error("Can't generate method " + method + " for " + className + ".", e);
+                log.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -305,11 +304,11 @@ public class OALRuntime implements OALEngine {
         try {
             targetClass = metricsClass.toClass(currentClassLoader, null);
         } catch (CannotCompileException e) {
-            logger.error("Can't compile/load " + className + ".", e);
+            log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        logger.debug("Generate metrics class, " + metricsClass.getName());
+        log.debug("Generate metrics class, " + metricsClass.getName());
         writeGeneratedFile(metricsClass, metricsClass.getSimpleName(), "metrics");
 
         return targetClass;
@@ -324,7 +323,7 @@ public class OALRuntime implements OALEngine {
         try {
             metricsBuilderClass.addInterface(classPool.get(STORAGE_BUILDER_INTERFACE));
         } catch (NotFoundException e) {
-            logger.error("Can't find StorageBuilder interface for " + className + ".", e);
+            log.error("Can't find StorageBuilder interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -336,7 +335,7 @@ public class OALRuntime implements OALEngine {
                 "public " + className + "() {}", metricsBuilderClass);
             metricsBuilderClass.addConstructor(defaultConstructor);
         } catch (CannotCompileException e) {
-            logger.error("Can't add empty constructor in " + className + ".", e);
+            log.error("Can't add empty constructor in " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -349,7 +348,7 @@ public class OALRuntime implements OALEngine {
                 configuration.getTemplate("metrics-builder/" + method + ".ftl").process(metricsStmt, methodEntity);
                 metricsBuilderClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsBuilderClass));
             } catch (Exception e) {
-                logger.error("Can't generate method " + method + " for " + className + ".", e);
+                log.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -357,7 +356,7 @@ public class OALRuntime implements OALEngine {
         try {
             metricsBuilderClass.toClass(currentClassLoader, null);
         } catch (CannotCompileException e) {
-            logger.error("Can't compile/load " + className + ".", e);
+            log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -380,7 +379,7 @@ public class OALRuntime implements OALEngine {
             /**
              * Set generic signature
              */
-            String sourceClassName = SOURCE_PACKAGE + dispatcherContext.getSource();
+            String sourceClassName = oalDefine.getSourcePackage() + dispatcherContext.getSource();
             SignatureAttribute.ClassSignature dispatcherSignature =
                 new SignatureAttribute.ClassSignature(
                     null, null,
@@ -400,7 +399,7 @@ public class OALRuntime implements OALEngine {
 
             dispatcherClass.setGenericSignature(dispatcherSignature.encode());
         } catch (NotFoundException e) {
-            logger.error("Can't find Dispatcher interface for " + className + ".", e);
+            log.error("Can't find Dispatcher interface for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -413,11 +412,11 @@ public class OALRuntime implements OALEngine {
                 configuration.getTemplate("dispatcher/doMetrics.ftl").process(dispatcherContextMetric, methodEntity);
                 dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
             } catch (Exception e) {
-                logger.error(
+                log.error(
                     "Can't generate method do" + dispatcherContextMetric.getMetricsName() + " for " + className + ".",
                     e
                 );
-                logger.error("Method body as following" + System.lineSeparator() + "{}", methodEntity);
+                log.error("Method body as following" + System.lineSeparator() + "{}", methodEntity);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
@@ -427,7 +426,7 @@ public class OALRuntime implements OALEngine {
             configuration.getTemplate("dispatcher/dispatch.ftl").process(dispatcherContext, methodEntity);
             dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
         } catch (Exception e) {
-            logger.error("Can't generate method dispatch for " + className + ".", e);
+            log.error("Can't generate method dispatch for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -435,7 +434,7 @@ public class OALRuntime implements OALEngine {
         try {
             targetClass = dispatcherClass.toClass(currentClassLoader, null);
         } catch (CannotCompileException e) {
-            logger.error("Can't compile/load " + className + ".", e);
+            log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
@@ -444,27 +443,29 @@ public class OALRuntime implements OALEngine {
     }
 
     private String metricsClassName(AnalysisResult metricsStmt, boolean fullName) {
-        return (fullName ? DYNAMIC_METRICS_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "Metrics";
+        return (fullName ? oalDefine.getDynamicMetricsClassPackage() : "") + metricsStmt.getMetricsName() + "Metrics";
     }
 
     private String metricsBuilderClassName(AnalysisResult metricsStmt, boolean fullName) {
-        return (fullName ? DYNAMIC_METRICS_BUILDER_CLASS_PACKAGE : "") + metricsStmt.getMetricsName() + "MetricsBuilder";
+        return (fullName ? oalDefine.getDynamicMetricsBuilderClassPackage() : "") + metricsStmt.getMetricsName() + "MetricsBuilder";
     }
 
     private String dispatcherClassName(String scopeName, boolean fullName) {
-        return (fullName ? DYNAMIC_DISPATCHER_CLASS_PACKAGE : "") + scopeName + "Dispatcher";
+        return (fullName ? oalDefine.getDynamicDispatcherClassPackage() : "") + scopeName + "Dispatcher";
     }
 
     private void buildDispatcherContext(AnalysisResult metricsStmt) {
         String sourceName = metricsStmt.getSourceName();
 
-        DispatcherContext context = allDispatcherContext.getAllContext().get(sourceName);
-        if (context == null) {
-            context = new DispatcherContext();
-            context.setSource(sourceName);
-            context.setPackageName(sourceName.toLowerCase());
-            allDispatcherContext.getAllContext().put(sourceName, context);
-        }
+        DispatcherContext context = allDispatcherContext.getAllContext().computeIfAbsent(sourceName, name -> {
+            DispatcherContext absent = new DispatcherContext();
+            absent.setSourcePackage(oalDefine.getSourcePackage());
+            absent.setSource(name);
+            absent.setPackageName(name.toLowerCase());
+            return absent;
+        });
+        metricsStmt.setMetricsClassPackage(oalDefine.getDynamicMetricsClassPackage());
+        metricsStmt.setSourcePackage(oalDefine.getSourcePackage());
         context.getMetrics().add(metricsStmt);
     }
 
@@ -476,7 +477,7 @@ public class OALRuntime implements OALEngine {
                 try {
                     FileUtils.deleteDirectory(folder);
                 } catch (IOException e) {
-                    logger.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
+                    log.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
                 }
             }
             folder.mkdirs();
@@ -502,10 +503,10 @@ public class OALRuntime implements OALEngine {
                 metricsClass.toBytecode(printWriter);
                 printWriter.flush();
             } catch (IOException e) {
-                logger.warn("Can't create " + className + ".txt, ignore.", e);
+                log.warn("Can't create " + className + ".txt, ignore.", e);
                 return;
             } catch (CannotCompileException e) {
-                logger.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
+                log.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
                 return;
             } finally {
                 if (printWriter != null) {
@@ -517,6 +518,5 @@ public class OALRuntime implements OALEngine {
                 }
             }
         }
-
     }
 }

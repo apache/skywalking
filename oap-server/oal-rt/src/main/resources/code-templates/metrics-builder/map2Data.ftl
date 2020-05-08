@@ -1,5 +1,5 @@
 public org.apache.skywalking.oap.server.core.storage.StorageData map2Data(java.util.Map dbMap) {
-org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics metrics = new org.apache.skywalking.oal.rt.metrics.${metricsName}Metrics();
+${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 <#list fieldsFromSource as field>
     <#if field.typeName == "long" || field.typeName == "int" || field.typeName == "double" || field.typeName == "float">
         metrics.${field.fieldSetter}(((Number)dbMap.get("${field.columnName}")).${field.typeName}Value());
