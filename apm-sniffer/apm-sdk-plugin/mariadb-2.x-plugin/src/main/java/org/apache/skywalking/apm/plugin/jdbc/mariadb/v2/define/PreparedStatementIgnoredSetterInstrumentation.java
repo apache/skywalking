@@ -16,30 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.apm.plugin.jdbc.mariadb.v2.define;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_UPDATE;
-
-@Getter
-@Setter
-@ScopeDeclaration(id = SERVICE_UPDATE, name = "ServiceUpdate")
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
-public class ServiceUpdate extends Source {
-    @Override
-    public int scope() {
-        return DefaultScopeDefine.SERVICE_UPDATE;
-    }
+public class PreparedStatementIgnoredSetterInstrumentation extends PreparedStatementInstrumentation {
 
     @Override
-    public String getEntityId() {
-        return IDManager.ServiceID.buildId(name, NodeType.Normal);
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
+                new PSSetterDefinitionOfJDBCInstrumentation(true)
+        };
     }
 
-    private String name;
-    private NodeType nodeType;
 }

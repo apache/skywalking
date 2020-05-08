@@ -16,19 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.service;
+package org.apache.skywalking.apm.testcase.mariadb;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class ServiceUpdateDispatcher implements SourceDispatcher<ServiceUpdate> {
-    @Override
-    public void dispatch(final ServiceUpdate source) {
-        ServiceTraffic traffic = new ServiceTraffic();
-        traffic.setTimeBucket(source.getTimeBucket());
-        traffic.setName(source.getName());
-        traffic.setNodeType(source.getNodeType());
-        MetricsStreamProcessor.getInstance().in(traffic);
+@SpringBootApplication
+public class Application {
+
+    private static final Logger logger = LogManager.getLogger(Application.class);
+
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception ex) {
+            logger.error("Application start error", ex);
+            throw ex;
+        }
     }
 }
