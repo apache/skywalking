@@ -40,8 +40,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
  */
 @Slf4j
 public class MySQLTableInstaller extends H2TableInstaller {
-    public MySQLTableInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
+    public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
         /*
          * Override column because the default column names in core have syntax conflict with MySQL.
          */
@@ -50,7 +50,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    protected boolean isExists(Client client, Model model) throws StorageException {
+    protected boolean isExists(Model model) throws StorageException {
         TableMetaInfo.addModel(model);
         JDBCHikariCPClient h2Client = (JDBCHikariCPClient) client;
         try (Connection conn = h2Client.getConnection()) {

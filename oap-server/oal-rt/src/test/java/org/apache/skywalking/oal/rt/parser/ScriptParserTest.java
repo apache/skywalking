@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,7 +33,7 @@ public class ScriptParserTest {
     private static final String TEST_SOURCE_PACKAGE = ScriptParserTest.class.getPackage().getName() + ".test.source.";
 
     @BeforeClass
-    public static void init() throws IOException {
+    public static void init() throws IOException, StorageException {
         MetricsHolder.init();
 
         AnnotationScan scopeScan = new AnnotationScan();

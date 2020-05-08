@@ -66,6 +66,7 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -164,7 +165,13 @@ public class OALRuntime implements OALEngine {
 
     @Override
     public void notifyAllListeners() throws ModuleStartException {
-        metricsClasses.forEach(streamAnnotationListener::notify);
+        for (Class metricsClass : metricsClasses) {
+            try {
+                streamAnnotationListener.notify(metricsClass);
+            } catch (StorageException e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
+        }
         for (Class dispatcherClass : dispatcherClasses) {
             try {
                 dispatcherDetectorListener.addIfAsSourceDispatcher(dispatcherClass);

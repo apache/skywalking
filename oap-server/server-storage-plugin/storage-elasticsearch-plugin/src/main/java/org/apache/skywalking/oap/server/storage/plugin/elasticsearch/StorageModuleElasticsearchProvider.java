@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -178,22 +179,18 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         try {
             elasticSearchClient.connect();
-        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
+
+            StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+        } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void notifyAfterCompleted() throws ModuleStartException {
-        try {
-            /**
-             * Wait for all OALDefine to be activated.
-             */
-            StorageEsInstaller installer = new StorageEsInstaller(getManager(), config);
-            installer.install(elasticSearchClient);
-        } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
+    public void notifyAfterCompleted() {
+      
     }
 
     @Override
