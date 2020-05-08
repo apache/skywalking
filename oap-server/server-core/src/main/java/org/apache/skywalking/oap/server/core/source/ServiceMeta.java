@@ -16,19 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.service;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
-public class ServiceUpdateDispatcher implements SourceDispatcher<ServiceUpdate> {
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_META;
+
+@Getter
+@Setter
+@ScopeDeclaration(id = SERVICE_META, name = "ServiceMeta")
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+public class ServiceMeta extends Source {
     @Override
-    public void dispatch(final ServiceUpdate source) {
-        ServiceTraffic traffic = new ServiceTraffic();
-        traffic.setTimeBucket(source.getTimeBucket());
-        traffic.setName(source.getName());
-        traffic.setNodeType(source.getNodeType());
-        MetricsStreamProcessor.getInstance().in(traffic);
+    public int scope() {
+        return DefaultScopeDefine.SERVICE_META;
     }
+
+    @Override
+    public String getEntityId() {
+        return IDManager.ServiceID.buildId(name, NodeType.Normal);
+    }
+
+    private String name;
+    private NodeType nodeType;
 }
