@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.oal.rt;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
@@ -28,6 +29,7 @@ import static java.util.Objects.requireNonNull;
  */
 @Getter
 @ToString
+@EqualsAndHashCode
 public abstract class OALDefine {
 
     OALDefine(final String configFile,
