@@ -7,7 +7,7 @@ They use the HTTP1.1 wrapper of the official [SkyWalking Trace Data Protocol v3]
 
 Detail information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/management/Management.proto).
 
-- Report service instance
+- Report service instance properties
 
 > POST http://localhost:12800/v3/management/reportProperties
 
@@ -51,7 +51,7 @@ OutPut:
 ## Trace Report
 
 Detail information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Tracing.proto).
-There has two way to report segment data.
+There are two ways to report segment data, one segment per request or segment array in the bulk mode.
 
 ### POST http://localhost:12800/v3/segment
 
