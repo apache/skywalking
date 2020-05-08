@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
@@ -37,7 +38,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+                                   Class<?>[] argumentsTypes, MethodInterceptResult result) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
         /**
@@ -49,7 +50,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         if (connectInfo != null) {
 
             AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject
-                .getStatementName()), connectInfo.getDatabasePeer());
+                    .getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, cacheObject.getSql());
@@ -59,11 +60,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
                 final Object[] parameters = cacheObject.getParameters();
                 if (parameters != null && parameters.length > 0) {
                     int maxIndex = cacheObject.getMaxIndex();
-                    String parameterString = buildParameterString(parameters, maxIndex);
-                    int sqlParametersMaxLength = Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH;
-                    if (sqlParametersMaxLength > 0 && parameterString.length() > sqlParametersMaxLength) {
-                        parameterString = parameterString.substring(0, sqlParametersMaxLength) + "...";
-                    }
+                    String parameterString = getParameterString(parameters, maxIndex);
                     SQL_PARAMETERS.set(span, parameterString);
                 }
             }
@@ -74,7 +71,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Object ret) throws Throwable {
+                                    Class<?>[] argumentsTypes, Object ret) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.stopSpan();
@@ -84,7 +81,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                            Class<?>[] argumentsTypes, Throwable t) {
         StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
@@ -95,18 +92,11 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
     }
 
-    private String buildParameterString(Object[] parameters, int maxIndex) {
-        String parameterString = "[";
-        boolean first = true;
-        for (int i = 0; i < maxIndex; i++) {
-            Object parameter = parameters[i];
-            if (!first) {
-                parameterString += ",";
-            }
-            parameterString += parameter;
-            first = false;
-        }
-        parameterString += "]";
-        return parameterString;
+    private String getParameterString(Object[] parameters, int maxIndex) {
+        return new PreparedStatementParameterBuilder()
+                .setParameters(parameters)
+                .setMaxIndex(maxIndex)
+                .setMaxLength(Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH)
+                .build();
     }
 }
