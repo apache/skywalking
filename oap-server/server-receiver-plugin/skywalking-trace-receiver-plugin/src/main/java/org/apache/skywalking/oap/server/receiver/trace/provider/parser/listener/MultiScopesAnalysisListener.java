@@ -286,6 +286,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 sourceReceiver.receive(serviceInstanceRelation);
             }
             if (RequestType.DATABASE.equals(exitSourceBuilder.getType())) {
+                sourceReceiver.receive(exitSourceBuilder.toServiceMeta());
                 sourceReceiver.receive(exitSourceBuilder.toDatabaseAccess());
             }
         });
