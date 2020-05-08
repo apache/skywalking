@@ -41,14 +41,14 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(ModuleManager moduleManager, final StorageModuleElasticsearchConfig config) {
-        super(moduleManager);
+    public StorageEsInstaller(Client client, ModuleManager moduleManager, final StorageModuleElasticsearchConfig config) {
+        super(client, moduleManager);
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
         this.config = config;
     }
 
     @Override
-    protected boolean isExists(Client client, Model model) throws StorageException {
+    protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
             String timeSeriesIndexName = TimeSeriesUtils.latestWriteIndexName(model);
@@ -59,7 +59,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    protected void createTable(Client client, Model model) throws StorageException {
+    protected void createTable(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
 
         Map<String, Object> settings = createSetting(model.isRecord());

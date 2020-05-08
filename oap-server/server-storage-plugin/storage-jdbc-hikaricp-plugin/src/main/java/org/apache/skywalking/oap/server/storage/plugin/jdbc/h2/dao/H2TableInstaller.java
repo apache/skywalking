@@ -44,18 +44,18 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 public class H2TableInstaller extends ModelInstaller {
     public static final String ID_COLUMN = "id";
 
-    public H2TableInstaller(ModuleManager moduleManager) {
-        super(moduleManager);
+    public H2TableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
     }
 
     @Override
-    protected boolean isExists(Client client, Model model) throws StorageException {
+    protected boolean isExists(Model model) throws StorageException {
         TableMetaInfo.addModel(model);
         return false;
     }
 
     @Override
-    protected void createTable(Client client, Model model) throws StorageException {
+    protected void createTable(Model model) throws StorageException {
         JDBCHikariCPClient jdbcHikariCPClient = (JDBCHikariCPClient) client;
         try (Connection connection = jdbcHikariCPClient.getConnection()) {
             SQLBuilder tableCreateSQL = new SQLBuilder("CREATE TABLE IF NOT EXISTS " + model.getName() + " (");

@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 
 /**
  * Data column of all persistent entity.
@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
 public @interface Column {
     /**
      * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
-     * could be a keyword, then, the implementation will use {@link IModelOverride} to replace the column name.
+     * could be a keyword, then, the implementation will use {@link ModelManipulator} to replace the column name.
      */
     String columnName();
 

@@ -68,9 +68,10 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.core.storage.model.INewModel;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
@@ -155,15 +156,14 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
-        this.registerServiceImplementation(MeterSystem.class, meterSystem);
+        this.registerServiceImplementation(MeterSystem.class, new MeterSystem(getManager()));
 
         AnnotationScan oalDisable = new AnnotationScan();
         oalDisable.registerListener(DisableRegister.INSTANCE);
         oalDisable.registerListener(new DisableRegister.SingleDisableScanListener());
         try {
             oalDisable.scan();
-        } catch (IOException e) {
+        } catch (IOException | StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
@@ -210,9 +210,9 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
-        this.registerServiceImplementation(INewModel.class, storageModels);
+        this.registerServiceImplementation(ModelCreator.class, storageModels);
         this.registerServiceImplementation(IModelManager.class, storageModels);
-        this.registerServiceImplementation(IModelOverride.class, storageModels);
+        this.registerServiceImplementation(ModelManipulator.class, storageModels);
 
         this.registerServiceImplementation(
             NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
@@ -256,8 +256,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        MeterSystem.closeMeterCreationChannel();
-
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
         remoteClientManager.start();
@@ -267,7 +265,7 @@ public class CoreModuleProvider extends ModuleProvider {
             annotationScan.scan();
 
             oalEngine.notifyAllListeners();
-        } catch (IOException | IllegalAccessException | InstantiationException e) {
+        } catch (IOException | IllegalAccessException | InstantiationException | StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
 

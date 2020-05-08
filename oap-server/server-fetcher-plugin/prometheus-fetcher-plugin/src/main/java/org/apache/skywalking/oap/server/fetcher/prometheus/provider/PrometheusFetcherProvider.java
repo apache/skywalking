@@ -59,17 +59,6 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.isActive()) {
-            // TODO. This is only a demo about creating new metrics
-            // We should create it based on metrics configuration.
-            final MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
-            meterSystem.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
-            meterSystem.create("test_histogram_metrics", "histogram", ScopeType.SERVICE, BucketedValues.class);
-            meterSystem.create(
-                "test_percentile_metrics", "percentile", ScopeType.SERVICE,
-                PercentileFunction.PercentileArgument.class
-            );
-        }
     }
 
     @Override
@@ -82,6 +71,14 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         if (config.isActive()) {
             // TODO. This is only a demo about fetching the data and push into the calculation stream.
             final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
+
+            service.create("test_long_metrics", "avg", ScopeType.SERVICE, Long.class);
+            service.create("test_histogram_metrics", "histogram", ScopeType.SERVICE, BucketedValues.class);
+            service.create(
+                "test_percentile_metrics", "percentile", ScopeType.SERVICE,
+                PercentileFunction.PercentileArgument.class
+            );
+
             Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
