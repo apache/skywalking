@@ -18,17 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * INewModel implementation supports creating a new module.
  */
-public interface INewModel extends Service {
+public interface ModelCreator extends Service {
     /**
      * Add a new model
      *
      * @return the created new model
      */
-    Model add(Class<?> aClass, int scopeId, Storage storage, boolean record);
+    Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) throws StorageException;
+
+    void addModelListener(CreatingListener listener) throws StorageException;
+
+    interface CreatingListener {
+        void whenCreating(Model model) throws StorageException;
+    }
 }

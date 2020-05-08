@@ -49,9 +49,10 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.core.storage.model.INewModel;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
@@ -108,8 +109,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
-        MeterSystem meterSystem = MeterSystem.meterSystem(getManager());
-        this.registerServiceImplementation(MeterSystem.class, meterSystem);
+        this.registerServiceImplementation(MeterSystem.class, new MeterSystem(getManager()));
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
@@ -129,9 +129,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
-        this.registerServiceImplementation(INewModel.class, storageModels);
+        this.registerServiceImplementation(ModelCreator.class, storageModels);
         this.registerServiceImplementation(IModelManager.class, storageModels);
-        this.registerServiceImplementation(IModelOverride.class, storageModels);
+        this.registerServiceImplementation(ModelManipulator.class, storageModels);
 
         this.registerServiceImplementation(
             NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
@@ -160,11 +160,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        MeterSystem.closeMeterCreationChannel();
-
         try {
             annotationScan.scan();
-        } catch (IOException e) {
+        } catch (IOException | StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
     }
