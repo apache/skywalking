@@ -179,7 +179,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         try {
             elasticSearchClient.connect();
-
             StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
@@ -190,7 +189,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
-      
     }
 
     @Override

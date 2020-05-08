@@ -117,20 +117,20 @@ public class MySQLStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException {
-        mysqlClient.connect();
-    }
-
-    @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-   
-          
+            mysqlClient.connect();
+
             MySQLTableInstaller installer = new MySQLTableInstaller(mysqlClient, getManager());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException {
+
     }
 
     @Override

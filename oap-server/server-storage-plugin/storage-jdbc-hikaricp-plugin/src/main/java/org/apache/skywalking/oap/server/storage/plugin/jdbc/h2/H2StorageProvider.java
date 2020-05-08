@@ -127,21 +127,20 @@ public class H2StorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException {
-        h2Client.connect();
-    }
-
-    @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            /**
-             * Wait for all OALDefine to be activated.
-             */
+            h2Client.connect();
+
             H2TableInstaller installer = new H2TableInstaller(h2Client, getManager());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+
     }
 
     @Override

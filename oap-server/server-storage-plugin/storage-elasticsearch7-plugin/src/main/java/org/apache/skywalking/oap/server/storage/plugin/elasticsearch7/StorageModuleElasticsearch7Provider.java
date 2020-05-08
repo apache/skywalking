@@ -194,7 +194,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
-     
     }
 
     @Override

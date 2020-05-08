@@ -112,9 +112,10 @@ public class InfluxStorageProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException {
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
         try {
             client.connect();
+
             InfluxTableInstaller installer = new InfluxTableInstaller(client, getManager());
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
