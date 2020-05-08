@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
@@ -156,6 +157,9 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
         this.registerServiceImplementation(RemoteClientManager.class, new MockRemoteClientManager(getManager(), 0));
+
+        // add oal engine loader service implementations
+        this.registerServiceImplementation(OALEngineLoaderService.class, new OALEngineLoaderService(getManager()));
     }
 
     @Override
