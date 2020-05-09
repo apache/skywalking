@@ -31,16 +31,13 @@ import static java.util.Objects.requireNonNull;
 @ToString
 @EqualsAndHashCode
 public abstract class OALDefine {
-
-    OALDefine(final String configFile,
-              final String sourcePackage,
-              final String dynamicMetricsClassPackage,
-              final String dynamicMetricsBuilderClassPackage, final String dynamicDispatcherClassPackage) {
+    protected OALDefine(final String configFile,
+              final String sourcePackage) {
         this.configFile = requireNonNull(configFile);
         this.sourcePackage = appendPoint(requireNonNull(sourcePackage));
-        this.dynamicMetricsClassPackage = appendPoint(requireNonNull(dynamicMetricsClassPackage));
-        this.dynamicMetricsBuilderClassPackage = appendPoint(requireNonNull(dynamicMetricsBuilderClassPackage));
-        this.dynamicDispatcherClassPackage = appendPoint(requireNonNull(dynamicDispatcherClassPackage));
+        this.dynamicMetricsClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics");
+        this.dynamicMetricsBuilderClassPackage = appendPoint(sourcePackage + ".oal.rt.metrics.builder");
+        this.dynamicDispatcherClassPackage = appendPoint(sourcePackage + ".oal.rt.dispatcher");
     }
 
     private final String configFile;

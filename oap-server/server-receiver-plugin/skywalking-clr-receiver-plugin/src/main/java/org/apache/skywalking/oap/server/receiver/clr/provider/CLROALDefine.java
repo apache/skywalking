@@ -16,25 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy;
+package org.apache.skywalking.oap.server.receiver.clr.provider;
 
-import com.google.common.base.Strings;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class EnvoyMetricReceiverConfig extends ModuleConfig {
-    @Getter
-    private boolean acceptMetricsService = false;
-    private String alsHTTPAnalysis;
+/**
+ * CLR OAL script includes the metrics related to dot net CLR only.
+ */
+public class CLROALDefine extends OALDefine {
+    public static final CLROALDefine INSTANCE = new CLROALDefine();
 
-    public List<String> getAlsHTTPAnalysis() {
-        if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
-            return Collections.EMPTY_LIST;
-        }
-        return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    private CLROALDefine() {
+        super(
+            "oal/dotnet-agent.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }
