@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.receiver.clr.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
-import org.apache.skywalking.oap.server.core.oal.rt.OfficialOALDefine;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -62,7 +61,7 @@ public class CLRModuleProvider extends ModuleProvider {
         getManager().find(CoreModule.NAME)
                     .provider()
                     .getService(OALEngineLoaderService.class)
-                    .load(OfficialOALDefine.INSTANCE);
+                    .load(CLROALDefine.INSTANCE);
 
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()

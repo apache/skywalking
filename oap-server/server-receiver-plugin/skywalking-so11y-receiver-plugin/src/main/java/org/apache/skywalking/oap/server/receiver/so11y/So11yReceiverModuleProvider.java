@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
-import org.apache.skywalking.oap.server.core.oal.rt.OfficialOALDefine;
+import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.source.GCPhrase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
@@ -117,7 +117,7 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
         getManager().find(CoreModule.NAME)
                     .provider()
                     .getService(OALEngineLoaderService.class)
-                    .load(OfficialOALDefine.INSTANCE);
+                    .load(CoreOALDefine.INSTANCE);
 
         sourceReceiver = getManager().find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         MetricsCollector collector = getManager().find(TelemetryModule.NAME)
