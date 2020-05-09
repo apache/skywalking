@@ -48,21 +48,14 @@
             <includes>
                 <include>application.yml</include>
                 <include>component-libraries.yml</include>
-                <include>official_analysis.oal</include>
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
+                <include>oal/core.oal</include>
+                <include>oal/java-agent.oal</include>
+                <include>oal/dotnet-agent.oal</include>
+                <include>oal/envoy.oal</include>
             </includes>
             <outputDirectory>/config</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/config</directory>
-            <outputDirectory>/config</outputDirectory>
-            <includes>
-                <include>*.yml</include>
-                <include>*.xml</include>
-                <include>*.properties</include>
-                <include>*.oal</include>
-            </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/../oap-server/server-starter-es7/target/skywalking-oap-assembly/skywalking-oap/libs</directory>
