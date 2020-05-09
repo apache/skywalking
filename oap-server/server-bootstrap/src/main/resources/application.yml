@@ -192,6 +192,7 @@ istio-telemetry:
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
 
 prometheus-fetcher:
