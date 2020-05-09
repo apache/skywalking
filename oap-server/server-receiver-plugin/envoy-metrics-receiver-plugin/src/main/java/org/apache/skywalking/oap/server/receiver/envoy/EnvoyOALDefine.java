@@ -18,23 +18,18 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
-import com.google.common.base.Strings;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class EnvoyMetricReceiverConfig extends ModuleConfig {
-    @Getter
-    private boolean acceptMetricsService = false;
-    private String alsHTTPAnalysis;
+/**
+ * Envoy OAl script includes the metrics related to Envoy only.
+ */
+public class EnvoyOALDefine  extends OALDefine {
+    public static final EnvoyOALDefine INSTANCE = new EnvoyOALDefine();
 
-    public List<String> getAlsHTTPAnalysis() {
-        if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
-            return Collections.EMPTY_LIST;
-        }
-        return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
+    private EnvoyOALDefine() {
+        super(
+            "oal/envoy.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }
