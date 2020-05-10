@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class EndpointRelationMetaInAlarm extends MetaInAlarm {
     private String metricsName;
 

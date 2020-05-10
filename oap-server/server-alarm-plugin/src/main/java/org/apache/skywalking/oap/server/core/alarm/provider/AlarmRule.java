@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,8 +30,8 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
+@Setter
+@Getter
 @ToString
 public class AlarmRule {
     private String alarmRuleName;
