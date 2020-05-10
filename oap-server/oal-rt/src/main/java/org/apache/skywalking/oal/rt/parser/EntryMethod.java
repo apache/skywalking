@@ -20,13 +20,12 @@ package org.apache.skywalking.oal.rt.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class EntryMethod {
     static final int LITERAL_TYPE = 1;
     static final int IDENTIFIER_TYPE = 2;

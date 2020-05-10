@@ -5,15 +5,23 @@ There are three parts in alarm rule definition.
 1. [Webhooks](#webhook). The list of web service endpoint, which should be called after the alarm is triggered.
 1. [gRPCHook](#gRPCHook). The host and port of remote gRPC method, which should be called after the alarm is triggered.
 
+## Entity name
+Define the relation between scope and entity name.
+- **Service**: Service name
+- **Instance**: {Instance name} of {Service name}
+- **Endpoint**: {Endpoint name} in {Service name}
+- **Database**: Database service name
+- **Service Relation**: {Source service name} to {Dest service name}
+- **Instance Relation**: {Source instance name} of {Source service name} to {Dest instance name} of {Dest service name}
+- **Endpoint Relation**: {Source endpoint name} in {Source Service name} to {Dest endpoint name} in {Dest service name}
+
 ## Rules
 Alarm rule is constituted by following keys
 - **Rule name**. Unique name, show in alarm message. Must end with `_rule`.
 - **Metrics name**. A.K.A. metrics name in oal script. Only long, double, int types are supported. See
 [List of all potential metrics name](#list-of-all-potential-metrics-name).
-- **Include names**. The following entity names are included in this rule. Such as Service name,
-endpoint name.
-- **Exclude names**. The following entity names are excluded in this rule. Such as Service name,
-  endpoint name.
+- **Include names**. The following entity names are included in this rule. Please follow [Entity name define](#entity-name).
+- **Exclude names**. The following entity names are excluded in this rule. Please follow [Entity name define](#entity-name).
 - **Threshold**. The target value. 
 For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
 Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
@@ -74,19 +82,21 @@ We provided a default `alarm-setting.yml` in our distribution only for convenien
 1. Percentile of service response time is over 1s in last 3 minutes
 1. Service Instance average response time over 1s in last 2 minutes.
 1. Endpoint average response time over 1s in last 2 minutes.
+1. Database access average response time over 1s in last 2 minutes.
+1. Endpoint relation average response time over 1s in last 2 minutes.
 
 ### List of all potential metrics name
 The metrics names are defined in official [OAL scripts](../../guides/backend-oal-scripts.md), right now 
-metrics from **Service**, **Service Instance**, **Endpoint** scopes could be used in Alarm, we will extend in further versions. 
+metrics from **Service**, **Service Instance**, **Endpoint**, **Service Relation**, **Service Instance Relation**, **Endpoint Relation** scopes could be used in Alarm, and the **Database access** same with **Service** scope.
 
 Submit issue or pull request if you want to support any other scope in alarm.
 
 ## Webhook
-Webhook requires the peer is a web container. The alarm message will send through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage` with following key information.
+Webhook requires the peer is a web container. The alarm message will send through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with following key information.
 - **scopeId**, **scope**. All scopes are defined in org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.
-- **name**. Target scope entity name.
-- **id0**. The ID of scope entity, matched the name.
-- **id1**. Not used today.
+- **name**. Target scope entity name. Please follow [Entity name define](#entity-name).
+- **id0**. The ID of the scope entity matched the name. When using relation scope, it is the source entity ID.
+- **id1**. When using relation scope, it will be the dest entity ID. Otherwise, it is empty.
 - **ruleName**. The rule name you configured in `alarm-settings.yml`.
 - **alarmMessage**. Alarm text message.
 - **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
@@ -95,20 +105,20 @@ Example as following
 ```json
 [{
 	"scopeId": 1, 
-        "scope": "SERVICE",
-        "name": "serviceA", 
+	"scope": "SERVICE",
+	"name": "serviceA", 
 	"id0": "12",  
 	"id1": "",  
-        "ruleName": "service_resp_time_rule",
+    "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage xxxx",
 	"startTime": 1560524171000
 }, {
 	"scopeId": 1,
-        "scope": "SERVICE",
-        "name": "serviceB",
+	"scope": "SERVICE",
+	"name": "serviceB",
 	"id0": "23",
 	"id1": "",
-        "ruleName": "service_resp_time_rule",
+    "ruleName": "service_resp_time_rule",
 	"alarmMessage": "alarmMessage yyy",
 	"startTime": 1560524171000
 }]

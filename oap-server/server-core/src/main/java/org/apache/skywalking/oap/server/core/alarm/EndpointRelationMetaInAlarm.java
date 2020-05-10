@@ -20,12 +20,12 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
 @Getter
 @Setter
-public class ServiceInstanceMetaInAlarm extends MetaInAlarm {
+public class EndpointRelationMetaInAlarm extends MetaInAlarm {
     private String metricsName;
 
     private String id;
@@ -33,21 +33,27 @@ public class ServiceInstanceMetaInAlarm extends MetaInAlarm {
 
     @Override
     public String getScope() {
-        return DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
+        return DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME;
     }
 
     @Override
     public int getScopeId() {
-        return DefaultScopeDefine.SERVICE_INSTANCE;
+        return DefaultScopeDefine.ENDPOINT_RELATION;
     }
 
     @Override
     public String getId0() {
-        return id;
+        final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine =
+            IDManager.EndpointID.analysisRelationId(id);
+
+        return IDManager.EndpointID.buildId(endpointRelationDefine.getSourceServiceId(), endpointRelationDefine.getSource());
     }
 
     @Override
     public String getId1() {
-        return Const.EMPTY_STRING;
+        final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine =
+            IDManager.EndpointID.analysisRelationId(id);
+
+        return IDManager.EndpointID.buildId(endpointRelationDefine.getDestServiceId(), endpointRelationDefine.getDest());
     }
 }
