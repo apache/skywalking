@@ -30,8 +30,6 @@ public class EndpointMetaInAlarm extends MetaInAlarm {
 
     private String id;
     private String name;
-    private String[] tags;
-    private String[] properties;
 
     @Override
     public String getScope() {
