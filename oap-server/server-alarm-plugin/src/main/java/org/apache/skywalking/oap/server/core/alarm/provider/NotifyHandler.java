@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
@@ -55,7 +56,7 @@ public class NotifyHandler implements MetricsNotify {
 
         if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
             && !DefaultScopeDefine.inEndpointCatalog(scope) && !DefaultScopeDefine.inServiceRelationCatalog(scope)
-            && !DefaultScopeDefine.inServiceInstanceRelationCatalog(scope)) {
+            && !DefaultScopeDefine.inServiceInstanceRelationCatalog(scope) && !DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
             return;
         }
 
@@ -120,12 +121,22 @@ public class NotifyHandler implements MetricsNotify {
             final IDManager.ServiceID.ServiceIDDefinition destServiceId = IDManager.ServiceID.analysisId(
                 destIdDefinition.getServiceId());
 
-            ServiceInstanceRelationMetaInAlarm serviceRelationMetaInAlarm = new ServiceInstanceRelationMetaInAlarm();
-            serviceRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
-            serviceRelationMetaInAlarm.setId(instanceRelationId);
-            serviceRelationMetaInAlarm.setName(sourceServiceId.getName() + " of " + sourceIdDefinition.getName()
+            ServiceInstanceRelationMetaInAlarm instanceRelationMetaInAlarm = new ServiceInstanceRelationMetaInAlarm();
+            instanceRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
+            instanceRelationMetaInAlarm.setId(instanceRelationId);
+            instanceRelationMetaInAlarm.setName(sourceServiceId.getName() + " of " + sourceIdDefinition.getName()
                 + " to " + destServiceId.getName() + " of " + destIdDefinition.getName());
-            metaInAlarm = serviceRelationMetaInAlarm;
+            metaInAlarm = instanceRelationMetaInAlarm;
+        } else if (DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
+            final String endpointRelationId = meta.getId();
+            final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine = IDManager.EndpointID.analysisRelationId(
+                endpointRelationId);
+
+            EndpointRelationMetaInAlarm endpointRelationMetaInAlarm = new EndpointRelationMetaInAlarm();
+            endpointRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
+            endpointRelationMetaInAlarm.setId(endpointRelationId);
+            endpointRelationMetaInAlarm.setName(endpointRelationDefine.getSource() + " to " + endpointRelationDefine.getDest());
+            metaInAlarm = endpointRelationMetaInAlarm;
         } else {
             return;
         }

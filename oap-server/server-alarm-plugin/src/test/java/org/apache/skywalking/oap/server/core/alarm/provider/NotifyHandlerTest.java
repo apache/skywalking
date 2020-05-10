@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
@@ -221,6 +222,35 @@ public class NotifyHandlerTest {
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("from-service of from-service-instance to dest-service of dest-service-instance", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION, metaInAlarm.getScopeId());
+    }
+
+    @Test
+    public void testNotifyWithEndpointRelationCatalog() {
+        prepareNotify();
+
+        String metricsName = "endpoint-relation-metrics";
+        when(metadata.getMetricsName()).thenReturn(metricsName);
+        when(DefaultScopeDefine.inEndpointRelationCatalog(0)).thenReturn(true);
+        final String serviceInstanceRelationId = IDManager.EndpointID.buildRelationId(new IDManager.EndpointID.EndpointRelationDefine(
+            IDManager.ServiceID.buildId("from-service", true), "/source-path",
+            IDManager.ServiceID.buildId("dest-service", true), "/dest-path"
+        ));
+        when(metadata.getId()).thenReturn(serviceInstanceRelationId);
+
+        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
+
+        notifyHandler.notify(metrics);
+        verify(rule).in(metaCaptor.capture(), any());
+
+        MetaInAlarm metaInAlarm = metaCaptor.getValue();
+
+        assertTrue(metaInAlarm instanceof EndpointRelationMetaInAlarm);
+        assertEquals(metricsName, metaInAlarm.getMetricsName());
+        assertEquals("ZnJvbS1zZXJ2aWNl.1_L3NvdXJjZS1wYXRo", metaInAlarm.getId0());
+        assertEquals("ZGVzdC1zZXJ2aWNl.1_L2Rlc3QtcGF0aA==", metaInAlarm.getId1());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
+        assertEquals("/source-path to /dest-path", metaInAlarm.getName());
+        assertEquals(DefaultScopeDefine.ENDPOINT_RELATION, metaInAlarm.getScopeId());
     }
 
     private void prepareNotify() {
