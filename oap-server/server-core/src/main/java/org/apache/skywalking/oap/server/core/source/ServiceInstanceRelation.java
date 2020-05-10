@@ -25,8 +25,9 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME;
 
-@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation")
+@ScopeDeclaration(id = SERVICE_INSTANCE_RELATION, name = "ServiceInstanceRelation", catalog = SERVICE_INSTANCE_RELATION_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class ServiceInstanceRelation extends Source {
     private String entityId;
