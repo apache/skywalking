@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -60,7 +62,14 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);
-        service.addHandler(new MetricServiceGRPCHandler(getManager()));
+        if (config.isAcceptMetricsService()) {
+            getManager().find(CoreModule.NAME)
+                        .provider()
+                        .getService(OALEngineLoaderService.class)
+                        .load(EnvoyOALDefine.INSTANCE);
+
+            service.addHandler(new MetricServiceGRPCHandler(getManager()));
+        }
         service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
     }
 
@@ -74,7 +83,8 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
         return new String[] {
             TelemetryModule.NAME,
             CoreModule.NAME,
-            SharingServerModule.NAME
+            SharingServerModule.NAME,
+            MeshReceiverModule.NAME
         };
     }
 }

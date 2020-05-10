@@ -16,25 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy;
-
-import com.google.common.base.Strings;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-public class EnvoyMetricReceiverConfig extends ModuleConfig {
-    @Getter
-    private boolean acceptMetricsService = false;
-    private String alsHTTPAnalysis;
-
-    public List<String> getAlsHTTPAnalysis() {
-        if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
-            return Collections.EMPTY_LIST;
-        }
-        return Arrays.stream(alsHTTPAnalysis.trim().split(",")).map(String::trim).collect(Collectors.toList());
-    }
-}
+// Envoy instance metrics
+envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
+envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
+envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
