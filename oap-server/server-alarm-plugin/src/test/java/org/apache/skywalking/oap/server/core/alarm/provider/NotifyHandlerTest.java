@@ -220,7 +220,7 @@ public class NotifyHandlerTest {
         assertEquals("ZnJvbS1zZXJ2aWNl.1_ZnJvbS1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId0());
         assertEquals("ZGVzdC1zZXJ2aWNl.1_ZGVzdC1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId1());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
-        assertEquals("from-service of from-service-instance to dest-service of dest-service-instance", metaInAlarm.getName());
+        assertEquals("from-service-instance of from-service to dest-service-instance of dest-service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION, metaInAlarm.getScopeId());
     }
 
@@ -249,7 +249,7 @@ public class NotifyHandlerTest {
         assertEquals("ZnJvbS1zZXJ2aWNl.1_L3NvdXJjZS1wYXRo", metaInAlarm.getId0());
         assertEquals("ZGVzdC1zZXJ2aWNl.1_L2Rlc3QtcGF0aA==", metaInAlarm.getId1());
         assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
-        assertEquals("/source-path to /dest-path", metaInAlarm.getName());
+        assertEquals("/source-path in from-service to /dest-path in dest-service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT_RELATION, metaInAlarm.getScopeId());
     }
 

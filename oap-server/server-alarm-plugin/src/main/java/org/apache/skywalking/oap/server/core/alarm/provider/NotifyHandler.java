@@ -124,18 +124,23 @@ public class NotifyHandler implements MetricsNotify {
             ServiceInstanceRelationMetaInAlarm instanceRelationMetaInAlarm = new ServiceInstanceRelationMetaInAlarm();
             instanceRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
             instanceRelationMetaInAlarm.setId(instanceRelationId);
-            instanceRelationMetaInAlarm.setName(sourceServiceId.getName() + " of " + sourceIdDefinition.getName()
-                + " to " + destServiceId.getName() + " of " + destIdDefinition.getName());
+            instanceRelationMetaInAlarm.setName(sourceIdDefinition.getName() + " of " + sourceServiceId.getName()
+                + " to " + destIdDefinition.getName() + " of " + destServiceId.getName());
             metaInAlarm = instanceRelationMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
             final String endpointRelationId = meta.getId();
             final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine = IDManager.EndpointID.analysisRelationId(
                 endpointRelationId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getSourceServiceId());
+            final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getDestServiceId());
 
             EndpointRelationMetaInAlarm endpointRelationMetaInAlarm = new EndpointRelationMetaInAlarm();
             endpointRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
             endpointRelationMetaInAlarm.setId(endpointRelationId);
-            endpointRelationMetaInAlarm.setName(endpointRelationDefine.getSource() + " to " + endpointRelationDefine.getDest());
+            endpointRelationMetaInAlarm.setName(endpointRelationDefine.getSource() + " in " + sourceService.getName()
+                + " to " + endpointRelationDefine.getDest() + " in " + destService.getName());
             metaInAlarm = endpointRelationMetaInAlarm;
         } else {
             return;

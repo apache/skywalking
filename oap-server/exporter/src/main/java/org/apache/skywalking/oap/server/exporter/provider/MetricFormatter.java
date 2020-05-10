@@ -63,13 +63,18 @@ public class MetricFormatter {
                 serviceRelationDefine.getDestId());
             final IDManager.ServiceID.ServiceIDDefinition destServiceId = IDManager.ServiceID.analysisId(
                 destIdDefinition.getServiceId());
-            return sourceServiceId.getName() + " of " + sourceIdDefinition.getName()
-                + " to " + destServiceId.getName() + " of " + destIdDefinition.getName();
+            return sourceIdDefinition.getName() + " of " + sourceServiceId.getName()
+                + " to " + destIdDefinition.getName() + " of " + destServiceId.getName();
         } else if (DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
             final String endpointRelationId = meta.getId();
             final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine = IDManager.EndpointID.analysisRelationId(
                 endpointRelationId);
-            return endpointRelationDefine.getSource() + " to " + endpointRelationDefine.getDest();
+            final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getSourceServiceId());
+            final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getDestServiceId());
+            return endpointRelationDefine.getSource() + " in " + sourceService.getName()
+                + " to " + endpointRelationDefine.getDest() + " in " + destService.getName();
         } else if (scope == DefaultScopeDefine.ALL) {
             return "";
         } else {
