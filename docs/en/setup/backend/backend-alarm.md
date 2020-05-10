@@ -93,8 +93,8 @@ Submit issue or pull request if you want to support any other scope in alarm.
 Webhook requires the peer is a web container. The alarm message will send through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with following key information.
 - **scopeId**, **scope**. All scopes are defined in org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.
 - **name**. Target scope entity name. Please follow [Entity name define](#entity-name).
-- **id0**. The ID of scope entity, matched the name. When using relation scope, it will be the source entity ID.
-- **id1**. When using relation scope, it will be the dest entity ID. Otherwise it will be empty.
+- **id0**. The ID of the scope entity matched the name. When using relation scope, it is the source entity ID.
+- **id1**. When using relation scope, it will be the dest entity ID. Otherwise, it is empty.
 - **ruleName**. The rule name you configured in `alarm-settings.yml`.
 - **alarmMessage**. Alarm text message.
 - **startTime**. Alarm time measured in milliseconds, between the current time and midnight, January 1, 1970 UTC.
