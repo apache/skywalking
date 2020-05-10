@@ -42,6 +42,15 @@ public class MetricFormatter {
             final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
                 endpointId);
             return endpointIDDefinition.getEndpointName();
+        } else if (DefaultScopeDefine.inServiceRelationCatalog(scope)) {
+            final String serviceRelationId = meta.getId();
+            final IDManager.ServiceID.ServiceRelationDefine serviceRelationDefine = IDManager.ServiceID.analysisRelationId(
+                serviceRelationId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getSourceId());
+            final IDManager.ServiceID.ServiceIDDefinition destIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getDestId());
+            return sourceIdDefinition.getName() + " to " + destIdDefinition.getName();
         } else if (scope == DefaultScopeDefine.ALL) {
             return "";
         } else {

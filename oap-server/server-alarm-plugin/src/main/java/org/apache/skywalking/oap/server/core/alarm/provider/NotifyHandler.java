@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
@@ -51,9 +52,8 @@ public class NotifyHandler implements MetricsNotify {
         MetricsMetaInfo meta = withMetadata.getMeta();
         int scope = meta.getScope();
 
-        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(
-            scope) && !DefaultScopeDefine
-            .inEndpointCatalog(scope)) {
+        if (!DefaultScopeDefine.inServiceCatalog(scope) && !DefaultScopeDefine.inServiceInstanceCatalog(scope)
+            && !DefaultScopeDefine.inEndpointCatalog(scope) && !DefaultScopeDefine.inServiceRelationCatalog(scope)) {
             return;
         }
 
@@ -91,6 +91,19 @@ public class NotifyHandler implements MetricsNotify {
             endpointMetaInAlarm.setName(
                 endpointIDDefinition.getEndpointName() + " in " + serviceIDDefinition.getName());
             metaInAlarm = endpointMetaInAlarm;
+        } else if (DefaultScopeDefine.inServiceRelationCatalog(scope)) {
+            final String serviceRelationId = meta.getId();
+            final IDManager.ServiceID.ServiceRelationDefine serviceRelationDefine = IDManager.ServiceID.analysisRelationId(
+                serviceRelationId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getSourceId());
+            final IDManager.ServiceID.ServiceIDDefinition destIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getDestId());
+            ServiceRelationMetaInAlarm serviceRelationMetaInAlarm = new ServiceRelationMetaInAlarm();
+            serviceRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
+            serviceRelationMetaInAlarm.setId(serviceRelationId);
+            serviceRelationMetaInAlarm.setName(sourceIdDefinition.getName() + " to " + destIdDefinition.getName());
+            metaInAlarm = serviceRelationMetaInAlarm;
         } else {
             return;
         }

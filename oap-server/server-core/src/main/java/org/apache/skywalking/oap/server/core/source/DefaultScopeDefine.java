@@ -73,10 +73,12 @@ public class DefaultScopeDefine {
     public static final String SERVICE_CATALOG_NAME = "SERVICE";
     public static final String SERVICE_INSTANCE_CATALOG_NAME = "SERVICE_INSTANCE";
     public static final String ENDPOINT_CATALOG_NAME = "ENDPOINT";
+    public static final String SERVICE_RELATION_CATALOG_NAME = "SERVICE_RELATION";
 
     private static final Map<Integer, Boolean> SERVICE_CATALOG = new HashMap<>();
     private static final Map<Integer, Boolean> SERVICE_INSTANCE_CATALOG = new HashMap<>();
     private static final Map<Integer, Boolean> ENDPOINT_CATALOG = new HashMap<>();
+    private static final Map<Integer, Boolean> SERVICE_RELATION_CATALOG = new HashMap<>();
 
     @Setter
     private static boolean ACTIVE_EXTRA_MODEL_COLUMNS = false;
@@ -169,6 +171,9 @@ public class DefaultScopeDefine {
             case ENDPOINT_CATALOG_NAME:
                 ENDPOINT_CATALOG.put(id, Boolean.TRUE);
                 break;
+            case SERVICE_RELATION_CATALOG_NAME:
+                SERVICE_RELATION_CATALOG.put(id, Boolean.TRUE);
+                break;
         }
     }
 
@@ -237,6 +242,16 @@ public class DefaultScopeDefine {
      */
     public static boolean inEndpointCatalog(int scopeId) {
         return ENDPOINT_CATALOG.containsKey(scopeId);
+    }
+
+    /**
+     * Check whether current service belongs service relation catalog
+     *
+     * @param scopeId represents an existing scope id.
+     * @return true is current scope set {@link ScopeDeclaration#catalog()} == {@link #SERVICE_RELATION_CATALOG_NAME}
+     */
+    public static boolean inServiceRelationCatalog(int scopeId) {
+        return SERVICE_RELATION_CATALOG.containsKey(scopeId);
     }
 
     /**
