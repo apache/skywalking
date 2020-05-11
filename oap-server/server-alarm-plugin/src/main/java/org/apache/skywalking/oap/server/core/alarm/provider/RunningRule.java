@@ -25,9 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
@@ -59,6 +61,8 @@ public class RunningRule {
     private volatile MetricsValueType valueType;
     private final List<String> includeNames;
     private final List<String> excludeNames;
+    private final String includeNamesRegex;
+    private final String excludeNamesRegex;
     private final AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -78,6 +82,8 @@ public class RunningRule {
 
         this.includeNames = alarmRule.getIncludeNames();
         this.excludeNames = alarmRule.getExcludeNames();
+        this.includeNamesRegex = alarmRule.getIncludeNamesRegex();
+        this.excludeNamesRegex = alarmRule.getExcludeNamesRegex();
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
@@ -110,6 +116,24 @@ public class RunningRule {
             if (excludeNames.contains(meta.getName())) {
                 if (log.isTraceEnabled()) {
                     log.trace("{} is in the excluding list {}", meta.getName(), excludeNames);
+                }
+                return;
+            }
+        }
+
+        if (StringUtil.isNotEmpty(includeNamesRegex)) {
+            if (!meta.getName().matches(includeNamesRegex)) {
+                if (log.isTraceEnabled()) {
+                    log.trace("{} isn't matches include regex {}", meta.getName(), includeNamesRegex);
+                }
+                return;
+            }
+        }
+
+        if (StringUtil.isNotEmpty(excludeNamesRegex)) {
+            if (meta.getName().matches(excludeNamesRegex)) {
+                if (log.isTraceEnabled()) {
+                    log.trace("{} is matches exclude regex {}", meta.getName(), excludeNamesRegex);
                 }
                 return;
             }
