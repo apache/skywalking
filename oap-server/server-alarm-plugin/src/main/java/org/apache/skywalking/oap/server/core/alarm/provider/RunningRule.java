@@ -124,7 +124,7 @@ public class RunningRule {
         if (StringUtil.isNotEmpty(includeNamesRegex)) {
             if (!meta.getName().matches(includeNamesRegex)) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} isn't matches include regex {}", meta.getName(), includeNamesRegex);
+                    log.trace("{} doesn't match the include regex {}", meta.getName(), includeNamesRegex);
                 }
                 return;
             }
@@ -133,7 +133,7 @@ public class RunningRule {
         if (StringUtil.isNotEmpty(excludeNamesRegex)) {
             if (meta.getName().matches(excludeNamesRegex)) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} is matches exclude regex {}", meta.getName(), excludeNamesRegex);
+                    log.trace("{} matches the exclude regex {}", meta.getName(), excludeNamesRegex);
                 }
                 return;
             }

@@ -50,7 +50,6 @@ rules:
     metrics-name: service_instance_resp_time
     op: ">"
     threshold: 1000
-    include-names-regex: instance\_\d+
     period: 10
     count: 2
     silence-period: 5
