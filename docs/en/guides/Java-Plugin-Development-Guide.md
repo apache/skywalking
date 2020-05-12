@@ -105,7 +105,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
 
     /**
      * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge.
-     * It is higher recommend don't use this for performance consideration.
+     * It is highly recommended not to use this for performance consideration.
      *
      * @param componentName
      * @return the span for chaining.
