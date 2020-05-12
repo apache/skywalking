@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -44,7 +45,7 @@ public class MockStreamAnnotationListener implements AnnotationListener {
     }
 
     @Override
-    public void notify(Class aClass) {
+    public void notify(Class aClass) throws StorageException {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 

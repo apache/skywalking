@@ -16,13 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.apm.plugin.jdbc.mariadb.v2.define;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.plugin.jdbc.PSSetterDefinitionOfJDBCInstrumentation;
 
-/**
- * Override service provides ways to rename the existing column or table name.
- */
-public interface IModelOverride extends Service {
-    void overrideColumnName(String columnName, String newName);
+public class PreparedStatementIgnoredSetterInstrumentation extends PreparedStatementInstrumentation {
+
+    @Override
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[]{
+                new PSSetterDefinitionOfJDBCInstrumentation(true)
+        };
+    }
+
 }

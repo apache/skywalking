@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.service;
+package org.apache.skywalking.oap.server.receiver.clr.provider;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class ServiceUpdateDispatcher implements SourceDispatcher<ServiceUpdate> {
-    @Override
-    public void dispatch(final ServiceUpdate source) {
-        ServiceTraffic traffic = new ServiceTraffic();
-        traffic.setTimeBucket(source.getTimeBucket());
-        traffic.setName(source.getName());
-        traffic.setNodeType(source.getNodeType());
-        MetricsStreamProcessor.getInstance().in(traffic);
+/**
+ * CLR OAL script includes the metrics related to dot net CLR only.
+ */
+public class CLROALDefine extends OALDefine {
+    public static final CLROALDefine INSTANCE = new CLROALDefine();
+
+    private CLROALDefine() {
+        super(
+            "oal/dotnet-agent.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }

@@ -35,10 +35,12 @@ import lombok.ToString;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.source.GCPhrase;
 import org.apache.skywalking.oap.server.core.source.MemoryPoolType;
-import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
@@ -111,6 +113,12 @@ public class So11yReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(CoreOALDefine.INSTANCE);
+
         sourceReceiver = getManager().find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         MetricsCollector collector = getManager().find(TelemetryModule.NAME)
                                                  .provider()

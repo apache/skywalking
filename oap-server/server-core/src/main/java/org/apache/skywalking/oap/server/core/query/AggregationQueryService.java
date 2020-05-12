@@ -68,10 +68,33 @@ public class AggregationQueryService implements Service {
                     selectedRecord.setName(IDManager.ServiceID.analysisId(selectedRecord.getId()).getName());
                     break;
                 case ServiceInstance:
-                    selectedRecord.setName(IDManager.ServiceInstanceID.analysisId(selectedRecord.getId()).getName());
+                    final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition
+                        = IDManager.ServiceInstanceID.analysisId(selectedRecord.getId());
+                    /**
+                     * Add the service name into the name if this is global top N.
+                     */
+                    if (StringUtil.isEmpty(condition.getParentService())) {
+                        IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition =
+                            IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId());
+                        selectedRecord.setName(serviceIDDefinition.getName() + " - " + instanceIDDefinition.getName());
+                    } else {
+                        selectedRecord.setName(instanceIDDefinition.getName());
+                    }
                     break;
                 case Endpoint:
-                    selectedRecord.setName(IDManager.EndpointID.analysisId(selectedRecord.getId()).getEndpointName());
+                    final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition
+                        = IDManager.EndpointID.analysisId(selectedRecord.getId());
+                    /**
+                     * Add the service name into the name if this is global top N.
+                     */
+                    if (StringUtil.isEmpty(condition.getParentService())) {
+                        IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition =
+                            IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId());
+                        selectedRecord.setName(serviceIDDefinition.getName()
+                                                   + " - " + endpointIDDefinition.getEndpointName());
+                    } else {
+                        selectedRecord.setName(endpointIDDefinition.getEndpointName());
+                    }
                     break;
                 default:
                     selectedRecord.setName(Const.UNKNOWN);

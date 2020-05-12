@@ -37,7 +37,6 @@ service_relation_server_resp_time = from(ServiceRelation.latency).filter(detectP
 service_relation_client_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 service_relation_server_percentile = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.SERVER).percentile(10); // Multiple values including p50, p75, p90, p95, p99
 
-
 // Service Instance relation scope metrics for topology
 service_instance_relation_client_cpm = from(ServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();
 service_instance_relation_server_cpm = from(ServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
@@ -63,37 +62,10 @@ endpoint_percentile = from(Endpoint.latency).percentile(10); // Multiple values 
 endpoint_relation_cpm = from(EndpointRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();
 endpoint_relation_resp_time = from(EndpointRelation.rpcLatency).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
-// JVM instance metrics
-instance_jvm_cpu = from(ServiceInstanceJVMCPU.usePercent).doubleAvg();
-instance_jvm_memory_heap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == true).longAvg();
-instance_jvm_memory_noheap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == false).longAvg();
-instance_jvm_memory_heap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == true).longAvg();
-instance_jvm_memory_noheap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == false).longAvg();
-instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPhrase.NEW).sum();
-instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phrase == GCPhrase.OLD).sum();
-instance_jvm_young_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.NEW).sum();
-instance_jvm_old_gc_count = from(ServiceInstanceJVMGC.count).filter(phrase == GCPhrase.OLD).sum();
-
 database_access_resp_time = from(DatabaseAccess.latency).longAvg();
 database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
-
-// CLR instance metrics
-instance_clr_cpu = from(ServiceInstanceCLRCPU.usePercent).doubleAvg();
-instance_clr_gen0_collect_count = from(ServiceInstanceCLRGC.gen0CollectCount).sum();
-instance_clr_gen1_collect_count = from(ServiceInstanceCLRGC.gen1CollectCount).sum();
-instance_clr_gen2_collect_count = from(ServiceInstanceCLRGC.gen2CollectCount).sum();
-instance_clr_heap_memory = from(ServiceInstanceCLRGC.heapMemory).longAvg();
-instance_clr_available_completion_port_threads = from(ServiceInstanceCLRThread.availableCompletionPortThreads).max();
-instance_clr_available_worker_threads = from(ServiceInstanceCLRThread.availableWorkerThreads).max();
-instance_clr_max_completion_port_threads = from(ServiceInstanceCLRThread.maxCompletionPortThreads).max();
-instance_clr_max_worker_threads = from(ServiceInstanceCLRThread.maxWorkerThreads).max();
-
-// Envoy instance metrics
-envoy_heap_memory_max_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.memory_heap_size").maxDouble();
-envoy_total_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.total_connections").maxDouble();
-envoy_parent_connections_used = from(EnvoyInstanceMetric.value).filter(metricName == "server.parent_connections").maxDouble();
 
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////
