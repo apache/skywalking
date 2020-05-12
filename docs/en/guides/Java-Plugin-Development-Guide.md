@@ -103,15 +103,6 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      */
     AbstractSpan setComponent(Component component);
 
-    /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge.
-     * It it higher recommend don't use this for performance consideration.
-     *
-     * @param componentName
-     * @return the span for chaining.
-     */
-    AbstractSpan setComponent(String componentName);
-
     AbstractSpan setLayer(SpanLayer layer);
 
     /**
