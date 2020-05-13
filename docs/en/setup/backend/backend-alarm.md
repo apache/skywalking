@@ -22,6 +22,8 @@ Alarm rule is constituted by following keys
 [List of all potential metrics name](#list-of-all-potential-metrics-name).
 - **Include names**. The following entity names are included in this rule. Please follow [Entity name define](#entity-name).
 - **Exclude names**. The following entity names are excluded in this rule. Please follow [Entity name define](#entity-name).
+- **Include names regex**. Provide a regex to include the entity names. If both setting the include name list and include name regex, both rules will take effect.
+- **Exclude names regex**. Provide a regex to exclude the exclude names. If both setting the exclude name list and exclude name regex, both rules will take effect.
 - **Threshold**. The target value. 
 For multiple values metrics, such as **percentile**, the threshold is an array. Described like  `value1, value2, value3, value4, value5`.
 Each value could the threshold for each value of the metrics. Set the value to `-` if don't want to trigger alarm by this or some of the values.  
@@ -80,7 +82,7 @@ We provided a default `alarm-setting.yml` in our distribution only for convenien
 1. Service average response time over 1s in last 3 minutes.
 1. Service success rate lower than 80% in last 2 minutes.
 1. Percentile of service response time is over 1s in last 3 minutes
-1. Service Instance average response time over 1s in last 2 minutes.
+1. Service Instance average response time over 1s in last 2 minutes, and the instance name matches the regex.
 1. Endpoint average response time over 1s in last 2 minutes.
 1. Database access average response time over 1s in last 2 minutes.
 1. Endpoint relation average response time over 1s in last 2 minutes.
