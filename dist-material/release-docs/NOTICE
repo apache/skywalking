@@ -915,3 +915,14 @@ This product includes the software developed by third-party:
 
  * Google Guava https://code.google.com/p/guava-libraries/  (APL2)
  * sbt-extras: https://github.com/paulp/sbt-extras  (BSD)  (LICENSE.sbt-extras.txt)
+
+========================================================================
+
+Apache commons-text NOTICE
+
+========================================================================
+Apache Commons Text
+Copyright 2014-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).

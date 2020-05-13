@@ -16,25 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.meter.prometheus.parser.sample;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class ResourceUtils {
-
-    public static Reader read(String fileName) throws FileNotFoundException {
-        return new InputStreamReader(readToStream(fileName));
-    }
-
-    public static InputStream readToStream(String fileName) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(fileName);
-        if (url == null) {
-            throw new FileNotFoundException("file not found: " + fileName);
-        }
-        return ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
-    }
+class Context {
+    StringBuilder name = new StringBuilder();
+    StringBuilder labelname = new StringBuilder();
+    StringBuilder labelvalue = new StringBuilder();
+    StringBuilder value = new StringBuilder();
+    Map<String, String> labels = new LinkedHashMap<>();
 }

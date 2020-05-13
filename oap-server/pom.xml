@@ -75,6 +75,7 @@
         <jackson-databind.version>2.9.5</jackson-databind.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
+        <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.4.0</apollo.version>
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
@@ -499,6 +500,11 @@
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>${javaassist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

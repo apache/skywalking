@@ -16,25 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.util;
+package org.apache.skywalking.oap.server.core.meter.prometheus.metrics;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
+import java.util.Map;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Singular;
+import lombok.ToString;
 
-public class ResourceUtils {
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Getter
+public class Gauge extends Metric {
 
-    public static Reader read(String fileName) throws FileNotFoundException {
-        return new InputStreamReader(readToStream(fileName));
-    }
+    private final double value;
 
-    public static InputStream readToStream(String fileName) throws FileNotFoundException {
-        URL url = ResourceUtils.class.getClassLoader().getResource(fileName);
-        if (url == null) {
-            throw new FileNotFoundException("file not found: " + fileName);
-        }
-        return ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
+    @lombok.Builder
+    public Gauge(String name, @Singular Map<String, String> labels, double value) {
+        super(name, labels);
+        this.value = value;
     }
 }
