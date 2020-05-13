@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -61,8 +62,8 @@ public class RunningRule {
     private volatile MetricsValueType valueType;
     private final List<String> includeNames;
     private final List<String> excludeNames;
-    private final String includeNamesRegex;
-    private final String excludeNamesRegex;
+    private final Pattern includeNamesRegex;
+    private final Pattern excludeNamesRegex;
     private final AlarmMessageFormatter formatter;
 
     public RunningRule(AlarmRule alarmRule) {
@@ -82,8 +83,10 @@ public class RunningRule {
 
         this.includeNames = alarmRule.getIncludeNames();
         this.excludeNames = alarmRule.getExcludeNames();
-        this.includeNamesRegex = alarmRule.getIncludeNamesRegex();
-        this.excludeNamesRegex = alarmRule.getExcludeNamesRegex();
+        this.includeNamesRegex = StringUtil.isNotEmpty(alarmRule.getIncludeNamesRegex()) ?
+            Pattern.compile(alarmRule.getIncludeNamesRegex()) : null;
+        this.excludeNamesRegex = StringUtil.isNotEmpty(alarmRule.getExcludeNamesRegex()) ?
+            Pattern.compile(alarmRule.getExcludeNamesRegex()) : null;
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
     }
 
@@ -103,37 +106,38 @@ public class RunningRule {
             return;
         }
 
+        final String metaName = meta.getName();
         if (CollectionUtils.isNotEmpty(includeNames)) {
-            if (!includeNames.contains(meta.getName())) {
+            if (!includeNames.contains(metaName)) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} isn't in the including list {}", meta.getName(), includeNames);
+                    log.trace("{} isn't in the including list {}", metaName, includeNames);
                 }
                 return;
             }
         }
 
         if (CollectionUtils.isNotEmpty(excludeNames)) {
-            if (excludeNames.contains(meta.getName())) {
+            if (excludeNames.contains(metaName)) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} is in the excluding list {}", meta.getName(), excludeNames);
+                    log.trace("{} is in the excluding list {}", metaName, excludeNames);
                 }
                 return;
             }
         }
 
-        if (StringUtil.isNotEmpty(includeNamesRegex)) {
-            if (!meta.getName().matches(includeNamesRegex)) {
+        if (includeNamesRegex != null) {
+            if (!includeNamesRegex.matcher(metaName).matches()) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} doesn't match the include regex {}", meta.getName(), includeNamesRegex);
+                    log.trace("{} doesn't match the include regex {}", metaName, includeNamesRegex);
                 }
                 return;
             }
         }
 
-        if (StringUtil.isNotEmpty(excludeNamesRegex)) {
-            if (meta.getName().matches(excludeNamesRegex)) {
+        if (excludeNamesRegex != null) {
+            if (excludeNamesRegex.matcher(metaName).matches()) {
                 if (log.isTraceEnabled()) {
-                    log.trace("{} matches the exclude regex {}", meta.getName(), excludeNamesRegex);
+                    log.trace("{} matches the exclude regex {}", metaName, excludeNamesRegex);
                 }
                 return;
             }
