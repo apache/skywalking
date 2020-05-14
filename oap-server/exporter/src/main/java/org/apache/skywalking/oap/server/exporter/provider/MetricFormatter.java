@@ -42,6 +42,39 @@ public class MetricFormatter {
             final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
                 endpointId);
             return endpointIDDefinition.getEndpointName();
+        } else if (DefaultScopeDefine.inServiceRelationCatalog(scope)) {
+            final String serviceRelationId = meta.getId();
+            final IDManager.ServiceID.ServiceRelationDefine serviceRelationDefine = IDManager.ServiceID.analysisRelationId(
+                serviceRelationId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getSourceId());
+            final IDManager.ServiceID.ServiceIDDefinition destIdDefinition = IDManager.ServiceID.analysisId(
+                serviceRelationDefine.getDestId());
+            return sourceIdDefinition.getName() + " to " + destIdDefinition.getName();
+        } else if (DefaultScopeDefine.inServiceInstanceRelationCatalog(scope)) {
+            final String instanceRelationId = meta.getId();
+            final IDManager.ServiceInstanceID.ServiceInstanceRelationDefine serviceRelationDefine = IDManager.ServiceInstanceID.analysisRelationId(
+                instanceRelationId);
+            final IDManager.ServiceInstanceID.InstanceIDDefinition sourceIdDefinition = IDManager.ServiceInstanceID.analysisId(
+                serviceRelationDefine.getSourceId());
+            final IDManager.ServiceID.ServiceIDDefinition sourceServiceId = IDManager.ServiceID.analysisId(
+                sourceIdDefinition.getServiceId());
+            final IDManager.ServiceInstanceID.InstanceIDDefinition destIdDefinition = IDManager.ServiceInstanceID.analysisId(
+                serviceRelationDefine.getDestId());
+            final IDManager.ServiceID.ServiceIDDefinition destServiceId = IDManager.ServiceID.analysisId(
+                destIdDefinition.getServiceId());
+            return sourceIdDefinition.getName() + " of " + sourceServiceId.getName()
+                + " to " + destIdDefinition.getName() + " of " + destServiceId.getName();
+        } else if (DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
+            final String endpointRelationId = meta.getId();
+            final IDManager.EndpointID.EndpointRelationDefine endpointRelationDefine = IDManager.EndpointID.analysisRelationId(
+                endpointRelationId);
+            final IDManager.ServiceID.ServiceIDDefinition sourceService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getSourceServiceId());
+            final IDManager.ServiceID.ServiceIDDefinition destService = IDManager.ServiceID.analysisId(
+                endpointRelationDefine.getDestServiceId());
+            return endpointRelationDefine.getSource() + " in " + sourceService.getName()
+                + " to " + endpointRelationDefine.getDest() + " in " + destService.getName();
         } else if (scope == DefaultScopeDefine.ALL) {
             return "";
         } else {

@@ -192,6 +192,7 @@ istio-telemetry:
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
 
 prometheus-fetcher:
@@ -239,44 +240,49 @@ receiver-so11y:
 configuration:
   selector: ${SW_CONFIGURATION:none}
   none:
+  grpc:
+    host: ${SW_DCS_SERVER_HOST:""}
+    port: ${SW_DCS_SERVER_PORT:80}
+    clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
+    period: ${SW_DCS_PERIOD:20}
   apollo:
-    apolloMeta: http://106.12.25.204:8080
-    apolloCluster: default
-    apolloEnv: ""
-    appId: skywalking
-    period: 5
+    apolloMeta: ${SW_CONFIG_APOLLO:http://106.12.25.204:8080}
+    apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
+    apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
+    appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
+    period: ${SW_CONFIG_APOLLO_PERIOD:5}
   nacos:
     # Nacos Server Host
-    serverAddr: 127.0.0.1
+    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
     # Nacos Server Port
-    port: 8848
+    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
     # Nacos Configuration Group
-    group: 'skywalking'
+    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
     # Nacos Configuration namespace
-    namespace: ''
+    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
     # Unit seconds, sync period. Default fetch every 60 seconds.
-    period: 60
+    period: ${SW_CONFIG_NACOS_PERIOD:60}
     # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: "default"
+    clusterName: ${SW_CONFIG_NACOS_CLUSTER_NAME:default}
   zookeeper:
-    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    nameSpace: /default
-    hostPort: localhost:2181
+    period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    nameSpace: ${SW_CONFIG_ZK_NAMESPACE:/default}
+    hostPort: ${SW_CONFIG_ZK_HOST_PORT:localhost:2181}
     # Retry Policy
-    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-    maxRetries: 3 # max number of times to retry
+    baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
+    maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
   etcd:
-    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    group:  'skywalking'
-    serverAddr: localhost:2379
-    clusterName: "default"
+    period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
+    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
+    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
-    hostAndPorts: ${consul.address}
+    hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
     # Sync period in seconds. Defaults to 60 seconds.
-    period: 1
+    period: ${SW_CONFIG_CONSUL_PERIOD:1}
     # Consul aclToken
-    #aclToken: ${consul.aclToken}
+    aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
 
 exporter:
   selector: ${SW_EXPORTER:-}

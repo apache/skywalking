@@ -20,21 +20,24 @@ package org.apache.skywalking.oal.rt.parser;
 
 import java.util.LinkedList;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class AnalysisResult {
     private String varName;
 
     private String metricsName;
 
+    private String metricsClassPackage;
+
     private String tableName;
 
     private String packageName;
+
+    private String sourcePackage;
 
     private String sourceName;
 
@@ -55,6 +58,7 @@ public class AnalysisResult {
     private List<ConditionExpression> funcConditionExpressions;
 
     private List<Argument> funcArgs;
+
     private int argGetIdx = 0;
 
     private List<DataColumn> persistentFields;

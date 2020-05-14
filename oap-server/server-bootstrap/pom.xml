@@ -240,9 +240,12 @@
                         <exclude>log4j2.xml</exclude>
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
-                        <exclude>official_analysis.oal</exclude>
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
+                        <exclude>oal/core.oal</exclude>
+                        <exclude>oal/java-agent.oal</exclude>
+                        <exclude>oal/dotnet-agent.oal</exclude>
+                        <exclude>oal/envoy.oal</exclude>
                     </excludes>
                 </configuration>
             </plugin>

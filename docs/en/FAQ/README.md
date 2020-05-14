@@ -10,6 +10,7 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [Maven compilation failure with `python2 not found` error](maven-compile-npm-failure.md)
 
 ## Runtime
+* [8.x+ upgrade](v8-version-upgrade.md)
 * [Why metrics indexes(ElasticSearch) in Hour and Day precisions stop update after upgrade to 7.x?](Hour-Day-Metrics-Stopping.md)
 * [6.x version upgrade](v6-version-upgrade.md)
 * [Why only traces in UI?](Why-have-traces-no-others.md)

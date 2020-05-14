@@ -16,13 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.receiver.clr.provider;
 
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
 /**
- * Override service provides ways to rename the existing column or table name.
+ * CLR OAL script includes the metrics related to dot net CLR only.
  */
-public interface IModelOverride extends Service {
-    void overrideColumnName(String columnName, String newName);
+public class CLROALDefine extends OALDefine {
+    public static final CLROALDefine INSTANCE = new CLROALDefine();
+
+    private CLROALDefine() {
+        super(
+            "oal/dotnet-agent.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
+    }
 }

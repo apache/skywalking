@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -25,6 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -53,8 +55,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThre
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MySQL storage provider should be secondary choice for production usage as SkyWalking storage solution. It enhanced
@@ -64,9 +64,8 @@ import org.slf4j.LoggerFactory;
  * this storage implementation, we could also use this in MySQL-compatible projects, such as, Apache ShardingSphere,
  * TiDB
  */
+@Slf4j
 public class MySQLStorageProvider extends ModuleProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(MySQLStorageProvider.class);
 
     private MySQLStorageConfig config;
     private JDBCHikariCPClient mysqlClient;
@@ -122,8 +121,8 @@ public class MySQLStorageProvider extends ModuleProvider {
         try {
             mysqlClient.connect();
 
-            MySQLTableInstaller installer = new MySQLTableInstaller(getManager());
-            installer.install(mysqlClient);
+            MySQLTableInstaller installer = new MySQLTableInstaller(mysqlClient, getManager());
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

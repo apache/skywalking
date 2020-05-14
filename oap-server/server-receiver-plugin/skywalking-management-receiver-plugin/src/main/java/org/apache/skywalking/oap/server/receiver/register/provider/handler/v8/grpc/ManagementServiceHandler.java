@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
-import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -91,11 +91,11 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         serviceInstanceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
 
-        ServiceUpdate serviceUpdate = new ServiceUpdate();
-        serviceUpdate.setName(serviceName);
-        serviceUpdate.setNodeType(NodeType.Normal);
-        serviceUpdate.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceUpdate);
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(serviceName);
+        serviceMeta.setNodeType(NodeType.Normal);
+        serviceMeta.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceMeta);
 
         responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();

@@ -16,19 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.receiver.jvm.provider;
 
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
 /**
- * INewModel implementation supports creating a new module.
+ * JVM OAl script includes the metrics related to JVM only.
  */
-public interface INewModel extends Service {
-    /**
-     * Add a new model
-     *
-     * @return the created new model
-     */
-    Model add(Class<?> aClass, int scopeId, Storage storage, boolean record);
+public class JVMOALDefine extends OALDefine {
+    public static final JVMOALDefine INSTANCE = new JVMOALDefine();
+
+    private JVMOALDefine() {
+        super(
+            "oal/java-agent.oal",
+            "org.apache.skywalking.oap.server.core.source"
+        );
+    }
 }

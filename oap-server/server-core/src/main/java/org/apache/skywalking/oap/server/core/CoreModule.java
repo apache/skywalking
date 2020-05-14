@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
@@ -45,8 +46,8 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.IModelOverride;
-import org.apache.skywalking.oap.server.core.storage.model.INewModel;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -80,6 +81,7 @@ public class CoreModule extends ModuleDefine {
         addCacheService(classes);
         addQueryService(classes);
         addProfileService(classes);
+        addOALService(classes);
 
         classes.add(CommandService.class);
 
@@ -90,6 +92,10 @@ public class CoreModule extends ModuleDefine {
         classes.add(ProfileTaskMutationService.class);
         classes.add(ProfileTaskQueryService.class);
         classes.add(ProfileTaskCache.class);
+    }
+
+    private void addOALService(List<Class> classes) {
+        classes.add(OALEngineLoaderService.class);
     }
 
     private void addQueryService(List<Class> classes) {
@@ -110,9 +116,9 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addInsideService(List<Class> classes) {
-        classes.add(INewModel.class);
+        classes.add(ModelCreator.class);
         classes.add(IModelManager.class);
-        classes.add(IModelOverride.class);
+        classes.add(ModelManipulator.class);
         classes.add(RemoteClientManager.class);
         classes.add(RemoteSenderService.class);
     }
