@@ -99,7 +99,7 @@ public class AlarmQuery implements IAlarmQueryDAO {
               .sorted((a, b) -> Long.compare((long) b.get(1), (long) a.get(1)))
               .skip(from)
               .forEach(values -> {
-                  final int sid = (int) values.get(4);
+                  final int sid = ((Number) values.get(4)).intValue();
                   Scope scope = Scope.Finder.valueOf(sid);
 
                   AlarmMessage message = new AlarmMessage();
