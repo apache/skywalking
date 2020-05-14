@@ -42,6 +42,9 @@ including
 1. Metrics system, including Prometheus, Spring Sleuth(Micrometer).
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
 
+SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
+for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
+
 # Document
 [8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
 
