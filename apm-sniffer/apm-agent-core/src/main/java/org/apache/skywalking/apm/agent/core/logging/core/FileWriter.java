@@ -42,7 +42,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  * The <code>FileWriter</code> support async file output, by using a queue as buffer.
  */
 public class FileWriter implements IWriter {
-    private static FileWriter INSTANCE;
+    private volatile static FileWriter INSTANCE;
     private static final Object CREATE_LOCK = new Object();
     private FileOutputStream fileOutputStream;
     private ArrayBlockingQueue logBuffer;
