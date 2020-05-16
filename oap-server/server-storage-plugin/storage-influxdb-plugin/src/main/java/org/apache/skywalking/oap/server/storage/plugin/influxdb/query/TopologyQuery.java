@@ -255,7 +255,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = String.valueOf(values.get(1));
-            int componentId = (int) values.get(2);
+            int componentId = ((Number) values.get(2)).intValue();
             call.buildFromServiceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         });
@@ -285,7 +285,7 @@ public class TopologyQuery implements ITopologyQueryDAO {
         series.getValues().forEach(values -> {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = (String) values.get(1);
-            int componentId = (int) values.get(2);
+            int componentId = ((Number) values.get(2)).intValue();
             call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         });
