@@ -16,27 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 
 /**
- * The model definition of a logic entity.
+ * This annotation applies to super size dataset entities
+ * for example:
+ * <p>1. adjust the number of shards in es storage</p>
+ *
+ * @see SegmentRecord
+ * @see org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord
+ * @see org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord
  */
-@Getter
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public class Model {
-    private final String name;
-    private final List<ModelColumn> columns;
-    private final List<ExtraQueryIndex> extraQueryIndices;
-    private final int scopeId;
-    private final DownSampling downsampling;
-    private final boolean record;
-    private final boolean superDataset;
-
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SuperDataset {
 }
