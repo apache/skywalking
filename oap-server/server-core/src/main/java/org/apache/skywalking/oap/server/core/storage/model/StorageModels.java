@@ -55,10 +55,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
-        // extract properties from class
         List<ModelColumn> modelColumns = new ArrayList<>();
         List<ExtraQueryIndex> extraQueryIndices = new ArrayList<>();
-        // extract
         retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices);
 
         Model model = new Model(
