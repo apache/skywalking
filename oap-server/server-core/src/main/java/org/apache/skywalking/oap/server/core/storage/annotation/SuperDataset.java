@@ -16,27 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * The model definition of a logic entity.
+ * This annotation applies to the supersize dataset entity.Storage implementation could provide different and specific
+ * optimization as this entity has much larger dataset.
  */
-@Getter
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public class Model {
-    private final String name;
-    private final List<ModelColumn> columns;
-    private final List<ExtraQueryIndex> extraQueryIndices;
-    private final int scopeId;
-    private final DownSampling downsampling;
-    private final boolean record;
-    private final boolean superDataset;
-
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SuperDataset {
 }
