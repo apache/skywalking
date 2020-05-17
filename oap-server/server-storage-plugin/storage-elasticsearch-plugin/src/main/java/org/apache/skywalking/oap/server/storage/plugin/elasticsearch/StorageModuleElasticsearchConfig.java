@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
@@ -32,7 +33,9 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     @Setter
     String protocol = "http";
     @Setter
-    private int indexShardsNumber = 2;
+    private int indexShardsNumber = 1;
+    @Setter
+    private int superDatasetIndexShardsFactor = 5;
     @Setter
     private int indexReplicasNumber = 0;
     @Setter
@@ -76,7 +79,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 7.0.0 dayStep represents how many days a single one index represents. Default is 1, meaning no difference
      * with previous versions. But if there isn't much traffic for single one day, user could set the step larger to
      * reduce the number of indexes, and keep the TTL longer.
-     *
      */
     @Getter
     private int dayStep = 1;
