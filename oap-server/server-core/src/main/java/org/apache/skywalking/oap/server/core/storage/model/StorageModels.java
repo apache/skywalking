@@ -108,8 +108,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 modelColumns.add(
                     new ModelColumn(
                         new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
-                        column
-                            .storageOnly(), column.dataType().isValue(), column.length()
+                        column.storageOnly(), column.dataType().isValue(), column.length()
                     ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
