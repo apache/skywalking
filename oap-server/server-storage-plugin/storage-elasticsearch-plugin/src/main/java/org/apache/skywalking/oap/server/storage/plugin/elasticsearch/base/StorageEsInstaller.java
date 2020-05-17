@@ -44,7 +44,9 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
 
-    public StorageEsInstaller(Client client, ModuleManager moduleManager, final StorageModuleElasticsearchConfig config) {
+    public StorageEsInstaller(Client client,
+                              ModuleManager moduleManager,
+                              final StorageModuleElasticsearchConfig config) {
         super(client, moduleManager);
         this.columnTypeEsMapping = new ColumnTypeEsMapping();
         this.config = config;
@@ -68,13 +70,13 @@ public class StorageEsInstaller extends ModelInstaller {
         Map<String, Object> settings = createSetting(model);
         Map<String, Object> mapping = createMapping(model);
         log.info("index {}'s columnTypeEsMapping builder str: {}", esClient.formatIndexName(model.getName()), mapping
-                                                                                                                      .toString());
+            .toString());
 
         try {
             if (!esClient.isExistsTemplate(model.getName())) {
                 boolean isAcknowledged = esClient.createTemplate(model.getName(), settings, mapping);
                 log.info(
-                        "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
+                    "create {} index template finished, isAcknowledged: {}", model.getName(), isAcknowledged);
                 if (!isAcknowledged) {
                     throw new StorageException("create " + model.getName() + " index template failure, ");
                 }
@@ -97,11 +99,11 @@ public class StorageEsInstaller extends ModelInstaller {
 
         setting.put("index.number_of_replicas", config.getIndexReplicasNumber());
         setting.put("index.number_of_shards", model.isSuperDataset()
-                                                      ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
-                                                      : config.getIndexShardsNumber());
+            ? config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor()
+            : config.getIndexShardsNumber());
         setting.put("index.refresh_interval", model.isRecord()
-                                                      ? TimeValue.timeValueSeconds(10).toString()
-                                                      : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
+            ? TimeValue.timeValueSeconds(10).toString()
+            : TimeValue.timeValueSeconds(config.getFlushInterval()).toString());
         setting.put("analysis.analyzer.oap_analyzer.type", "stop");
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);

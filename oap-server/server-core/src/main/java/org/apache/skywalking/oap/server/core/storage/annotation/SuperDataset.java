@@ -23,16 +23,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-
 /**
- * This annotation applies to super size dataset entities
- * for example:
- * <p>1. adjust the number of shards in es storage</p>
- *
- * @see SegmentRecord
- * @see org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpanRecord
- * @see org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord
+ * This annotation applies to the supersize dataset entity.Storage implementation could provide different and specific
+ * optimization as this entity has much larger dataset.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

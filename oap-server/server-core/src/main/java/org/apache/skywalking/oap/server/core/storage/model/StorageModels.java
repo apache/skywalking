@@ -62,8 +62,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         retrieval(aClass, storage.getModelName(), modelColumns, extraQueryIndices);
 
         Model model = new Model(
-                storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-                storage.getDownsampling(), record, isSuperDatasetModel(aClass));
+            storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
+            storage.getDownsampling(), record, isSuperDatasetModel(aClass)
+        );
 
         this.followColumnNameRules(model);
         models.add(model);
@@ -107,17 +108,19 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
                 modelColumns.add(
-                        new ModelColumn(
-                                new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
-                                column
-                                        .storageOnly(), column.dataType().isValue(), column.length()));
+                    new ModelColumn(
+                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
+                        column
+                            .storageOnly(), column.dataType().isValue(), column.length()
+                    ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                            modelName, column.columnName(), column.dataType(), column.function(),
-                            column.defaultValue());
+                        modelName, column.columnName(), column.dataType(), column.function(),
+                        column.defaultValue()
+                    );
                 }
 
                 List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
@@ -130,8 +133,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
 
                 indexDefinitions.forEach(indexDefinition -> extraQueryIndices.add(new ExtraQueryIndex(
-                        column.columnName(),
-                        indexDefinition.withColumns()
+                    column.columnName(),
+                    indexDefinition.withColumns()
                 )));
             }
         }
