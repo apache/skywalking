@@ -23,13 +23,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.MultipleQueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
 /**
@@ -58,8 +61,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record
+            storage.getDownsampling(), record, isSuperDatasetModel(aClass)
         );
+
         this.followColumnNameRules(model);
         models.add(model);
 
@@ -67,6 +71,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             listener.whenCreating(model);
         }
         return model;
+    }
+
+    private boolean isSuperDatasetModel(Class<?> aClass) {
+        return aClass.isAnnotationPresent(SuperDataset.class);
     }
 
     /**
@@ -99,14 +107,17 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 Column column = field.getAnnotation(Column.class);
                 modelColumns.add(
                     new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(), column
-                        .storageOnly(), column.dataType().isValue(), column.length()));
+                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
+                        column.storageOnly(), column.dataType().isValue(), column.length()
+                    ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, column.columnName(), column.dataType(), column.function(), column.defaultValue());
+                        modelName, column.columnName(), column.dataType(), column.function(),
+                        column.defaultValue()
+                    );
                 }
 
                 List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
