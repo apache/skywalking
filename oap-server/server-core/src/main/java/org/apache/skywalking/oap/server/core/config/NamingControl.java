@@ -20,18 +20,20 @@ package org.apache.skywalking.oap.server.core.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * NamingLengthControl provides the service to make the names of service, instance and endpoint following the length
- * rules.
+ * NamingControl provides the service to make the names of service, instance and endpoint following the rules or
+ * patterns, including length control, grouping, etc.
  */
 @RequiredArgsConstructor
 @Slf4j
-public class NamingLengthControl implements Service {
+public class NamingControl implements Service {
     private final int serviceNameMaxLength;
     private final int instanceNameMaxLength;
     private final int endpointNameMaxLength;
+    private final EndpointNameGrouping endpointNameGrouping;
 
     /**
      * Format endpoint name by using the length config in the core module. This is a global rule, every place including
@@ -88,10 +90,11 @@ public class NamingLengthControl implements Service {
      * endpoint as the {@link org.apache.skywalking.oap.server.core.source.Source} should follow this for any core
      * module implementation.
      *
+     * @param serviceName  the service of the given endpoint.
      * @param endpointName raw data, literal string.
      * @return the string, which length less than or equals {@link #endpointNameMaxLength};
      */
-    public String formatEndpointName(String endpointName) {
+    public String formatEndpointName(String serviceName, String endpointName) {
         if (endpointName.length() > endpointNameMaxLength) {
             final String rename = endpointName.substring(0, endpointNameMaxLength);
             if (log.isDebugEnabled()) {
@@ -102,7 +105,7 @@ public class NamingLengthControl implements Service {
                     serviceNameMaxLength
                 );
             }
-            return rename;
+            return endpointNameGrouping.format(serviceName, rename);
         } else {
             return endpointName;
         }
