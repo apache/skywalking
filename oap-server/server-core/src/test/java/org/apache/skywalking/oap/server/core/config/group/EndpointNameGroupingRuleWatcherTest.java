@@ -107,5 +107,8 @@ public class EndpointNameGroupingRuleWatcherTest {
         ));
 
         Assert.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123"));
+
+        watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent("", ConfigChangeWatcher.EventType.DELETE));
+        Assert.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123"));
     }
 }
