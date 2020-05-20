@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
@@ -41,7 +42,9 @@ import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogServi
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -104,6 +107,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private final StorageModels storageModels;
     private final SourceReceiverImpl receiver;
     private ApdexThresholdConfig apdexThresholdConfig;
+    private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
 
     public CoreModuleProvider() {
         super();
@@ -133,11 +137,19 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
-        this.registerServiceImplementation(NamingLengthControl.class, new NamingLengthControl(
+        EndpointNameGrouping endpointNameGrouping = new EndpointNameGrouping();
+        this.registerServiceImplementation(NamingControl.class, new NamingControl(
             moduleConfig.getServiceNameMaxLength(),
             moduleConfig.getInstanceNameMaxLength(),
-            moduleConfig.getEndpointNameMaxLength()
+            moduleConfig.getEndpointNameMaxLength(),
+            endpointNameGrouping
         ));
+        try {
+            endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
+                this, endpointNameGrouping);
+        } catch (FileNotFoundException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
 
         StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(getManager());
 
@@ -283,6 +295,7 @@ public class CoreModuleProvider extends ModuleProvider {
                                                                               .getService(
                                                                                   DynamicConfigurationService.class);
         dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
+        dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRuleWatcher);
     }
 
     @Override
