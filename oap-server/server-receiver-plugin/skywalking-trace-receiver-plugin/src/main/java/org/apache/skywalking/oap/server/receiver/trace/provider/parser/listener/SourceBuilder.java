@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -38,13 +38,13 @@ import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 @RequiredArgsConstructor
 class SourceBuilder {
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     @Getter
     private String sourceServiceName;
 
     public void setSourceServiceName(final String sourceServiceName) {
-        this.sourceServiceName = namingLengthControl.formatServiceName(sourceServiceName);
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
     }
 
     @Getter
@@ -54,21 +54,21 @@ class SourceBuilder {
     private String sourceServiceInstanceName;
 
     public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
-        this.sourceServiceInstanceName = namingLengthControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
     }
 
     @Getter
     private String sourceEndpointName;
 
     public void setSourceEndpointName(final String sourceEndpointName) {
-        this.sourceEndpointName = namingLengthControl.formatEndpointName(sourceEndpointName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
     }
 
     @Getter
     private String destServiceName;
 
     public void setDestServiceName(final String destServiceName) {
-        this.destServiceName = namingLengthControl.formatServiceName(destServiceName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
     }
 
     @Getter
@@ -78,14 +78,14 @@ class SourceBuilder {
     private String destServiceInstanceName;
 
     public void setDestServiceInstanceName(final String destServiceInstanceName) {
-        this.destServiceInstanceName = namingLengthControl.formatServiceName(destServiceInstanceName);
+        this.destServiceInstanceName = namingControl.formatServiceName(destServiceInstanceName);
     }
 
     @Getter
     private String destEndpointName;
 
     public void setDestEndpointName(final String destEndpointName) {
-        this.destEndpointName = namingLengthControl.formatEndpointName(destEndpointName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
     }
 
     @Getter
