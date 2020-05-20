@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import time
+
 from urllib import request
 
 from skywalking import agent, config
@@ -30,12 +32,11 @@ if __name__ == '__main__':
     class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         def do_POST(self):
+            time.sleep(0.5)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            req = request.Request('https://github.com/kezhenxu94')
-            with request.urlopen(req):
-                self.wfile.write('{"name": "whatever"}'.encode('ascii'))
+            self.wfile.write('{"name": "whatever"}'.encode('ascii'))
 
     PORT = 9091
     Handler = SimpleHTTPRequestHandler
