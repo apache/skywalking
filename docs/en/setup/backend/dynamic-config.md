@@ -1,6 +1,6 @@
 # Dynamic Configuration
 SkyWalking Configurations mostly are set through `application.yml` and OS system environment variables.
-But some of them are supporting dynamic settings from upstream management system.
+At the same time, some of them are supporting dynamic settings from upstream management system.
 
 Right now, SkyWalking supports following dynamic configurations.
 
