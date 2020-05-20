@@ -36,13 +36,8 @@ public class EndpointGroupingRule {
      * @param ruleRegex         match the endpoints which should be in the group name.
      */
     void addRule(String serviceName, String endpointGroupName, String ruleRegex) {
-        if (rules.containsKey(serviceName)) {
-            rules.get(serviceName).addRule(endpointGroupName, ruleRegex);
-        } else {
-            StringFormatGroup newGroup = new StringFormatGroup();
-            newGroup.addRule(endpointGroupName, ruleRegex);
-            rules.put(serviceName, newGroup);
-        }
+        final StringFormatGroup formatGroup = rules.computeIfAbsent(serviceName, name -> new StringFormatGroup());
+        formatGroup.addRule(endpointGroupName, ruleRegex);
     }
 
     /**
