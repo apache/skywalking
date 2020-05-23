@@ -86,28 +86,28 @@ public class NamingControl implements Service {
     }
 
     /**
-     * Format endpoint name by using the length config in the core module. This is a global rule, every place including
-     * endpoint as the {@link org.apache.skywalking.oap.server.core.source.Source} should follow this for any core
-     * module implementation.
+     * Format endpoint name by using the length config in the core module. This is a global rule, every {@link
+     * org.apache.skywalking.oap.server.core.source.Source} including endpoint should follow this for any core module
+     * implementation.
      *
      * @param serviceName  the service of the given endpoint.
      * @param endpointName raw data, literal string.
      * @return the string, which length less than or equals {@link #endpointNameMaxLength};
      */
     public String formatEndpointName(String serviceName, String endpointName) {
+        String lengthControlledName = endpointName;
         if (endpointName.length() > endpointNameMaxLength) {
-            final String rename = endpointName.substring(0, endpointNameMaxLength);
+            lengthControlledName = endpointName.substring(0, endpointNameMaxLength);
             if (log.isDebugEnabled()) {
                 log.debug(
                     "Endpoint {} has been renamed to {} due to length limitation {}",
                     endpointName,
-                    rename,
+                    lengthControlledName,
                     serviceNameMaxLength
                 );
             }
-            return endpointNameGrouping.format(serviceName, rename);
-        } else {
-            return endpointName;
+
         }
+        return endpointNameGrouping.format(serviceName, lengthControlledName);
     }
 }
