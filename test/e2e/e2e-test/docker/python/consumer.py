@@ -23,6 +23,8 @@ from skywalking import agent, config
 if __name__ == '__main__':
     config.service_name = 'consumer'
     config.logging_level = 'DEBUG'
+    config.protocol = 'http'
+    config.collector_address = 'http://oap:12800'
     agent.start()
 
     import socketserver
