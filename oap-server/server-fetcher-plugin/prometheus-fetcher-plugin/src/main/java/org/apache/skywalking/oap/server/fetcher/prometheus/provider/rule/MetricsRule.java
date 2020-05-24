@@ -16,15 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.Map;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
-@Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
-
-    private final String rulePath = "fetcher-prom-rules";
-
+@Data
+@NoArgsConstructor
+public class MetricsRule {
+    private String name;
+    private ScopeType scope;
+    private String downSampling;
+    private Map<String, PrometheusMetric> sources;
 }

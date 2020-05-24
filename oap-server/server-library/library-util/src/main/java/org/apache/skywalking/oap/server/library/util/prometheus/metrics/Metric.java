@@ -16,15 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.ToString;
 
+@EqualsAndHashCode
+@ToString
 @Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+public abstract class Metric {
 
-    private final String rulePath = "fetcher-prom-rules";
+    private final String name;
+    private final Map<String, String> labels;
 
+    protected Metric(String name, Map<String, String> labels) {
+        this.name = name;
+        this.labels = Maps.newHashMap(labels);
+    }
 }

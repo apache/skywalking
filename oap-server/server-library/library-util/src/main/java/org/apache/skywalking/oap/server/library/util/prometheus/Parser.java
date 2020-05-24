@@ -16,15 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.io.IOException;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
 
-@Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
-
-    private final String rulePath = "fetcher-prom-rules";
-
+public interface Parser {
+    MetricFamily parse() throws IOException;
 }

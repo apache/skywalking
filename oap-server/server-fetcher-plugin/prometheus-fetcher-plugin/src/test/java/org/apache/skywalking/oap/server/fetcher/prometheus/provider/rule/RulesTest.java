@@ -16,15 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.List;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.junit.Test;
 
-@Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
-    private final String rulePath = "fetcher-prom-rules";
+public class RulesTest {
+
+    @Test
+    public void testFetcherPrometheusRulesLoader() throws ModuleStartException {
+        List<Rule> rr = Rules.loadRules("fetcher-prom-rules");
+
+        assertThat(rr.size(), is(1));
+    }
 
 }

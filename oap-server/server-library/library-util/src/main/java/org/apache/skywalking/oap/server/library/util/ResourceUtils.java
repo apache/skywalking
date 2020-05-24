@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,5 +37,13 @@ public class ResourceUtils {
             throw new FileNotFoundException("file not found: " + fileName);
         }
         return ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
+    }
+
+    public static File[] getPathFiles(String path) throws FileNotFoundException {
+        URL url = ResourceUtils.class.getClassLoader().getResource(path);
+        if (url == null) {
+            throw new FileNotFoundException("path not found: " + path);
+        }
+        return new File(url.getPath()).listFiles();
     }
 }

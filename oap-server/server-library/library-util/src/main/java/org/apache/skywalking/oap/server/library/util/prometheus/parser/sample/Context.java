@@ -16,15 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus.parser.sample;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-@Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
-
-    private final String rulePath = "fetcher-prom-rules";
-
+class Context {
+    StringBuilder name = new StringBuilder();
+    StringBuilder labelname = new StringBuilder();
+    StringBuilder labelvalue = new StringBuilder();
+    StringBuilder value = new StringBuilder();
+    Map<String, String> labels = new LinkedHashMap<>();
 }

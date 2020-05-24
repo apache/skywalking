@@ -16,15 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
+import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.Singular;
+import lombok.ToString;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+public class Summary extends Metric {
 
-    private final String rulePath = "fetcher-prom-rules";
+    private final long sampleCount;
+    private final double sampleSum;
+    private final Map<Double, Double> quantiles;
 
+    @lombok.Builder
+    public Summary(String name, @Singular Map<String, String> labels, long sampleCount, double sampleSum,
+        @Singular Map<Double, Double> quantiles) {
+        super(name, labels);
+        getLabels().remove("quantile");
+        this.sampleCount = sampleCount;
+        this.sampleSum = sampleSum;
+        this.quantiles = quantiles;
+    }
 }

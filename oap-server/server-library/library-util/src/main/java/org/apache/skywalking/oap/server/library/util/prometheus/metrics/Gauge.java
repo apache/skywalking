@@ -16,15 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
+import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.Singular;
+import lombok.ToString;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+public class Gauge extends Metric {
 
-    private final String rulePath = "fetcher-prom-rules";
+    private final double value;
 
+    @lombok.Builder
+    public Gauge(String name, @Singular Map<String, String> labels, double value) {
+        super(name, labels);
+        this.value = value;
+    }
 }

@@ -1,0 +1,17 @@
+apm-8.0.0-SNAPSHOT.jar
+apm-commons-8.0.0-SNAPSHOT.jar
+apm-util-8.0.0-SNAPSHOT.jar
+apm-datacarrier-8.0.0-SNAPSHOT.jar
+apm-protocol-8.0.0-SNAPSHOT.jar
+apm-network-8.0.0-SNAPSHOT.jar
+oap-server-8.0.0-SNAPSHOT.jar
+[ERROR] Failed to execute goal on project server-library: Could not resolve dependencies for project org.apache.skywalking:server-library:pom:8.0.0-SNAPSHOT: Failure to find org.apache.skywalking:apm-util:jar:8.0.0-SNAPSHOT in https://repository.apache.org/snapshots was cached in the local repository, resolution will not be reattempted until the update interval of apache.snapshots has elapsed or updates are forced -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <goals> -rf :server-library

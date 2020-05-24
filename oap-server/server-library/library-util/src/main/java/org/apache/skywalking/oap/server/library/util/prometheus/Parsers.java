@@ -16,15 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import java.io.InputStream;
+import org.apache.skywalking.oap.server.library.util.prometheus.parser.TextParser;
 
-@Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
-
-    private final String rulePath = "fetcher-prom-rules";
-
+public class Parsers {
+    public static Parser text(final InputStream stream) {
+        return new TextParser(stream);
+    }
 }

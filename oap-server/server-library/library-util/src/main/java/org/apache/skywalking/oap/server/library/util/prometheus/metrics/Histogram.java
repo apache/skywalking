@@ -16,15 +16,30 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
+import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.Singular;
+import lombok.ToString;
 
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @Getter
-public class PrometheusFetcherConfig extends ModuleConfig {
-    private boolean active;
+public class Histogram extends Metric {
 
-    private final String rulePath = "fetcher-prom-rules";
+    private final long sampleCount;
+    private final double sampleSum;
+    private final Map<Double, Long> buckets;
 
+    @lombok.Builder
+    public Histogram(String name, @Singular Map<String, String> labels, long sampleCount, double sampleSum,
+        @Singular Map<Double, Long> buckets) {
+        super(name, labels);
+        getLabels().remove("le");
+        this.sampleCount = sampleCount;
+        this.sampleSum = sampleSum;
+        this.buckets = buckets;
+    }
 }
