@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,26 +17,22 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm</artifactId>
+        <artifactId>apm-toolkit-activation</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>apm-application-toolkit</artifactId>
-    <packaging>pom</packaging>
 
-    <properties>
-        <compiler.version>1.8</compiler.version>
-    </properties>
+    <artifactId>apm-toolkit-meter-activatio</artifactId>
 
-    <modules>
-        <module>apm-toolkit-log4j-1.x</module>
-        <module>apm-toolkit-log4j-2.x</module>
-        <module>apm-toolkit-logback-1.x</module>
-        <module>apm-toolkit-opentracing</module>
-        <module>apm-toolkit-trace</module>
-        <module>apm-toolkit-meter</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-meter</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

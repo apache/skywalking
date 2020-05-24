@@ -162,6 +162,18 @@ public class Config {
         public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
     }
 
+    public static class Meter {
+        /**
+         * If true, skywalking agent will enable sending meters. Otherwise disable meter report.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         * Report meters interval
+         */
+        public static Integer REPORT_INTERVAL = 20;
+    }
+
     public static class Jvm {
         /**
          * The buffer size of collected JVM info.
