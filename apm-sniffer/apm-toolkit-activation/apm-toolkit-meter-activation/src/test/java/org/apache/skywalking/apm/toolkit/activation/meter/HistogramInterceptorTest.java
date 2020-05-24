@@ -120,5 +120,4 @@ public class HistogramInterceptorTest {
         Assert.assertEquals(buckets[2].transform().getCount(), 0L);
     }
 
-
 }
