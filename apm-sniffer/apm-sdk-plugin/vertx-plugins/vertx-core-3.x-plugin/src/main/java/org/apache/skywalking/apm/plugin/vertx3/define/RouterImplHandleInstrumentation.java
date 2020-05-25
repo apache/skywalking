@@ -29,16 +29,16 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link RouterImplAcceptInstrumentation} enhance the <code>accept</code> method in
+ * {@link RouterImplHandleInstrumentation} enhance the <code>handle</code> method in
  * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
  * <code>RouterImplAcceptInterceptor</code> class.
  *
- * Targets: ver. 3.0.0 - 3.5.4
+ * Targets: ver. 3.6.0+
  */
-public class RouterImplAcceptInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouterImplHandleInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouterImpl";
-    private static final String ENHANCE_METHOD = "accept";
+    private static final String ENHANCE_METHOD = "handle";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplAcceptInterceptor";
 
     @Override
