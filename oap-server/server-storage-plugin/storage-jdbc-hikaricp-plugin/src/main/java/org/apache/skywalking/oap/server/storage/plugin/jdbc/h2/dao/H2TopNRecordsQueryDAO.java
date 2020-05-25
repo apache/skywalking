@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -75,6 +76,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                     SelectedRecord record = new SelectedRecord();
                     record.setName(resultSet.getString(TopN.STATEMENT));
                     record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    record.setId(record.getRefId());
                     record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }

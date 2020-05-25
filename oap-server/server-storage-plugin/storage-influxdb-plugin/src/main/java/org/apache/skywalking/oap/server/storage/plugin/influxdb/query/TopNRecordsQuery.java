@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -89,6 +90,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             SelectedRecord record = new SelectedRecord();
             record.setValue(String.valueOf(values.get(1)));
             record.setRefId((String) values.get(3));
+            record.setId(record.getRefId());
             record.setName((String) values.get(2));
             records.add(record);
         });

@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 
 /**
  * SelectedRecord is an abtract data element, including id, name, value and a reference id.
