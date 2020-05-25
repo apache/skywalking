@@ -116,8 +116,8 @@ public class OSUtil {
         }
         List<String> allIPV4 = getAllIPV4();
         if (allIPV4.size() > 0) {
-            if (allIPV4.size() >= ipv4Size) {
-                allIPV4.subList(0, ipv4Size);
+            if (allIPV4.size() > ipv4Size) {
+                allIPV4 = allIPV4.subList(0, ipv4Size);
             }
             for (String ipv4 : allIPV4) {
                 osInfo.add(KeyStringValuePair.newBuilder().setKey("ipv4").setValue(ipv4).build());
