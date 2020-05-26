@@ -89,6 +89,7 @@ public class TopNRecordsQuery implements ITopNRecordsQueryDAO {
             SelectedRecord record = new SelectedRecord();
             record.setValue(String.valueOf(values.get(1)));
             record.setRefId((String) values.get(3));
+            record.setId(record.getRefId());
             record.setName((String) values.get(2));
             records.add(record);
         });
