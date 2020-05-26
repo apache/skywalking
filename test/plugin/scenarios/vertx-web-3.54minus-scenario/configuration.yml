@@ -15,6 +15,6 @@
 # limitations under the License.
 
 type: jvm
-entryService: http://localhost:8080/vertx-web-3-scenario/case/web-case
-healthCheck: http://localhost:8080/vertx-web-3-scenario/case/healthCheck
+entryService: http://localhost:8080/vertx-web-3_54minus-scenario/case/web-case
+healthCheck: http://localhost:8080/vertx-web-3_54minus-scenario/case/healthCheck
 startScript: ./bin/startup.sh

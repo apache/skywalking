@@ -18,4 +18,4 @@
 
 home="$(cd "$(dirname $0)"; pwd)"
 
-java -jar ${agent_opts} ${home}/../libs/vertx-web-3.x-scenario.jar &
+java -jar ${agent_opts} ${home}/../libs/vertx-web-3.54minus-scenario.jar &
