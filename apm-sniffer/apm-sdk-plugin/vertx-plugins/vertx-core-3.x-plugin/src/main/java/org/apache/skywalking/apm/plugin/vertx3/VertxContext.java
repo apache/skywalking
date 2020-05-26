@@ -29,15 +29,17 @@ import java.util.concurrent.ConcurrentHashMap;
 class VertxContext {
 
     public static final double VERTX_VERSION;
+
     static {
         double version;
         try {
             version = Double.parseDouble(VersionCommand.getVersion().replaceFirst("\\.", ""));
-        } catch(Throwable ignored) {
+        } catch (Throwable ignored) {
             version = 3.00;
         }
         VERTX_VERSION = version;
     }
+
     public static final String STOP_SPAN_NECESSARY = "VERTX_STOP_SPAN_NECESSARY";
     private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<>();
 
