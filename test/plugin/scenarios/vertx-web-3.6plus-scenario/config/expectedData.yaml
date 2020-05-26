@@ -60,7 +60,7 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: '#/vertx-web-3-scenario/case/healthCheck'
+          - operationName: '#/vertx-web-3_6plus-scenario/case/healthCheck'
             operationId: 0
             parentSpanId: -1
             spanId: 0
