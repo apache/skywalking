@@ -33,7 +33,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/vertx-web-3.x-scenario.jar</source>
+            <source>${project.build.directory}/vertx-web-3.6plus-scenario.jar</source>
             <outputDirectory>./libs</outputDirectory>
             <fileMode>0775</fileMode>
         </file>
