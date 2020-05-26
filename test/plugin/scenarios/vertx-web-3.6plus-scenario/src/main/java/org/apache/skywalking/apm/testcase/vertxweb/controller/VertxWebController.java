@@ -20,21 +20,22 @@ package org.apache.skywalking.apm.testcase.vertxweb.controller;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.client.WebClient;
 
 public class VertxWebController extends AbstractVerticle {
 
     @Override
     public void start() {
         Router router = Router.router(vertx);
-        router.get("/vertx-web-3-scenario/case/web-case").handler(this::handleCoreCase);
-        router.head("/vertx-web-3-scenario/case/healthCheck").handler(this::healthCheck);
-        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+        router.get("/vertx-web-3_6plus-scenario/case/web-case").handler(this::handleWebCase);
+        router.head("/vertx-web-3_6plus-scenario/case/healthCheck").handler(this::healthCheck);
+        vertx.createHttpServer().requestHandler(router).listen(8080);
     }
 
-    private void handleCoreCase(RoutingContext routingContext) {
-        vertx.createHttpClient().headNow(8080, "localhost",
-                "/vertx-web-3-scenario/case/healthCheck",
-                it -> routingContext.response().setStatusCode(it.statusCode()).end());
+    private void handleWebCase(RoutingContext routingContext) {
+        WebClient.create(vertx).head(8080, "localhost",
+                "/vertx-web-3_6plus-scenario/case/healthCheck")
+                .send(it -> routingContext.response().setStatusCode(it.result().statusCode()).end());
     }
 
     private void healthCheck(RoutingContext routingContext) {
