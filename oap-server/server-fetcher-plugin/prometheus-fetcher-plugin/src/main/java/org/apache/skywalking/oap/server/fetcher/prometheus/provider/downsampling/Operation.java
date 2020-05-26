@@ -16,28 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling;
 
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.CounterFunction;
 
-@EqualsAndHashCode(exclude = {"counterFunction", "range"})
+@EqualsAndHashCode
 @ToString
 @Getter
-@Builder
-public class GroupingRule {
+@RequiredArgsConstructor
+public class Operation {
 
     private final String name;
 
-    private final String downSampling;
+    private final String metricName;
 
-    private final MeterEntity entity;
-
-    private final CounterFunction counterFunction;
-
-    private final String range;
 }

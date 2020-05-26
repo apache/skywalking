@@ -293,3 +293,5 @@ zipkin-2.9.1.jar
 zipkin-receiver-plugin-6.2.0-SNAPSHOT.jar
 zipkin-receiver-plugin-8.0.0-SNAPSHOT.jar
 zookeeper-3.4.10.jar
+vavr-0.10.3.jar
+vavr-match-0.10.3.jar

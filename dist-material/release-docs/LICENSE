@@ -329,6 +329,7 @@ The text of each license is the standard Apache 2.0 license.
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
+    vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
 
 ========================================================================
 MIT licenses
