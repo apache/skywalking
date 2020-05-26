@@ -75,6 +75,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                     SelectedRecord record = new SelectedRecord();
                     record.setName(resultSet.getString(TopN.STATEMENT));
                     record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    record.setId(record.getRefId());
                     record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }
