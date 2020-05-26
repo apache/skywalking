@@ -35,7 +35,7 @@ public class VertxWebController extends AbstractVerticle {
     private void handleWebCase(RoutingContext routingContext) {
         WebClient.create(vertx).head(8080, "localhost",
                 "/vertx-web-3_6plus-scenario/case/healthCheck")
-                .send(it -> routingContext.response().setStatusCode(it.result().statusCode()));
+                .send(it -> routingContext.response().setStatusCode(it.result().statusCode()).end());
     }
 
     private void healthCheck(RoutingContext routingContext) {
