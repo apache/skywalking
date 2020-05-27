@@ -35,20 +35,24 @@ public class HttpClientRequestImplHandleResponseInterceptor implements InstanceM
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
-        context.getSpan().asyncFinish();
+        if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
+            VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+            Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
+            context.getSpan().asyncFinish();
 
-        AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        ContextManager.continued(context.getContextSnapshot());
+            AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asHttp(span);
+            ContextManager.continued(context.getContextSnapshot());
+        }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -67,7 +67,7 @@ public class CoreModule extends ModuleDefine {
         List<Class> classes = new ArrayList<>();
         classes.add(ConfigService.class);
         classes.add(DownSamplingConfigService.class);
-        classes.add(NamingLengthControl.class);
+        classes.add(NamingControl.class);
         classes.add(IComponentLibraryCatalogService.class);
 
         classes.add(IWorkerInstanceGetter.class);

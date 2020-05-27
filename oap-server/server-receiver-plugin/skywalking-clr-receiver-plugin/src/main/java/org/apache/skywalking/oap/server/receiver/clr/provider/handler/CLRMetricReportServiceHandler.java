@@ -25,20 +25,20 @@ import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricReportServiceGrpc;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
 @Slf4j
 public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CLRMetricReportServiceImplBase implements GRPCHandler {
     private final CLRSourceDispatcher clrSourceDispatcher;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     public CLRMetricReportServiceHandler(ModuleManager moduleManager) {
         clrSourceDispatcher = new CLRSourceDispatcher(moduleManager);
-        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                .provider()
-                                                .getService(NamingLengthControl.class);
+        this.namingControl = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class CLRMetricReportServiceHandler extends CLRMetricReportServiceGrpc.CL
         }
 
         final CLRMetricCollection.Builder builder = request.toBuilder();
-        builder.setService(namingLengthControl.formatServiceName(builder.getService()));
-        builder.setServiceInstance(namingLengthControl.formatInstanceName(builder.getServiceInstance()));
+        builder.setService(namingControl.formatServiceName(builder.getService()));
+        builder.setServiceInstance(namingControl.formatInstanceName(builder.getServiceInstance()));
 
         request.getMetricsList().forEach(metrics -> {
             long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());

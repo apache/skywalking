@@ -30,8 +30,10 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link RouterImplAcceptInstrumentation} enhance the <code>accept</code> method in
- * <code>io.vertx.core.http.impl.HttpServerRequestImpl</code> class by
- * <code>RouterImplAcceptInterceptor</code> class
+ * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
+ * <code>RouterImplAcceptInterceptor</code> class.
+ *
+ * Targets: ver. 3.0.0 - 3.5.4
  */
 public class RouterImplAcceptInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

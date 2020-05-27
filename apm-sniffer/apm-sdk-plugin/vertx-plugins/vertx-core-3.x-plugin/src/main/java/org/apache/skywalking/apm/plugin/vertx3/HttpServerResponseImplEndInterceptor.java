@@ -32,9 +32,11 @@ public class HttpServerResponseImplEndInterceptor implements InstanceMethodsArou
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpServerResponse) objInst).getStatusCode()));
-        context.getSpan().asyncFinish();
+        if (VertxContext.VERTX_VERSION <= 37 || allArguments.length == 2) {
+            VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+            Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpServerResponse) objInst).getStatusCode()));
+            context.getSpan().asyncFinish();
+        }
     }
 
     @Override

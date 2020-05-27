@@ -57,7 +57,7 @@ public class OSUtil {
 
     public static List<String> getAllIPV4() {
         if (IPV4_LIST == null) {
-            IPV4_LIST = new LinkedList<String>();
+            IPV4_LIST = new LinkedList<>();
             try {
                 Enumeration<NetworkInterface> interfs = NetworkInterface.getNetworkInterfaces();
                 while (interfs.hasMoreElements()) {
@@ -103,8 +103,8 @@ public class OSUtil {
         return PROCESS_NO;
     }
 
-    public static List<KeyStringValuePair> buildOSInfo() {
-        List<KeyStringValuePair> osInfo = new ArrayList<KeyStringValuePair>();
+    public static List<KeyStringValuePair> buildOSInfo(int ipv4Size) {
+        List<KeyStringValuePair> osInfo = new ArrayList<>();
 
         String osName = getOsName();
         if (osName != null) {
@@ -116,6 +116,9 @@ public class OSUtil {
         }
         List<String> allIPV4 = getAllIPV4();
         if (allIPV4.size() > 0) {
+            if (allIPV4.size() > ipv4Size) {
+                allIPV4 = allIPV4.subList(0, ipv4Size);
+            }
             for (String ipv4 : allIPV4) {
                 osInfo.add(KeyStringValuePair.newBuilder().setKey("ipv4").setValue(ipv4).build());
             }

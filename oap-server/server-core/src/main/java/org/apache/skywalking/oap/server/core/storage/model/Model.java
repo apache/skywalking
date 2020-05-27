@@ -37,4 +37,6 @@ public class Model {
     private final int scopeId;
     private final DownSampling downsampling;
     private final boolean record;
+    private final boolean superDataset;
+
 }
