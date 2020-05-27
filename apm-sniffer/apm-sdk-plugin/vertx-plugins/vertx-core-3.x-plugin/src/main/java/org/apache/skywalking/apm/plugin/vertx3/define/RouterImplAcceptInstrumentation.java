@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
@@ -32,13 +32,12 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * {@link RouterImplAcceptInstrumentation} enhance the <code>accept</code> method in
  * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
  * <code>RouterImplAcceptInterceptor</code> class.
- *
- * Targets: ver. 3.0.0 - 3.5.4
  */
 public class RouterImplAcceptInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouterImpl";
-    private static final String ENHANCE_METHOD = "accept";
+    private static final String SERVER_CONNECTION = "io.vertx.core.http.impl.ServerConnection";
+    private static final String HTTP_SERVER_CONNECTION_ENHANCE_CLASS = "io.vertx.core.http.impl.Http1xServerConnection";
+    private static final String ENHANCE_METHOD = "handleMessage";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplAcceptInterceptor";
 
     @Override
@@ -70,6 +69,9 @@ public class RouterImplAcceptInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(
+                HTTP_SERVER_CONNECTION_ENHANCE_CLASS, //ver. 3.5.1+
+                SERVER_CONNECTION //ver. 3.0.0 - 3.5.0
+        );
     }
 }

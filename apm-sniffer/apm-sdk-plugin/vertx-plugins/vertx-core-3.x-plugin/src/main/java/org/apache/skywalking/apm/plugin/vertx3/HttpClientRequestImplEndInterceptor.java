@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClientRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -35,12 +36,22 @@ import java.lang.reflect.Method;
 
 public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
 
+    static class HttpClientRequestContext {
+        String remotePeer;
+        boolean usingWebClient;
+        VertxContext vertxContext;
+
+        HttpClientRequestContext(String remotePeer) {
+            this.remotePeer = remotePeer;
+        }
+    }
+
     public static class Version30XTo33XConstructorInterceptor implements InstanceConstructorInterceptor {
         @Override
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[2];
             int port = (Integer) allArguments[3];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
@@ -49,7 +60,7 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[3];
             int port = (Integer) allArguments[4];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
@@ -58,17 +69,24 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[4];
             int port = (Integer) allArguments[5];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
+        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
+        if (requestContext.usingWebClient) {
+            return;
+        } else if (allArguments.length > 0 && allArguments[0] instanceof Handler) {
+            requestContext.usingWebClient = true;
+        }
+
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
-                (String) objInst.getSkyWalkingDynamicField());
+                requestContext.remotePeer);
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -79,13 +97,16 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
             next = next.next();
             request.headers().add(next.getHeadKey(), next.getHeadValue());
         }
-        objInst.setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span.prepareForAsync()));
+        requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) {
-        ContextManager.stopSpan();
+        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
+        if (!requestContext.usingWebClient || (allArguments.length > 0 && allArguments[0] instanceof Handler)) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

@@ -28,6 +28,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
  * {@link HttpClientRequestImplEndInstrumentation} enhance the <code>end</code> method in
@@ -37,7 +38,6 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestImpl";
-    private static final String ENHANCE_METHOD = "end";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor";
 
     @Override
@@ -85,7 +85,8 @@ public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethod
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD);
+                        return named("end")
+                                .or(named("sendHead").and(takesArguments(1)));
                     }
 
                     @Override

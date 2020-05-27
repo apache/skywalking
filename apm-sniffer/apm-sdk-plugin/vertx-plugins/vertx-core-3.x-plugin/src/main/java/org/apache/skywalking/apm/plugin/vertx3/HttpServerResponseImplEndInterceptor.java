@@ -18,21 +18,30 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.netty.buffer.ByteBuf;
 import io.vertx.core.http.HttpServerResponse;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
 
-public class HttpServerResponseImplEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpServerResponseImplEndInterceptor implements InstanceMethodsAroundInterceptor,
+        InstanceConstructorInterceptor {
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        objInst.setSkyWalkingDynamicField(((EnhancedInstance) allArguments[1]).getSkyWalkingDynamicField());
+    }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        if (VertxContext.VERTX_VERSION <= 37 || allArguments.length == 2) {
+        if ((VertxContext.VERTX_VERSION < 36 && allArguments[0] instanceof ByteBuf)
+                || ((VertxContext.VERTX_VERSION >= 36 && VertxContext.VERTX_VERSION <= 37) || allArguments.length == 2)) {
             VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
             Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpServerResponse) objInst).getStatusCode()));
             context.getSpan().asyncFinish();

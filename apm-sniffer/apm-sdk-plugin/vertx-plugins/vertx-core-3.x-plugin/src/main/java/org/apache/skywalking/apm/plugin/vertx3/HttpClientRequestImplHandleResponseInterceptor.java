@@ -27,6 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor.HttpClientRequestContext;
 
 import java.lang.reflect.Method;
 
@@ -36,7 +37,7 @@ public class HttpClientRequestImplHandleResponseInterceptor implements InstanceM
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
-            VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
+            VertxContext context = ((HttpClientRequestContext) objInst.getSkyWalkingDynamicField()).vertxContext;
             Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
             context.getSpan().asyncFinish();
 
