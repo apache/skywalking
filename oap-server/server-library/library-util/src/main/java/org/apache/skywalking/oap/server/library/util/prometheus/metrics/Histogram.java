@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Singular;
@@ -41,5 +45,18 @@ public class Histogram extends Metric {
         this.sampleCount = sampleCount;
         this.sampleSum = sampleSum;
         this.buckets = buckets;
+    }
+
+    public static Histogram newInstance(String name) {
+        return new Histogram(name, Collections.emptyMap(), 0L, 0L, Collections.emptyMap());
+    }
+
+    public static Histogram sum(Histogram a, Histogram b) {
+        Map<String, String> l = Stream.concat(a.getLabels().entrySet().stream(), b.getLabels().entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (l1, l2) -> l1));
+        Map<Double, Long> buckets = Stream.concat(a.getBuckets().entrySet().stream(), b.getBuckets().entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum, TreeMap::new));
+        return new Histogram(a.getName(), l, Long.sum(a.sampleCount, b.sampleCount), Double.sum(a.sampleSum, b.sampleSum)
+            , buckets);
     }
 }

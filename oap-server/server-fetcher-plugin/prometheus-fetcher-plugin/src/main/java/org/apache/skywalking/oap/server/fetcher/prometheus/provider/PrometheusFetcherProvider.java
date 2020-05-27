@@ -25,6 +25,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vavr.control.Try;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -47,6 +48,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling.Operation;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling.Source;
@@ -62,6 +64,7 @@ import org.apache.skywalking.oap.server.library.util.prometheus.Parser;
 import org.apache.skywalking.oap.server.library.util.prometheus.Parsers;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
 import org.slf4j.Logger;
@@ -74,6 +77,8 @@ import static java.util.stream.Collectors.toList;
 
 public class PrometheusFetcherProvider extends ModuleProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PrometheusFetcherProvider.class);
+
+    private final static BigDecimal SECOND_TO_MILLISECOND  = BigDecimal.TEN.pow(3);
 
     private final PrometheusFetcherConfig config;
 
@@ -207,8 +212,8 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                             Try.run(() -> {
                                 switch (operation.getName()) {
                                     case "doubleAvg":
-                                        AcceptableValue<Double> value = service.buildMetrics(operation.getMetricName(), Double.class);
                                         Validate.isTrue(sources.size() == 1, "Can't get source for doubleAvg");
+                                        AcceptableValue<Double> value = service.buildMetrics(operation.getMetricName(), Double.class);
                                         Map.Entry<Source, List<Metric>> smm = sources.entrySet().iterator().next();
                                         Source s = smm.getKey();
                                         Double r = sumDouble(smm.getValue());
@@ -231,11 +236,39 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                         value.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
                                         service.doStreamingCalculation(value);
                                         break;
+                                    case "histogram":
+                                        Validate.isTrue(sources.size() == 1, "Can't get source for histogram");
+                                        final AcceptableValue<BucketedValues> histogramMetrics = service.buildMetrics(
+                                            operation.getMetricName(), BucketedValues.class);
+                                        smm = sources.entrySet().iterator().next();
+                                        Histogram h = smm.getValue().stream()
+                                            .map(m -> (Histogram) m)
+                                            .reduce(Histogram.newInstance(smm.getKey().getPromMetricName()), Histogram::sum);
+
+                                        long[] vv = new long[h.getBuckets().size()];
+                                        int[] bb = new int[h.getBuckets().size()];
+                                        long v = 0L;
+                                        int i = 0;
+                                        for (Map.Entry<Double, Long> entry : h.getBuckets().entrySet()) {
+                                            vv[i] = entry.getValue() - v;
+                                            v = entry.getValue();
+
+                                            if (i + 1 < h.getBuckets().size()) {
+                                                bb[i + 1] = BigDecimal.valueOf(entry.getKey()).multiply(SECOND_TO_MILLISECOND).intValue();
+                                            }
+
+                                            i++;
+                                        }
+
+                                        histogramMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
+                                        histogramMetrics.accept(smm.getKey().getEntity(), new BucketedValues(bb, vv));
+                                        service.doStreamingCalculation(histogramMetrics);
+                                        break;
                                     default:
-                                       throw new IllegalArgumentException(String.format("Unsupported downSampling %s", operation.getName()));
+                                        throw new IllegalArgumentException(String.format("Unsupported downSampling %s", operation.getName()));
                                 }
                             }).onFailure(e -> LOG.debug("Building metric failed", e));
-                        });
+                    });
                 }
             }, 0L, Duration.parse(r.getFetcherInterval()).getSeconds(), TimeUnit.SECONDS);
         });

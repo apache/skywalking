@@ -64,3 +64,13 @@ metricsRules:
         relabel:
           service:
             - app
+  - name: instance_persistence_timer_bulk_execute_latency
+    scope: SERVICE_INSTANCE
+    downSampling: histogram
+    sources:
+      persistence_timer_bulk_execute_latency:
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
