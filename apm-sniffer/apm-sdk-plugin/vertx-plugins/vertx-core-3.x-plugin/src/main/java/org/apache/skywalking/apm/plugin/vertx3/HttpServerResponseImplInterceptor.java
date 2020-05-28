@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 
 import java.lang.reflect.Method;
 
-public class HttpServerResponseImplEndInterceptor implements InstanceMethodsAroundInterceptor,
+public class HttpServerResponseImplInterceptor implements InstanceMethodsAroundInterceptor,
         InstanceConstructorInterceptor {
 
     @Override

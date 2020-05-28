@@ -22,7 +22,7 @@ import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor.HttpClientRequestContext;
+import org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplInterceptor.HttpClientRequestContext;
 
 import java.lang.reflect.Method;
 

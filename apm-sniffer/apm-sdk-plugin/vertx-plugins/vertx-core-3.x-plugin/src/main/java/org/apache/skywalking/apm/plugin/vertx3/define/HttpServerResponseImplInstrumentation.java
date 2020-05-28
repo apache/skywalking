@@ -31,14 +31,14 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * {@link HttpServerResponseImplEndInstrumentation} enhance the <code>end</code> method in
+ * {@link HttpServerResponseImplInstrumentation} enhance the <code>end</code> method in
  * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplEndInterceptor</code> class
+ * <code>HttpServerResponseImplInterceptor</code> class
  */
-public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpServerResponseImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplEndInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

@@ -31,14 +31,14 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 /**
- * {@link HttpClientRequestImplEndInstrumentation} enhance the <code>end</code> method in
+ * {@link HttpClientRequestImplInstrumentation} enhance the <code>end/sendHead</code> methods in
  * <code>io.vertx.core.http.impl.HttpClientRequestImpl</code> class by
- * <code>HttpClientRequestImplEndInterceptor</code> class
+ * <code>HttpClientRequestImplInterceptor</code> class
  */
-public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpClientRequestImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestImpl";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

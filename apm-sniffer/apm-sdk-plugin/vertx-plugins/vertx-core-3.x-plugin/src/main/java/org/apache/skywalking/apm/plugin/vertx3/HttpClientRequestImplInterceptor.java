@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.Handler;
 import io.vertx.core.http.HttpClientRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
@@ -34,12 +33,13 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundInterceptor {
 
     static class HttpClientRequestContext {
         String remotePeer;
         boolean usingWebClient;
         VertxContext vertxContext;
+        boolean sent;
 
         HttpClientRequestContext(String remotePeer) {
             this.remotePeer = remotePeer;
@@ -77,30 +77,36 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
         HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
-        HttpClientRequest request = (HttpClientRequest) objInst;
-        ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
-                requestContext.remotePeer);
-        System.out.println("HttpClientRequestImplEndInterceptor-createExitSpan(" + toPath(request.uri()) + ")");
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.uri());
+        if (!requestContext.sent) {
+            HttpClientRequest request = (HttpClientRequest) objInst;
+            ContextCarrier contextCarrier = new ContextCarrier();
+            AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
+                    requestContext.remotePeer);
+            System.out.println("HttpClientRequestImplInterceptor-createExitSpan(" + toPath(request.uri()) + ")");
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asHttp(span);
+            Tags.HTTP.METHOD.set(span, request.method().toString());
+            Tags.URL.set(span, request.uri());
 
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            request.headers().add(next.getHeadKey(), next.getHeadValue());
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                request.headers().add(next.getHeadKey(), next.getHeadValue());
+            }
+            requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
+            System.out.println("HttpClientRequestImplInterceptor-prepareForAsync()");
         }
-        requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
-        System.out.println("HttpClientRequestImplEndInterceptor-prepareForAsync()");
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) {
-        ContextManager.stopSpan();
-        System.out.println("HttpClientRequestImplEndInterceptor-stopSpan()");
+        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
+        if (!requestContext.sent) {
+            requestContext.sent = true;
+            ContextManager.stopSpan();
+            System.out.println("HttpClientRequestImplInterceptor-stopSpan()");
+        }
         return ret;
     }
 
