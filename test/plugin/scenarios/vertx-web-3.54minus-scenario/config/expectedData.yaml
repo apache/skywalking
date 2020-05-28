@@ -15,7 +15,7 @@
 # limitations under the License.
 segmentItems:
   - serviceName: vertx-web-3.54minus-scenario
-    segmentSize: 6
+    segmentSize: 7
     segments:
       - segmentId: not null
         spans:
@@ -38,6 +38,44 @@ segmentItems:
             tags:
               - {key: http.method, value: HEAD}
               - {key: url, value: /vertx-web-3_54minus-scenario/case/healthCheck}
+              - {key: status_code, value: '200'}
+      - segmentId: not null
+        spans:
+          - operationName: /vertx-web-3_54minus-scenario/case/healthCheck
+            operationId: 0
+            parentSpanId: 1
+            spanId: 2
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Exit
+            peer: localhost:8080
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: HEAD}
+              - {key: url, value: /vertx-web-3_54minus-scenario/case/healthCheck}
+              - {key: status_code, value: '200'}
+          - {operationName: org.apache.skywalking.apm.testcase.vertxweb.controller.VertxWebController$$Lambda$.handle(RoutingContext),
+             operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
+             endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
+             skipAnalysis: false}
+          - operationName: /vertx-web-3_54minus-scenario/case/web-case
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Entry
+            peer: ''
+            skipAnalysis: false
+            tags:
+              - {key: http.method, value: GET}
+              - {key: url, value: /vertx-web-3_54minus-scenario/case/web-case}
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
@@ -68,25 +106,6 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: '#/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler'
-            operationId: 0
-            parentSpanId: -1
-            spanId: 0
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 59
-            isError: false
-            spanType: Local
-            peer: ''
-            skipAnalysis: false
-            refs:
-              - {parentEndpoint: '#/vertx-web-3_54minus-scenario/case/healthCheck', networkAddress: '',
-                 refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
-                 parentServiceInstance: not null, parentService: vertx-web-3.54minus-scenario,
-                 traceId: not null}
-      - segmentId: not null
-        spans:
           - {operationName: io.vertx.ext.web.handler.impl.BodyHandlerImpl.handle(RoutingContext),
              operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
              endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
@@ -110,6 +129,25 @@ segmentItems:
             refs:
               - {parentEndpoint: '#/vertx-web-3_54minus-scenario/case/healthCheck', networkAddress: 'localhost:8080',
                  refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: vertx-web-3.54minus-scenario,
+                 traceId: not null}
+      - segmentId: not null
+        spans:
+          - operationName: org.apache.skywalking.apm.testcase.vertxweb.controller.VertxWebController$$Lambda$.handle(RoutingContext)
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+            refs:
+              - {parentEndpoint: /vertx-web-3_54minus-scenario/case/web-case/withBodyHandler,
+                 networkAddress: '', refType: CrossThread, parentSpanId: 0, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: vertx-web-3.54minus-scenario,
                  traceId: not null}
       - segmentId: not null
@@ -149,27 +187,7 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: /vertx-web-3_54minus-scenario/case/healthCheck
-            operationId: 0
-            parentSpanId: 1
-            spanId: 2
-            spanLayer: Http
-            startTime: nq 0
-            endTime: nq 0
-            componentId: 59
-            isError: false
-            spanType: Exit
-            peer: localhost:8080
-            skipAnalysis: false
-            tags:
-              - {key: http.method, value: HEAD}
-              - {key: url, value: /vertx-web-3_54minus-scenario/case/healthCheck}
-              - {key: status_code, value: '200'}
-          - {operationName: org.apache.skywalking.apm.testcase.vertxweb.controller.VertxWebController$$Lambda$.handle(RoutingContext),
-             operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
-             endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
-             skipAnalysis: false}
-          - operationName: /vertx-web-3_54minus-scenario/case/web-case
+          - operationName: '#/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler'
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -178,10 +196,11 @@ segmentItems:
             endTime: nq 0
             componentId: 59
             isError: false
-            spanType: Entry
+            spanType: Local
             peer: ''
             skipAnalysis: false
-            tags:
-              - {key: http.method, value: GET}
-              - {key: url, value: /vertx-web-3_54minus-scenario/case/web-case}
-              - {key: status_code, value: '200'}
+            refs:
+              - {parentEndpoint: '#/vertx-web-3_54minus-scenario/case/healthCheck', networkAddress: '',
+                 refType: CrossThread, parentSpanId: 1, parentTraceSegmentId: not null,
+                 parentServiceInstance: not null, parentService: vertx-web-3.54minus-scenario,
+                 traceId: not null}
