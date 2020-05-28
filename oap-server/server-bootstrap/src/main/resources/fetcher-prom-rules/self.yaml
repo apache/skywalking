@@ -74,3 +74,13 @@ metricsRules:
             - app
           instance:
             - instance
+  - name: instance_jvm_gc_collection_seconds
+    scope: SERVICE_INSTANCE
+    downSampling: summary
+    sources:
+      jvm_gc_collection_seconds:
+        relabel:
+          service:
+            - app
+          instance:
+            - instance

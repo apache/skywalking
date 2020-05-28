@@ -130,7 +130,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         PercentileFunction percentile = (PercentileFunction) metrics;
 
         if (!dataset.keysEqual(percentile.getDataset())) {
-            log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
+            log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
                      percentile, this, entityId
             );
             return;
