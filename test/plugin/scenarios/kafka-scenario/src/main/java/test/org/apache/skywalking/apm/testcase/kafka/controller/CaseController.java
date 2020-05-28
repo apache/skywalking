@@ -68,12 +68,10 @@ public class CaseController {
         wrapProducer(producer -> {
             ProducerRecord<String, String> record = new ProducerRecord<String, String>(topicName, "testKey", Integer.toString(1));
             record.headers().add("TEST", "TEST".getBytes());
-            producer.send(record, new Callback() {
-                @Override
-                public void onCompletion(RecordMetadata metadata, Exception exception) {
-                    logger.info("send success metadata={}", metadata);
-                }
-            });
+            Callback callback = (metadata, exception) -> {
+                logger.info("send success metadata={}", metadata);
+            };
+            producer.send(record, callback);
         }, bootstrapServers);
         Thread thread = new ConsumerThread();
         thread.start();
@@ -134,14 +132,12 @@ public class CaseController {
                         ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer
                             .toString(1));
                         record.headers().add("CHECK", "CHECK".getBytes());
-                        producer.send(record, new Callback() {
-                            @Override
-                            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                                if (isNull(e)) {
-                                    KAFKA_STATUS = true;
-                                }
+                        Callback callback = (metadata, e) -> {
+                            if (isNull(e)) {
+                                KAFKA_STATUS = true;
                             }
-                        });
+                        };
+                        producer.send(record, callback);
                     }, bootstrapServers);
                 } catch (Exception e) {
                     logger.error("check " + bootstrapServers + " " + e.getMessage(), e);

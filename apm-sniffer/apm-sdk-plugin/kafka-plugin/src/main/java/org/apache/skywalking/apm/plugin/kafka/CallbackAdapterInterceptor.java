@@ -20,75 +20,46 @@ package org.apache.skywalking.apm.plugin.kafka;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-
-import java.lang.reflect.Method;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * implements Callback and EnhancedInstance, for kafka callback in lambda expression
  */
-public class CallbackAdapterInterceptor implements Callback, EnhancedInstance {
+public class CallbackAdapterInterceptor implements Callback {
 
-    private Method method;
-
+    /**
+     * user Callback object
+     */
     private CallbackCache callbackCache;
 
-    private static CallbackInterceptor CALLBACK_INTERCEPTOR = new CallbackInterceptor();
-
-    private ILog logger = LogManager.getLogger(CallbackAdapterInterceptor.class);
-
     public CallbackAdapterInterceptor(CallbackCache callbackCache) {
-
         this.callbackCache = callbackCache;
-        try {
-            this.method = CallbackAdapterInterceptor.class.getMethod("onCompletion", new Class[]{RecordMetadata.class, Exception.class});
-        } catch (Exception e) {
-        }
     }
 
     @Override
     public void onCompletion(RecordMetadata metadata, Exception exception) {
-        MethodInterceptResult result = new MethodInterceptResult();
-        Object[] allArguments = new Object[]{metadata, exception};
-        try {
-            CALLBACK_INTERCEPTOR.beforeMethod(this, method, allArguments, method.getParameterTypes(), result);
-        } catch (Throwable t) {
-            logger.error(t, "class[{}] before method[{}] intercept failure", this.getClass(), method.getName());
+        ContextSnapshot snapshot = callbackCache.getSnapshot();
+        AbstractSpan activeSpan = ContextManager.createLocalSpan("Kafka/Producer/Callback");
+        activeSpan.setComponent(ComponentsDefine.KAFKA_PRODUCER);
+        if (metadata != null) {
+            Tags.MQ_TOPIC.set(activeSpan, metadata.topic());
         }
+        ContextManager.continued(snapshot);
 
-        Object ret = null;
         try {
-            if (!result.isContinue()) {
-                ret = result._ret();
-            } else {
-                callbackCache.getCallback().onCompletion(metadata, exception);
-            }
+            callbackCache.getCallback().onCompletion(metadata, exception);
         } catch (Throwable t) {
-            try {
-                CALLBACK_INTERCEPTOR.handleMethodException(this, method, allArguments, method.getParameterTypes(), t);
-            } catch (Throwable t2) {
-                logger.error(t2, "class[{}] handle method[{}] exception failure", this.getClass(), method.getName());
-            }
+            ContextManager.activeSpan().errorOccurred().log(t);
             throw t;
         } finally {
-            try {
-                CALLBACK_INTERCEPTOR.afterMethod(this, method, allArguments, method.getParameterTypes(), ret);
-            } catch (Throwable t) {
-                logger.error(t, "class[{}] after method[{}] intercept failure", this.getClass(), method.getName());
+            if (exception != null) {
+                ContextManager.activeSpan().errorOccurred().log(exception);
             }
+            ContextManager.stopSpan();
         }
-    }
-
-    @Override
-    public Object getSkyWalkingDynamicField() {
-        return callbackCache;
-    }
-
-    @Override
-    public void setSkyWalkingDynamicField(Object value) {
-        return;
     }
 }
