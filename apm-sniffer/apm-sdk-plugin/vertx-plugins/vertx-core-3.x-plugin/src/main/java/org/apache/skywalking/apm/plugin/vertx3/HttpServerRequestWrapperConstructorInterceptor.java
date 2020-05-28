@@ -21,13 +21,11 @@ package org.apache.skywalking.apm.plugin.vertx3;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class RoutingContextImplConstructorInterceptor implements InstanceConstructorInterceptor {
+public class HttpServerRequestWrapperConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        objInst.setSkyWalkingDynamicField(new AtomicInteger(0));
-        System.out.println("RoutingContextImplConstructorInterceptor");
+        objInst.setSkyWalkingDynamicField(((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField());
+        System.out.println("HttpServerRequestWrapperConstructorInterceptor");
     }
 }

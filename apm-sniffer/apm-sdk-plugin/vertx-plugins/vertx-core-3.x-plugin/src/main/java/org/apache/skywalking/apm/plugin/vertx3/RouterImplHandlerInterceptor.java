@@ -24,14 +24,16 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
 
-public class HttpServerResponseImplHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
+public class RouterImplHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();
-        context.getSpan().errorOccurred().log((Throwable) allArguments[0]);
+        if (VertxContext.VERTX_VERSION < 35) {
+            objInst.setSkyWalkingDynamicField(Collections.singletonList(allArguments[0]));
+        }
     }
 
     @Override

@@ -26,3 +26,7 @@ vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterContextImplC
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterImplAcceptInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouteStateHandleContextInstrumentation
 vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterImplInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.RouterImplHandlerInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerRequestImplConstructorInstrumentation
+vertx-core-3.x=org.apache.skywalking.apm.plugin.vertx3.define.HttpServerRequestWrapperConstructorInstrumentation
+

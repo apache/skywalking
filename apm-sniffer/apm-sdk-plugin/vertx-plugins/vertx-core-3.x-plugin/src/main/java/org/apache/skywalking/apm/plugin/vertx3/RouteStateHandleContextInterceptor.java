@@ -43,7 +43,7 @@ public class RouteStateHandleContextInterceptor implements InstanceMethodsAround
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         if (allArguments.length > 8) {
             objInst.setSkyWalkingDynamicField(allArguments[8]);
-        } else {
+        } else if (VertxContext.VERTX_VERSION >= 35 && VertxContext.VERTX_VERSION <= 38.2) {
             try {
                 Field field = objInst.getClass().getDeclaredField("contextHandlers");
                 field.setAccessible(true);
@@ -60,13 +60,17 @@ public class RouteStateHandleContextInterceptor implements InstanceMethodsAround
         MethodInterceptResult result) throws Throwable {
         RoutingContextImpl routingContext = (RoutingContextImpl) allArguments[0];
         List<Handler<RoutingContext>> contextHandlers = (List<Handler<RoutingContext>>) objInst.getSkyWalkingDynamicField();
-        int currentContextIndex = ((AtomicInteger)((EnhancedInstance) routingContext).getSkyWalkingDynamicField()).get() -1;
-        String contextName = contextHandlers.get(currentContextIndex).getClass().getCanonicalName();
+        AtomicInteger currentContextIndex = ((AtomicInteger) ((EnhancedInstance) routingContext).getSkyWalkingDynamicField());
+        int handlerContextIndex = currentContextIndex.get();
+        if (VertxContext.VERTX_VERSION >= 35 && contextHandlers.size() > 1) {
+            currentContextIndex.getAndIncrement(); //3.5+ has possibility for multiple handlers
+        }
+        String contextName = contextHandlers.get(handlerContextIndex).getClass().getCanonicalName();
         int lambdaOffset = contextName.indexOf("$$Lambda$");
         if (lambdaOffset > 0) contextName = contextName.substring(0, lambdaOffset + 9);
         AbstractSpan span = ContextManager.createLocalSpan(String.format("%s.handle(RoutingContext)", contextName));
 
-        HttpConnection connection = routingContext.request().connection();
+        Object connection = ((EnhancedInstance) routingContext.request()).getSkyWalkingDynamicField();
         VertxContext vertxContext = (VertxContext) ((EnhancedInstance) connection).getSkyWalkingDynamicField();
         ContextManager.continued(vertxContext.getContextSnapshot());
         span.setComponent(ComponentsDefine.VERTX);
