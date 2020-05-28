@@ -26,6 +26,5 @@ public class HttpServerRequestWrapperConstructorInterceptor implements InstanceC
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField());
-        System.out.println("HttpServerRequestWrapperConstructorInterceptor");
     }
 }

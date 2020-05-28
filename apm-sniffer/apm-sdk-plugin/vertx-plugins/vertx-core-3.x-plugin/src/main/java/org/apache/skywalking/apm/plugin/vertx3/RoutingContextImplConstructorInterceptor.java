@@ -28,6 +28,5 @@ public class RoutingContextImplConstructorInterceptor implements InstanceConstru
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(new AtomicInteger(0));
-        System.out.println("RoutingContextImplConstructorInterceptor");
     }
 }

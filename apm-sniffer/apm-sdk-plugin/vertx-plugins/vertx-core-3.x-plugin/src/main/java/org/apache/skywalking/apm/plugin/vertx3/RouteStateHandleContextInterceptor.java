@@ -19,7 +19,6 @@
 package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.Handler;
-import io.vertx.core.http.HttpConnection;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.impl.RoutingContextImpl;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -60,7 +59,7 @@ public class RouteStateHandleContextInterceptor implements InstanceMethodsAround
         MethodInterceptResult result) throws Throwable {
         RoutingContextImpl routingContext = (RoutingContextImpl) allArguments[0];
         List<Handler<RoutingContext>> contextHandlers = (List<Handler<RoutingContext>>) objInst.getSkyWalkingDynamicField();
-        AtomicInteger currentContextIndex = ((AtomicInteger) ((EnhancedInstance) routingContext).getSkyWalkingDynamicField());
+        AtomicInteger currentContextIndex = (AtomicInteger) ((EnhancedInstance) routingContext).getSkyWalkingDynamicField();
         int handlerContextIndex = currentContextIndex.get();
         if (VertxContext.VERTX_VERSION >= 35 && contextHandlers.size() > 1) {
             currentContextIndex.getAndIncrement(); //3.5+ has possibility for multiple handlers

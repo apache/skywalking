@@ -28,7 +28,8 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import java.util.List;
 
-import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
  * {@link RouteStateHandleContextInstrumentation} enhance the <code>accept</code> method in

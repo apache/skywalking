@@ -37,14 +37,13 @@ public class HttpClientRequestImplHandleResponseInterceptor implements InstanceM
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
-            HttpClientRequestContext requestContext = ((HttpClientRequestContext) objInst.getSkyWalkingDynamicField());
+            HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
             if (!requestContext.usingWebClient) {
                 VertxContext context = requestContext.vertxContext;
                 Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
                 context.getSpan().asyncFinish();
 
                 AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
-                System.out.println("HttpClientRequestImplHandleResponseInterceptor-createLocalSpan(" + "#" + context.getSpan().getOperationName() + ")");
                 span.setComponent(ComponentsDefine.VERTX);
                 SpanLayer.asHttp(span);
                 ContextManager.continued(context.getContextSnapshot());
@@ -56,10 +55,9 @@ public class HttpClientRequestImplHandleResponseInterceptor implements InstanceM
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
         if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
-            HttpClientRequestContext requestContext = ((HttpClientRequestContext) objInst.getSkyWalkingDynamicField());
+            HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
             if (!requestContext.usingWebClient) {
                 ContextManager.stopSpan();
-                System.out.println("HttpClientRequestImplHandleResponseInterceptor-stopSpan()");
             }
         }
         return ret;

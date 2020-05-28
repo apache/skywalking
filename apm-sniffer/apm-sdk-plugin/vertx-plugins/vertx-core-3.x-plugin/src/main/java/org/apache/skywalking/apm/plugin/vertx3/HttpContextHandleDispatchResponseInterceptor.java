@@ -42,11 +42,10 @@ public class HttpContextHandleDispatchResponseInterceptor implements InstanceMet
         HttpClientRequest clientRequest = httpContext.clientRequest();
         VertxContext context = ((HttpClientRequestContext) ((EnhancedInstance) clientRequest)
                 .getSkyWalkingDynamicField()).vertxContext;
-        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString((httpContext.clientResponse().statusCode())));
+        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(httpContext.clientResponse().statusCode()));
         context.getSpan().asyncFinish();
 
         AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
-        System.out.println("HttpContextHandleDispatchResponseInterceptor-createLocalSpan(" + "#" + context.getSpan().getOperationName() + ")");
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         ContextManager.continued(context.getContextSnapshot());
@@ -56,7 +55,6 @@ public class HttpContextHandleDispatchResponseInterceptor implements InstanceMet
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
         ContextManager.stopSpan();
-        System.out.println("HttpContextHandleDispatchResponseInterceptor-stopSpan()");
         return ret;
     }
 

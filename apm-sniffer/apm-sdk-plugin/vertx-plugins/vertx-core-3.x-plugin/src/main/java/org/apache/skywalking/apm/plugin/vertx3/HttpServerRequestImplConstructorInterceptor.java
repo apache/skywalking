@@ -26,6 +26,5 @@ public class HttpServerRequestImplConstructorInterceptor implements InstanceCons
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
         objInst.setSkyWalkingDynamicField(allArguments[0]);
-        System.out.println("HttpServerRequestImplConstructorInterceptor");
     }
 }

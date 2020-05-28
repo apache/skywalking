@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 public class HandlerRegistrationInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         ContextManager.getRuntimeContext().remove(VertxContext.STOP_SPAN_NECESSARY + "." + getClass().getName());

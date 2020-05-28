@@ -82,7 +82,6 @@ public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundIn
             ContextCarrier contextCarrier = new ContextCarrier();
             AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
                     requestContext.remotePeer);
-            System.out.println("HttpClientRequestImplInterceptor-createExitSpan(" + toPath(request.uri()) + ")");
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asHttp(span);
             Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -94,7 +93,6 @@ public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundIn
                 request.headers().add(next.getHeadKey(), next.getHeadValue());
             }
             requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
-            System.out.println("HttpClientRequestImplInterceptor-prepareForAsync()");
         }
     }
 
@@ -105,7 +103,6 @@ public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundIn
         if (!requestContext.sent) {
             requestContext.sent = true;
             ContextManager.stopSpan();
-            System.out.println("HttpClientRequestImplInterceptor-stopSpan()");
         }
         return ret;
     }
