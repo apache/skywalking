@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.ext.web.client.impl.HttpContext;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -31,43 +32,37 @@ import org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndIntercept
 
 import java.lang.reflect.Method;
 
-public class HttpClientRequestImplHandleResponseInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpContextHandleDispatchResponseInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
-            HttpClientRequestContext requestContext = ((HttpClientRequestContext) objInst.getSkyWalkingDynamicField());
-            if (!requestContext.usingWebClient) {
-                VertxContext context = requestContext.vertxContext;
-                Tags.STATUS_CODE.set(context.getSpan(), Integer.toString(((HttpClientResponse) allArguments[0]).statusCode()));
-                context.getSpan().asyncFinish();
+                             MethodInterceptResult result) throws Throwable {
+        HttpContext httpContext = (HttpContext) objInst;
+        HttpClientRequest clientRequest = httpContext.clientRequest();
+        VertxContext context = ((HttpClientRequestContext) ((EnhancedInstance) clientRequest)
+                .getSkyWalkingDynamicField()).vertxContext;
+        Tags.STATUS_CODE.set(context.getSpan(), Integer.toString((httpContext.clientResponse().statusCode())));
+        context.getSpan().asyncFinish();
 
-                AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
-                System.out.println("HttpClientRequestImplHandleResponseInterceptor-createLocalSpan(" + "#" + context.getSpan().getOperationName() + ")");
-                span.setComponent(ComponentsDefine.VERTX);
-                SpanLayer.asHttp(span);
-                ContextManager.continued(context.getContextSnapshot());
-            }
-        }
+        AbstractSpan span = ContextManager.createLocalSpan("#" + context.getSpan().getOperationName());
+        System.out.println("HttpContextHandleDispatchResponseInterceptor-createLocalSpan(" + "#" + context.getSpan().getOperationName() + ")");
+        span.setComponent(ComponentsDefine.VERTX);
+        SpanLayer.asHttp(span);
+        ContextManager.continued(context.getContextSnapshot());
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        if (VertxContext.VERTX_VERSION < 38 || allArguments.length == 2) {
-            HttpClientRequestContext requestContext = ((HttpClientRequestContext) objInst.getSkyWalkingDynamicField());
-            if (!requestContext.usingWebClient) {
-                ContextManager.stopSpan();
-                System.out.println("HttpClientRequestImplHandleResponseInterceptor-stopSpan()");
-            }
-        }
+                              Object ret) throws Throwable {
+        ContextManager.stopSpan();
+        System.out.println("HttpContextHandleDispatchResponseInterceptor-stopSpan()");
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

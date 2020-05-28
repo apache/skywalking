@@ -77,16 +77,11 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
         HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
-        if (requestContext.usingWebClient) {
-            return;
-        } else if (allArguments.length > 0 && allArguments[0] instanceof Handler) {
-            requestContext.usingWebClient = true;
-        }
-
         HttpClientRequest request = (HttpClientRequest) objInst;
         ContextCarrier contextCarrier = new ContextCarrier();
         AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
                 requestContext.remotePeer);
+        System.out.println("HttpClientRequestImplEndInterceptor-createExitSpan(" + toPath(request.uri()) + ")");
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
         Tags.HTTP.METHOD.set(span, request.method().toString());
@@ -98,15 +93,14 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
             request.headers().add(next.getHeadKey(), next.getHeadValue());
         }
         requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
+        System.out.println("HttpClientRequestImplEndInterceptor-prepareForAsync()");
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) {
-        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
-        if (!requestContext.usingWebClient || (allArguments.length > 0 && allArguments[0] instanceof Handler)) {
-            ContextManager.stopSpan();
-        }
+        ContextManager.stopSpan();
+        System.out.println("HttpClientRequestImplEndInterceptor-stopSpan()");
         return ret;
     }
 

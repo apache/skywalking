@@ -39,9 +39,7 @@ public class VertxWebController extends AbstractVerticle {
                 healthCheck -> {
                     vertx.createHttpClient().getNow(8080, "localhost",
                             "/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler",
-                            it -> {
-                                routingContext.response().setStatusCode(it.statusCode()).end();
-                            });
+                            it -> routingContext.response().setStatusCode(it.statusCode()).end());
                 });
     }
 

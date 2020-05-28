@@ -47,5 +47,11 @@
             <version>${vertx.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+            <version>${vertx.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
