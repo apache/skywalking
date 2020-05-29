@@ -32,6 +32,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * {@link HttpContextHandleDispatchResponseInstrumentation} enhance the <code>handleDispatchResponse</code> method in
  * <code>io.vertx.ext.web.client.impl.HttpContext</code> class by
  * <code>HttpContextHandleDispatchResponseInterceptor</code> class.
+ *
+ * Ver. 3.6.0+
  */
 public class HttpContextHandleDispatchResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
