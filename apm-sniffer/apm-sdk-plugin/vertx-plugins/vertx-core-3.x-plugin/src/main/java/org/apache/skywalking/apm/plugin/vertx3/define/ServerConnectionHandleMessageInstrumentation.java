@@ -24,22 +24,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link RouterImplHandleInstrumentation} enhance the <code>handle</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouterImplAcceptInterceptor</code> class.
- *
- * Targets: ver. 3.6.0+
+ * {@link ServerConnectionHandleMessageInstrumentation} enhance the <code>handleMessage</code> method in
+ * <code>io.vertx.core.http.impl.ServerConnection</code> & <code>io.vertx.core.http.impl.Http1xServerConnection</code>
+ * classes by <code>ServerConnectionHandleMessageInterceptor</code> class.
  */
-public class RouterImplHandleInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ServerConnectionHandleMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouterImpl";
-    private static final String ENHANCE_METHOD = "handle";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplAcceptInterceptor";
+    private static final String SERVER_CONNECTION_ENHANCE_CLASS = "io.vertx.core.http.impl.ServerConnection";
+    private static final String HTTP_SERVER_CONNECTION_ENHANCE_CLASS = "io.vertx.core.http.impl.Http1xServerConnection";
+    private static final String ENHANCE_METHOD = "handleMessage";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.ServerConnectionHandleMessageInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -70,6 +69,9 @@ public class RouterImplHandleInstrumentation extends ClassInstanceMethodsEnhance
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(
+                HTTP_SERVER_CONNECTION_ENHANCE_CLASS, //ver. 3.5.1+
+                SERVER_CONNECTION_ENHANCE_CLASS //ver. 3.0.0 - 3.5.0
+        );
     }
 }
