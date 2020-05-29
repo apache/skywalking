@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb.base;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;

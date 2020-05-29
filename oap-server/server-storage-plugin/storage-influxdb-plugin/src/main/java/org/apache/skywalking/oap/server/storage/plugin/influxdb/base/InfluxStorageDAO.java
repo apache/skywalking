@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
 
 public class InfluxStorageDAO implements StorageDAO {
