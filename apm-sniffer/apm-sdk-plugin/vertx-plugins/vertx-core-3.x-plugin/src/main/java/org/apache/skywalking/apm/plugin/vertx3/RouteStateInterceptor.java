@@ -20,7 +20,7 @@ package org.apache.skywalking.apm.plugin.vertx3;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.impl.RoutingContextImpl;
+import io.vertx.ext.web.impl.RoutingContextImplBase;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
@@ -57,7 +57,7 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
     @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        RoutingContextImpl routingContext = (RoutingContextImpl) allArguments[0];
+        RoutingContextImplBase routingContext = (RoutingContextImplBase) allArguments[0];
         List<Handler<RoutingContext>> contextHandlers = (List<Handler<RoutingContext>>) objInst.getSkyWalkingDynamicField();
         AtomicInteger currentContextIndex = (AtomicInteger) ((EnhancedInstance) routingContext).getSkyWalkingDynamicField();
         int handlerContextIndex = currentContextIndex.get();
