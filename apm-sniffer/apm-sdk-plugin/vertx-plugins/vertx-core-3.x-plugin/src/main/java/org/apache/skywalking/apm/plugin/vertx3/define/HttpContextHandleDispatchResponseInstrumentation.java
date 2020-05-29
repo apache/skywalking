@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpContextHandleDispatchResponseInstrumentation} enhance the <code>accept</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouterImplAcceptInterceptor</code> class.
+ * {@link HttpContextHandleDispatchResponseInstrumentation} enhance the <code>handleDispatchResponse</code> method in
+ * <code>io.vertx.ext.web.client.impl.HttpContext</code> class by
+ * <code>HttpContextHandleDispatchResponseInterceptor</code> class.
  */
 public class HttpContextHandleDispatchResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * {@link HttpServerResponseImplInstrumentation} enhance the <code>end</code> method in
+ * {@link HttpServerResponseImplInstrumentation} enhance the <code>end0/end</code> method in
  * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
  * <code>HttpServerResponseImplInterceptor</code> class
  */
