@@ -30,7 +30,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
  * {@link ServerConnectionHandleMessageInstrumentation} enhance the <code>handleMessage</code> method in
- * <code>io.vertx.core.http.impl.ServerConnection</code> & <code>io.vertx.core.http.impl.Http1xServerConnection</code>
+ * <code>io.vertx.core.http.impl.ServerConnection</code> and <code>io.vertx.core.http.impl.Http1xServerConnection</code>
  * classes by <code>ServerConnectionHandleMessageInterceptor</code> class.
  */
 public class ServerConnectionHandleMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
