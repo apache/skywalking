@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RouteStateHandleContextInterceptor implements InstanceMethodsAroundInterceptor,
+public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
         InstanceConstructorInterceptor {
 
     @Override

@@ -32,15 +32,17 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * {@link RouteStateHandleContextInstrumentation} enhance the <code>accept</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouterImplAcceptInterceptor</code> class.
+ * {@link RouteStateInstrumentation} enhance the <code>handleContext</code> method in
+ * <code>io.vertx.ext.web.impl.RouteState</code> class by
+ * <code>RouteStateInterceptor</code> class.
+ *
+ * Ver. 3.8.3+
  */
-public class RouteStateHandleContextInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouteStateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteState";
     private static final String ENHANCE_METHOD = "handleContext";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouteStateHandleContextInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouteStateInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

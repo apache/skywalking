@@ -29,9 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
 /**
- * {@link RouterContextImplConstructorInstrumentation} enhance the <code>accept</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouterImplAcceptInterceptor</code> class.
+ * {@link RouterContextImplConstructorInstrumentation} enhance the constructor in
+ * <code>io.vertx.ext.web.impl.RoutingContextImplBase</code> class by
+ * <code>RoutingContextImplConstructorInterceptor</code> class.
  */
 public class RouterContextImplConstructorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
