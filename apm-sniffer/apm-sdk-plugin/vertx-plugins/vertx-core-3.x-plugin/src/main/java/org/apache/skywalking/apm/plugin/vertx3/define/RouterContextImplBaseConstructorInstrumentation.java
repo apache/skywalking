@@ -29,14 +29,14 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
 /**
- * {@link RouterContextImplConstructorInstrumentation} enhance the constructor in
+ * {@link RouterContextImplBaseConstructorInstrumentation} enhance the constructor in
  * <code>io.vertx.ext.web.impl.RoutingContextImplBase</code> class by
- * <code>RoutingContextImplConstructorInterceptor</code> class.
+ * <code>RoutingContextImplBaseConstructorInterceptor</code> class.
  */
-public class RouterContextImplConstructorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouterContextImplBaseConstructorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RoutingContextImplBase";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RoutingContextImplConstructorInterceptor";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RoutingContextImplBaseConstructorInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

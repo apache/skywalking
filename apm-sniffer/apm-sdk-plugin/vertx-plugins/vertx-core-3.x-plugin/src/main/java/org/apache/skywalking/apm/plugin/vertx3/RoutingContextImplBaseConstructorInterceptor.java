@@ -23,7 +23,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceC
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RoutingContextImplConstructorInterceptor implements InstanceConstructorInterceptor {
+public class RoutingContextImplBaseConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
