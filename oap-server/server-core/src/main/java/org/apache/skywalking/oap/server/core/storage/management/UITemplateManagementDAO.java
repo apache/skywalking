@@ -16,15 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.storage.management;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import java.util.List;
+import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
+import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
+import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
- * Use synchronize storage to insert none stream data
+ * UI Template management, including CRUD.
  */
-public interface INoneStreamDAO extends DAO {
-    void insert(Model model, NoneStream noneStream) throws IOException;
+public interface UITemplateManagementDAO extends DAO {
+    List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException;
+
+    TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException;
+
+    TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException;
+
+    TemplateChangeStatus disableTemplate(String name) throws IOException;
 }

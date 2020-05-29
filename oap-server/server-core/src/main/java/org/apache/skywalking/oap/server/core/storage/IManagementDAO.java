@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 
 /**
- * Use synchronize storage to insert none stream data
+ * Use synchronize storage to insert storage data
  */
-public interface INoneStreamDAO extends DAO {
-    void insert(Model model, NoneStream noneStream) throws IOException;
+public interface IManagementDAO extends DAO {
+    void insert(Model model, ManagementData storageData) throws IOException;
 }

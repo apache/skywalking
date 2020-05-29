@@ -16,15 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * Use synchronize storage to insert none stream data
- */
-public interface INoneStreamDAO extends DAO {
-    void insert(Model model, NoneStream noneStream) throws IOException;
+@Setter
+@Getter
+@Builder
+public class TemplateChangeStatus {
+    private boolean status;
+    private String message;
 }

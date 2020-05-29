@@ -18,43 +18,36 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
-import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
-import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
-public class H2StorageDAO implements StorageDAO {
+/**
+ * Synchronize storage H2 implements
+ */
+public class H2ManagementDAO extends H2SQLExecutor implements IManagementDAO {
 
     private JDBCHikariCPClient h2Client;
+    private StorageBuilder<ManagementData> storageBuilder;
 
-    public H2StorageDAO(JDBCHikariCPClient h2Client) {
+    public H2ManagementDAO(JDBCHikariCPClient h2Client, StorageBuilder<ManagementData> storageBuilder) {
         this.h2Client = h2Client;
+        this.storageBuilder = storageBuilder;
     }
 
     @Override
-    public IMetricsDAO newMetricsDao(StorageBuilder<Metrics> storageBuilder) {
-        return new H2MetricsDAO(h2Client, storageBuilder);
-    }
-
-    @Override
-    public IRecordDAO newRecordDao(StorageBuilder<Record> storageBuilder) {
-        return new H2RecordDAO(h2Client, storageBuilder);
-    }
-
-    @Override
-    public INoneStreamDAO newNoneStreamDao(StorageBuilder<NoneStream> storageBuilder) {
-        return new H2NoneStreamDAO(h2Client, storageBuilder);
-    }
-
-    @Override
-    public IManagementDAO newManagementDao(final StorageBuilder<ManagementData> storageBuilder) {
-        return new H2ManagementDAO(h2Client, storageBuilder);
+    public void insert(Model model, ManagementData storageDa) throws IOException {
+        try (Connection connection = h2Client.getConnection()) {
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), storageDa, storageBuilder);
+            insertExecutor.invoke(connection);
+        } catch (IOException | SQLException e) {
+            throw new IOException(e.getMessage(), e);
+        }
     }
 }

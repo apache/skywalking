@@ -16,15 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage;
+package org.apache.skywalking.oap.server.core.query.enumeration;
 
-import java.io.IOException;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+public enum TemplateType {
+    DASHBOARD,
+    TOPOLOGY_SERVICE,
+    TOPOLOGY_INSTANCE,
+    TOPOLOGY_ENDPOINT,
+    TOPOLOGY_SERVICE_RELATION,
+    TOPOLOGY_SERVICE_INSTANCE_RELATION;
 
-/**
- * Use synchronize storage to insert none stream data
- */
-public interface INoneStreamDAO extends DAO {
-    void insert(Model model, NoneStream noneStream) throws IOException;
+    public static TemplateType forName(String name) {
+        return Enum.valueOf(TemplateType.class, name.toUpperCase());
+    }
 }

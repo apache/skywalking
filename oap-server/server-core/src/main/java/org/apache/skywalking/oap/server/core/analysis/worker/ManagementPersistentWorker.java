@@ -20,30 +20,27 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
-import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
+import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * None persistent use {@link INoneStreamDAO#insert(Model, NoneStream)} on saving new data
- */
 @Slf4j
-public class NoneStreamPersistentWorker extends AbstractWorker<NoneStream> {
+public class ManagementPersistentWorker extends AbstractWorker<ManagementData> {
     private final Model model;
-    private final INoneStreamDAO configDAO;
+    private final IManagementDAO configDAO;
 
-    public NoneStreamPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, INoneStreamDAO configDAO) {
+    public ManagementPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IManagementDAO configDAO) {
         super(moduleDefineHolder);
         this.model = model;
         this.configDAO = configDAO;
     }
 
     @Override
-    public void in(NoneStream noneStream) {
+    public void in(ManagementData managementData) {
         try {
-            configDAO.insert(model, noneStream);
+            configDAO.insert(model, managementData);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
