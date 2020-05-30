@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 
 public class ManagementEsDAO extends EsDAO implements IManagementDAO {
@@ -36,8 +37,14 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
 
     @Override
     public void insert(Model model, ManagementData managementData) throws IOException {
-        XContentBuilder builder = map2builder(storageBuilder.data2Map(managementData));
         String modelName = model.getName();
-        getClient().forceInsert(modelName, managementData.id(), builder);
+        final String id = managementData.id();
+        final GetResponse response = getClient().get(modelName, id);
+        if (response.isExists()) {
+            return;
+        }
+
+        XContentBuilder builder = map2builder(storageBuilder.data2Map(managementData));
+        getClient().forceInsert(modelName, id, builder);
     }
 }

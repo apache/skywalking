@@ -74,12 +74,12 @@ public class MySQLTableInstaller extends H2TableInstaller {
             if (!modelColumn.isStorageOnly()) {
                 SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
                 tableIndexSQL.append(model.getName().toUpperCase())
-                             .append("_")
-                             .append(String.valueOf(indexSeq++))
-                             .append("_IDX ");
+                        .append("_")
+                        .append(String.valueOf(indexSeq++))
+                        .append("_IDX ");
                 tableIndexSQL.append("ON ").append(model.getName()).append("(")
-                             .append(modelColumn.getColumnName().getStorageName())
-                             .append(")");
+                        .append(modelColumn.getColumnName().getStorageName())
+                        .append(")");
                 createIndex(client, connection, model, tableIndexSQL);
             }
         }
@@ -87,9 +87,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
         for (final ExtraQueryIndex extraQueryIndex : model.getExtraQueryIndices()) {
             SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
             tableIndexSQL.append(model.getName().toUpperCase())
-                         .append("_")
-                         .append(String.valueOf(indexSeq++))
-                         .append("_IDX ");
+                    .append("_")
+                    .append(String.valueOf(indexSeq++))
+                    .append("_IDX ");
             tableIndexSQL.append(" ON ").append(model.getName()).append("(");
             final String[] columns = extraQueryIndex.getColumns();
             for (int i = 0; i < columns.length; i++) {
@@ -105,8 +105,15 @@ public class MySQLTableInstaller extends H2TableInstaller {
 
     @Override
     protected String getColumnType(final ModelColumn column) {
-        if (StorageDataComplexObject.class.isAssignableFrom(column.getType())) {
+        final Class<?> type = column.getType();
+        if (StorageDataComplexObject.class.isAssignableFrom(type)) {
             return "MEDIUMTEXT";
+        } else if (String.class.equals(type)) {
+            if (column.getLength() > 16383) {
+                return "MEDIUMTEXT";
+            } else {
+                return "VARCHAR(" + column.getLength() + ")";
+            }
         }
         return super.getColumnType(column);
     }

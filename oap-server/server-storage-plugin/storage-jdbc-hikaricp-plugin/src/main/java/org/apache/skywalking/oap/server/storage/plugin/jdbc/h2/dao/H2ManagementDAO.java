@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -42,9 +43,14 @@ public class H2ManagementDAO extends H2SQLExecutor implements IManagementDAO {
     }
 
     @Override
-    public void insert(Model model, ManagementData storageDa) throws IOException {
+    public void insert(Model model, ManagementData storageData) throws IOException {
         try (Connection connection = h2Client.getConnection()) {
-            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), storageDa, storageBuilder);
+            final StorageData data = getByID(h2Client, model.getName(), storageData.id(), storageBuilder);
+            if (data != null) {
+                return;
+            }
+
+            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), storageData, storageBuilder);
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {
             throw new IOException(e.getMessage(), e);

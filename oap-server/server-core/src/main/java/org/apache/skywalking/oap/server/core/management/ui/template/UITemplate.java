@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.management.ui.template;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -35,6 +36,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.UI
 @Getter
 @ScopeDeclaration(id = UI_TEMPLATE, name = "UITemplate")
 @Stream(name = UITemplate.INDEX_NAME, scopeId = UI_TEMPLATE, builder = UITemplate.Builder.class, processor = ManagementStreamProcessor.class)
+@EqualsAndHashCode(of = {
+        "name"
+}, callSuper = false)
 public class UITemplate extends ManagementData {
     public static final String INDEX_NAME = "ui_template";
     private static final String NAME = "name";
@@ -45,14 +49,14 @@ public class UITemplate extends ManagementData {
 
     @Column(columnName = NAME)
     private String name;
-    @Column(columnName = TYPE)
+    @Column(columnName = TYPE, storageOnly = true)
     private String type;
     /**
      * Configuration in JSON format.
      */
-    @Column(columnName = CONFIGURATION)
+    @Column(columnName = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
-    @Column(columnName = ACTIVATED)
+    @Column(columnName = ACTIVATED, storageOnly = true)
     private int activated;
     @Column(columnName = DISABLED)
     private int disabled;

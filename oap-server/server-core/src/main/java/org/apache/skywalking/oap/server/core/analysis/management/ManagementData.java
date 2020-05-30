@@ -18,23 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.analysis.management;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * ManagementData provides the basic CRUD operations, but not time serious like {@link NoneStream}.
+ * ManagementData provides the basic CRUD operations.
  */
 public abstract class ManagementData implements StorageData {
-    public static final String TIME_BUCKET = "time_bucket";
-
-    /**
-     * Time attribute, the data is time sensitive, but is required for time serious database
-     */
-    @Getter
-    @Setter
-    @Column(columnName = TIME_BUCKET)
-    private long timeBucket;
 }
