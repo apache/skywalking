@@ -53,12 +53,14 @@ public class CaseController {
     private String bootstrapServers;
 
     private String topicName;
+    private String topicName2;
 
     private static volatile boolean KAFKA_STATUS = false;
 
     @PostConstruct
     private void setUp() {
         topicName = "test";
+        topicName2 = "test2";
         new CheckKafkaProducerThread(bootstrapServers).start();
     }
 
@@ -68,10 +70,19 @@ public class CaseController {
         wrapProducer(producer -> {
             ProducerRecord<String, String> record = new ProducerRecord<String, String>(topicName, "testKey", Integer.toString(1));
             record.headers().add("TEST", "TEST".getBytes());
-            Callback callback = (metadata, exception) -> {
+            producer.send(record, new Callback() {
+                @Override
+                public void onCompletion(RecordMetadata metadata, Exception exception) {
+                    logger.info("send success metadata={}", metadata);
+                }
+            });
+
+            ProducerRecord<String, String> record2 = new ProducerRecord<String, String>(topicName2, "testKey", Integer.toString(1));
+            record2.headers().add("TEST", "TEST".getBytes());
+            Callback callback2 = (metadata, exception) -> {
                 logger.info("send success metadata={}", metadata);
             };
-            producer.send(record, callback);
+            producer.send(record2, callback2);
         }, bootstrapServers);
         Thread thread = new ConsumerThread();
         thread.start();
