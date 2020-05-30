@@ -41,10 +41,10 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.UI
 }, callSuper = false)
 public class UITemplate extends ManagementData {
     public static final String INDEX_NAME = "ui_template";
-    private static final String NAME = "name";
-    private static final String TYPE = "type";
-    private static final String CONFIGURATION = "configuration";
-    private static final String ACTIVATED = "activated";
+    public static final String NAME = "name";
+    public static final String TYPE = "type";
+    public static final String CONFIGURATION = "configuration";
+    public static final String ACTIVATED = "activated";
     public static final String DISABLED = "disabled";
 
     @Column(columnName = NAME)
