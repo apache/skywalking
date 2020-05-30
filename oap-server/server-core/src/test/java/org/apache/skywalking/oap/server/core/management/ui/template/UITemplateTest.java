@@ -31,7 +31,7 @@ public class UITemplateTest {
         uiTemplate.setConfiguration("configuration");
         uiTemplate.setType(TemplateType.DASHBOARD.name());
         uiTemplate.setActivated(BooleanUtils.TRUE);
-        uiTemplate.setDisabled((BooleanUtils.FALSE));
+        uiTemplate.setDisabled(BooleanUtils.FALSE);
 
         final UITemplate.Builder builder = new UITemplate.Builder();
         final UITemplate uiTemplate2 = builder.map2Data(builder.data2Map(uiTemplate));
@@ -41,7 +41,7 @@ public class UITemplateTest {
         uiTemplate2.setConfiguration("configuration2");
         uiTemplate.setType(TemplateType.TOPOLOGY_ENDPOINT.name());
         uiTemplate.setActivated(BooleanUtils.FALSE);
-        uiTemplate.setDisabled((BooleanUtils.TRUE));
+        uiTemplate.setDisabled(BooleanUtils.TRUE);
         // Equals method is only for `name` field.
         Assert.assertEquals(uiTemplate, uiTemplate2);
     }
