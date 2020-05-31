@@ -83,7 +83,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         final UITemplate uiTemplate = setting.toEntity();
 
         Point point = Point.measurement(UITemplate.INDEX_NAME)
-                           .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                           .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.getName())
                            .fields(builder.data2Map(uiTemplate))
                            .time(0L, TimeUnit.MILLISECONDS)
                            .build();
