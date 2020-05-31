@@ -28,6 +28,8 @@ import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
 import org.apache.skywalking.e2e.dashboard.DashboardConfiguration;
+import org.apache.skywalking.e2e.dashboard.DashboardConfigurations;
+import org.apache.skywalking.e2e.dashboard.DashboardConfigurationsMatcher;
 import org.apache.skywalking.e2e.dashboard.DashboardSetting;
 import org.apache.skywalking.e2e.dashboard.TemplateChangeStatus;
 import org.apache.skywalking.e2e.dashboard.TemplateType;
@@ -176,14 +178,14 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         );
         LOGGER.info("{}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
-
     }
 
     @RetryableTest
     void getAllTemplates() throws IOException {
         List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
         LOGGER.info("{}", configurations);
-        Assertions.assertEquals(configurations.size(), 1);
+        verifyDashboardConfigurations(configurations, "expected/storage/dashboardConfiguration.yml");
+
     }
 
     @RetryableTest
@@ -197,6 +199,10 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         );
         LOGGER.info("{}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
+
+        verifyDashboardConfigurations(
+            graphql.getAllTemplates(Boolean.TRUE),
+            "expected/storage/dashboardConfiguration-after.yml");
     }
 
     @RetryableTest
@@ -204,6 +210,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         TemplateChangeStatus templateChangeStatus = graphql.disableTemplate("test-ui-config-1");
         LOGGER.info("{}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
+        Assertions.assertTrue(graphql.getAllTemplates(Boolean.FALSE).isEmpty());
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
@@ -322,4 +329,11 @@ public class StorageE2E extends SkyWalkingTestAdapter {
             }
         }
     }
+
+    private void verifyDashboardConfigurations(List<DashboardConfiguration> configurations,
+                                               String file) throws IOException {
+        load(file).as(DashboardConfigurationsMatcher.class)
+                  .verify(new DashboardConfigurations().configurations(configurations));
+    }
+
 }
