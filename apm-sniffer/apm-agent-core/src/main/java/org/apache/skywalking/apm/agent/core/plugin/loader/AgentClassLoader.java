@@ -85,6 +85,7 @@ public class AgentClassLoader extends ClassLoader {
         classpath = new LinkedList<>();
         classpath.add(new File(agentDictionary, "plugins"));
         classpath.add(new File(agentDictionary, "activations"));
+        classpath.add(new File(agentDictionary, "reporter-plugins"));
     }
 
     @Override

@@ -67,12 +67,12 @@ public class ProfileTaskChannelService implements BootService, Runnable, GRPCCha
     private volatile ProfileTaskGrpc.ProfileTaskStub profileTaskStub;
 
     // segment snapshot sender
-    private final BlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(
+    protected final BlockingQueue<TracingThreadSnapshot> snapshotQueue = new LinkedBlockingQueue<>(
         Config.Profile.SNAPSHOT_TRANSPORT_BUFFER_SIZE);
-    private volatile ScheduledFuture<?> sendSnapshotFuture;
+    protected volatile ScheduledFuture<?> sendSnapshotFuture;
 
     // query task list schedule
-    private volatile ScheduledFuture<?> getTaskListFuture;
+    protected volatile ScheduledFuture<?> getTaskListFuture;
 
     @Override
     public void run() {

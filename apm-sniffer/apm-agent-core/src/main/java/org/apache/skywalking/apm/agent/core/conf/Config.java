@@ -140,6 +140,25 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
+
+        public static class Kafka {
+
+            public static String BOOTSTRAP_SERVERS;
+
+            public static int BATCH_SIZE = 1000;
+
+            public static String ACKS = "1";
+
+            public static String TOPIC_METRICS = "skywalking-metrics";
+
+            public static String TOPIC_PROFILING = "skywalking-profiling";
+
+            public static String TOPIC_SEGMENT = "skywalking-segment";
+
+            public static String TOPIC_MANAGEMENT = "skywalking-management";
+
+            public static Map<String, String> CONSUMER_CONFIG = new HashMap<>();
+        }
     }
 
     public static class Profile {

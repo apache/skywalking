@@ -19,24 +19,40 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>apm</artifactId>
+        <artifactId>optional-producer-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>apm-sniffer</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>kafka-producer-plugin</artifactId>
+    <packaging>jar</packaging>
 
-    <modules>
-        <module>apm-agent</module>
-        <module>apm-agent-core</module>
-        <module>apm-sdk-plugin</module>
-        <module>apm-test-tools</module>
-        <module>optional-producer-plugins</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-agent-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-util</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-test-tools</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-    <properties>
-        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
-    </properties>
 </project>
