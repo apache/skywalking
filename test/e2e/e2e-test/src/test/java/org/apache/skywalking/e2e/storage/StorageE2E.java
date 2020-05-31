@@ -177,24 +177,15 @@ public class StorageE2E extends SkyWalkingTestAdapter {
                 .type(TemplateType.DASHBOARD)
         );
         LOGGER.info("add template = {}", templateChangeStatus);
-        Assertions.assertTrue(templateChangeStatus.isStatus());
 
-        templateChangeStatus = graphql.addTemplate(
-            new DashboardSetting()
-                .name("test-ui-config-2")
-                .active(true)
-                .configuration("{}")
-                .type(TemplateType.DASHBOARD)
-        );
-        LOGGER.info("add template = {}", templateChangeStatus);
-        Assertions.assertTrue(templateChangeStatus.isStatus());
+        verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
-    @RetryableTest
-    void getAllTemplates() throws IOException {
+    private void verifyTemplates(String file) throws IOException {
         List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
         LOGGER.info("get all templates = {}", configurations);
-        verifyDashboardConfigurations(configurations, "expected/storage/dashboardConfiguration.yml");
+        load(file).as(DashboardConfigurationsMatcher.class)
+                  .verify(new DashboardConfigurations().configurations(configurations));
 
     }
 
@@ -202,7 +193,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void changeTemplate() throws Exception {
         TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
             new DashboardSetting()
-                .name("test-ui-config-2")
+                .name("test-ui-config-1")
                 .active(true)
                 .configuration("{\"key\":\"value\"}")
                 .type(TemplateType.DASHBOARD)
@@ -210,9 +201,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         LOGGER.info("change UITemplate = {}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
 
-        verifyDashboardConfigurations(
-            graphql.getAllTemplates(Boolean.TRUE),
-            "expected/storage/dashboardConfiguration-after.yml");
+        verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
     }
 
     @RetryableTest
@@ -220,7 +209,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         TemplateChangeStatus templateChangeStatus = graphql.disableTemplate("test-ui-config-1");
         LOGGER.info("disable template = {}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
-        Assertions.assertTrue(graphql.getAllTemplates(Boolean.FALSE).isEmpty());
+        verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
@@ -340,10 +329,5 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         }
     }
 
-    private void verifyDashboardConfigurations(List<DashboardConfiguration> configurations,
-                                               String file) throws IOException {
-        load(file).as(DashboardConfigurationsMatcher.class)
-                  .verify(new DashboardConfigurations().configurations(configurations));
-    }
 
 }

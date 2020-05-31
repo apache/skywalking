@@ -18,4 +18,4 @@ configurations:
     teyp: not null
     configuration: not null
     activated: true
-    disabled: false
+    disabled: true
