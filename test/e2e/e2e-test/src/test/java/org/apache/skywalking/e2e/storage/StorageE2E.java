@@ -181,14 +181,6 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
-    private void verifyTemplates(String file) throws IOException {
-        List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
-        LOGGER.info("get all templates = {}", configurations);
-        load(file).as(DashboardConfigurationsMatcher.class)
-                  .verify(new DashboardConfigurations().configurations(configurations));
-
-    }
-
     @RetryableTest
     void changeTemplate() throws Exception {
         TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
@@ -329,5 +321,12 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         }
     }
 
+    private void verifyTemplates(String file) throws IOException {
+        List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
+        LOGGER.info("get all templates = {}", configurations);
+        load(file).as(DashboardConfigurationsMatcher.class)
+                  .verify(new DashboardConfigurations().configurations(configurations));
+
+    }
 
 }
