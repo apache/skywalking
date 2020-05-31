@@ -267,7 +267,8 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-collections 3.2.2: https://github.com/apache/commons-collections, Apache 2.0
     Apache: commons-configuration 1.8: https://github.com/apache/commons-configuration, Apache 2.0
     Apache: commons-io 2.4: https://github.com/apache/commons-io, Apache 2.0
-    Apache: commons-compress 1.18: https://github.com/apache/commons-compress, Apache 2.0
+    Apache: commons-compress 1.19: https://github.com/apache/commons-compress, Apache 2.0
+    Apache: commons-collections4 4.1: https://mvnrepository.com/artifact/org.apache.commons/commons-collections4, Apache 2.0
     Apache: tomcat 8.5.27: https://github.com/apache/tomcat/tree/trunk, Apache 2.0
     Apache: freemarker 2.3.28: https://github.com/apache/freemarker, Apache 2.0
     netty 5.5.0: https://github.com/netty/netty/blob/4.1/LICENSE.txt, Apache 2.0
@@ -328,6 +329,9 @@ The text of each license is the standard Apache 2.0 license.
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
+    sundr-codegen 0.2.10: https://mvnrepository.com/artifact/io.sundr/sundr-codegen, Apache 2.0
+    sundr-core 0.2.10: https://mvnrepository.com/artifact/io.sundr/sundr-core, Apache 2.0
+    swagger-annotations 1.5.22: https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -341,8 +345,9 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
     GraphQL java 6.0: https://github.com/graphql-java/graphql-java , MIT
     GraphQL Java Tools 4.3.0: https://github.com/graphql-java/graphql-java-tools , MIT
     jopt-simple 5.0.2: https://github.com/jopt-simple/jopt-simple , MIT
-    bcpkix-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
-    bcprov-jdk15on 1.55: http://www.bouncycastle.org/licence.html , MIT
+    bcpkix-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
+    bcprov-ext-jdk15on 1.61: http://www.bouncycastle.org/licence.html , MIT
     minimal-json 0.9.5:  https://github.com/ralfstx/minimal-json, MIT
     checker-qual 2.8.1: https://github.com/typetools/checker-framework, MIT
     influxdb-java 2.15: https://github.com/influxdata/influxdb-java, MIT
