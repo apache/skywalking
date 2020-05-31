@@ -27,6 +27,7 @@ import io.kubernetes.client.openapi.models.V1PodList;
 import io.kubernetes.client.util.Config;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,11 +43,21 @@ public enum NamespacedPodListInformer {
 
     private Lister<V1Pod> podLister;
 
+    private SharedInformerFactory factory;
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r, "SKYWALKING_KUBERNETES_CLUSTER_INFORMER");
         thread.setDaemon(true);
         return thread;
     });
+
+    {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (Objects.nonNull(factory)) {
+                factory.stopAllRegisteredInformers();
+            }
+        }));
+    }
 
     public synchronized void init(ClusterModuleKubernetesConfig podConfig) {
 
@@ -61,7 +72,7 @@ public enum NamespacedPodListInformer {
 
         CoreV1Api coreV1Api = new CoreV1Api(Config.defaultClient());
 
-        SharedInformerFactory factory = new SharedInformerFactory(Config.defaultClient(), executorService);
+        factory = new SharedInformerFactory(Config.defaultClient(), executorService);
 
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
