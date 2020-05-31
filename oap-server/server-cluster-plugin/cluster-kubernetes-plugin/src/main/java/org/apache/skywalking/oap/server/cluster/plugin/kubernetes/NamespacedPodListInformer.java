@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.informer.cache.Lister;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -29,6 +28,8 @@ import io.kubernetes.client.util.Config;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,6 +42,12 @@ public enum NamespacedPodListInformer {
 
     private Lister<V1Pod> podLister;
 
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
+        Thread thread = new Thread(r, "SKYWALKING_KUBERNETES_CLUSTER_INFORMER");
+        thread.setDaemon(true);
+        return thread;
+    });
+
     public synchronized void init(ClusterModuleKubernetesConfig podConfig) {
 
         try {
@@ -52,10 +59,9 @@ public enum NamespacedPodListInformer {
 
     private void doStartPodInformer(ClusterModuleKubernetesConfig podConfig) throws IOException {
 
-        ApiClient client = Config.defaultClient();
-        CoreV1Api coreV1Api = new CoreV1Api(client);
+        CoreV1Api coreV1Api = new CoreV1Api(Config.defaultClient());
 
-        SharedInformerFactory factory = new SharedInformerFactory();
+        SharedInformerFactory factory = new SharedInformerFactory(Config.defaultClient(), executorService);
 
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
