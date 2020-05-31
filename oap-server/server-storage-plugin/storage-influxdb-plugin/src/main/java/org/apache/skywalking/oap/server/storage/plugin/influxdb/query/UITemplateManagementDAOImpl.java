@@ -50,7 +50,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(final Boolean includingDisabled) throws IOException {
-        WhereQueryImpl<SelectQueryImpl> where = select().raw("field::*")
+        WhereQueryImpl<SelectQueryImpl> where = select().raw("*::field")
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
                                                         .where();
         if (!includingDisabled) {
