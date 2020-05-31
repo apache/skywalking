@@ -54,7 +54,7 @@ public class ManagementDAO implements IManagementDAO {
         final WhereQueryImpl<SelectQueryImpl> query = select()
                 .column(ID_COLUMN).column(NAME)
                 .from(ServiceTraffic.INDEX_NAME)
-                .where(eq("id", managementData.id()));
+                .where(eq(ID_COLUMN, managementData.id()));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
