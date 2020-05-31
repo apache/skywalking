@@ -11,9 +11,9 @@ bcprov-jdk15on-1.59.jar
 builder-annotations-0.9.2.jar
 caffeine-2.6.2.jar
 checker-qual-2.8.1.jar
-client-java-4.0.0.jar
-client-java-api-4.0.0.jar
-client-java-proto-4.0.0.jar
+client-java-8.0.0.jar
+client-java-api-8.0.0.jar
+client-java-proto-8.0.0.jar
 commons-codec-1.11.jar
 commons-compress-1.18.jar
 commons-dbcp-1.4.jar
