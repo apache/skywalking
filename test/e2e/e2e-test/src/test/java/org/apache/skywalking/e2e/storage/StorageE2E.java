@@ -39,8 +39,6 @@ import org.apache.skywalking.e2e.metrics.MetricsQuery;
 import org.apache.skywalking.e2e.metrics.MetricsValueMatcher;
 import org.apache.skywalking.e2e.retryable.RetryableTest;
 import org.apache.skywalking.e2e.service.Service;
-import org.apache.skywalking.e2e.service.ServicesMatcher;
-import org.apache.skywalking.e2e.service.ServicesQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoint;
 import org.apache.skywalking.e2e.service.endpoint.EndpointQuery;
 import org.apache.skywalking.e2e.service.endpoint.Endpoints;
@@ -50,15 +48,6 @@ import org.apache.skywalking.e2e.service.instance.Instances;
 import org.apache.skywalking.e2e.service.instance.InstancesMatcher;
 import org.apache.skywalking.e2e.service.instance.InstancesQuery;
 import org.apache.skywalking.e2e.topo.Call;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopology;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyMatcher;
-import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyQuery;
-import org.apache.skywalking.e2e.topo.TopoMatcher;
-import org.apache.skywalking.e2e.topo.TopoQuery;
-import org.apache.skywalking.e2e.topo.Topology;
-import org.apache.skywalking.e2e.trace.Trace;
-import org.apache.skywalking.e2e.trace.TracesMatcher;
-import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -106,65 +95,6 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     @AfterAll
     public void tearDown() {
         trafficController.stop();
-    }
-
-    @RetryableTest
-    void services() throws Exception {
-        final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
-
-        LOGGER.info("services: {}", services);
-
-        load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
-
-        for (Service service : services) {
-            LOGGER.info("verifying service instances: {}", service);
-
-            verifyServiceMetrics(service);
-
-            final Instances instances = verifyServiceInstances(service);
-
-            verifyInstancesMetrics(instances);
-
-            final Endpoints endpoints = verifyServiceEndpoints(service);
-
-            verifyEndpointsMetrics(endpoints);
-        }
-    }
-
-    @RetryableTest
-    void traces() throws Exception {
-        final List<Trace> traces = graphql.traces(new TracesQuery().start(startTime).end(now()).orderByDuration());
-
-        LOGGER.info("traces: {}", traces);
-
-        load("expected/storage/traces.yml").as(TracesMatcher.class).verifyLoosely(traces);
-    }
-
-    @RetryableTest
-    void topology() throws Exception {
-        final Topology topology = graphql.topo(new TopoQuery().stepByMinute().start(startTime.minusDays(1)).end(now()));
-
-        LOGGER.info("topology: {}", topology);
-
-        load("expected/storage/topo.yml").as(TopoMatcher.class).verify(topology);
-
-        verifyServiceRelationMetrics(topology.getCalls());
-    }
-
-    @RetryableTest
-    void serviceInstanceTopo() throws Exception {
-        final ServiceInstanceTopology topology = graphql.serviceInstanceTopo(
-            new ServiceInstanceTopologyQuery().stepByMinute()
-                                              .start(startTime.minusDays(1))
-                                              .end(now())
-                                              .clientServiceId("VXNlcg==.0")
-                                              .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
-
-        LOGGER.info("instance topology: {}", topology);
-
-        load("expected/storage/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
-
-        verifyServiceInstanceRelationMetrics(topology.getCalls());
     }
 
     @RetryableTest

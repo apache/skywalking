@@ -29,7 +29,7 @@ import org.assertj.core.api.Assertions;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class DashboardConfigurationsMatcher extends AbstractMatcher<DashboardConfigurations> {
-    List<DashboardConfigurationMatcher> configurations;
+    private List<DashboardConfigurationMatcher> configurations;
 
     @Override
     public void verify(final DashboardConfigurations configurations) {
