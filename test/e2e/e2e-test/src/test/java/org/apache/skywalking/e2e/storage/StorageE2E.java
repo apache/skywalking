@@ -18,13 +18,19 @@
 
 package org.apache.skywalking.e2e.storage;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.e2e.UIConfigurationManagementClient;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
 import org.apache.skywalking.e2e.base.SkyWalkingE2E;
 import org.apache.skywalking.e2e.base.SkyWalkingTestAdapter;
 import org.apache.skywalking.e2e.common.HostAndPort;
+import org.apache.skywalking.e2e.dashboard.DashboardConfiguration;
+import org.apache.skywalking.e2e.dashboard.DashboardSetting;
+import org.apache.skywalking.e2e.dashboard.TemplateChangeStatus;
+import org.apache.skywalking.e2e.dashboard.TemplateType;
 import org.apache.skywalking.e2e.metrics.AtLeastOneOfMetricsMatcher;
 import org.apache.skywalking.e2e.metrics.Metrics;
 import org.apache.skywalking.e2e.metrics.MetricsQuery;
@@ -45,13 +51,14 @@ import org.apache.skywalking.e2e.topo.Call;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopology;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyMatcher;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyQuery;
-import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.topo.TopoMatcher;
 import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.DockerComposeContainer;
 
@@ -85,9 +92,11 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     @ContainerHostAndPort(name = "provider", port = 9090)
     private HostAndPort serviceHostPort;
 
+    private UIConfigurationManagementClient graphql;
+
     @BeforeAll
     void setUp() throws Exception {
-        queryClient(swWebappHostPort);
+        graphql = new UIConfigurationManagementClient(swWebappHostPort.host(), swWebappHostPort.port());
 
         trafficController(serviceHostPort, "/users");
     }
@@ -154,6 +163,47 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         load("expected/storage/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
 
         verifyServiceInstanceRelationMetrics(topology.getCalls());
+    }
+
+    @RetryableTest
+    void addUITemplate() throws Exception {
+        TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
+            new DashboardSetting()
+                .name("test-ui-config-1")
+                .active(true)
+                .configuration("{}")
+                .type(TemplateType.DASHBOARD)
+        );
+        LOGGER.info("{}", templateChangeStatus);
+        Assertions.assertTrue(templateChangeStatus.isStatus());
+
+    }
+
+    @RetryableTest
+    void getAllTemplates() throws IOException {
+        List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
+        LOGGER.info("{}", configurations);
+        Assertions.assertEquals(configurations.size(), 1);
+    }
+
+    @RetryableTest
+    void changeTemplate() throws Exception {
+        TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
+            new DashboardSetting()
+                .name("test-ui-config-1")
+                .active(true)
+                .configuration("{\"key\":\"value\"}")
+                .type(TemplateType.DASHBOARD)
+        );
+        LOGGER.info("{}", templateChangeStatus);
+        Assertions.assertTrue(templateChangeStatus.isStatus());
+    }
+
+    @RetryableTest
+    void disableTemplate() throws Exception {
+        TemplateChangeStatus templateChangeStatus = graphql.disableTemplate("test-ui-config-1");
+        LOGGER.info("{}", templateChangeStatus);
+        Assertions.assertTrue(templateChangeStatus.isStatus());
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
