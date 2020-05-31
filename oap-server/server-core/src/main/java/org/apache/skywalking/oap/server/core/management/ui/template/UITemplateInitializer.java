@@ -63,7 +63,7 @@ public class UITemplateInitializer {
                     TemplateType.forName(type); // for checking.
                     newTemplate.setType(type);
                     final String configuration = (String) template.get("configuration");
-                    if (StringUtil.isEmpty(name)) {
+                    if (StringUtil.isEmpty(configuration)) {
                         throw new IllegalArgumentException("template configuration shouldn't be null");
                     }
                     newTemplate.setConfiguration(configuration);
