@@ -35,7 +35,7 @@ templates:
     # False means providing a basic template, user needs to add it manually.
     activated: true
     # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
-    # disable: false
+    # disabled: false
   - name: "APM"
     # The type includes DASHBOARD, TOPOLOGY_INSTANCE, TOPOLOGY_ENDPOINT.
     # DASHBOARD type templates could have multiple definitions, by using different names.
@@ -48,4 +48,4 @@ templates:
     # False means providing a basic template, user needs to add it manually.
     # activated: true
     # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
-    disable: true
+    disabled: true

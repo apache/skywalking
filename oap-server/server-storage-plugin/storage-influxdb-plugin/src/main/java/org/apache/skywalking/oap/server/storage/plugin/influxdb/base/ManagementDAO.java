@@ -59,7 +59,7 @@ public class ManagementDAO implements IManagementDAO {
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
         }
-        if (series != null || series.getValues().size() == 0) {
+        if (series == null || series.getValues().size() == 0) {
             return;
         }
 

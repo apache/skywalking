@@ -76,7 +76,7 @@ public class UITemplateInitializer {
                     newTemplate.setDisabled(
                             BooleanUtils.booleanToValue(
                                     // The template should be available in default.
-                                    (Boolean) template.getOrDefault("disable", false)
+                                    (Boolean) template.getOrDefault("disabled", false)
                             )
                     );
                     if (uiTemplates.contains(newTemplate)) {
