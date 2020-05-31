@@ -14,8 +14,13 @@
 # limitations under the License.
 
 configurations:
-  name: test-ui-config-1
-  teype: not null
-  configuration: not null
-  activated: true
-  disabled: false
+  - name: test-ui-config-1
+    teyp: not null
+    configuration: not null
+    activated: true
+    disabled: false
+  - name: test-ui-config-2
+    teyp: not null
+    configuration: not null
+    activated: true
+    disabled: not null

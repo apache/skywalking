@@ -178,6 +178,16 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         );
         LOGGER.info("add template = {}", templateChangeStatus);
         Assertions.assertTrue(templateChangeStatus.isStatus());
+
+        templateChangeStatus = graphql.addTemplate(
+            new DashboardSetting()
+                .name("test-ui-config-2")
+                .active(true)
+                .configuration("{}")
+                .type(TemplateType.DASHBOARD)
+        );
+        LOGGER.info("add template = {}", templateChangeStatus);
+        Assertions.assertTrue(templateChangeStatus.isStatus());
     }
 
     @RetryableTest
@@ -192,7 +202,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void changeTemplate() throws Exception {
         TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
             new DashboardSetting()
-                .name("test-ui-config-1")
+                .name("test-ui-config-2")
                 .active(true)
                 .configuration("{\"key\":\"value\"}")
                 .type(TemplateType.DASHBOARD)
