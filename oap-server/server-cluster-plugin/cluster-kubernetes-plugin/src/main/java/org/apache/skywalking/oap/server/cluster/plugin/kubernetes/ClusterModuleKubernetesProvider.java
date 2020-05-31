@@ -65,7 +65,7 @@ public class ClusterModuleKubernetesProvider extends ModuleProvider {
 
     @Override
     public void start() {
-        NamespacedPodListInformer.CONTEXT.init(config);
+        NamespacedPodListInformer.INFORMER.init(config);
     }
 
     @Override

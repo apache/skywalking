@@ -37,7 +37,7 @@ public enum NamespacedPodListInformer {
     /**
      * contains remote collector instances
      */
-    CONTEXT;
+    INFORMER;
 
     private Lister<V1Pod> podLister;
 
@@ -70,7 +70,7 @@ public enum NamespacedPodListInformer {
         podLister = new Lister<>(podSharedIndexInformer.getIndexer());
     }
 
-    public Optional<List<V1Pod>> pods() {
+    public Optional<List<V1Pod>> listPods() {
 
         return Optional.ofNullable(podLister.list().size() != 0 ? podLister.list() : null);
 
