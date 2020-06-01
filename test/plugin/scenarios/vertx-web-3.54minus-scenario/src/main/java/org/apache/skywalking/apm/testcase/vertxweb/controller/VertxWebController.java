@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.testcase.vertxweb.controller;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class VertxWebController extends AbstractVerticle {
 
@@ -27,14 +28,23 @@ public class VertxWebController extends AbstractVerticle {
     public void start() {
         Router router = Router.router(vertx);
         router.get("/vertx-web-3_54minus-scenario/case/web-case").handler(this::handleWebCase);
+        router.route("/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler").handler(BodyHandler.create());
+        router.get("/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler").handler(this::withBodyHandler);
         router.head("/vertx-web-3_54minus-scenario/case/healthCheck").handler(this::healthCheck);
         vertx.createHttpServer().requestHandler(router::accept).listen(8080);
     }
 
     private void handleWebCase(RoutingContext routingContext) {
-        vertx.createHttpClient().headNow(8080, "localhost",
-                "/vertx-web-3_54minus-scenario/case/healthCheck",
-                it -> routingContext.response().setStatusCode(it.statusCode()).end());
+        vertx.createHttpClient().headNow(8080, "localhost", "/vertx-web-3_54minus-scenario/case/healthCheck",
+                healthCheck -> {
+                    vertx.createHttpClient().getNow(8080, "localhost",
+                            "/vertx-web-3_54minus-scenario/case/web-case/withBodyHandler",
+                            it -> routingContext.response().setStatusCode(it.statusCode()).end());
+                });
+    }
+
+    private void withBodyHandler(RoutingContext routingContext) {
+        routingContext.response().setStatusCode(200).end("Success");
     }
 
     private void healthCheck(RoutingContext routingContext) {

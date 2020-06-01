@@ -6,7 +6,7 @@ There are some special cases, especially when people use REST style URI, the app
 such as putting order id in the URI, like `/prod/ORDER123` and `/prod/ORDER123`. But logically, people expect they could
 have an endpoint name like `prod/{order-id}`. This is the feature of parameterized endpoint grouping designed for.
 
-Current, user could set up grouping rules through the static YAML file, named `endpoint_name_grouping.yml`,
+Current, user could set up grouping rules through the static YAML file, named `endpoint-name-grouping.yml`,
 or use [Dynamic Configuration](dynamic-config.md) to initial and update the endpoint grouping rule.
 
 ## Configuration Format

@@ -242,7 +242,8 @@
                         <exclude>component-libraries.yml</exclude>
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
-                        <exclude>endpoint_name_grouping.yml</exclude>
+                        <exclude>endpoint-name-grouping.yml</exclude>
+                        <exclude>ui-initialized-templates.yml</exclude>
                         <exclude>oal/core.oal</exclude>
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
