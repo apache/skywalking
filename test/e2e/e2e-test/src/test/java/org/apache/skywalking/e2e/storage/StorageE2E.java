@@ -167,7 +167,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         verifyServiceInstanceRelationMetrics(topology.getCalls());
     }
 
-    @RetryableTest
+    @Test
     void addUITemplate() throws Exception {
         try {
             TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
