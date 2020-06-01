@@ -34,7 +34,7 @@ public class UITemplateManagementService implements Service {
     private final ModuleManager moduleManager;
     private UITemplateManagementDAO uiTemplateManagementDAO;
 
-    private UITemplateManagementDAO getProfileTaskDAO() {
+    private UITemplateManagementDAO getUITemplateManagementDAO() {
         if (uiTemplateManagementDAO == null) {
             this.uiTemplateManagementDAO = moduleManager.find(StorageModule.NAME)
                     .provider()
@@ -44,18 +44,18 @@ public class UITemplateManagementService implements Service {
     }
 
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        return getProfileTaskDAO().getAllTemplates(includingDisabled);
+        return getUITemplateManagementDAO().getAllTemplates(includingDisabled);
     }
 
     public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {
-        return getProfileTaskDAO().addTemplate(setting);
+        return getUITemplateManagementDAO().addTemplate(setting);
     }
 
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
-        return getProfileTaskDAO().changeTemplate(setting);
+        return getUITemplateManagementDAO().changeTemplate(setting);
     }
 
     public TemplateChangeStatus disableTemplate(String name) throws IOException {
-        return getProfileTaskDAO().disableTemplate(name);
+        return getUITemplateManagementDAO().disableTemplate(name);
     }
 }
