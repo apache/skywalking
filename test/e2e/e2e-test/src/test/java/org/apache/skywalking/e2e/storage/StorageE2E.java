@@ -61,7 +61,10 @@ import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
@@ -78,6 +81,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SkyWalkingE2E
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StorageE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
@@ -169,6 +173,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
+    @Order(1)
     void addUITemplate() throws Exception {
         try {
             TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
@@ -182,6 +187,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
+    @Order(2)
     void changeTemplate() throws Exception {
         try {
             final String name = "test-ui-config-2";
@@ -204,6 +210,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
+    @Order(3)
     void disableTemplate() throws IOException {
         try {
             final String name = "test-ui-config-3";
