@@ -61,10 +61,7 @@ import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
@@ -81,7 +78,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SkyWalkingE2E
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class StorageE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
@@ -173,11 +169,10 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
-    @Order(1)
     void addUITemplate() throws Exception {
         try {
             TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
-                emptySetting("test-ui-config-1").configuration("{}")
+                emptySetting("test-ui-config-1").type(TemplateType.DASHBOARD)
             );
             LOGGER.info("add template = {}", templateChangeStatus);
         } catch (Exception e) {
@@ -187,13 +182,12 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
-    @Order(2)
     void changeTemplate() throws Exception {
         try {
             final String name = "test-ui-config-2";
             assertTrue(
                 graphql.addTemplate(
-                    emptySetting(name).configuration("{}")
+                    emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
                 ).isStatus()
             );
 
@@ -210,13 +204,12 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
-    @Order(3)
     void disableTemplate() throws IOException {
         try {
             final String name = "test-ui-config-3";
             assertTrue(
                 graphql.addTemplate(
-                    emptySetting(name).configuration("{}")
+                    emptySetting(name).type(TemplateType.DASHBOARD)
                 ).isStatus()
             );
 
@@ -358,7 +351,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         return new DashboardSetting()
             .name(name)
             .active(true)
-            .type(TemplateType.DASHBOARD);
+            .configuration("{}");
     }
 
 }
