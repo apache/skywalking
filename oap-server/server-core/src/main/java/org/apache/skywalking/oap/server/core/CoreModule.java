@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profile.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -46,8 +47,8 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -82,10 +83,15 @@ public class CoreModule extends ModuleDefine {
         addQueryService(classes);
         addProfileService(classes);
         addOALService(classes);
+        addManagementService(classes);
 
         classes.add(CommandService.class);
 
-        return classes.toArray(new Class[] {});
+        return classes.toArray(new Class[]{});
+    }
+
+    private void addManagementService(List<Class> classes) {
+        classes.add(UITemplateManagementService.class);
     }
 
     private void addProfileService(List<Class> classes) {
