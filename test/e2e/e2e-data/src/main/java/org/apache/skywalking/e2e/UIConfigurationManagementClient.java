@@ -49,15 +49,14 @@ public class UIConfigurationManagementClient extends SimpleQueryClient {
 
     public TemplateChangeStatus addTemplate(DashboardSetting setting) throws IOException {
         final URL queryFileUrl = Resources.getResource("ui-addTemplate.gql");
-        final String queryString =
-            Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
-                     .stream()
-                     .filter(it -> !it.startsWith("#"))
-                     .collect(Collectors.joining())
-                     .replace("{name}", setting.name())
-                     .replace("{type}", String.valueOf(setting.type()))
-                     .replace("{configuration}", setting.configuration())
-                     .replace("{active}", String.valueOf(setting.active()));
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{name}", setting.name())
+                                            .replace("{type}", String.valueOf(setting.type()))
+                                            .replace("{configuration}", setting.configuration())
+                                            .replace("{active}", String.valueOf(setting.active()));
 
         final ResponseEntity<GQLResponse<TemplateChangeStatusWrapper>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
@@ -97,15 +96,14 @@ public class UIConfigurationManagementClient extends SimpleQueryClient {
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
 
         final URL queryFileUrl = Resources.getResource("ui-addTemplate.gql");
-        final String queryString =
-            Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
-                     .stream()
-                     .filter(it -> !it.startsWith("#"))
-                     .collect(Collectors.joining())
-                     .replace("{name}", setting.name())
-                     .replace("{type}", String.valueOf(setting.type()))
-                     .replace("{configuration}", setting.configuration())
-                     .replace("{active}", String.valueOf(setting.active()));
+        final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
+                                            .stream()
+                                            .filter(it -> !it.startsWith("#"))
+                                            .collect(Collectors.joining())
+                                            .replace("{name}", setting.name())
+                                            .replace("{type}", String.valueOf(setting.type()))
+                                            .replace("{configuration}", setting.configuration())
+                                            .replace("{active}", String.valueOf(setting.active()));
 
         final ResponseEntity<GQLResponse<TemplateChangeStatusWrapper>> responseEntity = restTemplate.exchange(
             new RequestEntity<>(queryString, HttpMethod.POST, URI.create(endpointUrl)),
