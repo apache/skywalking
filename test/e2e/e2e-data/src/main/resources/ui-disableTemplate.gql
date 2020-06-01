@@ -14,8 +14,8 @@
 # limitations under the License.
 
 {
-  "query":"query getAllTemplates($name: String!) {
-    changeStatusResult: getAllTemplates(name: $name) {
+  "query":"mutation disableTemplate($name: String!) {
+    changeStatusResult: disableTemplate(name: $name) {
       status: status
       message: message
     }

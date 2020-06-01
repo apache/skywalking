@@ -15,7 +15,7 @@
 
 configurations:
   - name: test-ui-config-1
-    teyp: not null
+    type: not null
     configuration: not null
     activated: true
     disabled: false

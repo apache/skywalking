@@ -19,7 +19,6 @@
 package org.apache.skywalking.e2e.dashboard;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 @Data

@@ -83,7 +83,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         final UITemplate uiTemplate = setting.toEntity();
 
         Point point = Point.measurement(UITemplate.INDEX_NAME)
-                           .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.getName())
+                           .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
                            .fields(builder.data2Map(uiTemplate))
                            .time(0L, TimeUnit.MILLISECONDS)
                            .build();
@@ -118,7 +118,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
     public TemplateChangeStatus disableTemplate(final String name) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().all()
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(eq(UITemplate.NAME, name));
+                                                        .where(eq(InfluxConstants.NAME, name));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
             List<String> columnNames = series.getColumns();

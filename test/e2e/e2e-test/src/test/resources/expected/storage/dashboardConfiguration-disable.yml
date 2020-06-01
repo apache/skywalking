@@ -14,8 +14,18 @@
 # limitations under the License.
 
 configurations:
+  - name: test-ui-config-1
+    type: not null
+    configuration: not null
+    activated: true
+    disabled: false
+  - name: test-ui-config-2
+    type: not null
+    configuration: "{\"key\"=\"value\"}"
+    activated: true
+    disabled: false
   - name: test-ui-config-3
-    teyp: not null
+    type: not null
     configuration: not null
     activated: true
     disabled: true

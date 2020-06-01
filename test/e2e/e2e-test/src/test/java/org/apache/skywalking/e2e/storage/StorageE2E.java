@@ -53,9 +53,9 @@ import org.apache.skywalking.e2e.topo.Call;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopology;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyMatcher;
 import org.apache.skywalking.e2e.topo.ServiceInstanceTopologyQuery;
-import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.topo.TopoMatcher;
 import org.apache.skywalking.e2e.topo.TopoQuery;
+import org.apache.skywalking.e2e.topo.Topology;
 import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
@@ -204,7 +204,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     }
 
     @Test
-    void disableTemplate() {
+    void disableTemplate() throws IOException {
         try {
             final String name = "test-ui-config-3";
             assertTrue(
@@ -216,10 +216,10 @@ public class StorageE2E extends SkyWalkingTestAdapter {
             TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
             LOGGER.info("disable template = {}", templateChangeStatus);
             assertTrue(templateChangeStatus.isStatus());
-            verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
         } catch (Exception e) {
             LOGGER.error("add ui template error.", e);
         }
+        verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
