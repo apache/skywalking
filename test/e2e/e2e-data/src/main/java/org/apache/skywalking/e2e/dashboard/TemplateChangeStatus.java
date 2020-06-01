@@ -18,15 +18,10 @@
 
 package org.apache.skywalking.e2e.dashboard;
 
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
 public class TemplateChangeStatus {
     private boolean status;
     private String message;
-    
 }
