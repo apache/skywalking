@@ -23,7 +23,6 @@ import lombok.experimental.Accessors;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 
 @Data
-@Accessors(fluent = true)
 public class DashboardConfigurationMatcher extends AbstractMatcher<DashboardConfiguration> {
     private String name;
     private String type;
@@ -33,10 +32,10 @@ public class DashboardConfigurationMatcher extends AbstractMatcher<DashboardConf
 
     @Override
     public void verify(final DashboardConfiguration configuration) {
-        doVerify(this.name(), configuration.getName());
-        doVerify(this.type(), String.valueOf(configuration.getType()));
-        doVerify(this.configuration(), configuration.getConfiguration());
-        doVerify(this.activated(), String.valueOf(configuration.isActivated()));
-        doVerify(this.disabled(), String.valueOf(configuration.isDisabled()));
+        doVerify(this.name, configuration.getName());
+        doVerify(this.type, String.valueOf(configuration.getType()));
+        doVerify(this.configuration, configuration.getConfiguration());
+        doVerify(this.activated, String.valueOf(configuration.isActivated()));
+        doVerify(this.disabled, String.valueOf(configuration.isDisabled()));
     }
 }

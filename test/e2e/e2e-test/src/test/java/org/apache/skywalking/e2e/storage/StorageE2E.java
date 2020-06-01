@@ -342,8 +342,9 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     private void verifyTemplates(String file) throws IOException {
         List<DashboardConfiguration> configurations = graphql.getAllTemplates(Boolean.TRUE);
         LOGGER.info("get all templates = {}", configurations);
-        load(file).as(DashboardConfigurationsMatcher.class)
-                  .verify(new DashboardConfigurations().configurations(configurations));
+        DashboardConfigurations dashboardConfigurations = new DashboardConfigurations();
+        dashboardConfigurations.setConfigurations(configurations);
+        load(file).as(DashboardConfigurationsMatcher.class).verify(dashboardConfigurations);
     }
 
     private DashboardSetting emptySetting(final String name) {
