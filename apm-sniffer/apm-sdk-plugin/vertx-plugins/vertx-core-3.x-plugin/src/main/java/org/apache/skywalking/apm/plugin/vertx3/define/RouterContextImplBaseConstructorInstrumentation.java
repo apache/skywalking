@@ -26,44 +26,38 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 
 /**
- * {@link HttpServerResponseImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method in
- * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class.
+ * {@link RouterContextImplBaseConstructorInstrumentation} enhance the constructor in
+ * <code>io.vertx.ext.web.impl.RoutingContextImplBase</code> class by
+ * <code>RoutingContextImplBaseConstructorInterceptor</code> class.
  */
-public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouterContextImplBaseConstructorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String ENHANCE_METHOD = "handleException";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplHandleExceptionInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RoutingContextImplBase";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RoutingContextImplBaseConstructorInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return any();
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS;
+                    }
+                }
+        };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 
     @Override
