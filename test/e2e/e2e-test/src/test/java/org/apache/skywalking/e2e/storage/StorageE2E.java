@@ -60,8 +60,8 @@ import org.apache.skywalking.e2e.trace.Trace;
 import org.apache.skywalking.e2e.trace.TracesMatcher;
 import org.apache.skywalking.e2e.trace.TracesQuery;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import static org.apache.skywalking.e2e.metrics.MetricsMatcher.verifyMetrics;
@@ -74,6 +74,7 @@ import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATIO
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SkyWalkingE2E
@@ -171,11 +172,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void addUITemplate() throws Exception {
         try {
             TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
-                new DashboardSetting()
-                    .name("test-ui-config-1")
-                    .active(true)
-                    .configuration("{}")
-                    .type(TemplateType.DASHBOARD)
+                emptySetting("test-ui-config-1").configuration("{}")
             );
             LOGGER.info("add template = {}", templateChangeStatus);
         } catch (Exception e) {
@@ -184,18 +181,21 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
-    @RetryableTest
+    @Test
     void changeTemplate() throws Exception {
         try {
+            final String name = "test-ui-config-2";
+            assertTrue(
+                graphql.addTemplate(
+                    emptySetting(name).configuration("{}")
+                ).isStatus()
+            );
+
             TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
-                new DashboardSetting()
-                    .name("test-ui-config-1")
-                    .active(true)
-                    .configuration("{\"key\":\"value\"}")
-                    .type(TemplateType.DASHBOARD)
+                emptySetting(name).configuration("{\"key\":\"value\"}")
             );
             LOGGER.info("change UITemplate = {}", templateChangeStatus);
-            Assertions.assertTrue(templateChangeStatus.isStatus());
+            assertTrue(templateChangeStatus.isStatus());
         } catch (Exception e) {
             LOGGER.error("add ui template error.", e);
         }
@@ -203,12 +203,19 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
     }
 
-    @RetryableTest
-    void disableTemplate() throws Exception {
+    @Test
+    void disableTemplate() {
         try {
-            TemplateChangeStatus templateChangeStatus = graphql.disableTemplate("test-ui-config-1");
+            final String name = "test-ui-config-3";
+            assertTrue(
+                graphql.addTemplate(
+                    emptySetting(name).configuration("{}")
+                ).isStatus()
+            );
+
+            TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
             LOGGER.info("disable template = {}", templateChangeStatus);
-            Assertions.assertTrue(templateChangeStatus.isStatus());
+            assertTrue(templateChangeStatus.isStatus());
             verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
         } catch (Exception e) {
             LOGGER.error("add ui template error.", e);
@@ -337,6 +344,13 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         LOGGER.info("get all templates = {}", configurations);
         load(file).as(DashboardConfigurationsMatcher.class)
                   .verify(new DashboardConfigurations().configurations(configurations));
+    }
+
+    private DashboardSetting emptySetting(final String name) {
+        return new DashboardSetting()
+            .name(name)
+            .active(true)
+            .type(TemplateType.DASHBOARD);
     }
 
 }

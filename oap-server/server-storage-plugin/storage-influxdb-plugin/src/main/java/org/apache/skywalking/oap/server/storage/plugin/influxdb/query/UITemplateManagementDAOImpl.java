@@ -78,7 +78,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
     }
 
     @Override
-    public TemplateChangeStatus addTemplate(final DashboardSetting setting) throws IOException {
+    public TemplateChangeStatus addTemplate(final DashboardSetting setting) {
         final UITemplate.Builder builder = new UITemplate.Builder();
         final UITemplate uiTemplate = setting.toEntity();
 
@@ -97,7 +97,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         final UITemplate uiTemplate = setting.toEntity();
 
         WhereQueryImpl<SelectQueryImpl> query = select().all()
-                                                        .from(client.getDatabase(), uiTemplate.INDEX_NAME)
+                                                        .from(client.getDatabase(), UITemplate.INDEX_NAME)
                                                         .where(eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
 
         QueryResult.Series series = client.queryForSingleSeries(query);
