@@ -114,6 +114,12 @@ public class UIConfigurationManagementClient extends SimpleQueryClient {
         if (responseEntity.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Response status != 200, actual: " + responseEntity.getStatusCode());
         }
+        TemplateChangeStatusWrapper data = Objects.requireNonNull(responseEntity.getBody()).getData();
+        if (data == null) {
+            TemplateChangeStatus status = new TemplateChangeStatus();
+            status.setStatus(true);
+            return status;
+        }
 
         return Objects.requireNonNull(responseEntity.getBody()).getData().getChangeStatusResult();
     }

@@ -85,7 +85,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         Point point = Point.measurement(UITemplate.INDEX_NAME)
                            .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
                            .fields(builder.data2Map(uiTemplate))
-                           .time(0L, TimeUnit.MILLISECONDS)
+                           .time(1L, TimeUnit.NANOSECONDS)
                            .build();
         client.write(point);
         return TemplateChangeStatus.builder().status(true).build();
@@ -104,8 +104,8 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         if (Objects.nonNull(series)) {
             Point point = Point.measurement(UITemplate.INDEX_NAME)
                                .fields(builder.data2Map(uiTemplate))
-                               .tag(series.getTags())
-                               .time(0L, TimeUnit.MILLISECONDS)
+                               .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                               .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
@@ -131,9 +131,9 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
             storageData.put(UITemplate.DISABLED, BooleanUtils.TRUE);
             Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .tag(series.getTags())
+                               .tag(InfluxConstants.TagName.ID_COLUMN, name)
                                .fields(storageData)
-                               .time(0L, TimeUnit.MILLISECONDS)
+                               .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
