@@ -21,7 +21,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>org.apache.skywalking.apm.testcase</groupId>
-    <artifactId>vertx-web-3.x-scenario</artifactId>
+    <artifactId>vertx-web-3.54minus-scenario</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -30,10 +30,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
-        <test.framework.version>3.9.0</test.framework.version>
+        <test.framework.version>3.5.4</test.framework.version>
     </properties>
 
-    <name>skywalking-vertx-web-3.x-scenario</name>
+    <name>skywalking-vertx-web-3.54minus-scenario</name>
 
     <dependencies>
         <dependency>
@@ -44,7 +44,7 @@
     </dependencies>
 
     <build>
-        <finalName>vertx-web-3.x-scenario</finalName>
+        <finalName>vertx-web-3.54minus-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

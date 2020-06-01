@@ -42,7 +42,8 @@ jobs:
           - { name: 'spring-4.3.x-scenario', title: 'Spring 4.3.x-5.2.x (54)' }
           - { name: 'spring-async-scenario', title: 'Spring Async 4.3.x-5.1.x (35)' }
           - { name: 'vertx-eventbus-3.x-scenario', title: 'Vert.x EventBus 3.2.0-3.9.0 (27)' }
-          - { name: 'vertx-web-3.x-scenario', title: 'Vert.x Web 3.0.0-3.9.0 (29)' }
+          - { name: 'vertx-web-3.54minus-scenario', title: 'Vert.x Web 3.0.0-3.5.4 (16)' }
+          - { name: 'vertx-web-3.6plus-scenario', title: 'Vert.x Web 3.6.0-3.9.0 (13)' }
           - { name: 'mariadb-scenario', title: 'Mariadb 2.x (8)' }
     steps:
       - uses: actions/checkout@v2
