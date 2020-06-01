@@ -20,12 +20,10 @@ package org.apache.skywalking.e2e.dashboard;
 
 import java.util.List;
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 @Data
-@Accessors(fluent = true)
 public class DashboardConfigurations {
-    List<DashboardConfiguration> configurations;
+    private List<DashboardConfiguration> configurations;
 
     public int size() {
         return configurations.size();

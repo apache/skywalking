@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,13 +20,15 @@
 package org.apache.skywalking.e2e.dashboard;
 
 import java.util.List;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
 import org.assertj.core.api.Assertions;
 
-@Data
+@Getter
+@Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class DashboardConfigurationsMatcher extends AbstractMatcher<DashboardConfigurations> {
@@ -33,9 +36,9 @@ public class DashboardConfigurationsMatcher extends AbstractMatcher<DashboardCon
 
     @Override
     public void verify(final DashboardConfigurations configurations) {
-        Assertions.assertThat(configurations.configurations()).hasSameSizeAs(this.configurations);
+        Assertions.assertThat(configurations.getConfigurations()).hasSameSizeAs(this.configurations);
         for (int i = 0; i < configurations.size(); i++) {
-            this.configurations.get(i).verify(configurations.configurations.get(i));
+            this.configurations.get(i).verify(configurations.getConfigurations().get(i));
         }
     }
 }

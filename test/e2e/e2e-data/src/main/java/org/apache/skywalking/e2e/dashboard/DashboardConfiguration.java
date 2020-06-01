@@ -19,10 +19,8 @@
 package org.apache.skywalking.e2e.dashboard;
 
 import lombok.Data;
-import lombok.experimental.Accessors;
 
 @Data
-@Accessors(fluent = true)
 public class DashboardConfiguration {
     private String name;
     private TemplateType type;
