@@ -50,7 +50,8 @@
                 <include>component-libraries.yml</include>
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
-                <include>endpoint_name_grouping.yml</include>
+                <include>ui-initialized-templates.yml</include>
+                <include>endpoint-name-grouping.yml</include>
                 <include>oal/core.oal</include>
                 <include>oal/java-agent.oal</include>
                 <include>oal/dotnet-agent.oal</include>
