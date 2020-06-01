@@ -26,22 +26,35 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * {@link HttpServerResponseImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method in
+ * {@link HttpServerResponseImplInstrumentation} enhance the <code>end0/end</code> method in
  * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class.
+ * <code>HttpServerResponseImplInterceptor</code> class
  */
-public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpServerResponseImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String ENHANCE_METHOD = "handleException";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplHandleExceptionInterceptor";
+    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return any();
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPTOR_CLASS;
+                    }
+                }
+        };
     }
 
     @Override
@@ -50,12 +63,17 @@ public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassI
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
+                    return named("end0") //ver. 3.0.0 - 3.5.4
+                            .or(named("end") //ver. 3.6.0 - 3.7.0
+                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer")))
+                            .or(named("end") //ver. 3.7.1+
+                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer"))
+                                    .and(takesArgumentWithType(1, "io.netty.channel.ChannelPromise")));
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
+                    return INTERCEPTOR_CLASS;
                 }
 
                 @Override

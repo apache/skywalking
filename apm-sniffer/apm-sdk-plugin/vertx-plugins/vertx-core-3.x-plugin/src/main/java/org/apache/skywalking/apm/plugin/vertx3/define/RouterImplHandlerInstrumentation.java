@@ -29,15 +29,17 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link HttpServerResponseImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method in
- * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class.
+ * {@link RouterImplHandlerInstrumentation} enhance the <code>handler</code> method in
+ * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
+ * <code>RouterImplHandlerInterceptor</code> class.
+ *
+ * Ver. 3.0.0 - 3.4.2
  */
-public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouterImplHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String ENHANCE_METHOD = "handleException";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplHandleExceptionInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteImpl";
+    private static final String ENHANCE_METHOD = "handler";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplHandlerInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

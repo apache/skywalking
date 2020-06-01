@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
-import io.vertx.core.http.HttpServerRequest;
+import io.netty.handler.codec.http.HttpRequest;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -32,35 +32,37 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class RouterImplAcceptInterceptor implements InstanceMethodsAroundInterceptor {
+public class ServerConnectionHandleMessageInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        HttpServerRequest request = (HttpServerRequest) allArguments[0];
-        ContextCarrier contextCarrier = new ContextCarrier();
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            next.setHeadValue(request.headers().get(next.getHeadKey()));
-            request.headers().remove(next.getHeadKey());
+        if (allArguments[0] instanceof HttpRequest) {
+            HttpRequest request = (HttpRequest) allArguments[0];
+            ContextCarrier contextCarrier = new ContextCarrier();
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                next.setHeadValue(request.headers().get(next.getHeadKey()));
+                request.headers().remove(next.getHeadKey());
+            }
+
+            AbstractSpan span = ContextManager.createEntrySpan(toPath(request.getUri()), contextCarrier);
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asHttp(span);
+            Tags.HTTP.METHOD.set(span, request.getMethod().toString());
+            Tags.URL.set(span, request.getUri());
+
+            objInst.setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span.prepareForAsync()));
         }
-
-        AbstractSpan span = ContextManager.createEntrySpan(toPath(request.uri()), contextCarrier);
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.uri());
-
-        ((EnhancedInstance) request.response()).setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span
-            .prepareForAsync()));
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ContextManager.stopSpan();
+        if (allArguments[0] instanceof HttpRequest) {
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 

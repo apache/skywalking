@@ -26,22 +26,39 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
+import java.util.List;
+
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * {@link HttpServerResponseImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method in
- * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class.
+ * {@link RouteStateInstrumentation} enhance the <code>handleContext</code> method in
+ * <code>io.vertx.ext.web.impl.RouteState</code> class by
+ * <code>RouteStateInterceptor</code> class.
+ *
+ * Ver. 3.8.3+
  */
-public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouteStateInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String ENHANCE_METHOD = "handleException";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplHandleExceptionInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteState";
+    private static final String ENHANCE_METHOD = "handleContext";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouteStateInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+                new ConstructorInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                        return takesArgument(8, List.class);
+                    }
+
+                    @Override
+                    public String getConstructorInterceptor() {
+                        return INTERCEPT_CLASS;
+                    }
+                }
+        };
     }
 
     @Override
