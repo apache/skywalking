@@ -95,7 +95,7 @@ public class UIConfigurationManagementClient extends SimpleQueryClient {
 
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) throws IOException {
 
-        final URL queryFileUrl = Resources.getResource("ui-addTemplate.gql");
+        final URL queryFileUrl = Resources.getResource("ui-changeTemplate.gql");
         final String queryString = Resources.readLines(queryFileUrl, StandardCharsets.UTF_8)
                                             .stream()
                                             .filter(it -> !it.startsWith("#"))

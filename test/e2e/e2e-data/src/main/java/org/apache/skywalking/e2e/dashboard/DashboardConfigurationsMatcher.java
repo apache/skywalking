@@ -24,7 +24,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.e2e.verification.AbstractMatcher;
-import org.assertj.core.api.Assertions;
 
 @Getter
 @Setter
@@ -35,9 +34,14 @@ public class DashboardConfigurationsMatcher extends AbstractMatcher<DashboardCon
 
     @Override
     public void verify(final DashboardConfigurations configurations) {
-        Assertions.assertThat(configurations.getConfigurations()).hasSameSizeAs(this.configurations);
+        DashboardConfigurationMatcher matcher = this.configurations.get(0);
         for (int i = 0; i < configurations.size(); i++) {
-            this.configurations.get(i).verify(configurations.getConfigurations().get(i));
+            DashboardConfiguration configuration = configurations.getConfigurations().get(i);
+            if (matcher.getName().equals(configuration.getName())) {
+                matcher.verify(configuration);
+                return;
+            }
         }
+        throw new RuntimeException("Assertion failed!");
     }
 }
