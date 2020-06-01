@@ -111,29 +111,6 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
-    @RetryableTest
-    void changeTemplate() throws Exception {
-        TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
-            new DashboardSetting()
-                .name("test-ui-config-1")
-                .active(true)
-                .configuration("{\"key\":\"value\"}")
-                .type(TemplateType.DASHBOARD)
-        );
-        LOGGER.info("change UITemplate = {}", templateChangeStatus);
-        Assertions.assertTrue(templateChangeStatus.isStatus());
-
-        verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
-    }
-
-    @RetryableTest
-    void disableTemplate() throws Exception {
-        TemplateChangeStatus templateChangeStatus = graphql.disableTemplate("test-ui-config-1");
-        LOGGER.info("disable template = {}", templateChangeStatus);
-        Assertions.assertTrue(templateChangeStatus.isStatus());
-        verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
-    }
-
     private Instances verifyServiceInstances(final Service service) throws Exception {
         final Instances instances = graphql.instances(
             new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
