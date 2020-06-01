@@ -99,15 +99,18 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void addUITemplate() throws Exception {
-        TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
-            new DashboardSetting()
-                .name("test-ui-config-1")
-                .active(true)
-                .configuration("{}")
-                .type(TemplateType.DASHBOARD)
-        );
-        LOGGER.info("add template = {}", templateChangeStatus);
-
+        try {
+            TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
+                new DashboardSetting()
+                    .name("test-ui-config-1")
+                    .active(true)
+                    .configuration("{}")
+                    .type(TemplateType.DASHBOARD)
+            );
+            LOGGER.info("add template = {}", templateChangeStatus);
+        } catch (Exception e) {
+            LOGGER.error("add ui template error.", e);
+        }
         verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
