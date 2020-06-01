@@ -139,4 +139,17 @@ metricsRules:
             - app
           instance:
             - instance
+  - name: endpoint_metrics_aggregation
+    scope: ENDPOINT
+    downSampling: avg
+    sources:
+      metrics_aggregation:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - app
+          endpoint:
+            - dimensionality
+            - level
 

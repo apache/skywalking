@@ -45,6 +45,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -221,6 +222,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                 case SERVICE_INSTANCE:
                                     String instanceName = composeEntity(tuple._3.getRelabel().getInstance().stream(), tuple._4.getLabels());
                                     return Tuple.of(o, sb.entity(MeterEntity.newServiceInstance(serviceName, instanceName)).build(), tuple._4);
+                                case ENDPOINT:
+                                    String endpointName = composeEntity(tuple._3.getRelabel().getEndpoint().stream(), tuple._4.getLabels());
+                                    return Tuple.of(o, sb.entity(MeterEntity.newEndpoint(serviceName, endpointName)).build(), tuple._4);
                                 default:
                                     throw new IllegalArgumentException("Unsupported scope" + tuple._1.getScope());
                             }
@@ -232,24 +236,23 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                             Try.run(() -> {
                                 switch (operation.getName()) {
                                     case AVG:
-                                        Validate.isTrue(sources.size() == 1, "Can't get source for doubleAvg");
-                                        AcceptableValue<Long> value = service.buildMetrics(formatMetricName(operation.getMetricName()), Long.class);
-                                        Map.Entry<Source, List<Metric>> smm = sources.entrySet().iterator().next();
-                                        Source s = smm.getKey();
-                                        Double sumDouble = sum(smm.getValue()).value();
-                                        sumDouble = window.get(s.getPromMetricName()).apply(s, sumDouble);
-                                        value.accept(s.getEntity(), BigDecimal.valueOf(Double.isNaN(sumDouble) ? 0D : sumDouble)
-                                            .multiply(BigDecimal.TEN.pow(s.getScale())).longValue());
-                                        value.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
-                                        LOG.debug("Input metric {}", value.getTimeBucket());
-                                        service.doStreamingCalculation(value);
+                                        sources.forEach((source, metrics) -> {
+                                            AcceptableValue<Long> value = service.buildMetrics(formatMetricName(operation.getMetricName()), Long.class);
+                                            Double sumDouble = sum(metrics).value();
+                                            sumDouble = window.get(source.getPromMetricName()).apply(source, sumDouble);
+                                            value.accept(source.getEntity(), BigDecimal.valueOf(Double.isNaN(sumDouble) ? 0D : sumDouble)
+                                                .multiply(BigDecimal.TEN.pow(source.getScale())).longValue());
+                                            value.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
+                                            LOG.debug("Input metric {}", value.getTimeBucket());
+                                            service.doStreamingCalculation(value);
 
-                                        generateTraffic(smm.getKey().getEntity());
+                                            generateTraffic(source.getEntity());
+                                        });
                                         break;
                                     case PERCENTILE:
                                     case HEATMAP:
                                         Validate.isTrue(sources.size() == 1, "Can't get source for histogram");
-                                        smm = sources.entrySet().iterator().next();
+                                        Map.Entry<Source, List<Metric>> smm = sources.entrySet().iterator().next();
                                         Histogram h = (Histogram) sum(smm.getValue());
 
                                         long[] vv = new long[h.getBuckets().size()];
@@ -329,6 +332,13 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                 instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
                 instanceTraffic.setLastPingTimestamp(System.currentTimeMillis());
                 MetricsStreamProcessor.getInstance().in(instanceTraffic);
+            }
+            if (!Strings.isNullOrEmpty(entity.getEndpointName())) {
+                EndpointTraffic endpointTraffic = new EndpointTraffic();
+                endpointTraffic.setName(entity.getEndpointName());
+                endpointTraffic.setServiceId(entity.serviceId());
+                endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+                MetricsStreamProcessor.getInstance().in(endpointTraffic);
             }
     }
 
