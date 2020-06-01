@@ -36,21 +36,22 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
-import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * PercentileFunction is the implementation of {@link PercentileMetrics} in the meter system. The major difference is
- * the PercentileFunction accepts the {@link PercentileArgument} as input rather than every single request.
+ * the PercentileFunction accepts the {@link AvgPercentileArgument} as input rather than every single request.
  */
-@MeterFunction(functionName = "percentile")
+@MeterFunction(functionName = "avgPercentile")
 @Slf4j
-public abstract class PercentileFunction extends Metrics implements AcceptableValue<PercentileFunction.PercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgPercentileFunction extends Metrics implements AcceptableValue<AvgPercentileFunction.AvgPercentileArgument>, MultiIntValuesHolder {
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
     public static final String VALUE = "value";
+    protected static final String SUMMATION = "summation";
+    protected static final String COUNT = "count";
 
     @Setter
     @Getter
@@ -60,6 +61,14 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     private DataTable percentileValues = new DataTable(10);
+    @Getter
+    @Setter
+    @Column(columnName = SUMMATION, storageOnly = true)
+    protected DataTable summation = new DataTable(30);
+    @Getter
+    @Setter
+    @Column(columnName = COUNT, storageOnly = true)
+    protected DataTable count = new DataTable(30);
     @Getter
     @Setter
     @Column(columnName = DATASET, storageOnly = true)
@@ -75,7 +84,7 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     private boolean isCalculated = false;
 
     @Override
-    public void accept(final MeterEntity entity, final PercentileArgument value) {
+    public void accept(final MeterEntity entity, final AvgPercentileArgument value) {
         if (dataset.size() > 0) {
             if (!value.getBucketedValues().isCompatible(dataset)) {
                 throw new IllegalArgumentException(
@@ -112,10 +121,9 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
-            final long bucket = value.getBucketedValues().getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
-            final long bucketValue = values[i];
-            dataset.valueAccumulation(bucketName, bucketValue);
+            String bucketName = String.valueOf(value.getBucketedValues().getBuckets()[i]);
+            summation.valueAccumulation(bucketName, values[i]);
+            count.valueAccumulation(bucketName, 1L);
         }
 
         this.isCalculated = false;
@@ -123,16 +131,15 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
     @Override
     public void combine(final Metrics metrics) {
-        PercentileFunction percentile = (PercentileFunction) metrics;
+        AvgPercentileFunction percentile = (AvgPercentileFunction) metrics;
 
-        if (!dataset.keysEqual(percentile.getDataset())) {
+        if (!summation.keysEqual(percentile.getSummation())) {
             log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
                      percentile, this, entityId
             );
             return;
         }
         if (ranks.size() > 0) {
-            IntList ranksOfThat = percentile.getRanks();
             if (this.ranks.size() != ranks.size()) {
                 log.warn("Incompatible ranks size = [{}}] for current PercentileFunction[{}]",
                          ranks.size(), this.ranks.size()
@@ -146,7 +153,8 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
             }
         }
 
-        this.dataset.append(percentile.dataset);
+        this.summation.append(percentile.summation);
+        this.count.append(percentile.count);
 
         this.isCalculated = false;
     }
@@ -154,6 +162,11 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     @Override
     public void calculate() {
         if (!isCalculated) {
+            final List<String> sortedKeys = summation.sortedKeys(Comparator.comparingInt(Integer::parseInt));
+            for (String key : sortedKeys) {
+                dataset.put(key, summation.get(key) / count.get(key));
+            }
+
             long total = dataset.sumOfValues();
 
             int[] roofs = new int[ranks.size()];
@@ -162,8 +175,6 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
             }
 
             int count = 0;
-            final List<String> sortedKeys = dataset.sortedKeys(Comparator.comparingInt(Integer::parseInt));
-
             int loopIndex = 0;
 
             for (String key : sortedKeys) {
@@ -186,10 +197,11 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
     @Override
     public Metrics toHour() {
-        PercentileFunction metrics = (PercentileFunction) createNew();
+        AvgPercentileFunction metrics = (AvgPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setDataset(getDataset());
+        metrics.setSummation(getSummation());
+        metrics.setCount(getCount());
         metrics.setRanks(getRanks());
         metrics.setPercentileValues(getPercentileValues());
         return metrics;
@@ -197,10 +209,11 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
     @Override
     public Metrics toDay() {
-        PercentileFunction metrics = (PercentileFunction) createNew();
+        AvgPercentileFunction metrics = (AvgPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setDataset(getDataset());
+        metrics.setSummation(getSummation());
+        metrics.setCount(getCount());
         metrics.setRanks(getRanks());
         metrics.setPercentileValues(getPercentileValues());
         return metrics;
@@ -225,9 +238,10 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
         this.setEntityId(remoteData.getDataStrings(0));
 
-        this.setDataset(new DataTable(remoteData.getDataObjectStrings(0)));
-        this.setRanks(new IntList(remoteData.getDataObjectStrings(1)));
-        this.setPercentileValues(new DataTable(remoteData.getDataObjectStrings(2)));
+        this.setSummation(new DataTable(remoteData.getDataObjectStrings(0)));
+        this.setCount(new DataTable(remoteData.getDataObjectStrings(1)));
+        this.setRanks(new IntList(remoteData.getDataObjectStrings(2)));
+        this.setPercentileValues(new DataTable(remoteData.getDataObjectStrings(3)));
     }
 
     @Override
@@ -237,7 +251,8 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
 
         remoteBuilder.addDataStrings(entityId);
 
-        remoteBuilder.addDataObjectStrings(dataset.toStorageData());
+        remoteBuilder.addDataObjectStrings(summation.toStorageData());
+        remoteBuilder.addDataObjectStrings(count.toStorageData());
         remoteBuilder.addDataObjectStrings(ranks.toStorageData());
         remoteBuilder.addDataObjectStrings(percentileValues.toStorageData());
 
@@ -250,28 +265,30 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
-        return PercentileFunctionBuilder.class;
+    public Class<? extends AvgPercentileFunctionBuilder> builder() {
+        return AvgPercentileFunctionBuilder.class;
     }
 
     @RequiredArgsConstructor
     @Getter
-    public static class PercentileArgument {
+    public static class AvgPercentileArgument {
         private final BucketedValues bucketedValues;
         private final int[] ranks;
     }
 
-    public static class PercentileFunctionBuilder implements StorageBuilder<PercentileFunction> {
+    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgPercentileFunction> {
 
         @Override
-        public PercentileFunction map2Data(final Map<String, Object> dbMap) {
-            PercentileFunction metrics = new PercentileFunction() {
+        public AvgPercentileFunction map2Data(final Map<String, Object> dbMap) {
+            AvgPercentileFunction metrics = new AvgPercentileFunction() {
                 @Override
-                public AcceptableValue<PercentileArgument> createNew() {
+                public AcceptableValue<AvgPercentileArgument> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
             metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
+            metrics.setSummation(new DataTable((String) dbMap.get(SUMMATION)));
+            metrics.setCount(new DataTable((String) dbMap.get(COUNT)));
             metrics.setRanks(new IntList((String) dbMap.get(RANKS)));
             metrics.setPercentileValues(new DataTable((String) dbMap.get(VALUE)));
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
@@ -280,8 +297,10 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
         }
 
         @Override
-        public Map<String, Object> data2Map(final PercentileFunction storageData) {
+        public Map<String, Object> data2Map(final AvgPercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
+            map.put(SUMMATION, storageData.getSummation());
+            map.put(COUNT, storageData.getCount());
             map.put(DATASET, storageData.getDataset());
             map.put(RANKS, storageData.getRanks());
             map.put(VALUE, storageData.getPercentileValues());
@@ -295,9 +314,9 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof PercentileFunction))
+        if (!(o instanceof AvgPercentileFunction))
             return false;
-        PercentileFunction function = (PercentileFunction) o;
+        AvgPercentileFunction function = (AvgPercentileFunction) o;
         return Objects.equals(entityId, function.entityId) &&
             timeBucket == function.timeBucket;
     }

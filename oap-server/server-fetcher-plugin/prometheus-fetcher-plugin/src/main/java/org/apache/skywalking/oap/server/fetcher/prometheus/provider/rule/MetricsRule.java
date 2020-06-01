@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
+import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,5 +30,6 @@ public class MetricsRule {
     private String name;
     private ScopeType scope;
     private String downSampling;
+    private List<Integer> percentiles;
     private Map<String, PrometheusMetric> sources;
 }

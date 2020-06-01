@@ -29,11 +29,20 @@ import lombok.ToString;
 @Getter
 public class Counter extends Metric {
 
-    private final double value;
+    private double value;
 
     @lombok.Builder
     public Counter(String name, @Singular Map<String, String> labels, double value) {
         super(name, labels);
         this.value = value;
+    }
+
+    @Override public Metric sum(Metric m) {
+        this.value = this.value + m.value();
+        return this;
+    }
+
+    @Override public Double value() {
+        return this.value;
     }
 }

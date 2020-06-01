@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -33,9 +32,9 @@ import lombok.ToString;
 @Getter
 public class Histogram extends Metric {
 
-    private final long sampleCount;
-    private final double sampleSum;
-    private final Map<Double, Long> buckets;
+    private long sampleCount;
+    private double sampleSum;
+    private Map<Double, Long> buckets;
 
     @lombok.Builder
     public Histogram(String name, @Singular Map<String, String> labels, long sampleCount, double sampleSum,
@@ -47,16 +46,16 @@ public class Histogram extends Metric {
         this.buckets = buckets;
     }
 
-    public static Histogram newInstance(String name) {
-        return new Histogram(name, Collections.emptyMap(), 0L, 0L, Collections.emptyMap());
+    @Override public Metric sum(Metric m) {
+        Histogram h = (Histogram) m;
+        this.buckets = Stream.concat(getBuckets().entrySet().stream(), h.getBuckets().entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum, TreeMap::new));
+        this.sampleSum = this.sampleSum + h.sampleSum;
+        this.sampleCount = this.sampleCount + h.sampleCount;
+        return this;
     }
 
-    public static Histogram sum(Histogram a, Histogram b) {
-        Map<String, String> l = Stream.concat(a.getLabels().entrySet().stream(), b.getLabels().entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (l1, l2) -> l1));
-        Map<Double, Long> buckets = Stream.concat(a.getBuckets().entrySet().stream(), b.getBuckets().entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum, TreeMap::new));
-        return new Histogram(a.getName(), l, Long.sum(a.sampleCount, b.sampleCount), Double.sum(a.sampleSum, b.sampleSum)
-            , buckets);
+    @Override public Double value() {
+        return this.getSampleSum() * 1000 / this.getSampleCount();
     }
 }

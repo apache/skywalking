@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.util.prometheus.metrics;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Singular;
@@ -32,8 +29,8 @@ import lombok.ToString;
 @Getter
 public class Summary extends Metric {
 
-    private final long sampleCount;
-    private final double sampleSum;
+    private long sampleCount;
+    private double sampleSum;
     private final Map<Double, Double> quantiles;
 
     @lombok.Builder
@@ -46,14 +43,14 @@ public class Summary extends Metric {
         this.quantiles = quantiles;
     }
 
-    public static Summary newInstance(String name) {
-        return new Summary(name, Collections.emptyMap(), 0L, 0L, Collections.emptyMap());
+    @Override public Metric sum(Metric m) {
+        Summary s = (Summary) m;
+        this.sampleCount =  this.sampleCount + s.getSampleCount();
+        this.sampleSum = this.sampleSum + s.getSampleSum();
+        return null;
     }
 
-    public static Summary sum(Summary a, Summary b) {
-        Map<String, String> l = Stream.concat(a.getLabels().entrySet().stream(), b.getLabels().entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (l1, l2) -> l1));
-        return new Summary(a.getName(), l, Long.sum(a.sampleCount, b.sampleCount), Double.sum(a.sampleSum, b.sampleSum)
-            , Collections.emptyMap());
+    @Override public Double value() {
+        return this.getSampleSum() * 1000 / this.getSampleCount();
     }
 }

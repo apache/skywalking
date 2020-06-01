@@ -27,4 +27,5 @@ public class PrometheusMetric {
     private CounterFunction counterFunction;
     private String range;
     private Relabel relabel;
+    private int scale = 0;
 }

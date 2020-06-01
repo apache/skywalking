@@ -25,11 +25,12 @@ staticConfig:
 metricsRules:
   - name: instance_cpu_percentage
     scope: SERVICE_INSTANCE
-    downSampling: doubleAvg
+    downSampling: avg
     sources:
       process_cpu_seconds_total:
         counterFunction: RATE
         range: PT1M
+        scale: 2
         relabel:
           service:
             - app

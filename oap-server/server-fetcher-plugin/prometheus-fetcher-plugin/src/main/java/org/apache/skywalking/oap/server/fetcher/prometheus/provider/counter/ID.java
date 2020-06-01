@@ -16,30 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.CounterFunction;
 
+@RequiredArgsConstructor
 @EqualsAndHashCode
 @ToString
-@Getter
-@Builder
-public class Source {
-    private final String promMetricName;
+public class ID {
+
+    private final String name;
 
     private final ImmutableMap<String, String> labels;
-
-    private final MeterEntity entity;
-
-    private final CounterFunction counterFunction;
-
-    private final String range;
-
-    private final int scale;
 }

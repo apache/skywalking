@@ -36,4 +36,8 @@ public abstract class Metric {
         this.name = name;
         this.labels = Maps.newHashMap(labels);
     }
+
+    public abstract Metric sum(Metric m);
+
+    public abstract Double value();
 }

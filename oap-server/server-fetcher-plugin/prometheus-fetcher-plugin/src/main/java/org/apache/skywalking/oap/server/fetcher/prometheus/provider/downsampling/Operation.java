@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling;
 
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @EqualsAndHashCode
 @ToString
@@ -32,5 +34,9 @@ public class Operation {
     private final String name;
 
     private final String metricName;
+
+    private final ScopeType scope;
+
+    private final List<Integer> percentiles;
 
 }

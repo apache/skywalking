@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Only for test.
 fetcherInterval: PT15S
 fetcherTimeout: PT10S
 metricsPath: /metrics
@@ -26,49 +25,22 @@ staticConfig:
 metricsRules:
   - name: instance_cpu_percentage
     scope: SERVICE_INSTANCE
-    downSampling: doubleAvg
+    downSampling: avg
     sources:
       process_cpu_seconds_total:
         counterFunction: RATE
         range: PT1M
+        scale: 2
         relabel:
           service:
             - app
           instance:
             - instance
-  - name: service_cpu_percentage
-    scope: SERVICE
-    downSampling: doubleAvg
-    sources:
-      process_cpu_seconds_total:
-        counterFunction: RATE
-        range: PT1M
-        relabel:
-          service:
-            - app
   - name: instance_jvm_memory_bytes_used
     scope: SERVICE_INSTANCE
-    downSampling: doubleAvg
+    downSampling: avg
     sources:
       jvm_memory_bytes_used:
-        relabel:
-          service:
-            - app
-          instance:
-            - instance
-  - name: service_jvm_memory_bytes_used
-    scope: SERVICE
-    downSampling: doubleAvg
-    sources:
-      jvm_memory_bytes_used:
-        relabel:
-          service:
-            - app
-  - name: instance_persistence_timer_bulk_execute_latency
-    scope: SERVICE_INSTANCE
-    downSampling: histogram
-    sources:
-      persistence_timer_bulk_execute_latency:
         relabel:
           service:
             - app
@@ -76,7 +48,7 @@ metricsRules:
             - instance
   - name: instance_jvm_gc_collection_seconds
     scope: SERVICE_INSTANCE
-    downSampling: summary
+    downSampling: avg
     sources:
       jvm_gc_collection_seconds:
         relabel:
@@ -84,3 +56,87 @@ metricsRules:
             - app
           instance:
             - instance
+
+  - name: instance_persistence_timer_bulk_execute_latency_heatmap
+    scope: SERVICE_INSTANCE
+    downSampling: heatmap
+    sources:
+      persistence_timer_bulk_execute_latency:
+        counterFunction: INCREASE
+        range: PT5M
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+  - name: instance_persistence_timer_bulk_execute_latency_percentile
+    scope: SERVICE_INSTANCE
+    downSampling: percentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      persistence_timer_bulk_execute_latency:
+        counterFunction: INCREASE
+        range: PT5M
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+  - name: instance_persistence_timer_bulk_execute_latency
+    scope: SERVICE_INSTANCE
+    downSampling: avg
+    sources:
+      persistence_timer_bulk_execute_latency:
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+  - name: instance_persistence_timer_bulk_prepare_latency
+    scope: SERVICE_INSTANCE
+    downSampling: avg
+    sources:
+      persistence_timer_bulk_prepare_latency:
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+
+  - name: instance_persistence_timer_bulk_error_count
+    scope: SERVICE_INSTANCE
+    downSampling: avg
+    sources:
+      persistence_timer_bulk_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+  - name: instance_persistence_timer_bulk_execute_latency_count
+    scope: SERVICE_INSTANCE
+    downSampling: avg
+    sources:
+      persistence_timer_bulk_execute_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+  - name: instance_persistence_timer_bulk_prepare_latency_count
+    scope: SERVICE_INSTANCE
+    downSampling: avg
+    sources:
+      persistence_timer_bulk_prepare_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - app
+          instance:
+            - instance
+

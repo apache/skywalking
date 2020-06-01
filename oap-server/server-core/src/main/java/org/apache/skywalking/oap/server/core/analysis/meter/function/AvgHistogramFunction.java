@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
@@ -30,25 +32,34 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
+ * AvgHistogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
  * graph visualization
  */
-@MeterFunction(functionName = "histogram")
+@MeterFunction(functionName = "avgHistogram")
 @Slf4j
 @ToString
-public abstract class HistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
+public abstract class AvgHistogramFunction extends Metrics implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
+    protected static final String SUMMATION = "summation";
+    protected static final String COUNT = "count";
 
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
     private String entityId;
+    @Getter
+    @Setter
+    @Column(columnName = SUMMATION, storageOnly = true)
+    protected DataTable summation = new DataTable(30);
+    @Getter
+    @Setter
+    @Column(columnName = COUNT, storageOnly = true)
+    protected DataTable count = new DataTable(30);
     @Getter
     @Setter
     @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
@@ -67,46 +78,51 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
 
         final long[] values = value.getValues();
         for (int i = 0; i < values.length; i++) {
-            final long bucket = value.getBuckets()[i];
-            String bucketName = bucket == Integer.MIN_VALUE ? Bucket.INFINITE_NEGATIVE : String.valueOf(bucket);
-            final long bucketValue = values[i];
-            dataset.valueAccumulation(bucketName, bucketValue);
+            String bucketName = String.valueOf(value.getBuckets()[i]);
+            summation.valueAccumulation(bucketName, values[i]);
+            count.valueAccumulation(bucketName, 1L);
         }
     }
 
     @Override
     public void combine(final Metrics metrics) {
-        HistogramFunction histogram = (HistogramFunction) metrics;
+        AvgHistogramFunction histogram = (AvgHistogramFunction) metrics;
 
-        if (!dataset.keysEqual(histogram.getDataset())) {
+        if (!summation.keysEqual(histogram.getSummation())) {
             log.warn("Incompatible input [{}}] for current HistogramFunction[{}], entity {}",
                      histogram, this, entityId
             );
             return;
         }
-        this.dataset.append(histogram.dataset);
+        this.summation.append(histogram.summation);
+        this.count.append(histogram.count);
     }
 
     @Override
     public void calculate() {
-
+        final List<String> sortedKeys = summation.sortedKeys(Comparator.comparingInt(Integer::parseInt));
+        for (String key : sortedKeys) {
+            dataset.put(key, summation.get(key) / count.get(key));
+        }
     }
 
     @Override
     public Metrics toHour() {
-        HistogramFunction metrics = (HistogramFunction) createNew();
+        AvgHistogramFunction metrics = (AvgHistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setDataset(getDataset());
+        metrics.setCount(getCount());
+        metrics.setSummation(getSummation());
         return metrics;
     }
 
     @Override
     public Metrics toDay() {
-        HistogramFunction metrics = (HistogramFunction) createNew();
+        AvgHistogramFunction metrics = (AvgHistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setDataset(getDataset());
+        metrics.setCount(getCount());
+        metrics.setSummation(getSummation());
         return metrics;
     }
 
@@ -121,7 +137,8 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
 
         this.setEntityId(remoteData.getDataStrings(0));
 
-        this.setDataset(new DataTable(remoteData.getDataObjectStrings(0)));
+        this.setCount(new DataTable(remoteData.getDataObjectStrings(0)));
+        this.setSummation(new DataTable(remoteData.getDataObjectStrings(1)));
     }
 
     @Override
@@ -131,7 +148,8 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
 
         remoteBuilder.addDataStrings(entityId);
 
-        remoteBuilder.addDataObjectStrings(dataset.toStorageData());
+        remoteBuilder.addDataObjectStrings(count.toStorageData());
+        remoteBuilder.addDataObjectStrings(summation.toStorageData());
 
         return remoteBuilder;
     }
@@ -142,30 +160,34 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     }
 
     @Override
-    public Class<? extends StorageBuilder> builder() {
-        return HistogramFunctionBuilder.class;
+    public Class<? extends AvgHistogramFunctionBuilder> builder() {
+        return AvgHistogramFunctionBuilder.class;
     }
 
-    public static class HistogramFunctionBuilder implements StorageBuilder<HistogramFunction> {
+    public static class AvgHistogramFunctionBuilder implements StorageBuilder<AvgHistogramFunction> {
 
         @Override
-        public HistogramFunction map2Data(final Map<String, Object> dbMap) {
-            HistogramFunction metrics = new HistogramFunction() {
+        public AvgHistogramFunction map2Data(final Map<String, Object> dbMap) {
+            AvgHistogramFunction metrics = new AvgHistogramFunction() {
                 @Override
                 public AcceptableValue<BucketedValues> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
             metrics.setDataset(new DataTable((String) dbMap.get(DATASET)));
+            metrics.setCount(new DataTable((String) dbMap.get(COUNT)));
+            metrics.setSummation(new DataTable((String) dbMap.get(SUMMATION)));
             metrics.setTimeBucket(((Number) dbMap.get(TIME_BUCKET)).longValue());
             metrics.setEntityId((String) dbMap.get(ENTITY_ID));
             return metrics;
         }
 
         @Override
-        public Map<String, Object> data2Map(final HistogramFunction storageData) {
+        public Map<String, Object> data2Map(final AvgHistogramFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(DATASET, storageData.getDataset());
+            map.put(COUNT, storageData.getCount());
+            map.put(SUMMATION, storageData.getSummation());
             map.put(TIME_BUCKET, storageData.getTimeBucket());
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
@@ -176,9 +198,9 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof AvgHistogramFunction))
             return false;
-        HistogramFunction function = (HistogramFunction) o;
+        AvgHistogramFunction function = (AvgHistogramFunction) o;
         return Objects.equals(entityId, function.entityId) &&
             timeBucket == function.timeBucket;
     }
