@@ -36,7 +36,7 @@ staticConfig:
   targets:
     - localhost:1234
   labels:
-    app: test-oap
+    app: oap-server
 metricsRules:
   - name: instance_cpu_percentage
     scope: SERVICE_INSTANCE

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation;
 
-import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,10 +29,8 @@ import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Counter
 @ToString
 @Getter
 @Builder
-public class Source {
+public class MetricSource {
     private final String promMetricName;
-
-    private final ImmutableMap<String, String> labels;
 
     private final MeterEntity entity;
 

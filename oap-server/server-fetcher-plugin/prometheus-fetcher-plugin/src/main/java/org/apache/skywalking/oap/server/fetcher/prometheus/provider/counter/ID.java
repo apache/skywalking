@@ -26,7 +26,7 @@ import lombok.ToString;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class ID {
+class ID {
 
     private final String name;
 

@@ -37,8 +37,15 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * AvgHistogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
- * graph visualization
+ * AvgHistogram intends to aggregate raw values over the interval (minute, hour or day). When users query a value
+ * from such a interval, an average over it will be sent back.
+ *
+ * The acceptable bucket value should be a result from one of "increase", "rate" and "irate" query functions.
+ * That means the value is the increase or per-second instant rate of increase in a specific range.
+ *
+ * Example:
+ * "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value should be:
+ * "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
  */
 @MeterFunction(functionName = "avgHistogram")
 @Slf4j
@@ -202,11 +209,11 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
             return false;
         AvgHistogramFunction function = (AvgHistogramFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-            timeBucket == function.timeBucket;
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, timeBucket);
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

@@ -35,14 +35,20 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
-import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * PercentileFunction is the implementation of {@link PercentileMetrics} in the meter system. The major difference is
- * the PercentileFunction accepts the {@link AvgPercentileArgument} as input rather than every single request.
+ * AvgPercentile intends to calculate percentile based on the average of raw values over the interval(minute, hour or day).
+ *
+ * The acceptable bucket value should be a result from one of "increase", "rate" and "irate" query functions.
+ * That means the value in a bucket is the increase or per-second instant rate of increase in a specific range.
+ * Then AvgPercentileFunction calculates percentile based on the above buckets.
+ *
+ * Example:
+ * "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value should be:
+ * "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
  */
 @MeterFunction(functionName = "avgPercentile")
 @Slf4j
@@ -318,11 +324,11 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
             return false;
         AvgPercentileFunction function = (AvgPercentileFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-            timeBucket == function.timeBucket;
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, timeBucket);
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

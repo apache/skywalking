@@ -176,15 +176,15 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof HistogramFunction))
             return false;
         HistogramFunction function = (HistogramFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-            timeBucket == function.timeBucket;
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, timeBucket);
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

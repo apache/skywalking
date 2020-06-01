@@ -31,8 +31,12 @@ import java.util.Queue;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Source;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.MetricSource;
 
+/**
+ * Window stores a series of counter samples in order to calculate the increase
+ * or instant rate of increase.
+ */
 @RequiredArgsConstructor
 @ToString
 @EqualsAndHashCode
@@ -40,16 +44,16 @@ public class Window {
 
     private final Map<ID, Queue<Tuple2<Long, Double>>> windows = Maps.newHashMap();
 
-    public Function2<Source, Double, Double> get(String name) {
+    public Function2<MetricSource, Double, Double> get(String name) {
         return get(name, Collections.emptyMap());
     }
 
-    public Function2<Source, Double, Double> get(String name, Map<String, String> labels) {
+    public Function2<MetricSource, Double, Double> get(String name, Map<String, String> labels) {
         ID id = new ID(name, ImmutableMap.copyOf(labels));
         return (source, sum) -> operateCounter(id, source, sum);
     }
 
-    private Double operateCounter(ID id, Source source, Double sum) {
+    private Double operateCounter(ID id, MetricSource source, Double sum) {
         if (source.getCounterFunction() == null) {
             return sum;
         }

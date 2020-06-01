@@ -156,11 +156,11 @@ public abstract class AvgFunction extends LongAvgMetrics implements AcceptableVa
             return false;
         AvgFunction function = (AvgFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-            timeBucket == function.timeBucket;
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, timeBucket);
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

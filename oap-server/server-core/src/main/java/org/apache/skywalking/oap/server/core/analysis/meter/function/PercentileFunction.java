@@ -299,11 +299,11 @@ public abstract class PercentileFunction extends Metrics implements AcceptableVa
             return false;
         PercentileFunction function = (PercentileFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-            timeBucket == function.timeBucket;
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, timeBucket);
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

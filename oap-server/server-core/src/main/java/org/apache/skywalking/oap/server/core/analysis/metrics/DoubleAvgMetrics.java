@@ -37,11 +37,11 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     @Getter
     @Setter
     @Column(columnName = SUMMATION, storageOnly = true)
-    protected double summation;
+    private double summation;
     @Getter
     @Setter
     @Column(columnName = COUNT, storageOnly = true)
-    protected long count;
+    private long count;
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)

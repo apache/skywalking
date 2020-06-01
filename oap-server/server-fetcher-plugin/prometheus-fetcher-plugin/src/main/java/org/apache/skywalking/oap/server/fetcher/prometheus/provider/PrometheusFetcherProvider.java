@@ -57,7 +57,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter.Window;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Operation;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Source;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.MetricSource;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rules;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.StaticConfig;
@@ -211,7 +211,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                         .map(Function1.liftTry(tuple -> {
                             String serviceName = composeEntity(tuple._3.getRelabel().getService().stream(), tuple._4.getLabels());
                             Operation o = new Operation(tuple._1.getOperation(), tuple._1.getName(), tuple._1.getScope(), tuple._1.getPercentiles());
-                            Source.SourceBuilder sb = Source.builder();
+                            MetricSource.MetricSourceBuilder sb = MetricSource.builder();
                             sb.promMetricName(tuple._2)
                                 .scale(tuple._3.getScale())
                                 .counterFunction(tuple._3.getCounterFunction())
@@ -252,7 +252,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                     case PERCENTILE:
                                     case HEATMAP:
                                         Validate.isTrue(sources.size() == 1, "Can't get source for histogram");
-                                        Map.Entry<Source, List<Metric>> smm = sources.entrySet().iterator().next();
+                                        Map.Entry<MetricSource, List<Metric>> smm = sources.entrySet().iterator().next();
                                         Histogram h = (Histogram) sum(smm.getValue());
 
                                         long[] vv = new long[h.getBuckets().size()];

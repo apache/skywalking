@@ -40,7 +40,7 @@ public abstract class Metrics extends StreamData implements StorageData {
     @Getter
     @Setter
     @Column(columnName = TIME_BUCKET)
-    protected long timeBucket;
+    private long timeBucket;
 
     /**
      * Time in the cache, only work when MetricsPersistentWorker#enableDatabaseSession == true.
