@@ -31,7 +31,7 @@ import java.util.Queue;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling.Source;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Source;
 
 @RequiredArgsConstructor
 @ToString

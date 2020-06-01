@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 public class MetricsRule {
     private String name;
     private ScopeType scope;
-    private String downSampling;
+    private String operation;
     private List<Integer> percentiles;
     private Map<String, PrometheusMetric> sources;
 }

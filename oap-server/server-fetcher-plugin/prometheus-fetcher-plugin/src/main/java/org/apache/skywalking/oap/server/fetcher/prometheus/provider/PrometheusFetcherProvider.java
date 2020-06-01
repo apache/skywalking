@@ -56,8 +56,8 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter.Window;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling.Operation;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling.Source;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Operation;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Source;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rules;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.StaticConfig;
@@ -144,12 +144,12 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
         rules.forEach(r -> {
             r.getMetricsRules().forEach(rule -> {
-                if (rule.getDownSampling().equals(HEATMAP)) {
+                if (rule.getOperation().equals(HEATMAP)) {
                     service.create(formatMetricName(rule.getName()), AVG_HISTOGRAM, rule.getScope());
-                } else if (rule.getDownSampling().equals(PERCENTILE)) {
+                } else if (rule.getOperation().equals(PERCENTILE)) {
                     service.create(formatMetricName(rule.getName()), AVG_PERCENTILE, rule.getScope());
                 } else {
-                    service.create(formatMetricName(rule.getName()), rule.getDownSampling(), rule.getScope());
+                    service.create(formatMetricName(rule.getName()), rule.getOperation(), rule.getScope());
                 }
             });
             ses.scheduleAtFixedRate(new Runnable() {
@@ -210,7 +210,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                         .peek(tuple -> LOG.debug("Mapped rules to metrics: {}", tuple))
                         .map(Function1.liftTry(tuple -> {
                             String serviceName = composeEntity(tuple._3.getRelabel().getService().stream(), tuple._4.getLabels());
-                            Operation o = new Operation(tuple._1.getDownSampling(), tuple._1.getName(), tuple._1.getScope(), tuple._1.getPercentiles());
+                            Operation o = new Operation(tuple._1.getOperation(), tuple._1.getName(), tuple._1.getScope(), tuple._1.getPercentiles());
                             Source.SourceBuilder sb = Source.builder();
                             sb.promMetricName(tuple._2)
                                 .scale(tuple._3.getScale())

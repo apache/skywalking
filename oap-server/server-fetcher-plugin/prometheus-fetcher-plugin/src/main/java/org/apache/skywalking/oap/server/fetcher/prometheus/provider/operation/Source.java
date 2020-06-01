@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.downsampling;
+package org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.Builder;

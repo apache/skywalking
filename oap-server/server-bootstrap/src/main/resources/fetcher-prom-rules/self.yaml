@@ -13,6 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
 fetcherInterval: PT15S
 fetcherTimeout: PT10S
 metricsPath: /metrics
@@ -25,7 +40,7 @@ staticConfig:
 metricsRules:
   - name: instance_cpu_percentage
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       process_cpu_seconds_total:
         counterFunction: RATE
@@ -38,7 +53,7 @@ metricsRules:
             - instance
   - name: instance_jvm_memory_bytes_used
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       jvm_memory_bytes_used:
         relabel:
@@ -48,7 +63,7 @@ metricsRules:
             - instance
   - name: instance_jvm_gc_collection_seconds
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       jvm_gc_collection_seconds:
         relabel:
@@ -59,7 +74,7 @@ metricsRules:
 
   - name: instance_persistence_timer_bulk_execute_latency_heatmap
     scope: SERVICE_INSTANCE
-    downSampling: heatmap
+    operation: heatmap
     sources:
       persistence_timer_bulk_execute_latency:
         counterFunction: INCREASE
@@ -71,7 +86,7 @@ metricsRules:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency_percentile
     scope: SERVICE_INSTANCE
-    downSampling: percentile
+    operation: percentile
     percentiles: [50, 70, 90, 99]
     sources:
       persistence_timer_bulk_execute_latency:
@@ -84,7 +99,7 @@ metricsRules:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       persistence_timer_bulk_execute_latency:
         relabel:
@@ -94,7 +109,7 @@ metricsRules:
             - instance
   - name: instance_persistence_timer_bulk_prepare_latency
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       persistence_timer_bulk_prepare_latency:
         relabel:
@@ -105,7 +120,7 @@ metricsRules:
 
   - name: instance_persistence_timer_bulk_error_count
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       persistence_timer_bulk_error_count:
         counterFunction: INCREASE
@@ -117,7 +132,7 @@ metricsRules:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency_count
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       persistence_timer_bulk_execute_latency_count:
         counterFunction: INCREASE
@@ -129,7 +144,7 @@ metricsRules:
             - instance
   - name: instance_persistence_timer_bulk_prepare_latency_count
     scope: SERVICE_INSTANCE
-    downSampling: avg
+    operation: avg
     sources:
       persistence_timer_bulk_prepare_latency_count:
         counterFunction: INCREASE
@@ -141,7 +156,7 @@ metricsRules:
             - instance
   - name: endpoint_metrics_aggregation
     scope: ENDPOINT
-    downSampling: avg
+    operation: avg
     sources:
       metrics_aggregation:
         counterFunction: INCREASE
