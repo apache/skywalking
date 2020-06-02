@@ -93,24 +93,30 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
     @Override
     public TemplateChangeStatus changeTemplate(final DashboardSetting setting) throws IOException {
-        final UITemplate.Builder builder = new UITemplate.Builder();
-        final UITemplate uiTemplate = setting.toEntity();
+        try {
+            final UITemplate.Builder builder = new UITemplate.Builder();
+            final UITemplate uiTemplate = setting.toEntity();
 
-        WhereQueryImpl<SelectQueryImpl> query = select().all()
-                                                        .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
+            WhereQueryImpl<SelectQueryImpl> query = select().all()
+                                                            .from(client.getDatabase(), UITemplate.INDEX_NAME)
+                                                            .where(
+                                                                eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
 
-        QueryResult.Series series = client.queryForSingleSeries(query);
-        if (Objects.nonNull(series)) {
-            Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .fields(builder.data2Map(uiTemplate))
-                               .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
-                               .time(1L, TimeUnit.NANOSECONDS)
-                               .build();
-            client.write(point);
-            return TemplateChangeStatus.builder().status(true).build();
-        } else {
-            return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
+            QueryResult.Series series = client.queryForSingleSeries(query);
+            if (Objects.nonNull(series)) {
+                Point point = Point.measurement(UITemplate.INDEX_NAME)
+                                   .fields(builder.data2Map(uiTemplate))
+                                   .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                                   .time(1L, TimeUnit.NANOSECONDS)
+                                   .build();
+                client.write(point);
+                return TemplateChangeStatus.builder().status(true).build();
+            } else {
+                return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
+            }
+        } catch (IOException e) {
+            log.error("", e);
+            return TemplateChangeStatus.builder().status(false).message(e.getMessage()).build();
         }
     }
 
