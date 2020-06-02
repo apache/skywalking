@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e.storage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.UIConfigurationManagementClient;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
@@ -111,138 +112,109 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
     @RetryableTest
     void services() throws Exception {
-        try {
-            final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+        final List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
-            LOGGER.info("services: {}", services);
+        LOGGER.info("services: {}", services);
 
-            load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
+        load("expected/storage/services.yml").as(ServicesMatcher.class).verify(services);
 
-            for (Service service : services) {
-                LOGGER.info("verifying service instances: {}", service);
+        for (Service service : services) {
+            LOGGER.info("verifying service instances: {}", service);
 
-                verifyServiceMetrics(service);
+            verifyServiceMetrics(service);
 
-                final Instances instances = verifyServiceInstances(service);
+            final Instances instances = verifyServiceInstances(service);
 
-                verifyInstancesMetrics(instances);
+            verifyInstancesMetrics(instances);
 
-                final Endpoints endpoints = verifyServiceEndpoints(service);
+            final Endpoints endpoints = verifyServiceEndpoints(service);
 
-                verifyEndpointsMetrics(endpoints);
-            }
-        } catch (Exception e) {
-            LOGGER.error("services", e);
-            throw e;
+            verifyEndpointsMetrics(endpoints);
         }
     }
 
     @RetryableTest
     void traces() throws Exception {
-        try {
-            final List<Trace> traces = graphql.traces(new TracesQuery().start(startTime).end(now()).orderByDuration());
+        final List<Trace> traces = graphql.traces(new TracesQuery().start(startTime).end(now()).orderByDuration());
 
-            LOGGER.info("traces: {}", traces);
+        LOGGER.info("traces: {}", traces);
 
-            load("expected/storage/traces.yml").as(TracesMatcher.class).verifyLoosely(traces);
-        } catch (Exception e) {
-            LOGGER.error("traces", e);
-            throw e;
-        }
+        load("expected/storage/traces.yml").as(TracesMatcher.class).verifyLoosely(traces);
     }
 
     @RetryableTest
     void topology() throws Exception {
-        try {
-            final Topology topology = graphql.topo(
-                new TopoQuery().stepByMinute().start(startTime.minusDays(1)).end(now()));
+        final Topology topology = graphql.topo(new TopoQuery().stepByMinute().start(startTime.minusDays(1)).end(now()));
 
-            LOGGER.info("topology: {}", topology);
+        LOGGER.info("topology: {}", topology);
 
-            load("expected/storage/topo.yml").as(TopoMatcher.class).verify(topology);
+        load("expected/storage/topo.yml").as(TopoMatcher.class).verify(topology);
 
-            verifyServiceRelationMetrics(topology.getCalls());
-        } catch (Exception e) {
-            LOGGER.error("", e);
-            throw e;
-        }
+        verifyServiceRelationMetrics(topology.getCalls());
     }
 
     @RetryableTest
     void serviceInstanceTopo() throws Exception {
-        try {
-            final ServiceInstanceTopology topology = graphql.serviceInstanceTopo(
-                new ServiceInstanceTopologyQuery().stepByMinute()
-                                                  .start(startTime.minusDays(1))
-                                                  .end(now())
-                                                  .clientServiceId("VXNlcg==.0")
-                                                  .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
+        final ServiceInstanceTopology topology = graphql.serviceInstanceTopo(
+            new ServiceInstanceTopologyQuery().stepByMinute()
+                                              .start(startTime.minusDays(1))
+                                              .end(now())
+                                              .clientServiceId("VXNlcg==.0")
+                                              .serverServiceId("WW91cl9BcHBsaWNhdGlvbk5hbWU=.1"));
 
-            LOGGER.info("instance topology: {}", topology);
+        LOGGER.info("instance topology: {}", topology);
 
-            load("expected/storage/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
+        load("expected/storage/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
 
-            verifyServiceInstanceRelationMetrics(topology.getCalls());
-        } catch (Exception e) {
-            LOGGER.error("", e);
-            throw e;
-        }
+        verifyServiceInstanceRelationMetrics(topology.getCalls());
     }
 
     @Test
     void addUITemplate() throws Exception {
-        try {
-            TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
-                emptySetting("test-ui-config-1").type(TemplateType.DASHBOARD)
-            );
-            LOGGER.info("add template = {}", templateChangeStatus);
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting("test-ui-config").type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
 
-            verifyTemplates("expected/storage/dashboardConfiguration.yml");
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+        verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
     @Test
     void changeTemplate() throws Exception {
-        try {
-            final String name = "test-ui-config-2";
-            assertTrue(
-                graphql.addTemplate(
-                    emptySetting(name).type(TemplateType.DASHBOARD)
-                ).isStatus()
-            );
+        final String name = "test-ui-config-2";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
 
-            TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
-                emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
-            );
-            LOGGER.info("change UITemplate = {}", templateChangeStatus);
-            assertTrue(templateChangeStatus.isStatus());
+        TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
+            emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
+        );
+        LOGGER.info("change UITemplate = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
 
-            verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+        verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
     }
 
     @Test
-    void disableTemplate() throws IOException {
-        try {
-            final String name = "test-ui-config-3";
-            assertTrue(
-                graphql.addTemplate(
-                    emptySetting(name).type(TemplateType.DASHBOARD)
-                ).isStatus()
-            );
+    void disableTemplate() throws Exception {
+        final String name = "test-ui-config-3";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
 
-            TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
-            LOGGER.info("disable template = {}", templateChangeStatus);
-            assertTrue(templateChangeStatus.isStatus());
+        TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
+        LOGGER.info("disable template = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
 
-            verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+        verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
