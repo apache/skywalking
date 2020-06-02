@@ -85,7 +85,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         Point point = Point.measurement(UITemplate.INDEX_NAME)
                            .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
                            .fields(builder.data2Map(uiTemplate))
-                           .time(0L, TimeUnit.MILLISECONDS)
+                           .time(1L, TimeUnit.NANOSECONDS)
                            .build();
         client.write(point);
         return TemplateChangeStatus.builder().status(true).build();
@@ -104,8 +104,8 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
         if (Objects.nonNull(series)) {
             Point point = Point.measurement(UITemplate.INDEX_NAME)
                                .fields(builder.data2Map(uiTemplate))
-                               .tag(series.getTags())
-                               .time(0L, TimeUnit.MILLISECONDS)
+                               .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                               .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
@@ -118,22 +118,13 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
     public TemplateChangeStatus disableTemplate(final String name) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().all()
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.NAME, name));
+                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, name));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
-            List<String> columnNames = series.getColumns();
-            List<Object> columnValues = series.getValues().get(0);
-
-            Map<String, Object> storageData = Maps.newHashMap();
-            for (int i = 1; i < columnNames.size(); i++) {
-                storageData.put(columnNames.get(i), columnValues.get(i));
-            }
-
-            storageData.put(UITemplate.DISABLED, BooleanUtils.TRUE);
             Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .tag(series.getTags())
-                               .fields(storageData)
-                               .time(0L, TimeUnit.MILLISECONDS)
+                               .tag(InfluxConstants.TagName.ID_COLUMN, name)
+                               .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
+                               .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
