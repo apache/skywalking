@@ -124,7 +124,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
             Point point = Point.measurement(UITemplate.INDEX_NAME)
                                .tag(InfluxConstants.TagName.ID_COLUMN, name)
                                .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
-                               .time(1L, TimeUnit.MILLISECONDS)
+                               .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();
