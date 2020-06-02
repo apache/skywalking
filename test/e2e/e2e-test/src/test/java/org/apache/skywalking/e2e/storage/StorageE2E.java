@@ -173,7 +173,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
     void addUITemplate() throws Exception {
         assertTrue(
             graphql.addTemplate(
-                emptySetting("test-ui-config").type(TemplateType.DASHBOARD)
+                emptySetting("test-ui-config-1").type(TemplateType.DASHBOARD)
             ).isStatus()
         );
         TimeUnit.SECONDS.sleep(2L);
