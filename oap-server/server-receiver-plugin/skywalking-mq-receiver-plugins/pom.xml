@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>mq-reveiver-common</module>
+        <module>mq-receiver-common</module>
         <module>kafka-receiver-plugin</module>
     </modules>
 </project>

@@ -83,7 +83,8 @@ public class KafkaServiceManagementClient implements BootService, Runnable {
         InstanceProperties instance = InstanceProperties.newBuilder()
                                                         .setService(Config.Agent.SERVICE_NAME)
                                                         .setServiceInstance(Config.Agent.INSTANCE_NAME)
-                                                        .addAllProperties(OSUtil.buildOSInfo())
+                                                        .addAllProperties(OSUtil.buildOSInfo(
+                                                            Config.OsInfo.IPV4_LIST_SIZE))
                                                         .addAllProperties(SERVICE_INSTANCE_PROPERTIES)
                                                         .build();
         producer.send(new ProducerRecord<>(topic, "register", Bytes.wrap(instance.toByteArray())));

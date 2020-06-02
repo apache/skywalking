@@ -34,17 +34,16 @@
     </modules>
 
     <properties>
-        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <sdk.plugin.related.dir/>
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent
-        </agent.package.dest.dir>
-        <bootstrap.plugin.dest.dir>${agent.package.dest.dir}/mq-reporter-plugins</bootstrap.plugin.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}/../../../../skywalking-agent</agent.package.dest.dir>
+        <mq.reporter.plugins.dest.dir>${agent.package.dest.dir}/mq-reporter-plugins</mq.reporter.plugins.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <ant-nodeps.version>1.8.1</ant-nodeps.version>
+
+        <kafk-clients.version>2.4.1</kafk-clients.version>
+        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencies>
@@ -83,12 +82,6 @@
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
-                            <relocations>
-                                <relocation>
-                                    <pattern>${shade.net.bytebuddy.source}</pattern>
-                                    <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -108,10 +101,10 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
-                                        <mkdir dir="${bootstrap.plugin.dest.dir}"/>
+                                        <mkdir dir="${mq.reporter.plugins.dest.dir}"/>
                                         <copy
                                             file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                            tofile="${bootstrap.plugin.dest.dir}/${project.artifactId}-${project.version}.jar"
+                                            tofile="${mq.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar"
                                             overwrite="true"/>
                                     </then>
                                 </if>
