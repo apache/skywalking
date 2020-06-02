@@ -22,20 +22,19 @@ import java.util.LinkedList;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
 import org.apache.skywalking.apm.agent.core.context.trace.NoopSpan;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(TracingSegmentRunner.class)
 public class IgnoredTracerContextTest {
@@ -103,4 +102,16 @@ public class IgnoredTracerContextTest {
         assertThat(ignoredTracerContexts.size(), is(1));
     }
 
+    @Test
+    public void ignoredTraceContextWithCarrierCorrelationContext() {
+        ContextCarrier contextCarrier = new ContextCarrier().deserialize("", ContextCarrier.HeaderVersion.v3);
+        contextCarrier.getCorrelationContext().deserialize("aHVhd2Vp:aHVhd2Vp");
+
+        AbstractSpan abstractSpan = ContextManager.createEntrySpan("/test", contextCarrier);
+
+        assertEquals(ContextManager.getCorrelationContext().get("huawei").get(),"huawei");
+        ContextManager.stopSpan();
+
+        assertThat(abstractSpan.getClass().getName(), is(EntrySpan.class.getName()));
+    }
 }

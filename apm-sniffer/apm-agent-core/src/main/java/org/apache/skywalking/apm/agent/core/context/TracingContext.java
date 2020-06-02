@@ -189,16 +189,18 @@ public class TracingContext implements AbstractTracerContext {
      */
     @Override
     public void extract(ContextCarrier carrier) {
-        TraceSegmentRef ref = new TraceSegmentRef(carrier);
-        this.segment.ref(ref);
-        this.segment.relatedGlobalTraces(new PropagatedTraceId(carrier.getTraceId()));
-        AbstractSpan span = this.activeSpan();
-        if (span instanceof EntrySpan) {
-            span.ref(ref);
-        }
-
         this.correlationContext.extract(carrier);
         this.extensionContext.extract(carrier);
+        AbstractSpan span = this.activeSpan();
+        if(carrier.isValid()) {
+            TraceSegmentRef ref = new TraceSegmentRef(carrier);
+            this.segment.ref(ref);
+            this.segment.relatedGlobalTraces(new PropagatedTraceId(carrier.getTraceId()));
+
+            if (span instanceof EntrySpan) {
+                span.ref(ref);
+            }
+        }
         this.extensionContext.handle(span);
     }
 
