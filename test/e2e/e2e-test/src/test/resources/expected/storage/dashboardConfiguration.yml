@@ -15,7 +15,7 @@
 
 configurations:
   - name: test-ui-config-1
-    type: not null
+    type: DASHBOARD
     configuration: not null
     activated: true
     disabled: false
