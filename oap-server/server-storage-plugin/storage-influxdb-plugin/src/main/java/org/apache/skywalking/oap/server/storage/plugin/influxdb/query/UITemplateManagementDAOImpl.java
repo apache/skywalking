@@ -98,8 +98,7 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
         WhereQueryImpl<SelectQueryImpl> query = select().all()
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(
-                                                            eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
+                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
 
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
@@ -119,12 +118,13 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
     public TemplateChangeStatus disableTemplate(final String name) throws IOException {
         WhereQueryImpl<SelectQueryImpl> query = select().all()
                                                         .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                        .where(eq(InfluxConstants.NAME, name));
+                                                        .where(eq(InfluxConstants.TagName.ID_COLUMN, name));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
             Point point = Point.measurement(UITemplate.INDEX_NAME)
+                               .tag(InfluxConstants.TagName.ID_COLUMN, name)
                                .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
-                               .time(1L, TimeUnit.NANOSECONDS)
+                               .time(1L, TimeUnit.MILLISECONDS)
                                .build();
             client.write(point);
             return TemplateChangeStatus.builder().status(true).build();

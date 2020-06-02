@@ -197,6 +197,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         LOGGER.info("change UITemplate = {}", templateChangeStatus);
         assertTrue(templateChangeStatus.isStatus());
 
+        TimeUnit.SECONDS.sleep(2L);
         verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
     }
 
@@ -214,6 +215,7 @@ public class StorageE2E extends SkyWalkingTestAdapter {
         LOGGER.info("disable template = {}", templateChangeStatus);
         assertTrue(templateChangeStatus.isStatus());
 
+        TimeUnit.SECONDS.sleep(2L);
         verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
     }
 
