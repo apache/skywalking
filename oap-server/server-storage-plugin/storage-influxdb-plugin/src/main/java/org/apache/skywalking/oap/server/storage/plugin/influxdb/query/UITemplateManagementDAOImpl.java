@@ -93,30 +93,25 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
 
     @Override
     public TemplateChangeStatus changeTemplate(final DashboardSetting setting) throws IOException {
-        try {
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = setting.toEntity();
+        final UITemplate.Builder builder = new UITemplate.Builder();
+        final UITemplate uiTemplate = setting.toEntity();
 
-            WhereQueryImpl<SelectQueryImpl> query = select().all()
-                                                            .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                                                            .where(
-                                                                eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
+        WhereQueryImpl<SelectQueryImpl> query = select().all()
+                                                        .from(client.getDatabase(), UITemplate.INDEX_NAME)
+                                                        .where(
+                                                            eq(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id()));
 
-            QueryResult.Series series = client.queryForSingleSeries(query);
-            if (Objects.nonNull(series)) {
-                Point point = Point.measurement(UITemplate.INDEX_NAME)
-                                   .fields(builder.data2Map(uiTemplate))
-                                   .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
-                                   .time(1L, TimeUnit.NANOSECONDS)
-                                   .build();
-                client.write(point);
-                return TemplateChangeStatus.builder().status(true).build();
-            } else {
-                return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
-            }
-        } catch (IOException e) {
-            log.error("", e);
-            return TemplateChangeStatus.builder().status(false).message(e.getMessage()).build();
+        QueryResult.Series series = client.queryForSingleSeries(query);
+        if (Objects.nonNull(series)) {
+            Point point = Point.measurement(UITemplate.INDEX_NAME)
+                               .fields(builder.data2Map(uiTemplate))
+                               .tag(InfluxConstants.TagName.ID_COLUMN, uiTemplate.id())
+                               .time(1L, TimeUnit.NANOSECONDS)
+                               .build();
+            client.write(point);
+            return TemplateChangeStatus.builder().status(true).build();
+        } else {
+            return TemplateChangeStatus.builder().status(false).message("Can't find the template").build();
         }
     }
 
@@ -127,18 +122,8 @@ public class UITemplateManagementDAOImpl implements UITemplateManagementDAO {
                                                         .where(eq(InfluxConstants.NAME, name));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (Objects.nonNull(series)) {
-            List<String> columnNames = series.getColumns();
-            List<Object> columnValues = series.getValues().get(0);
-
-            Map<String, Object> storageData = Maps.newHashMap();
-            for (int i = 1; i < columnNames.size(); i++) {
-                storageData.put(columnNames.get(i), columnValues.get(i));
-            }
-
-            storageData.put(UITemplate.DISABLED, BooleanUtils.TRUE);
             Point point = Point.measurement(UITemplate.INDEX_NAME)
-                               .tag(InfluxConstants.TagName.ID_COLUMN, name)
-                               .fields(storageData)
+                               .addField(UITemplate.DISABLED, BooleanUtils.TRUE)
                                .time(1L, TimeUnit.NANOSECONDS)
                                .build();
             client.write(point);
