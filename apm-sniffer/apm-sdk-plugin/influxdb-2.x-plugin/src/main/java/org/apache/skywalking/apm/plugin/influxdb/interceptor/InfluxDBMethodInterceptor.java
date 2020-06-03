@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.influxdb.dto.Point;
 
 import java.lang.reflect.Method;
 
@@ -40,10 +39,10 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
         span.setComponent(ComponentsDefine.INFLUXDB_JAVA);
         Tags.DB_TYPE.set(span, "InfluxDB");
         SpanLayer.asDB(span);
-
-        if (allArguments.length > 0 && allArguments[0] instanceof Point) {
-            Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
-        }
+        // TODO: judge statement by operation scenario
+//        if (allArguments.length > 0 && allArguments[0] instanceof Point) {
+//            Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
+//        }
     }
 
     @Override

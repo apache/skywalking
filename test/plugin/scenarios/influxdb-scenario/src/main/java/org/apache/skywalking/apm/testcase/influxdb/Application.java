@@ -16,25 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.influxdb;
+package org.apache.skywalking.apm.testcase.influxdb;
 
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.matcher.ElementMatcher;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+@SpringBootApplication
+public class Application {
 
-public enum InfluxDBMethodMatch {
-    INSTANCE;
-
-    public ElementMatcher.Junction<MethodDescription> getInfluxDBMethodMatcher() {
-        return named("ping")
-                  .or(named("write"))
-                  .or(named("query"))
-                  .or(named("createDatabase"))
-                  .or(named("deleteDatabase"))
-                  .or(named("flush"))
-                  .or(named("createRetentionPolicy"))
-                  .or(named("dropRetentionPolicy"));
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
-
 }
