@@ -27,61 +27,28 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * {@link HttpClientRequestImplEndInstrumentation} enhance the <code>end</code> method in
- * <code>io.vertx.core.http.impl.HttpClientRequestImpl</code> class by
- * <code>HttpClientRequestImplEndInterceptor</code> class
+ * {@link HttpContextHandleDispatchResponseInstrumentation} enhance the <code>handleDispatchResponse</code> method in
+ * <code>io.vertx.ext.web.client.impl.HttpContext</code> class by
+ * <code>HttpContextHandleDispatchResponseInterceptor</code> class.
+ *
+ * Ver. 3.6.0+
  */
-public class HttpClientRequestImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpContextHandleDispatchResponseInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpClientRequestImpl";
-    private static final String ENHANCE_METHOD = "end";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpClientRequestImplEndInterceptor";
+    private static final String ENHANCE_CLASS = "io.vertx.ext.web.client.impl.HttpContext";
+    private static final String ENHANCE_METHOD = "handleDispatchResponse";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpContextHandleDispatchResponseInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[]{
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgument(3, int.class);
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return INTERCEPT_CLASS + "$Version30XTo33XConstructorInterceptor";
-                    }
-                },
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgument(4, int.class);
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return INTERCEPT_CLASS + "$Version34XTo37XConstructorInterceptor";
-                    }
-                },
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return takesArgument(5, int.class);
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return INTERCEPT_CLASS + "$Version38PlusConstructorInterceptor";
-                    }
-                }
-        };
+        return new ConstructorInterceptPoint[0];
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+        return new InstanceMethodsInterceptPoint[] {
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {

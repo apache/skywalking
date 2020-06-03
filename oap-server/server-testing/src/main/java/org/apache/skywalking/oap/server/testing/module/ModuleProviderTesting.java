@@ -30,7 +30,7 @@ public class ModuleProviderTesting implements ModuleServiceHolder {
 
     @Override
     public void registerServiceImplementation(Class<? extends Service> serviceType,
-        Service service) throws ServiceNotProvidedException {
+                                              Service service) throws ServiceNotProvidedException {
         if (serviceType.isInstance(service)) {
             this.services.put(serviceType, service);
         } else {

@@ -33,14 +33,25 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientRequestImplInterceptor implements InstanceMethodsAroundInterceptor {
+
+    static class HttpClientRequestContext {
+        String remotePeer;
+        boolean usingWebClient;
+        VertxContext vertxContext;
+        boolean sent;
+
+        HttpClientRequestContext(String remotePeer) {
+            this.remotePeer = remotePeer;
+        }
+    }
 
     public static class Version30XTo33XConstructorInterceptor implements InstanceConstructorInterceptor {
         @Override
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[2];
             int port = (Integer) allArguments[3];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
@@ -49,7 +60,7 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[3];
             int port = (Integer) allArguments[4];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
@@ -58,34 +69,41 @@ public class HttpClientRequestImplEndInterceptor implements InstanceMethodsAroun
         public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
             String host = (String) allArguments[4];
             int port = (Integer) allArguments[5];
-            objInst.setSkyWalkingDynamicField(host + ":" + port);
+            objInst.setSkyWalkingDynamicField(new HttpClientRequestContext(host + ":" + port));
         }
     }
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) {
-        HttpClientRequest request = (HttpClientRequest) objInst;
-        ContextCarrier contextCarrier = new ContextCarrier();
-        AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
-                (String) objInst.getSkyWalkingDynamicField());
-        span.setComponent(ComponentsDefine.VERTX);
-        SpanLayer.asHttp(span);
-        Tags.HTTP.METHOD.set(span, request.method().toString());
-        Tags.URL.set(span, request.uri());
+        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
+        if (!requestContext.sent) {
+            HttpClientRequest request = (HttpClientRequest) objInst;
+            ContextCarrier contextCarrier = new ContextCarrier();
+            AbstractSpan span = ContextManager.createExitSpan(toPath(request.uri()), contextCarrier,
+                    requestContext.remotePeer);
+            span.setComponent(ComponentsDefine.VERTX);
+            SpanLayer.asHttp(span);
+            Tags.HTTP.METHOD.set(span, request.method().toString());
+            Tags.URL.set(span, request.uri());
 
-        CarrierItem next = contextCarrier.items();
-        while (next.hasNext()) {
-            next = next.next();
-            request.headers().add(next.getHeadKey(), next.getHeadValue());
+            CarrierItem next = contextCarrier.items();
+            while (next.hasNext()) {
+                next = next.next();
+                request.headers().add(next.getHeadKey(), next.getHeadValue());
+            }
+            requestContext.vertxContext = new VertxContext(ContextManager.capture(), span.prepareForAsync());
         }
-        objInst.setSkyWalkingDynamicField(new VertxContext(ContextManager.capture(), span.prepareForAsync()));
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) {
-        ContextManager.stopSpan();
+        HttpClientRequestContext requestContext = (HttpClientRequestContext) objInst.getSkyWalkingDynamicField();
+        if (!requestContext.sent) {
+            requestContext.sent = true;
+            ContextManager.stopSpan();
+        }
         return ret;
     }
 
