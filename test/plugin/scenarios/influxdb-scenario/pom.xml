@@ -31,7 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
         <spring-boot-version>2.1.6.RELEASE</spring-boot-version>
-        <test.framework.version>2.5</test.framework.version>
+        <test.framework.version>2.17</test.framework.version>
     </properties>
 
     <name>skywalking-influxdb-scenario</name>
