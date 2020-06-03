@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.testcase.influxdb.controller;
 
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
+import org.apache.skywalking.apm.testcase.influxdb.executor.InfluxDBExecutor;
 import org.influxdb.dto.Point;
-import org.influxdb.dto.Query;
-import org.influxdb.dto.QueryResult;
+import org.influxdb.dto.Pong;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,49 +33,38 @@ import java.util.concurrent.TimeUnit;
 public class CaseController {
 
     private static final String SUCCESS = "Success";
+    private static final String ERROR = "Error";
 
     @Value("${influxdb.url:http://127.0.0.1:8086}")
     private String serverURL;
 
     @RequestMapping("/influxdb-scenario")
     @ResponseBody
-    public String testcase() throws Exception {
-        final InfluxDB influxDB = InfluxDBFactory.connect(serverURL);
-        influxDB.ping();
-        // Create a database...
-        String databaseName = "skywalking";
-        influxDB.query(new Query("CREATE DATABASE " + databaseName));
-        influxDB.setDatabase(databaseName);
-
-        // ... and a retention policy, if necessary.
-        String retentionPolicyName = "one_day_only";
-        influxDB.query(new Query("CREATE RETENTION POLICY " + retentionPolicyName
-            + " ON " + databaseName + " DURATION 1d REPLICATION 1 DEFAULT"));
-        influxDB.setRetentionPolicy(retentionPolicyName);
-
-        // Write points to InfluxDB.
-        influxDB.write(Point.measurement("heartbeat")
+    public String testcase(){
+        InfluxDBExecutor executor = new InfluxDBExecutor(serverURL);
+        // createDatabase
+        String db = "skywalking";
+        executor.createDatabase(db);
+        // createRetentionPolicy
+        String rp = "one_day";
+        executor.createRetentionPolicyWithOneDay(db,rp);
+        Point point = Point.measurement("heartbeat")
             .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
             .tag("host", "127.0.0.1")
             .addField("device_name", "sensor x")
-            .build());
-
-        // Query your data using InfluxQL.
-        QueryResult queryResult = influxDB.query(new Query("SELECT * FROM heartbeat"));
-
-        System.out.println(queryResult);
-
-        // Close it if your application is terminating or you are not using it anymore.
-        influxDB.close();
+            .build();
+        // write
+        executor.write(db,rp,point);
+        // query
+        executor.query(db,"SELECT * FROM heartbeat");
         return SUCCESS;
     }
 
     @RequestMapping("/healthCheck")
     @ResponseBody
-    public String healthCheck() throws Exception {
-        try (InfluxDB influxDB = InfluxDBFactory.connect(serverURL)) {
-
-        }
-        return SUCCESS;
+    public String healthCheck() {
+        InfluxDBExecutor executor = new InfluxDBExecutor(serverURL);
+        Pong pong = executor.ping();
+        return pong.getVersion() != null ? SUCCESS : ERROR;
     }
 }
