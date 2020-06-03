@@ -20,7 +20,7 @@ Release Notes.
 * Fix ElasticSearch 5.x plugin TransportClient error.
 * Support Correlation protocol v1.
 * Fix Finagle plugin bug, in processing Noop Span.
-* Make `CommandService` daemon to avoid blocking target application shutting down gracefully
+* Make `CommandService` daemon to avoid blocking target application shutting down gracefully.
 
 #### OAP-Backend
 * Support meter system for Prometheus adoption. In future releases, we will add native meter APIs and MicroMeter(Sleuth) system.
