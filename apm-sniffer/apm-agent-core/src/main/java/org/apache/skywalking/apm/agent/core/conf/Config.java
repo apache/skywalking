@@ -109,6 +109,14 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+    }
+
+    public static class OsInfo {
+        /**
+         * Limit the length of the ipv4 list size.
+         */
+        public static int IPV4_LIST_SIZE = 10;
     }
 
     public static class Collector {

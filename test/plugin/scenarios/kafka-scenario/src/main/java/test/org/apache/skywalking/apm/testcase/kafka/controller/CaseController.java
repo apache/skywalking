@@ -53,12 +53,14 @@ public class CaseController {
     private String bootstrapServers;
 
     private String topicName;
+    private String topicName2;
 
     private static volatile boolean KAFKA_STATUS = false;
 
     @PostConstruct
     private void setUp() {
         topicName = "test";
+        topicName2 = "test2";
         new CheckKafkaProducerThread(bootstrapServers).start();
     }
 
@@ -74,6 +76,13 @@ public class CaseController {
                     logger.info("send success metadata={}", metadata);
                 }
             });
+
+            ProducerRecord<String, String> record2 = new ProducerRecord<String, String>(topicName2, "testKey", Integer.toString(1));
+            record2.headers().add("TEST", "TEST".getBytes());
+            Callback callback2 = (metadata, exception) -> {
+                logger.info("send success metadata={}", metadata);
+            };
+            producer.send(record2, callback2);
         }, bootstrapServers);
         Thread thread = new ConsumerThread();
         thread.start();
@@ -134,14 +143,12 @@ public class CaseController {
                         ProducerRecord<String, String> record = new ProducerRecord<String, String>("check", "checkKey", Integer
                             .toString(1));
                         record.headers().add("CHECK", "CHECK".getBytes());
-                        producer.send(record, new Callback() {
-                            @Override
-                            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                                if (isNull(e)) {
-                                    KAFKA_STATUS = true;
-                                }
+                        Callback callback = (metadata, e) -> {
+                            if (isNull(e)) {
+                                KAFKA_STATUS = true;
                             }
-                        });
+                        };
+                        producer.send(record, callback);
                     }, bootstrapServers);
                 } catch (Exception e) {
                     logger.error("check " + bootstrapServers + " " + e.getMessage(), e);
