@@ -42,6 +42,7 @@ import org.apache.skywalking.apm.agent.core.plugin.PluginBootstrap;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.agent.core.plugin.PluginFinder;
 import org.apache.skywalking.apm.agent.core.plugin.bootstrap.BootstrapInstrumentBoost;
+import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.CacheableTransformerDecorator;
 import org.apache.skywalking.apm.agent.core.plugin.jdk9module.JDK9ModuleExporter;
 
 import static net.bytebuddy.matcher.ElementMatchers.nameContains;
@@ -97,6 +98,15 @@ public class SkyWalkingAgent {
         } catch (Exception e) {
             logger.error(e, "SkyWalking agent open read edge in JDK 9+ failure. Shutting down.");
             return;
+        }
+
+        if (Config.Agent.IS_CACHE_ENHANCED_CLASS) {
+            try {
+                agentBuilder = agentBuilder.with(new CacheableTransformerDecorator(Config.Agent.CLASS_CACHE_MODE));
+                logger.info("SkyWalking agent setup class cache: {}", Config.Agent.CLASS_CACHE_MODE);
+            } catch (Exception e) {
+                logger.error(e, "SkyWalking agent setup class cache failure.");
+            }
         }
 
         agentBuilder.type(pluginFinder.buildMatch())
