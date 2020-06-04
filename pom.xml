@@ -486,6 +486,7 @@
 
                         <!-- generated file from test agent plugin scenarios -->
                         <exclude>**/test/plugin/workspace/**</exclude>
+                        <exclude>**/test/jacoco/**</exclude>
 
                         <!-- TSL relevant files for e2e test -->
                         <exclude>**/*.crt</exclude>
