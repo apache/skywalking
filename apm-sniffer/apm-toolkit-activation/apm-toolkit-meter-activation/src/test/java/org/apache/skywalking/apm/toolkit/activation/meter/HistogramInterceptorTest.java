@@ -19,105 +19,65 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.Histogram;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
+import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
-import org.junit.AfterClass;
+import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-@RunWith(TracingSegmentRunner.class)
 public class HistogramInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    private HistogramConstructInterceptor constructInterceptor = new HistogramConstructInterceptor();
-    private HistogramAddValueInterceptor addValueInterceptor = new HistogramAddValueInterceptor();
-    private HistogramAddCountToStepInterceptor addCountToStepInterceptor = new HistogramAddCountToStepInterceptor();
+    private HistogramInterceptor histogramInterceptor = new HistogramInterceptor();
+    private EnhancedInstance enhancedInstance = new HistogramEnhance(
+        new MeterId("test", MeterId.MeterType.HISTOGRAM, Arrays.asList(new MeterId.Tag("k1", "v1"))),
+        Arrays.asList(1d, 2d, 3d));
 
-    private EnhancedInstance enhancedInstance = new EnhancedInstance() {
-        private Object data;
+    @Test
+    public void testConstruct() {
+        histogramInterceptor.onConstruct(enhancedInstance, null);
+
+        final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
+        final Map<MeterId, MeterTransformer> meterMap = (Map<MeterId, MeterTransformer>) Whitebox.getInternalState(service, "meterMap");
+        Assert.assertEquals(1, meterMap.size());
+
+        final Object field = meterMap.values().iterator().next();
+        Assert.assertNotNull(field);
+        Assert.assertTrue(field instanceof HistogramTransformer);
+        final HistogramTransformer histogramTransformer = (HistogramTransformer) field;
+
+        Assert.assertNotNull(histogramTransformer.getId());
+        Assert.assertEquals("test", histogramTransformer.getId().getName());
+        Assert.assertEquals(MeterType.HISTOGRAM, histogramTransformer.getId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), histogramTransformer.getId().getTags());
+    }
+
+    private static class HistogramEnhance extends Histogram implements EnhancedInstance {
+        protected HistogramEnhance(MeterId meterId, List<Double> steps) {
+            super(meterId, steps);
+        }
+
         @Override
         public Object getSkyWalkingDynamicField() {
-            return data;
+            return null;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            this.data = value;
         }
-    };
-
-    @AfterClass
-    public static void afterClass() {
-        ServiceManager.INSTANCE.shutdown();
     }
-
-    @Test
-    public void testConstruct() {
-        constructInterceptor.onConstruct(enhancedInstance, new Object[] {
-            "test", Arrays.asList(new Tag("k1", "v1")), Arrays.asList(1, 5, 10)
-        });
-
-        final Object field = enhancedInstance.getSkyWalkingDynamicField();
-        Assert.assertNotNull(field);
-        Assert.assertTrue(field instanceof Histogram);
-        final Histogram histogram = (Histogram) field;
-
-        Assert.assertNotNull(histogram.getId());
-        Assert.assertEquals(histogram.getId().getName(), "test");
-        Assert.assertEquals(histogram.getId().getType(), MeterType.HISTOGRAM);
-        Assert.assertEquals(histogram.getId().getTags(), Arrays.asList(new MeterTag("k1", "v1")));
-
-        final Histogram.Bucket[] buckets = (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets");
-        Assert.assertNotNull(buckets);
-        Assert.assertArrayEquals(buckets, new Histogram.Bucket[] {
-            new Histogram.Bucket(1), new Histogram.Bucket(5), new Histogram.Bucket(10)
-        });
-    }
-
-    @Test
-    public void testAddValue() throws Throwable {
-        final Histogram histogram = new Histogram(
-            new MeterId("test", MeterType.HISTOGRAM, Collections.emptyList()),
-            Arrays.asList(1, 5, 10));
-        enhancedInstance.setSkyWalkingDynamicField(histogram);
-
-        addValueInterceptor.beforeMethod(enhancedInstance, null, new Object[] {2}, null, null);
-        addValueInterceptor.afterMethod(enhancedInstance, null, new Object[] {2}, null, null);
-
-        final Histogram.Bucket[] buckets = (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets");
-        Assert.assertEquals(buckets[0].transform().getCount(), 1L);
-        Assert.assertEquals(buckets[1].transform().getCount(), 0L);
-        Assert.assertEquals(buckets[2].transform().getCount(), 0L);
-    }
-
-    @Test
-    public void testAddCountToStep() throws Throwable {
-        final Histogram histogram = new Histogram(
-            new MeterId("test", MeterType.HISTOGRAM, Collections.emptyList()),
-            Arrays.asList(1, 5, 10));
-        enhancedInstance.setSkyWalkingDynamicField(histogram);
-
-        addCountToStepInterceptor.beforeMethod(enhancedInstance, null, new Object[] {5, 2L}, null, null);
-        addCountToStepInterceptor.afterMethod(enhancedInstance, null, new Object[] {5, 2L}, null, null);
-
-        final Histogram.Bucket[] buckets = (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets");
-        Assert.assertEquals(buckets[0].transform().getCount(), 0L);
-        Assert.assertEquals(buckets[1].transform().getCount(), 2L);
-        Assert.assertEquals(buckets[2].transform().getCount(), 0L);
-    }
-
 }

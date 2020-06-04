@@ -16,50 +16,29 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.meter;
+package org.apache.skywalking.apm.agent.core.meter.transform;
 
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
-import java.util.function.Supplier;
+public class GaugeTransformer extends MeterTransformer<GaugeAdapter> {
+    private static final ILog logger = LogManager.getLogger(GaugeTransformer.class);
 
-public class Gauge extends Meter<Gauge> {
-    private static final ILog logger = LogManager.getLogger(Gauge.class);
-
-    private final Supplier<Long> getter;
-
-    public Gauge(MeterId id, Supplier<Long> getter) {
-        super(id);
-        this.getter = getter;
-    }
-
-    /**
-     * Get the value
-     */
-    public Long get() {
-        return getter.get();
-    }
-
-    @Override
-    public boolean accept(Gauge newMeter) {
-        // getter must be same
-        return newMeter.getter == getter;
+    public GaugeTransformer(GaugeAdapter adapter) {
+        super(adapter);
     }
 
     @Override
     public MeterData.Builder transform() {
-        if (getter == null) {
-            return null;
-        }
-
         // get count
-        Long count;
+        Double count;
         try {
-            count = getter.get();
+            count = adapter.getCount();
         } catch (Exception e) {
-            logger.warn(e, "Cannot get the count in meter:{}", id.getName());
+            logger.warn(e, "Cannot get the count in meter:{}", adapter.getId().getName());
             return null;
         }
 
@@ -69,8 +48,8 @@ public class Gauge extends Meter<Gauge> {
 
         final MeterData.Builder builder = MeterData.newBuilder();
         builder.setSingleValue(MeterSingleValue.newBuilder()
-            .setName(id.getName())
-            .addAllLabels(id.transformTags())
+            .setName(getName())
+            .addAllLabels(transformTags())
             .setValue(count).build());
 
         return builder;

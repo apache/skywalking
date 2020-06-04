@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.DoubleAdder;
 
 public class Counter extends BaseMeter {
+
+    protected final DoubleAdder count;
 
     /**
      * Create a counter builder by name
@@ -30,45 +31,51 @@ public class Counter extends BaseMeter {
         return new Builder(name);
     }
 
-    /**
-     * Build counter internal. Using {@link Builder} to build instance.
-     */
-    private Counter(String name, List<Tag> tags) {
-        super(name, tags);
+    protected Counter(MeterId meterId) {
+        super(meterId);
+        this.count = new DoubleAdder();
     }
 
     /**
-     * increment count
+     * Increment count
      */
-    public void increment(long count) {
+    public void increment(double count) {
+        this.count.add(count);
+    }
+
+    /**
+     * Get count value
+     * @return
+     */
+    public double get() {
+        return this.count.doubleValue();
     }
 
     /**
      * Builder the counter
      */
-    public static class Builder {
-
-        private final String name;
-        private List<Tag> tags = new ArrayList<>();
+    public static class Builder extends BaseMeter.Builder<Counter> {
 
         public Builder(String name) {
-            this.name = name;
+            super(name);
         }
 
-        /**
-         * append new tag
-         */
-        public Builder tag(String name, String value) {
-            this.tags.add(new Tag(name, value));
-            return this;
+        public Builder(MeterId meterId) {
+            super(meterId);
         }
 
-        /**
-         * Build a new counter object
-         * @return
-         */
-        public Counter build() {
-            return new Counter(name, tags);
+        @Override
+        public void accept(Counter counter) {
+        }
+
+        @Override
+        public Counter create(MeterId meterId) {
+            return new Counter(meterId);
+        }
+
+        @Override
+        public MeterId.MeterType getType() {
+            return MeterId.MeterType.COUNTER;
         }
     }
 }

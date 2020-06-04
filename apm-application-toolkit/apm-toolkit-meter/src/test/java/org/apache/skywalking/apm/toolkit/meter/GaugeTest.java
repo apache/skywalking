@@ -25,16 +25,40 @@ public class GaugeTest {
 
     @Test
     public void testBuild() {
-        Gauge gauge = Gauge.create("test_gauge", () -> 1L).tag("k1", "v1").build();
-        Assert.assertEquals(gauge.getTag("k1"), "v1");
-        Assert.assertNull(gauge.getTag("k2"));
-        Assert.assertEquals(gauge.getName(), "test_gauge");
+        Gauge gauge = Gauge.create("test_gauge1", () -> 1d).tag("k1", "v1").build();
+        Assert.assertNotNull(gauge);
+
+        // Same meter name and new getter
+        try {
+            Gauge.create("test_gauge1", () -> 1d).tag("k1", "v1").build();
+            throw new IllegalStateException();
+        } catch (Exception e) {
+        }
+
+        // Missing getter reference
+        try {
+            Gauge.create("test_gauge2", null).build();
+            throw new IllegalStateException();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+        }
     }
 
     @Test
     public void testGet() {
-        Gauge gauge = Gauge.create("test_gauge", () -> 1L).tag("k1", "v1").build();
-        Assert.assertEquals(gauge.get().longValue(), 1L);
+        Gauge gauge = Gauge.create("test_gauge3", () -> 1d).tag("k1", "v1").build();
+        Assert.assertEquals(gauge.get(), 1d, 0.0);
+
+        // Need throw exception
+        gauge = Gauge.create("test_gauge4", () -> Double.valueOf(1 / 0)).build();
+        try {
+            gauge.get();
+            throw new IllegalStateException();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+        }
     }
 
 }

@@ -19,76 +19,63 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.Counter;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
+import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
-import org.junit.AfterClass;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
 
-@RunWith(TracingSegmentRunner.class)
 public class CounterInterceptorTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
     private CounterInterceptor counterInterceptor = new CounterInterceptor();
+    private EnhancedInstance enhancedInstance = new CounterEnhance(
+        new MeterId("test", MeterId.MeterType.COUNTER, Arrays.asList(new MeterId.Tag("k1", "v1"))));
 
-    private EnhancedInstance enhancedInstance = new EnhancedInstance() {
-        private Object data;
+    @Test
+    public void testConstruct() {
+        counterInterceptor.onConstruct(enhancedInstance, null);
+
+        final MeterService service = ServiceManager.INSTANCE.findService(MeterService.class);
+        final Map<MeterId, MeterTransformer> meterMap = (Map<MeterId, MeterTransformer>) Whitebox.getInternalState(service, "meterMap");
+        Assert.assertEquals(1, meterMap.size());
+
+        final MeterTransformer transformer = meterMap.values().iterator().next();
+        Assert.assertTrue(transformer instanceof CounterTransformer);
+        final CounterTransformer counterTransformer = (CounterTransformer) transformer;
+
+        Assert.assertNotNull(counterTransformer.getId());
+        Assert.assertEquals("test", counterTransformer.getId().getName());
+        Assert.assertEquals(MeterType.COUNTER, counterTransformer.getId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), counterTransformer.getId().getTags());
+    }
+
+    private static class CounterEnhance extends Counter implements EnhancedInstance {
+        protected CounterEnhance(MeterId meterId) {
+            super(meterId);
+        }
+
         @Override
         public Object getSkyWalkingDynamicField() {
-            return data;
+            return null;
         }
 
         @Override
         public void setSkyWalkingDynamicField(Object value) {
-            this.data = value;
         }
-    };
-
-    @AfterClass
-    public static void afterClass() {
-        ServiceManager.INSTANCE.shutdown();
     }
 
-    @Test
-    public void testConstruct() {
-        counterInterceptor.onConstruct(enhancedInstance, new Object[] {
-            "test", Arrays.asList(new Tag("k1", "v1"))
-        });
-
-        final Object field = enhancedInstance.getSkyWalkingDynamicField();
-        Assert.assertNotNull(field);
-        Assert.assertTrue(field instanceof Counter);
-        final Counter counter = (Counter) field;
-
-        Assert.assertNotNull(counter.getId());
-        Assert.assertEquals(counter.getId().getName(), "test");
-        Assert.assertEquals(counter.getId().getType(), MeterType.COUNTER);
-        Assert.assertEquals(counter.getId().getTags(), Arrays.asList(new MeterTag("k1", "v1")));
-    }
-
-    @Test
-    public void testInvoke() throws Throwable {
-        final Counter counter = new Counter(new MeterId("test", MeterType.COUNTER, Collections.emptyList()));
-        enhancedInstance.setSkyWalkingDynamicField(counter);
-
-        counterInterceptor.beforeMethod(enhancedInstance, null, new Object[] {1L}, null, null);
-        counterInterceptor.afterMethod(enhancedInstance, null, new Object[] {1L}, null, null);
-
-        Assert.assertEquals(((AtomicLong) Whitebox.getInternalState(counter, "count")).longValue(), 1L);
-    }
 }

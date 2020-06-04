@@ -18,61 +18,63 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 public class Gauge extends BaseMeter {
 
-    private Supplier<Long> getter;
+    protected Supplier<Double> getter;
 
-    public static Builder create(String name, Supplier<Long> getter) {
+    public static Builder create(String name, Supplier<Double> getter) {
         return new Builder(name, getter);
     }
 
-    private Gauge(String name, List<Tag> tags, Supplier<Long> getter) {
-        super(name, tags);
+    protected Gauge(MeterId meterId, Supplier<Double> getter) {
+        super(meterId);
         this.getter = getter;
     }
 
     /**
      * Get count
      */
-    public Long get() {
+    public double get() {
         return getter.get();
     }
 
     /**
      * Build the gauge
      */
-    public static class Builder {
-        private final String name;
-        private final Supplier<Long> getter;
-        private List<Tag> tags = new ArrayList<>();
+    public static class Builder extends BaseMeter.Builder<Gauge> {
+        private final Supplier<Double> getter;
 
-        public Builder(String name, Supplier<Long> getter) {
-            if (getter == null) {
-                throw new NullPointerException("getter cannot be null");
-            }
-
-            this.name = name;
+        public Builder(String name, Supplier<Double> getter) {
+            super(name);
             this.getter = getter;
         }
 
-        /**
-         * append new tag
-         */
-        public Gauge.Builder tag(String name, String value) {
-            this.tags.add(new Tag(name, value));
-            return this;
+        public Builder(MeterId meterId, Supplier<Double> getter) {
+            super(meterId);
+            this.getter = getter;
         }
 
-        /**
-         * Build a new gauge object
-         * @return
-         */
-        public Gauge build() {
-            return new Gauge(name, tags, getter);
+        @Override
+        public void accept(Gauge meter) {
+            if (this.getter != meter.getter) {
+                throw new IllegalArgumentException("Getter is not same");
+            }
         }
+
+        @Override
+        public Gauge create(MeterId meterId) {
+            if (getter == null) {
+                throw new IllegalArgumentException("getter cannot be null");
+            }
+            return new Gauge(meterId, getter);
+        }
+
+        @Override
+        public MeterId.MeterType getType() {
+            return MeterId.MeterType.GAUGE;
+        }
+
     }
 }

@@ -19,11 +19,8 @@
 package org.apache.skywalking.apm.agent.core.meter;
 
 public enum MeterType {
-
     COUNTER,
-
     GAUGE,
-
-    HISTOGRAM
-
+    HISTOGRAM,
+    PERCENTILE
 }

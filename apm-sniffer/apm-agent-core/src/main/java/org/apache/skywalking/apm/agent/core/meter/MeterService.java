@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
@@ -38,6 +39,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -46,11 +50,11 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.GRPC_UPSTREAM_TIMEOUT;
 
 @DefaultImplementor
-public class MeterRegistryService implements BootService, Runnable, GRPCChannelListener {
-    private static final ILog logger = LogManager.getLogger(MeterRegistryService.class);
+public class MeterService implements BootService, Runnable, GRPCChannelListener {
+    private static final ILog logger = LogManager.getLogger(MeterService.class);
 
     // all meters
-    private final ConcurrentHashMap<MeterId, Meter> meterMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<MeterId, MeterTransformer> meterMap = new ConcurrentHashMap<>();
 
     // channel status
     private volatile GRPCChannelStatus status = GRPCChannelStatus.DISCONNECT;
@@ -61,35 +65,17 @@ public class MeterRegistryService implements BootService, Runnable, GRPCChannelL
     // report meters
     private volatile ScheduledFuture<?> reportMeterFuture;
 
+    private final Set<String> rateCounterNames = new HashSet<>();
+
     /**
-     * Register the meter
+     * Register the meterTransformer
      */
-    public <T extends Meter> T registerOrFound(T meter) {
-        if (meter == null) {
-            return null;
+    public <T extends MeterTransformer> void register(T meterTransformer) {
+        if (meterTransformer == null) {
+            return;
         }
 
-        final Meter dbMeter = meterMap.putIfAbsent(meter.getId(), meter);
-        // First time add the meter
-        if (dbMeter == null) {
-            return meter;
-        }
-
-        // Same reference of the meter
-        if (dbMeter == meter) {
-            return (T) dbMeter;
-        }
-
-        // Previous meter not accept the new meter
-        if (!dbMeter.accept(meter)) {
-            // just return the new one, not including in the register map
-            if (logger.isDebugEnable()) {
-                logger.debug("The new meter {} could not be accept", meter.getClass().getSimpleName());
-            }
-            return meter;
-        }
-
-        return (T) dbMeter;
+        meterMap.putIfAbsent(meterTransformer.getId(), meterTransformer);
     }
 
     @Override
@@ -106,6 +92,8 @@ public class MeterRegistryService implements BootService, Runnable, GRPCChannelL
                 this,
                 t -> logger.error("Report meters failure.", t)
             ), 0, Config.Meter.REPORT_INTERVAL, TimeUnit.SECONDS);
+
+            rateCounterNames.addAll(Arrays.asList(Config.Meter.RATE_COUNTER_NAME.split(",")));
         }
     }
 
@@ -152,8 +140,8 @@ public class MeterRegistryService implements BootService, Runnable, GRPCChannelL
 
             // build and report meters
             boolean hasSendMachineInfo = false;
-            for (Meter meter : meterMap.values()) {
-                final MeterData.Builder dataBuilder = meter.transform();
+            for (MeterTransformer meterTransformer : meterMap.values()) {
+                final MeterData.Builder dataBuilder = meterTransformer.transform();
                 if (dataBuilder == null) {
                     continue;
                 }
@@ -195,5 +183,12 @@ public class MeterRegistryService implements BootService, Runnable, GRPCChannelL
             meterReportServiceStub = null;
         }
         this.status = status;
+    }
+
+    /**
+     * Counter name is need rate by agent
+     */
+    public boolean isRateCounter(String name) {
+        return rateCounterNames.contains(name);
     }
 }

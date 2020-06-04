@@ -19,37 +19,28 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.Histogram;
-import org.apache.skywalking.apm.agent.core.meter.Meter;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterRegistryService;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterTagConverter;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
+import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.ToolkitHistogramAdapter;
 
-import java.util.List;
-
-public class HistogramConstructInterceptor implements InstanceConstructorInterceptor {
-
-    private static MeterRegistryService REGISTRY_SERVICE;
+public class HistogramInterceptor implements InstanceConstructorInterceptor {
+    private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final String name = (String) allArguments[0];
-        final List<Tag> tags = (List<Tag>) allArguments[1];
-        final List<Integer> buckets = (List<Integer>) allArguments[2];
+        final Histogram toolkitHistogram = (Histogram) objInst;
 
-        final MeterId id = new MeterId(name, MeterType.HISTOGRAM, MeterTagConverter.convert(tags));
-        final Histogram histogram = new Histogram(id, buckets);
+        final ToolkitHistogramAdapter histogramAdapter = new ToolkitHistogramAdapter(toolkitHistogram);
+        final HistogramTransformer histogramTransformer = new HistogramTransformer(histogramAdapter);
 
         // register the meter
-        if (REGISTRY_SERVICE == null) {
-            REGISTRY_SERVICE = ServiceManager.INSTANCE.findService(MeterRegistryService.class);
+        if (METER_SERVICE == null) {
+            METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        final Meter dbMeter = REGISTRY_SERVICE.registerOrFound(histogram);
-        objInst.setSkyWalkingDynamicField(dbMeter);
+        METER_SERVICE.register(histogramTransformer);
     }
 
 }

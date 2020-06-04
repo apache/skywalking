@@ -16,22 +16,8 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation.meter.util;
+package org.apache.skywalking.apm.agent.core.meter.adapter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterTag;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class MeterTagConverter {
-
-    public static List<MeterTag> convert(List<Tag> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return tags.stream().map(t -> new MeterTag(t.getName(), t.getValue())).collect(Collectors.toList());
-    }
+public interface GaugeAdapter extends MeterAdapter {
+    Double getCount();
 }

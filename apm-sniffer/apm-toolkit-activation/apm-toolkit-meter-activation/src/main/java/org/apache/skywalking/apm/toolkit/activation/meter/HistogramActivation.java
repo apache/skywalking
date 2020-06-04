@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import java.util.List;
-
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -44,12 +41,12 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(String.class, List.class, List.class);
+                    return takesArguments(2);
                 }
 
                 @Override
                 public String getConstructorInterceptor() {
-                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramConstructInterceptor";
+                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramInterceptor";
                 }
             }
         };
@@ -57,39 +54,6 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("addCountToStep").and(takesArguments(Integer.TYPE, Long.TYPE));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramAddCountToStepInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            },
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("addValue").and(takesArguments(Integer.TYPE));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.toolkit.activation.meter.HistogramAddValueInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 }

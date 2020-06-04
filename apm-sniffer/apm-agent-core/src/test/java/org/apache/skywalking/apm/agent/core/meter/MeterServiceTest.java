@@ -18,11 +18,16 @@
 
 package org.apache.skywalking.apm.agent.core.meter;
 
+import com.google.common.collect.Maps;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
+import org.apache.skywalking.apm.agent.core.meter.adapter.PercentileAdapter;
+import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
+import org.apache.skywalking.apm.agent.core.meter.transform.PercentileTransformer;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
@@ -43,7 +48,9 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -51,7 +58,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.spy;
 
 @RunWith(TracingSegmentRunner.class)
-public class MeterRegistryServiceTest {
+public class MeterServiceTest {
 
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
@@ -59,7 +66,7 @@ public class MeterRegistryServiceTest {
     @Rule
     public GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
-    private MeterRegistryService registryService = new MeterRegistryService();
+    private MeterService registryService = new MeterService();
     private List<MeterData> upstreamMeters;
 
     private MeterReportServiceGrpc.MeterReportServiceImplBase serviceImplBase = new MeterReportServiceGrpc.MeterReportServiceImplBase() {
@@ -118,45 +125,24 @@ public class MeterRegistryServiceTest {
 
         // add one
         final MeterId counterId = new MeterId("test1", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
-        final Counter counter = new Counter(counterId);
-        counter.increment(2);
-        registryService.registerOrFound(counter);
+        final CounterTransformer transformer1 = new CounterTransformer(new TestCounterAdapter(counterId));
+        registryService.register(transformer1);
         registryService.run();
         assertThat(upstreamMeters.size(), is(1));
         isSameWithCounter(upstreamMeters.get(0), true, counterId, 2);
 
-        // register the same meter
-        upstreamMeters.clear();
-        counter.increment(2);
-        final Counter counter1 = registryService.registerOrFound(new Counter(counterId));
-        Assert.assertEquals(counter1, counter);
-        counter1.increment(2);
-        registryService.run();
-        assertThat(upstreamMeters.size(), is(1));
-        isSameWithCounter(upstreamMeters.get(0), true, counterId, 4L);
-
         // add second
-        final MeterId histogramId = new MeterId("test2", MeterType.HISTOGRAM, Arrays.asList(new MeterTag("k1", "v1")));
-        final List<Integer> buckets = Arrays.asList(0, 1, 4, 9);
-        final Histogram histogram = new Histogram(histogramId, buckets);
-        registryService.registerOrFound(histogram);
-        histogram.addValue(5);
         upstreamMeters.clear();
-        registryService.run();
-        assertThat(upstreamMeters.size(), is(1));
-        isSameWithHistogram(upstreamMeters.get(0), true, histogramId, buckets, Arrays.asList(0L, 0L, 1L, 0L));
-
-        // multiple meter report
-        upstreamMeters.clear();
-        counter.increment(5);
-        histogram.addValue(7);
+        final MeterId percentileId = new MeterId("test2", MeterType.PERCENTILE, Arrays.asList(new MeterTag("k1", "v1")));
+        final PercentileTransformer transformer2 = new PercentileTransformer(new TestPercentileAdapter(percentileId));
+        registryService.register(transformer2);
         registryService.run();
         assertThat(upstreamMeters.size(), is(2));
         for (int i = 0; i < upstreamMeters.size(); i++) {
             if (Objects.equals(upstreamMeters.get(i).getMetricCase(), MeterData.MetricCase.HISTOGRAM)) {
-                isSameWithHistogram(upstreamMeters.get(i), i == 0, histogramId, buckets, Arrays.asList(0L, 0L, 1L, 0L));
+                isSameWithPercentile(upstreamMeters.get(i), i == 0, percentileId, 2d, 1L);
             } else {
-                isSameWithCounter(upstreamMeters.get(i), i == 0, counterId, 5);
+                isSameWithCounter(upstreamMeters.get(i), i == 0, counterId, 2);
             }
         }
     }
@@ -179,11 +165,10 @@ public class MeterRegistryServiceTest {
 
         Assert.assertEquals(singleValue.getName(), meterId.getName());
         Assert.assertEquals(singleValue.getLabelsList(), meterId.transformTags());
-        Assert.assertEquals(singleValue.getValue(), count);
+        Assert.assertEquals(singleValue.getValue(), count, 0.0);
     }
 
-    public void isSameWithHistogram(MeterData meterData, boolean firstData, MeterId meterId, List<Integer> buckets,
-                                    List<Long> counts) {
+    public void isSameWithPercentile(MeterData meterData, boolean firstData, MeterId meterId, Object... values) {
         Assert.assertNotNull(meterData);
         if (firstData) {
             Assert.assertEquals(meterData.getService(), "testService");
@@ -201,11 +186,50 @@ public class MeterRegistryServiceTest {
 
         Assert.assertEquals(histogram.getName(), meterId.getName());
         Assert.assertEquals(histogram.getLabelsList(), meterId.transformTags());
-        for (int i = 0; i < buckets.size(); i++) {
+        for (int i = 0; i < values.length; i += 2) {
             final MeterBucketValue bucketValue = histogram.getValues(i);
             Assert.assertNotNull(bucketValue);
-            Assert.assertEquals(bucketValue.getBucket(), buckets.get(i).intValue());
-            Assert.assertEquals(bucketValue.getCount(), counts.get(i).longValue());
+            Assert.assertEquals(bucketValue.getBucket(), (double) values[i], 0.0);
+            Assert.assertEquals(bucketValue.getCount(), values[i + 1]);
+        }
+    }
+
+    private static class TestCounterAdapter implements CounterAdapter {
+
+        private final MeterId meterId;
+
+        public TestCounterAdapter(MeterId meterId) {
+            this.meterId = meterId;
+        }
+
+        @Override
+        public Double getCount() {
+            return 2d;
+        }
+
+        @Override
+        public MeterId getId() {
+            return this.meterId;
+        }
+    }
+
+    private static class TestPercentileAdapter implements PercentileAdapter {
+        private final MeterId meterId;
+
+        public TestPercentileAdapter(MeterId meterId) {
+            this.meterId = meterId;
+        }
+
+        @Override
+        public Map<Double, Long> drainRecords() {
+            final HashMap<Double, Long> map = Maps.newHashMap();
+            map.put(2d, 1L);
+            return map;
+        }
+
+        @Override
+        public MeterId getId() {
+            return meterId;
         }
     }
 

@@ -172,6 +172,11 @@ public class Config {
          * Report meters interval
          */
         public static Integer REPORT_INTERVAL = 20;
+
+        /**
+         * Rate by agent counter meter names, spilt by ","
+         */
+        public static String RATE_COUNTER_NAME = "";
     }
 
     public static class Jvm {

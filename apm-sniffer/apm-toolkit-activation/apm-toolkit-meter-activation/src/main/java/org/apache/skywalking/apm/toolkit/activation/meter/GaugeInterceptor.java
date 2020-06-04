@@ -19,53 +19,27 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.Gauge;
-import org.apache.skywalking.apm.agent.core.meter.Meter;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterRegistryService;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.transform.GaugeTransformer;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterTagConverter;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
+import org.apache.skywalking.apm.toolkit.meter.Gauge;
+import org.apache.skywalking.apm.toolkit.meter.ToolkitGaugeAdapter;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.function.Supplier;
-
-public class GaugeInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-
-    private static MeterRegistryService REGISTRY_SERVICE;
+public class GaugeInterceptor implements InstanceConstructorInterceptor {
+    private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final String name = (String) allArguments[0];
-        final List<Tag> tags = (List<Tag>) allArguments[1];
-        final Supplier<Long> getter = (Supplier<Long>) allArguments[2];
+        final Gauge toolkitGauge = (Gauge) objInst;
 
-        final MeterId id = new MeterId(name, MeterType.GAUGE, MeterTagConverter.convert(tags));
-        Gauge gauge = new Gauge(id, getter);
+        final ToolkitGaugeAdapter gaugeAdapter = new ToolkitGaugeAdapter(toolkitGauge);
+        final GaugeTransformer gaugeTransformer = new GaugeTransformer(gaugeAdapter);
 
-        // register the meter
-        if (REGISTRY_SERVICE == null) {
-            REGISTRY_SERVICE = ServiceManager.INSTANCE.findService(MeterRegistryService.class);
+        if (METER_SERVICE == null) {
+            METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        final Meter dbMeter = REGISTRY_SERVICE.registerOrFound(gauge);
-        objInst.setSkyWalkingDynamicField(dbMeter);
+        METER_SERVICE.register(gaugeTransformer);
     }
 
-    @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-    }
-
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return ((Gauge) objInst.getSkyWalkingDynamicField()).get();
-    }
-
-    @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-    }
 }

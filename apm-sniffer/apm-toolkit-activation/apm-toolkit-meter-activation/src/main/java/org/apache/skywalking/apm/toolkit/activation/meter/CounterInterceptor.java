@@ -19,52 +19,27 @@
 package org.apache.skywalking.apm.toolkit.activation.meter;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.meter.Counter;
-import org.apache.skywalking.apm.agent.core.meter.Meter;
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterRegistryService;
-import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
-import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterTagConverter;
-import org.apache.skywalking.apm.toolkit.meter.Tag;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
+import org.apache.skywalking.apm.toolkit.meter.TookitCounterAdapter;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
-public class CounterInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
-
-    private static MeterRegistryService REGISTRY_SERVICE;
+public class CounterInterceptor implements InstanceConstructorInterceptor {
+    private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final String name = (String) allArguments[0];
-        final List<Tag> tags = (List<Tag>) allArguments[1];
+        final Counter toolkitCounter = (Counter) objInst;
 
-        final MeterId id = new MeterId(name, MeterType.COUNTER, MeterTagConverter.convert(tags));
-        Counter counter = new Counter(id);
+        final TookitCounterAdapter counterAdapter = new TookitCounterAdapter(toolkitCounter);
+        final CounterTransformer counterTransformer = new CounterTransformer(counterAdapter);
 
-        // register the meter
-        if (REGISTRY_SERVICE == null) {
-            REGISTRY_SERVICE = ServiceManager.INSTANCE.findService(MeterRegistryService.class);
+        if (METER_SERVICE == null) {
+            METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
-        final Meter dbMeter = REGISTRY_SERVICE.registerOrFound(counter);
-        objInst.setSkyWalkingDynamicField(dbMeter);
+        METER_SERVICE.register(counterTransformer);
     }
 
-    @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
-        ((Counter) objInst.getSkyWalkingDynamicField()).increment((Long) allArguments[0]);
-    }
-
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
-        return ret;
-    }
-
-    @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
-    }
 }

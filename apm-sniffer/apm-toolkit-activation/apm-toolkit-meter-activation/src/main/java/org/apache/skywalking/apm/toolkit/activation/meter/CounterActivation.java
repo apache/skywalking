@@ -25,9 +25,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import java.util.List;
-
-import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
@@ -44,7 +41,7 @@ public class CounterActivation extends ClassInstanceMethodsEnhancePluginDefine {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(String.class, List.class);
+                    return takesArguments(1);
                 }
 
                 @Override
@@ -57,23 +54,6 @@ public class CounterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("increment").and(takesArguments(1));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return "org.apache.skywalking.apm.toolkit.activation.meter.CounterInterceptor";
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 }

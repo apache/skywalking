@@ -16,39 +16,15 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.agent.core.meter.adapter;
 
-import java.util.Objects;
+import java.util.Map;
 
-public class Tag {
+public interface PercentileAdapter extends MeterAdapter {
 
-    private String name;
-    private String value;
+    /**
+     * drain all the records, reset all the values as 0
+     */
+    Map<Double, Long> drainRecords();
 
-    public Tag(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
-        return Objects.equals(name, tag.name) &&
-            Objects.equals(value, tag.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, value);
-    }
 }

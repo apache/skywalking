@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Identity the meter, including name and
+ * Identity the meter, including name, type and tags.
  */
 public class MeterId {
 

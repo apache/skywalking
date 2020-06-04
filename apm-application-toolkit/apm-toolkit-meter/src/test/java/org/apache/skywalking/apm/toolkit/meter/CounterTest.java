@@ -25,16 +25,21 @@ public class CounterTest {
 
     @Test
     public void testBuild() {
-        Counter counter1 = Counter.create("test_counter").tag("k1", "v1").build();
-        Assert.assertEquals(counter1.getTag("k1"), "v1");
-        Assert.assertNull(counter1.getTag("k2"));
-        Assert.assertEquals(counter1.getName(), "test_counter");
+        Counter counter = Counter.create("test_counter").tag("k1", "v1").build();
+        Assert.assertNotNull(counter);
+    }
 
-        final Counter counter2 = Counter.create("test_counter").build();
-        Assert.assertNull(counter2.getTag("k1"));
+    @Test
+    public void testIncrement() {
+        Counter counter = Counter.create("test_counter1").tag("k1", "v1").build();
+        counter.increment(1);
+        Assert.assertEquals(counter.get(), 1d, 0.0);
 
-        counter1.increment(1L);
-        counter2.increment(1L);
+        counter.increment(1.5);
+        Assert.assertEquals(counter.get(), 2.5d, 0.0);
+
+        counter.increment(-1d);
+        Assert.assertEquals(counter.get(), 1.5d, 0.0);
     }
 
 }
