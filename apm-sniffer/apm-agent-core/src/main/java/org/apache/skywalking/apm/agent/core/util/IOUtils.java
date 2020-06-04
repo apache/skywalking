@@ -18,16 +18,17 @@
 
 package org.apache.skywalking.apm.agent.core.util;
 
-/**
- * Copied from {@link org.apache.commons.io.IOUtils}
- */
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Copied from commons-io-2.2 {@link org.apache.commons.io.IOUtils}
+ * Origin license: http://www.apache.org/licenses/LICENSE-2.0
+ * @version $Id: IOUtils.java 1304177 2012-03-23 03:36:44Z ggregory $
+ */
 public class IOUtils {
 
     private static final int EOF = -1;
