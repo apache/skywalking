@@ -31,7 +31,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link HttpServerResponseImplHandleExceptionInstrumentation} enhance the <code>handleException</code> method in
  * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class
+ * <code>HttpServerResponseImplHandleExceptionInterceptor</code> class.
  */
 public class HttpServerResponseImplHandleExceptionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

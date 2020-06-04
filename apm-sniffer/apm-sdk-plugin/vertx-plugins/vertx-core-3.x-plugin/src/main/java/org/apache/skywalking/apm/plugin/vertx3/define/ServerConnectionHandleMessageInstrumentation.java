@@ -24,20 +24,21 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
-import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
+import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 
 /**
- * {@link HttpServerResponseImplEndInstrumentation} enhance the <code>end</code> method in
- * <code>io.vertx.core.http.impl.HttpServerResponseImpl</code> class by
- * <code>HttpServerResponseImplEndInterceptor</code> class
+ * {@link ServerConnectionHandleMessageInstrumentation} enhance the <code>handleMessage</code> method in
+ * <code>io.vertx.core.http.impl.ServerConnection</code> and <code>io.vertx.core.http.impl.Http1xServerConnection</code>
+ * classes by <code>ServerConnectionHandleMessageInterceptor</code> class.
  */
-public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ServerConnectionHandleMessageInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    private static final String ENHANCE_CLASS = "io.vertx.core.http.impl.HttpServerResponseImpl";
-    private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.vertx3.HttpServerResponseImplEndInterceptor";
+    private static final String SERVER_CONNECTION_ENHANCE_CLASS = "io.vertx.core.http.impl.ServerConnection";
+    private static final String HTTP_SERVER_CONNECTION_ENHANCE_CLASS = "io.vertx.core.http.impl.Http1xServerConnection";
+    private static final String ENHANCE_METHOD = "handleMessage";
+    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.ServerConnectionHandleMessageInterceptor";
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
@@ -50,17 +51,12 @@ public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMetho
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("end0") //ver. 3.0.0 - 3.5.4
-                            .or(named("end") //ver. 3.6.0 - 3.7.0
-                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer")))
-                            .or(named("end") //ver. 3.7.1+
-                                    .and(takesArgumentWithType(0, "io.vertx.core.buffer.Buffer"))
-                                    .and(takesArgumentWithType(1, "io.netty.channel.ChannelPromise")));
+                    return named(ENHANCE_METHOD);
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return INTERCEPTOR_CLASS;
+                    return INTERCEPT_CLASS;
                 }
 
                 @Override
@@ -73,6 +69,9 @@ public class HttpServerResponseImplEndInstrumentation extends ClassInstanceMetho
 
     @Override
     protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+        return MultiClassNameMatch.byMultiClassMatch(
+                HTTP_SERVER_CONNECTION_ENHANCE_CLASS, //ver. 3.5.1+
+                SERVER_CONNECTION_ENHANCE_CLASS //ver. 3.0.0 - 3.5.0
+        );
     }
 }

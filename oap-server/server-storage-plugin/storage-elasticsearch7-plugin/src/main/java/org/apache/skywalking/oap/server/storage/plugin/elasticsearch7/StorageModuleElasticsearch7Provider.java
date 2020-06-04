@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
@@ -58,6 +59,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Profi
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopNRecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.base.StorageEs7Installer;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.client.ElasticSearch7Client;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.dao.StorageEs7DAO;
@@ -106,7 +108,7 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         }
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
-                10, readableContents -> {
+                    10, readableContents -> {
                 final byte[] secretsFileContent = readableContents.get(0);
                 if (secretsFileContent == null) {
                     return;
@@ -134,50 +136,52 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         }
 
         elasticSearch7Client = new ElasticSearch7Client(
-            config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
-            .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverters(config.getNameSpace())
+                config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
+                .getTrustStorePass(), config.getUser(), config.getPassword(),
+                indexNameConverters(config.getNameSpace())
         );
 
         this.registerServiceImplementation(
-            IBatchDAO.class, new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(),
-                                                   config.getFlushInterval(), config.getConcurrentRequests()
-            ));
+                IBatchDAO.class, new BatchProcessEsDAO(elasticSearch7Client, config.getBulkActions(),
+                        config.getFlushInterval(), config.getConcurrentRequests()
+                ));
         this.registerServiceImplementation(StorageDAO.class, new StorageEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client));
+                IHistoryDeleteDAO.class, new HistoryDeleteEsDAO(elasticSearch7Client));
         this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(
-                elasticSearch7Client,
-                config.getResultWindowMaxSize()
-            ));
+                INetworkAddressAliasDAO.class, new NetworkAddressAliasEsDAO(
+                        elasticSearch7Client,
+                        config.getResultWindowMaxSize()
+                ));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQueryEsDAO(elasticSearch7Client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQueryEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(
-            ITraceQueryDAO.class, new TraceQueryEs7DAO(elasticSearch7Client, config.getSegmentQueryMaxSize()));
+                ITraceQueryDAO.class, new TraceQueryEs7DAO(elasticSearch7Client, config.getSegmentQueryMaxSize()));
         this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new MetadataQueryEs7DAO(elasticSearch7Client, config.getMetadataQueryMaxSize()));
+                IMetadataQueryDAO.class, new MetadataQueryEs7DAO(elasticSearch7Client, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(
-            IAggregationQueryDAO.class, new AggregationQueryEs7DAO(elasticSearch7Client));
+                IAggregationQueryDAO.class, new AggregationQueryEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQueryEs7DAO(elasticSearch7Client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQueryEsDAO(elasticSearch7Client));
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEs7DAO(elasticSearch7Client));
 
         this.registerServiceImplementation(
-            IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(
-                elasticSearch7Client,
-                config.getProfileTaskQueryMaxSize()
-            ));
+                IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(
+                        elasticSearch7Client,
+                        config.getProfileTaskQueryMaxSize()
+                ));
         this.registerServiceImplementation(
-            IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(
-                elasticSearch7Client,
-                config.getProfileTaskQueryMaxSize()
-            ));
+                IProfileTaskLogQueryDAO.class, new ProfileTaskLogEsDAO(
+                        elasticSearch7Client,
+                        config.getProfileTaskQueryMaxSize()
+                ));
         this.registerServiceImplementation(
-            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEs7DAO(
-                elasticSearch7Client,
-                config.getProfileTaskQueryMaxSize()
-            ));
+                IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEs7DAO(
+                        elasticSearch7Client,
+                        config.getProfileTaskQueryMaxSize()
+                ));
+        this.registerServiceImplementation(
+                UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearch7Client));
     }
 
     @Override
@@ -198,6 +202,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[]{CoreModule.NAME};
     }
 }
