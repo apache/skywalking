@@ -107,6 +107,7 @@ property key | Description | Default |
 `profile.snapshot_transport_buffer_size`|Snapshot transport to backend buffer size|`50`|
 `meter.active`|If true, skywalking agent will enable sending meters. Otherwise disable meter report.|`true`|
 `meter.report_interval`|Report meters interval|`20`|
+`meter.rate_counter_name`|Rate by agent counter meter names, spilt by ","|``|
 `plugin.peer_max_length `|Peer maximum description limit.|`200`|
 `plugin.mongodb.trace_param`|If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not include parameters.|`false`|
 `plugin.mongodb.filter_length_limit`|If set to positive number, the `WriteRequest.params` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`256`|
