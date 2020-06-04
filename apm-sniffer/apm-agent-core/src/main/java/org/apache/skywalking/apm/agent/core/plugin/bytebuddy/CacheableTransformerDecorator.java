@@ -82,7 +82,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
                 // load from cache
-                byte[] classCache = cacheResolver.getClassCache(className);
+                byte[] classCache = cacheResolver.getClassCache(loader, className);
                 if (classCache != null) {
                     return classCache;
                 }
@@ -92,7 +92,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
 
                 // save to cache
                 if (classfileBuffer != null) {
-                    cacheResolver.putClassCache(className, classfileBuffer);
+                    cacheResolver.putClassCache(loader, className, classfileBuffer);
                 }
 
                 return classfileBuffer;
@@ -100,25 +100,42 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         };
     }
 
+    private static String getClassLoaderHash(ClassLoader loader) {
+        String classloader;
+        if (loader != null) {
+            classloader = Integer.toHexString(loader.hashCode());
+        } else {
+            //classloader is null for BootstrapClassLoader
+            classloader = "00000000";
+        }
+        return classloader;
+    }
+
     interface ClassCacheResolver {
 
-        byte[] getClassCache(String className);
+        byte[] getClassCache(ClassLoader loader, String className);
 
-        void putClassCache(String className, byte[] classfileBuffer);
+        void putClassCache(ClassLoader loader, String className, byte[] classfileBuffer);
     }
 
     static class MemoryCacheResolver implements ClassCacheResolver {
-
+        // classloaderHashcode@className -> class bytes
         private Map<String, byte[]> classCacheMap = new ConcurrentHashMap<String, byte[]>();
 
         @Override
-        public byte[] getClassCache(String className) {
-            return classCacheMap.get(className);
+        public byte[] getClassCache(ClassLoader loader, String className) {
+            String cacheKey = getCacheKey(loader, className);
+            return classCacheMap.get(cacheKey);
         }
 
         @Override
-        public void putClassCache(String className, byte[] classfileBuffer) {
-            classCacheMap.put(className, classfileBuffer);
+        public void putClassCache(ClassLoader loader, String className, byte[] classfileBuffer) {
+            String cacheKey = getCacheKey(loader, className);
+            classCacheMap.put(cacheKey, classfileBuffer);
+        }
+
+        private String getCacheKey(ClassLoader loader, String className) {
+            return getClassLoaderHash(loader) + "@" + className;
         }
     }
 
@@ -135,9 +152,9 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         }
 
         @Override
-        public byte[] getClassCache(String className) {
+        public byte[] getClassCache(ClassLoader loader, String className) {
             // load from cache
-            File cacheFile = getCacheFile(className);
+            File cacheFile = getCacheFile(loader, className);
             if (cacheFile.exists()) {
                 FileInputStream fileInputStream = null;
                 try {
@@ -153,8 +170,8 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         }
 
         @Override
-        public void putClassCache(String className, byte[] classfileBuffer) {
-            File cacheFile = getCacheFile(className);
+        public void putClassCache(ClassLoader loader, String className, byte[] classfileBuffer) {
+            File cacheFile = getCacheFile(loader, className);
             FileOutputStream output = null;
             try {
                 output = new FileOutputStream(cacheFile);
@@ -166,8 +183,9 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
             }
         }
 
-        private File getCacheFile(String className) {
-            return new File(cacheDir, className.replace('/', '.') + ".class");
+        private File getCacheFile(ClassLoader loader, String className) {
+            String filename = getClassLoaderHash(loader) + "@" + className.replace('/', '.') + ".class";
+            return new File(cacheDir, filename);
         }
 
     }
