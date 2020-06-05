@@ -19,7 +19,6 @@
 package org.apache.skywalking.e2e;
 
 import java.util.List;
-import java.net.URL;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
 import org.apache.skywalking.e2e.annotation.DockerCompose;
@@ -90,12 +89,6 @@ public class PHPE2E extends SkyWalkingTestAdapter {
 
     @BeforeAll
     public void setUp() throws Exception {
-        URL url = new URL("http", phpHostPort.host(), phpHostPort.port(), "/init");
-        restTemplate.getForObject(url.toURI(), String.class);
-        Thread.sleep(1000);
-        url = new URL("http", phpShadowHostPort.host(), phpShadowHostPort.port(), "/init-shadow");
-        restTemplate.getForObject(url.toURI(), String.class);
-        Thread.sleep(1000);
         queryClient(swWebappHostPort);
 
         trafficController(phpHostPort, "/php/info");
@@ -156,8 +149,8 @@ public class PHPE2E extends SkyWalkingTestAdapter {
             new ServiceInstanceTopologyQuery().stepByMinute()
                                               .start(startTime.minusDays(1))
                                               .end(now())
-                                              .clientServiceId("1")
-                                              .serverServiceId("2"));
+                                              .clientServiceId("cGhw.1")
+                                              .serverServiceId("cGhwLXNoYWRvdw==.1"));
 
         LOGGER.info("topology: {}", topology);
 
