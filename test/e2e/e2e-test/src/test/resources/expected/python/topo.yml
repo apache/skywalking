@@ -30,10 +30,6 @@ nodes:
     name: Your_ApplicationName
     type: Tomcat
     isReal: true
-  - id: not null
-    name: github.com
-    type: Unknown
-    isReal: false
 calls:
   - id: not null
     source: ${User[0]}
@@ -52,8 +48,3 @@ calls:
       - CLIENT
       - SERVER
     target: ${provider[0]}
-  - id: not null
-    source: ${provider[0]}
-    detectPoints:
-      - CLIENT
-    target: ${github.com[0]}

@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -61,7 +61,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     private final SourceReceiver sourceReceiver;
     private final TraceServiceModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     @Override
     public boolean containsPoint(Point point) {
@@ -87,7 +87,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         if (span.getRefsCount() > 0) {
             for (int i = 0; i < span.getRefsCount(); i++) {
                 SegmentReference reference = span.getRefs(i);
-                SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+                SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
 
                 if (StringUtil.isEmpty(reference.getParentEndpoint())) {
                     sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -117,7 +117,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 entrySourceBuilders.add(sourceBuilder);
             }
         } else {
-            SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+            SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
             sourceBuilder.setSourceServiceInstanceName(Const.USER_INSTANCE_NAME);
             sourceBuilder.setSourceEndpointName(Const.USER_ENDPOINT_NAME);
@@ -144,7 +144,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             return;
         }
 
-        SourceBuilder sourceBuilder = new SourceBuilder(namingLengthControl);
+        SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
 
         final String networkAddress = span.getPeer();
         if (StringUtil.isEmpty(networkAddress)) {
@@ -297,22 +297,22 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NetworkAddressAliasCache networkAddressAliasCache;
-        private final NamingLengthControl namingLengthControl;
+        private final NamingControl namingControl;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.networkAddressAliasCache = moduleManager.find(CoreModule.NAME)
                                                          .provider()
                                                          .getService(NetworkAddressAliasCache.class);
-            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                    .provider()
-                                                    .getService(NamingLengthControl.class);
+            this.namingControl = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(NamingControl.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             return new MultiScopesAnalysisListener(
-                sourceReceiver, config, networkAddressAliasCache, namingLengthControl);
+                sourceReceiver, config, networkAddressAliasCache, namingControl);
         }
     }
 }

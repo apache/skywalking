@@ -17,6 +17,7 @@ or providing commercial products including Apache SkyWalking.
 1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
+1. baidu 百度 https://www.baidu.com/
 1. Baixing.com 百姓网 http://www.baixing.com/
 1. bitauto 易车 http://bitauto.com
 1. hellobanma 斑马网络 https://www.hellobanma.com/
