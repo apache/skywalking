@@ -32,6 +32,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -75,6 +76,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -313,6 +315,18 @@ public class ElasticSearchClient implements Client {
         return client.search(searchRequest);
     }
 
+    /**
+     * ignoreUnavailable mean  ignore if any specified indices are unavailable, including indices that don’t exist or closed indices
+     */
+    public SearchResponse search(String[] indices, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        String[] queryIndices = formatIndicesName(indices);
+        SearchRequest searchRequest = new SearchRequest(queryIndices);
+        searchRequest.types(TYPE);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.source(searchSourceBuilder);
+        return client.search(searchRequest);
+    }
+
     public GetResponse get(String indexName, String id) throws IOException {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, TYPE, id);
@@ -430,5 +444,9 @@ public class ElasticSearchClient implements Client {
             indexName = indexNameConverter.convert(indexName);
         }
         return indexName;
+    }
+
+    public String[] formatIndicesName(String[] indices) {
+        return Arrays.stream(indices).map(this::formatIndexName).toArray(String[]::new);
     }
 }

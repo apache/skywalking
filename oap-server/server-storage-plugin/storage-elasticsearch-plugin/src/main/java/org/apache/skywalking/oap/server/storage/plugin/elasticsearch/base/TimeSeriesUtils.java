@@ -82,6 +82,46 @@ public class TimeSeriesUtils {
     }
 
     /**
+     * @return index name based on model definition and given time bucket.
+     */
+    public static String[] traceQueryIndices(String indexName, long startSecondTB, long endSecondTB) {
+        long startDay = compressTimeBucket(startSecondTB / 1000000, DAY_STEP);
+        long endDay = compressTimeBucket(endSecondTB / 1000000, DAY_STEP);
+        return buildTraceQueryIndices(indexName, startDay, endDay);
+    }
+
+    /**
+     * @return index name based on model definition and given time bucket.
+     */
+    public static String[] traceIdQueryIndices(String indexName, long traceTimestamp) {
+        String startTB = TIME_BUCKET_FORMATTER.print(traceTimestamp);
+        long startDay = compressTimeBucket(Long.parseLong(startTB), DAY_STEP);
+        long endDay = startDay + DAY_STEP;
+        return buildTraceQueryIndices(indexName, startDay, endDay);
+    }
+
+    private static String[] buildTraceQueryIndices(String indexName, long startDay, long endDay) {
+        final String startIndex = indexName + Const.LINE + startDay;
+        if (startDay == endDay) {
+            return new String[]{startIndex};
+        }
+        final String endIndex = indexName + Const.LINE + endDay;
+        long days = endDay - startDay;
+        if (days <= DAY_STEP) {
+            return new String[]{startIndex, endIndex};
+        }
+        int steps = Math.toIntExact(days / DAY_STEP) - 1;
+        String[] indices = new String[steps + 2];
+        indices[0] = startIndex;
+        indices[steps + 1] = endIndex;
+        for (int i = 1; i <= steps; i++) {
+            indices[i] = indexName + Const.LINE + (startDay + i * DAY_STEP);
+        }
+        return indices;
+    }
+
+
+    /**
      * @return the index represented time, which is included in the index name.
      */
     static long isolateTimeFromIndexName(String indexName) {

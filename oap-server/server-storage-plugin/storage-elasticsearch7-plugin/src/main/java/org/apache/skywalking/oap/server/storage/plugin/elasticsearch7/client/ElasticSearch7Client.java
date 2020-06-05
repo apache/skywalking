@@ -24,6 +24,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.ActiveShardCount;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.GetAliasesResponse;
@@ -183,6 +185,17 @@ public class ElasticSearch7Client extends ElasticSearchClient {
     public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
         indexName = formatIndexName(indexName);
         SearchRequest searchRequest = new SearchRequest(indexName);
+        searchRequest.source(searchSourceBuilder);
+        return client.search(searchRequest, RequestOptions.DEFAULT);
+    }
+
+    /**
+     * ignoreUnavailable mean  ignore if any specified indices are unavailable, including indices that don’t exist or closed indices
+     */
+    public SearchResponse search(String[] indices, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        String[] queryIndices = Arrays.stream(indices).map(this::formatIndexName).toArray(String[]::new);
+        SearchRequest searchRequest = new SearchRequest(queryIndices);
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
         searchRequest.source(searchSourceBuilder);
         return client.search(searchRequest, RequestOptions.DEFAULT);
     }

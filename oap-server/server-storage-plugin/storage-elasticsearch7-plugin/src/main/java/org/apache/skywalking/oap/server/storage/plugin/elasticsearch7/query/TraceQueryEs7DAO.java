@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query;
 
 import com.google.common.base.Strings;
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -33,12 +31,13 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchC
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+
+import java.io.IOException;
 
 public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
@@ -64,10 +63,9 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-            mustQueryList.add(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+            boolQueryBuilder.filter(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
 
         if (minDuration != 0 || maxDuration != 0) {
@@ -78,30 +76,30 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
             if (maxDuration != 0) {
                 rangeQueryBuilder.lte(maxDuration);
             }
-            boolQueryBuilder.must().add(rangeQueryBuilder);
+            boolQueryBuilder.filter(rangeQueryBuilder);
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
+            boolQueryBuilder.filter(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         }
         switch (traceState) {
             case ERROR:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
+                boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
                 break;
             case SUCCESS:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
+                boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
         }
         switch (queryOrder) {
@@ -115,7 +113,7 @@ public class TraceQueryEs7DAO extends TraceQueryEsDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(queryIndices(startSecondTB, endSecondTB, traceId), sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().getTotalHits().value);

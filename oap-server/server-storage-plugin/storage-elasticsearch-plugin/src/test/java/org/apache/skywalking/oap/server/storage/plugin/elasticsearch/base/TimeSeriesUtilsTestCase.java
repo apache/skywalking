@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,4 +27,20 @@ public class TimeSeriesUtilsTestCase {
     public void indexTimeSeries() {
         Assert.assertEquals(20190602, TimeSeriesUtils.isolateTimeFromIndexName("Index_Test-20190602"));
     }
+
+    @Test
+    public void queryIndices() {
+        String[] indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
+        Assert.assertArrayEquals(indices, new String[]{"segment-20200601", "segment-20200602", "segment-20200603", "segment-20200604", "segment-20200605"});
+
+        String[] oneIndices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200601140300L);
+        Assert.assertArrayEquals(oneIndices, new String[]{"segment-20200601"});
+
+        String[] twoIndices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, 20200601140000L, 20200602140300L);
+        Assert.assertArrayEquals(twoIndices, new String[]{"segment-20200601", "segment-20200602"});
+
+        String[] idQueryIndices = TimeSeriesUtils.traceIdQueryIndices(SegmentRecord.INDEX_NAME, 1591325974021L);
+        Assert.assertArrayEquals(idQueryIndices, new String[]{"segment-20200605", "segment-20200606"});
+    }
+
 }

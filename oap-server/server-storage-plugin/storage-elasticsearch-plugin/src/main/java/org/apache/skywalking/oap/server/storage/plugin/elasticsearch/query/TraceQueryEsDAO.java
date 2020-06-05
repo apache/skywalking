@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
@@ -36,9 +38,9 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -72,10 +74,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolQueryBuilder);
-        List<QueryBuilder> mustQueryList = boolQueryBuilder.must();
 
         if (startSecondTB != 0 && endSecondTB != 0) {
-            mustQueryList.add(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
+            boolQueryBuilder.filter(QueryBuilders.rangeQuery(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
 
         if (minDuration != 0 || maxDuration != 0) {
@@ -86,30 +87,30 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             if (maxDuration != 0) {
                 rangeQueryBuilder.lte(maxDuration);
             }
-            boolQueryBuilder.must().add(rangeQueryBuilder);
+            boolQueryBuilder.filter(rangeQueryBuilder);
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
             String matchCName = MatchCNameBuilder.INSTANCE.build(SegmentRecord.ENDPOINT_NAME);
-            mustQueryList.add(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
+            boolQueryBuilder.filter(QueryBuilders.matchPhraseQuery(matchCName, endpointName));
         }
         if (StringUtil.isNotEmpty(serviceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.SERVICE_ID, serviceId));
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
         }
         if (!Strings.isNullOrEmpty(endpointId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
-            boolQueryBuilder.must().add(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
+            boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
         }
         switch (traceState) {
             case ERROR:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
+                boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
                 break;
             case SUCCESS:
-                mustQueryList.add(QueryBuilders.matchQuery(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
+                boolQueryBuilder.filter(QueryBuilders.termQuery(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
                 break;
         }
         switch (queryOrder) {
@@ -123,7 +124,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(queryIndices(startSecondTB, endSecondTB, traceId), sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);
@@ -148,10 +149,10 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
-        sourceBuilder.query(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId));
+        sourceBuilder.query(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery(SegmentRecord.TRACE_ID, traceId)));
         sourceBuilder.size(segmentQueryMaxSize);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        SearchResponse response = getClient().search(traceIdQueryIndices(traceId), sourceBuilder);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
@@ -178,4 +179,35 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
     }
+
+    protected String[] queryIndices(long startSecondTB,
+                                    long endSecondTB,
+                                    String traceId) {
+        if (!Strings.isNullOrEmpty(traceId)) {
+            return traceIdQueryIndices(traceId);
+        }
+        return TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+    }
+
+    protected String[] traceIdQueryIndices(String traceId) {
+        Long traceTimestamp = buildTraceTimestamp(traceId);
+        if (Objects.nonNull(traceTimestamp)) {
+            return TimeSeriesUtils.traceIdQueryIndices(SegmentRecord.INDEX_NAME, traceTimestamp);
+        }
+        return new String[]{SegmentRecord.INDEX_NAME};
+    }
+
+    /**
+     * @param traceId eg.   5ac64d3d30dd48038d03e5f58d8161f5.648.15913259740215491
+     * @return
+     */
+    protected Long buildTraceTimestamp(String traceId) {
+        String[] idParts = traceId.split("\\.", 3);
+        if (idParts.length != 3) {
+            return null;
+        }
+        String part3 = idParts[2];
+        return Long.parseLong(part3.substring(0, part3.length() - 4));
+    }
+
 }
