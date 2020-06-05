@@ -16,6 +16,6 @@
 configurations:
   - name: test-ui-config-2
     type: TOPOLOGY_SERVICE
-    configuration: "{}"
+    configuration: not null
     activated: true
     disabled: false
