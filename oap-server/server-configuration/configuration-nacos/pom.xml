@@ -38,10 +38,6 @@
             <artifactId>library-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-client</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
