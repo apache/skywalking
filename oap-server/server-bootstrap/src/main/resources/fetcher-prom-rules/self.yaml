@@ -36,7 +36,7 @@ staticConfig:
   targets:
     - localhost:1234
   labels:
-    app: oap-server
+    service: oap-server
 metricsRules:
   - name: instance_cpu_percentage
     scope: SERVICE_INSTANCE
@@ -48,7 +48,7 @@ metricsRules:
         scale: 2
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_jvm_memory_bytes_used
@@ -58,7 +58,7 @@ metricsRules:
       jvm_memory_bytes_used:
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_jvm_gc_collection_seconds
@@ -68,25 +68,25 @@ metricsRules:
       jvm_gc_collection_seconds:
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
 
   - name: instance_persistence_timer_bulk_execute_latency_heatmap
     scope: SERVICE_INSTANCE
-    operation: heatmap
+    operation: avgHistogram
     sources:
       persistence_timer_bulk_execute_latency:
         counterFunction: INCREASE
         range: PT5M
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency_percentile
     scope: SERVICE_INSTANCE
-    operation: percentile
+    operation: avgHistogramPercentile
     percentiles: [50, 70, 90, 99]
     sources:
       persistence_timer_bulk_execute_latency:
@@ -94,7 +94,7 @@ metricsRules:
         range: PT5M
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency
@@ -104,7 +104,7 @@ metricsRules:
       persistence_timer_bulk_execute_latency:
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_persistence_timer_bulk_prepare_latency
@@ -114,7 +114,7 @@ metricsRules:
       persistence_timer_bulk_prepare_latency:
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
 
@@ -127,7 +127,7 @@ metricsRules:
         range: PT1M
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_persistence_timer_bulk_execute_latency_count
@@ -139,7 +139,7 @@ metricsRules:
         range: PT1M
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: instance_persistence_timer_bulk_prepare_latency_count
@@ -151,7 +151,7 @@ metricsRules:
         range: PT1M
         relabel:
           service:
-            - app
+            - service
           instance:
             - instance
   - name: endpoint_metrics_aggregation
@@ -163,7 +163,7 @@ metricsRules:
         range: PT1M
         relabel:
           service:
-            - app
+            - service
           endpoint:
             - dimensionality
             - level

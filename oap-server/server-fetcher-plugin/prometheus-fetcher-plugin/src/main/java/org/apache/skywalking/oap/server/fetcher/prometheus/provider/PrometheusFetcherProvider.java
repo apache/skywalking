@@ -51,7 +51,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraf
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
@@ -88,13 +88,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     private final static BigDecimal SECOND_TO_MILLISECOND  = BigDecimal.TEN.pow(3);
 
-    private final static String HEATMAP = "heatmap";
-
-    private final static String PERCENTILE = "percentile";
-
     private final static String AVG_HISTOGRAM = "avgHistogram";
 
-    private final static String AVG_PERCENTILE = "avgPercentile";
+    private final static String AVG_PERCENTILE = "avgHistogramPercentile";
 
     private final static String AVG = "avg";
 
@@ -144,13 +140,7 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
         rules.forEach(r -> {
             r.getMetricsRules().forEach(rule -> {
-                if (rule.getOperation().equals(HEATMAP)) {
-                    service.create(formatMetricName(rule.getName()), AVG_HISTOGRAM, rule.getScope());
-                } else if (rule.getOperation().equals(PERCENTILE)) {
-                    service.create(formatMetricName(rule.getName()), AVG_PERCENTILE, rule.getScope());
-                } else {
-                    service.create(formatMetricName(rule.getName()), rule.getOperation(), rule.getScope());
-                }
+                service.create(formatMetricName(rule.getName()), rule.getOperation(), rule.getScope());
             });
             ses.scheduleAtFixedRate(new Runnable() {
 
@@ -249,8 +239,8 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                             generateTraffic(source.getEntity());
                                         });
                                         break;
-                                    case PERCENTILE:
-                                    case HEATMAP:
+                                    case AVG_HISTOGRAM:
+                                    case AVG_PERCENTILE:
                                         Validate.isTrue(sources.size() == 1, "Can't get source for histogram");
                                         Map.Entry<MetricSource, List<Metric>> smm = sources.entrySet().iterator().next();
                                         Histogram h = (Histogram) sum(smm.getValue());
@@ -272,18 +262,18 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                                             i++;
                                         }
 
-                                        if (operation.getName().equals(HEATMAP)) {
+                                        if (operation.getName().equals(AVG_HISTOGRAM)) {
                                             AcceptableValue<BucketedValues> heatmapMetrics = service.buildMetrics(
                                                 formatMetricName(operation.getMetricName()), BucketedValues.class);
                                             heatmapMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
                                             heatmapMetrics.accept(smm.getKey().getEntity(), new BucketedValues(bb, vv));
                                             service.doStreamingCalculation(heatmapMetrics);
                                         } else {
-                                            AcceptableValue<AvgPercentileFunction.AvgPercentileArgument> percentileMetrics =
-                                                service.buildMetrics(formatMetricName(operation.getMetricName()), AvgPercentileFunction.AvgPercentileArgument.class);
+                                            AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument> percentileMetrics =
+                                                service.buildMetrics(formatMetricName(operation.getMetricName()), AvgHistogramPercentileFunction.AvgPercentileArgument.class);
                                             percentileMetrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(now));
                                             percentileMetrics.accept(smm.getKey().getEntity(),
-                                                new AvgPercentileFunction.AvgPercentileArgument(new BucketedValues(bb, vv), operation.getPercentiles().stream().mapToInt(Integer::intValue).toArray()));
+                                                new AvgHistogramPercentileFunction.AvgPercentileArgument(new BucketedValues(bb, vv), operation.getPercentiles().stream().mapToInt(Integer::intValue).toArray()));
                                             service.doStreamingCalculation(percentileMetrics);
                                         }
 

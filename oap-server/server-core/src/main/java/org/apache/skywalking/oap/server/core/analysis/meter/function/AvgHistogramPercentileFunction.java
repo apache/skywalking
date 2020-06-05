@@ -50,9 +50,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value should be:
  * "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
  */
-@MeterFunction(functionName = "avgPercentile")
+@MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
-public abstract class AvgPercentileFunction extends Metrics implements AcceptableValue<AvgPercentileFunction.AvgPercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgHistogramPercentileFunction extends Metrics implements AcceptableValue<AvgHistogramPercentileFunction.AvgPercentileArgument>, MultiIntValuesHolder {
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
     public static final String VALUE = "value";
@@ -137,7 +137,7 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
 
     @Override
     public void combine(final Metrics metrics) {
-        AvgPercentileFunction percentile = (AvgPercentileFunction) metrics;
+        AvgHistogramPercentileFunction percentile = (AvgHistogramPercentileFunction) metrics;
 
         if (!summation.keysEqual(percentile.getSummation())) {
             log.warn("Incompatible input [{}}] for current PercentileFunction[{}], entity {}",
@@ -203,7 +203,7 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
 
     @Override
     public Metrics toHour() {
-        AvgPercentileFunction metrics = (AvgPercentileFunction) createNew();
+        AvgHistogramPercentileFunction metrics = (AvgHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setSummation(getSummation());
@@ -215,7 +215,7 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
 
     @Override
     public Metrics toDay() {
-        AvgPercentileFunction metrics = (AvgPercentileFunction) createNew();
+        AvgHistogramPercentileFunction metrics = (AvgHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setSummation(getSummation());
@@ -282,11 +282,11 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
         private final int[] ranks;
     }
 
-    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgPercentileFunction> {
+    public static class AvgPercentileFunctionBuilder implements StorageBuilder<AvgHistogramPercentileFunction> {
 
         @Override
-        public AvgPercentileFunction map2Data(final Map<String, Object> dbMap) {
-            AvgPercentileFunction metrics = new AvgPercentileFunction() {
+        public AvgHistogramPercentileFunction map2Data(final Map<String, Object> dbMap) {
+            AvgHistogramPercentileFunction metrics = new AvgHistogramPercentileFunction() {
                 @Override
                 public AcceptableValue<AvgPercentileArgument> createNew() {
                     throw new UnexpectedException("createNew should not be called");
@@ -303,7 +303,7 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
         }
 
         @Override
-        public Map<String, Object> data2Map(final AvgPercentileFunction storageData) {
+        public Map<String, Object> data2Map(final AvgHistogramPercentileFunction storageData) {
             Map<String, Object> map = new HashMap<>();
             map.put(SUMMATION, storageData.getSummation());
             map.put(COUNT, storageData.getCount());
@@ -320,9 +320,9 @@ public abstract class AvgPercentileFunction extends Metrics implements Acceptabl
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof AvgPercentileFunction))
+        if (!(o instanceof AvgHistogramPercentileFunction))
             return false;
-        AvgPercentileFunction function = (AvgPercentileFunction) o;
+        AvgHistogramPercentileFunction function = (AvgHistogramPercentileFunction) o;
         return Objects.equals(entityId, function.entityId) &&
             getTimeBucket() == function.getTimeBucket();
     }
