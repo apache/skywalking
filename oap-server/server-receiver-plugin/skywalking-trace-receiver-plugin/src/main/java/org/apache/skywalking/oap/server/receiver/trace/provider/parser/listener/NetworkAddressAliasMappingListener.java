@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
 public class NetworkAddressAliasMappingListener implements EntryAnalysisListener {
     private final SourceReceiver sourceReceiver;
     private final TraceServiceModuleConfig config;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     @Override
     public void parseEntry(SpanObject span, SegmentObject segmentObject) {
@@ -59,7 +59,7 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
         if (!span.getSpanLayer().equals(SpanLayer.MQ)) {
             span.getRefsList().forEach(segmentReference -> {
                 if (RefType.CrossProcess.equals(segmentReference.getRefType())) {
-                    final String networkAddressUsedAtPeer = namingLengthControl.formatServiceName(
+                    final String networkAddressUsedAtPeer = namingControl.formatServiceName(
                         segmentReference.getNetworkAddressUsedAtPeer());
                     if (config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(
                         networkAddressUsedAtPeer)) {
@@ -68,8 +68,8 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
                          */
                         return;
                     }
-                    final String serviceName = namingLengthControl.formatServiceName(segmentObject.getService());
-                    final String instanceName = namingLengthControl.formatInstanceName(
+                    final String serviceName = namingControl.formatServiceName(segmentObject.getService());
+                    final String instanceName = namingControl.formatInstanceName(
                         segmentObject.getServiceInstance());
 
                     final NetworkAddressAliasSetup networkAddressAliasSetup = new NetworkAddressAliasSetup();
@@ -97,18 +97,18 @@ public class NetworkAddressAliasMappingListener implements EntryAnalysisListener
 
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
-        private final NamingLengthControl namingLengthControl;
+        private final NamingControl namingControl;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-            this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                    .provider()
-                                                    .getService(NamingLengthControl.class);
+            this.namingControl = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(NamingControl.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, TraceServiceModuleConfig config) {
-            return new NetworkAddressAliasMappingListener(sourceReceiver, config, namingLengthControl);
+            return new NetworkAddressAliasMappingListener(sourceReceiver, config, namingControl);
         }
     }
 }

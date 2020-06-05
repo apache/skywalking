@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -50,7 +50,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class TelemetryDataDispatcher {
     private static SourceReceiver SOURCE_RECEIVER;
-    private static NamingLengthControl NAME_LENGTH_CONTROL;
+    private static NamingControl NAME_LENGTH_CONTROL;
     private static HistogramMetrics MESH_ANALYSIS_METRICS;
 
     private TelemetryDataDispatcher() {
@@ -63,7 +63,7 @@ public class TelemetryDataDispatcher {
                                                      .getService(MetricsCreator.class);
         NAME_LENGTH_CONTROL = moduleManager.find(CoreModule.NAME)
                                            .provider()
-                                           .getService(NamingLengthControl.class);
+                                           .getService(NamingControl.class);
         MESH_ANALYSIS_METRICS = metricsCreator.createHistogramMetric(
             "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
@@ -86,7 +86,7 @@ public class TelemetryDataDispatcher {
                 data.setDestServiceInstance(NAME_LENGTH_CONTROL.formatInstanceName(data.getDestServiceInstance()));
             }
             if (data.getEndpoint() != null) {
-                data.setEndpoint(NAME_LENGTH_CONTROL.formatEndpointName(data.getEndpoint()));
+                data.setEndpoint(NAME_LENGTH_CONTROL.formatEndpointName(data.getDestServiceName(), data.getEndpoint()));
             }
 
             doDispatch(data);

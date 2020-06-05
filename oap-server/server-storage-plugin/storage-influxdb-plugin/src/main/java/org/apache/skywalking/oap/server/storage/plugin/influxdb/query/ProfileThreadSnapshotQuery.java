@@ -98,8 +98,8 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
                   basicTrace.setSegmentId((String) values.get(2));
                   basicTrace.setStart(String.valueOf(values.get(3)));
                   basicTrace.getEndpointNames().add((String) values.get(4));
-                  basicTrace.setDuration((int) values.get(5));
-                  basicTrace.setError(BooleanUtils.valueToBoolean((int) values.get(6)));
+                  basicTrace.setDuration(((Number) values.get(5)).intValue());
+                  basicTrace.setError(BooleanUtils.valueToBoolean(((Number) values.get(6)).intValue()));
                   String traceIds = (String) values.get(7);
                   basicTrace.getTraceIds().add(traceIds);
 
@@ -148,7 +148,7 @@ public class ProfileThreadSnapshotQuery implements IProfileThreadSnapshotQueryDA
             record.setTaskId((String) values.get(1));
             record.setSegmentId((String) values.get(2));
             record.setDumpTime(((Number) values.get(3)).longValue());
-            record.setSequence((int) values.get(4));
+            record.setSequence(((Number) values.get(4)).intValue());
             String dataBinaryBase64 = String.valueOf(values.get(5));
             if (StringUtil.isNotEmpty(dataBinaryBase64)) {
                 record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
