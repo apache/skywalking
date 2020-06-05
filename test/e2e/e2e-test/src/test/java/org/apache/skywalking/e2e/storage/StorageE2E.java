@@ -20,6 +20,7 @@ package org.apache.skywalking.e2e.storage;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.e2e.UIConfigurationManagementClient;
 import org.apache.skywalking.e2e.annotation.ContainerHostAndPort;
@@ -170,55 +171,51 @@ public class StorageE2E extends SkyWalkingTestAdapter {
 
     @Test
     void addUITemplate() throws Exception {
-        try {
-            TemplateChangeStatus templateChangeStatus = graphql.addTemplate(
+        assertTrue(
+            graphql.addTemplate(
                 emptySetting("test-ui-config-1").type(TemplateType.DASHBOARD)
-            );
-            LOGGER.info("add template = {}", templateChangeStatus);
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
+
         verifyTemplates("expected/storage/dashboardConfiguration.yml");
     }
 
     @Test
     void changeTemplate() throws Exception {
-        try {
-            final String name = "test-ui-config-2";
-            assertTrue(
-                graphql.addTemplate(
-                    emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
-                ).isStatus()
-            );
+        final String name = "test-ui-config-2";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
 
-            TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
-                emptySetting(name).configuration("{\"key\":\"value\"}")
-            );
-            LOGGER.info("change UITemplate = {}", templateChangeStatus);
-            assertTrue(templateChangeStatus.isStatus());
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+        TemplateChangeStatus templateChangeStatus = graphql.changeTemplate(
+            emptySetting(name).type(TemplateType.TOPOLOGY_SERVICE)
+        );
+        LOGGER.info("change UITemplate = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
 
+        TimeUnit.SECONDS.sleep(2L);
         verifyTemplates("expected/storage/dashboardConfiguration-change.yml");
     }
 
     @Test
-    void disableTemplate() throws IOException {
-        try {
-            final String name = "test-ui-config-3";
-            assertTrue(
-                graphql.addTemplate(
-                    emptySetting(name).type(TemplateType.DASHBOARD)
-                ).isStatus()
-            );
+    void disableTemplate() throws Exception {
+        final String name = "test-ui-config-3";
+        assertTrue(
+            graphql.addTemplate(
+                emptySetting(name).type(TemplateType.DASHBOARD)
+            ).isStatus()
+        );
+        TimeUnit.SECONDS.sleep(2L);
 
-            TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
-            LOGGER.info("disable template = {}", templateChangeStatus);
-            assertTrue(templateChangeStatus.isStatus());
-        } catch (Exception e) {
-            LOGGER.error("add ui template error.", e);
-        }
+        TemplateChangeStatus templateChangeStatus = graphql.disableTemplate(name);
+        LOGGER.info("disable template = {}", templateChangeStatus);
+        assertTrue(templateChangeStatus.isStatus());
+
+        TimeUnit.SECONDS.sleep(2L);
         verifyTemplates("expected/storage/dashboardConfiguration-disable.yml");
     }
 
