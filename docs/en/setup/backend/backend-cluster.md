@@ -82,6 +82,7 @@ The following setting are provided to set the host and port manually, based on y
 - internalComHost, the host registered and other oap node use this to communicate with current node.
 - internalComPort, the port registered and other oap node use this to communicate with current node.
 
+
 ## Etcd
 Set the **cluster/selector** to **etcd** in the yml to enable.
 

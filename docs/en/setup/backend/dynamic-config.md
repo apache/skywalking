@@ -102,5 +102,3 @@ configuration:
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
 ```
-
-
