@@ -25,11 +25,6 @@ import org.influxdb.dto.Pong;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 
-/**
- * InfluxDBExecutor
- *
- * @since 2020/6/3
- */
 public class InfluxDBExecutor implements AutoCloseable {
 
   private final InfluxDB influxDB;
