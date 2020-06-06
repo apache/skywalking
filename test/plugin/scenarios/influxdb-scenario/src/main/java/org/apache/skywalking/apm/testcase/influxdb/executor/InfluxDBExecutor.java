@@ -28,7 +28,6 @@ import org.influxdb.dto.QueryResult;
 /**
  * InfluxDBExecutor
  *
- * @author guhao
  * @since 2020/6/3
  */
 public class InfluxDBExecutor implements AutoCloseable {

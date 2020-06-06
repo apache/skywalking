@@ -20,18 +20,22 @@ package org.apache.skywalking.apm.plugin.influxdb.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
-import org.apache.skywalking.apm.plugin.influxdb.InfluxDBMethodMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
+import java.util.Set;
+
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.none;
+
 
 /**
- * enhance InfluxDB InfluxDBFactory
- * really impl class {@link org.influxdb.impl.InfluxDBImpl}
+ * Enhance InfluxDB InfluxDBFactory
+ * Really impl class {@link org.influxdb.impl.InfluxDBImpl}
  *
  * @since  2020/05/22
  */
@@ -39,7 +43,7 @@ public class InfluxDBInstrumentation extends ClassInstanceMethodsEnhancePluginDe
 
     private static final String ENHANCE_CLASS = "org.influxdb.impl.InfluxDBImpl";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.influxdb.interceptor.InfluxDBConstructorInterceptor";
-  private static final String INFLUXDB_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.influxdb.interceptor.InfluxDBMethodInterceptor";
+    private static final String INFLUXDB_METHOD_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.influxdb.interceptor.InfluxDBMethodInterceptor";
 
     @Override
     protected ClassMatch enhanceClass() {
@@ -52,7 +56,7 @@ public class InfluxDBInstrumentation extends ClassInstanceMethodsEnhancePluginDe
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArgument(0, String.class);
+                    return ElementMatchers.takesArgument(0, String.class);
                 }
 
                 @Override
@@ -69,7 +73,12 @@ public class InfluxDBInstrumentation extends ClassInstanceMethodsEnhancePluginDe
           new InstanceMethodsInterceptPoint() {
             @Override
             public ElementMatcher<MethodDescription> getMethodsMatcher() {
-              return InfluxDBMethodMatch.INSTANCE.getInfluxDBMethodMatcher();
+              ElementMatcher.Junction<MethodDescription> matcher = none();
+              final Set<String> setters = Constants.MATCHER_METHOD_NAME;
+              for (String setter : setters) {
+                matcher = matcher.or(named(setter));
+              }
+              return matcher;
             }
 
             @Override

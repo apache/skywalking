@@ -131,7 +131,6 @@ public class InfluxDBMethodInterceptorTest {
         assertThat(SpanHelper.getComponentId(span), is(ComponentsDefine.INFLUXDB_JAVA.getId()));
         List<TagValuePair> tags = SpanHelper.getTags(span);
         assertThat(tags.get(0).getValue(), is("InfluxDB"));
-//        assertThat(tags.get(1).getValue(), is("write ".concat(allArgument[0].toString())));
         assertThat(SpanHelper.getLayer(span), CoreMatchers.is(SpanLayer.DB));
     }
 

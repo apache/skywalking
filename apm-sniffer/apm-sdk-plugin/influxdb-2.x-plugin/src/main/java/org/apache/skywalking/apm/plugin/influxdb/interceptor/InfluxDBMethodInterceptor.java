@@ -39,10 +39,6 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
         span.setComponent(ComponentsDefine.INFLUXDB_JAVA);
         Tags.DB_TYPE.set(span, "InfluxDB");
         SpanLayer.asDB(span);
-        // TODO: judge statement by operation scenario
-//        if (allArguments.length > 0 && allArguments[0] instanceof Point) {
-//            Tags.DB_STATEMENT.set(span, method.getName() + " " + allArguments[0]);
-//        }
     }
 
     @Override
