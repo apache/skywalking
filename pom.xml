@@ -492,7 +492,6 @@
                         <exclude>**/*.pem</exclude>
 
                         <exclude>.m2/**</exclude>
-                        <exclude>~/.m2/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
