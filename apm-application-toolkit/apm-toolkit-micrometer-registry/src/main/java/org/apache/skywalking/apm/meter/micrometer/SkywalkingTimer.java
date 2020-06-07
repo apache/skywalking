@@ -28,12 +28,9 @@ import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.DoubleAccumulator;
-import java.util.stream.Collectors;
 
 public class SkywalkingTimer extends AbstractTimer {
 
@@ -42,8 +39,8 @@ public class SkywalkingTimer extends AbstractTimer {
     private final Gauge max;
     private final DoubleAccumulator maxAdder;
 
-    private final Histogram histogram;
-    private final Percentile percentile;
+    private final Optional<Histogram> histogram;
+    private final Optional<Percentile> percentile;
 
     protected SkywalkingTimer(Id id, MeterId meterId, Clock clock,
                               DistributionStatisticConfig distributionStatisticConfig, PauseDetector pauseDetector,
@@ -59,27 +56,8 @@ public class SkywalkingTimer extends AbstractTimer {
         this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
-        if (distributionStatisticConfig.isPublishingHistogram()) {
-            final NavigableSet<Double> buckets = distributionStatisticConfig.getHistogramBuckets(supportsAggregablePercentiles);
-            final List<Double> steps = buckets.stream().sorted(Double::compare)
-                .map(t -> (double) Duration.ofNanos(t.longValue()).toMillis()).collect(Collectors.toList());
-
-            final Histogram.Builder histogramBuilder = new Histogram.Builder(
-                meterId.copyTo(baseName + "_histogram", MeterId.MeterType.HISTOGRAM)).steps(steps);
-            if (distributionStatisticConfig.getMinimumExpectedValueAsDouble() != null) {
-                histogramBuilder.exceptMinValue(Duration.ofNanos(
-                    distributionStatisticConfig.getMinimumExpectedValueAsDouble().longValue()).toMillis());
-            }
-            histogram = histogramBuilder.build();
-        } else {
-            histogram = null;
-        }
-
-        if (distributionStatisticConfig.isPublishingPercentiles()) {
-            percentile = new Percentile.Builder(meterId.copyTo(baseName + "_percentile", MeterId.MeterType.PERCENTILE)).build();
-        } else {
-            percentile = null;
-        }
+        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig);
+        this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
     @Override
@@ -89,12 +67,8 @@ public class SkywalkingTimer extends AbstractTimer {
         sum.increment(amountToMillisecond);
         maxAdder.accumulate(amountToMillisecond);
 
-        if (histogram != null) {
-            histogram.addValue(amountToMillisecond);
-        }
-        if (percentile != null) {
-            percentile.record(amountToMillisecond);
-        }
+        histogram.ifPresent(h -> h.addValue(amountToMillisecond));
+        percentile.ifPresent(p -> p.record(amountToMillisecond));
     }
 
     @Override

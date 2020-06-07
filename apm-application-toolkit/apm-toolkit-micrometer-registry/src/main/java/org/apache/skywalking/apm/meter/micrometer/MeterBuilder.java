@@ -40,7 +40,7 @@ public class MeterBuilder {
      */
     public static Optional<Histogram> buildHistogram(MeterId meterId, boolean supportsAggregablePercentiles,
                                                      DistributionStatisticConfig distributionStatisticConfig) {
-        if (!distributionStatisticConfig.isPercentileHistogram()) {
+        if (!distributionStatisticConfig.isPublishingHistogram()) {
             return Optional.empty();
         }
 
