@@ -21,7 +21,7 @@ package org.apache.skywalking.apm.toolkit.meter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.reflect.Whitebox;
 
 import java.util.Collections;
 import java.util.Map;
@@ -32,7 +32,8 @@ public class MeterCenterTest {
 
     @Before
     public void setup() {
-        meterMap = (Map<MeterId, BaseMeter>) Whitebox.getInternalState(new MeterCenter(), "meterMap");
+        meterMap = Whitebox.getInternalState(MeterCenter.class, "METER_MAP");
+        meterMap.clear();
     }
 
     @Test
@@ -42,7 +43,7 @@ public class MeterCenterTest {
 
         // simple counter
         final Counter counter = Counter.create("test").build();
-        final MeterId counterMeterId = (MeterId) Whitebox.getInternalState(counter, "meterId");
+        final MeterId counterMeterId = Whitebox.getInternalState(counter, "meterId");
         Assert.assertNotNull(counterMeterId);
         Assert.assertNotNull(meterMap.get(counterMeterId));
         Assert.assertEquals(meterMap.get(counterMeterId), counter);
@@ -58,7 +59,7 @@ public class MeterCenterTest {
     public void testRemoveMeter() {
         final Counter counter = Counter.create("test").build();
         Assert.assertEquals(meterMap.size(), 1);
-        final MeterId counterMeterId = (MeterId) Whitebox.getInternalState(counter, "meterId");
+        final MeterId counterMeterId = Whitebox.getInternalState(counter, "meterId");
         MeterCenter.removeMeter(counterMeterId);
         Assert.assertEquals(meterMap.size(), 0);
 

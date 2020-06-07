@@ -36,8 +36,8 @@ public class ToolkitGaugeAdapterTest {
 
     @Test
     public void testGetId() {
-        final Counter counter = Counter.create("test").tag("k1", "v1").build();
-        final TookitCounterAdapter adapter = new TookitCounterAdapter(counter);
+        final Gauge gauge = Gauge.create("test", () -> 1d).tag("k1", "v1").build();
+        final ToolkitGaugeAdapter adapter = new ToolkitGaugeAdapter(gauge);
 
         final MeterId id = adapter.getId();
         Assert.assertEquals("test", id.getName());

@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.meter.transform;
 
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
+import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
@@ -27,10 +29,12 @@ import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.network.language.agent.v3.Label;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +48,11 @@ public class CounterTransformerTest {
     @BeforeClass
     public static void setup() throws Throwable {
         Config.Meter.RATE_COUNTER_NAME = "test_rate";
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
@@ -63,6 +72,9 @@ public class CounterTransformerTest {
         final DoubleAdder counter = new DoubleAdder();
         CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter));
 
+        // reset the meter service reference, encase use the old static reference
+        Whitebox.setInternalState(CounterTransformer.class, "METER_SERVICE", ServiceManager.INSTANCE.findService(MeterService.class));
+
         counter.add(2d);
 
         validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
@@ -78,9 +90,9 @@ public class CounterTransformerTest {
         Assert.assertEquals(validate.getMetricCase().getNumber(), MeterData.SINGLEVALUE_FIELD_NUMBER);
         MeterSingleValue singleValue = validate.getSingleValue();
         Assert.assertNotNull(singleValue);
-        Assert.assertEquals(singleValue.getValue(), value, 0.0);
-        Assert.assertEquals(singleValue.getName(), name);
-        Assert.assertEquals(singleValue.getLabelsList(), labels);
+        Assert.assertEquals(value, singleValue.getValue(), 0.0);
+        Assert.assertEquals(name, singleValue.getName());
+        Assert.assertEquals(labels, singleValue.getLabelsList());
     }
 
     private static class TestCounterAdapter implements CounterAdapter {

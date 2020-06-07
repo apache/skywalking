@@ -27,11 +27,8 @@ import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.concurrent.atomic.DoubleAccumulator;
-import java.util.stream.Collectors;
 
 public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
 
@@ -40,8 +37,8 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
     private final Gauge max;
     private final DoubleAccumulator maxAdder;
 
-    private final Histogram histogram;
-    private final Percentile percentile;
+    private final Optional<Histogram> histogram;
+    private final Optional<Percentile> percentile;
 
     protected SkywalkingDistributionSummary(Id id, MeterId meterId, Clock clock, DistributionStatisticConfig distributionStatisticConfig, double scale, boolean supportsAggregablePercentiles) {
         super(id, clock, distributionStatisticConfig, scale, supportsAggregablePercentiles);
@@ -55,27 +52,8 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
         this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
-        if (distributionStatisticConfig.isPublishingHistogram()) {
-            final NavigableSet<Double> buckets = distributionStatisticConfig.getHistogramBuckets(supportsAggregablePercentiles);
-            final List<Double> steps = buckets.stream().sorted(Double::compare)
-                .map(t -> (double) Duration.ofNanos(t.longValue()).toMillis()).collect(Collectors.toList());
-
-            final Histogram.Builder histogramBuilder = new Histogram.Builder(
-                meterId.copyTo(baseName + "_histogram", MeterId.MeterType.HISTOGRAM)).steps(steps);
-            if (distributionStatisticConfig.getMinimumExpectedValueAsDouble() != null) {
-                histogramBuilder.exceptMinValue(Duration.ofNanos(
-                    distributionStatisticConfig.getMinimumExpectedValueAsDouble().longValue()).toMillis());
-            }
-            histogram = histogramBuilder.build();
-        } else {
-            histogram = null;
-        }
-
-        if (distributionStatisticConfig.isPublishingPercentiles()) {
-            percentile = new Percentile.Builder(meterId.copyTo(baseName + "_percentile", MeterId.MeterType.PERCENTILE)).build();
-        } else {
-            percentile = null;
-        }
+        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig);
+        this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
     @Override
@@ -84,12 +62,8 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
         this.sum.increment(amount);
         maxAdder.accumulate(amount);
 
-        if (histogram != null) {
-            histogram.addValue(amount);
-        }
-        if (percentile != null) {
-            percentile.record(amount);
-        }
+        histogram.ifPresent(h -> h.addValue(amount));
+        percentile.ifPresent(p -> p.record(amount));
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -29,8 +30,12 @@ public class PercentileTest {
 
     @Test
     public void testBuild() {
-        final Percentile percentile = Percentile.create("test_percentile1").build();
-        Assert.assertNotNull(percentile);
+        final Percentile percentile1 = Percentile.create("test_percentile1").build();
+        Assert.assertNotNull(percentile1);
+
+        final Percentile percentile2 = new Percentile.Builder(
+            new MeterId("test_percentile2", MeterId.MeterType.PERCENTILE, Collections.emptyList())).build();
+        Assert.assertNotNull(percentile2);
     }
 
     @Test
@@ -50,7 +55,7 @@ public class PercentileTest {
      */
     private void validatePercentile(Percentile percentile, double... values) {
         Assert.assertNotNull(percentile);
-        final Map<Double, AtomicLong> records = (Map<Double, AtomicLong>) Whitebox.getInternalState(percentile, "recordWithCount");
+        final Map<Double, AtomicLong> records = percentile.getRecordWithCount();
 
         Assert.assertEquals(records.size(), values.length / 2);
         for (int i = 0; i < values.length; i += 2) {

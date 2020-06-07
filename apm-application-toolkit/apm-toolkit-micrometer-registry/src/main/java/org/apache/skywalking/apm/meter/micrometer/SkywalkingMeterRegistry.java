@@ -27,15 +27,16 @@ import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.config.NamingConvention;
 import io.micrometer.core.instrument.cumulative.CumulativeFunctionCounter;
 import io.micrometer.core.instrument.cumulative.CumulativeFunctionTimer;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import io.micrometer.core.instrument.internal.DefaultGauge;
-import io.micrometer.core.instrument.internal.DefaultLongTaskTimer;
 import io.micrometer.core.instrument.internal.DefaultMeter;
 import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
+import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.List;
@@ -47,11 +48,13 @@ import java.util.stream.Collectors;
 public class SkywalkingMeterRegistry extends MeterRegistry {
 
     public SkywalkingMeterRegistry() {
-        super(Clock.SYSTEM);
+        this(Clock.SYSTEM);
     }
 
     public SkywalkingMeterRegistry(Clock clock) {
         super(clock);
+        config().namingConvention(NamingConvention.snakeCase);
+        config().onMeterRemoved(this::onMeterRemoved);
     }
 
     @Override
@@ -68,16 +71,9 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
     }
 
     @Override
-    protected LongTaskTimer newLongTaskTimer(Meter.Id id) {
+    protected LongTaskTimer newLongTaskTimer(Meter.Id id, DistributionStatisticConfig distributionStatisticConfig) {
         final MeterId meterId = convertId(id);
-        LongTaskTimer ltt = new DefaultLongTaskTimer(id, clock);
-        final String baseName = meterId.getName();
-
-        new Gauge.Builder(
-            meterId.copyTo(baseName + "_active_count", MeterId.MeterType.GAUGE), () -> (double) ltt.activeTasks()).build();
-        new Gauge.Builder(
-            meterId.copyTo(baseName + "_duration_sum", MeterId.MeterType.GAUGE), () -> ltt.duration(TimeUnit.MILLISECONDS)).build();
-        return ltt;
+        return new SkywalkingLongTaskTimer(id, meterId, clock, TimeUnit.MILLISECONDS, distributionStatisticConfig, true);
     }
 
     @Override
@@ -163,12 +159,22 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
         return DistributionStatisticConfig.DEFAULT;
     }
 
+    /**
+     * Notify on the meter has been removed
+     */
+    private void onMeterRemoved(Meter meter) {
+        final MeterId meterId = convertId(meter.getId());
+        MeterCenter.removeMeter(meterId);
+    }
+
+    /**
+     * Convert the micrometer meter id to skywalking meter id
+     */
     private MeterId convertId(Meter.Id id) {
         String name = getConventionName(id);
         final MeterId.MeterType type = MeterId.MeterType.COUNTER;
         final List<MeterId.Tag> tags = id.getTags().stream().map(t -> new MeterId.Tag(t.getKey(), t.getValue())).collect(Collectors.toList());
         final MeterId meterId = new MeterId(name, type, tags);
-
         return meterId;
     }
 }

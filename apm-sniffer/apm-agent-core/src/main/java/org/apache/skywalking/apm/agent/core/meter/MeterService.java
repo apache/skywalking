@@ -106,6 +106,8 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
         if (reportMeterFuture != null) {
             reportMeterFuture.cancel(true);
         }
+        // clear all of the meter report
+        meterMap.clear();
     }
 
     @Override

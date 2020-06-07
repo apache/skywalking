@@ -58,9 +58,6 @@ public abstract class BaseMeter {
         return Objects.equals(meterId, baseMeter.meterId);
     }
 
-    /**
-     * Get meter id
-     */
     public MeterId getMeterId() {
         return meterId;
     }
@@ -90,6 +87,9 @@ public abstract class BaseMeter {
         public Builder(MeterId meterId) {
             if (meterId == null) {
                 throw new IllegalArgumentException("Meter id cannot be null");
+            }
+            if (!Objects.equals(meterId.getType(), getType())) {
+                throw new IllegalArgumentException("Meter id type is not matches");
             }
             this.meterId = meterId;
         }

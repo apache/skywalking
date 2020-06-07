@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -40,7 +41,6 @@ public class BaseMeterTest {
         Assert.assertNotNull(testMeter1);
 
         verify(meterBuilder1, times(1)).create(any());
-        verify(meterBuilder1, times(1)).getType();
         verify(meterBuilder1, times(0)).accept(any());
 
         final MeterId meterId = (MeterId) Whitebox.getInternalState(testMeter1, "meterId");
@@ -55,15 +55,39 @@ public class BaseMeterTest {
         final TestMeter testMeter2 = meterBuilder2.build();
         Assert.assertNotNull(testMeter2);
         verify(meterBuilder2, times(0)).create(any());
-        verify(meterBuilder2, times(1)).getType();
         verify(meterBuilder2, times(1)).accept(any());
 
         // empty name
         try {
             TestMeter.create(null).build();
-            throw new IllegalStateException();
-        } catch (IllegalStateException e) {
+            throw new RuntimeException();
+        } catch (IllegalArgumentException e) {
         } catch (Exception e) {
+            throw e;
+        }
+
+        // correct meter id
+        final MeterId tmpMeterId = new MeterId("test_meter_builder", MeterId.MeterType.COUNTER, Collections.emptyList());
+        new TestMeter.Builder(tmpMeterId).build();
+
+        final MeterId copiedMeterId = tmpMeterId.copyTo("test_meter_builder", MeterId.MeterType.GAUGE);
+        // not matched type
+        try {
+            new TestMeter.Builder(copiedMeterId).build();
+            throw new RuntimeException();
+        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            throw e;
+        }
+
+        // empty meterId
+        try {
+            MeterId emptyId = null;
+            new TestMeter.Builder(emptyId).build();
+            throw new RuntimeException();
+        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -113,6 +137,14 @@ public class BaseMeterTest {
         Assert.assertNull(meter.getTag("k2"));
     }
 
+    @Test
+    public void testGetMeterId() {
+        final TestMeter meter = TestMeter.create("test").tag("k1", "v1").build();
+        final MeterId tmpMeterId = new MeterId("test", MeterId.MeterType.COUNTER,
+            Arrays.asList(new MeterId.Tag("k1", "v1")));
+        Assert.assertEquals(tmpMeterId, meter.getMeterId());
+    }
+
     private static class TestMeter extends BaseMeter {
         private TestMeter(MeterId meterId) {
             super(meterId);
@@ -126,6 +158,10 @@ public class BaseMeterTest {
 
             public Builder(String name) {
                 super(name);
+            }
+
+            public Builder(MeterId meterId) {
+                super(meterId);
             }
 
             @Override

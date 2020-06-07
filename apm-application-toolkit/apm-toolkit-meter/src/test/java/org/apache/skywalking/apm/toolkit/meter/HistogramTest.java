@@ -31,9 +31,7 @@ public class HistogramTest {
         // normal
         Histogram histogram = Histogram.create("test_histogram1").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(-10)
             .tag("k1", "v1").build();
-        Assert.assertArrayEquals(
-            (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets"),
-            buildBuckets(-10d, 1d, 5d, 10d));
+        Assert.assertArrayEquals(histogram.getBuckets(), buildBuckets(-10d, 1d, 5d, 10d));
 
         // except value bigger than first bucket
         try {
@@ -48,9 +46,7 @@ public class HistogramTest {
         // except min value is equals first step
         histogram = Histogram.create("test_histogram3").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(1d)
             .tag("k1", "v1").build();
-        Assert.assertArrayEquals(
-            (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets"),
-            buildBuckets(1d, 5d, 10d));
+        Assert.assertArrayEquals(histogram.getBuckets(), buildBuckets(1d, 5d, 10d));
 
         // empty step
         try {
@@ -60,6 +56,30 @@ public class HistogramTest {
             throw e;
         } catch (Exception e) {
             Assert.assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+
+    @Test
+    public void testAccept() {
+        final Histogram baseHistogram = Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).exceptMinValue(0).build();
+
+        // same histogram
+        Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).exceptMinValue(0).build();
+
+        // not same steps size
+        try {
+            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d, 7d)).exceptMinValue(-1).build();
+        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            throw e;
+        }
+
+        // not same steps value
+        try {
+            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 6d)).exceptMinValue(-1).build();
+        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            throw e;
         }
     }
 
@@ -122,7 +142,7 @@ public class HistogramTest {
      */
     public static void verifyHistogram(Histogram histogram, Long[] bucketValues) {
         Assert.assertNotNull(histogram);
-        final Histogram.Bucket[] buckets = (Histogram.Bucket[]) Whitebox.getInternalState(histogram, "buckets");
+        final Histogram.Bucket[] buckets = histogram.getBuckets();
         for (int i = 0; i < bucketValues.length; i++) {
             Assert.assertNotNull(buckets[i]);
             Assert.assertEquals(buckets[i].count.longValue(), bucketValues[i].longValue());
