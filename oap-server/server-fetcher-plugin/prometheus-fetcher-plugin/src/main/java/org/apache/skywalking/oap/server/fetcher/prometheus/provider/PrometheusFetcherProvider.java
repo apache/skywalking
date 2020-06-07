@@ -123,6 +123,9 @@ public class PrometheusFetcherProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (!config.isActive()) {
+            return;
+        }
         rules = Rules.loadRules(config.getRulePath());
         ses = Executors.newScheduledThreadPool(rules.size(), Executors.defaultThreadFactory());
     }

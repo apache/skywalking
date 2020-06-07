@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.util.Objects;
 
 public class ResourceUtils {
 
@@ -44,6 +45,6 @@ public class ResourceUtils {
         if (url == null) {
             throw new FileNotFoundException("path not found: " + path);
         }
-        return new File(url.getPath()).listFiles();
+        return Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path);
     }
 }

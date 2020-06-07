@@ -228,7 +228,7 @@
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
-                        <exclude>fetcher-prom-rules/self.yaml</exclude>
+                        <exclude>fetcher-prom-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
