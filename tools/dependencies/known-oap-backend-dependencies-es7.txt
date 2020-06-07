@@ -38,7 +38,6 @@ elasticsearch-x-content-7.0.0.jar
 error_prone_annotations-2.3.2.jar
 etcd4j-2.17.0.jar
 failureaccess-1.0.1.jar
-fastjson-1.2.58.jar
 freemarker-2.3.28.jar
 graphql-java-8.0.jar
 graphql-java-tools-5.2.3.jar
@@ -116,9 +115,6 @@ lucene-spatial-extras-8.0.0.jar
 lucene-spatial3d-8.0.0.jar
 lucene-suggest-8.0.0.jar
 minimal-json-0.9.5.jar
-nacos-api-1.2.0.jar
-nacos-client-1.2.0.jar
-nacos-common-1.2.0.jar
 netty-3.10.5.Final.jar
 netty-buffer-4.1.42.Final.jar
 netty-codec-4.1.42.Final.jar
