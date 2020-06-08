@@ -381,6 +381,9 @@ Nginx:
 
 # PHP components
 # [6000, 7000) for PHP agent
+PHP:
+  id: 6000
+  languages: PHP
 cURL:
   id: 6001
   languages: PHP
