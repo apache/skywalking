@@ -20,7 +20,6 @@ package org.apache.skywalking.apm.toolkit.meter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Collections;
 import java.util.Map;
