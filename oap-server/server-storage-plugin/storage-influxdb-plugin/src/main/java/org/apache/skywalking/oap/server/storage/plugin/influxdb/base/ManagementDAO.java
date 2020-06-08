@@ -27,7 +27,8 @@ import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxClient;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.InfluxConstants;
+import org.influxdb.dto.Point;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.querybuilder.SelectQueryImpl;
 import org.influxdb.querybuilder.WhereQueryImpl;
@@ -39,8 +40,6 @@ import static org.influxdb.querybuilder.BuiltQuery.QueryBuilder.select;
 
 @Slf4j
 public class ManagementDAO implements IManagementDAO {
-    private static final long STATIC_TIMESTAMP = 1_000_000;
-
     private InfluxClient client;
     private StorageBuilder<ManagementData> storageBuilder;
 
@@ -52,9 +51,9 @@ public class ManagementDAO implements IManagementDAO {
     @Override
     public void insert(final Model model, final ManagementData managementData) throws IOException {
         final WhereQueryImpl<SelectQueryImpl> query = select()
-                .column(ID_COLUMN).column(NAME)
-                .from(client.getDatabase(), UITemplate.INDEX_NAME)
-                .where(eq(ID_COLUMN, managementData.id()));
+            .column(ID_COLUMN).column(NAME)
+            .from(client.getDatabase(), UITemplate.INDEX_NAME)
+            .where(eq(ID_COLUMN, managementData.id()));
         QueryResult.Series series = client.queryForSingleSeries(query);
         if (log.isDebugEnabled()) {
             log.debug("SQL: {} result: {}", query.getCommand(), series);
@@ -63,11 +62,10 @@ public class ManagementDAO implements IManagementDAO {
             return;
         }
 
-        final InfluxInsertRequest request = new InfluxInsertRequest(model, managementData, storageBuilder)
-                .time(STATIC_TIMESTAMP, TimeUnit.NANOSECONDS);
-        TableMetaInfo.get(model.getName()).getStorageAndTagMap().forEach((field, tag) -> {
-            request.addFieldAsTag(field, tag);
-        });
-        client.write(request.getPoint());
+        Point point = Point.measurement(UITemplate.INDEX_NAME)
+                           .tag(InfluxConstants.TagName.ID_COLUMN, managementData.id())
+                           .time(1L, TimeUnit.NANOSECONDS)
+                           .fields(storageBuilder.data2Map(managementData)).build();
+        client.write(point);
     }
 }
