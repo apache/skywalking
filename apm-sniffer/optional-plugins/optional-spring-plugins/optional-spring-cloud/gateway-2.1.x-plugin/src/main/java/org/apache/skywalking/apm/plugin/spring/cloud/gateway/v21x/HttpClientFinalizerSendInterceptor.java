@@ -38,12 +38,11 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
         EnhanceObjectCache enhanceObjectCache = (EnhanceObjectCache) objInst.getSkyWalkingDynamicField();
+        AbstractSpan span = ContextManager.activeSpan();
+        span.prepareForAsync();
+
         if (!StringUtil.isEmpty(enhanceObjectCache.getUrl())) {
             URL url = new URL(enhanceObjectCache.getUrl());
-
-            AbstractSpan span = ContextManager.activeSpan();
-            span.prepareForAsync();
-
 
             ContextCarrier contextCarrier = new ContextCarrier();
             AbstractSpan abstractSpan = ContextManager.createExitSpan(
@@ -68,10 +67,10 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
                     return publisher;
                 }
             };
-
-            enhanceObjectCache.setSpan1(span);
             enhanceObjectCache.setCacheSpan(abstractSpan);
         }
+
+        enhanceObjectCache.setSpan1(span);
     }
 
     private String getPeer(URL url) {
