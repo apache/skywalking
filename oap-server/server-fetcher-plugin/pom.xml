@@ -33,4 +33,11 @@
     <modules>
         <module>prometheus-fetcher-plugin</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+        </dependency>
+    </dependencies>
 </project>
