@@ -20,9 +20,10 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
 import java.util.HashMap;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -34,10 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MeterFunction(functionName = "avg")
-@EqualsAndHashCode(of = {
-    "entityId",
-    "timeBucket"
-})
+@ToString
 public abstract class AvgFunction extends LongAvgMetrics implements AcceptableValue<Long> {
     @Setter
     @Getter
@@ -148,5 +146,21 @@ public abstract class AvgFunction extends LongAvgMetrics implements AcceptableVa
             map.put(ENTITY_ID, storageData.getEntityId());
             return map;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof AvgFunction))
+            return false;
+        AvgFunction function = (AvgFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
     }
 }
