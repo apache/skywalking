@@ -52,7 +52,7 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js
+  languages: Java,C#,Node.js,PHP
 Motan:
   id: 8
   languages: Java
@@ -91,7 +91,7 @@ JettyServer:
   languages: Java
 Memcached:
   id: 20
-  languages: Java
+  languages: Java,PHP
 ShardingJDBC:
   id: 21
   languages: Java
@@ -100,7 +100,7 @@ PostgreSQL:
   languages: Java,C#,Node.js
 GRPC:
   id: 23
-  languages: Java
+  languages: Java,PHP
 ElasticJob:
   id: 24
   languages: Java
@@ -378,6 +378,26 @@ Nginx:
   id: 6000
   languages: Lua
 
+
+# PHP components
+# [6000, 7000) for PHP agent
+cURL:
+  id: 6001
+  languages: PHP
+PDO:
+  id: 6002
+  languages: PHP
+Mysqli:
+  id: 6003
+  languages: PHP
+Yar:
+  id: 6004
+  languages: PHP
+Predis:
+  id: 6005
+  languages: PHP
+
+
 # [7000, 8000) are reserved for Python components
 Python:
   id: 7000
@@ -421,3 +441,7 @@ Component-Server-Mappings:
   pulsar-consumer: Pulsar
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
+  cURL: HttpClient
+  PDO: Mysql
+  Mysqli: Mysql
+  Predis: Redis
