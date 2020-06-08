@@ -441,7 +441,5 @@ Component-Server-Mappings:
   pulsar-consumer: Pulsar
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
-  cURL: HttpClient
-  PDO: Mysql
   Mysqli: Mysql
   Predis: Redis
