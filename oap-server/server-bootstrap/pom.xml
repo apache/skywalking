@@ -109,11 +109,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-so11y-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-profile-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -159,11 +154,6 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-prometheus</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>telemetry-so11y</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -238,6 +228,7 @@
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
+                        <exclude>fetcher-prom-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
