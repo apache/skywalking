@@ -18,38 +18,36 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import java.util.function.BiFunction;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.ServerWebExchangeDecorator;
-import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.EnhanceObjectCache;
+import org.reactivestreams.Publisher;
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClientResponse;
 
-public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientFinalizerResponseConnectionInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ServerWebExchange exchange = ((ServerWebExchange) allArguments[0]);
-        EnhancedInstance enhancedInstance = getInstance(exchange);
+        BiFunction<? super HttpClientResponse, ? super Connection, ? extends Publisher> finalReceiver = (BiFunction<? super HttpClientResponse, ? super Connection, ? extends Publisher>) allArguments[0];
+        EnhanceObjectCache cache = (EnhanceObjectCache) objInst.getSkyWalkingDynamicField();
+        allArguments[0] = new BiFunction<HttpClientResponse, Connection, Publisher>() {
+            @Override
+            public Publisher apply(final HttpClientResponse response, final Connection connection) {
+                Publisher publisher = finalReceiver.apply(response, connection);
+                // receive the response. Stop the span.
+                if (cache.getSpan() != null) {
+                    cache.getSpan().asyncFinish();
+                }
 
-        AbstractSpan span = ContextManager.createLocalSpan("SpringCloudGateway/RoutingFilter");
-        if (enhancedInstance != null && enhancedInstance.getSkyWalkingDynamicField() != null) {
-            ContextManager.continued((ContextSnapshot) enhancedInstance.getSkyWalkingDynamicField());
-        }
-    }
-
-    public static EnhancedInstance getInstance(Object o) {
-        EnhancedInstance instance = null;
-        if (o instanceof DefaultServerWebExchange) {
-            instance = (EnhancedInstance) o;
-        } else if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            return getInstance(delegate);
-        }
-        return instance;
+                if (cache.getSpan1() != null) {
+                    cache.getSpan1().asyncFinish();
+                }
+                return publisher;
+            }
+        };
     }
 
     @Override
@@ -61,6 +59,6 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }

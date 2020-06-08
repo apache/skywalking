@@ -18,49 +18,29 @@
 package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import java.lang.reflect.Method;
-import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
-import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.ServerWebExchangeDecorator;
-import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define.EnhanceObjectCache;
 
-public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
+public class HttpClientFinalizerURIInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ServerWebExchange exchange = ((ServerWebExchange) allArguments[0]);
-        EnhancedInstance enhancedInstance = getInstance(exchange);
-
-        AbstractSpan span = ContextManager.createLocalSpan("SpringCloudGateway/RoutingFilter");
-        if (enhancedInstance != null && enhancedInstance.getSkyWalkingDynamicField() != null) {
-            ContextManager.continued((ContextSnapshot) enhancedInstance.getSkyWalkingDynamicField());
-        }
-    }
-
-    public static EnhancedInstance getInstance(Object o) {
-        EnhancedInstance instance = null;
-        if (o instanceof DefaultServerWebExchange) {
-            instance = (EnhancedInstance) o;
-        } else if (o instanceof ServerWebExchangeDecorator) {
-            ServerWebExchange delegate = ((ServerWebExchangeDecorator) o).getDelegate();
-            return getInstance(delegate);
-        }
-        return instance;
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        if (ret instanceof EnhancedInstance) {
+            EnhanceObjectCache enhanceObjectCache = (EnhanceObjectCache) ((EnhancedInstance) ret).getSkyWalkingDynamicField();
+            enhanceObjectCache.setUrl(String.valueOf(allArguments[0]));
+        }
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
                                       Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
     }
 }

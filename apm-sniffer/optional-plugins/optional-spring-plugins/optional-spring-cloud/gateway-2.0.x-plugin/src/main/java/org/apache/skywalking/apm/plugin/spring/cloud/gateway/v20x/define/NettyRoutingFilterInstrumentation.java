@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;

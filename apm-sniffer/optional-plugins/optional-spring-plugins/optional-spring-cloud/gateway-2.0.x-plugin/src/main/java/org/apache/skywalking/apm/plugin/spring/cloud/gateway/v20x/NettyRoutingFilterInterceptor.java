@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x;
 
 import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -39,6 +39,7 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
         if (enhancedInstance != null && enhancedInstance.getSkyWalkingDynamicField() != null) {
             ContextManager.continued((ContextSnapshot) enhancedInstance.getSkyWalkingDynamicField());
         }
+        span.prepareForAsync();
     }
 
     public static EnhancedInstance getInstance(Object o) {
@@ -55,6 +56,7 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
+        ContextManager.stopSpan();
         return ret;
     }
 

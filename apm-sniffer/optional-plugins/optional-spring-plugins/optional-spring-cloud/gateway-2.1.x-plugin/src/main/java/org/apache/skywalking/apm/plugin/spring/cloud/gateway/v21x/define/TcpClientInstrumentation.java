@@ -24,42 +24,35 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsIn
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
+import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class TcpClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(Constants.INTERCEPT_CLASS_NETTY_ROUTING_FILTER);
+        return byName(Constants.INTERCEPT_CLASS_TCP_CLIENT);
     }
 
     @Override
     public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[0];
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override
+                public String getConstructorInterceptor() {
+                    return Constants.TCP_CLIENT_CONSTRUCTOR_INTERCEPTOR;
+                }
+            }
+        };
     }
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("filter").and(
-                        takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
-                }
-
-                @Override
-                public String getMethodsInterceptor() {
-                    return Constants.NETTY_ROUTING_FILTER_INTERCEPTOR;
-                }
-
-                @Override
-                public boolean isOverrideArgs() {
-                    return true;
-                }
-            }
-        };
+        return new InstanceMethodsInterceptPoint[0];
     }
 }

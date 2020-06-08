@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x.define;
+package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v20x.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -25,14 +25,13 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
-import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
+import static org.apache.skywalking.apm.agent.core.plugin.match.HierarchyMatch.byHierarchyMatch;
 
-public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class HttpClientRequestInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName(Constants.INTERCEPT_CLASS_NETTY_ROUTING_FILTER);
+        return byHierarchyMatch(Constants.INTERCEPT_CLASS_HTTP_CLIENT_REQUEST);
     }
 
     @Override
@@ -46,18 +45,17 @@ public class NettyRoutingFilterInstrumentation extends ClassInstanceMethodsEnhan
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("filter").and(
-                        takesArgumentWithType(0, "org.springframework.web.server.ServerWebExchange"));
+                    return named("headers");
                 }
 
                 @Override
                 public String getMethodsInterceptor() {
-                    return Constants.NETTY_ROUTING_FILTER_INTERCEPTOR;
+                    return Constants.HTTPCLIENT_REQUEST_HEADERS_INTERCEPTOR;
                 }
 
                 @Override
                 public boolean isOverrideArgs() {
-                    return true;
+                    return false;
                 }
             }
         };

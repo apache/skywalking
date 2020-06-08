@@ -46,12 +46,6 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-
-    }
-
-    @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
         EnhancedInstance instance = getInstance(allArguments[0]);
 
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
@@ -75,6 +69,15 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
         instance.setSkyWalkingDynamicField(ContextManager.capture());
         span.prepareForAsync();
         ContextManager.stopSpan(span);
+
+        objInst.setSkyWalkingDynamicField(span);
+    }
+
+    @Override
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
+        AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
 
         return ((Mono) ret).doFinally(s -> {
             try {
