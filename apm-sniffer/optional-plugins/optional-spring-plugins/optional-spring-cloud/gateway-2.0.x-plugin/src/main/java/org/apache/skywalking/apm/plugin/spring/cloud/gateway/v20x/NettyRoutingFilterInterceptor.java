@@ -32,7 +32,7 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                              MethodInterceptResult result) throws Throwable {
-        ServerWebExchange exchange = ((ServerWebExchange) allArguments[0]);
+        ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         EnhancedInstance enhancedInstance = getInstance(exchange);
 
         AbstractSpan span = ContextManager.createLocalSpan("SpringCloudGateway/RoutingFilter");

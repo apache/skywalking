@@ -80,7 +80,7 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
                               Object ret) throws Throwable {
-        ((EnhancedInstance)(ret)).setSkyWalkingDynamicField(objInst.getSkyWalkingDynamicField());
+        ((EnhancedInstance) ret).setSkyWalkingDynamicField(objInst.getSkyWalkingDynamicField());
         return ret;
     }
 
