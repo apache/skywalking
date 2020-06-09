@@ -87,40 +87,40 @@ public class KafkaConsumerInstrumentation extends AbstractKafkaInstrumentation {
                     return false;
                 }
             },
-          new InstanceMethodsInterceptPoint() {
-              @Override
-              public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                return named(SUBSCRIBE_METHOD)
-                  .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_NAME));
-              }
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(SUBSCRIBE_METHOD)
+                      .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_NAME));
+                }
 
-              @Override
-              public String getMethodsInterceptor() {
-                  return SUBSCRIBE_INTERCEPT_CLASS;
-              }
+                @Override
+                public String getMethodsInterceptor() {
+                    return SUBSCRIBE_INTERCEPT_CLASS;
+                }
 
-              @Override
-              public boolean isOverrideArgs() {
-                  return false;
-              }
-          },
-          new InstanceMethodsInterceptPoint() {
-              @Override
-              public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                  return named(SUBSCRIBE_METHOD)
-                    .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_PATTERN));
-              }
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            },
+            new InstanceMethodsInterceptPoint() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named(SUBSCRIBE_METHOD)
+                      .and(takesArgumentWithType(0, SUBSCRIBE_INTERCEPT_TYPE_PATTERN));
+                }
 
-              @Override
-              public String getMethodsInterceptor() {
-                  return SUBSCRIBE_INTERCEPT_CLASS;
-              }
+                @Override
+                public String getMethodsInterceptor() {
+                    return SUBSCRIBE_INTERCEPT_CLASS;
+                }
 
-              @Override
-              public boolean isOverrideArgs() {
-                  return false;
-              }
-          }
+                @Override
+                public boolean isOverrideArgs() {
+                    return false;
+                }
+            }
         };
     }
 
