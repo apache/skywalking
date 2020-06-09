@@ -35,6 +35,8 @@ import reactor.core.publisher.Mono;
 import reactor.ipc.netty.http.client.HttpClientRequest;
 import reactor.ipc.netty.http.client.HttpClientResponse;
 
+import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.SPRING_CLOUD_GATEWAY;
+
 public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(final EnhancedInstance objInst,
@@ -49,6 +51,7 @@ public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan abstractSpan = ContextManager.createExitSpan(
             "SpringCloudGateway/sendRequest", contextCarrier, getPeer(url));
         abstractSpan.prepareForAsync();
+        abstractSpan.setComponent(SPRING_CLOUD_GATEWAY);
         ContextManager.stopSpan(abstractSpan);
 
         Function<? super HttpClientRequest, ? extends Publisher<Void>> handler = (Function<? super HttpClientRequest, ? extends Publisher<Void>>) allArguments[2];

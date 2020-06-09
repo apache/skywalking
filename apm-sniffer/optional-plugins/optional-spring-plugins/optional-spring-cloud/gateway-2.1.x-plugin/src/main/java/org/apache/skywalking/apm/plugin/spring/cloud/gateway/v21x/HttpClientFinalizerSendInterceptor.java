@@ -33,6 +33,8 @@ import org.reactivestreams.Publisher;
 import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClientRequest;
 
+import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.SPRING_CLOUD_GATEWAY;
+
 public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -48,6 +50,7 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
             AbstractSpan abstractSpan = ContextManager.createExitSpan(
                 "SpringCloudGateway/sendRequest", contextCarrier, getPeer(url));
             abstractSpan.prepareForAsync();
+            abstractSpan.setComponent(SPRING_CLOUD_GATEWAY);
 
             ContextManager.stopSpan(abstractSpan);
             ContextManager.stopSpan(span);

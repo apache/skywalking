@@ -28,6 +28,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
 
+import static org.apache.skywalking.apm.network.trace.component.ComponentsDefine.SPRING_CLOUD_GATEWAY;
+
 public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
@@ -39,6 +41,7 @@ public class NettyRoutingFilterInterceptor implements InstanceMethodsAroundInter
         if (enhancedInstance != null && enhancedInstance.getSkyWalkingDynamicField() != null) {
             ContextManager.continued((ContextSnapshot) enhancedInstance.getSkyWalkingDynamicField());
         }
+        span.setComponent(SPRING_CLOUD_GATEWAY);
     }
 
     public static EnhancedInstance getInstance(Object o) {

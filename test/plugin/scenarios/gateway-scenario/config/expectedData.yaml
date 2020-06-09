@@ -35,7 +35,7 @@ segmentItems:
       - {key: http.method, value: GET}
       refs:
       - {parentEndpoint: SpringCloudGateway/RoutingFilter, networkAddress: 'localhost:18070',
-        refType: CrossProcess, parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
+        refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
 - serviceName: gateway-projectA-scenario
@@ -52,22 +52,22 @@ segmentItems:
       endTime: nq 0
       componentId: 67
       isError: false
-      spanType: Exit
+      spanType: Entry
       peer: not null
       tags:
-      - {key: url, value: not null}
+      - {key: url, value: 'http://localhost:8080/provider/b/testcase'}
       - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
     - operationName: SpringCloudGateway/sendRequest
       operationId: 0
-      parentSpanId: 1
-      spanId: 0
-      spanLayer: Http
+      parentSpanId: 0
+      spanId: 1
       startTime: nq 0
       endTime: nq 0
-      componentId: 67
+      componentId: 61
       isError: false
       spanType: Exit
       peer: 'localhost:18070'
@@ -78,14 +78,10 @@ segmentItems:
       spanId: 0
       startTime: nq 0
       endTime: nq 0
-      componentId: 0
+      componentId: 61
       isError: false
       spanType: Local
       peer: ''
-      tags:
-      - {key: url, value: 'http://localhost:8080/provider/b/testcase'}
-      - {key: http.method, value: GET}
-      - {key: status_code, value: '200'}
       refs:
       - {parentEndpoint: WEBFLUX.handle, networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
