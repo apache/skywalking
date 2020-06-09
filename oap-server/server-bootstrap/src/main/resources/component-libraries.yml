@@ -379,32 +379,33 @@ Nginx:
   languages: Lua
 
 
-# PHP components
-# [6000, 7000) for PHP agent
-PHP:
-  id: 6000
-  languages: PHP
-cURL:
-  id: 6001
-  languages: PHP
-PDO:
-  id: 6002
-  languages: PHP
-Mysqli:
-  id: 6003
-  languages: PHP
-Yar:
-  id: 6004
-  languages: PHP
-Predis:
-  id: 6005
-  languages: PHP
-
-
 # [7000, 8000) are reserved for Python components
 Python:
   id: 7000
   languages: Python
+
+
+# PHP components
+# [8000, 9000) for PHP agent
+PHP:
+  id: 8001
+  languages: PHP
+cURL:
+  id: 8002
+  languages: PHP
+PDO:
+  id: 8003
+  languages: PHP
+Mysqli:
+  id: 8004
+  languages: PHP
+Yar:
+  id: 8005
+  languages: PHP
+Predis:
+  id: 8006
+  languages: PHP
+
 
 # Component Server mapping defines the server display names of some components
 # e.g.
