@@ -34,7 +34,7 @@ public class SubscribeMethodInterceptor implements InstanceMethodsAroundIntercep
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
         ConsumerEnhanceRequiredInfo requiredInfo = (ConsumerEnhanceRequiredInfo) objInst.getSkyWalkingDynamicField();
-        if (allArguments[0] instanceof Pattern) {
+        if (argumentsTypes[0] == Pattern.class) {
             requiredInfo.setTopics(Collections.singletonList(((Pattern)allArguments[0]).pattern()));
         } else {
             requiredInfo.setTopics((Collection<String>) allArguments[0]);
