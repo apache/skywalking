@@ -23,11 +23,12 @@ This is a both-way mapping, agent or SDK could use the value(ID) to represent th
 
 ### ID rules
 - Java and multi languages shared: (0, 3000]
-- .NET Platform reserved: (3000, 4000]
-- Node.js Platform reserved: (4000, 5000]
-- Go reserved: (5000, 6000]
-- PHP reserved: (6000, 7000]
-- Python reserved: (7000, 8000]
+- .NET Platform reserved: [3000, 4000)
+- Node.js Platform reserved: [4000, 5000)
+- Go reserved: [5000, 6000)
+- Lua reserved: [6000, 7000)
+- Python reserved: [7000, 8000)
+- PHP reserved: [8000, 9000)
 
 Example
 ```yaml
