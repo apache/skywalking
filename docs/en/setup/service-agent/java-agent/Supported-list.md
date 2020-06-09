@@ -24,7 +24,7 @@
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
 * HTTP Gateway
-  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.x.RELEASE (Optional²)
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.x.RELEASE 2.1.x.RELEASE (Optional²)
 * JDBC
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
