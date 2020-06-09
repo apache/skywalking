@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 @Getter
 public class HeatMap {
     private List<HeatMapColumn> values = new ArrayList<>(10);
-    private List<Bucket> buckets = null;
+    private List<Bucket> buckets = new ArrayList<>();
 
     public void addBucket(Bucket bucket) {
         this.buckets.add(bucket);
@@ -50,8 +50,7 @@ public class HeatMap {
         DataTable dataset = new DataTable(rawdata);
 
         final List<String> sortedKeys = dataset.sortedKeys(new KeyComparator(true));
-        if (buckets == null) {
-            buckets = new ArrayList<>(dataset.size());
+        if (buckets.isEmpty()) {
             for (int i = 0; i < sortedKeys.size(); i++) {
                 final Bucket bucket = new Bucket();
                 final String minValue = sortedKeys.get(i);
