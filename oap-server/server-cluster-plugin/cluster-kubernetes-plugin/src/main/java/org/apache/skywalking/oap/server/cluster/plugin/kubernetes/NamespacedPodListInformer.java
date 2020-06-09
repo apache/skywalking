@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.informer.cache.Lister;
+import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
@@ -31,6 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -70,9 +73,10 @@ public enum NamespacedPodListInformer {
 
     private void doStartPodInformer(ClusterModuleKubernetesConfig podConfig) throws IOException {
 
-        CoreV1Api coreV1Api = new CoreV1Api(Config.defaultClient());
-
-        factory = new SharedInformerFactory(Config.defaultClient(), executorService);
+        ApiClient apiClient = Config.defaultClient();
+        apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
+        CoreV1Api coreV1Api = new CoreV1Api(apiClient);
+        factory = new SharedInformerFactory(executorService);
 
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
             params -> coreV1Api.listNamespacedPodCall(
@@ -89,7 +93,13 @@ public enum NamespacedPodListInformer {
 
     public Optional<List<V1Pod>> listPods() {
 
-        return Optional.ofNullable(podLister.list().size() != 0 ? podLister.list() : null);
+        return Optional.ofNullable(podLister.list().size() != 0
+                                       ? podLister.list()
+                                                  .stream()
+                                                  .filter(
+                                                      item -> "Running".equalsIgnoreCase(item.getStatus().getPhase()))
+                                                  .collect(Collectors.toList())
+                                       : null);
 
     }
 
