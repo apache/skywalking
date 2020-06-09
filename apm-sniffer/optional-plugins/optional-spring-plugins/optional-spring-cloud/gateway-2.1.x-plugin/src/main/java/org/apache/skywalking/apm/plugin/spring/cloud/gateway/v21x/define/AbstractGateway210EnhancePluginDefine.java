@@ -24,7 +24,7 @@ public abstract class AbstractGateway210EnhancePluginDefine extends ClassInstanc
     @Override
     protected String[] witnessClasses() {
         return new String[] {
-            "org.springframework.cloud.gateway.support.HttpStatusHolder"
+            "org.springframework.cloud.gateway.support.StringToZonedDateTimeConverter"
         };
     }
 }
