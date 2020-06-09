@@ -22,7 +22,7 @@ This is a both-way mapping, agent or SDK could use the value(ID) to represent th
 - languages: Program languages may use this component. Multi languages should be separated by `,`
 
 ### ID rules
-- Java and multi languages shared: (0, 3000]
+- Java and multi languages shared: (0, 3000)
 - .NET Platform reserved: [3000, 4000)
 - Node.js Platform reserved: [4000, 5000)
 - Go reserved: [5000, 6000)
