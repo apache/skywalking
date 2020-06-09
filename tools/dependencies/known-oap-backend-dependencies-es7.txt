@@ -42,7 +42,6 @@ elasticsearch-x-content-7.0.0.jar
 error_prone_annotations-2.3.2.jar
 etcd4j-2.17.0.jar
 failureaccess-1.0.1.jar
-fastjson-1.2.58.jar
 freemarker-2.3.28.jar
 graphql-java-8.0.jar
 graphql-java-tools-5.2.3.jar
@@ -58,12 +57,13 @@ gson-fire-1.8.3.jar
 guava-28.1-jre.jar
 guice-4.1.0.jar
 h2-1.4.196.jar
+HdrHistogram-2.1.9.jar
+HikariCP-3.1.0.jar
 hppc-0.7.1.jar
 httpasyncclient-4.1.4.jar
 httpclient-4.5.7.jar
 httpcore-4.4.11.jar
 httpcore-nio-4.4.11.jar
-influxdb-java-2.15.jar
 jackson-annotations-2.9.5.jar
 jackson-core-2.9.5.jar
 jackson-core-asl-1.9.13.jar
@@ -104,7 +104,6 @@ log4j-api-2.9.0.jar
 log4j-core-2.9.0.jar
 log4j-over-slf4j-1.7.25.jar
 log4j-slf4j-impl-2.9.0.jar
-logging-interceptor-3.13.1.jar
 lucene-analyzers-common-8.0.0.jar
 lucene-backward-codecs-8.0.0.jar
 lucene-core-8.0.0.jar
@@ -121,11 +120,6 @@ lucene-spatial-extras-8.0.0.jar
 lucene-spatial3d-8.0.0.jar
 lucene-suggest-8.0.0.jar
 minimal-json-0.9.5.jar
-moshi-1.5.0.jar
-msgpack-core-0.8.16.jar
-nacos-api-1.2.0.jar
-nacos-client-1.2.0.jar
-nacos-common-1.2.0.jar
 netty-3.10.5.Final.jar
 netty-buffer-4.1.42.Final.jar
 netty-codec-4.1.42.Final.jar
@@ -165,3 +159,10 @@ sundr-core-0.21.0.jar
 swagger-annotations-1.5.22.jar
 t-digest-3.2.jar
 zookeeper-3.4.10.jar
+converter-moshi-2.5.0.jar
+influxdb-java-2.15.jar
+moshi-1.5.0.jar
+msgpack-core-0.8.16.jar
+logging-interceptor-3.13.1.jar
+vavr-0.10.3.jar
+vavr-match-0.10.3.jar

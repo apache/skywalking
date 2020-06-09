@@ -19,11 +19,6 @@ set -e
 
 echo "[Entrypoint] Apache SkyWalking Docker Image"
 
-if [ "$SW_TELEMETRY" = "so11y" ]; then
-    export SW_RECEIVER_SO11Y=default
-    echo "Set SW_RECEIVER_SO11Y to ${SW_RECEIVER_SO11Y}"
-fi
-
 EXT_LIB_DIR=/skywalking/ext-libs
 EXT_CONFIG_DIR=/skywalking/ext-config
 
