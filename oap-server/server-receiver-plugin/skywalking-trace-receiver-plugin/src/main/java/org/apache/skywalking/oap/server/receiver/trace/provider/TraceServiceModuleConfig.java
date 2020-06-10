@@ -25,18 +25,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 public class TraceServiceModuleConfig extends ModuleConfig {
-    @Setter
-    @Getter
-    private String bufferPath;
-    @Setter
-    @Getter
-    private int bufferOffsetMaxFileSize;
-    @Setter
-    @Getter
-    private int bufferDataMaxFileSize;
-    @Setter
-    @Getter
-    private boolean bufferFileCleanWhenRestart;
     /**
      * The sample rate precision is 1/10000. 10000 means 100% sample in default.
      */
