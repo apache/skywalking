@@ -125,3 +125,24 @@ segmentItems:
         parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: 'kafka-scenario', traceId: not null}
       skipAnalysis: 'false'
+  - segmentId: not null
+    spans:
+      - operationName: Kafka/test./Consumer/testGroup2
+        operationId: 0
+        parentSpanId: -1
+        spanId: 0
+        spanLayer: MQ
+        startTime: nq 0
+        endTime: nq 0
+        componentId: 41
+        isError: false
+        spanType: Entry
+        peer: ''
+        tags:
+          - {key: mq.broker, value: 'kafka-server:9092'}
+          - {key: mq.topic, value: test.}
+        refs:
+          - {parentEndpoint: /case/kafka-case, networkAddress: 'kafka-server:9092', refType: CrossProcess,
+             parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+                                                                null, parentService: 'kafka-scenario', traceId: not null}
+        skipAnalysis: 'false'
