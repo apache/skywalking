@@ -40,7 +40,7 @@ public class EndpointNameGroupingRuleWatcher extends ConfigChangeWatcher {
         // This is just a place holder text representing the original text.
         ruleSetting = "SkyWalking endpoint rule";
         grouping.setEndpointGroupingRule(new EndpointGroupingRuleReader(
-            ResourceUtils.read("endpoint_name_grouping.yml")).read());
+            ResourceUtils.read("endpoint-name-grouping.yml")).read());
     }
 
     @Override
