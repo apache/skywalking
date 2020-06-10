@@ -81,6 +81,7 @@ public class SkyWalkingAgent {
                                             .or(nameContains(".asm."))
                                             .or(nameContains(".reflectasm."))
                                             .or(nameStartsWith("sun.reflect"))
+                                            .or(nameStartsWith("org.mozilla0.javascript"))
                                             .or(allSkyWalkingAgentExcludeToolkit())
                                             .or(ElementMatchers.isSynthetic()));
 
