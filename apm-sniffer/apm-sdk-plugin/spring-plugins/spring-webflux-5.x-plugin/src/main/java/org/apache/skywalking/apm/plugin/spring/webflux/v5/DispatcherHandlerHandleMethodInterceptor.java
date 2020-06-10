@@ -41,11 +41,10 @@ import org.springframework.web.util.pattern.PathPattern;
 import reactor.core.publisher.Mono;
 
 public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethodsAroundInterceptor {
-    private static final String DEFAULT_OPERATION_NAME = "WEBFLUX.handle";
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
+                             MethodInterceptResult result) throws Throwable {
         EnhancedInstance instance = getInstance(allArguments[0]);
 
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
@@ -61,7 +60,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
             }
         }
 
-        AbstractSpan span = ContextManager.createEntrySpan(DEFAULT_OPERATION_NAME, carrier);
+        AbstractSpan span = ContextManager.createEntrySpan(exchange.getRequest().getURI().getPath(), carrier);
         span.setComponent(ComponentsDefine.SPRING_WEBFLUX);
         SpanLayer.asHttp(span);
         Tags.URL.set(span, exchange.getRequest().getURI().toString());
@@ -75,7 +74,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ServerWebExchange exchange = (ServerWebExchange) allArguments[0];
         AbstractSpan span = (AbstractSpan) objInst.getSkyWalkingDynamicField();
 
@@ -102,7 +101,7 @@ public class DispatcherHandlerHandleMethodInterceptor implements InstanceMethods
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
+                                      Class<?>[] argumentsTypes, Throwable t) {
     }
 
     public static EnhancedInstance getInstance(Object o) {

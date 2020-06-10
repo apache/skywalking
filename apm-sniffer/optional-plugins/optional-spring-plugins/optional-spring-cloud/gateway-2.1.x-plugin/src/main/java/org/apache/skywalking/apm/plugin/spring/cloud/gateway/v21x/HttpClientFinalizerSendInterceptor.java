@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
@@ -49,6 +50,7 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
             ContextCarrier contextCarrier = new ContextCarrier();
             AbstractSpan abstractSpan = ContextManager.createExitSpan(
                 "SpringCloudGateway/sendRequest", contextCarrier, getPeer(url));
+            Tags.URL.set(abstractSpan, enhanceObjectCache.getUrl());
             abstractSpan.prepareForAsync();
             abstractSpan.setComponent(SPRING_CLOUD_GATEWAY);
 
@@ -59,6 +61,7 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
             allArguments[0] = new BiFunction<HttpClientRequest, NettyOutbound, Publisher<Void>>() {
                 @Override
                 public Publisher<Void> apply(HttpClientRequest request, NettyOutbound outbound) {
+                    Tags.HTTP.METHOD.set(abstractSpan, request.method().name());
                     Publisher publisher = finalSender.apply(request, outbound);
 
                     CarrierItem next = contextCarrier.items();

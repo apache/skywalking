@@ -19,6 +19,7 @@ package org.apache.skywalking.apm.plugin.spring.cloud.gateway.v21x;
 
 import java.lang.reflect.Method;
 import java.util.function.BiFunction;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -39,6 +40,10 @@ public class HttpClientFinalizerResponseConnectionInterceptor implements Instanc
                 Publisher publisher = finalReceiver.apply(response, connection);
                 // receive the response. Stop the span.
                 if (cache.getSpan() != null) {
+                    if (response.status().code() >= 400) {
+                        cache.getSpan().errorOccurred();
+                    }
+                    Tags.STATUS_CODE.set(cache.getSpan(), String.valueOf(response.status().code()));
                     cache.getSpan().asyncFinish();
                 }
 

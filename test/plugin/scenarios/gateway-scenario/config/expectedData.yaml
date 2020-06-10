@@ -43,7 +43,7 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: WEBFLUX.handle
+    - operationName: /provider/b/testcase
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -71,6 +71,10 @@ segmentItems:
       isError: false
       spanType: Exit
       peer: 'localhost:18070'
+      tags:
+      - {key: url, value: not null}
+      - {key: http.method, value: GET}
+      - {key: status_code, value: '200'}
       skipAnalysis: 'false'
     - operationName: SpringCloudGateway/RoutingFilter
       operationId: 0
@@ -83,7 +87,7 @@ segmentItems:
       spanType: Local
       peer: ''
       refs:
-      - {parentEndpoint: WEBFLUX.handle, networkAddress: '', refType: CrossThread,
+      - {parentEndpoint: '/provider/b/testcase', networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: not null, traceId: not null}
       skipAnalysis: 'false'
