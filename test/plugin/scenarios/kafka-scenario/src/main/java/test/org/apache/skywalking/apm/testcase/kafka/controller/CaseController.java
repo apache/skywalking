@@ -21,6 +21,7 @@ package test.org.apache.skywalking.apm.testcase.kafka.controller;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -54,6 +55,7 @@ public class CaseController {
 
     private String topicName;
     private String topicName2;
+    private Pattern topicPattern;
 
     private static volatile boolean KAFKA_STATUS = false;
 
@@ -61,6 +63,7 @@ public class CaseController {
     private void setUp() {
         topicName = "test";
         topicName2 = "test2";
+        topicPattern = Pattern.compile("test.");
         new CheckKafkaProducerThread(bootstrapServers).start();
     }
 
@@ -84,10 +87,15 @@ public class CaseController {
             };
             producer.send(record2, callback2);
         }, bootstrapServers);
+
         Thread thread = new ConsumerThread();
         thread.start();
+
+        Thread thread2 = new ConsumerThread2();
+        thread2.start();
         try {
             thread.join();
+            thread2.join();
         } catch (InterruptedException e) {
             // ignore
         }
@@ -191,6 +199,45 @@ public class CaseController {
                                                                    .iterator()
                                                                    .next()
                                                                    .value()));
+                        logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
+                    }
+                    break;
+                }
+            }
+
+            consumer.close();
+        }
+    }
+
+    public class ConsumerThread2 extends Thread {
+        @Override
+        public void run() {
+            Properties consumerProperties = new Properties();
+            consumerProperties.put("bootstrap.servers", bootstrapServers);
+            consumerProperties.put("group.id", "testGroup2");
+            consumerProperties.put("enable.auto.commit", "true");
+            consumerProperties.put("auto.commit.interval.ms", "1000");
+            consumerProperties.put("auto.offset.reset", "earliest");
+            consumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            consumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
+            consumer.subscribe(topicPattern);
+            int i = 0;
+            while (i++ <= 10) {
+                try {
+                    Thread.sleep(1 * 1000);
+                } catch (InterruptedException e) {
+                }
+
+                ConsumerRecords<String, String> records = consumer.poll(100);
+
+                if (!records.isEmpty()) {
+                    for (ConsumerRecord<String, String> record : records) {
+                        logger.info("header: {}", new String(record.headers()
+                          .headers("TEST")
+                          .iterator()
+                          .next()
+                          .value()));
                         logger.info("offset = {}, key = {}, value = {}", record.offset(), record.key(), record.value());
                     }
                     break;
