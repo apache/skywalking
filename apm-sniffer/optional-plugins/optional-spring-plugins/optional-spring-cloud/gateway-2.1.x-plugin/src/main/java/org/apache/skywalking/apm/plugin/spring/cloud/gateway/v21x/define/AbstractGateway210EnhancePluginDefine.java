@@ -23,6 +23,8 @@ public abstract class AbstractGateway210EnhancePluginDefine extends ClassInstanc
 
     @Override
     protected String[] witnessClasses() {
-        return new String[0];
+        return new String[] {
+            "org.springframework.cloud.gateway.config.GatewayEnvironmentPostProcessor"
+        };
     }
 }
