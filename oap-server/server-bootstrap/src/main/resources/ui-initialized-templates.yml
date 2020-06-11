@@ -289,7 +289,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "service_instance_resp_time",
+                  "metricName": "service_instance_sla",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartLine",
                   "unit": "%",
