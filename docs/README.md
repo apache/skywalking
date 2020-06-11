@@ -64,7 +64,7 @@ If you are already familiar with SkyWalking, you could use this catalog to find 
       * [Advanced features](en/setup/service-agent/java-agent/README.md#advanced-features).
       * [Plugin development guide](en/setup/service-agent/java-agent/README.md#plugin-development-guide).
       * [Agent plugin tests and performance tests](en/setup/service-agent/java-agent/README.md#test).
-    * [Other language agents](en/setup/README.md#language-agents-in-service) includes .NetCore, PHP, NodeJS, Go, which are maintained by volunteers.
+    * [Other language agents](en/setup/README.md#language-agents-in-service) includes Nginx LUA, Python, .NetCore, PHP, NodeJS, Go.
   * Service Mesh
     * [SkyWalking on Istio](en/setup/istio/README.md). Introduces how to use Istio Mixer bypass Adapter to work with SkyWalking.
     * Use [ALS (access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) to observe service mesh, without Mixer. Follow [document](en/setup/envoy/als_setting.md) to open it.
