@@ -25,7 +25,8 @@ public class FileUtils {
 
     /**
      * delete directories and files recursively
-     * @param dir
+     *
+     * @param dir directory to delete
      */
     public static void deleteDirectory(File dir) {
         File[] files = dir.listFiles();
