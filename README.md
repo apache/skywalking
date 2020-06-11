@@ -62,7 +62,7 @@ Host in Beijing. Go to [demo](http://122.112.182.72:8080).
 
 **Video on youtube.com**
 
-[![RocketBot UI](http://img.youtube.com/vi/JC-Anlshqx8/0.jpg)](http://www.youtube.com/watch?v=JC-Anlshqx8)
+[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
 
 
 # Screenshot
