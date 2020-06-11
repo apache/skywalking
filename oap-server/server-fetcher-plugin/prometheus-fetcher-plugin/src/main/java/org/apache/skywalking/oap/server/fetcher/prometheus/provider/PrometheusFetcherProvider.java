@@ -28,6 +28,7 @@ import io.vavr.control.Try;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import okhttp3.OkHttpClient;
@@ -56,8 +58,9 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.fetcher.prometheus.module.PrometheusFetcherModule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter.Window;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Operation;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.MetricSource;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.Operation;
+import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.MetricsRule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rule;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.Rules;
 import org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule.StaticConfig;
@@ -142,8 +145,14 @@ public class PrometheusFetcherProvider extends ModuleProvider {
         final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
 
         rules.forEach(r -> {
-            r.getMetricsRules().forEach(rule -> {
+            final AtomicReference<String> lastRuleName = new AtomicReference<>();
+            r.getMetricsRules().stream().sorted(Comparator.comparing(MetricsRule::getName)).forEach(rule -> {
+                if (rule.getName().equals(lastRuleName.get())) {
+                    lastRuleName.set(rule.getName());
+                    return;
+                }
                 service.create(formatMetricName(rule.getName()), rule.getOperation(), rule.getScope());
+                lastRuleName.set(rule.getName());
             });
             ses.scheduleAtFixedRate(new Runnable() {
 
@@ -198,6 +207,13 @@ public class PrometheusFetcherProvider extends ModuleProvider {
                             r.getMetricsRules().stream()
                                 .flatMap(rule -> rule.getSources().entrySet().stream().map(source -> Tuple.of(rule, source.getKey(), source.getValue())))
                                 .filter(rule -> rule._2.equals(metric.getName()))
+                                .filter(rule -> {
+                                    if (Objects.isNull(rule._3.getLabelFilter())) {
+                                        return true;
+                                    }
+                                    return rule._3.getLabelFilter().stream()
+                                        .allMatch(matchRule -> matchRule.getOptions().contains(metric.getLabels().get(matchRule.getKey())));
+                                })
                                 .map(rule -> Tuple.of(rule._1, rule._2, rule._3, metric))
                         )
                         .peek(tuple -> LOG.debug("Mapped rules to metrics: {}", tuple))
