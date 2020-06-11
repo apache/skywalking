@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * ProxyRootInvokeInstrumentation presents that skywalking intercepts.
+ * ProxyRootInvokeInstrumentation presents that skywalking intercepts. skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask.
  */
 public class ProxyRootInvokeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 

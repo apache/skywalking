@@ -29,7 +29,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal.ContextThreadLocal;
 
 /**
- * {@link ExecuteInterceptor} enhances.
+ * {@link ExecuteInterceptor} enhances. {@link org.apache.shardingsphere.sharding.execute.sql.execute.SQLExecuteCallback}
  * creating a local span that records the execution of sql.
  */
 public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {

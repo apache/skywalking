@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal.ContextThreadLocal;
 
 /**
- * ProxyRootInvokeInterceptor enhances org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask,
+ * ProxyRootInvokeInterceptor enhances. skywalking intercepts org.apache.shardingsphere.shardingproxy.frontend.command.CommandExecutorTask
  * creating a local span that records the overall execution of sql.
  */
 public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundInterceptor {
