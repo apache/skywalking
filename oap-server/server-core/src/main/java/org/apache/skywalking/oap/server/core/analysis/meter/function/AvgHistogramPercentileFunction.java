@@ -183,7 +183,8 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
             int count = 0;
             int loopIndex = 0;
 
-            for (String key : sortedKeys) {
+            for (int i = 0; i < sortedKeys.size(); i++) {
+                String key = sortedKeys.get(i);
                 final Long value = dataset.get(key);
 
                 count += value;
@@ -191,7 +192,8 @@ public abstract class AvgHistogramPercentileFunction extends Metrics implements 
                     int roof = roofs[rankIdx];
 
                     if (count >= roof) {
-                        percentileValues.put(String.valueOf(ranks.get(rankIdx)), Long.parseLong(key));
+                        long latency = (i + 1 == sortedKeys.size()) ? Long.MAX_VALUE : Long.parseLong(sortedKeys.get(i + 1));
+                        percentileValues.put(String.valueOf(ranks.get(rankIdx)), latency);
                         loopIndex++;
                     } else {
                         break;

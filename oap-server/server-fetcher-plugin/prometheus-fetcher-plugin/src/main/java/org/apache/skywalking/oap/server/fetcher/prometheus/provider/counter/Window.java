@@ -79,7 +79,7 @@ public class Window {
         }
         Queue<Tuple2<Long, Double>> window = windows.get(id);
         long now = System.currentTimeMillis();
-        window.offer(Tuple.of(System.currentTimeMillis(), value));
+        window.offer(Tuple.of(now, value));
         Tuple2<Long, Double> ps = window.element();
         if ((now - ps._1) >= windowSize) {
             window.remove();
