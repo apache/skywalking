@@ -24,10 +24,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PrometheusMetric {
-    private CounterFunction counterFunction;
-    private String range;
-    private List<LabelMatchRule> labelFilter;
-    private Relabel relabel;
-    private int scale = 0;
+public class LabelMatchRule {
+    private String key;
+    private List<String> options;
 }
