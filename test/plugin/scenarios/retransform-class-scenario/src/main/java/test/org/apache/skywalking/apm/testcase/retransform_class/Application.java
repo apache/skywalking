@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.retransform_class;
+package test.org.apache.skywalking.apm.testcase.retransform_class;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,9 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-@SpringBootApplication(scanBasePackages = {
-        "org.apache.skywalking.apm.testcase.retransform_class",
-        "test.org.apache.skywalking.apm.testcase"})
+@SpringBootApplication
 public class Application {
     private static final Logger logger = LogManager.getLogger(Application.class);
 

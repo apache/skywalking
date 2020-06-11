@@ -1,18 +1,15 @@
-package org.apache.skywalking.apm.testcase.retransform_class;
+package test.org.apache.skywalking.apm.testcase.retransform_class;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import test.org.apache.skywalking.apm.testcase.controller.TestController;
+import test.org.apache.skywalking.apm.testcase.retransform_class.controller.CaseController;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
-/**
- * @author gongdewei 2020/6/7
- */
 public class RetransformUtil {
 
     private static final Logger logger = LogManager.getLogger(RetransformUtil.class);
@@ -26,7 +23,7 @@ public class RetransformUtil {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                if (className.endsWith("TestController")) {
+                if (className.endsWith("CaseController")) {
                     //replace '_retransforming_' with 'hello_from_agent', both length is 16
                     byte[] bytes = RETRANSFORMING_TAG.getBytes();
                     int offset = indexOf(classfileBuffer, bytes);
@@ -43,7 +40,7 @@ public class RetransformUtil {
         try {
             instrumentation.addTransformer(transformer, true);
             try {
-                instrumentation.retransformClasses(TestController.class);
+                instrumentation.retransformClasses(CaseController.class);
                 logger.info("retransform classes success");
             } catch (Throwable e) {
                 logger.error("retransform classes failure", e);

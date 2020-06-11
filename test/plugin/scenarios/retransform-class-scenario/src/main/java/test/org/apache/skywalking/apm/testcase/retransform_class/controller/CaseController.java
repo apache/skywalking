@@ -16,34 +16,35 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.retransform_class.controller;
+package test.org.apache.skywalking.apm.testcase.retransform_class.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
+import test.org.apache.skywalking.apm.testcase.retransform_class.RetransformUtil;
 
 @Controller
 @RequestMapping("/case")
 public class CaseController {
 
+    private static final Logger logger = LogManager.getLogger(CaseController.class);
     private static final String SUCCESS = "Success";
-
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Value("${server.port}")
-    private int serverPort;
 
     @RequestMapping("/retransform-class-scenario")
     @ResponseBody
-    public String testcase() throws HttpStatusCodeException {
-        String result = restTemplate.getForObject("http://localhost:"+serverPort+"/test/dosomething", String.class);
-        return result;
+    public ResponseEntity testcase() throws HttpStatusCodeException {
+        if (RetransformUtil.RETRANSFORMING_TAG.equals(RetransformUtil.RETRANSFORM_VALUE)) {
+            logger.info("retransform check success.");
+            return ResponseEntity.ok("retransform success");
+        } else {
+            logger.info("retransform check failure.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("retransform failure");
+        }
     }
 
     @RequestMapping("/healthCheck")
