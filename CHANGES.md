@@ -22,6 +22,8 @@ Release Notes.
 * Support Correlation protocol v1.
 * Fix Finagle plugin bug, in processing Noop Span.
 * Make `CommandService` daemon to avoid blocking target application shutting down gracefully.
+* Refactor spring cloud gateway plugin and support tracing spring cloud gateway 2.2.x 
+
 
 #### OAP-Backend
 * Support meter system for Prometheus adoption. In future releases, we will add native meter APIs and MicroMeter(Sleuth) system.
