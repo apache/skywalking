@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.internals.NoOpConsumerRebalanceListener;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -221,7 +222,7 @@ public class CaseController {
             consumerProperties.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             consumerProperties.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProperties);
-            consumer.subscribe(topicPattern);
+            consumer.subscribe(topicPattern, new NoOpConsumerRebalanceListener());
             int i = 0;
             while (i++ <= 10) {
                 try {

@@ -143,6 +143,6 @@ segmentItems:
           - {key: mq.topic, value: test.}
         refs:
           - {parentEndpoint: /case/kafka-case, networkAddress: 'kafka-server:9092', refType: CrossProcess,
-             parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
+             parentSpanId: 2, parentTraceSegmentId: not null, parentServiceInstance: not
                                                                 null, parentService: 'kafka-scenario', traceId: not null}
         skipAnalysis: 'false'
