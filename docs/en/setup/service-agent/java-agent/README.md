@@ -169,9 +169,6 @@ Now, we have the following known bootstrap plugins.
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
 our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md).
 
-If some RPC framework endpoints(server side) could include parameter, please read [Operation Name Group Rule](op_name_group_rule.md),
-and consider to add this feature.
-
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.
 * [Plugin Test in every Pull Request](https://github.com/apache/skywalking/actions?query=workflow%3APluginsTest)
