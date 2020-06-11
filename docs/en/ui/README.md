@@ -2,6 +2,10 @@
 SkyWalking official UI provides the default and powerful visualization capabilities for SkyWalking observing distributed
 cluster.
 
+The latest introduction video could be found on the Youtube
+
+[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
+
 SkyWalking dashboard includes the following part.
 
 <img src="http://skywalking.apache.org/ui-doc/7.0.0/dashboard.png"/>
@@ -86,8 +90,3 @@ have been highlighted.
 ## Alarm
 Alarm page lists all triggered alarm. Read the backend setup documentation to know how to set up the alarm rule or integrate
 with 3rd party system.
-
-## Metric Comparison
-Metric Comparison is an performance analysis tool. It provides the metrics comparison between different entities or different
-metrics without the dashboard visualization limits. If you suspect any relation performance impact, could use this tool
-to find out whether the metrics pattern matched.
