@@ -23,6 +23,7 @@ import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 import net.bytebuddy.utility.RandomString;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.util.FileUtils;
 import org.apache.skywalking.apm.agent.core.util.IOUtils;
 
 import java.io.ByteArrayInputStream;
@@ -148,7 +149,9 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
             }
-            cacheDir.deleteOnExit();
+
+            //clean cache dir on exit
+            FileUtils.deleteDirectoryOnExit(cacheDir);
         }
 
         @Override
