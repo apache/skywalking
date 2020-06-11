@@ -60,7 +60,6 @@ public class HttpClientRequestInterceptor implements InstanceMethodsAroundInterc
         allArguments[2] = new Function<HttpClientRequest, Publisher<Void>>() {
             @Override
             public Publisher<Void> apply(final HttpClientRequest httpClientRequest) {
-                Tags.HTTP.METHOD.set(abstractSpan, httpClientRequest.method().name());
                 //
                 CarrierItem next = contextCarrier.items();
                 if (httpClientRequest instanceof EnhancedInstance) {

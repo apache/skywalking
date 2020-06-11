@@ -13,13 +13,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-2.1.2.RELEASE
-2.1.1.RELEASE
-2.1.0.RELEASE
-2.2.0.RELEASE
-2.2.1.RELEASE
-2.2.2.RELEASE
-2.2.3.RELEASE
-#2.0.2.RELEASE
-#2.0.3.RELEASE
-#2.0.4.RELEASE
+
+type: jvm
+entryService: http://localhost:8080/provider/b/testcase
+healthCheck: http://localhost:8080/provider/b/healthCheck
+startScript: ./bin/startup.sh
+runningMode: with_optional
+withPlugins: apm-spring-cloud-gateway-2.0.x-plugin-*.jar

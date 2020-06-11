@@ -61,7 +61,6 @@ public class HttpClientFinalizerSendInterceptor implements InstanceMethodsAround
             allArguments[0] = new BiFunction<HttpClientRequest, NettyOutbound, Publisher<Void>>() {
                 @Override
                 public Publisher<Void> apply(HttpClientRequest request, NettyOutbound outbound) {
-                    Tags.HTTP.METHOD.set(abstractSpan, request.method().name());
                     Publisher publisher = finalSender.apply(request, outbound);
 
                     CarrierItem next = contextCarrier.items();
