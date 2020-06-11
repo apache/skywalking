@@ -66,11 +66,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>cluster-nacos-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>cluster-etcd-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -110,11 +105,6 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-clr-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-so11y-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -166,11 +156,6 @@
             <artifactId>telemetry-prometheus</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>telemetry-so11y</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- exporter -->
         <dependency>
@@ -189,11 +174,6 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>configuration-apollo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>configuration-nacos</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -242,11 +222,13 @@
                         <exclude>component-libraries.yml</exclude>
                         <exclude>gateways.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
-                        <exclude>endpoint_name_grouping.yml</exclude>
+                        <exclude>endpoint-name-grouping.yml</exclude>
+                        <exclude>ui-initialized-templates.yml</exclude>
                         <exclude>oal/core.oal</exclude>
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
+                        <exclude>fetcher-prom-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
