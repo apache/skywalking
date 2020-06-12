@@ -103,7 +103,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read metrics single value in the duration of required metrics
      */
     public int readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
+        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             return 0;
         }
         return getMetricsQueryService().readMetricsValue(condition, duration);
@@ -113,7 +113,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read time-series values in the duration of required metrics
      */
     public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
-        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
+        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             MetricsValues values = new MetricsValues();
             pointOfTimes.forEach(pointOfTime -> {
@@ -146,7 +146,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
-        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
+        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
 
             List<MetricsValues> labeledValues = new ArrayList<>(labels.size());
@@ -180,7 +180,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * </pre>
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
-        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
+        if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             DataTable emptyData = new DataTable();
             emptyData.put("0", 0L);
             final String rawdata = emptyData.toStorageData();

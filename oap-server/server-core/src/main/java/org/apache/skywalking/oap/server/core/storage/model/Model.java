@@ -28,7 +28,6 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
  * The model definition of a logic entity.
  */
 @Getter
-@RequiredArgsConstructor
 @EqualsAndHashCode
 public class Model {
     private final String name;
@@ -38,5 +37,22 @@ public class Model {
     private final DownSampling downsampling;
     private final boolean record;
     private final boolean superDataset;
+    private final boolean isTimeSeries;
 
+    public Model(final String name,
+                 final List<ModelColumn> columns,
+                 final List<ExtraQueryIndex> extraQueryIndices,
+                 final int scopeId,
+                 final DownSampling downsampling,
+                 final boolean record,
+                 final boolean superDataset) {
+        this.name = name;
+        this.columns = columns;
+        this.extraQueryIndices = extraQueryIndices;
+        this.scopeId = scopeId;
+        this.downsampling = downsampling;
+        this.isTimeSeries = !DownSampling.None.equals(downsampling);
+        this.record = record;
+        this.superDataset = superDataset;
+    }
 }

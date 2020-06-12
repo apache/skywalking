@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -55,9 +54,9 @@ public class StorageEsInstaller extends ModelInstaller {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
             String timeSeriesIndexName =
-                DownSampling.None.equals(model.getDownsampling()) ?
-                    model.getName() :
-                    TimeSeriesUtils.latestWriteIndexName(model);
+                model.isTimeSeries() ?
+                    TimeSeriesUtils.latestWriteIndexName(model) :
+                    model.getName();
             return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
@@ -75,7 +74,7 @@ public class StorageEsInstaller extends ModelInstaller {
 
         try {
             String indexName;
-            if (DownSampling.None.equals(model.getDownsampling())) {
+            if (!model.isTimeSeries()) {
                 indexName = model.getName();
             } else {
                 if (!esClient.isExistsTemplate(model.getName())) {
