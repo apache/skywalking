@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -117,7 +118,9 @@ public class MetricsQuery implements GraphQLQueryResolver {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             MetricsValues values = new MetricsValues();
             pointOfTimes.forEach(pointOfTime -> {
-                String id = pointOfTime.id(condition.getEntity().buildId());
+                String id = pointOfTime.id(
+                    condition.getEntity().isValid()? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
+                );
                 final KVInt kvInt = new KVInt();
                 kvInt.setId(id);
                 kvInt.setValue(0);
@@ -153,7 +156,9 @@ public class MetricsQuery implements GraphQLQueryResolver {
             labels.forEach(label -> {
                 MetricsValues values = new MetricsValues();
                 pointOfTimes.forEach(pointOfTime -> {
-                    String id = pointOfTime.id(condition.getEntity().buildId());
+                    String id = pointOfTime.id(
+                        condition.getEntity().isValid()? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
+                    );
                     final KVInt kvInt = new KVInt();
                     kvInt.setId(id);
                     kvInt.setValue(0);
@@ -187,7 +192,9 @@ public class MetricsQuery implements GraphQLQueryResolver {
             final HeatMap heatMap = new HeatMap();
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             pointOfTimes.forEach(pointOfTime -> {
-                String id = pointOfTime.id(condition.getEntity().buildId());
+                String id = pointOfTime.id(
+                    condition.getEntity().isValid()? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
+                );
                 heatMap.buildColumn(id, rawdata, 0);
             });
             return heatMap;
