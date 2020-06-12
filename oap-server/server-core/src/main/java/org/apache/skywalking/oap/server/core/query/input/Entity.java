@@ -71,6 +71,9 @@ public class Entity {
      * the required fields are according to the scope.
      */
     public boolean isValid() {
+        if(scope == null){
+            return false;
+        }
         switch (scope) {
             case All:
                 return true;
