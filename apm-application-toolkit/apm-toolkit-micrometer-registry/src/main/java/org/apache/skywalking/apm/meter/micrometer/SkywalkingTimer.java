@@ -56,7 +56,7 @@ public class SkywalkingTimer extends AbstractTimer {
         this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
-        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig);
+        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);
         this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
@@ -78,11 +78,11 @@ public class SkywalkingTimer extends AbstractTimer {
 
     @Override
     public double totalTime(TimeUnit unit) {
-        return sum.get();
+        return unit.convert((long) sum.get(), TimeUnit.MILLISECONDS);
     }
 
     @Override
     public double max(TimeUnit unit) {
-        return max.get();
+        return unit.convert((long) max.get(), TimeUnit.MILLISECONDS);
     }
 }

@@ -46,7 +46,7 @@ public class SkywalkingLongTaskTimer extends DefaultLongTaskTimer {
         new Gauge.Builder(
             meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE), () -> max(TimeUnit.MILLISECONDS)).build();
 
-        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig);
+        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);
         this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 

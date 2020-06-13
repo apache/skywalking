@@ -52,7 +52,7 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
         this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
-        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig);
+        this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, false);
         this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 

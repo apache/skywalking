@@ -39,11 +39,9 @@ import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 
 public class SkywalkingMeterRegistry extends MeterRegistry {
 
@@ -171,10 +169,6 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
      * Convert the micrometer meter id to skywalking meter id
      */
     private MeterId convertId(Meter.Id id) {
-        String name = getConventionName(id);
-        final MeterId.MeterType type = MeterId.MeterType.COUNTER;
-        final List<MeterId.Tag> tags = id.getTags().stream().map(t -> new MeterId.Tag(t.getKey(), t.getValue())).collect(Collectors.toList());
-        final MeterId meterId = new MeterId(name, type, tags);
-        return meterId;
+        return MeterBuilder.convertId(id, getConventionName(id));
     }
 }

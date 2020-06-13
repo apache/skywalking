@@ -18,15 +18,17 @@
 
 package org.apache.skywalking.apm.meter.micrometer;
 
+import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import io.micrometer.core.instrument.util.TimeUtils;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -39,20 +41,22 @@ public class MeterBuilder {
      * @return return histogram if support
      */
     public static Optional<Histogram> buildHistogram(MeterId meterId, boolean supportsAggregablePercentiles,
-                                                     DistributionStatisticConfig distributionStatisticConfig) {
+                                                     DistributionStatisticConfig distributionStatisticConfig,
+                                                     boolean useNanoTime) {
         if (!distributionStatisticConfig.isPublishingHistogram()) {
             return Optional.empty();
         }
 
         final NavigableSet<Double> buckets = distributionStatisticConfig.getHistogramBuckets(supportsAggregablePercentiles);
         final List<Double> steps = buckets.stream().sorted(Double::compare)
-            .map(t -> (double) Duration.ofNanos(t.longValue()).toMillis()).collect(Collectors.toList());
+            .map(t -> useNanoTime ? TimeUtils.nanosToUnit(t, TimeUnit.MILLISECONDS) : t).collect(Collectors.toList());
 
         final Histogram.Builder histogramBuilder = new Histogram.Builder(
             meterId.copyTo(meterId.getName() + "_histogram", MeterId.MeterType.HISTOGRAM)).steps(steps);
-        if (distributionStatisticConfig.getMinimumExpectedValueAsDouble() != null) {
-            histogramBuilder.exceptMinValue(Duration.ofNanos(
-                distributionStatisticConfig.getMinimumExpectedValueAsDouble().longValue()).toMillis());
+        final Double minimumExpectedValueAsDouble = distributionStatisticConfig.getMinimumExpectedValueAsDouble();
+        if (minimumExpectedValueAsDouble != null) {
+            histogramBuilder.exceptMinValue(useNanoTime ?
+                TimeUtils.nanosToUnit(minimumExpectedValueAsDouble, TimeUnit.MILLISECONDS) : minimumExpectedValueAsDouble);
         }
         return Optional.of(histogramBuilder.build());
     }
@@ -70,4 +74,27 @@ public class MeterBuilder {
             meterId.copyTo(meterId.getName() + "_percentile", MeterId.MeterType.PERCENTILE)).build();
         return Optional.of(percentile);
     }
+
+    /**
+     * Convert micrometer {@link Meter.Id} to skywalking {@link MeterId}
+     */
+    public static MeterId convertId(Meter.Id id, String name) {
+        MeterId.MeterType type;
+        switch (id.getType()) {
+            case COUNTER:
+                type = MeterId.MeterType.COUNTER;
+                break;
+            case GAUGE:
+                type = MeterId.MeterType.GAUGE;
+                break;
+            default:
+                // other meter need to use multiple customize meter
+                type = MeterId.MeterType.PERCENTILE;
+                break;
+        }
+        final List<MeterId.Tag> tags = id.getTags().stream().map(t -> new MeterId.Tag(t.getKey(), t.getValue())).collect(Collectors.toList());
+        final MeterId meterId = new MeterId(name, type, tags);
+        return meterId;
+    }
+
 }

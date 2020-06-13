@@ -1,0 +1,102 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.apm.meter.micrometer;
+
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
+import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.toolkit.meter.Percentile;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+public class MeterBuilderTest {
+
+    @Test
+    public void testBuildHistogram() {
+        final MeterId meterId = new MeterId("test", MeterId.MeterType.COUNTER,
+            Arrays.asList(new MeterId.Tag("k1", "v1")));
+
+        final DistributionStatisticConfig statisticConfig = DistributionStatisticConfig.builder()
+            .serviceLevelObjectives(Duration.ofMillis(1).toNanos(), Duration.ofMillis(5).toNanos(), Duration.ofMillis(10).toNanos())
+            .minimumExpectedValue(0d).build();
+
+        final Optional<Histogram> histogramOptional = MeterBuilder.buildHistogram(meterId, true, statisticConfig, true);
+        final Histogram histogram = histogramOptional.orElse(null);
+        Assert.assertNotNull(histogram);
+        final Histogram.Bucket[] buckets = histogram.getBuckets();
+        Assert.assertEquals(4, buckets.length);
+        Assert.assertEquals(0d, buckets[0].getBucket(), 0.0);
+        Assert.assertEquals(1d, buckets[1].getBucket(), 0.0);
+        Assert.assertEquals(5d, buckets[2].getBucket(), 0.0);
+        Assert.assertEquals(10d, buckets[3].getBucket(), 0.0);
+
+        Assert.assertEquals("test_histogram", histogram.getMeterId().getName());
+        Assert.assertEquals(MeterId.MeterType.HISTOGRAM, histogram.getMeterId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterId.Tag("k1", "v1")), histogram.getMeterId().getTags());
+
+        // don't need the histogram
+        Assert.assertNull(MeterBuilder.buildHistogram(meterId, true, DistributionStatisticConfig.DEFAULT, true).orElse(null));
+    }
+
+    @Test
+    public void testBuildPercentile() {
+        final MeterId meterId = new MeterId("test", MeterId.MeterType.COUNTER,
+            Arrays.asList(new MeterId.Tag("k1", "v1")));
+
+        final DistributionStatisticConfig statisticConfig = DistributionStatisticConfig.builder().percentiles(0.99).build();
+
+        final Optional<Percentile> percentileOptional = MeterBuilder.buildPercentile(meterId, statisticConfig);
+        final Percentile percentile = percentileOptional.orElse(null);
+        Assert.assertNotNull(percentile);
+        Assert.assertEquals("test_percentile", percentile.getMeterId().getName());
+        Assert.assertEquals(MeterId.MeterType.PERCENTILE, percentile.getMeterId().getType());
+        Assert.assertEquals(Arrays.asList(new MeterId.Tag("k1", "v1")), percentile.getMeterId().getTags());
+
+        // don't need the percentile
+        Assert.assertNull(MeterBuilder.buildPercentile(meterId, DistributionStatisticConfig.DEFAULT).orElse(null));
+    }
+
+    @Test
+    public void testConvertId() {
+        final List<MeterId.Tag> meterTags = Arrays.asList(new MeterId.Tag("k1", "v1"));
+
+        final Meter.Id counterId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.COUNTER);
+        assertId(MeterBuilder.convertId(counterId, "test"), "test", MeterId.MeterType.COUNTER, meterTags);
+
+        final Meter.Id gaugeId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.GAUGE);
+        assertId(MeterBuilder.convertId(gaugeId, "test"), "test", MeterId.MeterType.GAUGE, meterTags);
+
+        final Meter.Id otherId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.DISTRIBUTION_SUMMARY);
+        assertId(MeterBuilder.convertId(otherId, "test"), "test", MeterId.MeterType.PERCENTILE, meterTags);
+    }
+
+    private void assertId(MeterId meterId, String name, MeterId.MeterType type, List<MeterId.Tag> tags) {
+        Assert.assertEquals(name, meterId.getName());
+        Assert.assertEquals(type, meterId.getType());
+        Assert.assertEquals(tags, meterId.getTags());
+    }
+
+}
