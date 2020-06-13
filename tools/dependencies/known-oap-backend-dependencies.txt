@@ -160,3 +160,5 @@ influxdb-java-2.15.jar
 logging-interceptor-3.13.1.jar
 moshi-1.5.0.jar
 msgpack-core-0.8.16.jar
+vavr-0.10.3.jar
+vavr-match-0.10.3.jar

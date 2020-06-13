@@ -65,6 +65,7 @@ or providing commercial products including Apache SkyWalking.
 1. Huawei
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
+1. hydee.cn 海典软件 http://www.hydee.cn/
 1. iBoxChain 盒子科技 https://www.iboxpay.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
 1. Inspur 浪潮集团

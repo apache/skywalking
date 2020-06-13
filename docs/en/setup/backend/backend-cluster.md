@@ -68,7 +68,7 @@ cluster:
 
 ## Consul
 Now, consul is becoming a famous system, many of companies and developers using consul to be 
-their service discovery solution. Set the **cluster/selector** to **nacos** in the yml to enable.
+their service discovery solution. Set the **cluster/selector** to **consul** in the yml to enable.
 
 ```yaml
 cluster:

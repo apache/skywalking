@@ -134,8 +134,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
         if (prepareRequests.size() > 0) {
             log.debug(
-                "prepare batch requests for model {}, took time: {}", model.getName(),
-                System.currentTimeMillis() - start
+                "prepare batch requests for model {}, took time: {}, size: {}", model.getName(),
+                System.currentTimeMillis() - start, prepareRequests.size()
             );
         }
     }

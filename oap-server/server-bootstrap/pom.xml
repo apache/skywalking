@@ -17,12 +17,11 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -109,11 +108,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-so11y-receiver-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-profile-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -159,11 +153,6 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>telemetry-prometheus</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>telemetry-so11y</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -238,6 +227,7 @@
                         <exclude>oal/java-agent.oal</exclude>
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
+                        <exclude>fetcher-prom-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

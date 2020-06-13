@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.meter;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -28,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
  */
 @EqualsAndHashCode
 @ToString
+@Getter
 public class MeterEntity {
     private ScopeType scopeType;
     private String serviceName;
