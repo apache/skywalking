@@ -216,7 +216,6 @@ The following components are provided under the Apache License. See project link
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
     Apache: httpcomponents 4.x.x: http://hc.apache.org/index.html, Apache 2.0
-    Apache: fastjson 1.2.58:  https://github.com/alibaba/fastjson, Apache 2.0
     Apache: netty-tcnative-boringssl-static 2.0.26:  https://github.com/netty/netty-tcnative, Apache 2.0
 
 ========================================================================
@@ -259,6 +258,7 @@ The text of each license is the standard Apache 2.0 license.
     Apache: commons-dbcp 1.4: https://github.com/apache/commons-dbcp, Apache 2.0
     Apache: commons-pool 2.4.2: https://github.com/apache/commons-pool, Apache 2.0
     Apache: commons-lang 3.6: https://github.com/apache/commons-lang, Apache 2.0
+    Apache: commons-text 1.8: https://github.com/apache/commons-text, Apache 2.0
     Apache: lucene 6.6.0: https://github.com/apache/lucene-solr/tree/master/lucene, Apache 2.0
     Apache: httpasyncclient 4.1.2: https://github.com/apache/httpasyncclient/tree/4.1.2, Apache 2.0
     Apache: log4j 1.2.16: http://logging.apache.org/log4j/1.2/, Apache 2.0
@@ -310,7 +310,6 @@ The text of each license is the standard Apache 2.0 license.
     consul-client 1.2.6: https://github.com/rickfast/consul-client, Apache 2.0
     okhttp 3.9.0: https://github.com/square/okhttp, Apache 2.0
     prometheus client_java 0.6.0: https://github.com/prometheus/client_java, Apache 2.0
-    nacos 1.2.0: https://github.com/alibaba/nacos, Apache 2.0
     proto files from istio/istio: https://github.com/istio/istio  Apache 2.0
     proto files from istio/api: https://github.com/istio/api      Apache 2.0
     proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
@@ -328,6 +327,7 @@ The text of each license is the standard Apache 2.0 license.
     moshi 1.5.0: https://github.com/square/moshi, Apache 2.0
     logging-interceptor 3.13.1: https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor, Apache 2.0
     msgpack-core 0.8.16: https://github.com/msgpack/msgpack-java, Apache 2.0
+    vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
 
 ========================================================================
 MIT licenses
