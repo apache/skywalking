@@ -91,7 +91,7 @@ JettyServer:
   languages: Java
 Memcached:
   id: 20
-  languages: Java
+  languages: Java,PHP
 ShardingJDBC:
   id: 21
   languages: Java
@@ -100,7 +100,7 @@ PostgreSQL:
   languages: Java,C#,Node.js
 GRPC:
   id: 23
-  languages: Java
+  languages: Java,PHP
 ElasticJob:
   id: 24
   languages: Java
@@ -293,12 +293,6 @@ Mariadb:
 mariadb-jdbc:
   id: 87
   languages: Java
-InfluxDB:
-  id: 88
-  languages: Java
-influxdb-java:
-  id: 89
-  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -384,10 +378,34 @@ Nginx:
   id: 6000
   languages: Lua
 
+
 # [7000, 8000) are reserved for Python components
 Python:
   id: 7000
   languages: Python
+
+
+# PHP components
+# [8000, 9000) for PHP agent
+PHP:
+  id: 8001
+  languages: PHP
+cURL:
+  id: 8002
+  languages: PHP
+PDO:
+  id: 8003
+  languages: PHP
+Mysqli:
+  id: 8004
+  languages: PHP
+Yar:
+  id: 8005
+  languages: PHP
+Predis:
+  id: 8006
+  languages: PHP
+
 
 # Component Server mapping defines the server display names of some components
 # e.g.
@@ -428,3 +446,5 @@ Component-Server-Mappings:
   rest-high-level-client: Elasticsearch
   mariadb-jdbc: Mariadb
   influxdb-java: InfluxDB
+  Mysqli: Mysql
+  Predis: Redis
