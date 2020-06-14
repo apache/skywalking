@@ -23,12 +23,12 @@
   <parent>
     <artifactId>apm-sdk-plugin</artifactId>
     <groupId>org.apache.skywalking</groupId>
-    <version>8.0.0-SNAPSHOT</version>
+    <version>8.1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>apm-influxdb-2.x-plugin</artifactId>
-  <description>This plugin is for use with InfluxDB 1.x.</description>
+  <description>This plugin is for use with influxdb-java client</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
