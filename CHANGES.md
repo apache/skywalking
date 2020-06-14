@@ -12,7 +12,7 @@ Release Notes.
 * Support Prometheus network protocol. Metrics in Prometheus format could be transferred into SkyWalking.
 * Python agent provided.
 * All inventory caches have been removed.
-* Apache ShardingSphere(4.0.0, 4.1.1) agent plugin provided.
+* Apache ShardingSphere(4.1.0, 4.1.1) agent plugin provided.
 
 #### Java Agent
 * Add MariaDB plugin.
