@@ -61,30 +61,187 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_jvm_gc_collection_seconds
+  - name: instance_jvm_young_gc_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds_count:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: gc
+            options:
+              - "PS Scavenge"
+              - "Copy"
+              - "ParNew"
+              - "G1 Young Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_jvm_young_gc_time
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
       jvm_gc_collection_seconds:
+        labelFilter:
+          - key: gc
+            options:
+              - "PS Scavenge"
+              - "Copy"
+              - "ParNew"
+              - "G1 Young Generation"
         relabel:
           service:
             - service
           instance:
             - instance
-
-  - name: instance_persistence_timer_bulk_execute_latency_heatmap
+  - name: instance_jvm_old_gc_count
     scope: SERVICE_INSTANCE
-    operation: avgHistogram
+    operation: avg
     sources:
-      persistence_timer_bulk_execute_latency:
+      jvm_gc_collection_seconds_count:
         counterFunction: INCREASE
-        range: PT5M
+        range: PT1M
+        labelFilter:
+          - key: gc
+            options:
+              - "PS MarkSweep"
+              - "MarkSweepCompact"
+              - "ConcurrentMarkSweep"
+              - "G1 Old Generation"
         relabel:
           service:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_bulk_execute_latency_percentile
+  - name: instance_jvm_old_gc_time
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      jvm_gc_collection_seconds:
+        labelFilter:
+          - key: gc
+            options:
+              - "PS MarkSweep"
+              - "MarkSweepCompact"
+              - "ConcurrentMarkSweep"
+              - "G1 Old Generation"
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      trace_in_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_latency_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      trace_in_latency:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_trace_analysis_error_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      trace_analysis_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instanc
+  - name: instance_mesh_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      mesh_analysis_latency_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_mesh_latency_percentile
+    scope: SERVICE_INSTANCE
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
+    sources:
+      mesh_analysis_latency:
+        counterFunction: INCREASE
+        range: PT10M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_mesh_analysis_error_count
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      mesh_analysis_error_count:
+        counterFunction: INCREASE
+        range: PT1M
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_metrics_first_aggregation
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      metrics_aggregation:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: dimensionality
+            options: ["min"]
+          - key: level
+            options: ["1"]
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_metrics_second_aggregation
+    scope: SERVICE_INSTANCE
+    operation: avg
+    sources:
+      metrics_aggregation:
+        counterFunction: INCREASE
+        range: PT1M
+        labelFilter:
+          - key: dimensionality
+            options: ["min"]
+          - key: level
+            options: ["2"]
+        relabel:
+          service:
+            - service
+          instance:
+            - instance
+  - name: instance_persistence_timer_execute_latency_percentile
     scope: SERVICE_INSTANCE
     operation: avgHistogramPercentile
     percentiles: [50, 70, 90, 99]
@@ -97,27 +254,19 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_bulk_execute_latency
+  - name: instance_persistence_timer_prepare_latency_percentile
     scope: SERVICE_INSTANCE
-    operation: avg
-    sources:
-      persistence_timer_bulk_execute_latency:
-        relabel:
-          service:
-            - service
-          instance:
-            - instance
-  - name: instance_persistence_timer_bulk_prepare_latency
-    scope: SERVICE_INSTANCE
-    operation: avg
+    operation: avgHistogramPercentile
+    percentiles: [50, 70, 90, 99]
     sources:
       persistence_timer_bulk_prepare_latency:
+        counterFunction: INCREASE
+        range: PT5M
         relabel:
           service:
             - service
           instance:
             - instance
-
   - name: instance_persistence_timer_bulk_error_count
     scope: SERVICE_INSTANCE
     operation: avg
@@ -130,7 +279,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_bulk_execute_latency_count
+  - name: instance_persistence_timer_execute_count
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
@@ -142,7 +291,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_bulk_prepare_latency_count
+  - name: instance_persistence_timer_prepare_count
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
@@ -154,17 +303,3 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: endpoint_metrics_aggregation
-    scope: ENDPOINT
-    operation: avg
-    sources:
-      metrics_aggregation:
-        counterFunction: INCREASE
-        range: PT1M
-        relabel:
-          service:
-            - service
-          endpoint:
-            - dimensionality
-            - level
-
