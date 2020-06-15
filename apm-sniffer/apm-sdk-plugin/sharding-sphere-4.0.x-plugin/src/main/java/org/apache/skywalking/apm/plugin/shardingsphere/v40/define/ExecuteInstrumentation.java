@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v40.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,13 +28,13 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.route.router.sharding.ShardingRouter}.
+ * {@link ExecuteInstrumentation} presents that skywalking intercepts. {@link org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback}.
  */
-public class ParseInstrumentation extends AbstractShardingSphereV4R3Instrumentation {
+public class ExecuteInstrumentation extends AbstractShardingSphere40Instrumentation {
 
-    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.route.router.sharding.ShardingRouter";
+    private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.execute.sql.execute.SQLExecuteCallback";
 
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.ParseInterceptor";
+    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v40.ExecuteInterceptor";
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
@@ -42,7 +42,7 @@ public class ParseInstrumentation extends AbstractShardingSphereV4R3Instrumentat
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("parse");
+                    return named("execute0");
                 }
 
                 @Override

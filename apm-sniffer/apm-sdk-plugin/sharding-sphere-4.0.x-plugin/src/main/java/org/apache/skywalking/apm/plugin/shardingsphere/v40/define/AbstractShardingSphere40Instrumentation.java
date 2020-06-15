@@ -15,12 +15,12 @@
  *  limitations under the License.
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v40.define;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInstanceMethodsEnhancePluginDefine;
 
-public abstract class AbstractShardingSphereV4R3Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
-    public static final String WITHNESS_CLASSES = "org.apache.shardingsphere.core.parse.SQLParseEngine";
+public abstract class AbstractShardingSphere40Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    public static final String WITHNESS_CLASSES = "org.apache.shardingsphere.sql.parser.SQLParseEngine";
 
     @Override
     protected final String[] witnessClasses() {
