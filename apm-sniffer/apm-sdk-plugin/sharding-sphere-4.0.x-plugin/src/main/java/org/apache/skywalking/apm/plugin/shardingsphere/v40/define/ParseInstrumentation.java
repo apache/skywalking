@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.define;
+package org.apache.skywalking.apm.plugin.shardingsphere.v40.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -30,11 +30,11 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link ParseInstrumentation} presents that skywalking intercepts {@link org.apache.shardingsphere.core.route.router.sharding.ShardingRouter}.
  */
-public class ParseInstrumentation extends AbstractShardingSphereV4R3Instrumentation {
-
+public class ParseInstrumentation extends AbstractShardingSphere40Instrumentation {
+    
     private static final String ENHANCE_CLASS = "org.apache.shardingsphere.core.route.router.sharding.ShardingRouter";
 
-    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v4rc3.ParseInterceptor";
+    private static final String EXECUTE_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.shardingsphere.v40.ParseInterceptor";
 
     @Override
     public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
