@@ -13,36 +13,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal;
+package org.apache.skywalking.apm.testcase.shardingsphere.service.api.service;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+public interface CommonService {
 
-/**
- * Context thread local for skywalking.
- */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ContextThreadLocal {
-    
-    private static ThreadLocal<Map<String, Object>> CONTEXT_DATA_MAP = ThreadLocal.withInitial(LinkedHashMap::new);
-    
-    /**
-     * Get value.
-     *
-     * @return data map
-     */
-    public static Map<String, Object> getValue() {
-        return CONTEXT_DATA_MAP.get();
-    }
-    
-    /**
-     * remove for thread local for gc.
-     */
-    public static void remove() {
-        CONTEXT_DATA_MAP.remove();
-    }
+    void initEnvironment();
+
+    void cleanEnvironment();
+
+    void processSuccess(boolean isRangeSharding);
+
+    void processFailure();
+
+    void printData(boolean isRangeSharding);
 }
