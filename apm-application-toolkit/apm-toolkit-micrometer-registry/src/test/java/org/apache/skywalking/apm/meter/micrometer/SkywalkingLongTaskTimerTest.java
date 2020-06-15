@@ -109,16 +109,15 @@ public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
 
         // use time is not stable, using a time range to check has one of time
         boolean containsResult = false;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             try {
                 assertPercentile(Whitebox.getInternalState(timer, "percentile"), "test_complex_long_task_timer_percentile",
-                    tags, 19 + i, 1);
+                    tags, 10 + i, 1);
                 containsResult = true;
             } catch (Error e) {
             }
         }
         Assert.assertTrue(containsResult);
-
     }
 
     private void addLongTask(LongTaskTimer longTaskTimer, int sleepMills) {
