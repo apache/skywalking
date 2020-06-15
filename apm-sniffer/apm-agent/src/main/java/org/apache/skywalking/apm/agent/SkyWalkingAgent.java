@@ -105,7 +105,7 @@ public class SkyWalkingAgent {
                 agentBuilder = agentBuilder.with(new CacheableTransformerDecorator(Config.Agent.CLASS_CACHE_MODE));
                 logger.info("SkyWalking agent class cache [{}] activated.", Config.Agent.CLASS_CACHE_MODE);
             } catch (Exception e) {
-                logger.error(e, "SkyWalking agent setup class cache failure.");
+                logger.error(e, "SkyWalking agent can't active class cache.");
             }
         }
 
