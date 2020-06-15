@@ -32,7 +32,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <shardingsphere.version>[4.0.0,4.1.1]</shardingsphere.version>
+        <shardingsphere.version>4.1.0</shardingsphere.version>
     </properties>
 
     <dependencies>
