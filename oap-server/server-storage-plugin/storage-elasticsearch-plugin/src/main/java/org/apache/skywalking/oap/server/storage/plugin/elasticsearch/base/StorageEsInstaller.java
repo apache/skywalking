@@ -53,11 +53,12 @@ public class StorageEsInstaller extends ModelInstaller {
     protected boolean isExists(Model model) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         try {
-            String timeSeriesIndexName =
-                model.isTimeSeries() ?
-                    TimeSeriesUtils.latestWriteIndexName(model) :
-                    model.getName();
-            return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(timeSeriesIndexName);
+            if (model.isTimeSeries()) {
+                return esClient.isExistsTemplate(model.getName()) && esClient.isExistsIndex(
+                    TimeSeriesUtils.latestWriteIndexName(model));
+            } else {
+                return esClient.isExistsIndex(model.getName());
+            }
         } catch (IOException e) {
             throw new StorageException(e.getMessage());
         }
