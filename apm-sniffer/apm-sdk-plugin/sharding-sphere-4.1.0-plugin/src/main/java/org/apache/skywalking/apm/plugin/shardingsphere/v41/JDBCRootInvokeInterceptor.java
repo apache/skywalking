@@ -19,12 +19,13 @@
 package org.apache.skywalking.apm.plugin.shardingsphere.v41;
 
 import java.lang.reflect.Method;
+
+import org.apache.shardingsphere.underlying.executor.engine.ExecutorDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.shardingsphere.v41.threadlocal.ContextThreadLocal;
 
 /**
  * {@link JDBCRootInvokeInterceptor} enhances {@link org.apache.shardingsphere.shardingjdbc.executor.AbstractStatementExecutor},
@@ -37,7 +38,7 @@ public class JDBCRootInvokeInterceptor implements InstanceMethodsAroundIntercept
         MethodInterceptResult result) {
         ContextManager.createLocalSpan("/ShardingSphere/JDBCRootInvoke/")
                       .setComponent(ComponentsDefine.SHARDING_SPHERE);
-        ContextThreadLocal.getValue().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
+        ExecutorDataMap.getValue().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
     }
 
     @Override
