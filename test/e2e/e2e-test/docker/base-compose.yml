@@ -34,7 +34,7 @@ services:
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       JAVA_OPTS: >-
         -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/oap,destfile=/jacoco/oap.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.oap.query.*:org.apache.skywalking.oap.server.core.query.*
-      SW_PROMETHEUS_FETCHER_ACTIVE: true
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
       SW_TELEMETRY: prometheus
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -zn 127.0.0.1 11800"]
