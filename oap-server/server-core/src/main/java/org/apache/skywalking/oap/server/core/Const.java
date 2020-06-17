@@ -37,4 +37,5 @@ public class Const {
     public static final String SEGMENT_SPAN_SPLIT = "S";
     public static final String UNKNOWN = "Unknown";
     public static final String EMPTY_STRING = "";
+    public static final String POINT = ".";
 }

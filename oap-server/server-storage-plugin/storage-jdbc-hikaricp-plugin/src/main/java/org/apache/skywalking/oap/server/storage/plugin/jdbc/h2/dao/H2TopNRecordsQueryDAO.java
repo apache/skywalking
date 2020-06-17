@@ -49,12 +49,12 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
         List<Object> parameters = new ArrayList<>(10);
 
         if (StringUtil.isNotEmpty(condition.getParentService())) {
-            sql.append(" service_id = ? ");
+            sql.append(" service_id = ? and");
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
             parameters.add(serviceId);
         }
 
-        sql.append(" and ").append(TopN.TIME_BUCKET).append(" >= ?");
+        sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(duration.getStartTimeBucketInSec());
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
         parameters.add(duration.getEndTimeBucketInSec());
@@ -75,6 +75,7 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
                     SelectedRecord record = new SelectedRecord();
                     record.setName(resultSet.getString(TopN.STATEMENT));
                     record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    record.setId(record.getRefId());
                     record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }

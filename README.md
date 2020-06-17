@@ -42,10 +42,13 @@ including
 1. Metrics system, including Prometheus, Spring Sleuth(Micrometer).
 1. Zipkin v1/v2 and Jaeger gRPC format with limited topology and metrics analysis.(Experimental).
 
-# Document
-[8.x dev](docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
+SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario 
+for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
-NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous released.
+# Document
+[8.x dev](docs/README.md), [8.0](https://github.com/apache/skywalking/blob/v8.0.0/docs/README.md) | [7.0](https://github.com/apache/skywalking/blob/v7.0.0/docs/README.md) | [6.6](https://github.com/apache/skywalking/blob/v6.6.0/docs/README.md), [6.5](https://github.com/apache/skywalking/blob/v6.5.0/docs/README.md).
+
+NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
 
 # Downloads
 Please head to the [releases page](http://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
@@ -59,7 +62,7 @@ Host in Beijing. Go to [demo](http://122.112.182.72:8080).
 
 **Video on youtube.com**
 
-[![RocketBot UI](http://img.youtube.com/vi/JC-Anlshqx8/0.jpg)](http://www.youtube.com/watch?v=JC-Anlshqx8)
+[![RocketBot UI](http://img.youtube.com/vi/mfKaToAKl7k/0.jpg)](http://www.youtube.com/watch?v=mfKaToAKl7k)
 
 
 # Screenshot
@@ -68,15 +71,15 @@ Host in Beijing. Go to [demo](http://122.112.182.72:8080).
     <td width="100%" align="center" colspan="2"><b>Dashboard</b></td>
   </tr>
   <tr>
-    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-1.png"/></td>
-    <td><img src="http://skywalking.apache.org/screenshots/6.1.0/dashboard-2.png"/></td>
+    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-1.png"/></td>
+    <td><img src="http://skywalking.apache.org/screenshots/8.0.0/dashboard-2.png"/></td>
   </tr>
   <tr>
       <td width="50%" align="center"><b>Topology Map</b></td>
       <td width="50%" align="center"><b>Trace</b></td>
   </tr>
   <tr>
-     <td><img src="http://skywalking.apache.org/screenshots/6.1.0/topology.png"/></td>
+     <td><img src="http://skywalking.apache.org/screenshots/8.0.0/topology.png"/></td>
      <td><img src="http://skywalking.apache.org/screenshots/6.1.0/trace.png"/></td>
   </tr>
 </table>

@@ -84,6 +84,7 @@ property key | Description | Default |
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
+`osinfo.ipv4_list_size`| Limit the length of the ipv4 list size. |`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
@@ -167,9 +168,6 @@ Now, we have the following known bootstrap plugins.
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
 our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md).
-
-If some RPC framework endpoints(server side) could include parameter, please read [Operation Name Group Rule](op_name_group_rule.md),
-and consider to add this feature.
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.

@@ -109,6 +109,14 @@ public class Config {
          * Keep tracing even the backend is not available.
          */
         public static boolean KEEP_TRACING = false;
+
+    }
+
+    public static class OsInfo {
+        /**
+         * Limit the length of the ipv4 list size.
+         */
+        public static int IPV4_LIST_SIZE = 10;
     }
 
     public static class Collector {
@@ -355,21 +363,6 @@ public class Config {
              * If true, trace all the operation parameters in Solr request, default is false.
              */
             public static boolean TRACE_OPS_PARAMS = false;
-        }
-
-        /**
-         * Operation name group rules
-         */
-        public static class OPGroup {
-            /*
-             * Since 6.6.0, exit span is not requesting endpoint register,
-             * this group rule is not required.
-             *
-             * Keep this commented, just as a reminder that, it will be reused in a RPC server side plugin.
-             */
-            //            public static class RestTemplate implements OPGroupDefinition {
-            //                public static Map<String, String> RULE = new HashMap<String, String>();
-            //            }
         }
 
         public static class Light4J {

@@ -20,30 +20,38 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.MultipleQueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
 /**
  * StorageModels manages all models detected by the core.
  */
 @Slf4j
-public class StorageModels implements IModelManager, INewModel, IModelOverride {
+public class StorageModels implements IModelManager, ModelCreator, ModelManipulator {
     private final List<Model> models;
+    private final HashMap<String, String> columnNameOverrideRule;
+    private final List<CreatingListener> listeners;
 
     public StorageModels() {
-        this.models = new LinkedList<>();
+        this.models = new ArrayList<>();
+        this.columnNameOverrideRule = new HashMap<>();
+        this.listeners = new ArrayList<>();
     }
 
     @Override
-    public Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) {
+    public Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) throws StorageException {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -53,13 +61,37 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
 
         Model model = new Model(
             storage.getModelName(), modelColumns, extraQueryIndices, scopeId,
-            storage.getDownsampling(), record
+            storage.getDownsampling(), record, isSuperDatasetModel(aClass)
         );
+
+        this.followColumnNameRules(model);
         models.add(model);
 
+        for (final CreatingListener listener : listeners) {
+            listener.whenCreating(model);
+        }
         return model;
     }
 
+    private boolean isSuperDatasetModel(Class<?> aClass) {
+        return aClass.isAnnotationPresent(SuperDataset.class);
+    }
+
+    /**
+     * CreatingListener listener could react when {@link #add(Class, int, Storage, boolean)} model happens. Also, the
+     * added models are being notified in this add operation.
+     */
+    @Override
+    public void addModelListener(final CreatingListener listener) throws StorageException {
+        listeners.add(listener);
+        for (Model model : models) {
+            listener.whenCreating(model);
+        }
+    }
+
+    /**
+     * Read model column metadata based on the class level definition.
+     */
     private void retrieval(Class<?> clazz,
                            String modelName,
                            List<ModelColumn> modelColumns,
@@ -75,14 +107,17 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
                 Column column = field.getAnnotation(Column.class);
                 modelColumns.add(
                     new ModelColumn(
-                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(), column
-                        .storageOnly(), column.dataType().isValue(), column.length()));
+                        new ColumnName(modelName, column.columnName()), field.getType(), column.matchQuery(),
+                        column.storageOnly(), column.dataType().isValue(), column.length()
+                    ));
                 if (log.isDebugEnabled()) {
                     log.debug("The field named {} with the {} type", column.columnName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, column.columnName(), column.dataType(), column.function(), column.defaultValue());
+                        modelName, column.columnName(), column.dataType(), column.function(),
+                        column.defaultValue()
+                    );
                 }
 
                 List<QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
@@ -108,9 +143,14 @@ public class StorageModels implements IModelManager, INewModel, IModelOverride {
 
     @Override
     public void overrideColumnName(String columnName, String newName) {
-        models.forEach(model -> {
-            model.getColumns().forEach(column -> column.getColumnName().overrideName(columnName, newName));
-            model.getExtraQueryIndices().forEach(extraQueryIndex -> extraQueryIndex.overrideName(columnName, newName));
+        columnNameOverrideRule.put(columnName, newName);
+        models.forEach(this::followColumnNameRules);
+    }
+
+    private void followColumnNameRules(Model model) {
+        columnNameOverrideRule.forEach((oldName, newName) -> {
+            model.getColumns().forEach(column -> column.getColumnName().overrideName(oldName, newName));
+            model.getExtraQueryIndices().forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
         });
     }
 

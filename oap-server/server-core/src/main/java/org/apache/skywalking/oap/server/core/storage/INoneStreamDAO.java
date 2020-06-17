@@ -26,7 +26,5 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
  * Use synchronize storage to insert none stream data
  */
 public interface INoneStreamDAO extends DAO {
-
     void insert(Model model, NoneStream noneStream) throws IOException;
-
 }

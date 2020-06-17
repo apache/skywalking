@@ -26,6 +26,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -57,6 +59,7 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThr
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.UITemplateManagementDAOImpl;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
@@ -102,21 +105,22 @@ public class InfluxStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQuery(client));
         this.registerServiceImplementation(
-            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(client));
+                IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(client));
         this.registerServiceImplementation(
-            IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(client, config.getFetchTaskLogMaxSize()));
+                IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(client, config.getFetchTaskLogMaxSize()));
 
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
+                IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        client.connect();
-
-        InfluxTableInstaller installer = new InfluxTableInstaller(getManager());
         try {
-            installer.install(client);
+            client.connect();
+
+            InfluxTableInstaller installer = new InfluxTableInstaller(client, getManager());
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
@@ -129,6 +133,6 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[]{CoreModule.NAME};
     }
 }

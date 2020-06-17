@@ -17,6 +17,7 @@ or providing commercial products including Apache SkyWalking.
 1. APM Star 北京天空漫步科技有限公司 http://www.apmstar.com
 1. AsiaInfo Inc. http://www.asiainfo.com.cn/
 1. Autohome. 汽车之家. http://www.autohome.com.cn
+1. baidu 百度 https://www.baidu.com/
 1. Baixing.com 百姓网 http://www.baixing.com/
 1. bitauto 易车 http://bitauto.com
 1. hellobanma 斑马网络 https://www.hellobanma.com/
@@ -64,6 +65,7 @@ or providing commercial products including Apache SkyWalking.
 1. Huawei
 1. Hundun YUNRONG Fintech. 杭州恒生云融网络科技有限公司 https://www.hsjry.com/
 1. hunliji.com 婚礼纪 https://www.hunliji.com/
+1. hydee.cn 海典软件 http://www.hydee.cn/
 1. iBoxChain 盒子科技 https://www.iboxpay.com/
 1. iFLYTEK. 科大讯飞股份有限公司-消费者BG http://www.iflytek.com/
 1. Inspur 浪潮集团
@@ -76,6 +78,7 @@ or providing commercial products including Apache SkyWalking.
 1. laocaibao. 上海证大爱特金融信息服务有限公司 https://www.laocaibao.com/
 1. Lenovo 联想
 1. liaofan168.com 了凡科技 http://www.liaofan168.com
+1. lianzhongyouche.com.cn 联众优车  https://www.lianzhongyouche.com.cn/
 1. Lima 北京力码科技有限公司 https://www.zhongbaounion.com/
 1. Lifesense.com 广东乐心医疗电子股份有限公司 http://www.lifesense.com/
 1. lizhi.fm 荔枝FM https://www.lizhi.fm/
