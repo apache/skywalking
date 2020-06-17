@@ -96,6 +96,12 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
+    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_instance_cpu_percentage";
+
+    public static String[] ALL_SO11Y_LINER_METRICS = {
+        METER_INSTANCE_CPU_PERCENTAGE
+    };
+
     private String id;
     private String metricsName;
 
