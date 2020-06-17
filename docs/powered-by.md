@@ -47,6 +47,7 @@ or providing commercial products including Apache SkyWalking.
 1. Deyoushenghuo in WeChat app. 河南有态度信息科技有限公司，微信小程序：得有生活
 1. Dianfubao.com 垫富宝 https://www.dianfubao.com/
 1. DiDi 滴滴出行
+1. dxy.cn 丁香园  http://www.dxy.cn/
 1. Echplus.com 北京易诚互动网络技术有限公司 http://www.echplus.com/
 1. Enmonster 怪兽充电 http://www.enmonster.com/
 1. Eqxiu.com. 北京中网易企秀科技有限公司 http://www.eqxiu.com/
@@ -155,7 +156,6 @@ or providing commercial products including Apache SkyWalking.
 1. zbj.com 猪八戒 https://www.zbj.com/
 1. zhaopin.com 智联招聘 https://www.zhaopin.com/
 1. zjs.com.cn 北京宅急送快运股份有限公司 http://www.zjs.com.cn/
-1. dxy.cn 丁香园  http://www.dxy.cn/
 
 # Use Cases
 ## Alibaba and Alibaba Cloud
