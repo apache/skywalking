@@ -42,7 +42,11 @@ public class ConnectionCreate5xInterceptor implements StaticMethodsAroundInterce
     public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
         Object ret) {
         if (ret instanceof EnhancedInstance) {
-            ((EnhancedInstance) ret).setSkyWalkingDynamicField(URLParser.parser(allArguments[4].toString()));
+            ConnectionInfo connectionInfo = ConnectionCache.get(allArguments[0].toString(), allArguments[1].toString());
+            if (connectionInfo == null) {
+                connectionInfo = URLParser.parser(allArguments[4].toString());
+            }
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(connectionInfo);
         }
         return ret;
     }
