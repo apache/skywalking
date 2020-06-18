@@ -29,6 +29,8 @@ import java.util.Set;
  */
 public class Constants {
 
+  public static final String DB_TYPE = "InfluxDB";
+
   public static final String PING_METHOD = "ping";
   public static final String WRITE_METHOD = "write";
   public static final String QUERY_METHOD = "query";

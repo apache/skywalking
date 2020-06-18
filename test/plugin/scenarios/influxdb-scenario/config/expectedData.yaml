@@ -31,7 +31,7 @@ segmentItems:
       spanType: Exit
       peer: http://influxdb:8086
       tags:
-        - {key: db.type, value: InfluxDB}
+      - {key: db.type, value: InfluxDB}
       skipAnalysis: 'false'
     - operationName: /influxdb-scenario/case/healthCheck
       operationId: 0
@@ -46,8 +46,8 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-        - {key: url, value: 'http://localhost:8080/influxdb-scenario/case/healthCheck'}
-        - {key: http.method, value: HEAD}
+      - {key: url, value: 'http://localhost:8080/influxdb-scenario/case/healthCheck'}
+      - {key: http.method, value: HEAD}
   - segmentId: not null
     spans:
     - operationName: InfluxDB/query
@@ -63,6 +63,8 @@ segmentItems:
       peer: http://influxdb:8086
       tags:
       - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'CREATE DATABASE skywalking'}
       skipAnalysis: 'false'
     - operationName: InfluxDB/query
       operationId: 0
@@ -77,6 +79,8 @@ segmentItems:
       peer: http://influxdb:8086
       tags:
       - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'CREATE RETENTION POLICY one_day ON skywalking DURATION 1d REPLICATION 1 DEFAULT'}
       skipAnalysis: 'false'
     - operationName: InfluxDB/write
       operationId: 0
@@ -91,6 +95,8 @@ segmentItems:
       peer: http://influxdb:8086
       tags:
       - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'heartbeat,host=127.0.0.1 device_name="sensor x" 1592408300123000000'}
       skipAnalysis: 'false'
     - operationName: InfluxDB/query
       operationId: 0
@@ -104,7 +110,9 @@ segmentItems:
       spanType: Exit
       peer: http://influxdb:8086
       tags:
-        - {key: db.type, value: InfluxDB}
+      - {key: db.type, value: InfluxDB}
+      - {key: db.instance, value: skywalking}
+      - {key: db.statement, value: 'SELECT * FROM heartbeat'}
       skipAnalysis: 'false'
     - operationName: /influxdb-scenario/case/influxdb-scenario
       operationId: 0

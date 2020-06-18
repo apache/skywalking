@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.influxdb.interceptor;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -26,19 +27,60 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
+import org.apache.skywalking.apm.plugin.influxdb.define.Constants;
+import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Point;
+import org.influxdb.dto.Query;
 
 import java.lang.reflect.Method;
+
+import static org.apache.skywalking.apm.plugin.influxdb.define.Constants.DB_TYPE;
 
 public class InfluxDBMethodInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
+        String methodName = method.getName();
         String peer = String.valueOf(objInst.getSkyWalkingDynamicField());
-        AbstractSpan span = ContextManager.createExitSpan("InfluxDB/" + method.getName(), peer);
+        AbstractSpan span = ContextManager.createExitSpan("InfluxDB/" + methodName, peer);
         span.setComponent(ComponentsDefine.INFLUXDB_JAVA);
-        Tags.DB_TYPE.set(span, "InfluxDB");
         SpanLayer.asDB(span);
+        Tags.DB_TYPE.set(span, DB_TYPE);
+
+        if (allArguments.length <= 0 || !Config.Plugin.InfluxDB.TRACE_INFLUXQL) {
+            return;
+        }
+
+        if (allArguments[0] instanceof Query) {
+            Query query = (Query) allArguments[0];
+            Tags.DB_INSTANCE.set(span, query.getDatabase());
+            Tags.DB_STATEMENT.set(span, query.getCommand());
+            return;
+        }
+
+        if (Constants.WRITE_METHOD.equals(methodName)) {
+            if (allArguments[0] instanceof BatchPoints) {
+                BatchPoints batchPoints = (BatchPoints) allArguments[0];
+                Tags.DB_INSTANCE.set(span, batchPoints.getDatabase());
+                Tags.DB_STATEMENT.set(span, batchPoints.lineProtocol());
+                return;
+            }
+            if (allArguments.length == 5) {
+                if (allArguments[0] instanceof String) {
+                    Tags.DB_INSTANCE.set(span, (String) allArguments[0]);
+                }
+                if (allArguments[4] instanceof String) {
+                    Tags.DB_STATEMENT.set(span, (String) allArguments[4]);
+                }
+                return;
+            }
+            if (allArguments.length == 3 && allArguments[2] instanceof Point) {
+                Tags.DB_INSTANCE.set(span, (String) allArguments[0]);
+                Tags.DB_STATEMENT.set(span, ((Point) allArguments[2]).lineProtocol());
+            }
+        }
+
     }
 
     @Override

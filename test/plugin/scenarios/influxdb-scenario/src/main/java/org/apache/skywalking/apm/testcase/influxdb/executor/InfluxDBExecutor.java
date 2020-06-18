@@ -39,7 +39,7 @@ public class InfluxDBExecutor implements AutoCloseable {
 
   public QueryResult createDatabase(String databaseName){
     // Create a database...
-    return influxDB.query(new Query("CREATE DATABASE " + databaseName, null));
+    return influxDB.query(new Query("CREATE DATABASE " + databaseName, databaseName));
   }
 
   public QueryResult createRetentionPolicyWithOneDay(String databaseName, String retentionPolicyName){
