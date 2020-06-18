@@ -20,7 +20,7 @@
     <parent>
         <artifactId>nutz-plugins</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.1-SNAPSHOT</version>
+        <version>8.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
