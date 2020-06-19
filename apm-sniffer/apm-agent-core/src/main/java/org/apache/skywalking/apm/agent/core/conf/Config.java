@@ -384,21 +384,6 @@ public class Config {
             public static boolean TRACE_OPS_PARAMS = false;
         }
 
-        /**
-         * Operation name group rules
-         */
-        public static class OPGroup {
-            /*
-             * Since 6.6.0, exit span is not requesting endpoint register,
-             * this group rule is not required.
-             *
-             * Keep this commented, just as a reminder that, it will be reused in a RPC server side plugin.
-             */
-            //            public static class RestTemplate implements OPGroupDefinition {
-            //                public static Map<String, String> RULE = new HashMap<String, String>();
-            //            }
-        }
-
         public static class Light4J {
             /**
              * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,

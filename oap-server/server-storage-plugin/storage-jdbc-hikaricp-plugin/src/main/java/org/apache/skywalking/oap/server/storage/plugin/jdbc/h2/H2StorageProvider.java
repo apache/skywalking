@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
@@ -61,6 +62,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TableInstal
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
 
 /**
  * H2 Storage provider is for demonstration and preview only. I will find that haven't implemented several interfaces,
@@ -106,24 +108,25 @@ public class H2StorageProvider extends ModuleProvider {
         this.registerServiceImplementation(StorageDAO.class, new H2StorageDAO(h2Client));
 
         this.registerServiceImplementation(
-            INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
+                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(h2Client));
 
         this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(h2Client));
         this.registerServiceImplementation(IMetricsQueryDAO.class, new H2MetricsQueryDAO(h2Client));
         this.registerServiceImplementation(ITraceQueryDAO.class, new H2TraceQueryDAO(h2Client));
         this.registerServiceImplementation(
-            IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client, config.getMetadataQueryMaxSize()));
+                IMetadataQueryDAO.class, new H2MetadataQueryDAO(h2Client, config.getMetadataQueryMaxSize()));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new H2AggregationQueryDAO(h2Client));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new H2AlarmQueryDAO(h2Client));
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
+                IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(h2Client));
         this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(h2Client));
         this.registerServiceImplementation(ILogQueryDAO.class, new H2LogQueryDAO(h2Client));
 
         this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(h2Client));
         this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(h2Client));
         this.registerServiceImplementation(
-            IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
+                IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(h2Client));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(h2Client));
     }
 
     @Override
@@ -145,6 +148,6 @@ public class H2StorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[]{CoreModule.NAME};
     }
 }
