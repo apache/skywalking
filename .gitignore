@@ -21,3 +21,4 @@ OALLexer.tokens
 /test/plugin/dist
 /test/plugin/workspace
 /test/jacoco/classes
+/test/jacoco/*.exec
