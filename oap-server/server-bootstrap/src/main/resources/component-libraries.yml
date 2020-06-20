@@ -52,7 +52,7 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js
+  languages: Java,C#,Node.js,PHP
 Motan:
   id: 8
   languages: Java
