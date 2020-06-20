@@ -20,3 +20,4 @@ OALLexer.tokens
 .externalToolBuilders
 /test/plugin/dist
 /test/plugin/workspace
+/test/jacoco/classes

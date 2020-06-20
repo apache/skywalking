@@ -96,7 +96,7 @@ segmentItems:
       tags:
       - {key: db.type, value: InfluxDB}
       - {key: db.instance, value: skywalking}
-      - {key: db.statement, value: 'heartbeat,host=127.0.0.1 device_name="sensor x" 1592408300123000000'}
+      - {key: db.statement, value: not null}
       skipAnalysis: 'false'
     - operationName: InfluxDB/query
       operationId: 0
