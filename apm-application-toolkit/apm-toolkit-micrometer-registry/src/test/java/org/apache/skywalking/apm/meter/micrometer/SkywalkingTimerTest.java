@@ -33,31 +33,34 @@ public class SkywalkingTimerTest extends SkywalkingMeterBaseTest {
 
     @Test
     public void testSimpleTimer() {
+        // Creating a simplify timer
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
         final Timer timer = registry.timer("test_simple_timer", "skywalking", "test");
 
+        // Check Skywalking type
         Assert.assertTrue(timer instanceof SkywalkingTimer);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Multiple record data
         timer.record(10, TimeUnit.MILLISECONDS);
         timer.record(20, TimeUnit.MILLISECONDS);
         timer.record(3, TimeUnit.MILLISECONDS);
 
-        // micrometer data
+        // Check micrometer data
         Assert.assertEquals(3, timer.count());
         Assert.assertEquals(33d, timer.totalTime(TimeUnit.MILLISECONDS), 0.0);
         Assert.assertEquals(20d, timer.max(TimeUnit.MILLISECONDS), 0.0);
 
-        // original data
+        // Check Skywalking data
         assertCounter(Whitebox.getInternalState(timer, "counter"), "test_simple_timer_count", tags, 3d);
         assertCounter(Whitebox.getInternalState(timer, "sum"), "test_simple_timer_sum", tags, 33d);
         assertGauge(Whitebox.getInternalState(timer, "max"), "test_simple_timer_max", tags, 20d);
-        assertPercentileNull(Whitebox.getInternalState(timer, "histogram"));
-        assertHistogramNull(Whitebox.getInternalState(timer, "percentile"));
+        assertHistogramNull(Whitebox.getInternalState(timer, "histogram"));
     }
 
     @Test
     public void testBuilder() {
+        // Creating a support histogram timer
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
         Timer timer = Timer.builder("test_complex_timer")
             .tag("skywalking", "test")
@@ -66,23 +69,24 @@ public class SkywalkingTimerTest extends SkywalkingMeterBaseTest {
             .minimumExpectedValue(Duration.ofMillis(1))
             .register(registry);
 
+        // Check Skywalking type
         Assert.assertTrue(timer instanceof SkywalkingTimer);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Multiple record data
         timer.record(10, TimeUnit.MILLISECONDS);
         timer.record(22, TimeUnit.MILLISECONDS);
         timer.record(13, TimeUnit.MILLISECONDS);
 
-        // micrometer data
+        // Check micrometer data
         Assert.assertEquals(3, timer.count());
         Assert.assertEquals(45d, timer.totalTime(TimeUnit.MILLISECONDS), 0.0);
         Assert.assertEquals(22d, timer.max(TimeUnit.MILLISECONDS), 0.0);
 
-        // original data
+        // Check Skywalking data
         assertCounter(Whitebox.getInternalState(timer, "counter"), "test_complex_timer_count", tags, 3d);
         assertCounter(Whitebox.getInternalState(timer, "sum"), "test_complex_timer_sum", tags, 45d);
         assertGauge(Whitebox.getInternalState(timer, "max"), "test_complex_timer_max", tags, 22d);
         assertHistogram(Whitebox.getInternalState(timer, "histogram"), "test_complex_timer_histogram", tags, 1, 0, 10, 2, 20, 1);
-        assertPercentile(Whitebox.getInternalState(timer, "percentile"), "test_complex_timer_percentile", tags, 10, 1, 22, 1, 13, 1);
     }
 }

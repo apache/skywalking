@@ -24,16 +24,20 @@ import io.micrometer.core.instrument.internal.DefaultLongTaskTimer;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Combine the meters to {@link io.micrometer.core.instrument.LongTaskTimer}
+ */
 public class SkywalkingLongTaskTimer extends DefaultLongTaskTimer {
 
+    /**
+     * Histogram of executing finished timers duration
+     */
     private final Optional<Histogram> histogram;
-    private final Optional<Percentile> percentile;
 
     public SkywalkingLongTaskTimer(Id id, MeterId meterId, Clock clock, TimeUnit baseTimeUnit, DistributionStatisticConfig distributionStatisticConfig, boolean supportsAggregablePercentiles) {
         super(id, clock, baseTimeUnit, distributionStatisticConfig, supportsAggregablePercentiles);
@@ -47,7 +51,6 @@ public class SkywalkingLongTaskTimer extends DefaultLongTaskTimer {
             meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE), () -> max(TimeUnit.MILLISECONDS)).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);
-        this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
     @Override
@@ -72,7 +75,6 @@ public class SkywalkingLongTaskTimer extends DefaultLongTaskTimer {
             final long useTime = sample.stop();
             final long useTimeMillis = Duration.ofNanos(useTime).toMillis();
             histogram.ifPresent(h -> h.addValue(useTimeMillis));
-            percentile.ifPresent(p -> p.record(useTimeMillis));
             return useTime;
         }
 

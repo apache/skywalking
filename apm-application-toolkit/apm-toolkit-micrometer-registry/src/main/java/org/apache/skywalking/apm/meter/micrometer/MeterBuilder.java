@@ -23,7 +23,6 @@ import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.util.TimeUtils;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
 import java.util.List;
 import java.util.NavigableSet;
@@ -55,24 +54,10 @@ public class MeterBuilder {
             meterId.copyTo(meterId.getName() + "_histogram", MeterId.MeterType.HISTOGRAM)).steps(steps);
         final Double minimumExpectedValueAsDouble = distributionStatisticConfig.getMinimumExpectedValueAsDouble();
         if (minimumExpectedValueAsDouble != null) {
-            histogramBuilder.exceptMinValue(useNanoTime ?
+            histogramBuilder.minValue(useNanoTime ?
                 TimeUtils.nanosToUnit(minimumExpectedValueAsDouble, TimeUnit.MILLISECONDS) : minimumExpectedValueAsDouble);
         }
         return Optional.of(histogramBuilder.build());
-    }
-
-    /**
-     * Build the percentile
-     * @return return percentile if support
-     */
-    public static Optional<Percentile> buildPercentile(MeterId meterId, DistributionStatisticConfig distributionStatisticConfig) {
-        if (!distributionStatisticConfig.isPublishingPercentiles()) {
-            return Optional.empty();
-        }
-
-        final Percentile percentile = new Percentile.Builder(
-            meterId.copyTo(meterId.getName() + "_percentile", MeterId.MeterType.PERCENTILE)).build();
-        return Optional.of(percentile);
     }
 
     /**
@@ -89,7 +74,7 @@ public class MeterBuilder {
                 break;
             default:
                 // other meter need to use multiple customize meter
-                type = MeterId.MeterType.PERCENTILE;
+                type = MeterId.MeterType.HISTOGRAM;
                 break;
         }
         final List<MeterId.Tag> tags = id.getTags().stream().map(t -> new MeterId.Tag(t.getKey(), t.getValue())).collect(Collectors.toList());

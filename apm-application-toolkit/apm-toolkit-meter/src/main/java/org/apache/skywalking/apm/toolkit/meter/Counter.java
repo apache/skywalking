@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.toolkit.meter;
 
 import java.util.concurrent.atomic.DoubleAdder;
 
+/**
+ * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
+ */
 public class Counter extends BaseMeter {
 
     protected final DoubleAdder count;
@@ -45,7 +48,6 @@ public class Counter extends BaseMeter {
 
     /**
      * Get count value
-     * @return
      */
     public double get() {
         return this.count.doubleValue();

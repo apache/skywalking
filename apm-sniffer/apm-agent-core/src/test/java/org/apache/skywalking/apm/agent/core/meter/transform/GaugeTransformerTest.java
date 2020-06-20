@@ -39,19 +39,22 @@ public class GaugeTransformerTest {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final List<Label> labels = Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build());
 
-        // normal
+        // Normal
         GaugeTransformer transformer1 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> 2d));
         validateMeterData("test", labels, 2d, transformer1.transform());
 
-        // exception
+        // Exception
         GaugeTransformer transformer2 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> Double.valueOf(2 / 0)));
         Assert.assertNull(transformer2.transform());
 
-        // null
+        // Null
         GaugeTransformer transformer3 = new GaugeTransformer(new TestGaugeAdapter(meterId, () -> null));
         Assert.assertNull(transformer3.transform());
     }
 
+    /**
+     * Check the single value message
+     */
     private void validateMeterData(String name, List<Label> labels, double value, MeterData.Builder validate) {
         Assert.assertNotNull(validate);
         Assert.assertEquals(validate.getMetricCase().getNumber(), MeterData.SINGLEVALUE_FIELD_NUMBER);
@@ -62,6 +65,9 @@ public class GaugeTransformerTest {
         Assert.assertEquals(singleValue.getLabelsList(), labels);
     }
 
+    /**
+     * Custom {@link GaugeAdapter} using {@link Supplier} as data getter
+     */
     private static class TestGaugeAdapter implements GaugeAdapter {
         private final MeterId meterId;
         private Supplier<Double> supplier;

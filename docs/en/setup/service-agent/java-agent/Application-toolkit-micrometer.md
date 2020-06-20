@@ -19,23 +19,26 @@ compositeRegistry.add(new SkywalkingMeterRegistry());
 
 * Using snake case as the naming convention. Such as `test.meter` will be send to `test_meter`.
 
+* Using `Millisecond` as the time unit.
+
 * Adapt micrometer data convention.
 
-|Micrometer data type|Transform to meter name|Skywalking data type|
-|----- |----- |----- |
-|Counter|Counter name|Counter|
-|Gauges|Gauges name|Gauges|
-|Timer|Timer name + "_count"|Counter|
-| |Timer name + "_sum"|Counter|
-| |Timer name + "_max|Gauges|
-||LongTaskTimer|Timer name + "_active_count"|Gauges|
-| |Timer name + "_duration_sum"|Counter|
-|Function Timer|Timer name + "_count"|Gauges|
-| |Timer name + "_sum"|Gauges|
-|Function Counter|Counter name|Gauges|
-|Distribution summary|Summary name + "_count"|Counter|
-| |Summary name + "_sum"|Counter|
-| |Summary name + "_max"|Gauges|
-
-Also, If the meter support the histogram/percentile, such as Timer, Summary, support using currently meter name + "_histogram" / "_percentile" to collect the histogram/percentile.
-
+|Micrometer data type|Transform to meter name|Skywalking data type| Description|
+|----- |----- |----- |----- |
+|Counter|Counter name|Counter|Same with counter|
+|Gauges|Gauges name|Gauges|Same with gauges|
+|Timer|Timer name + "_count"|Counter|Execute finished count|
+| |Timer name + "_sum"|Counter|Total execute finished duration|
+| |Timer name + "_max"|Gauges|Max duration of execute finished time|
+| |Timer name + "_histogram"|Histogram|Histogram of execute finished duration|
+|LongTaskTimer|Timer name + "_active_count"|Gauges|Executing task count|
+| |Timer name + "_duration_sum"|Counter|All of executing task sum duration|
+| |Timer name + "_max"|Counter|Current longest running task execute duration|
+| |Timer name + "_histogram"|Histogram|Executing finished task duration histogram|
+|Function Timer|Timer name + "_count"|Gauges|Execute finished timer count|
+| |Timer name + "_sum"|Gauges|Execute finished timer total duration|
+|Function Counter|Counter name|Gauges|Total count|
+|Distribution summary|Summary name + "_count"|Counter|Total record count|
+| |Summary name + "_sum"|Counter|Total record amount sum|
+| |Summary name + "_max"|Gauges|Max record amount|
+| |Summary name + "_histogram"|Gauges|Histogram of the amount|

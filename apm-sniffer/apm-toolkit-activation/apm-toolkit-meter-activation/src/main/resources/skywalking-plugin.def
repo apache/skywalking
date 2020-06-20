@@ -17,4 +17,3 @@
 toolkit-counter=org.apache.skywalking.apm.toolkit.activation.meter.CounterActivation
 toolkit-gauge=org.apache.skywalking.apm.toolkit.activation.meter.GaugeActivation
 toolkit-histogram=org.apache.skywalking.apm.toolkit.activation.meter.HistogramActivation
-toolkit-percentile=org.apache.skywalking.apm.toolkit.activation.meter.PercentileActivation

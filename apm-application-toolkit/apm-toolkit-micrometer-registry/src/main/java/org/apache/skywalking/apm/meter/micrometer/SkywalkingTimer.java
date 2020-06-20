@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +39,6 @@ public class SkywalkingTimer extends AbstractTimer {
     private final DoubleAccumulator maxAdder;
 
     private final Optional<Histogram> histogram;
-    private final Optional<Percentile> percentile;
 
     protected SkywalkingTimer(Id id, MeterId meterId, Clock clock,
                               DistributionStatisticConfig distributionStatisticConfig, PauseDetector pauseDetector,
@@ -57,7 +55,6 @@ public class SkywalkingTimer extends AbstractTimer {
             () -> maxAdder.doubleValue()).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);
-        this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
     @Override
@@ -68,7 +65,6 @@ public class SkywalkingTimer extends AbstractTimer {
         maxAdder.accumulate(amountToMillisecond);
 
         histogram.ifPresent(h -> h.addValue(amountToMillisecond));
-        percentile.ifPresent(p -> p.record(amountToMillisecond));
     }
 
     @Override

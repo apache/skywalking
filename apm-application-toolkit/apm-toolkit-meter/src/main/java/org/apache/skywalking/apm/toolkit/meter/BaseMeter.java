@@ -95,7 +95,7 @@ public abstract class BaseMeter {
         }
 
         /**
-         * append new tag
+         * append new tag to this meter
          */
         public Builder<T> tag(String name, String value) {
             meterId.getTags().add(new MeterId.Tag(name, value));

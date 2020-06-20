@@ -23,7 +23,6 @@ import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,10 +38,12 @@ public class MeterBuilderTest {
         final MeterId meterId = new MeterId("test", MeterId.MeterType.COUNTER,
             Arrays.asList(new MeterId.Tag("k1", "v1")));
 
+        // Build a new distribution config
         final DistributionStatisticConfig statisticConfig = DistributionStatisticConfig.builder()
             .serviceLevelObjectives(Duration.ofMillis(1).toNanos(), Duration.ofMillis(5).toNanos(), Duration.ofMillis(10).toNanos())
             .minimumExpectedValue(0d).build();
 
+        // Check buckets
         final Optional<Histogram> histogramOptional = MeterBuilder.buildHistogram(meterId, true, statisticConfig, true);
         final Histogram histogram = histogramOptional.orElse(null);
         Assert.assertNotNull(histogram);
@@ -53,46 +54,35 @@ public class MeterBuilderTest {
         Assert.assertEquals(5d, buckets[2].getBucket(), 0.0);
         Assert.assertEquals(10d, buckets[3].getBucket(), 0.0);
 
+        // Check meter id
         Assert.assertEquals("test_histogram", histogram.getMeterId().getName());
         Assert.assertEquals(MeterId.MeterType.HISTOGRAM, histogram.getMeterId().getType());
         Assert.assertEquals(Arrays.asList(new MeterId.Tag("k1", "v1")), histogram.getMeterId().getTags());
 
-        // don't need the histogram
+        // Don't need the histogram
         Assert.assertNull(MeterBuilder.buildHistogram(meterId, true, DistributionStatisticConfig.DEFAULT, true).orElse(null));
-    }
-
-    @Test
-    public void testBuildPercentile() {
-        final MeterId meterId = new MeterId("test", MeterId.MeterType.COUNTER,
-            Arrays.asList(new MeterId.Tag("k1", "v1")));
-
-        final DistributionStatisticConfig statisticConfig = DistributionStatisticConfig.builder().percentiles(0.99).build();
-
-        final Optional<Percentile> percentileOptional = MeterBuilder.buildPercentile(meterId, statisticConfig);
-        final Percentile percentile = percentileOptional.orElse(null);
-        Assert.assertNotNull(percentile);
-        Assert.assertEquals("test_percentile", percentile.getMeterId().getName());
-        Assert.assertEquals(MeterId.MeterType.PERCENTILE, percentile.getMeterId().getType());
-        Assert.assertEquals(Arrays.asList(new MeterId.Tag("k1", "v1")), percentile.getMeterId().getTags());
-
-        // don't need the percentile
-        Assert.assertNull(MeterBuilder.buildPercentile(meterId, DistributionStatisticConfig.DEFAULT).orElse(null));
     }
 
     @Test
     public void testConvertId() {
         final List<MeterId.Tag> meterTags = Arrays.asList(new MeterId.Tag("k1", "v1"));
 
+        // Counter type check
         final Meter.Id counterId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.COUNTER);
         assertId(MeterBuilder.convertId(counterId, "test"), "test", MeterId.MeterType.COUNTER, meterTags);
 
+        // Gauge type check
         final Meter.Id gaugeId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.GAUGE);
         assertId(MeterBuilder.convertId(gaugeId, "test"), "test", MeterId.MeterType.GAUGE, meterTags);
 
+        // Histogram type check
         final Meter.Id otherId = new Meter.Id("test", Tags.of("k1", "v1"), null, "test", Meter.Type.DISTRIBUTION_SUMMARY);
-        assertId(MeterBuilder.convertId(otherId, "test"), "test", MeterId.MeterType.PERCENTILE, meterTags);
+        assertId(MeterBuilder.convertId(otherId, "test"), "test", MeterId.MeterType.HISTOGRAM, meterTags);
     }
 
+    /**
+     * Assert the meter id
+     */
     private void assertId(MeterId meterId, String name, MeterId.MeterType type, List<MeterId.Tag> tags) {
         Assert.assertEquals(name, meterId.getName());
         Assert.assertEquals(type, meterId.getType());

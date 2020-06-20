@@ -21,8 +21,10 @@ package org.apache.skywalking.apm.meter.micrometer;
 import io.micrometer.core.instrument.AbstractMeter;
 import org.apache.skywalking.apm.toolkit.meter.Counter;
 
+/**
+ * Wrapper the {@link Counter} to {@link io.micrometer.core.instrument.Counter}
+ */
 public class SkywalkingCounter extends AbstractMeter implements io.micrometer.core.instrument.Counter {
-
     private final Counter counter;
 
     SkywalkingCounter(Id id, Counter counter) {

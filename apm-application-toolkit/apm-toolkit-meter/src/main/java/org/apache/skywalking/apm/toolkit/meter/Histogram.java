@@ -24,6 +24,11 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+/**
+ * Similar to a histogram, a summary sample observations (usual things like request durations and response sizes).
+ * While it also provides a total count of observations and a sum of all observed values, it calculates configurable quartiles over a sliding time window.
+ * The histogram provides detailed data in each data group.
+ */
 public class Histogram extends BaseMeter {
 
     protected final Bucket[] buckets;
@@ -41,6 +46,8 @@ public class Histogram extends BaseMeter {
 
     /**
      * Add count into the step
+     * @param step switch step you want to add
+     * @param count add count to appoint step, it won't be add when cannot find the step
      */
     public void addCountToStep(double step, long count) {
         // lookup the bucket, only matches with the step
@@ -65,6 +72,9 @@ public class Histogram extends BaseMeter {
         bucket.increment(1L);
     }
 
+    /**
+     * Getting all buckets
+     */
     public Bucket[] getBuckets() {
         return buckets;
     }
@@ -100,8 +110,11 @@ public class Histogram extends BaseMeter {
         return list;
     }
 
+    /**
+     * Histogram builder
+     */
     public static class Builder extends BaseMeter.Builder<Histogram> {
-        private double exceptMinValue = 0;
+        private double minValue = 0;
         private List<Double> steps;
 
         public Builder(String name) {
@@ -121,17 +134,17 @@ public class Histogram extends BaseMeter {
         }
 
         /**
-         * Setting except min value, default is zero
+         * Setting min value, default is zero
          */
-        public Builder exceptMinValue(double minValue) {
-            this.exceptMinValue = minValue;
+        public Builder minValue(double minValue) {
+            this.minValue = minValue;
             return this;
         }
 
         @Override
         public void accept(Histogram meter) {
-            if (this.steps.get(0) != exceptMinValue) {
-                this.steps.add(0, exceptMinValue);
+            if (this.steps.get(0) != minValue) {
+                this.steps.add(0, minValue);
             }
             if (meter.buckets.length != this.steps.size()) {
                 throw new IllegalArgumentException("Steps are not has the same size");
@@ -155,11 +168,11 @@ public class Histogram extends BaseMeter {
             steps = steps.stream().distinct().sorted().collect(Collectors.toList());
 
             // verify steps with except min value
-            if (steps.get(0) < exceptMinValue) {
+            if (steps.get(0) < minValue) {
                 throw new IllegalArgumentException("First step must bigger than min value");
-            } else if (steps.get(0) != exceptMinValue) {
+            } else if (steps.get(0) != minValue) {
                 // add the min value to the steps
-                steps.add(0, exceptMinValue);
+                steps.add(0, minValue);
             }
 
             return new Histogram(meterId, steps);
@@ -171,6 +184,9 @@ public class Histogram extends BaseMeter {
         }
     }
 
+    /**
+     * Histogram bucket
+     */
     public static class Bucket {
         protected double bucket;
         protected AtomicLong count = new AtomicLong();

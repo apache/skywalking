@@ -31,9 +31,11 @@ public class SkywalkingCounterTest extends SkywalkingMeterBaseTest {
 
     @Test
     public void testCounter() {
+        // Creating a simplify micrometer counter
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
         Counter counter = registry.counter("test_counter", "skywalking", "test");
 
+        // Check Skywalking counter type
         Assert.assertTrue(counter instanceof SkywalkingCounter);
         final SkywalkingCounter skywalkingCounter = (SkywalkingCounter) counter;
         final org.apache.skywalking.apm.toolkit.meter.Counter realCounter =
@@ -41,9 +43,12 @@ public class SkywalkingCounterTest extends SkywalkingMeterBaseTest {
 
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Simplify increment
         skywalkingCounter.increment(1d);
         assertCounter(realCounter, "test_counter", tags, 1);
         Assert.assertEquals(1d, skywalkingCounter.count(), 0.0);
+
+        // Multiple increment
         skywalkingCounter.increment(2d);
         skywalkingCounter.increment(3d);
         assertCounter(realCounter, "test_counter", tags, 6);

@@ -38,6 +38,7 @@ public class HistogramTransformerTest {
     public void testBuckets() {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
 
+        // Check buckets
         final TestHistogramAdapter adapter = new TestHistogramAdapter(meterId, new double[] {2d, 5d});
         final HistogramTransformer transformer = new HistogramTransformer(adapter);
         final HistogramTransformer.Bucket[] buckets = (HistogramTransformer.Bucket[]) Whitebox.getInternalState(transformer, "buckets");
@@ -51,6 +52,7 @@ public class HistogramTransformerTest {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final List<Label> labels = Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build());
 
+        // Check histogram message
         final TestHistogramAdapter adapter = new TestHistogramAdapter(meterId, new double[] {2d, 5d});
         final HistogramTransformer transformer = new HistogramTransformer(adapter);
         adapter.setValues(new long[] {5L, 10L});
@@ -61,9 +63,11 @@ public class HistogramTransformerTest {
         verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(1L, 2L), transformer.transform());
     }
 
+    /**
+     * Check histogram message
+     */
     public static void verifyHistogram(String name, List<Label> labels, List<Double> buckets,
                                        List<Long> bucketValues, MeterData.Builder validate) {
-
         Assert.assertNotNull(validate);
         Assert.assertEquals(validate.getMetricCase().getNumber(), MeterData.HISTOGRAM_FIELD_NUMBER);
         MeterHistogram histogram = validate.getHistogram();
@@ -80,6 +84,9 @@ public class HistogramTransformerTest {
         }
     }
 
+    /**
+     * Custom {@link HistogramAdapter} with appoint buckets and values
+     */
     private static class TestHistogramAdapter implements HistogramAdapter {
         private final MeterId meterId;
         private final double[] buckets;

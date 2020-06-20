@@ -50,8 +50,6 @@ public class MeterIdConverter {
                 return MeterType.COUNTER;
             case HISTOGRAM:
                 return MeterType.HISTOGRAM;
-            case PERCENTILE:
-                return MeterType.PERCENTILE;
             default:
                 throw new IllegalStateException("Could not found the meter type: " + id.getType());
         }

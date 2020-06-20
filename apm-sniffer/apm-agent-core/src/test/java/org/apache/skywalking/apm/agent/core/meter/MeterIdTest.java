@@ -33,15 +33,18 @@ public class MeterIdTest {
     public void testTransformTags() {
         MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
 
+        // Label message check
         List<Label> labels = meterId.transformTags();
         Assert.assertEquals(1, labels.size());
         final Label label = labels.get(0);
         Assert.assertEquals("k1", label.getName());
         Assert.assertEquals("v1", label.getValue());
 
+        // Must cache the Label message
         final List<Label> cacheLabels = (List<Label>) Whitebox.getInternalState(meterId, "labels");
         Assert.assertEquals(labels, cacheLabels);
 
+        // Check empty tags
         meterId = new MeterId("test", MeterType.COUNTER, Collections.emptyList());
         labels = meterId.transformTags();
         Assert.assertEquals(0, labels.size());

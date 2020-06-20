@@ -31,31 +31,34 @@ public class SkywalkingDistributionSummaryTest extends SkywalkingMeterBaseTest {
 
     @Test
     public void testSimple() {
+        // Creating a simplify distribution summary
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
         final DistributionSummary summary = registry.summary("test_simple_distribution_summary", "skywalking", "test");
 
+        // Check Skywalking type
         Assert.assertTrue(summary instanceof SkywalkingDistributionSummary);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Multiple record data
         summary.record(10d);
         summary.record(13d);
         summary.record(2d);
 
-        // micrometer data
+        // Check micrometer data
         Assert.assertEquals(3, summary.count());
         Assert.assertEquals(25d, summary.totalAmount(), 0.0);
         Assert.assertEquals(13d, summary.max(), 0.0);
 
-        // original data
+        // Check Skywalking data
         assertCounter(Whitebox.getInternalState(summary, "counter"), "test_simple_distribution_summary_count", tags, 3d);
         assertCounter(Whitebox.getInternalState(summary, "sum"), "test_simple_distribution_summary_sum", tags, 25d);
         assertGauge(Whitebox.getInternalState(summary, "max"), "test_simple_distribution_summary_max", tags, 13d);
         assertHistogramNull(Whitebox.getInternalState(summary, "histogram"));
-        assertPercentileNull(Whitebox.getInternalState(summary, "percentile"));
     }
 
     @Test
     public void testComplex() {
+        // Creating a support histogram distribution summary
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
         final DistributionSummary summary = DistributionSummary.builder("test_complex_distribution_summary")
             .tags("skywalking", "test")
@@ -66,20 +69,20 @@ public class SkywalkingDistributionSummaryTest extends SkywalkingMeterBaseTest {
 
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Multiple record data
         summary.record(10d);
         summary.record(13d);
         summary.record(2d);
 
-        // micrometer data
+        // Check micrometer data
         Assert.assertEquals(3, summary.count());
         Assert.assertEquals(25d, summary.totalAmount(), 0.0);
         Assert.assertEquals(13d, summary.max(), 0.0);
 
-        // original data
+        // Check Skywalking data
         assertCounter(Whitebox.getInternalState(summary, "counter"), "test_complex_distribution_summary_count", tags, 3d);
         assertCounter(Whitebox.getInternalState(summary, "sum"), "test_complex_distribution_summary_sum", tags, 25d);
         assertGauge(Whitebox.getInternalState(summary, "max"), "test_complex_distribution_summary_max", tags, 13d);
         assertHistogram(Whitebox.getInternalState(summary, "histogram"), "test_complex_distribution_summary_histogram", tags, 1, 1, 10, 2, 20, 0);
-        assertPercentile(Whitebox.getInternalState(summary, "percentile"), "test_complex_distribution_summary_percentile", tags, 10, 1, 13, 1, 2, 1);
     }
 }

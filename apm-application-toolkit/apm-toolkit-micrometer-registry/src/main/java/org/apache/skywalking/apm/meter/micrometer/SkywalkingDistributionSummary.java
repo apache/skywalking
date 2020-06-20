@@ -25,20 +25,35 @@ import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
+/**
+ * Combine the meters to {@link io.micrometer.core.instrument.DistributionSummary}
+ */
 public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
 
+    /**
+     * Summary record count
+     */
     private final Counter counter;
+
+    /**
+     * Total summary count
+     */
     private final Counter sum;
+
+    /**
+     * Max amount in this summary
+     */
     private final Gauge max;
     private final DoubleAccumulator maxAdder;
 
+    /**
+     * Histogram of summary
+     */
     private final Optional<Histogram> histogram;
-    private final Optional<Percentile> percentile;
 
     protected SkywalkingDistributionSummary(Id id, MeterId meterId, Clock clock, DistributionStatisticConfig distributionStatisticConfig, double scale, boolean supportsAggregablePercentiles) {
         super(id, clock, distributionStatisticConfig, scale, supportsAggregablePercentiles);
@@ -53,7 +68,6 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
             () -> maxAdder.doubleValue()).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, false);
-        this.percentile = MeterBuilder.buildPercentile(meterId, distributionStatisticConfig);
     }
 
     @Override
@@ -63,7 +77,6 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
         maxAdder.accumulate(amount);
 
         histogram.ifPresent(h -> h.addValue(amount));
-        percentile.ifPresent(p -> p.record(amount));
     }
 
     @Override

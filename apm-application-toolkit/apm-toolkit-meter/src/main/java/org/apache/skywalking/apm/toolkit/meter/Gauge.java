@@ -20,6 +20,10 @@ package org.apache.skywalking.apm.toolkit.meter;
 
 import java.util.function.Supplier;
 
+/**
+ * A gauge is a metric that represents a single numerical value that can arbitrarily go up and down.
+ * Using {@link Supplier} as the value.
+ */
 public class Gauge extends BaseMeter {
 
     protected Supplier<Double> getter;

@@ -40,6 +40,9 @@ public class SkywalkingCustomCounter extends Counter {
         return measurement.getValue();
     }
 
+    /**
+     * Custom counter builder
+     */
     public static class Builder extends BaseMeter.Builder<SkywalkingCustomCounter> {
         private final Measurement measurement;
 

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Meter identity
+ */
 public class MeterId {
 
     protected final String name;
@@ -73,13 +76,18 @@ public class MeterId {
         return Objects.hash(name, type, tags);
     }
 
+    /**
+     * The meter type
+     */
     public static enum MeterType {
         COUNTER,
         GAUGE,
-        HISTOGRAM,
-        PERCENTILE
+        HISTOGRAM
     }
 
+    /**
+     * Using name/value pair as the tag, also it will {@link Comparable} when we sort all of tags
+     */
     public static class Tag implements Comparable<Tag> {
         private String name;
         private String value;

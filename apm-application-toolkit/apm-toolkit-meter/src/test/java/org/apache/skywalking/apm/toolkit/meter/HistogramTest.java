@@ -28,13 +28,13 @@ public class HistogramTest {
     @Test
     public void testBuild() {
         // normal
-        Histogram histogram = Histogram.create("test_histogram1").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(-10)
+        Histogram histogram = Histogram.create("test_histogram1").steps(Arrays.asList(1d, 5d, 10d)).minValue(-10)
             .tag("k1", "v1").build();
         Assert.assertArrayEquals(histogram.getBuckets(), buildBuckets(-10d, 1d, 5d, 10d));
 
         // except value bigger than first bucket
         try {
-            histogram = Histogram.create("test_histogram2").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(2).build();
+            histogram = Histogram.create("test_histogram2").steps(Arrays.asList(1d, 5d, 10d)).minValue(2).build();
             throw new IllegalStateException("valid failed");
         } catch (IllegalStateException e) {
             throw e;
@@ -43,7 +43,7 @@ public class HistogramTest {
         }
 
         // except min value is equals first step
-        histogram = Histogram.create("test_histogram3").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(1d)
+        histogram = Histogram.create("test_histogram3").steps(Arrays.asList(1d, 5d, 10d)).minValue(1d)
             .tag("k1", "v1").build();
         Assert.assertArrayEquals(histogram.getBuckets(), buildBuckets(1d, 5d, 10d));
 
@@ -60,14 +60,14 @@ public class HistogramTest {
 
     @Test
     public void testAccept() {
-        final Histogram baseHistogram = Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).exceptMinValue(0).build();
+        final Histogram baseHistogram = Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).minValue(0).build();
 
         // same histogram
-        Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).exceptMinValue(0).build();
+        Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d)).minValue(0).build();
 
         // not same steps size
         try {
-            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d, 7d)).exceptMinValue(-1).build();
+            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 5d, 7d)).minValue(-1).build();
         } catch (IllegalArgumentException e) {
         } catch (Exception e) {
             throw e;
@@ -75,7 +75,7 @@ public class HistogramTest {
 
         // not same steps value
         try {
-            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 6d)).exceptMinValue(-1).build();
+            Histogram.create("test_histogram_accept").steps(Arrays.asList(1d, 3d, 6d)).minValue(-1).build();
         } catch (IllegalArgumentException e) {
         } catch (Exception e) {
             throw e;
@@ -84,7 +84,7 @@ public class HistogramTest {
 
     @Test
     public void testAddCountToStep() {
-        Histogram histogram = Histogram.create("test_histogram4").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(-10)
+        Histogram histogram = Histogram.create("test_histogram4").steps(Arrays.asList(1d, 5d, 10d)).minValue(-10)
             .tag("k1", "v1").build();
 
         // single add
@@ -104,7 +104,7 @@ public class HistogramTest {
 
     @Test
     public void testAddValue() {
-        Histogram histogram = Histogram.create("test_histogram5").steps(Arrays.asList(1d, 5d, 10d)).exceptMinValue(-10)
+        Histogram histogram = Histogram.create("test_histogram5").steps(Arrays.asList(1d, 5d, 10d)).minValue(-10)
             .tag("k1", "v1").build();
 
         // single value

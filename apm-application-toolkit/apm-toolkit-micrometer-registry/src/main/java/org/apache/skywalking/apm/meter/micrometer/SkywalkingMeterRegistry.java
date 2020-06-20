@@ -43,6 +43,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 
+/**
+ * Skywalking adapt the micrometer registry.
+ */
 public class SkywalkingMeterRegistry extends MeterRegistry {
 
     public SkywalkingMeterRegistry() {

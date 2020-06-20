@@ -48,12 +48,14 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
 
     @Before
     public void setup() {
+        // Make sure meters are clear
         meterMap = Whitebox.getInternalState(MeterCenter.class, "METER_MAP");
         meterMap.clear();
     }
 
     @After
     public void cleanup() {
+        // Clear meters after finish each test case
         meterMap.clear();
     }
 
@@ -63,6 +65,7 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         final GaugeTestBean gaugeTestBean = new GaugeTestBean(1d);
         registry.gauge("test_counter", gaugeTestBean, GaugeTestBean::getCount);
 
+        // Check meter and count
         Assert.assertEquals(1, meterMap.size());
         final BaseMeter meter = meterMap.values().iterator().next();
         Assert.assertTrue(meter instanceof Gauge);
@@ -74,12 +77,12 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
     @Test
     public void testFunctionTimer() {
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
-
         final FunctionTimerBean task = new FunctionTimerBean(1, 200);
         registry.more().timer("test_function_timer", Tags.of("skywalking", "test"), task,
             FunctionTimerBean::getCount, FunctionTimerBean::getTotalTime, TimeUnit.MILLISECONDS);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Check is has appoint meter
         Assert.assertEquals(2, meterMap.size());
         Gauge countGauge = null;
         Gauge sumGauge = null;
@@ -91,6 +94,7 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
             }
         }
 
+        // Check data
         assertGauge(countGauge, "test_function_timer_count", tags, 1);
         assertGauge(sumGauge, "test_function_timer_sum", tags, 200);
     }
@@ -98,15 +102,16 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
     @Test
     public void testFunctionCounter() {
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
-
         final FunctionTimerBean task = new FunctionTimerBean(1, 200);
         registry.more().counter("test_function_counter", Tags.of("skywalking", "test"), task,
             FunctionTimerBean::getCount);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "test"));
 
+        // Check meter and count
         Assert.assertEquals(1, meterMap.size());
         Gauge countGauge = (Gauge) meterMap.values().iterator().next();
 
+        // Check data
         assertGauge(countGauge, "test_function_counter", tags, 1);
     }
 
@@ -149,9 +154,13 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         });
     }
 
+    /**
+     * Check custom measurement
+     */
     private void testNewMeter(String meterName, Meter.Type type, Statistic statistic, Consumer<MeterData> meterChecker) {
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
 
+        // Create measurement
         Meter.builder(meterName, type, Arrays.asList(new Measurement(() -> 1d, statistic)))
             .tag("skywalking", "test")
             .register(registry);
@@ -173,6 +182,9 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         Assert.assertEquals(0, meterMap.size());
     }
 
+    /**
+     * Working on {@link io.micrometer.core.instrument.Gauge} check
+     */
     private static class GaugeTestBean {
         private final double count;
 
@@ -185,6 +197,9 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         }
     }
 
+    /**
+     * Working on {@link io.micrometer.core.instrument.FunctionTimer} check
+     */
     private static class FunctionTimerBean {
         private final long count;
         private final double totalTime;
@@ -203,6 +218,9 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
         }
     }
 
+    /**
+     * Working on custom {@link Measurement} check
+     */
     private static class MeterData {
         private final BaseMeter meter;
         private final List<MeterId.Tag> tags;

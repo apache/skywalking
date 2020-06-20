@@ -22,16 +22,16 @@ import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
-import org.apache.skywalking.apm.toolkit.meter.Percentile;
 import org.junit.Assert;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class SkywalkingMeterBaseTest {
 
+    /**
+     * Check counter data
+     */
     public void assertCounter(Counter counter, String name, List<MeterId.Tag> tags, double count) {
         Assert.assertEquals(name, counter.getMeterId().getName());
         Assert.assertEquals(tags, counter.getMeterId().getTags());
@@ -40,10 +40,16 @@ public class SkywalkingMeterBaseTest {
         Assert.assertEquals(count, counter.get(), 0.0);
     }
 
+    /**
+     * Check gauge data, and value must be same
+     */
     public void assertGauge(Gauge gauge, String name, List<MeterId.Tag> tags, double value) {
         assertGauge(gauge, name, tags, value, false);
     }
 
+    /**
+     * Check gauge data, and value could greater than provide value
+     */
     public void assertGauge(Gauge gauge, String name, List<MeterId.Tag> tags, double value, boolean greaterThanValueMode) {
         Assert.assertEquals(name, gauge.getMeterId().getName());
         Assert.assertEquals(tags, gauge.getMeterId().getTags());
@@ -56,10 +62,17 @@ public class SkywalkingMeterBaseTest {
         }
     }
 
+    /**
+     * Check not have histogram
+     */
     public void assertHistogramNull(Optional<Histogram> histogramOptional) {
         Assert.assertNull(histogramOptional.orElse(null));
     }
 
+    /**
+     * Check histogram cannot be null and data correct
+     * @param bucketsAndCount bucket and value array
+     */
     public void assertHistogram(Optional<Histogram> histogramOptional, String name, List<MeterId.Tag> tags, double... bucketsAndCount) {
         final Histogram histogram = histogramOptional.orElse(null);
         Assert.assertNotNull(histogram);
@@ -75,22 +88,4 @@ public class SkywalkingMeterBaseTest {
         }
     }
 
-    public void assertPercentileNull(Optional<Percentile> percentileOptional) {
-        Assert.assertNull(percentileOptional.orElse(null));
-    }
-
-    public void assertPercentile(Optional<Percentile> percentileOptional, String name, List<MeterId.Tag> tags, double... records) {
-        final Percentile percentile = percentileOptional.orElse(null);
-        Assert.assertNotNull(percentile);
-        Assert.assertEquals(name, percentile.getMeterId().getName());
-        Assert.assertEquals(tags, percentile.getMeterId().getTags());
-        Assert.assertEquals(MeterId.MeterType.PERCENTILE, percentile.getMeterId().getType());
-
-        final ConcurrentHashMap<Double, AtomicLong> percentileRecords = percentile.getRecordWithCount();
-        Assert.assertEquals(records.length / 2, percentileRecords.size());
-        for (int i = 0; i < records.length; i += 2) {
-            Assert.assertTrue(percentileRecords.containsKey(records[i]));
-            Assert.assertEquals((long) records[i + 1], percentileRecords.get(records[i]).get());
-        }
-    }
 }

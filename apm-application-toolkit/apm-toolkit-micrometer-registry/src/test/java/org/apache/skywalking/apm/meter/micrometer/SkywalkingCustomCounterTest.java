@@ -30,12 +30,13 @@ public class SkywalkingCustomCounterTest extends SkywalkingMeterBaseTest {
 
     @Test
     public void testBuild() {
+        // Creating a custom measurement
         Measurement measurement = new Measurement(() -> 1d, Statistic.COUNT);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "custom_counter"));
         final MeterId meterId = new MeterId("test_custom_conter", MeterId.MeterType.COUNTER, tags);
-
         final SkywalkingCustomCounter counter = new SkywalkingCustomCounter.Builder(meterId, measurement).build();
 
+        // Check is counter meter id and value
         assertCounter(counter, "test_custom_conter", tags, 1d);
     }
 }

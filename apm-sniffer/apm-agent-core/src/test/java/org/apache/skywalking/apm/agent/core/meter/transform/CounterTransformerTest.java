@@ -47,6 +47,7 @@ public class CounterTransformerTest {
 
     @BeforeClass
     public static void setup() throws Throwable {
+        // "test_rate" will rate on the agent side
         Config.Meter.RATE_COUNTER_NAME = "test_rate";
     }
 
@@ -77,14 +78,21 @@ public class CounterTransformerTest {
 
         counter.add(2d);
 
+        // First time send
         validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
+
+        // Rate at the agent side check
         validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 0d, transformer.transform());
 
+        // Multiple add check
         counter.add(3d);
         counter.add(-1d);
         validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
     }
 
+    /**
+     * Check the single value message
+     */
     private void validateMeterData(String name, List<Label> labels, double value, MeterData.Builder validate) {
         Assert.assertNotNull(validate);
         Assert.assertEquals(validate.getMetricCase().getNumber(), MeterData.SINGLEVALUE_FIELD_NUMBER);
@@ -95,6 +103,9 @@ public class CounterTransformerTest {
         Assert.assertEquals(labels, singleValue.getLabelsList());
     }
 
+    /**
+     * Custom {@link CounterAdapter} using {@link DoubleAdder} as the counter value
+     */
     private static class TestCounterAdapter implements CounterAdapter {
         private final MeterId meterId;
         private DoubleAdder counter;

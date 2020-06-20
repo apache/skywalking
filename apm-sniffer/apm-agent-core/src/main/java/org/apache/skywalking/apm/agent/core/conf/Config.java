@@ -185,6 +185,11 @@ public class Config {
          * Rate by agent counter meter names, spilt by ","
          */
         public static String RATE_COUNTER_NAME = "";
+
+        /**
+         * Max size of the meter count, using {@link org.apache.skywalking.apm.agent.core.meter.MeterId} as identity
+         */
+        public static Integer MAX_METER_SIZE = 500;
     }
 
     public static class Jvm {

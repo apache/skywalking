@@ -74,6 +74,9 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
         if (meterTransformer == null) {
             return;
         }
+        if (meterMap.size() >= Config.Meter.MAX_METER_SIZE) {
+            logger.warn("Already out of the meter system max size, will not report. meter name:{}", meterTransformer.getName());
+        }
 
         meterMap.putIfAbsent(meterTransformer.getId(), meterTransformer);
     }
@@ -115,10 +118,10 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
         if (status != GRPCChannelStatus.CONNECTED || meterMap.isEmpty()) {
             return;
         }
-
+        StreamObserver<MeterData> reportStreamObserver = null;
+        final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
         try {
-            final GRPCStreamServiceStatus status = new GRPCStreamServiceStatus(false);
-            final StreamObserver<MeterData> reportStreamObserver = meterReportServiceStub.withDeadlineAfter(
+            reportStreamObserver = meterReportServiceStub.withDeadlineAfter(
                 GRPC_UPSTREAM_TIMEOUT, TimeUnit.SECONDS
             ).collect(new StreamObserver<Commands>() {
                 @Override
@@ -157,9 +160,6 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
 
                 reportStreamObserver.onNext(dataBuilder.build());
             }
-
-            reportStreamObserver.onCompleted();
-            status.wait4Finish();
         } catch (Throwable e) {
             if (!(e instanceof StatusRuntimeException)) {
                 logger.error(e, "Report meters to backend fail.");
@@ -167,11 +167,16 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
             }
             final StatusRuntimeException statusRuntimeException = (StatusRuntimeException) e;
             if (statusRuntimeException.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
-                logger.warn("Backend doesn't support profiling, profiling will be disabled");
+                logger.warn("Backend doesn't support meter, it will be disabled");
                 if (reportMeterFuture != null) {
                     reportMeterFuture.cancel(true);
                 }
             }
+        } finally {
+            if (reportStreamObserver != null) {
+                reportStreamObserver.onCompleted();
+            }
+            status.wait4Finish();
         }
 
     }
