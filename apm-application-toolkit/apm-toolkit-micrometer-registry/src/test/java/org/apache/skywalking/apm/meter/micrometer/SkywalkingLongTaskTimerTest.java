@@ -56,7 +56,7 @@ public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
         addLongTask(longTaskTimer, 20);
 
         // Make sure the second task has finished
-        TimeUnit.MILLISECONDS.sleep(50);
+        TimeUnit.MILLISECONDS.sleep(180);
 
         // Check Skywalking type
         Assert.assertTrue(longTaskTimer instanceof SkywalkingLongTaskTimer);
