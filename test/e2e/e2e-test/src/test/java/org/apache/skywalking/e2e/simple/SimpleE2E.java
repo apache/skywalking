@@ -68,6 +68,7 @@ import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_METRICS
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_CLIENT_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SERVICE_RELATION_SERVER_METRICS;
 import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LINER_METRICS;
+import static org.apache.skywalking.e2e.metrics.MetricsQuery.ALL_SO11Y_LABELED_METRICS;
 import static org.apache.skywalking.e2e.utils.Times.now;
 import static org.apache.skywalking.e2e.utils.Yamls.load;
 
@@ -133,40 +134,6 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
     }
      
     @RetryableTest
-    void so11y() throws Exception {
-        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
-
-        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
-        LOGGER.info("services: {}", services);
-        load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
-        for (final Service service : services) {
-            final Instances instances = graphql.instances(
-                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
-            );
-
-            LOGGER.info("instances: {}", instances);
-
-            load("expected/simple/so11y-instances.yml").as(InstancesMatcher.class).verify(instances);
-            for (Instance instance : instances.getInstances()) {
-                for (String metricsName : ALL_SO11Y_LINER_METRICS) {
-                    LOGGER.info("verifying service instance response time: {}", instance);
-                    final ReadMetrics instanceMetrics = graphql.readMetrics(
-                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
-                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
-                    );
-    
-                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
-                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
-                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
-                    greaterThanZero.setValue("gt 0");
-                    instanceRespTimeMatcher.setValue(greaterThanZero);
-                    instanceRespTimeMatcher.verify(instanceMetrics.getValues());
-                }
-            }
-        }
-    }
-
-    @RetryableTest
     void services() throws Exception {
         List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
 
@@ -224,6 +191,58 @@ public class SimpleE2E extends SkyWalkingTestAdapter {
         load("expected/simple/serviceInstanceTopo.yml").as(ServiceInstanceTopologyMatcher.class).verify(topology);
 
         verifyServiceInstanceRelationMetrics(topology.getCalls());
+    }
+    
+    @RetryableTest
+    void so11y() throws Exception {
+        List<Service> services = graphql.services(new ServicesQuery().start(startTime).end(now()));
+
+        services = services.stream().filter(s -> s.getLabel().equals("oap-server")).collect(Collectors.toList());
+        LOGGER.info("services: {}", services);
+        load("expected/simple/so11y-services.yml").as(ServicesMatcher.class).verify(services);
+        for (final Service service : services) {
+            final Instances instances = graphql.instances(
+                new InstancesQuery().serviceId(service.getKey()).start(startTime).end(now())
+            );
+
+            LOGGER.info("instances: {}", instances);
+
+            load("expected/simple/so11y-instances.yml").as(InstancesMatcher.class).verify(instances);
+            for (Instance instance : instances.getInstances()) {
+                for (String metricsName : ALL_SO11Y_LINER_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final ReadMetrics instanceMetrics = graphql.readMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(instanceMetrics.getValues());
+                }
+                for (String metricsName : ALL_SO11Y_LABELED_METRICS) {
+                    LOGGER.info("verifying service instance response time: {}", instance);
+                    final List<ReadMetrics> instanceMetrics = graphql.readLabeledMetrics(
+                        new ReadMetricsQuery().stepByMinute().metricsName(metricsName)
+                            .serviceName(service.getLabel()).instanceName(instance.getLabel())
+                    );
+    
+                    LOGGER.info("{}: {}", metricsName, instanceMetrics);
+                    Metrics allValues = new Metrics();
+                    for (ReadMetrics readMetrics : instanceMetrics) {
+                        allValues.getValues().addAll(readMetrics.getValues().getValues());
+                    }
+                    final AtLeastOneOfMetricsMatcher instanceRespTimeMatcher = new AtLeastOneOfMetricsMatcher();
+                    final MetricsValueMatcher greaterThanZero = new MetricsValueMatcher();
+                    greaterThanZero.setValue("gt 0");
+                    instanceRespTimeMatcher.setValue(greaterThanZero);
+                    instanceRespTimeMatcher.verify(allValues);
+                }
+            }
+        }
     }
 
     private Instances verifyServiceInstances(final Service service) throws Exception {
