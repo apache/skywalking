@@ -50,7 +50,12 @@ public class ThreadProfiler {
         this.traceSegmentId = traceSegmentId;
         this.profilingThread = profilingThread;
         this.executionContext = executionContext;
-        this.profilingStatus = ProfileStatusReference.createWithPending();
+        if (tracingContext.profileStatus() == null) {
+            this.profilingStatus = ProfileStatusReference.createWithPending();
+        } else {
+            this.profilingStatus = tracingContext.profileStatus();
+            this.profilingStatus.updateStatus(ProfileStatus.PENDING);
+        }
         this.profilingMaxTimeMills = TimeUnit.MINUTES.toMillis(Config.Profile.MAX_DURATION);
     }
 

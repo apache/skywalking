@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * Alarm message represents the details of each alarm.
  */
-@Setter(AccessLevel.PUBLIC)
-@Getter(AccessLevel.PUBLIC)
+@Setter
+@Getter
 public class AlarmMessage {
 
     public static AlarmMessage NONE = new NoAlarm();

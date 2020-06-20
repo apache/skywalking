@@ -38,11 +38,6 @@ cluster:
     # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
     hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
     aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN:""}
-  nacos:
-    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
-    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
-    # Nacos Configuration namespace
-    namespace: ${SW_CLUSTER_NACOS_NAMESPACE:"public"}
   etcd:
     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
     # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
@@ -98,7 +93,8 @@ storage:
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # The index shards number is for store metrics data rather than basic segment record
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} # Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
@@ -119,7 +115,8 @@ storage:
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:2}
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # The index shards number is for store metrics data rather than basic segment record
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} # Super data set has been defined in the codes, such as trace segments. This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the bulk every 1000 requests
@@ -192,7 +189,13 @@ istio-telemetry:
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+
+prometheus-fetcher:
+  selector: ${SW_PROMETHEUS_FETCHER:default}
+  default:
+    active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
@@ -222,56 +225,40 @@ telemetry:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
     port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
-  so11y:
-    prometheusExporterEnabled: ${SW_TELEMETRY_SO11Y_PROMETHEUS_ENABLED:true}
-    prometheusExporterHost: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
-    prometheusExporterPort: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
-
-receiver-so11y:
-  selector: ${SW_RECEIVER_SO11Y:-}
-  default:
 
 configuration:
   selector: ${SW_CONFIGURATION:none}
   none:
+  grpc:
+    host: ${SW_DCS_SERVER_HOST:""}
+    port: ${SW_DCS_SERVER_PORT:80}
+    clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
+    period: ${SW_DCS_PERIOD:20}
   apollo:
-    apolloMeta: http://106.12.25.204:8080
-    apolloCluster: default
-    apolloEnv: ""
-    appId: skywalking
-    period: 5
-  nacos:
-    # Nacos Server Host
-    serverAddr: 127.0.0.1
-    # Nacos Server Port
-    port: 8848
-    # Nacos Configuration Group
-    group: 'skywalking'
-    # Nacos Configuration namespace
-    namespace: ''
-    # Unit seconds, sync period. Default fetch every 60 seconds.
-    period: 60
-    # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: "default"
+    apolloMeta: ${SW_CONFIG_APOLLO:http://106.12.25.204:8080}
+    apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
+    apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
+    appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
+    period: ${SW_CONFIG_APOLLO_PERIOD:5}
   zookeeper:
-    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    nameSpace: /default
-    hostPort: localhost:2181
+    period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    nameSpace: ${SW_CONFIG_ZK_NAMESPACE:/default}
+    hostPort: ${SW_CONFIG_ZK_HOST_PORT:localhost:2181}
     # Retry Policy
-    baseSleepTimeMs: 1000 # initial amount of time to wait between retries
-    maxRetries: 3 # max number of times to retry
+    baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
+    maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
   etcd:
-    period: 60 # Unit seconds, sync period. Default fetch every 60 seconds.
-    group:  'skywalking'
-    serverAddr: localhost:2379
-    clusterName: "default"
+    period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    group: ${SW_CONFIG_ETCD_GROUP:skywalking}
+    serverAddr: ${SW_CONFIG_ETCD_SERVER_ADDR:localhost:2379}
+    clusterName: ${SW_CONFIG_ETCD_CLUSTER_NAME:default}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
-    hostAndPorts: ${consul.address}
+    hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
     # Sync period in seconds. Defaults to 60 seconds.
-    period: 1
+    period: ${SW_CONFIG_CONSUL_PERIOD:1}
     # Consul aclToken
-    #aclToken: ${consul.aclToken}
+    aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
 
 exporter:
   selector: ${SW_EXPORTER:-}

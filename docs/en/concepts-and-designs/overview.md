@@ -5,10 +5,10 @@ It is a modern APM, specially designed for cloud native, container based distrib
 
 ## Why use SkyWalking?
 SkyWalking provides solutions for observing and monitoring distributed systems, in many different scenarios. First of all,
-like traditional approaches, SkyWalking provides auto instrument agents for services, such as Java, C#
-and Node.js. Skywalking also offers a community contributed manual instrument SDK for Go (with calls out for Python and 
-C++ SDK contributions). In multilanguage, continuously deployed environments, cloud native infrastructures grow more powerful
-but also more complex. SkyWalking's service mesh receiver allows SkyWalking to receive telemetry data from service mesh frameworks
+like traditional approaches, SkyWalking provides auto instrument agents for services, such as Java, C#, Node.js, Go, PHP and Nginx LUA. 
+(with calls out for Python and C++ SDK contributions). 
+In multilanguage, continuously deployed environments, cloud native infrastructures grow more powerful but also more complex. 
+SkyWalking's service mesh receiver allows SkyWalking to receive telemetry data from service mesh frameworks
 such as Istio/Envoy and Linkerd, allowing users to understanding the entire distributed system.
 
 SkyWalking provides observability capabilities for **service**(s), **service instance**(s), **endpoint**(s). The terms Service,
@@ -23,18 +23,19 @@ Instance and Endpoint are used everywhere today, so it is worth defining their s
 SkyWalking allows users to understand the topology relationship between Services and Endpoints, to view the metrics of every 
 Service/Service Instance/Endpoint and to set alarm rules.
 
-In addition, you can integrate distributed tracing useing SkyWalking native agents and SDKs with Zipkin, Jaeger
-and OpenCensus.
+In addition, you can integrate 
+1. Other distributed tracing useing SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
+1. Other metrics systems, such as Prometheus, Sleuth(Micrometer).
 
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.
 
-<img src="http://skywalking.apache.org/assets/frame.jpeg"/>
+<img src="http://skywalking.apache.org/assets/frame-v8.jpg?u=20200423"/>
 
 - **Probe**s collect data and reformat them for SkyWalking requirements (different probes support different sources).
-- **Platform backend**, supports data aggregation, analysis and drives process flow from probes to the UI. It also provides 
-  the pluggable capabilities for incoming formats (like Zipkin's), storage implementors and cluster management. You even can 
-  customize aggregation and analysis by using [Observability Analysis Language](oal.md).
+- **Platform backend**, supports data aggregation, analysis and drives process flow from probes to the UI. The analysis includes
+  SkyWalking natives traces and metrics, 3rd party, including Istio and Envoy telemetry, Zipkin trace format, etc. You even can 
+  customize aggregation and analysis by using [Observability Analysis Language for native metrics](oal.md) and [Meter System for extension metrics](meter.md).
 - **Storage** houses SkyWalking data through an open/plugable interface. You can choose an existing implementation, such as
   ElasticSearch, H2 or a MySQL cluster managed by Sharding-Sphere, or implement your own. Patches for new storage implementors 
   welcome!

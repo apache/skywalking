@@ -19,7 +19,7 @@ name: CI AND IT
 on:
   pull_request:
   push:
-    branches: 
+    branches:
       - master
     tags:
       - 'v*'
@@ -34,11 +34,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8
@@ -54,11 +51,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8
@@ -71,11 +65,8 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8

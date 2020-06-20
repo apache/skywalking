@@ -33,7 +33,7 @@ segmentItems:
       refs:
       - {parentEndpoint: /avro-scenario/case/avro-scenario, networkAddress: 'localhost/127.0.0.1:9018',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: avro-client, traceId: not null}
       skipAnalysis: 'false'
 - serviceName: avro-client
   segmentSize: ge 2

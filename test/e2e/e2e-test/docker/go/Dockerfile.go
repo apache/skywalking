@@ -15,7 +15,7 @@
 
 FROM golang:1.12 AS builder
 
-ARG COMMIT_HASH=fdb185d66faddad1651c18150d63bae32610f3ac
+ARG COMMIT_HASH=140002c944931ebc0e8e1ea6f7dca128108cf4e7
 ARG GO2SKY_CODE=${COMMIT_HASH}.tar.gz
 ARG GO2SKY_CODE_URL=https://github.com/SkyAPM/go2sky/archive/${GO2SKY_CODE}
 

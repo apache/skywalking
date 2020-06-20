@@ -33,21 +33,24 @@ public class ContextSnapshot {
     private String parentEndpoint;
 
     private CorrelationContext correlationContext;
+    private ExtensionContext extensionContext;
 
     ContextSnapshot(String traceSegmentId,
                     int spanId,
                     DistributedTraceId primaryTraceId,
                     String parentEndpoint,
-                    CorrelationContext correlationContext) {
+                    CorrelationContext correlationContext,
+                    ExtensionContext extensionContext) {
         this.traceSegmentId = traceSegmentId;
         this.spanId = spanId;
         this.traceId = primaryTraceId;
         this.parentEndpoint = parentEndpoint;
         this.correlationContext = correlationContext.clone();
+        this.extensionContext = extensionContext.clone();
     }
 
     public boolean isFromCurrent() {
-        return traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
+        return traceSegmentId != null && traceSegmentId.equals(ContextManager.capture().getTraceSegmentId());
     }
 
     public CorrelationContext getCorrelationContext() {

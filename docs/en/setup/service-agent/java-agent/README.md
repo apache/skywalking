@@ -84,6 +84,7 @@ property key | Description | Default |
 `agent.force_reconnection_period `|Force reconnection period of grpc, based on grpc_channel_check_interval.|`1`|
 `agent.operation_name_threshold `|The operationName max length, setting this value > 190 is not recommended.|`150`|
 `agent.keep_tracing`|Keep tracing even the backend is not available if this value is `true`.|`false`|
+`osinfo.ipv4_list_size`| Limit the length of the ipv4 list size. |`10`|
 `collector.grpc_channel_check_interval`|grpc channel status check interval.|`30`|
 `collector.heartbeat_period`|agent heartbeat report period. Unit, second.|`30`|
 `collector.backend_service`|Collector SkyWalking trace receiver service addresses.|`127.0.0.1:11800`|
@@ -114,6 +115,8 @@ property key | Description | Default |
 `plugin.mysql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
 `plugin.postgresql.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
 `plugin.postgresql.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
+`plugin.mariadb.trace_sql_parameters`|If set to true, the parameters of the sql (typically `java.sql.PreparedStatement`) would be collected.|`false`|
+`plugin.mariadb.sql_parameters_max_length`|If set to positive number, the `db.sql.parameters` would be truncated to this length, otherwise it would be completely saved, which may cause performance problem.|`512`|
 `plugin.solrj.trace_statement`|If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request, default is false.|`false`|
 `plugin.solrj.trace_ops_params`|If true, trace all the operation parameters in Solr request, default is false.|`false`|
 `plugin.light4j.trace_handler_chain`|If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request.|false|
@@ -165,9 +168,6 @@ Now, we have the following known bootstrap plugins.
 ## Plugin Development Guide
 SkyWalking java agent supports plugin to extend [the supported list](Supported-list.md). Please follow 
 our [Plugin Development Guide](../../../guides/Java-Plugin-Development-Guide.md).
-
-If some RPC framework endpoints(server side) could include parameter, please read [Operation Name Group Rule](op_name_group_rule.md),
-and consider to add this feature.
 
 # Test
 If you are interested in plugin compatible tests or agent performance, see the following reports.

@@ -28,7 +28,6 @@ import java.lang.reflect.Method;
 public class HttpServerResponseImplHandleExceptionInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
         VertxContext context = (VertxContext) objInst.getSkyWalkingDynamicField();

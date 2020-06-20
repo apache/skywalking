@@ -33,30 +33,30 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
-import org.apache.skywalking.oap.server.core.source.ServiceUpdate;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 
 public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementServiceImplBase implements GRPCHandler {
     private final SourceReceiver sourceReceiver;
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     public ManagementServiceHandler(ModuleManager moduleManager) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        this.namingLengthControl = moduleManager.find(CoreModule.NAME)
-                                                .provider()
-                                                .getService(NamingLengthControl.class);
+        this.namingControl = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
     }
 
     @Override
     public void reportInstanceProperties(final InstanceProperties request,
                                          final StreamObserver<Commands> responseObserver) {
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
-        final String serviceName = namingLengthControl.formatServiceName(request.getService());
-        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+        final String serviceName = namingControl.formatServiceName(request.getService());
+        final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
         serviceInstanceUpdate.setName(instanceName);
 
@@ -82,8 +82,8 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
     @Override
     public void keepAlive(final InstancePingPkg request, final StreamObserver<Commands> responseObserver) {
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
-        final String serviceName = namingLengthControl.formatServiceName(request.getService());
-        final String instanceName = namingLengthControl.formatInstanceName(request.getServiceInstance());
+        final String serviceName = namingControl.formatServiceName(request.getService());
+        final String instanceName = namingControl.formatInstanceName(request.getServiceInstance());
 
         ServiceInstanceUpdate serviceInstanceUpdate = new ServiceInstanceUpdate();
         serviceInstanceUpdate.setServiceId(IDManager.ServiceID.buildId(serviceName, NodeType.Normal));
@@ -91,11 +91,11 @@ public class ManagementServiceHandler extends ManagementServiceGrpc.ManagementSe
         serviceInstanceUpdate.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceInstanceUpdate);
 
-        ServiceUpdate serviceUpdate = new ServiceUpdate();
-        serviceUpdate.setName(serviceName);
-        serviceUpdate.setNodeType(NodeType.Normal);
-        serviceUpdate.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceUpdate);
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(serviceName);
+        serviceMeta.setNodeType(NodeType.Normal);
+        serviceMeta.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceMeta);
 
         responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();

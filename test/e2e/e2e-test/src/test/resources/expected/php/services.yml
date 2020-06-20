@@ -14,7 +14,7 @@
 # limitations under the License.
 
 services:
-  - key: gt 0
-    label: "php"
-  - key: gt 0
+  - key: cGhwLXNoYWRvdw==.1
     label: "php-shadow"
+  - key: cGhw.1
+    label: "php"

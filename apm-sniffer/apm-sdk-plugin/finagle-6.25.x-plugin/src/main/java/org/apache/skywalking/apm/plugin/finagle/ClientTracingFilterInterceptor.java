@@ -66,22 +66,29 @@ public class ClientTracingFilterInterceptor extends AbstractInterceptor {
         getLocalContextHolder().remove(SW_SPAN);
         getMarshalledContextHolder().remove(SWContextCarrier$.MODULE$);
 
-        finagleSpan.prepareForAsync();
-        ContextManager.stopSpan(finagleSpan);
+        /*
+         * If the intercepted method throws exception, the ret will be null
+         */
+        if (ret == null) {
+            ContextManager.stopSpan(finagleSpan);
+        } else {
+            finagleSpan.prepareForAsync();
+            ContextManager.stopSpan(finagleSpan);
 
-        ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {
-            @Override
-            public void onSuccess(Object value) {
-                finagleSpan.asyncFinish();
-            }
+            ((Future<?>) ret).addEventListener(new FutureEventListener<Object>() {
+                @Override
+                public void onSuccess(Object value) {
+                    finagleSpan.asyncFinish();
+                }
 
-            @Override
-            public void onFailure(Throwable cause) {
-                finagleSpan.errorOccurred();
-                finagleSpan.log(cause);
-                finagleSpan.asyncFinish();
-            }
-        });
+                @Override
+                public void onFailure(Throwable cause) {
+                    finagleSpan.errorOccurred();
+                    finagleSpan.log(cause);
+                    finagleSpan.asyncFinish();
+                }
+            });
+        }
         return ret;
     }
 

@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.influxdb;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -73,6 +73,7 @@ public class InfluxClient implements Client {
                                          InfluxDB.ResponseFormat.MSGPACK
         );
         influx.query(new Query("CREATE DATABASE " + database));
+        influx.enableGzip();
 
         influx.enableBatch(config.getActions(), config.getDuration(), TimeUnit.MILLISECONDS);
         influx.setDatabase(database);
@@ -99,7 +100,7 @@ public class InfluxClient implements Client {
         }
 
         try {
-            QueryResult result = getInflux().query(query);
+            QueryResult result = getInflux().query(new Query(query.getCommand()));
             if (result.hasError()) {
                 throw new IOException(result.getError());
             }
@@ -134,6 +135,22 @@ public class InfluxClient implements Client {
             return null;
         }
         return series.get(0);
+    }
+
+    /**
+     * Execute a query against InfluxDB with a `select count(*)` statement and return the count only.
+     *
+     * @throws IOException if there is an error on the InfluxDB server or communication error
+     */
+    public int getCounter(Query query) throws IOException {
+        QueryResult.Series series = queryForSingleSeries(query);
+        if (log.isDebugEnabled()) {
+            log.debug("SQL: {} result: {}", query.getCommand(), series);
+        }
+        if (Objects.isNull(series)) {
+            return 0;
+        }
+        return ((Number) series.getValues().get(0).get(1)).intValue();
     }
 
     /**
@@ -173,13 +190,6 @@ public class InfluxClient implements Client {
     @Override
     public void shutdown() throws IOException {
         influx.close();
-    }
-
-    /**
-     * Convert to InfluxDB {@link TimeInterval}.
-     */
-    public static TimeInterval timeInterval(long timeBucket, DownSampling downsampling) {
-        return ti(TimeBucket.getTimestamp(timeBucket, downsampling), "ms");
     }
 
     /**

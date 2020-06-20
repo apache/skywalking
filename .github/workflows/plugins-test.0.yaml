@@ -48,19 +48,17 @@ jobs:
           - { name: 'elasticsearch-6.x-scenario', title: 'ElasticSearch 6.7.1-6.8.4 (7)' }
           - { name: 'elasticsearch-7.x-scenario', title: 'ElasticSearch 7.0.0-7.5.2 (14)' }
           - { name: 'feign-scenario', title: 'Feign 9.0.0-9.5.1 (8)' }
-          - { name: 'finagle-17.10.x-scenario', title: 'Finagle 17.10.0-20.1.0' }
-          - { name: 'finagle-6.25.x-scenario', title: 'Finagle 6.25.0-6.43.0' }
-          - { name: 'finagle-6.44.x-scenario', title: 'Finagle 6.44.0-7.1.0' }
-          - { name: 'gateway-scenario', title: 'Spring-Cloud-Gateway 2.1.x (3)' }
+          - { name: 'finagle-17.10.x-scenario', title: 'Finagle 17.10.0-20.1.0(19)' }
+          - { name: 'finagle-6.25.x-scenario', title: 'Finagle 6.25.0-6.43.0 (18)' }
+          - { name: 'finagle-6.44.x-scenario', title: 'Finagle 6.44.0-7.1.0 (4)' }
+          - { name: 'gateway-2.1.x-scenario', title: 'Spring-Cloud-Gateway 2.1.x (7)' }
+          - { name: 'gateway-2.0.x-scenario', title: 'Spring-Cloud-Gateway 2.0.x (3)' }
           - { name: 'grpc-scenario', title: 'gRPC 1.6.0-1.25.0 (22)' }
           - { name: 'gson-scenario', title: 'Gson (7)' }
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8
