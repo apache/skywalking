@@ -151,6 +151,7 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
                     continue;
                 }
 
+                // only send the service base info at the first data
                 if (!hasSendMachineInfo) {
                     dataBuilder.setService(Config.Agent.SERVICE_NAME);
                     dataBuilder.setServiceInstance(Config.Agent.INSTANCE_NAME);

@@ -22,13 +22,11 @@ public interface HistogramAdapter extends MeterAdapter {
 
     /**
      * Get all buckets
-     * @return
      */
     double[] getAllBuckets();
 
     /**
      * Get currently bucket values
-     * @return
      */
     long[] getBucketValues();
 

@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
  * @see CounterTransformer
  * @see GaugeTransformer
  * @see HistogramTransformer
- * @see PercentileTransformer
  */
 public abstract class MeterTransformer<T extends MeterAdapter> {
 
@@ -55,7 +54,6 @@ public abstract class MeterTransformer<T extends MeterAdapter> {
 
     /**
      * Get meter name
-     * @return
      */
     public String getName() {
         return getId().getName();

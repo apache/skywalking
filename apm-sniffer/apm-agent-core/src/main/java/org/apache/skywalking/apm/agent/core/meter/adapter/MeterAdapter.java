@@ -20,6 +20,9 @@ package org.apache.skywalking.apm.agent.core.meter.adapter;
 
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 
+/**
+ * Working on adapt the tool-kit side with agent core
+ */
 public interface MeterAdapter {
     MeterId getId();
 }

@@ -41,6 +41,7 @@ public class CounterTransformer extends MeterTransformer<CounterAdapter> {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
 
+        // rate counter
         final double currentValue = adapter.getCount();
         double sendCount = 0d;
         if (METER_SERVICE.isRateCounter(adapter.getId().getName())) {
