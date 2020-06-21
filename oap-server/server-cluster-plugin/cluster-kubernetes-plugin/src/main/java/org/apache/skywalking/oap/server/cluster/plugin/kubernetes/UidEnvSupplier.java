@@ -18,29 +18,21 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import java.util.function.Supplier;
+
 /**
- * The event of watch.
+ * Supply uid from environment variable.
  */
-public class Event {
-    private final String type;
-    private final String uid;
-    private final String host;
+public class UidEnvSupplier implements Supplier<String> {
 
-    public Event(final String type, final String uid, final String host) {
-        this.type = type;
-        this.uid = uid;
-        this.host = host;
+    private final String uidEnvName;
+
+    public UidEnvSupplier(final String uidEnvName) {
+        this.uidEnvName = uidEnvName == null ? "" : uidEnvName;
     }
 
-    String getType() {
-        return type;
-    }
-
-    String getUid() {
-        return uid;
-    }
-
-    String getHost() {
-        return host;
+    @Override
+    public String get() {
+        return System.getenv(uidEnvName);
     }
 }
