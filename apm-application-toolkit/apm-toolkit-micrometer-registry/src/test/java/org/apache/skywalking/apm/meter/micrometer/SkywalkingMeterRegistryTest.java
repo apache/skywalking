@@ -109,10 +109,10 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
 
         // Check meter and count
         Assert.assertEquals(1, meterMap.size());
-        Gauge countGauge = (Gauge) meterMap.values().iterator().next();
+        Counter countGauge = (Counter) meterMap.values().iterator().next();
 
         // Check data
-        assertGauge(countGauge, "test_function_counter", tags, 1);
+        assertCounter(countGauge, "test_function_counter", tags, 1);
     }
 
     @Test

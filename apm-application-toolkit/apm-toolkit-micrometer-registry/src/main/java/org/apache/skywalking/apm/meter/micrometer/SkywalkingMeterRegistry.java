@@ -26,6 +26,7 @@ import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Statistic;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.config.NamingConvention;
 import io.micrometer.core.instrument.cumulative.CumulativeFunctionCounter;
@@ -35,7 +36,6 @@ import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import io.micrometer.core.instrument.internal.DefaultGauge;
 import io.micrometer.core.instrument.internal.DefaultMeter;
 import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
-import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
 import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
@@ -72,7 +72,7 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
     @Override
     protected <T> io.micrometer.core.instrument.Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
         final MeterId meterId = convertId(id);
-        new GaugeImpl.Builder(meterId, () -> valueFunction.applyAsDouble(obj)).build();
+        MeterFactory.gauge(meterId, () -> valueFunction.applyAsDouble(obj)).build();
         return new DefaultGauge<>(id, obj, valueFunction);
     }
 
@@ -131,7 +131,7 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
             if (isCounter) {
                 new SkywalkingCustomCounter.Builder(meterId.copyTo(meterName, MeterId.MeterType.COUNTER), m, config).build();
             } else {
-                new GaugeImpl.Builder(meterId.copyTo(meterName, MeterId.MeterType.GAUGE), () -> m.getValue()).build();
+                MeterFactory.gauge(meterId.copyTo(meterName, MeterId.MeterType.GAUGE), () -> m.getValue()).build();
             }
         });
 
@@ -155,9 +155,8 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
     protected <T> FunctionCounter newFunctionCounter(Meter.Id id, T obj, ToDoubleFunction<T> countFunction) {
         final MeterId meterId = convertId(id);
         FunctionCounter fc = new CumulativeFunctionCounter<>(id, obj, countFunction);
-        final String baseName = meterId.getName();
 
-        MeterFactory.gauge(meterId.copyTo(baseName, MeterId.MeterType.GAUGE), () -> fc.count()).build();
+        new SkywalkingCustomCounter.Builder(meterId, new Measurement(() -> countFunction.applyAsDouble(obj), Statistic.COUNT), config).build();
         return fc;
     }
 
