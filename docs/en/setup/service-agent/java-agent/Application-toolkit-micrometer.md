@@ -41,7 +41,7 @@ compositeRegistry.add(new SkywalkingMeterRegistry());
 | |Timer name + "_histogram"|Histogram|Executing finished task duration histogram|
 |Function Timer|Timer name + "_count"|Gauges|Execute finished timer count|
 | |Timer name + "_sum"|Gauges|Execute finished timer total duration|
-|Function Counter|Counter name|Counter|Total count|
+|Function Counter|Counter name|Counter|Custom counter value|
 |Distribution summary|Summary name + "_count"|Counter|Total record count|
 | |Summary name + "_sum"|Counter|Total record amount sum|
 | |Summary name + "_max"|Gauges|Max record amount|
