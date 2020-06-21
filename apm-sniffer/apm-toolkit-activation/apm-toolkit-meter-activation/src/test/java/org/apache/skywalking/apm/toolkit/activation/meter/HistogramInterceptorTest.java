@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -66,7 +66,7 @@ public class HistogramInterceptorTest {
         Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), histogramTransformer.getId().getTags());
     }
 
-    private static class HistogramEnhance extends Histogram implements EnhancedInstance {
+    private static class HistogramEnhance extends HistogramImpl implements EnhancedInstance {
         protected HistogramEnhance(MeterId meterId, List<Double> steps) {
             super(meterId, steps);
         }

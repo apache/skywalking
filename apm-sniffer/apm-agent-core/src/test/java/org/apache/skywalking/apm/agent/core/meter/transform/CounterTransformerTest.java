@@ -19,9 +19,7 @@
 package org.apache.skywalking.apm.agent.core.meter.transform;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
@@ -31,10 +29,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,19 +41,13 @@ public class CounterTransformerTest {
     @Rule
     public AgentServiceRule agentServiceRule = new AgentServiceRule();
 
-    @BeforeClass
-    public static void setup() throws Throwable {
-        // "test_rate" will rate on the agent side
-        Config.Meter.RATE_COUNTER_NAME = "test_rate";
-    }
-
     @AfterClass
     public static void afterClass() {
         ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
-    public void testTransformWithoutRate() {
+    public void testTransform() {
         final MeterId meterId = new MeterId("test", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
         final DoubleAdder counter = new DoubleAdder();
         CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter));
@@ -65,29 +55,6 @@ public class CounterTransformerTest {
         counter.add(2d);
 
         validateMeterData("test", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
-    }
-
-    @Test
-    public void testTransformWithRate() {
-        final MeterId meterId = new MeterId("test_rate", MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
-        final DoubleAdder counter = new DoubleAdder();
-        CounterTransformer transformer = new CounterTransformer(new TestCounterAdapter(meterId, counter));
-
-        // reset the meter service reference, encase use the old static reference
-        Whitebox.setInternalState(CounterTransformer.class, "METER_SERVICE", ServiceManager.INSTANCE.findService(MeterService.class));
-
-        counter.add(2d);
-
-        // First time send
-        validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
-
-        // Rate at the agent side check
-        validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 0d, transformer.transform());
-
-        // Multiple add check
-        counter.add(3d);
-        counter.add(-1d);
-        validateMeterData("test_rate", Arrays.asList(Label.newBuilder().setName("k1").setValue("v1").build()), 2d, transformer.transform());
     }
 
     /**

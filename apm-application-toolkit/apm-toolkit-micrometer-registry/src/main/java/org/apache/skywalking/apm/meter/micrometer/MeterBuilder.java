@@ -21,7 +21,9 @@ package org.apache.skywalking.apm.meter.micrometer;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.util.TimeUtils;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.List;
@@ -34,6 +36,22 @@ import java.util.stream.Collectors;
  * Help to build the meter
  */
 public class MeterBuilder {
+
+    /**
+     * Build the counter
+     */
+    public static Counter buildCounter(MeterId meterId, SkywalkingConfig config) {
+        return MeterFactory.counter(meterId)
+            .mode(getCounterMode(meterId, config))
+            .build();
+    }
+
+    /**
+     * Get counter mode
+     */
+    public static Counter.Mode getCounterMode(MeterId meterId, SkywalkingConfig config) {
+        return config.isRateCounter(meterId.getName()) ? Counter.Mode.RATE : Counter.Mode.INCREMENT;
+    }
 
     /**
      * Build the histogram
@@ -50,7 +68,7 @@ public class MeterBuilder {
         final List<Double> steps = buckets.stream().sorted(Double::compare)
             .map(t -> useNanoTime ? TimeUtils.nanosToUnit(t, TimeUnit.MILLISECONDS) : t).collect(Collectors.toList());
 
-        final Histogram.Builder histogramBuilder = new Histogram.Builder(
+        final Histogram.Builder histogramBuilder = MeterFactory.histogram(
             meterId.copyTo(meterId.getName() + "_histogram", MeterId.MeterType.HISTOGRAM)).steps(steps);
         final Double minimumExpectedValueAsDouble = distributionStatisticConfig.getMinimumExpectedValueAsDouble();
         if (minimumExpectedValueAsDouble != null) {

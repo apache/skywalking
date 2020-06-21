@@ -32,7 +32,7 @@ public class CounterActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.apache.skywalking.apm.toolkit.meter.Counter");
+        return byName("org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class CounterActivation extends ClassInstanceMethodsEnhancePluginDefine {
             new ConstructorInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                    return takesArguments(1);
+                    return takesArguments(2);
                 }
 
                 @Override

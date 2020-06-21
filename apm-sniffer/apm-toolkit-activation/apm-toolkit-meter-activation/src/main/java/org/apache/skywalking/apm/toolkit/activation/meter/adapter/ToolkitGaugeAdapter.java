@@ -16,40 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
 
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.HistogramAdapter;
+import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
 import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.Gauge;
 
-public class ToolkitHistogramAdapter implements HistogramAdapter {
+public class ToolkitGaugeAdapter implements GaugeAdapter {
 
-    private final Histogram histogram;
+    private final Gauge gauge;
     private final MeterId id;
 
-    public ToolkitHistogramAdapter(Histogram histogram) {
-        this.histogram = histogram;
-        this.id = MeterIdConverter.convert(histogram.getMeterId());
+    public ToolkitGaugeAdapter(Gauge gauge) {
+        this.gauge = gauge;
+        this.id = MeterIdConverter.convert(gauge.getMeterId());
     }
 
     @Override
-    public double[] getAllBuckets() {
-        final int bucketLength = histogram.getBuckets().length;
-        final double[] buckets = new double[bucketLength];
-        for (int i = 0; i < bucketLength; i++) {
-            buckets[i] = histogram.getBuckets()[i].getBucket();
-        }
-        return buckets;
-    }
-
-    @Override
-    public long[] getBucketValues() {
-        final int bucketLength = histogram.getBuckets().length;
-        final long[] bucketValues = new long[bucketLength];
-        for (int i = 0; i < bucketLength; i++) {
-            bucketValues[i] = histogram.getBuckets()[i].getCount();
-        }
-        return bucketValues;
+    public Double getCount() {
+        return gauge.get();
     }
 
     @Override

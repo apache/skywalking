@@ -32,7 +32,7 @@ public class HistogramActivation extends ClassInstanceMethodsEnhancePluginDefine
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.apache.skywalking.apm.toolkit.meter.Histogram");
+        return byName("org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl");
     }
 
     @Override

@@ -18,27 +18,16 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
-import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+public interface BaseBuilder<Builder extends BaseBuilder, Meter extends BaseMeter> {
 
-public class TookitCounterAdapter implements CounterAdapter {
+    /**
+     * append new tags to this meter
+     */
+    Builder tag(String name, String value);
 
-    private final Counter counter;
-    private final MeterId id;
+    /**
+     * Build a new meter object
+     */
+    Meter build();
 
-    public TookitCounterAdapter(Counter counter) {
-        this.counter = counter;
-        this.id = MeterIdConverter.convert(counter.getMeterId());
-    }
-
-    @Override
-    public Double getCount() {
-        return counter.get();
-    }
-
-    @Override
-    public MeterId getId() {
-        return id;
-    }
 }

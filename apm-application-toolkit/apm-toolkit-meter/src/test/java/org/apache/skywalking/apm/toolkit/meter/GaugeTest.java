@@ -21,37 +21,45 @@ package org.apache.skywalking.apm.toolkit.meter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
+
 public class GaugeTest {
 
     @Test
     public void testBuild() {
-        Gauge gauge = Gauge.create("test_gauge1", () -> 1d).tag("k1", "v1").build();
+        Gauge gauge = MeterFactory.gauge("test_gauge1", () -> 1d).tag("k1", "v1").build();
         Assert.assertNotNull(gauge);
 
         // Same meter name and new getter
         try {
-            Gauge.create("test_gauge1", () -> 1d).tag("k1", "v1").build();
-            throw new IllegalStateException();
-        } catch (Exception e) {
-        }
-
-        // Missing getter reference
-        try {
-            Gauge.create("test_gauge2", null).build();
+            MeterFactory.gauge("test_gauge1", () -> 1d).tag("k1", "v1").build();
             throw new IllegalStateException();
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
         }
+
+        // Missing getter reference
+        try {
+            MeterFactory.gauge("test_gauge2", null).build();
+            throw new IllegalStateException();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+        }
+
+        // Build by meterId
+        final Gauge gauge1 = MeterFactory.gauge(new MeterId("test_gauge3", MeterId.MeterType.GAUGE, Collections.emptyList()), () -> 1d).build();
+        Assert.assertNotNull(gauge1);
     }
 
     @Test
     public void testGet() {
-        Gauge gauge = Gauge.create("test_gauge3", () -> 1d).tag("k1", "v1").build();
+        Gauge gauge = MeterFactory.gauge("test_gauge3", () -> 1d).tag("k1", "v1").build();
         Assert.assertEquals(gauge.get(), 1d, 0.0);
 
         // Need throw exception
-        gauge = Gauge.create("test_gauge4", () -> Double.valueOf(1 / 0)).build();
+        gauge = MeterFactory.gauge("test_gauge4", () -> Double.valueOf(1 / 0)).build();
         try {
             gauge.get();
             throw new IllegalStateException();

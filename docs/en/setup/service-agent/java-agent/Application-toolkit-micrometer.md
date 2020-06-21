@@ -11,6 +11,10 @@
 ```java
 SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
 
+// If you has some counter want to rate by agent side
+SkywalkingConfig config = new SkywalkingConfig(Arrays.asList("test_rate_counter"));
+new SkywalkingMeterRegistry(config);
+
 // Also you could using composite registry to combine multiple meter registry, such as collect to Skywalking and prometheus
 CompositeMeterRegistry compositeRegistry = new CompositeMeterRegistry();
 compositeRegistry.add(new PrometheusMeterRegistry(PrometheusConfig.DEFAULT));

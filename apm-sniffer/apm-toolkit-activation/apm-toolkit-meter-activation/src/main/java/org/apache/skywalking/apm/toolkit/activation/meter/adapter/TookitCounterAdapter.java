@@ -16,30 +16,31 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.toolkit.activation.meter.adapter;
 
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
-import org.apache.skywalking.apm.agent.core.meter.adapter.GaugeAdapter;
+import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.toolkit.activation.meter.util.MeterIdConverter;
+import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 
-public class ToolkitGaugeAdapter implements GaugeAdapter {
+public class TookitCounterAdapter implements CounterAdapter {
 
-    private final Gauge gauge;
+    private final CounterImpl counter;
     private final MeterId id;
 
-    public ToolkitGaugeAdapter(Gauge gauge) {
-        this.gauge = gauge;
-        this.id = MeterIdConverter.convert(gauge.getMeterId());
+    public TookitCounterAdapter(CounterImpl counter) {
+        this.counter = counter;
+        this.id = MeterIdConverter.convert(counter.getMeterId());
     }
 
     @Override
     public Double getCount() {
-        return gauge.get();
+        // Using agent get, support rate mode
+        return counter.agentGet();
     }
 
     @Override
     public MeterId getId() {
         return id;
     }
-
 }

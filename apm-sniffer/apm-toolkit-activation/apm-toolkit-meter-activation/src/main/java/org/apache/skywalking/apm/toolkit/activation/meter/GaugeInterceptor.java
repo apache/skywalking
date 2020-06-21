@@ -23,15 +23,15 @@ import org.apache.skywalking.apm.agent.core.meter.transform.GaugeTransformer;
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.ToolkitGaugeAdapter;
+import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitGaugeAdapter;
 
 public class GaugeInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final Gauge toolkitGauge = (Gauge) objInst;
+        final GaugeImpl toolkitGauge = (GaugeImpl) objInst;
 
         final ToolkitGaugeAdapter gaugeAdapter = new ToolkitGaugeAdapter(toolkitGauge);
         final GaugeTransformer gaugeTransformer = new GaugeTransformer(gaugeAdapter);

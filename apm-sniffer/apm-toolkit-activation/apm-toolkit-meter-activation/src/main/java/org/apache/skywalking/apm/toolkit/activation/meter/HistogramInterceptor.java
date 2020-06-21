@@ -23,15 +23,15 @@ import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer
 import org.apache.skywalking.apm.agent.core.meter.MeterService;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
-import org.apache.skywalking.apm.toolkit.meter.Histogram;
-import org.apache.skywalking.apm.toolkit.meter.ToolkitHistogramAdapter;
+import org.apache.skywalking.apm.toolkit.meter.impl.HistogramImpl;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitHistogramAdapter;
 
 public class HistogramInterceptor implements InstanceConstructorInterceptor {
     private static MeterService METER_SERVICE;
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
-        final Histogram toolkitHistogram = (Histogram) objInst;
+        final HistogramImpl toolkitHistogram = (HistogramImpl) objInst;
 
         final ToolkitHistogramAdapter histogramAdapter = new ToolkitHistogramAdapter(toolkitHistogram);
         final HistogramTransformer histogramTransformer = new HistogramTransformer(histogramAdapter);

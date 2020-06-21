@@ -25,6 +25,7 @@ import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.Optional;
@@ -33,14 +34,28 @@ import java.util.concurrent.atomic.DoubleAccumulator;
 
 public class SkywalkingTimer extends AbstractTimer {
 
+    /**
+     * Execute finished count
+     */
     private final Counter counter;
+
+    /**
+     * Total execute finished duration
+     */
     private final Counter sum;
+
+    /**
+     * Max duration of execute finished time
+     */
     private final Gauge max;
     private final DoubleAccumulator maxAdder;
 
+    /**
+     * Histogram of execute finished duration
+     */
     private final Optional<Histogram> histogram;
 
-    protected SkywalkingTimer(Id id, MeterId meterId, Clock clock,
+    protected SkywalkingTimer(Id id, MeterId meterId, SkywalkingConfig config, Clock clock,
                               DistributionStatisticConfig distributionStatisticConfig, PauseDetector pauseDetector,
                               TimeUnit baseTimeUnit, boolean supportsAggregablePercentiles) {
         super(id, clock, distributionStatisticConfig, pauseDetector, baseTimeUnit, supportsAggregablePercentiles);
@@ -48,10 +63,10 @@ public class SkywalkingTimer extends AbstractTimer {
         // meter base name
         String baseName = meterId.getName();
 
-        this.counter = new Counter.Builder(meterId.copyTo(baseName + "_count", MeterId.MeterType.COUNTER)).build();
-        this.sum = new Counter.Builder(meterId.copyTo(baseName + "_sum", MeterId.MeterType.COUNTER)).build();
+        this.counter = MeterBuilder.buildCounter(meterId.copyTo(baseName + "_count", MeterId.MeterType.COUNTER), config);
+        this.sum = MeterBuilder.buildCounter(meterId.copyTo(baseName + "_sum", MeterId.MeterType.COUNTER), config);
         this.maxAdder = new DoubleAccumulator((a, b) -> a > b ? a : b, 0.000);
-        this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
+        this.max = MeterFactory.gauge(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);

@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.toolkit.meter;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitHistogramAdapter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class ToolkitHistogramAdapterTest {
 
     @Test
     public void testGetAllBuckets() {
-        final Histogram histogram = Histogram.create("test").steps(Arrays.asList(2d, 5d)).build();
+        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).build();
         final ToolkitHistogramAdapter adapter = new ToolkitHistogramAdapter(histogram);
 
         Assert.assertArrayEquals(adapter.getAllBuckets(), new double[] {0d, 2d, 5d}, 0.0);
@@ -38,7 +39,7 @@ public class ToolkitHistogramAdapterTest {
 
     @Test
     public void testGetBucketValues() {
-        final Histogram histogram = Histogram.create("test").steps(Arrays.asList(2d, 5d)).build();
+        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).build();
         final ToolkitHistogramAdapter adapter = new ToolkitHistogramAdapter(histogram);
 
         histogram.addValue(1d);
@@ -51,7 +52,7 @@ public class ToolkitHistogramAdapterTest {
 
     @Test
     public void testGetId() {
-        final Histogram histogram = Histogram.create("test").steps(Arrays.asList(2d, 5d)).tag("k1", "v1").build();
+        final Histogram histogram = MeterFactory.histogram("test").steps(Arrays.asList(2d, 5d)).tag("k1", "v1").build();
         final ToolkitHistogramAdapter adapter = new ToolkitHistogramAdapter(histogram);
 
         final MeterId id = adapter.getId();

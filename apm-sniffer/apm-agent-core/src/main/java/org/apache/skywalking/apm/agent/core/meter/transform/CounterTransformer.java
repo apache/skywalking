@@ -24,12 +24,8 @@ import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class CounterTransformer extends MeterTransformer<CounterAdapter> {
     private static MeterService METER_SERVICE;
-
-    private final AtomicReference<Double> previous = new AtomicReference();
 
     public CounterTransformer(CounterAdapter adapter) {
         super(adapter);
@@ -41,28 +37,11 @@ public class CounterTransformer extends MeterTransformer<CounterAdapter> {
             METER_SERVICE = ServiceManager.INSTANCE.findService(MeterService.class);
         }
 
-        // rate counter
-        final double currentValue = adapter.getCount();
-        double sendCount = 0d;
-        if (METER_SERVICE.isRateCounter(adapter.getId().getName())) {
-            final Double previousValue = previous.getAndSet(currentValue);
-
-            // calculate the add count
-            if (previousValue == null) {
-                sendCount = currentValue;
-            } else {
-                sendCount = currentValue - previousValue;
-            }
-
-        } else {
-            sendCount = currentValue;
-        }
-
         final MeterData.Builder builder = MeterData.newBuilder();
         builder.setSingleValue(MeterSingleValue.newBuilder()
             .setName(getName())
             .addAllLabels(transformTags())
-            .setValue(sendCount).build());
+            .setValue(adapter.getCount()).build());
 
         return builder;
     }

@@ -18,123 +18,21 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import java.util.Objects;
-
-/**
- * Base meter bean, contain meter id and base builder. Extend this and implement the builder to build a new meter.
- */
-public abstract class BaseMeter {
-
-    protected final MeterId meterId;
-
-    public BaseMeter(MeterId meterId) {
-        this.meterId = meterId;
-    }
+public interface BaseMeter {
 
     /**
      * Get meter name
      */
-    public String getName() {
-        return meterId.getName();
-    }
+    String getName();
 
     /**
      * Get tag value
      */
-    public String getTag(String tagKey) {
-        for (MeterId.Tag tag : meterId.getTags()) {
-            if (tag.getName().equals(tagKey)) {
-                return tag.getValue();
-            }
-        }
-        return null;
-    }
+    String getTag(String tagKey);
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BaseMeter baseMeter = (BaseMeter) o;
-        return Objects.equals(meterId, baseMeter.meterId);
-    }
+    /**
+     * Get meter Id
+     */
+    MeterId getMeterId();
 
-    public MeterId getMeterId() {
-        return meterId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(meterId);
-    }
-
-    public static abstract class Builder<T extends BaseMeter> {
-
-        protected final MeterId meterId;
-
-        /**
-         * Build a new meter build, meter name is required
-         */
-        public Builder(String name) {
-            if (name == null) {
-                throw new IllegalArgumentException("Meter name cannot be null");
-            }
-            this.meterId = new MeterId(name, getType());
-        }
-
-        /**
-         * Build a new meter build from exists meter id
-         */
-        public Builder(MeterId meterId) {
-            if (meterId == null) {
-                throw new IllegalArgumentException("Meter id cannot be null");
-            }
-            if (!Objects.equals(meterId.getType(), getType())) {
-                throw new IllegalArgumentException("Meter id type is not matches");
-            }
-            this.meterId = meterId;
-        }
-
-        /**
-         * append new tag to this meter
-         */
-        public Builder<T> tag(String name, String value) {
-            meterId.getTags().add(new MeterId.Tag(name, value));
-            return this;
-        }
-
-        /**
-         * Accept the new meter when register, could use it to judge histogram buckets is correct.
-         * It's working on the same meter id only.
-         * @throws IllegalArgumentException if cannot be accept, throws information
-         */
-        protected void accept(T meter) throws IllegalArgumentException {
-        }
-
-        /**
-         * Create a meter
-         */
-        protected abstract T create(MeterId meterId);
-
-        /**
-         * Get supported build meter type
-         */
-        protected abstract MeterId.MeterType getType();
-
-        /**
-         * Get current meter id
-         */
-        public MeterId getMeterId() {
-            return meterId;
-        }
-
-        /**
-         * Build a new meter object
-         */
-        public T build() {
-            // sort the tags
-            this.meterId.getTags().sort(MeterId.Tag::compareTo);
-            // create or get the meter
-            return MeterCenter.getOrCreateMeter(this);
-        }
-    }
 }

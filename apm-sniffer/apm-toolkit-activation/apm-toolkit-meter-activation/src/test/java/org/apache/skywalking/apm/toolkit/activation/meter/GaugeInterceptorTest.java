@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
+import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -65,7 +65,7 @@ public class GaugeInterceptorTest {
         Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), gaugeTransformer.getId().getTags());
     }
 
-    private static class GaugeEnhance extends Gauge implements EnhancedInstance {
+    private static class GaugeEnhance extends GaugeImpl implements EnhancedInstance {
         protected GaugeEnhance(MeterId meterId, Supplier<Double> getter) {
             super(meterId, getter);
         }

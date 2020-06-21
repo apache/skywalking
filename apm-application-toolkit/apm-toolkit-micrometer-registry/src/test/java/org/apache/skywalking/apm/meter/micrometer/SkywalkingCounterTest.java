@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.meter.micrometer;
 
 import io.micrometer.core.instrument.Counter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
+import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
@@ -53,5 +54,21 @@ public class SkywalkingCounterTest extends SkywalkingMeterBaseTest {
         skywalkingCounter.increment(3d);
         assertCounter(realCounter, "test_counter", tags, 6);
         Assert.assertEquals(6d, skywalkingCounter.count(), 0.0);
+    }
+
+    @Test
+    public void testRateCounter() {
+        final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry(new SkywalkingConfig(Arrays.asList("test_rate_counter")));
+        final Counter counter = registry.counter("test_rate_counter", "skywalking", "test");
+
+        // Check Skywalking counter type
+        Assert.assertTrue(counter instanceof SkywalkingCounter);
+        final SkywalkingCounter skywalkingCounter = (SkywalkingCounter) counter;
+        final CounterImpl realCounter =
+            Whitebox.getInternalState(skywalkingCounter, "counter");
+
+        // check mode
+        final org.apache.skywalking.apm.toolkit.meter.Counter.Mode counterMode = Whitebox.getInternalState(realCounter, "mode");
+        Assert.assertEquals(org.apache.skywalking.apm.toolkit.meter.Counter.Mode.RATE, counterMode);
     }
 }

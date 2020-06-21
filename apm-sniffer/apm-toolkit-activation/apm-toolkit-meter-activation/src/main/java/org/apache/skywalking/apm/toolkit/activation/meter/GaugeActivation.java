@@ -32,7 +32,7 @@ public class GaugeActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
     @Override
     protected ClassMatch enhanceClass() {
-        return byName("org.apache.skywalking.apm.toolkit.meter.Gauge");
+        return byName("org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl");
     }
 
     @Override

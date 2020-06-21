@@ -21,8 +21,8 @@ package org.apache.skywalking.apm.meter.micrometer;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.internal.DefaultLongTaskTimer;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.time.Duration;
@@ -43,11 +43,11 @@ public class SkywalkingLongTaskTimer extends DefaultLongTaskTimer {
         super(id, clock, baseTimeUnit, distributionStatisticConfig, supportsAggregablePercentiles);
         final String baseName = meterId.getName();
 
-        new Gauge.Builder(
+        MeterFactory.gauge(
             meterId.copyTo(baseName + "_active_count", MeterId.MeterType.GAUGE), () -> (double) activeTasks()).build();
-        new Gauge.Builder(
+        MeterFactory.gauge(
             meterId.copyTo(baseName + "_duration_sum", MeterId.MeterType.GAUGE), () -> duration(TimeUnit.MILLISECONDS)).build();
-        new Gauge.Builder(
+        MeterFactory.gauge(
             meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE), () -> max(TimeUnit.MILLISECONDS)).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, true);

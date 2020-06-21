@@ -18,29 +18,41 @@
 
 package org.apache.skywalking.apm.meter.micrometer;
 
-import io.micrometer.core.instrument.AbstractMeter;
-import org.apache.skywalking.apm.toolkit.meter.Counter;
-import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
+import io.micrometer.core.instrument.config.MeterRegistryConfig;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Wrapper the {@link CounterImpl} to {@link io.micrometer.core.instrument.Counter}
+ * Skywalking config
  */
-public class SkywalkingCounter extends AbstractMeter implements io.micrometer.core.instrument.Counter {
-    private final Counter counter;
+public class SkywalkingConfig implements MeterRegistryConfig {
 
-    SkywalkingCounter(Id id, Counter counter) {
-        super(id);
-        this.counter = counter;
+    public static final SkywalkingConfig DEFAULT = new SkywalkingConfig(Collections.emptyList());
+
+    /**
+     * Supporting rate by agent side counter names
+     */
+    private final List<String> rateCounterNames;
+
+    public SkywalkingConfig(List<String> rateCounterNames) {
+        this.rateCounterNames = rateCounterNames;
+    }
+
+    /**
+     * Is counter need rate by agent side
+     */
+    public boolean isRateCounter(String name) {
+        return rateCounterNames == null ? false : rateCounterNames.contains(name);
     }
 
     @Override
-    public void increment(double amount) {
-        this.counter.increment(amount);
+    public String prefix() {
+        return "";
     }
 
     @Override
-    public double count() {
-        return counter.get();
+    public String get(String key) {
+        return null;
     }
-
 }

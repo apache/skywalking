@@ -19,9 +19,9 @@
 package org.apache.skywalking.apm.meter.micrometer;
 
 import io.micrometer.core.instrument.LongTaskTimer;
-import org.apache.skywalking.apm.toolkit.meter.BaseMeter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
+import org.apache.skywalking.apm.toolkit.meter.impl.AbstractMeter;
+import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
 
-    private Map<MeterId, BaseMeter> meterMap;
+    private Map<MeterId, AbstractMeter> meterMap;
 
     @Before
     public void setup() {
@@ -52,11 +52,11 @@ public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
         final LongTaskTimer longTaskTimer = registry.more().longTaskTimer("test_simple_long_task_timer", "skywalking", "test");
 
         // Adding tasks
-        addLongTask(longTaskTimer, 200);
+        addLongTask(longTaskTimer, 450);
         addLongTask(longTaskTimer, 20);
 
         // Make sure the second task has finished
-        TimeUnit.MILLISECONDS.sleep(180);
+        TimeUnit.MILLISECONDS.sleep(200);
 
         // Check Skywalking type
         Assert.assertTrue(longTaskTimer instanceof SkywalkingLongTaskTimer);
@@ -89,11 +89,11 @@ public class SkywalkingLongTaskTimerTest extends SkywalkingMeterBaseTest {
             .register(registry);
 
         // Adding tasks
-        addLongTask(longTaskTimer, 200);
+        addLongTask(longTaskTimer, 450);
         addLongTask(longTaskTimer, 20);
 
         // Make sure second task has finished
-        TimeUnit.MILLISECONDS.sleep(50);
+        TimeUnit.MILLISECONDS.sleep(200);
 
         // Check Skywalking type
         Assert.assertTrue(longTaskTimer instanceof SkywalkingLongTaskTimer);

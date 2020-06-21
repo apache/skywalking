@@ -19,19 +19,20 @@
 package org.apache.skywalking.apm.meter.micrometer;
 
 import io.micrometer.core.instrument.Measurement;
-import org.apache.skywalking.apm.toolkit.meter.BaseMeter;
 import org.apache.skywalking.apm.toolkit.meter.Counter;
+import org.apache.skywalking.apm.toolkit.meter.impl.AbstractBuilder;
+import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 /**
  * Work for custom {@link Measurement}, support the skywalking rate mode
  */
-public class SkywalkingCustomCounter extends Counter {
+public class SkywalkingCustomCounter extends CounterImpl {
 
     private final Measurement measurement;
 
-    protected SkywalkingCustomCounter(MeterId meterId, Measurement measurement) {
-        super(meterId);
+    protected SkywalkingCustomCounter(MeterId meterId, Measurement measurement, SkywalkingConfig config) {
+        super(meterId, MeterBuilder.getCounterMode(meterId, config));
         this.measurement = measurement;
     }
 
@@ -43,17 +44,19 @@ public class SkywalkingCustomCounter extends Counter {
     /**
      * Custom counter builder
      */
-    public static class Builder extends BaseMeter.Builder<SkywalkingCustomCounter> {
+    public static class Builder extends AbstractBuilder<Builder, Counter, SkywalkingCustomCounter> {
         private final Measurement measurement;
+        private final SkywalkingConfig config;
 
-        public Builder(MeterId meterId, Measurement measurement) {
+        public Builder(MeterId meterId, Measurement measurement, SkywalkingConfig config) {
             super(meterId);
             this.measurement = measurement;
+            this.config = config;
         }
 
         @Override
         protected SkywalkingCustomCounter create(MeterId meterId) {
-            return new SkywalkingCustomCounter(meterId, measurement);
+            return new SkywalkingCustomCounter(meterId, measurement, config);
         }
 
         @Override

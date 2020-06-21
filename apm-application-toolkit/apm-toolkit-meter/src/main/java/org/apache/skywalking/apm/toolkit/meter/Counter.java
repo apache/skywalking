@@ -18,66 +18,34 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
-import java.util.concurrent.atomic.DoubleAdder;
-
 /**
  * A counter is a cumulative metric that represents a single monotonically increasing counter whose value can only increase or be reset to zero on restart.
  */
-public class Counter extends BaseMeter {
+public interface Counter extends BaseMeter {
 
-    protected final DoubleAdder count;
+    void increment(double count);
 
-    /**
-     * Create a counter builder by name
-     */
-    public static Builder create(String name) {
-        return new Builder(name);
-    }
-
-    protected Counter(MeterId meterId) {
-        super(meterId);
-        this.count = new DoubleAdder();
-    }
+    double get();
 
     /**
-     * Increment count
+     * Counter mode
      */
-    public void increment(double count) {
-        this.count.add(count);
+    enum Mode {
+        /**
+         * Increase single value, report the real value
+         */
+        INCREMENT,
+
+        /**
+         * Rate with previous value when report
+         */
+        RATE
     }
 
-    /**
-     * Get count value
-     */
-    public double get() {
-        return this.count.doubleValue();
-    }
-
-    /**
-     * Builder the counter
-     */
-    public static class Builder extends BaseMeter.Builder<Counter> {
-
-        public Builder(String name) {
-            super(name);
-        }
-
-        public Builder(MeterId meterId) {
-            super(meterId);
-        }
-
-        @Override
-        public void accept(Counter counter) {
-        }
-
-        @Override
-        public Counter create(MeterId meterId) {
-            return new Counter(meterId);
-        }
-
-        @Override
-        public MeterId.MeterType getType() {
-            return MeterId.MeterType.COUNTER;
-        }
+    interface Builder extends BaseBuilder<Builder, Counter> {
+        /**
+         * Setting counter mode
+         */
+        Builder mode(Mode mode);
     }
 }

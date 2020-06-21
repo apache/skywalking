@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.meter.micrometer;
 
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Statistic;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class SkywalkingCustomCounterTest extends SkywalkingMeterBaseTest {
         Measurement measurement = new Measurement(() -> 1d, Statistic.COUNT);
         final List<MeterId.Tag> tags = Arrays.asList(new MeterId.Tag("skywalking", "custom_counter"));
         final MeterId meterId = new MeterId("test_custom_conter", MeterId.MeterType.COUNTER, tags);
-        final SkywalkingCustomCounter counter = new SkywalkingCustomCounter.Builder(meterId, measurement).build();
+        final Counter counter = new SkywalkingCustomCounter.Builder(meterId, measurement, SkywalkingConfig.DEFAULT).build();
 
         // Check is counter meter id and value
         assertCounter(counter, "test_custom_conter", tags, 1d);

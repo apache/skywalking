@@ -18,14 +18,14 @@
 
 package org.apache.skywalking.apm.meter.micrometer;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Measurement;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.Statistic;
 import io.micrometer.core.instrument.Tags;
 import org.apache.skywalking.apm.toolkit.meter.BaseMeter;
+import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
+import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.After;
 import org.junit.Assert;
@@ -119,13 +119,13 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
     public void testNewMeterSum() {
         // sum
         testNewMeter("test_meter", Meter.Type.GAUGE, Statistic.TOTAL, data -> {
-            assertCounter((org.apache.skywalking.apm.toolkit.meter.Counter) data.getMeter(),
+            assertCounter((Counter) data.getMeter(),
                 "test_meter_sum", data.getTags(), 1d);
         });
 
         // count
         testNewMeter("test_meter", Meter.Type.COUNTER, Statistic.COUNT, data -> {
-            assertCounter((org.apache.skywalking.apm.toolkit.meter.Counter) data.getMeter(),
+            assertCounter((Counter) data.getMeter(),
                 "test_meter", data.getTags(), 1d);
         });
 
@@ -175,7 +175,7 @@ public class SkywalkingMeterRegistryTest extends SkywalkingMeterBaseTest {
     @Test
     public void testRemove() {
         final SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
-        final Counter counter = registry.counter("test_remove_counter");
+        final io.micrometer.core.instrument.Counter counter = registry.counter("test_remove_counter");
         Assert.assertEquals(1, meterMap.size());
 
         registry.remove(counter.getId());

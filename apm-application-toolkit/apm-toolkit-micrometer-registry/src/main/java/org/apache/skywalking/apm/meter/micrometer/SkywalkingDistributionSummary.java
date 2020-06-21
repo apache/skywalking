@@ -24,6 +24,7 @@ import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import org.apache.skywalking.apm.toolkit.meter.Counter;
 import org.apache.skywalking.apm.toolkit.meter.Gauge;
 import org.apache.skywalking.apm.toolkit.meter.Histogram;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.Optional;
@@ -55,16 +56,18 @@ public class SkywalkingDistributionSummary extends AbstractDistributionSummary {
      */
     private final Optional<Histogram> histogram;
 
-    protected SkywalkingDistributionSummary(Id id, MeterId meterId, Clock clock, DistributionStatisticConfig distributionStatisticConfig, double scale, boolean supportsAggregablePercentiles) {
+    protected SkywalkingDistributionSummary(Id id, MeterId meterId, SkywalkingConfig config, Clock clock,
+                                            DistributionStatisticConfig distributionStatisticConfig, double scale,
+                                            boolean supportsAggregablePercentiles) {
         super(id, clock, distributionStatisticConfig, scale, supportsAggregablePercentiles);
 
         // meter base name
         String baseName = meterId.getName();
 
-        this.counter = new Counter.Builder(meterId.copyTo(baseName + "_count", MeterId.MeterType.COUNTER)).build();
-        this.sum = new Counter.Builder(meterId.copyTo(baseName + "_sum", MeterId.MeterType.COUNTER)).build();
+        this.counter = MeterBuilder.buildCounter(meterId.copyTo(baseName + "_count", MeterId.MeterType.COUNTER), config);
+        this.sum = MeterBuilder.buildCounter(meterId.copyTo(baseName + "_sum", MeterId.MeterType.COUNTER), config);
         this.maxAdder = new DoubleAccumulator((a, b) -> a > b ? a : b, 0.000);
-        this.max = new Gauge.Builder(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
+        this.max = MeterFactory.gauge(meterId.copyTo(baseName + "_max", MeterId.MeterType.GAUGE),
             () -> maxAdder.doubleValue()).build();
 
         this.histogram = MeterBuilder.buildHistogram(meterId, supportsAggregablePercentiles, distributionStatisticConfig, false);

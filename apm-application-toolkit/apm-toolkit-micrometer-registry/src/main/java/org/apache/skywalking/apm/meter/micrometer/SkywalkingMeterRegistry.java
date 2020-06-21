@@ -34,9 +34,9 @@ import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import io.micrometer.core.instrument.distribution.pause.PauseDetector;
 import io.micrometer.core.instrument.internal.DefaultGauge;
 import io.micrometer.core.instrument.internal.DefaultMeter;
-import org.apache.skywalking.apm.toolkit.meter.Counter;
-import org.apache.skywalking.apm.toolkit.meter.Gauge;
-import org.apache.skywalking.apm.toolkit.meter.MeterCenter;
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
+import org.apache.skywalking.apm.toolkit.meter.impl.GaugeImpl;
+import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.concurrent.TimeUnit;
@@ -48,12 +48,23 @@ import java.util.function.ToLongFunction;
  */
 public class SkywalkingMeterRegistry extends MeterRegistry {
 
+    private final SkywalkingConfig config;
+
     public SkywalkingMeterRegistry() {
-        this(Clock.SYSTEM);
+        this(SkywalkingConfig.DEFAULT, Clock.SYSTEM);
+    }
+
+    public SkywalkingMeterRegistry(SkywalkingConfig config) {
+        this(config, Clock.SYSTEM);
     }
 
     public SkywalkingMeterRegistry(Clock clock) {
+        this(SkywalkingConfig.DEFAULT, clock);
+    }
+
+    public SkywalkingMeterRegistry(SkywalkingConfig config, Clock clock) {
         super(clock);
+        this.config = config;
         config().namingConvention(NamingConvention.snakeCase);
         config().onMeterRemoved(this::onMeterRemoved);
     }
@@ -61,14 +72,14 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
     @Override
     protected <T> io.micrometer.core.instrument.Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
         final MeterId meterId = convertId(id);
-        new Gauge.Builder(meterId, () -> valueFunction.applyAsDouble(obj)).build();
+        new GaugeImpl.Builder(meterId, () -> valueFunction.applyAsDouble(obj)).build();
         return new DefaultGauge<>(id, obj, valueFunction);
     }
 
     @Override
     protected io.micrometer.core.instrument.Counter newCounter(Meter.Id id) {
         final MeterId meterId = convertId(id);
-        return new SkywalkingCounter(id, new Counter.Builder(meterId).build());
+        return new SkywalkingCounter(id, MeterBuilder.buildCounter(meterId, config));
     }
 
     @Override
@@ -80,13 +91,13 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
     @Override
     protected Timer newTimer(Meter.Id id, DistributionStatisticConfig distributionStatisticConfig, PauseDetector pauseDetector) {
         final MeterId meterId = convertId(id);
-        return new SkywalkingTimer(id, meterId, clock, distributionStatisticConfig, pauseDetector, TimeUnit.MILLISECONDS, true);
+        return new SkywalkingTimer(id, meterId, config, clock, distributionStatisticConfig, pauseDetector, TimeUnit.MILLISECONDS, true);
     }
 
     @Override
     protected DistributionSummary newDistributionSummary(Meter.Id id, DistributionStatisticConfig distributionStatisticConfig, double scale) {
         final MeterId meterId = convertId(id);
-        return new SkywalkingDistributionSummary(id, meterId, clock, distributionStatisticConfig, scale, true);
+        return new SkywalkingDistributionSummary(id, meterId, config, clock, distributionStatisticConfig, scale, true);
     }
 
     @Override
@@ -118,9 +129,9 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
             }
 
             if (isCounter) {
-                new SkywalkingCustomCounter.Builder(meterId.copyTo(meterName, MeterId.MeterType.COUNTER), m).build();
+                new SkywalkingCustomCounter.Builder(meterId.copyTo(meterName, MeterId.MeterType.COUNTER), m, config).build();
             } else {
-                new Gauge.Builder(meterId.copyTo(meterName, MeterId.MeterType.GAUGE), () -> m.getValue()).build();
+                new GaugeImpl.Builder(meterId.copyTo(meterName, MeterId.MeterType.GAUGE), () -> m.getValue()).build();
             }
         });
 
@@ -133,9 +144,9 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
         FunctionTimer ft = new CumulativeFunctionTimer<>(id, obj, countFunction, totalTimeFunction, totalTimeFunctionUnit, getBaseTimeUnit());
         final String baseName = meterId.getName();
 
-        new Gauge.Builder(
+        MeterFactory.gauge(
             meterId.copyTo(baseName + "_count", MeterId.MeterType.GAUGE), () -> ft.count()).build();
-        new Gauge.Builder(
+        MeterFactory.gauge(
             meterId.copyTo(baseName + "_sum", MeterId.MeterType.GAUGE), () -> ft.totalTime(TimeUnit.MILLISECONDS)).build();
         return ft;
     }
@@ -146,7 +157,7 @@ public class SkywalkingMeterRegistry extends MeterRegistry {
         FunctionCounter fc = new CumulativeFunctionCounter<>(id, obj, countFunction);
         final String baseName = meterId.getName();
 
-        new Gauge.Builder(meterId.copyTo(baseName, MeterId.MeterType.GAUGE), () -> fc.count()).build();
+        MeterFactory.gauge(meterId.copyTo(baseName, MeterId.MeterType.GAUGE), () -> fc.count()).build();
         return fc;
     }
 

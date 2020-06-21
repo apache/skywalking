@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.meter.MeterType;
 import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
-import org.apache.skywalking.apm.toolkit.meter.Counter;
+import org.apache.skywalking.apm.toolkit.meter.impl.CounterImpl;
 import org.apache.skywalking.apm.toolkit.meter.MeterId;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -63,9 +63,9 @@ public class CounterInterceptorTest {
         Assert.assertEquals(Arrays.asList(new MeterTag("k1", "v1")), counterTransformer.getId().getTags());
     }
 
-    private static class CounterEnhance extends Counter implements EnhancedInstance {
+    private static class CounterEnhance extends CounterImpl implements EnhancedInstance {
         protected CounterEnhance(MeterId meterId) {
-            super(meterId);
+            super(meterId, Mode.INCREMENT);
         }
 
         @Override

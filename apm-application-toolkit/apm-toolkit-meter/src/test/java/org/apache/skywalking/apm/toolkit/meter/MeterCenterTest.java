@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.apm.toolkit.meter;
 
+import org.apache.skywalking.apm.toolkit.meter.impl.AbstractMeter;
+import org.apache.skywalking.apm.toolkit.meter.impl.MeterCenter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,7 @@ import java.util.Map;
 
 public class MeterCenterTest {
 
-    private Map<MeterId, BaseMeter> meterMap;
+    private Map<MeterId, AbstractMeter> meterMap;
 
     @Before
     public void setup() {
@@ -42,14 +44,14 @@ public class MeterCenterTest {
         Assert.assertNull(MeterCenter.getOrCreateMeter(null));
 
         // simple counter
-        final Counter counter = Counter.create("test").build();
+        final Counter counter = MeterFactory.counter("test").build();
         final MeterId counterMeterId = Whitebox.getInternalState(counter, "meterId");
         Assert.assertNotNull(counterMeterId);
         Assert.assertNotNull(meterMap.get(counterMeterId));
         Assert.assertEquals(meterMap.get(counterMeterId), counter);
 
         // same counter
-        Assert.assertEquals(counter, Counter.create("test").build());
+        Assert.assertEquals(counter, MeterFactory.counter("test").build());
         Assert.assertEquals(meterMap.size(), 1);
         Assert.assertNotNull(meterMap.get(counterMeterId));
         Assert.assertEquals(meterMap.get(counterMeterId), counter);
@@ -57,7 +59,7 @@ public class MeterCenterTest {
 
     @Test
     public void testRemoveMeter() {
-        final Counter counter = Counter.create("test").build();
+        final Counter counter = MeterFactory.counter("test").build();
         Assert.assertEquals(meterMap.size(), 1);
         final MeterId counterMeterId = Whitebox.getInternalState(counter, "meterId");
         MeterCenter.removeMeter(counterMeterId);

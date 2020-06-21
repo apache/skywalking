@@ -16,7 +16,11 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.meter;
+package org.apache.skywalking.apm.toolkit.meter.impl;
+
+import org.apache.skywalking.apm.toolkit.meter.BaseBuilder;
+import org.apache.skywalking.apm.toolkit.meter.BaseMeter;
+import org.apache.skywalking.apm.toolkit.meter.MeterId;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,17 +36,17 @@ public class MeterCenter {
      * Get or create a new meter
      * @return If already exists, it will return existed meter, otherwise it will register it.
      */
-    public static <T extends BaseMeter> T getOrCreateMeter(BaseMeter.Builder<T> builder) {
+    public static <BUILDER extends BaseBuilder, BASE extends BaseMeter, IMPL extends AbstractMeter> BASE getOrCreateMeter(AbstractBuilder<BUILDER, BASE, IMPL> builder) {
         if (builder == null) {
             return null;
         }
-        return (T) METER_MAP.compute(builder.getMeterId(), (meterId, previous) -> {
+        return (BASE) METER_MAP.compute(builder.getMeterId(), (meterId, previous) -> {
             if (previous == null) {
                 return builder.create(meterId);
             }
 
             // Check previous meter is accept the new meter
-            builder.accept((T) previous);
+            builder.accept((IMPL) previous);
 
             return previous;
         });

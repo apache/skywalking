@@ -39,7 +39,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,8 +94,6 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
                 this,
                 t -> logger.error("Report meters failure.", t)
             ), 0, Config.Meter.REPORT_INTERVAL, TimeUnit.SECONDS);
-
-            rateCounterNames.addAll(Arrays.asList(Config.Meter.RATE_COUNTER_NAME.split(",")));
         }
     }
 
@@ -193,10 +190,4 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
         this.status = status;
     }
 
-    /**
-     * Counter name is need rate by agent
-     */
-    public boolean isRateCounter(String name) {
-        return rateCounterNames.contains(name);
-    }
 }

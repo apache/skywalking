@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.toolkit.meter;
 import org.apache.skywalking.apm.agent.core.meter.MeterId;
 import org.apache.skywalking.apm.agent.core.meter.MeterTag;
 import org.apache.skywalking.apm.agent.core.meter.MeterType;
+import org.apache.skywalking.apm.toolkit.activation.meter.adapter.ToolkitGaugeAdapter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ToolkitGaugeAdapterTest {
 
     @Test
     public void testGetCount() {
-        final Gauge gauge = Gauge.create("test", () -> 1d).build();
+        final Gauge gauge = MeterFactory.gauge("test", () -> 1d).build();
         final ToolkitGaugeAdapter adapter = new ToolkitGaugeAdapter(gauge);
 
         Assert.assertEquals(adapter.getCount(), 1d, 0.0);
@@ -36,7 +37,7 @@ public class ToolkitGaugeAdapterTest {
 
     @Test
     public void testGetId() {
-        final Gauge gauge = Gauge.create("test", () -> 1d).tag("k1", "v1").build();
+        final Gauge gauge = MeterFactory.gauge("test", () -> 1d).tag("k1", "v1").build();
         final ToolkitGaugeAdapter adapter = new ToolkitGaugeAdapter(gauge);
 
         final MeterId id = adapter.getId();
