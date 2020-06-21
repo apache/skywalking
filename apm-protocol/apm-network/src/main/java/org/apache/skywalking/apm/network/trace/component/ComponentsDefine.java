@@ -161,5 +161,5 @@ public class ComponentsDefine {
 
     public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
 
-    public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(89, "influxdb-java");
+    public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
 }
