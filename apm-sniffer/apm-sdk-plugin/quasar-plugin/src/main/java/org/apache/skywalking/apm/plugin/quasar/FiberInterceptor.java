@@ -16,51 +16,53 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.lettuce.v5;
+package org.apache.skywalking.apm.plugin.quasar;
 
-import io.lettuce.core.protocol.AsyncCommand;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
-import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
-import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
-public class AsyncCommandMethodInterceptor implements InstanceMethodsAroundInterceptor {
+public class FiberInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
+
+    private static final String OPERATION_NAME = "QUASAR/Fiber";
 
     @Override
-    @SuppressWarnings("unchecked")
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        AsyncCommand asyncCommand = (AsyncCommand) objInst;
-        String operationName = "Lettuce/" + asyncCommand.getType().name();
-        AbstractSpan span = ContextManager.createLocalSpan(operationName + "/onComplete");
-        span.setComponent(ComponentsDefine.LETTUCE);
-        Tags.DB_TYPE.set(span, "Redis");
-        SpanLayer.asCache(span);
-        if (allArguments[0] instanceof Consumer) {
-            allArguments[0] = new SWConsumer((Consumer) allArguments[0], ContextManager.capture(), operationName);
-        } else {
-            allArguments[0] = new SWBiConsumer((BiConsumer) allArguments[0], ContextManager.capture(), operationName);
+                             MethodInterceptResult result) throws Throwable {
+        AbstractSpan span = ContextManager.createLocalSpan(OPERATION_NAME);
+        span.setComponent(ComponentsDefine.QUASAR);
+        if (objInst.getSkyWalkingDynamicField() != null) {
+            ContextManager.continued((ContextSnapshot) objInst.getSkyWalkingDynamicField());
+            objInst.setSkyWalkingDynamicField(null);
         }
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
+                              Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+                                      Class<?>[] argumentsTypes, Throwable t) {
+        AbstractSpan span = ContextManager.activeSpan();
+        span.errorOccurred();
+        span.log(t);
+    }
+
+    @Override
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        if (ContextManager.isActive()) {
+            objInst.setSkyWalkingDynamicField(ContextManager.capture());
+        }
     }
 }
