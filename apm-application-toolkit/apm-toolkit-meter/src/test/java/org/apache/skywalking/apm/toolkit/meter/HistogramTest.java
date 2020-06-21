@@ -90,26 +90,6 @@ public class HistogramTest {
     }
 
     @Test
-    public void testAddCountToStep() {
-        Histogram histogram = MeterFactory.histogram("test_histogram4").steps(Arrays.asList(1d, 5d, 10d)).minValue(-10)
-            .tag("k1", "v1").build();
-
-        // single add
-        histogram.addCountToStep(1, 2);
-        verifyHistogram((HistogramImpl) histogram, -10d, 0L, 1d, 2L, 5d, 0L, 10d, 0L);
-
-        // multiple add
-        histogram.addCountToStep(1, 2);
-        histogram.addCountToStep(1, 2);
-        histogram.addCountToStep(5, 2);
-        verifyHistogram((HistogramImpl) histogram, -10d, 0L, 1d, 6L, 5d, 2L, 10d, 0L);
-
-        // not exists
-        histogram.addCountToStep(3, 2);
-        verifyHistogram(histogram, -10d, 0L, 1d, 6L, 5d, 2L, 10d, 0L);
-    }
-
-    @Test
     public void testAddValue() {
         Histogram histogram = MeterFactory.histogram("test_histogram5").steps(Arrays.asList(1d, 5d, 10d)).minValue(-10)
             .tag("k1", "v1").build();

@@ -28,13 +28,6 @@ import java.util.List;
 public interface Histogram extends BaseMeter {
 
     /**
-     * Add count into the step
-     * @param step switch step you want to add
-     * @param count add count to appoint step, it won't be add when cannot find the step
-     */
-    void addCountToStep(double step, long count);
-
-    /**
      * Add value into the histogram, automatic analyze what bucket count need to be increment
      * [step1, step2)
      */

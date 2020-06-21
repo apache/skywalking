@@ -46,21 +46,6 @@ public class HistogramImpl extends AbstractMeter implements Histogram {
     }
 
     /**
-     * Add count into the step
-     * @param step switch step you want to add
-     * @param count add count to appoint step, it won't be add when cannot find the step
-     */
-    public void addCountToStep(double step, long count) {
-        // lookup the bucket, only matches with the step
-        Bucket bucket = findBucket(step);
-        if (bucket == null || bucket.bucket != step) {
-            return;
-        }
-
-        bucket.increment(count);
-    }
-
-    /**
      * Add value into the histogram, automatic analyze what bucket count need to be increment
      * [step1, step2)
      */
