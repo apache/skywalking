@@ -18,15 +18,21 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-/**
- * This watch can init or reset internal state.
- *
- * @param <T> event of watch
- */
-public interface ReusableWatch<T> extends Iterable<T> {
+import java.util.function.Supplier;
 
-    /**
-     * Reset internal state.
-     */
-    void initOrReset();
+/**
+ * Supply uid from environment variable.
+ */
+public class UidEnvSupplier implements Supplier<String> {
+
+    private final String uidEnvName;
+
+    public UidEnvSupplier(final String uidEnvName) {
+        this.uidEnvName = uidEnvName == null ? "" : uidEnvName;
+    }
+
+    @Override
+    public String get() {
+        return System.getenv(uidEnvName);
+    }
 }

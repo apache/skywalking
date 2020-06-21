@@ -16,31 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
+package org.apache.skywalking.apm.testcase.influxdb;
 
-/**
- * The event of watch.
- */
-public class Event {
-    private final String type;
-    private final String uid;
-    private final String host;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    public Event(final String type, final String uid, final String host) {
-        this.type = type;
-        this.uid = uid;
-        this.host = host;
-    }
+@SpringBootApplication
+public class Application {
 
-    String getType() {
-        return type;
-    }
-
-    String getUid() {
-        return uid;
-    }
-
-    String getHost() {
-        return host;
+    public static void main(String[] args) {
+        try {
+            SpringApplication.run(Application.class, args);
+        } catch (Exception e) {
+            // Never do this
+        }
     }
 }

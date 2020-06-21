@@ -16,23 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.kubernetes.dependencies;
+package org.apache.skywalking.apm.plugin.influxdb.interceptor;
 
-import java.util.function.Supplier;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceConstructorInterceptor;
 
-/**
- * Supply uid from environment variable.
- */
-public class UidEnvSupplier implements Supplier<String> {
-
-    private final String uidEnvName;
-
-    public UidEnvSupplier(final String uidEnvName) {
-        this.uidEnvName = uidEnvName == null ? "" : uidEnvName;
-    }
+public class InfluxDBConstructorInterceptor implements InstanceConstructorInterceptor {
 
     @Override
-    public String get() {
-        return System.getenv(uidEnvName);
+    public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
+        String url = (String) allArguments[0];
+        objInst.setSkyWalkingDynamicField(url);
     }
+
 }

@@ -399,6 +399,13 @@ public class Config {
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
         }
+
+        public static class InfluxDB {
+            /**
+             * If set to true, the parameters of the InfluxQL would be collected.
+             */
+            public static boolean TRACE_INFLUXQL = true;
+        }
     }
 
     public static class Correlation {
