@@ -89,6 +89,7 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+  * [Quasar](https://github.com/puniverse/quasar) 0.7.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin

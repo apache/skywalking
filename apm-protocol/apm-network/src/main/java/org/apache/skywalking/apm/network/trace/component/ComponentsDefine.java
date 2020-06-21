@@ -159,5 +159,7 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MARIADB_JDBC = new OfficialComponent(87, "mariadb-jdbc");
 
+    public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
+
     public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(89, "influxdb-java");
 }
