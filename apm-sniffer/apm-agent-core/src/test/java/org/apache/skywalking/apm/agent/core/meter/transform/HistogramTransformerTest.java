@@ -57,10 +57,9 @@ public class HistogramTransformerTest {
         final HistogramTransformer transformer = new HistogramTransformer(adapter);
         adapter.setValues(new long[] {5L, 10L});
         verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(5L, 10L), transformer.transform());
-        verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(0L, 0L), transformer.transform());
 
         adapter.setValues(new long[] {6L, 12L});
-        verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(1L, 2L), transformer.transform());
+        verifyHistogram("test", labels, Arrays.asList(2d, 5d), Arrays.asList(6L, 12L), transformer.transform());
     }
 
     /**

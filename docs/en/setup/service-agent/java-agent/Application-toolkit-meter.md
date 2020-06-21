@@ -9,6 +9,8 @@
 
 * `Counter` API represents a single monotonically increasing counter, automatic collect data and report to backend.
 ```java
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
+
 Counter counter = MeterFactory.counter(meterName).tag("tagKey", "tagValue").mode(Counter.Mode.INCREMENT).build();
 counter.increment(1d);
 ```
@@ -20,6 +22,8 @@ counter.increment(1d);
 
 * `Gauge` API represents a single numerical value.
 ```java
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
+
 ThreadPoolExecutor threadPool = ...;
 Gauge gauge = MeterFactory.gauge(meterName, () -> threadPool.getActiveCount()).tag("tagKey", "tagValue").build();
 ```
@@ -29,6 +33,8 @@ Gauge gauge = MeterFactory.gauge(meterName, () -> threadPool.getActiveCount()).t
 
 * `Histogram` API represents a summary sample observations with customize buckets.
 ```java
+import org.apache.skywalking.apm.toolkit.meter.MeterFactory;
+
 Histogram histogram = MeterFactory.histogram("test").tag("tagKey", "tagValue").steps(Arrays.asList(1, 5, 10)).minValue(0).build();
 histogram.addCountToStep(5, 1L);
 histogram.addValue(3);

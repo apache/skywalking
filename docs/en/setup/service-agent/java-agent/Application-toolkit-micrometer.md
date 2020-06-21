@@ -7,8 +7,10 @@
    </dependency>
 ```
 
-* Using `SkywalkingMeterRegistry` as the registry, it could forward the MicroMeter collected metrics to OAP server.
+* Using `org.apache.skywalking.apm.meter.micrometer.SkywalkingMeterRegistry` as the registry, it could forward the MicroMeter collected metrics to OAP server.
 ```java
+import org.apache.skywalking.apm.meter.micrometer.SkywalkingMeterRegistry;
+
 SkywalkingMeterRegistry registry = new SkywalkingMeterRegistry();
 
 // If you has some counter want to rate by agent side
@@ -38,7 +40,6 @@ compositeRegistry.add(new SkywalkingMeterRegistry());
 |LongTaskTimer|Timer name + "_active_count"|Gauges|Executing task count|
 | |Timer name + "_duration_sum"|Counter|All of executing task sum duration|
 | |Timer name + "_max"|Counter|Current longest running task execute duration|
-| |Timer name + "_histogram"|Histogram|Executing finished task duration histogram|
 |Function Timer|Timer name + "_count"|Gauges|Execute finished timer count|
 | |Timer name + "_sum"|Gauges|Execute finished timer total duration|
 |Function Counter|Counter name|Counter|Custom counter value|
@@ -46,3 +47,9 @@ compositeRegistry.add(new SkywalkingMeterRegistry());
 | |Summary name + "_sum"|Counter|Total record amount sum|
 | |Summary name + "_max"|Gauges|Max record amount|
 | |Summary name + "_histogram"|Gauges|Histogram of the amount|
+
+* Not Adapt data convention.
+
+|Micrometer data type|Data type|
+|----- |----- |
+|LongTaskTimer|Histogram|

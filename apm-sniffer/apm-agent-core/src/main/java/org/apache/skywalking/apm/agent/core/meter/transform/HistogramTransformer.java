@@ -26,7 +26,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class HistogramTransformer extends MeterTransformer<HistogramAdapter> {
 
@@ -65,18 +64,15 @@ public class HistogramTransformer extends MeterTransformer<HistogramAdapter> {
 
     public static class Bucket {
         private double bucket;
-        private AtomicReference<Long> previous = new AtomicReference<>();
 
         public Bucket(double bucket) {
             this.bucket = bucket;
         }
 
         public MeterBucketValue transform(long currentCount) {
-            final Long previous = this.previous.getAndSet(currentCount);
-
             return MeterBucketValue.newBuilder()
                 .setBucket(bucket)
-                .setCount(previous == null ? currentCount : currentCount - previous)
+                .setCount(currentCount)
                 .build();
         }
 
