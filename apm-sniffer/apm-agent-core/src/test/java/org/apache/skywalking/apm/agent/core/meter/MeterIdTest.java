@@ -39,6 +39,7 @@ public class MeterIdTest {
         final Label label = labels.get(0);
         Assert.assertEquals("k1", label.getName());
         Assert.assertEquals("v1", label.getValue());
+        Assert.assertEquals(MeterType.COUNTER, meterId.getType());
 
         // Must cache the Label message
         final List<Label> cacheLabels = (List<Label>) Whitebox.getInternalState(meterId, "labels");

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.meter.adapter.CounterAdapter;
 import org.apache.skywalking.apm.agent.core.meter.adapter.HistogramAdapter;
 import org.apache.skywalking.apm.agent.core.meter.transform.CounterTransformer;
 import org.apache.skywalking.apm.agent.core.meter.transform.HistogramTransformer;
+import org.apache.skywalking.apm.agent.core.meter.transform.MeterTransformer;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
@@ -47,6 +48,7 @@ import org.powermock.reflect.Whitebox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -115,6 +117,10 @@ public class MeterServiceTest {
     public void testRegister() {
         grpcServerRule.getServiceRegistry().addService(serviceImplBase);
 
+        // Register null
+        registryService.register(null);
+        assertThat(upstreamMeters.size(), is(0));
+
         // Empty meter
         registryService.run();
         assertThat(upstreamMeters.size(), is(0));
@@ -141,6 +147,24 @@ public class MeterServiceTest {
                 isSameWithCounter(upstreamMeters.get(i), i == 0, counterId, 2);
             }
         }
+    }
+
+    @Test
+    public void testMeterSizeAndShutdown() throws Throwable {
+        final Map<MeterId, MeterTransformer> map = Whitebox.getInternalState(registryService, "meterMap");
+        map.clear();
+
+        // Check max meter size
+        for (Integer i = 0; i < Config.Meter.MAX_METER_SIZE + 1; i++) {
+            final MeterId counterId = new MeterId("test_" + i, MeterType.COUNTER, Arrays.asList(new MeterTag("k1", "v1")));
+            final CounterTransformer transformer1 = new CounterTransformer(new TestCounterAdapter(counterId));
+            registryService.register(transformer1);
+        }
+        assertThat(map.size(), is(Config.Meter.MAX_METER_SIZE));
+
+        // Check shutdown
+        registryService.shutdown();
+        assertThat(map.size(), is(0));
     }
 
     /**

@@ -39,8 +39,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
@@ -64,8 +62,6 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
     // report meters
     private volatile ScheduledFuture<?> reportMeterFuture;
 
-    private final Set<String> rateCounterNames = new HashSet<>();
-
     /**
      * Register the meterTransformer
      */
@@ -75,6 +71,7 @@ public class MeterService implements BootService, Runnable, GRPCChannelListener 
         }
         if (meterMap.size() >= Config.Meter.MAX_METER_SIZE) {
             logger.warn("Already out of the meter system max size, will not report. meter name:{}", meterTransformer.getName());
+            return;
         }
 
         meterMap.putIfAbsent(meterTransformer.getId(), meterTransformer);
