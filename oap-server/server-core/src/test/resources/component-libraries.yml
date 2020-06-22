@@ -266,6 +266,9 @@ InfluxDB:
 influxdb-java:
   id: 90
   languages: Java
+brpc-java:
+  id: 91
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
