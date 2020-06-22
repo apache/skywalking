@@ -1025,7 +1025,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_persistence_timer_prepare_count,meter_instance_persistence_timer_execute_count,meter_instance_persistence_timer_bulk_error_count",
+                  "metricName": "meter_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
                   "queryMetricType": "readMetricsValues",
                   "chartType": "ChartBar",
                   "unit": "Per 5 Minutes"
@@ -1040,7 +1040,7 @@ templates:
                   "unit": "Millisecond",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
-                  "metricName": "meter_instance_persistence_timer_prepare_latency_percentile",
+                  "metricName": "meter_instance_persistence_prepare_percentile",
                   "metricLabels": "50,70,90,99",
                   "labelsIndex": "50,70,90,99"
                 },
@@ -1051,7 +1051,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_instance_persistence_timer_execute_latency_percentile",
+                  "metricName": "meter_instance_persistence_execute_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
                   "metricLabels": "50,70,90,99",

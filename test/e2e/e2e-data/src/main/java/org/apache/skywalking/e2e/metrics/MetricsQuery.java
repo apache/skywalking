@@ -96,6 +96,27 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
         SERVICE_INSTANCE_RELATION_SERVER_CPM
     };
 
+    public static String METER_INSTANCE_CPU_PERCENTAGE = "meter_instance_cpu_percentage";
+    public static String METER_INSTANCE_JVM_MEMORY_BYTES_USED = "meter_instance_jvm_memory_bytes_used";
+    public static String METER_INSTANCE_TRACE_COUNT = "meter_instance_trace_count";
+    public static String METER_INSTANCE_METRICS_FIRST_AGGREGATION = "meter_instance_metrics_first_aggregation";
+    public static String METER_INSTANCE_PERSISTENCE_PREPARE_COUNT = "meter_instance_persistence_prepare_count";
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT = "meter_instance_persistence_execute_count";
+
+    public static String[] ALL_SO11Y_LINER_METRICS = {
+        METER_INSTANCE_CPU_PERCENTAGE,
+        METER_INSTANCE_JVM_MEMORY_BYTES_USED,
+        METER_INSTANCE_TRACE_COUNT,
+        METER_INSTANCE_METRICS_FIRST_AGGREGATION,
+        METER_INSTANCE_PERSISTENCE_PREPARE_COUNT,
+        METER_INSTANCE_PERSISTENCE_EXECUTE_COUNT 
+    };
+
+    public static String METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE = "meter_instance_persistence_execute_percentile";
+
+    public static String[] ALL_SO11Y_LABELED_METRICS = {
+        METER_INSTANCE_PERSISTENCE_EXECUTE_PERCENTILE
+    };
     private String id;
     private String metricsName;
 
