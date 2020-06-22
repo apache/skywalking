@@ -46,7 +46,7 @@ jobs:
           - { name: 'vertx-web-3.6plus-scenario', title: 'Vert.x Web 3.6.0-3.9.1 (14)' }
           - { name: 'mariadb-scenario', title: 'Mariadb 2.x (8)' }
           - { name: 'quasar-scenario', title: 'quasar 0.7.x (5)' }
-          - { name: 'brpc-java-scenario', title: 'brpc-java 2.5.3 (1)' }
+          - { name: 'brpc-java-scenario', title: 'brpc-java 2.3.7-2.5.3 (12)' }
     steps:
       - uses: actions/checkout@v2
         with:

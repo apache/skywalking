@@ -64,7 +64,6 @@ public class CaseController {
 
         RpcClient rpcClient = new RpcClient(serviceUrl, clientOption);
         EchoService echoService = BrpcProxy.getProxy(rpcClient, EchoService.class);
-        RpcContext.getContext().setLogId(1234);
         try {
             EchoResponse response = echoService.echo(request);
             System.out.println(response.getMessage());
