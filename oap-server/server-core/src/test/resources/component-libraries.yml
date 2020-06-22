@@ -257,7 +257,15 @@ Mariadb:
 mariadb-jdbc:
   id: 87
   languages: Java
-
+quasar:
+  id: 88
+  languages: Java
+InfluxDB:
+  id: 89
+  languages: Java
+influxdb-java:
+  id: 90
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

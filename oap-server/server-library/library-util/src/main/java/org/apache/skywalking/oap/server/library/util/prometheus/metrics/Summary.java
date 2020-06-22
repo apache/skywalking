@@ -47,7 +47,7 @@ public class Summary extends Metric {
         Summary s = (Summary) m;
         this.sampleCount =  this.sampleCount + s.getSampleCount();
         this.sampleSum = this.sampleSum + s.getSampleSum();
-        return null;
+        return this;
     }
 
     @Override public Double value() {

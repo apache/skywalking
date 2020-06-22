@@ -62,3 +62,49 @@ prometheus-fetcher:
 ``` 
 
 3. Make sure `config/fetcher-prom-rules/self.yaml` exists. 
+
+Once you deploy an oap-server cluster, the target host should be replaced with a dedicated IP or hostname. For instances,
+there are three oap server in your cluster, their host is `service1`, `service2` and `service3` respectively. You should
+update each `self.yaml` to twist target host.
+
+service1: 
+```yaml
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service1:1234
+  labels:
+    service: oap-server
+...
+```
+
+service2: 
+```yaml
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service2:1234
+  labels:
+    service: oap-server
+...
+```
+
+service3: 
+```yaml
+fetcherInterval: PT15S
+fetcherTimeout: PT10S
+metricsPath: /metrics
+staticConfig:
+  # targets will be labeled as "instance"
+  targets:
+    - service3:1234
+  labels:
+    service: oap-server
+...
+```

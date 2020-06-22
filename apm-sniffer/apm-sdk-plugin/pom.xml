@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -47,6 +47,8 @@
         <module>sharding-sphere-3.x-plugin</module>
         <module>sharding-sphere-4.x-plugin</module>
         <module>sharding-sphere-4.x-RC3-plugin</module>
+        <module>sharding-sphere-4.0.x-plugin</module>
+        <module>sharding-sphere-4.1.0-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
@@ -88,7 +90,9 @@
         <module>lettuce-5.x-plugin</module>
         <module>avro-plugin</module>
         <module>finagle-6.25.x-plugin</module>
+        <module>quasar-plugin</module>
         <module>mariadb-2.x-plugin</module>
+        <module>influxdb-2.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

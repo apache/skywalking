@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 public class PrometheusMetric {
     private CounterFunction counterFunction;
     private String range;
+    private List<LabelMatchRule> labelFilter;
     private Relabel relabel;
     private int scale = 0;
 }

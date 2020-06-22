@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.library.util.prometheus.parser;
 
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
@@ -29,6 +32,10 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.library.util.prometheus.parser.sample.TextSample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 public class Context {
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
@@ -117,21 +124,33 @@ public class Context {
                 metricFamilyBuilder.addMetric(hBuilder.build());
                 break;
             case SUMMARY:
-                Summary.SummaryBuilder sBuilder = Summary.builder();
-                sBuilder.name(name);
-                samples.forEach(textSample -> {
-                    if (textSample.getName().endsWith("_count")) {
-                        sBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
-                    } else if (textSample.getName().endsWith("_sum")) {
-                        sBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
-                    } else if (textSample.getLabels().containsKey("quantile")) {
-                        sBuilder.quantile(
-                            convertStringToDouble(textSample.getLabels().remove("quantile")),
-                            convertStringToDouble(textSample.getValue())
-                        );
-                    }
-                });
-                metricFamilyBuilder.addMetric(sBuilder.build());
+
+                samples.stream()
+                    .map(sample -> {
+                        Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+                        labels.remove("quantile");
+                        return Pair.of(labels, sample);
+                    })
+                    .collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
+                    .forEach((labels, samples) -> {
+                        Summary.SummaryBuilder sBuilder = Summary.builder();
+                        sBuilder.name(name);
+                        sBuilder.labels(labels);
+                        samples.forEach(textSample -> {
+                            if (textSample.getName().endsWith("_count")) {
+                                sBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
+                            } else if (textSample.getName().endsWith("_sum")) {
+                                sBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
+                            } else if (textSample.getLabels().containsKey("quantile")) {
+                                sBuilder.quantile(
+                                    convertStringToDouble(textSample.getLabels().remove("quantile")),
+                                    convertStringToDouble(textSample.getValue())
+                                );
+                            }
+                        });
+                        metricFamilyBuilder.addMetric(sBuilder.build());
+                    });
+
                 break;
         }
         metricFamily = metricFamilyBuilder.build();
