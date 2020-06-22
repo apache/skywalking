@@ -17,6 +17,9 @@ version: '2.1'
 
 services:
   oap:
+    environment:
+      SW_PROMETHEUS_FETCHER_ACTIVE: "true"
+      SW_TELEMETRY: prometheus
     extends:
       file: ../../base-compose.yml
       service: oap
