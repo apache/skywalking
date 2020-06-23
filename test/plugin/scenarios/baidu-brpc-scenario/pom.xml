@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.skywalking</groupId>
-    <artifactId>brpc-java-scenario</artifactId>
+    <artifactId>baidu-brpc-scenario</artifactId>
     <packaging>jar</packaging>
     <version>5.0.0</version>
 
@@ -33,10 +33,10 @@
         <test.framework.version>2.5.3</test.framework.version>
 
         <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
-        <test.framework>brpc-java</test.framework>
+        <test.framework>baidu-brpc</test.framework>
     </properties>
 
-    <name>skywalking-brpc-java-scenario</name>
+    <name>skywalking-baidu-brpc-scenario</name>
 
     <dependencyManagement>
         <dependencies>
@@ -63,7 +63,7 @@
     </dependencies>
 
     <build>
-        <finalName>brpc-java-scenario</finalName>
+        <finalName>baidu-brpc-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -1,3 +1,5 @@
+#!/bin/bash
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: jvm
-entryService: http://localhost:8080/brpc-java-scenario/case/brpc-java
-healthCheck: http://localhost:8080/brpc-java-scenario/case/healthCheck
-startScript: ./bin/startup.sh
+home="$(cd "$(dirname $0)"; pwd)"
+
+java -jar ${agent_opts} ${home}/../libs/baidu-brpc-scenario.jar &

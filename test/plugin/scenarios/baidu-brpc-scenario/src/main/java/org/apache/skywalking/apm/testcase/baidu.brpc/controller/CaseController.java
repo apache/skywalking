@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.brpcjava.controller;
+package org.apache.skywalking.apm.testcase.baidu.brpc.controller;
 
 import com.baidu.brpc.RpcContext;
 import com.baidu.brpc.client.BrpcProxy;
@@ -25,9 +25,9 @@ import com.baidu.brpc.client.RpcClientOptions;
 import com.baidu.brpc.client.loadbalance.LoadBalanceStrategy;
 import com.baidu.brpc.exceptions.RpcException;
 import com.baidu.brpc.protocol.Options;
-import org.apache.skywalking.apm.testcase.brpcjava.interfaces.Echo;
-import org.apache.skywalking.apm.testcase.brpcjava.interfaces.Echo.EchoResponse;
-import org.apache.skywalking.apm.testcase.brpcjava.interfaces.EchoService;
+import org.apache.skywalking.apm.testcase.baidu.brpc.interfaces.Echo;
+import org.apache.skywalking.apm.testcase.baidu.brpc.interfaces.Echo.EchoResponse;
+import org.apache.skywalking.apm.testcase.baidu.brpc.interfaces.EchoService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +45,7 @@ public class CaseController {
         return SUCCESS;
     }
 
-    @RequestMapping("/brpc-java")
+    @RequestMapping("/brpc")
     @ResponseBody
     public String brpc() {
         RpcClientOptions clientOption = new RpcClientOptions();

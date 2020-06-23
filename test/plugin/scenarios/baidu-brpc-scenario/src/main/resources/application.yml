@@ -17,4 +17,4 @@
 server:
   port: 8080
   servlet:
-    context-path: /brpc-java-scenario
+    context-path: /baidu-brpc-scenario

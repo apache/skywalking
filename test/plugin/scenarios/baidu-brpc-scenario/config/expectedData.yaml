@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: brpc-java-scenario
+- serviceName: baidu-brpc-scenario
   segmentSize: gt 2
   segments:
   - segmentId: not null
@@ -31,9 +31,9 @@ segmentItems:
       spanType: Entry
       peer: ''
       refs:
-      - {parentEndpoint: /brpc-java-scenario/case/brpc-java, networkAddress: '127.0.0.1:1118',
+      - {parentEndpoint: /baidu-brpc-scenario/case/brpc, networkAddress: '127.0.0.1:1118',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: brpc-java-scenario, traceId: not null}
+          null, parentService: baidu-brpc-scenario, traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
@@ -49,7 +49,7 @@ segmentItems:
       spanType: Exit
       peer: 127.0.0.1:1118
       skipAnalysis: 'false'
-    - operationName: /brpc-java-scenario/case/brpc-java
+    - operationName: /baidu-brpc-scenario/case/brpc
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -61,6 +61,6 @@ segmentItems:
       spanType: Entry
       peer: ''
       tags:
-      - {key: url, value: 'http://localhost:8080/brpc-java-scenario/case/brpc-java'}
+      - {key: url, value: 'http://localhost:8080/baidu-brpc-scenario/case/brpc'}
       - {key: http.method, value: GET}
       skipAnalysis: 'false'

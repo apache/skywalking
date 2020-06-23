@@ -16,20 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.brpcjava;
+package org.apache.skywalking.apm.testcase.baidu.brpc;
 
 import com.baidu.brpc.server.RpcServer;
 import com.baidu.brpc.server.RpcServerOptions;
-import org.apache.skywalking.apm.testcase.brpcjava.service.EchoServiceImpl;
+import org.apache.skywalking.apm.testcase.baidu.brpc.service.EchoServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BrpcJavaApplication implements InitializingBean {
+public class BaiduBrpcApplication implements InitializingBean {
 
     public static void main(String[] args) {
-        SpringApplication.run(BrpcJavaApplication.class, args);
+        SpringApplication.run(BaiduBrpcApplication.class, args);
     }
 
     @Override

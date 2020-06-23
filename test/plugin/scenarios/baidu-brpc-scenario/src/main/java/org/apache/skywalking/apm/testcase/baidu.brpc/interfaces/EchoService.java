@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.brpcjava.interfaces;
+package org.apache.skywalking.apm.testcase.baidu.brpc.interfaces;
 
 import com.baidu.brpc.protocol.BrpcMeta;
 

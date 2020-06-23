@@ -93,7 +93,7 @@
         <module>quasar-plugin</module>
         <module>mariadb-2.x-plugin</module>
         <module>influxdb-2.x-plugin</module>
-        <module>brpc-java-plugin</module>
+        <module>baidu-brpc-plugin</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.apm.testcase.brpcjava.service;
+package org.apache.skywalking.apm.testcase.baidu.brpc.service;
 
 
 import com.baidu.brpc.RpcContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.apache.skywalking.apm.testcase.brpcjava.interfaces.Echo;
-import org.apache.skywalking.apm.testcase.brpcjava.interfaces.EchoService;
+import org.apache.skywalking.apm.testcase.baidu.brpc.interfaces.Echo;
+import org.apache.skywalking.apm.testcase.baidu.brpc.interfaces.EchoService;
 
 /**
  * Copy from brpc-java-example
