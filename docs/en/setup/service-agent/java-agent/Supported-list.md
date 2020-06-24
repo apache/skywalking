@@ -33,6 +33,7 @@
   * [ShardingSphere](https://github.com/apache/shardingsphere) 3.0.0, 4.0.0-RC1, 4.0.0, 4.0.1, 4.1.0, 4.1.1
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
+  * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
@@ -88,6 +89,7 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+  * [Quasar](https://github.com/puniverse/quasar) 0.7.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin

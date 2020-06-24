@@ -170,6 +170,23 @@ public class Config {
         public static int SNAPSHOT_TRANSPORT_BUFFER_SIZE = 500;
     }
 
+    public static class Meter {
+        /**
+         * If true, skywalking agent will enable sending meters. Otherwise disable meter report.
+         */
+        public static boolean ACTIVE = true;
+
+        /**
+         * Report meters interval
+         */
+        public static Integer REPORT_INTERVAL = 20;
+
+        /**
+         * Max size of the meter count, using {@link org.apache.skywalking.apm.agent.core.meter.MeterId} as identity
+         */
+        public static Integer MAX_METER_SIZE = 500;
+    }
+
     public static class Jvm {
         /**
          * The buffer size of collected JVM info.
@@ -398,6 +415,13 @@ public class Config {
              * parameters, NB. this config item is added for the sake of performance
              */
             public static int HTTP_PARAMS_LENGTH_THRESHOLD = 1024;
+        }
+
+        public static class InfluxDB {
+            /**
+             * If set to true, the parameters of the InfluxQL would be collected.
+             */
+            public static boolean TRACE_INFLUXQL = true;
         }
     }
 
