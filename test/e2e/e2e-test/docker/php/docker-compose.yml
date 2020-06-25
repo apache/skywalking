@@ -22,7 +22,7 @@ services:
       service: oap
 
   php-shadow:
-    image: skyapm/skywalking-php:v3.2.8
+    image: skyapm/skywalking-php:v3.3.2
     networks:
       - e2e
     expose:
@@ -37,7 +37,7 @@ services:
       - ./php-shadow.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
 
   php:
-    image: skyapm/skywalking-php:v3.2.8
+    image: skyapm/skywalking-php:v3.3.2
     networks:
       - e2e
     expose:
@@ -55,7 +55,7 @@ services:
 
   ui:
     extends:
-      file: ../../base-compose.yml
+      file: ../base-compose.yml
       service: ui
     depends_on:
       php:

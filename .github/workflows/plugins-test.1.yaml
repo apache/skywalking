@@ -38,6 +38,7 @@ jobs:
           - { name: 'httpclient-3.x-scenario', title: 'HttpClient 2.0-3.1 (5)' }
           - { name: 'httpclient-4.3.x-scenario', title: 'HttpClient 4.3.x-4.5.x (14)' }
           - { name: 'hystrix-scenario', title: 'Hystrix 1.4.20-1.5.12 (20)' }
+          - { name: 'influxdb-scenario', title: 'InfluxDB Java 2.5-2.17 (12)' }
           - { name: 'jdk-http-scenario', title: 'JDK http (1)' }
           - { name: 'jdk-threading-scenario', title: 'JDK Threading (1)' }
           - { name: 'jedis-scenario', title: 'Jedis 2.4.0-2.9.0 (18)' }
@@ -46,15 +47,12 @@ jobs:
           - { name: 'kotlin-coroutine-scenario', title: 'Kotlin Coroutine 1.0.1-1.3.3 (4)' }
           - { name: 'lettuce-scenario', title: 'Lettuce 5.x (17)' }
           - { name: 'mongodb-3.x-scenario', title: 'Mongodb 3.4.0-3.11.1 (22)' }
-          - { name: 'mysql-scenario', title: 'MySQL 5.1.2-8.0.15 (53)' }
           - { name: 'netty-socketio-scenario', title: 'Netty-SocketIO 1.x (4)' }
+          - { name: 'postgresql-above9.4.1207-scenario', title: 'PostgreSQL 9.4.1207+ (62)' }
     steps:
       - uses: actions/checkout@v2
-      - name: checkout submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
       - uses: actions/setup-java@v1
         with:
           java-version: 8

@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class Expression {
     private String expressionObject;
     private String left;

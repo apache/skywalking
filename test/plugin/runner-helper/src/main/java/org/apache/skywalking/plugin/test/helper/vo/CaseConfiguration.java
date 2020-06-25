@@ -37,4 +37,5 @@ public class CaseConfiguration {
     private List<String> depends_on;
     private String runningMode;
     private String withPlugins;
+    private List<RequestHeader> extendEntryHeader;
 }

@@ -23,8 +23,11 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profile.IProfileThreadSnapshotQueryDAO;
@@ -46,21 +49,22 @@ import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.HistoryDele
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.base.InfluxStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AggregationQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.AlarmQuery;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxMetadataQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.InfluxNetworkAddressAlias;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.LogQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetadataQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.MetricsQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.NetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskLogQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileTaskQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.ProfileThreadSnapshotQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopNRecordsQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TopologyQuery;
 import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.TraceQuery;
+import org.apache.skywalking.oap.server.storage.plugin.influxdb.query.UITemplateManagementDAOImpl;
 
 @Slf4j
 public class InfluxStorageProvider extends ModuleProvider {
     private InfluxStorageConfig config;
-    private InfluxClient influxClient;
+    private InfluxClient client;
 
     public InfluxStorageProvider() {
         config = new InfluxStorageConfig();
@@ -83,35 +87,43 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        influxClient = new InfluxClient(config);
+        client = new InfluxClient(config);
 
-        this.registerServiceImplementation(IBatchDAO.class, new BatchDAO(influxClient));
-        this.registerServiceImplementation(StorageDAO.class, new InfluxStorageDAO(influxClient));
+        this.registerServiceImplementation(IBatchDAO.class, new BatchDAO(client));
+        this.registerServiceImplementation(StorageDAO.class, new InfluxStorageDAO(client));
 
-        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new InfluxNetworkAddressAlias(influxClient));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new InfluxMetadataQueryDAO(influxClient));
+        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new NetworkAddressAliasDAO(client));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new MetadataQuery(client));
 
-        this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(influxClient));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(influxClient));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(influxClient));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(influxClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQuery(influxClient));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQuery(influxClient));
-        this.registerServiceImplementation(ILogQueryDAO.class, new LogQuery(influxClient));
+        this.registerServiceImplementation(ITopologyQueryDAO.class, new TopologyQuery(client));
+        this.registerServiceImplementation(IMetricsQueryDAO.class, new MetricsQuery(client));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new TraceQuery(client));
+        this.registerServiceImplementation(IAggregationQueryDAO.class, new AggregationQuery(client));
+        this.registerServiceImplementation(IAlarmQueryDAO.class, new AlarmQuery(client));
+        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new TopNRecordsQuery(client));
+        this.registerServiceImplementation(ILogQueryDAO.class, new LogQuery(client));
 
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQuery(influxClient));
+        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new ProfileTaskQuery(client));
         this.registerServiceImplementation(
-            IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(influxClient));
+                IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQuery(client));
         this.registerServiceImplementation(
-            IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(influxClient, config.getFetchTaskLogMaxSize()));
+                IProfileTaskLogQueryDAO.class, new ProfileTaskLogQuery(client, config.getFetchTaskLogMaxSize()));
 
         this.registerServiceImplementation(
-            IHistoryDeleteDAO.class, new HistoryDeleteDAO(influxClient));
+                IHistoryDeleteDAO.class, new HistoryDeleteDAO(client));
+        this.registerServiceImplementation(UITemplateManagementDAO.class, new UITemplateManagementDAOImpl(client));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        influxClient.connect();
+        try {
+            client.connect();
+
+            InfluxTableInstaller installer = new InfluxTableInstaller(client, getManager());
+            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
+        } catch (StorageException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -121,6 +133,6 @@ public class InfluxStorageProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+        return new String[]{CoreModule.NAME};
     }
 }

@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
-import org.apache.skywalking.oap.server.core.config.NamingLengthControl;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.All;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -33,17 +33,18 @@ import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 
 @RequiredArgsConstructor
 class SourceBuilder {
-    private final NamingLengthControl namingLengthControl;
+    private final NamingControl namingControl;
 
     @Getter
     private String sourceServiceName;
 
     public void setSourceServiceName(final String sourceServiceName) {
-        this.sourceServiceName = namingLengthControl.formatServiceName(sourceServiceName);
+        this.sourceServiceName = namingControl.formatServiceName(sourceServiceName);
     }
 
     @Getter
@@ -53,21 +54,21 @@ class SourceBuilder {
     private String sourceServiceInstanceName;
 
     public void setSourceServiceInstanceName(final String sourceServiceInstanceName) {
-        this.sourceServiceInstanceName = namingLengthControl.formatInstanceName(sourceServiceInstanceName);
+        this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
     }
 
     @Getter
     private String sourceEndpointName;
 
     public void setSourceEndpointName(final String sourceEndpointName) {
-        this.sourceEndpointName = namingLengthControl.formatEndpointName(sourceEndpointName);
+        this.sourceEndpointName = namingControl.formatEndpointName(sourceServiceName, sourceEndpointName);
     }
 
     @Getter
     private String destServiceName;
 
     public void setDestServiceName(final String destServiceName) {
-        this.destServiceName = namingLengthControl.formatServiceName(destServiceName);
+        this.destServiceName = namingControl.formatServiceName(destServiceName);
     }
 
     @Getter
@@ -77,14 +78,14 @@ class SourceBuilder {
     private String destServiceInstanceName;
 
     public void setDestServiceInstanceName(final String destServiceInstanceName) {
-        this.destServiceInstanceName = namingLengthControl.formatServiceName(destServiceInstanceName);
+        this.destServiceInstanceName = namingControl.formatServiceName(destServiceInstanceName);
     }
 
     @Getter
     private String destEndpointName;
 
     public void setDestEndpointName(final String destEndpointName) {
-        this.destEndpointName = namingLengthControl.formatEndpointName(destEndpointName);
+        this.destEndpointName = namingControl.formatEndpointName(destServiceName, destEndpointName);
     }
 
     @Getter
@@ -109,6 +110,9 @@ class SourceBuilder {
     @Setter
     private long timeBucket;
 
+    /**
+     * The global level metrics source
+     */
     All toAll() {
         All all = new All();
         all.setName(destServiceName);
@@ -122,6 +126,9 @@ class SourceBuilder {
         return all;
     }
 
+    /**
+     * Service meta and metrics related source of {@link #destServiceName}. The metrics base on the OAL scripts.
+     */
     Service toService() {
         Service service = new Service();
         service.setName(destServiceName);
@@ -136,6 +143,9 @@ class SourceBuilder {
         return service;
     }
 
+    /**
+     * Service topology meta and metrics related source. The metrics base on the OAL scripts.
+     */
     ServiceRelation toServiceRelation() {
         ServiceRelation serviceRelation = new ServiceRelation();
         serviceRelation.setSourceServiceName(sourceServiceName);
@@ -155,6 +165,10 @@ class SourceBuilder {
         return serviceRelation;
     }
 
+    /**
+     * Service instance meta and metrics of {@link #destServiceInstanceName} related source. The metrics base on the OAL
+     * scripts.
+     */
     ServiceInstance toServiceInstance() {
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setName(destServiceInstanceName);
@@ -169,6 +183,9 @@ class SourceBuilder {
         return serviceInstance;
     }
 
+    /**
+     * Service instance topology/dependency meta and metrics related source. The metrics base on the OAL scripts.
+     */
     ServiceInstanceRelation toServiceInstanceRelation() {
         if (StringUtil.isEmpty(sourceServiceInstanceName) || StringUtil.isEmpty(destServiceInstanceName)) {
             return null;
@@ -191,6 +208,9 @@ class SourceBuilder {
         return serviceInstanceRelation;
     }
 
+    /**
+     * Endpoint meta and metrics of {@link #destEndpointName} related source. The metrics base on the OAL scripts.
+     */
     Endpoint toEndpoint() {
         Endpoint endpoint = new Endpoint();
         endpoint.setName(destEndpointName);
@@ -205,6 +225,9 @@ class SourceBuilder {
         return endpoint;
     }
 
+    /**
+     * Endpoint depedency meta and metrics related source. The metrics base on the OAL scripts.
+     */
     EndpointRelation toEndpointRelation() {
         if (StringUtil.isEmpty(sourceEndpointName) || StringUtil.isEmpty(destEndpointName)) {
             return null;
@@ -228,6 +251,21 @@ class SourceBuilder {
         return endpointRelation;
     }
 
+    /**
+     * Service meta is only for building the service list, but wouldn't be same as {@link #toService()}, which could
+     * generate traffic and metrics both.
+     */
+    ServiceMeta toServiceMeta() {
+        ServiceMeta service = new ServiceMeta();
+        service.setName(destServiceName);
+        service.setNodeType(destNodeType);
+        service.setTimeBucket(timeBucket);
+        return service;
+    }
+
+    /**
+     * Database traffic metrics source. The metrics base on the OAL scripts.
+     */
     DatabaseAccess toDatabaseAccess() {
         if (!RequestType.DATABASE.equals(type)) {
             return null;

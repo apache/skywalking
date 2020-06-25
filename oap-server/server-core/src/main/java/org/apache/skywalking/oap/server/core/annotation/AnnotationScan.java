@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 
 /**
  * Scan the annotation, and notify the listener(s)
@@ -49,7 +50,7 @@ public class AnnotationScan {
     /**
      * Begin to scan classes.
      */
-    public void scan() throws IOException {
+    public void scan() throws IOException, StorageException {
         ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         for (ClassPath.ClassInfo classInfo : classes) {
@@ -62,7 +63,9 @@ public class AnnotationScan {
             }
         }
 
-        listeners.forEach(AnnotationListenerCache::complete);
+        for (AnnotationListenerCache listener : listeners) {
+            listener.complete();
+        }
     }
 
     private class AnnotationListenerCache {
@@ -82,9 +85,11 @@ public class AnnotationScan {
             matchedClass.add(aClass);
         }
 
-        private void complete() {
+        private void complete() throws StorageException {
             matchedClass.sort(Comparator.comparing(Class::getName));
-            matchedClass.forEach(aClass -> listener.notify(aClass));
+            for (Class<?> aClass : matchedClass) {
+                listener.notify(aClass);
+            }
         }
     }
 }

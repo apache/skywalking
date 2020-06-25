@@ -33,13 +33,22 @@ segmentItems:
       refs:
       - {parentEndpoint: /finagle-6.25.x-scenario/case/finagle, networkAddress: '127.0.0.1:12220',
         refType: CrossProcess, parentSpanId: 1, parentTraceSegmentId: not null, parentServiceInstance: not
-          null, parentService: not null, traceId: not null}
+          null, parentService: 'finagle-6.25.x-scenario', traceId: not null}
       skipAnalysis: 'false'
   - segmentId: not null
     spans:
-    - {operationName: hello, operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: RPCFramework,
-      startTime: nq 0, endTime: nq 0, componentId: 85, isError: false, spanType: Exit,
-      peer: '127.0.0.1:12220', skipAnalysis: 'false'}
+    - operationName: hello
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: RPCFramework
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 85
+      isError: false
+      spanType: Exit
+      peer: '127.0.0.1:12220'
+      skipAnalysis: 'false'
     - operationName: /finagle-6.25.x-scenario/case/finagle
       operationId: 0
       parentSpanId: -1

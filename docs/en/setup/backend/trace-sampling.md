@@ -13,10 +13,7 @@ In **receiver-trace** receiver, you will find `sampleRate` setting.
 ```yaml
 receiver-trace:
   default:
-    bufferPath: ../trace-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
+    ...
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
 ```
 

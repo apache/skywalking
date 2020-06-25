@@ -20,11 +20,13 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.lang.annotation.Annotation;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamingProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -45,7 +47,7 @@ public class StreamAnnotationListener implements AnnotationListener {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void notify(Class aClass) {
+    public void notify(Class aClass) throws StorageException {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 
@@ -55,14 +57,16 @@ public class StreamAnnotationListener implements AnnotationListener {
                 MetricsStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else if (stream.processor().equals(TopNStreamProcessor.class)) {
                 TopNStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
-            } else if (stream.processor().equals(NoneStreamingProcessor.class)) {
-                NoneStreamingProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(NoneStreamProcessor.class)) {
+                NoneStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
+            } else if (stream.processor().equals(ManagementStreamProcessor.class)) {
+                ManagementStreamProcessor.getInstance().create(moduleDefineHolder, stream, aClass);
             } else {
                 throw new UnexpectedException("Unknown stream processor.");
             }
         } else {
             throw new UnexpectedException(
-                "Stream annotation listener could only parse the class present stream annotation.");
+                    "Stream annotation listener could only parse the class present stream annotation.");
         }
     }
 }

@@ -20,10 +20,12 @@ package org.apache.skywalking.e2e;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaRepositories
 @SpringBootApplication
+@ComponentScan({"org.apache.skywalking", "test.apache.skywalking"})
 public class Service0Application {
     public static void main(String[] args) {
         SpringApplication.run(Service0Application.class, args);

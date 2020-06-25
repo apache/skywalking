@@ -251,7 +251,21 @@ AvroClient:
 Finagle:
   id: 85
   languages: Java,Scala
-
+Mariadb:
+  id: 86
+  languages: Java
+mariadb-jdbc:
+  id: 87
+  languages: Java
+quasar:
+  id: 88
+  languages: Java
+InfluxDB:
+  id: 89
+  languages: Java
+influxdb-java:
+  id: 90
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -352,3 +366,4 @@ Component-Server-Mappings:
   rest-high-level-client: Elasticsearch
   SolrJ: Solr
   cassandra-java-driver: Cassandra
+  mariadb-jdbc: Mariadb

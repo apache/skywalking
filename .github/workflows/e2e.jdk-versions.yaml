@@ -39,13 +39,15 @@ jobs:
     env:
       SW_SIMPLE_CASE: jdk
       SW_AGENT_JDK_VERSION: ${{ matrix.jdk }}
+      SW_OAP_BASE_IMAGE: adoptopenjdk/openjdk${{ matrix.jdk }}:alpine
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout Submodules
-        shell: bash
-        run: |
-          git submodule sync --recursive
-          git -c protocol.version=2 submodule update --init --force --recursive --depth=1
+        with:
+          submodules: true
+      - name: Set Up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.jdk }}
       - name: Build Docker Image
         run: make docker
       - name: Copy dist package

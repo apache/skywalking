@@ -20,43 +20,37 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.data.SWCollection;
-import org.apache.skywalking.oap.server.core.analysis.data.Window;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * PersistenceWorker take the responsibility to pushing data to the final storage. The target storage is based on the
  * activate storage implementation. This worker controls the persistence flow.
  *
  * @param <INPUT> The type of worker input. All inputs will be merged and saved.
- * @param <CACHE> Cache type to hold all input.
  */
-public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends Window<INPUT>> extends AbstractWorker<INPUT> {
+@Slf4j
+public abstract class PersistenceWorker<INPUT extends StorageData> extends AbstractWorker<INPUT> {
+    @Getter(AccessLevel.PROTECTED)
+    private final ReadWriteSafeCache<INPUT> cache;
 
-    private static final Logger logger = LoggerFactory.getLogger(PersistenceWorker.class);
-
-    PersistenceWorker(ModuleDefineHolder moduleDefineHolder) {
+    PersistenceWorker(ModuleDefineHolder moduleDefineHolder, ReadWriteSafeCache<INPUT> cache) {
         super(moduleDefineHolder);
+        this.cache = cache;
     }
 
     /**
      * Accept the input, and push the data into the cache.
      */
-    void onWork(INPUT input) {
-        cacheData(input);
+    void onWork(List<INPUT> input) {
+        cache.write(input);
     }
-
-    /**
-     * Cache data based on different strategies. See the implementations for more details.
-     */
-    public abstract void cacheData(INPUT input);
-
-    public abstract CACHE getCache();
 
     /**
      * The persistence process is driven by the {@link org.apache.skywalking.oap.server.core.storage.PersistenceTimer}.
@@ -67,24 +61,6 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
     public abstract void endOfRound(long tookTime);
 
     /**
-     * For every cache implementation(see {@link Window}), there are two dataset, switch them when one persistence round
-     * is beginning, in order to make cached data immutable.
-     *
-     * @return true if switch successfully.
-     */
-    public boolean flushAndSwitch() {
-        boolean isSwitch;
-        try {
-            if (isSwitch = getCache().trySwitchPointer()) {
-                getCache().switchPointer();
-            }
-        } finally {
-            getCache().trySwitchPointerFinally();
-        }
-        return isSwitch;
-    }
-
-    /**
      * Prepare the batch persistence, transfer all prepared data to the executable data format based on the storage
      * implementations.
      *
@@ -93,22 +69,8 @@ public abstract class PersistenceWorker<INPUT extends StorageData, CACHE extends
      */
     public abstract void prepareBatch(Collection<INPUT> lastCollection, List<PrepareRequest> prepareRequests);
 
-    public final void buildBatchRequests(List<PrepareRequest> prepareRequests) {
-        try {
-            SWCollection<INPUT> last = getCache().getLast();
-            while (last.isWriting()) {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    logger.warn("thread wake up");
-                }
-            }
-
-            if (last.collection() != null) {
-                prepareBatch(last.collection(), prepareRequests);
-            }
-        } finally {
-            getCache().finishReadingLast();
-        }
+    public void buildBatchRequests(List<PrepareRequest> prepareRequests) {
+        final List<INPUT> dataList = getCache().read();
+        prepareBatch(dataList, prepareRequests);
     }
 }

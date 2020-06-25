@@ -20,14 +20,13 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
-import org.apache.skywalking.oap.server.core.query.DurationUtils;
-import org.apache.skywalking.oap.server.core.query.entity.AlarmTrend;
-import org.apache.skywalking.oap.server.core.query.entity.Alarms;
-import org.apache.skywalking.oap.server.core.query.entity.Pagination;
-import org.apache.skywalking.oap.server.core.query.entity.Scope;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.AlarmTrend;
+import org.apache.skywalking.oap.server.core.query.type.Alarms;
+import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class AlarmQuery implements GraphQLQueryResolver {
@@ -51,15 +50,13 @@ public class AlarmQuery implements GraphQLQueryResolver {
     }
 
     public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
-        final Pagination paging) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(duration.getStep(), duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(duration.getStep(), duration.getEnd());
-
+                           final Pagination paging) throws IOException {
         Integer scopeId = null;
         if (scope != null) {
             scopeId = scope.getScopeId();
         }
 
-        return getQueryService().getAlarm(scopeId, keyword, paging, startTimeBucket, endTimeBucket);
+        return getQueryService().getAlarm(
+            scopeId, keyword, paging, duration.getStartTimeBucketInSec(), duration.getEndTimeBucketInSec());
     }
 }
