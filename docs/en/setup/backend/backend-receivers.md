@@ -13,6 +13,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
+1. **receiver-meter**. See [details](backend-meter.md).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml

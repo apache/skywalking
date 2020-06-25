@@ -19,50 +19,29 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-receiver-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>8.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-receiver-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>skywalking-trace-receiver-plugin</module>
-        <module>zipkin-receiver-plugin</module>
-        <module>skywalking-mesh-receiver-plugin</module>
-        <module>skywalking-istio-telemetry-receiver-plugin</module>
-        <module>skywalking-management-receiver-plugin</module>
-        <module>skywalking-jvm-receiver-plugin</module>
-        <module>envoy-metrics-receiver-plugin</module>
-        <module>skywalking-sharing-server-plugin</module>
-        <module>skywalking-clr-receiver-plugin</module>
-        <module>jaeger-receiver-plugin</module>
-        <module>receiver-proto</module>
-        <module>skywalking-profile-receiver-plugin</module>
-        <module>skywalking-meter-receiver-plugin</module>
-    </modules>
+    <artifactId>skywalking-meter-receiver-plugin</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-core</artifactId>
+            <artifactId>skywalking-sharing-server-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-network</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.3</version>
         </dependency>
     </dependencies>
+
 </project>
