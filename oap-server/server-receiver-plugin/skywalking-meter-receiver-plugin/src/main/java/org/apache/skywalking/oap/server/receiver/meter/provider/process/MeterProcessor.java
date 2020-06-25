@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import java.util.Set;
  * Process meter when receive the meter data.
  */
 public class MeterProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MeterProcessor.class);
 
     /**
      * Process context.
@@ -110,14 +113,18 @@ public class MeterProcessor {
             return;
         }
 
-        // Init groovy shell
-        final Binding binding = new Binding();
-        binding.setVariable("meter", new BindingMeterMap(meters));
-        final GroovyShell shell = new GroovyShell(binding);
+        try {
+            // Init groovy shell
+            final Binding binding = new Binding();
+            binding.setVariable("meter", new BindingMeterMap(meters));
+            final GroovyShell shell = new GroovyShell(binding);
 
-        // Build meter and send
-        for (MeterBuilder builder : enabledBuilders) {
-            builder.buildAndSend(this, shell);
+            // Build meter and send
+            for (MeterBuilder builder : enabledBuilders) {
+                builder.buildAndSend(this, shell);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Process meters failure.", e);
         }
     }
 
