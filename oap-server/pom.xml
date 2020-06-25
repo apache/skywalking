@@ -89,6 +89,7 @@
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
+        <groovy.version>3.0.3</groovy.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
@@ -505,6 +506,11 @@
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
                 <version>${vavr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -40,7 +40,6 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>3.0.3</version>
         </dependency>
     </dependencies>
 
