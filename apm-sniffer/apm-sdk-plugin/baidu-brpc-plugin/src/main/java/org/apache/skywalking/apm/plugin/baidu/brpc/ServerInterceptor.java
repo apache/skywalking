@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.brpc;
+package org.apache.skywalking.apm.plugin.baidu.brpc;
 
 import com.baidu.brpc.protocol.Request;
 import com.baidu.brpc.protocol.Response;

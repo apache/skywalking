@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-brpc-java=org.apache.skywalking.apm.plugin.brpc.define.ClientInstrumentation
-brpc-java=org.apache.skywalking.apm.plugin.brpc.define.ServerInstrumentation
+brpc-java=org.apache.skywalking.apm.plugin.baidu.brpc.define.ClientInstrumentation
+brpc-java=org.apache.skywalking.apm.plugin.baidu.brpc.define.ServerInstrumentation

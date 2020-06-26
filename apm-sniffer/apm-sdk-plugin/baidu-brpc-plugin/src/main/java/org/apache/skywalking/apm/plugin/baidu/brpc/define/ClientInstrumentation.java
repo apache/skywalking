@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.brpc.define;
+package org.apache.skywalking.apm.plugin.baidu.brpc.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,11 +28,11 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-public class ServerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class ClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.brpc.ServerInterceptor";
-    public static final String ENHANCE_CLASS = "com.baidu.brpc.interceptor.ServerInvokeInterceptor";
-    public static final String ENHANCE_METHOD = "aroundProcess";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.brpc.ClientInterceptor";
+    public static final String ENHANCE_CLASS = "com.baidu.brpc.interceptor.LoadBalanceInterceptor";
+    public static final String ENHANCE_METHOD = "rpcCore";
 
     @Override
     protected ClassMatch enhanceClass() {
