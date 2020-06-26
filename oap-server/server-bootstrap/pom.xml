@@ -233,6 +233,7 @@
                         <exclude>oal/dotnet-agent.oal</exclude>
                         <exclude>oal/envoy.oal</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
+                        <exclude>meter-receive-config/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
