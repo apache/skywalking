@@ -30,7 +30,7 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class ClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
-    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.brpc.ClientInterceptor";
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.baidu.brpc.ClientInterceptor";
     public static final String ENHANCE_CLASS = "com.baidu.brpc.interceptor.LoadBalanceInterceptor";
     public static final String ENHANCE_METHOD = "rpcCore";
 
