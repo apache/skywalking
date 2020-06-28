@@ -98,5 +98,11 @@ Set the **cluster/selector** to **nacos** in the yml to enable.
 ```yaml
 cluster:
   selector: ${SW_CLUSTER:nacos}
-  # other configurations
+  nacos:
+     #Nacos service name
+     serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+     # Nacos host and port
+     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:10.221.65.205:8848}
+     # Nacos configuration namespace
+     namespace: ${SW_CLUSTER_NACOS_NAMESPACE:"public"}
 ```
