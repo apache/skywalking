@@ -21,6 +21,8 @@ package org.apache.skywalking.apm.agent.core.plugin.bytebuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 import net.bytebuddy.utility.RandomString;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.AgentPackagePath;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.util.FileUtils;
@@ -32,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.instrument.IllegalClassFormatException;
-import java.nio.file.Files;
 import java.security.ProtectionDomain;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +48,6 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
 
     private static final ILog logger = LogManager.getLogger(CacheableTransformerDecorator.class);
 
-    private String cacheDirBase;
     private final ClassCacheMode cacheMode;
     private ClassCacheResolver cacheResolver;
 
@@ -56,20 +56,22 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         initClassCache();
     }
 
-    public CacheableTransformerDecorator(ClassCacheMode cacheMode, String cacheDirBase) throws IOException {
-        this.cacheDirBase = cacheDirBase;
-        this.cacheMode = cacheMode;
-        initClassCache();
-    }
-
     private void initClassCache() throws IOException {
         if (this.cacheMode.equals(ClassCacheMode.FILE)) {
-            File cacheDir;
-            if (this.cacheDirBase == null) {
-                cacheDir = Files.createTempDirectory("class-cache").toFile();
-            } else {
-                cacheDir = new File(this.cacheDirBase + "/class-cache-" + RandomString.make());
+            String cacheDirBase = null;
+            try {
+                cacheDirBase = AgentPackagePath.getPath() + "/class-cache";
+            } catch (AgentPackageNotFoundException e) {
+                throw new IOException("Can't find the root path for creating /class-cache folder.");
             }
+            File cacheDir = new File(cacheDirBase + "/class-cache-" + RandomString.make());
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs();
+            }
+            if (!cacheDir.exists()) {
+                throw new IOException("Create class cache dir failure");
+            }
+
             cacheResolver = new FileCacheResolver(cacheDir);
         } else {
             cacheResolver = new MemoryCacheResolver();
@@ -146,9 +148,6 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
 
         FileCacheResolver(File cacheDir) {
             this.cacheDir = cacheDir;
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs();
-            }
 
             //clean cache dir on exit
             FileUtils.deleteDirectoryOnExit(cacheDir);
