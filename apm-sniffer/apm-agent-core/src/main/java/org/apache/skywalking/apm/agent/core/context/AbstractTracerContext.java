@@ -93,6 +93,12 @@ public interface AbstractTracerContext {
      */
     AbstractSpan activeSpan();
 
+
+    /**
+     * @return the first span of current tracing context(stack)
+     */
+    AbstractSpan firstSpan();
+
     /**
      * Finish the given span, and the given span should be the active span of current tracing context(stack)
      *
