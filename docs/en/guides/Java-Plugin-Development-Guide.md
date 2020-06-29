@@ -170,7 +170,7 @@ The value of `x-le` should be JSON format, with two options.
 ```json
 {
   "name": "GraphQL-service",
-  latency": 100,
+  "latency": 100,
   "status": true
 }
 ```
