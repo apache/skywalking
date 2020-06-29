@@ -19,6 +19,6 @@
 home="$(cd "$(dirname $0)"; pwd)"
 
 # enable class cache feature
-export agent_opts="$agent_opts -DSW_AGENT_CACHE_CLASS=true -DSW_AGENT_CLASS_CACHE_MODE=MEMORY"
+export agent_opts="$agent_opts -Dskywalking.agent.is_cache_enhanced_class=true -Dskywalking.agent.class_cache_mode=MEMORY"
 
 java -jar ${agent_opts} ${home}/../libs/retransform-class-scenario.jar &

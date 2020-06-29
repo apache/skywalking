@@ -19,7 +19,4 @@ entryService: http://localhost:8080/case/retransform-class-scenario
 healthCheck: http://localhost:8080/case/healthCheck
 startScript: ./bin/startup.sh
 environment:
-# why the flowing env is not work for agent
-#  - "SW_AGENT_CACHE_CLASS=true"
-#  - "SW_AGENT_CLASS_CACHE_MODE=MEMORY"
 dependencies:
