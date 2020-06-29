@@ -82,7 +82,8 @@ public class H2TraceQueryDAO implements ITraceQueryDAO {
             }
         }
         if (!Strings.isNullOrEmpty(endpointName)) {
-            sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like '%" + endpointName + "%'");
+            sql.append(" and ").append(SegmentRecord.ENDPOINT_NAME).append(" like concat('%',?,'%')");
+            parameters.add(endpointName);
         }
         if (StringUtil.isNotEmpty(serviceId)) {
             sql.append(" and ").append(SegmentRecord.SERVICE_ID).append(" = ?");

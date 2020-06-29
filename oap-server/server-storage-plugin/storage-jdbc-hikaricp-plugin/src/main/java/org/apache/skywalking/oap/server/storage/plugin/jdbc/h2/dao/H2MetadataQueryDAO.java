@@ -125,7 +125,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(ServiceTraffic.NODE_TYPE).append("=?");
         condition.add(NodeType.Normal.value());
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(ServiceTraffic.NAME).append(" like \"%").append(keyword).append("%\"");
+            sql.append(" and ").append(ServiceTraffic.NAME).append(" like concat('%',?,'%')");
+            condition.add(keyword);
         }
         sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -175,7 +176,8 @@ public class H2MetadataQueryDAO implements IMetadataQueryDAO {
         sql.append(EndpointTraffic.SERVICE_ID).append("=?");
         condition.add(serviceId);
         if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointTraffic.NAME).append(" like '%").append(keyword).append("%' ");
+            sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
+            condition.add(keyword);
         }
         sql.append(" limit ").append(limit);
 
