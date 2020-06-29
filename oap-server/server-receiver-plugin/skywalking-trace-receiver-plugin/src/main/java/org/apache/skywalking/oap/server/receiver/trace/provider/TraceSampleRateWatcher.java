@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import lombok.extern.slf4j.Slf4j;
