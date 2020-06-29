@@ -18,18 +18,20 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
+import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
+
 /**
  * The sampler makes the sampling mechanism works at backend side. Sample result: [0,sampleRate) sampled, (sampleRate,~)
  * ignored
  */
 public class TraceSegmentSampler {
-    private int sampleRate = 10000;
+    private TraceServiceModuleConfig config;
 
-    public TraceSegmentSampler(int sampleRate) {
-        this.sampleRate = sampleRate;
+    public TraceSegmentSampler(TraceServiceModuleConfig config) {
+        this.config = config;
     }
 
     public boolean shouldSample(String segmentId) {
-        return segmentId.hashCode() % 10000 < sampleRate;
+        return segmentId.hashCode() % 10000 < config.getTraceSampleRateWatcher().getSampleRate();
     }
 }
