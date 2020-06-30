@@ -107,6 +107,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 if (span.getSpanLayer().equals(SpanLayer.MQ) ||
                     config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
+                    sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
                 } else {
