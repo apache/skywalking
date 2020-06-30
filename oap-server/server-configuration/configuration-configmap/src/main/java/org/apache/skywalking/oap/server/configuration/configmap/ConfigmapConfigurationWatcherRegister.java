@@ -36,7 +36,7 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
 
-        Optional<V1ConfigMap> v1ConfigMap = ConfigurationConfigmapInformer.CONTEXT.configMap();
+        Optional<V1ConfigMap> v1ConfigMap = ConfigurationConfigmapInformer.INFORMER.configMap();
 
         for (final String name : keys) {
 

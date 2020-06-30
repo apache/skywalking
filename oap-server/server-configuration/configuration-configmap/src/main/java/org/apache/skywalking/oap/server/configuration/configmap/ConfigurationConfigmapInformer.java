@@ -40,7 +40,7 @@ public enum ConfigurationConfigmapInformer {
     /**
      * contains configmap
      */
-    CONTEXT;
+    INFORMER;
 
     private Lister<V1ConfigMap> configMapLister;
 

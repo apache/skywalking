@@ -258,6 +258,10 @@ configuration:
     period: ${SW_CONFIG_CONSUL_PERIOD:1}
     # Consul aclToken
     aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
+  configmap:
+    period: ${SW_CONFIG_CONSUL_PERIOD:60}
+    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
 
 exporter:
   selector: ${SW_EXPORTER:-}
