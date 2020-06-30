@@ -31,10 +31,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @Author: caoyixiong
- * @Date: 2020-06-29 17:04
- */
+
 public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override

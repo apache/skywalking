@@ -28,9 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * @Author: caoyixiong
- */
 public class GraphqlInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.graphql.GraphqlInterceptor";
     public static final String ENHANCE_CLASS = "graphql.execution.ExecutionStrategy";
