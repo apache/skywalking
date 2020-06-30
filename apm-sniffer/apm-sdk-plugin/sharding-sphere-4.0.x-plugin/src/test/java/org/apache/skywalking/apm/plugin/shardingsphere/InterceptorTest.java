@@ -19,6 +19,7 @@
 package org.apache.skywalking.apm.plugin.shardingsphere;
 
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.test.helper.SegmentHelper;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
@@ -80,6 +81,7 @@ public class InterceptorTest {
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/ProxyRootInvoke/"));
+        SpanAssert.assertLayer(spans.get(0), SpanLayer.DB);
     }
 
     @Test
@@ -92,6 +94,7 @@ public class InterceptorTest {
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/JDBCRootInvoke/"));
+        SpanAssert.assertLayer(spans.get(0), SpanLayer.DB);
     }
 
     @Test
@@ -109,6 +112,7 @@ public class InterceptorTest {
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/parseSQL/"));
         SpanAssert.assertTag(spans.get(0), 0, "SELECT * FROM t_order");
+        SpanAssert.assertLayer(spans.get(0), SpanLayer.DB);
     }
 
     @Test
@@ -126,5 +130,6 @@ public class InterceptorTest {
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
         assertThat(spans.get(0).getOperationName(), is("/ShardingSphere/executeSQL/"));
+        SpanAssert.assertLayer(spans.get(0), SpanLayer.DB);
     }
 }

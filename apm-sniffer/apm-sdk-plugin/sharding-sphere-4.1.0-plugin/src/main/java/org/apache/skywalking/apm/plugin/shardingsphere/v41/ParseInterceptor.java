@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -39,6 +40,7 @@ public class ParseInterceptor implements InstanceMethodsAroundInterceptor {
         AbstractSpan span = ContextManager.createLocalSpan("/ShardingSphere/parseSQL/")
                                           .setComponent(ComponentsDefine.SHARDING_SPHERE);
         Tags.DB_STATEMENT.set(span, (String) allArguments[0]);
+        SpanLayer.asDB(span);
     }
 
     @Override

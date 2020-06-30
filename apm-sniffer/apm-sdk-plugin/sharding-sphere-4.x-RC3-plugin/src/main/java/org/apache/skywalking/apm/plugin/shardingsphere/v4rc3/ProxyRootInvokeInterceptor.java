@@ -20,6 +20,8 @@ package org.apache.skywalking.apm.plugin.shardingsphere.v4rc3;
 
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -36,9 +38,10 @@ public class ProxyRootInvokeInterceptor implements InstanceMethodsAroundIntercep
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/")
+        AbstractSpan span = ContextManager.createLocalSpan("/ShardingSphere/ProxyRootInvoke/")
                       .setComponent(ComponentsDefine.SHARDING_SPHERE);
         ShardingExecuteDataMap.getDataMap().put(Constant.CONTEXT_SNAPSHOT, ContextManager.capture());
+        SpanLayer.asDB(span);
     }
 
     @Override

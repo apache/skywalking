@@ -21,6 +21,8 @@ package org.apache.skywalking.apm.plugin.shardingsphere.v4;
 import org.apache.shardingsphere.core.execute.ShardingExecuteDataMap;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -38,7 +40,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) {
-        ContextManager.createLocalSpan("/ShardingSphere/executeSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
+        AbstractSpan span = ContextManager.createLocalSpan("/ShardingSphere/executeSQL/").setComponent(ComponentsDefine.SHARDING_SPHERE);
         ContextSnapshot contextSnapshot = (ContextSnapshot) ShardingExecuteDataMap.getDataMap()
                                                                                   .get(Constant.CONTEXT_SNAPSHOT);
         if (null == contextSnapshot) {
@@ -47,6 +49,7 @@ public class ExecuteInterceptor implements InstanceMethodsAroundInterceptor {
         if (null != contextSnapshot) {
             ContextManager.continued(contextSnapshot);
         }
+        SpanLayer.asDB(span);
     }
 
     @Override
