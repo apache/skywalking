@@ -241,7 +241,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_execute_latency_percentile
+  - name: instance_persistence_execute_percentile
     scope: SERVICE_INSTANCE
     operation: avgHistogramPercentile
     percentiles: [50, 70, 90, 99]
@@ -254,7 +254,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_prepare_latency_percentile
+  - name: instance_persistence_prepare_percentile
     scope: SERVICE_INSTANCE
     operation: avgHistogramPercentile
     percentiles: [50, 70, 90, 99]
@@ -267,7 +267,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_bulk_error_count
+  - name: instance_persistence_error_count
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
@@ -279,7 +279,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_execute_count
+  - name: instance_persistence_execute_count
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
@@ -291,7 +291,7 @@ metricsRules:
             - service
           instance:
             - instance
-  - name: instance_persistence_timer_prepare_count
+  - name: instance_persistence_prepare_count
     scope: SERVICE_INSTANCE
     operation: avg
     sources:
