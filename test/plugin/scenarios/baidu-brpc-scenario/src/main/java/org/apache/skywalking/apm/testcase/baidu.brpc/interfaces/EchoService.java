@@ -16,18 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.source;
+package org.apache.skywalking.apm.testcase.baidu.brpc.interfaces;
+
+import com.baidu.brpc.protocol.BrpcMeta;
 
 /**
- * RPC request type.
+ * Copy from brpc-java-example
  */
-public enum RequestType {
-    DATABASE,
-    HTTP,
-    RPC,
-    gRPC,
-    /**
-     * Logic request only.
-     */
-    LOGIC
+public interface EchoService {
+
+    @BrpcMeta(serviceName = "example.EchoService", methodName = "Echo")
+    Echo.EchoResponse echo(Echo.EchoRequest request);
 }
