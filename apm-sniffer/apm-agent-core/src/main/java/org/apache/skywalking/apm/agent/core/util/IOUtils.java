@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Copied from commons-io-2.2 {@link org.apache.commons.io.IOUtils}
+ * Copied from commons-io-2.2 (org.apache.commons.io.IOUtils)
  * Origin license: http://www.apache.org/licenses/LICENSE-2.0
  * @version $Id: IOUtils.java 1304177 2012-03-23 03:36:44Z ggregory $
  */
