@@ -84,7 +84,7 @@ public class Config {
         /**
          * The instrumented classes cache mode: MEMORY or FILE
          * MEMORY: cache class bytes to memory, if instrumented classes is too many or too large, it may take up more memory
-         * FILE: cache class bytes to user temp folder starts with 'class-cache', automatically clean up cached class files when the application exits
+         * FILE: cache class bytes in `/class-cache` folder, automatically clean up cached class files when the application exits
          */
         public static ClassCacheMode CLASS_CACHE_MODE = ClassCacheMode.MEMORY;
 
