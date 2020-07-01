@@ -48,6 +48,7 @@ jobs:
           - { name: 'quasar-scenario', title: 'quasar 0.7.x (5)' }
           - { name: 'baidu-brpc-scenario', title: 'baidu-brpc 2.3.7-2.5.3 (12)' }
           - { name: 'retransform-class-scenario', title: 'Retransform class (1)' }
+          - { name: 'retransform-class-tomcat-scenario', title: 'Retransform class (1)' }
     steps:
       - uses: actions/checkout@v2
         with:
