@@ -16,34 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
+package org.apache.skywalking.oap.server.receiver.kafka.module;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.receiver.kafka.KafkaReceiveHandlerRegister;
 
-@Getter
-public class RemoteInstance implements Comparable<RemoteInstance> {
+public class KafkaReceiverModule extends ModuleDefine {
+    public static final String NAME = "receiver-kafka";
 
-    private final Address address;
-
-    private final String serverId;
-
-    public RemoteInstance(Address address) {
-        this(address, null);
-    }
-
-    public RemoteInstance(Address address, String serverId) {
-        this.address = address;
-        this.serverId = serverId;
+    public KafkaReceiverModule() {
+        super(NAME);
     }
 
     @Override
-    public String toString() {
-        return address.toString();
-    }
-
-    @Override
-    public int compareTo(RemoteInstance o) {
-        return this.address.compareTo(o.getAddress());
+    public Class[] services() {
+        return new Class[] {
+            KafkaReceiveHandlerRegister.class
+        };
     }
 }

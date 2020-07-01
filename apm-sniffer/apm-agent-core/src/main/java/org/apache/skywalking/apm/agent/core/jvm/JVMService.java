@@ -48,7 +48,7 @@ public class JVMService implements BootService, Runnable {
 
     @Override
     public void prepare() throws Throwable {
-        sender = ServiceManager.INSTANCE.findService(JVMServiceSenderImpl.class);
+        sender = ServiceManager.INSTANCE.findService(JVMServiceGRPCSender.class);
     }
 
     @Override

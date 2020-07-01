@@ -47,7 +47,7 @@ public class JVMSourceDispatcher {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
-    void sendMetric(String service, String serviceInstance, JVMMetric metrics) {
+    public void sendMetric(String service, String serviceInstance, JVMMetric metrics) {
         long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(metrics.getTime());
 
         final String serviceId = IDManager.ServiceID.buildId(service, NodeType.Normal);

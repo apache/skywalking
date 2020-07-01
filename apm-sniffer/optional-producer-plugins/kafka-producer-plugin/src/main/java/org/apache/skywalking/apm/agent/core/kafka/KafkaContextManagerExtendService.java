@@ -60,11 +60,8 @@ public class KafkaContextManagerExtendService extends ContextManagerExtendServic
 
     @Override
     public void prepare() {
-
+        logger.warn("KafkaContextManagerExtendService ## prepare............");
+        statusChanged(GRPCChannelStatus.CONNECTED); // Kafka manages the status by self.
     }
 
-    @Override
-    public void statusChanged(final GRPCChannelStatus status) {
-
-    }
 }

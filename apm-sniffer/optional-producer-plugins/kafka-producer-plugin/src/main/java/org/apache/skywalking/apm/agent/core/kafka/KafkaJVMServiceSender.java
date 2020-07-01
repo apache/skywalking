@@ -29,13 +29,13 @@ import org.apache.skywalking.apm.agent.core.boot.OverrideImplementor;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.jvm.JVMServiceSender;
-import org.apache.skywalking.apm.agent.core.jvm.JVMServiceSenderImpl;
+import org.apache.skywalking.apm.agent.core.jvm.JVMServiceGRPCSender;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
 
-@OverrideImplementor(JVMServiceSenderImpl.class)
+@OverrideImplementor(JVMServiceGRPCSender.class)
 public class KafkaJVMServiceSender implements JVMServiceSender {
     private static final ILog logger = LogManager.getLogger(KafkaJVMServiceSender.class);
     private KafkaProducer<String, Bytes> producer;

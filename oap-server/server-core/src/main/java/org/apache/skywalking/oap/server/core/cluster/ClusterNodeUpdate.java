@@ -18,32 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-@Getter
-public class RemoteInstance implements Comparable<RemoteInstance> {
+public interface ClusterNodeUpdate extends Service {
 
-    private final Address address;
+    RemoteInstance updateRemoteNodes(String serverId) throws Exception;
 
-    private final String serverId;
-
-    public RemoteInstance(Address address) {
-        this(address, null);
-    }
-
-    public RemoteInstance(Address address, String serverId) {
-        this.address = address;
-        this.serverId = serverId;
-    }
-
-    @Override
-    public String toString() {
-        return address.toString();
-    }
-
-    @Override
-    public int compareTo(RemoteInstance o) {
-        return this.address.compareTo(o.getAddress());
-    }
 }

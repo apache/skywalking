@@ -16,34 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
+package org.apache.skywalking.oap.server.receiver.kafka.provider;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Getter
-public class RemoteInstance implements Comparable<RemoteInstance> {
-
-    private final Address address;
-
-    private final String serverId;
-
-    public RemoteInstance(Address address) {
-        this(address, null);
-    }
-
-    public RemoteInstance(Address address, String serverId) {
-        this.address = address;
-        this.serverId = serverId;
-    }
-
-    @Override
-    public String toString() {
-        return address.toString();
-    }
-
-    @Override
-    public int compareTo(RemoteInstance o) {
-        return this.address.compareTo(o.getAddress());
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface SourceReceiverPoint {
 }

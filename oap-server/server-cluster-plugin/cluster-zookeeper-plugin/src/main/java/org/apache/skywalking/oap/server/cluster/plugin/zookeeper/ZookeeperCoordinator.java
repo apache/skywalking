@@ -25,6 +25,8 @@ import java.util.UUID;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.cluster.ClusterNodeUpdate;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -34,7 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
+public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery, ClusterNodeUpdate {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperCoordinator.class);
 
     private static final String REMOTE_NAME_PATH = "remote";
@@ -45,7 +47,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     private volatile Address selfAddress;
 
     ZookeeperCoordinator(ClusterModuleZookeeperConfig config,
-        ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+                         ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
@@ -56,19 +58,23 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
     public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
             if (needUsingInternalAddr()) {
-                remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
+                remoteInstance = new RemoteInstance(
+                    new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
 
-            ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder().name(REMOTE_NAME_PATH)
+            ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder().name(
+                REMOTE_NAME_PATH)
                                                                                                     .id(UUID.randomUUID()
                                                                                                             .toString())
-                                                                                                    .address(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getHost())
+                                                                                                    .address(
+                                                                                                        remoteInstance
+                                                                                                            .getAddress()
+                                                                                                            .getHost())
                                                                                                     .port(remoteInstance
-                                                                                                        .getAddress()
-                                                                                                        .getPort())
-                                                                                                    .payload(remoteInstance)
+                                                                                                              .getAddress()
+                                                                                                              .getPort())
+                                                                                                    .payload(
+                                                                                                        remoteInstance)
                                                                                                     .build();
 
             serviceDiscovery.registerService(thisInstance);
@@ -78,6 +84,33 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }
+    }
+
+    @Override
+    public synchronized RemoteInstance updateRemoteNodes(String serverId) throws Exception {
+        ServiceInstance self = null;
+        for (ServiceInstance<RemoteInstance> service : serviceCache.getInstances()) {
+
+            if (service.getPayload().getAddress().equals(selfAddress)) {
+                self = service;
+            } else if (StringUtil.isNotEmpty(serverId) && serverId.equals(service.getPayload().getServerId())) {
+                throw new ServiceRegisterException("ServerId[" + serverId + "] confirmed");
+            }
+        }
+        if (self == null) {
+            throw new ServiceRegisterException("Service[" + serverId + "] not found.");
+        }
+        RemoteInstance payload = new RemoteInstance(selfAddress, serverId);
+        ServiceInstance<RemoteInstance> instance = ServiceInstance.<RemoteInstance>builder()
+            .payload(payload)
+            .id(self.getId())
+            .name(self.getName())
+            .address(self.getAddress())
+            .port(self.getPort())
+            .build();
+
+        serviceDiscovery.updateService(instance);
+        return instance.getPayload();
     }
 
     @Override

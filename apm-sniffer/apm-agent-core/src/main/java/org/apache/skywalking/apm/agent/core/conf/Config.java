@@ -151,11 +151,11 @@ public class Config {
 
             public static String TOPIC_METRICS = "skywalking-metrics";
 
-            public static String TOPIC_PROFILING = "skywalking-profiling";
+            public static String TOPIC_PROFILING = "skywalking-profilings";
 
-            public static String TOPIC_SEGMENT = "skywalking-segment";
+            public static String TOPIC_SEGMENT = "skywalking-segments";
 
-            public static String TOPIC_MANAGEMENT = "skywalking-management";
+            public static String TOPIC_MANAGEMENT = "skywalking-managements";
 
             public static Map<String, String> CONSUMER_CONFIG = new HashMap<>();
         }

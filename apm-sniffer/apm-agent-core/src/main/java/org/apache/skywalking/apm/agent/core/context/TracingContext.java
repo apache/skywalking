@@ -116,7 +116,7 @@ public class TracingContext implements AbstractTracerContext {
     /**
      * Initialize all fields with default value.
      */
-    public TracingContext(String firstOPName) {
+    TracingContext(String firstOPName) {
         this.segment = new TraceSegment();
         this.spanIdGenerator = 0;
         isRunningInAsyncMode = false;

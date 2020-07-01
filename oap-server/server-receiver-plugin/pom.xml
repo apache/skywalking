@@ -40,7 +40,7 @@
         <module>jaeger-receiver-plugin</module>
         <module>receiver-proto</module>
         <module>skywalking-profile-receiver-plugin</module>
-        <module>skywalking-mq-receiver-plugins</module>
+        <module>skywalking-kafka-receiver-plugin</module>
     </modules>
 
     <dependencies>
