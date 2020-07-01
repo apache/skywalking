@@ -24,3 +24,4 @@ These are known and common FAQs. We welcome you to contribute yours.
 * [No data shown and backend replies with "Variable 'serviceId' has coerced Null value for NonNull type 'ID!'"](time-and-timezone.md)
 * [**Unexpected endpoint register** warning after 6.6.0](Unexpected-endpoint-register.md)
 * [Use the profile exporter tool if the profile analysis is not right](../guides/backend-profile-export.md)
+* [Compatible with other javaagent bytecode processing](Compatible-with-other-javaagent-bytecode-processing.md)
