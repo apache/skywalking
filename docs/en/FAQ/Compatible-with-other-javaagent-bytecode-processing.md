@@ -7,7 +7,7 @@ https://github.com/apache/skywalking/pull/4858
 2. Java agent retransforming class fails with Skywalking agent, such as in this [demo](https://github.com/hengyunabc/skywalking-error-demo)
  
 ### Reason
-Skywalking agent uses ByteBuddy to retransform classes when java application starts. 
+SkyWalking agent uses ByteBuddy to transform classes when the Java application starts. 
 ByteBuddy generates auxiliary classes with different random names every time. 
 
 When other javaagent retransforms the same class, it will trigger the SkyWalking agent to enhance the class again. 
