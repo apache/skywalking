@@ -73,7 +73,7 @@ public class TraceModuleProvider extends ModuleProvider {
 
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
-        traceSampleRateWatcher = new TraceSampleRateWatcher(String.valueOf(moduleConfig.getSampleRate()),this);
+        traceSampleRateWatcher = new TraceSampleRateWatcher(String.valueOf(moduleConfig.getSampleRate()), this);
 
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);

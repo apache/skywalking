@@ -30,7 +30,7 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
     private  AtomicReference<String> settingsString;
     private  AtomicReference<Integer> sampleRate;
 
-    public TraceSampleRateWatcher(String config, TraceModuleProvider provider){
+    public TraceSampleRateWatcher(String config, TraceModuleProvider provider) {
         super(TraceModule.NAME, provider, "sampleRate");
         settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         sampleRate = new AtomicReference<>();
@@ -44,9 +44,8 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
         }
         settingsString.set(config);
         try {
-            int t_sampleRate = Integer.parseInt(config);
-            sampleRate.set(t_sampleRate);
-        }catch (NumberFormatException ex){
+            sampleRate.set(Integer.parseInt(config));
+        } catch (NumberFormatException ex) {
             log.error("Cannot load sampleRate from: {}", config,ex);
         }
     }
@@ -65,7 +64,7 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
         return settingsString.get();
     }
 
-    public int getSampleRate(){
-        return sampleRate.get()==null?((TraceModuleProvider)this.getProvider()).getModuleConfig().getSampleRate():sampleRate.get();
+    public int getSampleRate() {
+        return sampleRate.get() == null ? ((TraceModuleProvider) this.getProvider()).getModuleConfig().getSampleRate() : sampleRate.get();
     }
 }
