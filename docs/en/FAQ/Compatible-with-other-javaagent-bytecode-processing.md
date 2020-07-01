@@ -1,7 +1,7 @@
 ## Compatible with other javaagent bytecode processing
 
 ### Problem
-1. when use skywalking agent, arthas can't work well 
+1. When use skywalking agent, some other agent, such as Arthas, can't work well 
 https://github.com/apache/skywalking/pull/4858
 
 2. Custom java agent retransform class fails with Skywalking agent  
