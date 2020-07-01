@@ -44,7 +44,7 @@ which will not affect the processing of the subsequent java agent.
 **2.Class cache save mode**  
 It is recommended to put the cache class in memory, but if it takes up more memory, it should be placed in a temporary file. Set the class cache save mode through the following options:  
 `-Dskywalking.agent.class_cache_mode=MEMORY` : save cache classes to java memory.    
-`-Dskywalking.agent.class_cache_mode=FILE` : save cache classes to Skywalking agent path '/class-cache'.  
+`-Dskywalking.agent.class_cache_mode=FILE` : save cache classes to SkyWalking agent path '/class-cache'.  
 
 Or modify the option in `agent.conf`:
   
