@@ -44,6 +44,4 @@ public class ConfigmapConfigurationProviderTest {
         assertTrue(moduleConfig instanceof ConfigmapConfigurationSettings);
     }
 
-
-
 }
