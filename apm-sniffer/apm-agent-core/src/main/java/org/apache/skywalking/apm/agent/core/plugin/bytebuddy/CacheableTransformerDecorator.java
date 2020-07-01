@@ -174,6 +174,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         @Override
         public void putClassCache(ClassLoader loader, String className, byte[] classfileBuffer) {
             File cacheFile = getCacheFile(loader, className);
+            cacheFile.getParentFile().mkdirs();
             FileOutputStream output = null;
             try {
                 output = new FileOutputStream(cacheFile);
@@ -186,7 +187,7 @@ public class CacheableTransformerDecorator implements AgentBuilder.TransformerDe
         }
 
         private File getCacheFile(ClassLoader loader, String className) {
-            String filename = getClassLoaderHash(loader) + "@" + className.replace('/', '.') + ".class";
+            String filename = getClassLoaderHash(loader) + "/" + className.replace('.', '/') + ".class";
             return new File(cacheDir, filename);
         }
 
