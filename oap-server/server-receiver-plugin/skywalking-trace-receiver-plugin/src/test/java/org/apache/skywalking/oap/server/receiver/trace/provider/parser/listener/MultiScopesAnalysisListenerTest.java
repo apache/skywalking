@@ -282,6 +282,7 @@ public class MultiScopesAnalysisListenerTest {
         Assert.assertEquals("127.0.0.1", serviceInstanceRelation.getSourceServiceInstanceName());
         Assert.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
         Assert.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
+        Assert.assertEquals("downstream-service", endpointRelation.getServiceName());
         Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
     }
 
