@@ -36,7 +36,7 @@ agent.class_cache_mode = ${SW_AGENT_CLASS_CACHE_MODE:MEMORY}
 ```
 
 If the class cache feature is enabled, save the instrumented class bytecode to memory or a temporary file. 
-When other java agents retransform the same class, Skywalking agent first attempts to load from the cache.
+When other java agents retransform the same class, SkyWalking agent first attempts to load from the cache.
 
 If the cached class is found, it will be used directly without regenerating a new random name auxiliary class, 
 which will not affect the processing of the subsequent java agent.
