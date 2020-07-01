@@ -4,7 +4,7 @@
 1. When use skywalking agent, some other agent, such as Arthas, can't work well 
 https://github.com/apache/skywalking/pull/4858
 
-2. Java agent retransforming class fails with Skywalking agent, such as in this [demo](https://github.com/hengyunabc/skywalking-error-demo)
+2. Java agent retransforming class fails with Skywalking agent, such as in this [demo](https://github.com/SkyAPMTest/retransform-conflict-demo)
  
 ### Reason
 SkyWalking agent uses ByteBuddy to transform classes when the Java application starts. 
