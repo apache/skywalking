@@ -24,15 +24,16 @@
   * [Jetty Client](http://www.eclipse.org/jetty/) 9
   * [Apache httpcomponent AsyncClient](https://hc.apache.org/httpcomponents-asyncclient-dev/) 4.x
 * HTTP Gateway
-  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.1.x.RELEASE (Optional²)
+  * [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway) 2.0.2.RELEASE -> 2.2.x.RELEASE (Optional²)
 * JDBC
   * Mysql Driver 5.x, 6.x, 8.x
   * Oracle Driver (Optional¹)
   * H2 Driver 1.3.x -> 1.4.x
   * [Sharding-JDBC](https://github.com/shardingjdbc/sharding-jdbc) 1.5.x
-  * [ShardingSphere](https://github.com/apache/incubator-shardingsphere) 3.0.0, 4.0.0-RC1
+  * [ShardingSphere](https://github.com/apache/shardingsphere) 3.0.0, 4.0.0-RC1, 4.0.0, 4.0.1, 4.1.0, 4.1.1
   * PostgreSQL Driver 8.x, 9.x, 42.x
   * Mariadb Driver 2.x, 1.8
+  * [InfluxDB](https://github.com/influxdata/influxdb-java) 2.5 -> 2.17
 * RPC Frameworks
   * [Dubbo](https://github.com/alibaba/dubbo) 2.5.4 -> 2.6.0
   * [Dubbox](https://github.com/dangdangdotcom/dubbox) 2.8.4
@@ -44,6 +45,7 @@
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
   * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
+  * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -88,6 +90,7 @@
   * Vert.x Web 3.x
 * Thread Schedule Framework
   * [Spring @Async](https://github.com/spring-projects/spring-framework) 4.x and 5.x
+  * [Quasar](https://github.com/puniverse/quasar) 0.7.x
 * Cache
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin

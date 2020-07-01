@@ -10,7 +10,7 @@ Right now, SkyWalking supports following dynamic configurations.
 |receiver-trace.default.uninstrumentedGateways| The uninstrumented gateways, override `gateways.yml`. | same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format) |
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
-|core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint_name_grouping.yml`. | same as [`endpoint_name_grouping.yml`](endpoint-grouping-rules.md) |
+|core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
 
 
 This feature depends on upstream service, so it is **DISABLED** by default.
@@ -102,28 +102,3 @@ configuration:
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
 ```
-
-## Dynamic Configuration Nacos Implementation
-
-[Nacos](https://github.com/alibaba/nacos) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
-
-```yaml
-configuration:
-  selector: ${SW_CONFIGURATION:nacos}
-  nacos:
-    # Nacos Server Host
-    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
-    # Nacos Server Port
-    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
-    # Nacos Configuration Group
-    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
-    # Nacos Configuration namespace
-    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
-    # Unit seconds, sync period. Default fetch every 60 seconds.
-    period: ${SW_CONFIG_NACOS_PERIOD:60}
-    # the name of current cluster, set the name if you want to upstream system known.
-    clusterName: ${SW_CONFIG_NACOS_CLUSTER_NAME:default}
-```
-
-
-

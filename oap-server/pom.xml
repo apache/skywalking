@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>8.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -65,7 +65,7 @@
         <commons-io.version>2.6</commons-io.version>
         <elasticsearch.version>6.3.2</elasticsearch.version>
         <joda-time.version>2.10.5</joda-time.version>
-        <kubernetes.version>4.0.0</kubernetes.version>
+        <kubernetes.version>8.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.9.1</zipkin.version>
         <caffeine.version>2.6.2</caffeine.version>
@@ -75,10 +75,10 @@
         <jackson-databind.version>2.9.5</jackson-databind.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
+        <commons-text.version>1.4</commons-text.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.4.0</apollo.version>
         <maven-docker-plugin.version>0.30.0</maven-docker-plugin.version>
-        <nacos.version>1.2.0</nacos.version>
         <curator.version>4.0.1</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.17.0</etcd4j.version>
@@ -88,6 +88,7 @@
         <antlr.version>4.7.1</antlr.version>
         <freemarker.version>2.3.28</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
+        <vavr.version>0.10.3</vavr.version>
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
@@ -383,11 +384,6 @@
                 <artifactId>apollo-client</artifactId>
                 <version>${apollo.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.alibaba.nacos</groupId>
-                <artifactId>nacos-client</artifactId>
-                <version>${nacos.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.mousio</groupId>
@@ -499,6 +495,16 @@
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>${javaassist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.vavr</groupId>
+                <artifactId>vavr</artifactId>
+                <version>${vavr.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
