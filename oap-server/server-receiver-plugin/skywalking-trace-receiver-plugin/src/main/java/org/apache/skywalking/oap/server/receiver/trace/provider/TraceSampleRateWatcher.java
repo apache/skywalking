@@ -46,7 +46,7 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
         try {
             sampleRate.set(Integer.parseInt(config));
         } catch (NumberFormatException ex) {
-            log.error("Cannot load sampleRate from: {}", config,ex);
+            log.error("Cannot load sampleRate from: {}", config, ex);
         }
     }
 
