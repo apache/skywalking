@@ -34,6 +34,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
+        <logger name="org.apache.skywalking.oap.server.storage.plugin.influxdb" level="DEBUG"/>
         <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
