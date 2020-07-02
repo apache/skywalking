@@ -30,10 +30,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-/**
- * @Author daming
- * @Email zhuanghaochao@yy.com
- */
 @RunWith(Parameterized.class)
 public class TimeBucketTest {
     private static final long NOW = System.currentTimeMillis();
