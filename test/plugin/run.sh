@@ -46,7 +46,7 @@ parse_commandline() {
                 force_build="on"
                 ;;
             --cleanup)
-                cleanup="on"
+                cleanup="off"
                 ;;
             --debug)
                 debug_mode="on";
@@ -197,14 +197,15 @@ do
     echo "start container of testcase.name=${testcase_name}"
     bash ${case_work_base}/scenario.sh $debug_mode 1>${case_work_logs_dir}/${testcase_name}.log
     status=$?
-    if [[ $status == 0 ]]; then
-        [[ -z $debug_mode ]] && rm -rf ${case_work_base}
-    else
-        exitWithMessage "Testcase ${testcase_name} failed!"
-    fi
-    num_of_testcases=$(($num_of_testcases+1))
+#    if [[ $status == 0 ]]; then
+#        echo "cccccccccc"
+##        [[ -z $debug_mode ]] && rm -rf ${case_work_base}
+#    else
+#        exitWithMessage "Testcase ${testcase_name} failed!"
+#    fi
+#    num_of_testcases=$(($num_of_testcases+1))
 done
 
-echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"
-
-exitAndClean 0
+#echo -e "\033[33m${scenario_name} has already sumbitted\033[0m"
+#
+#exitAndClean 0

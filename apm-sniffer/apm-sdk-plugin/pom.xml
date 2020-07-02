@@ -94,7 +94,8 @@
         <module>mariadb-2.x-plugin</module>
         <module>influxdb-2.x-plugin</module>
         <module>baidu-brpc-plugin</module>
-        <module>graphql-plugin</module>
+        <module>graphql-9.x-plugin</module>
+        <module>graphql-12.x-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
