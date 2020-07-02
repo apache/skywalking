@@ -20,29 +20,24 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class TraceSampleRateWatcher extends ConfigChangeWatcher {
-    private  AtomicReference<String> settingsString;
     private  AtomicReference<Integer> sampleRate;
 
-    public TraceSampleRateWatcher(String config, TraceModuleProvider provider) {
+    public TraceSampleRateWatcher(TraceModuleProvider provider) {
         super(TraceModule.NAME, provider, "sampleRate");
-        settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         sampleRate = new AtomicReference<>();
-
-        activeSetting(config);
+        sampleRate.set(getDefaultValue());
     }
 
     private void activeSetting(String config) {
         if (log.isDebugEnabled()) {
             log.debug("Updating using new static config: {}", config);
         }
-        settingsString.set(config);
         try {
             sampleRate.set(Integer.parseInt(config));
         } catch (NumberFormatException ex) {
@@ -53,7 +48,7 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting("");
+            activeSetting(String.valueOf(getDefaultValue()));
         } else {
             activeSetting(value.getNewValue());
         }
@@ -61,10 +56,14 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
 
     @Override
     public String value() {
-        return settingsString.get();
+        return String.valueOf(sampleRate.get());
+    }
+
+    public int getDefaultValue() {
+        return ((TraceModuleProvider) this.getProvider()).getModuleConfig().getSampleRate();
     }
 
     public int getSampleRate() {
-        return sampleRate.get() == null ? ((TraceModuleProvider) this.getProvider()).getModuleConfig().getSampleRate() : sampleRate.get();
+        return sampleRate.get() == null ? getDefaultValue() : sampleRate.get();
     }
 }
