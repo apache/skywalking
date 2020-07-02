@@ -59,11 +59,11 @@ public class TraceSampleRateWatcher extends ConfigChangeWatcher {
         return String.valueOf(sampleRate.get());
     }
 
-    public int getDefaultValue() {
+    private int getDefaultValue() {
         return ((TraceModuleProvider) this.getProvider()).getModuleConfig().getSampleRate();
     }
 
     public int getSampleRate() {
-        return sampleRate.get() == null ? getDefaultValue() : sampleRate.get();
+        return sampleRate.get();
     }
 }
