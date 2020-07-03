@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
@@ -20,7 +38,7 @@ public class TraceSampleRateWatcherTest {
     private TraceModuleProvider traceModuleProvider;
 
     @Before
-    public void init(){
+    public void init() {
         traceModuleProvider = new TraceModuleProvider();
     }
 
@@ -43,6 +61,7 @@ public class TraceSampleRateWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSampleRate(), is(9000));
+        assertThat(traceModuleProvider.getModuleConfig().getSampleRate(),is(10000));
     }
 
     @Test
@@ -52,25 +71,25 @@ public class TraceSampleRateWatcherTest {
 
         traceSampleRateWatcher.notify(value1);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 8000);
-        Assert.assertEquals(traceSampleRateWatcher.value(),"8000");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.DELETE);
 
         traceSampleRateWatcher.notify(value2);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
-        Assert.assertEquals(traceSampleRateWatcher.value(),"10000");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent("500", ConfigChangeWatcher.EventType.ADD);
 
         traceSampleRateWatcher.notify(value3);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(),"500");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "500");
 
-        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent("abc", ConfigChangeWatcher.EventType.ADD);
+        ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent("abc", ConfigChangeWatcher.EventType.MODIFY);
 
         traceSampleRateWatcher.notify(value4);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 500);
-        Assert.assertEquals(traceSampleRateWatcher.value(),"500");
+        Assert.assertEquals(traceSampleRateWatcher.value(), "500");
     }
 
     public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
