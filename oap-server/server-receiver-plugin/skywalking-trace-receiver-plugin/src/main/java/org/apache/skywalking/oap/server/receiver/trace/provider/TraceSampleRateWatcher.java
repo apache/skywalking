@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 public class TraceSampleRateWatcher extends ConfigChangeWatcher {
-    private  AtomicReference<Integer> sampleRate;
+    private AtomicReference<Integer> sampleRate;
 
     public TraceSampleRateWatcher(TraceModuleProvider provider) {
         super(TraceModule.NAME, provider, "sampleRate");
