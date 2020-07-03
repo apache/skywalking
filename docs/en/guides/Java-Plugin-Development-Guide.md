@@ -158,12 +158,12 @@ in the OAP backend analysis, some special tag or tag combination could provide o
 #### Tag key `status_code`
 The value should be an integer. The response code of OAL entities is according to this.
 
-### Tag key `db.statement` and `db.type`.
+#### Tag key `db.statement` and `db.type`.
 The value of `db.statement` should be a String, representing the Database statement, such as SQL, or `[No statement]/`+span#operationName if value is empty.
 When exit span has this tag, OAP samples the slow statements based on `receiver-trace/default/maxSlowSQLLength`.
 The threshold of slow statement is defined by following [`receiver-trace/default/slowDBAccessThreshold`](../setup/backend/slow-db-statement.md)
 
-### Extension logic endpoint. Tag key `x-le`
+#### Extension logic endpoint. Tag key `x-le`
 Logic endpoint is a concept, which doesn't represent a real RPC call, but requires the statistic.
 The value of `x-le` should be JSON format, with two options.
 1. Define a separated logic endpoint. Provide its own endpoint name, latency and status. Suitable for entry and local span.
