@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
 import java.io.File;
 import java.io.FileNotFoundException;

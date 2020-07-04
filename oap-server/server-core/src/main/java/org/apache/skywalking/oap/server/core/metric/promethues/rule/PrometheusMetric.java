@@ -16,24 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
-import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.junit.Test;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-
-public class RulesTest {
-
-    @Test
-    public void testFetcherPrometheusRulesLoader() throws ModuleStartException {
-        List<Rule> rr = Rules.loadRules("fetcher-prom-rules");
-
-        assertThat(rr.size(), is(1));
-    }
-
+@Data
+@NoArgsConstructor
+public class PrometheusMetric {
+    private CounterFunction counterFunction;
+    private String range;
+    private List<LabelMatchRule> labelFilter;
+    private Relabel relabel;
+    private int scale = 0;
 }

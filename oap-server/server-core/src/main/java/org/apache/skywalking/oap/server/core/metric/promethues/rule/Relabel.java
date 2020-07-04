@@ -16,20 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Data
 @NoArgsConstructor
-public class MetricsRule {
-    private String name;
-    private ScopeType scope;
-    private String operation;
-    private List<Integer> percentiles;
-    private Map<String, PrometheusMetric> sources;
+public class Relabel {
+    private List<String> service;
+    private List<String> instance;
+    private List<String> endpoint;
+
+    public List<String> labelKeys() {
+        List<String> result = new ArrayList<>();
+        result.addAll(Optional.ofNullable(service).orElse(Collections.emptyList()));
+        result.addAll(Optional.ofNullable(instance).orElse(Collections.emptyList()));
+        result.addAll(Optional.ofNullable(endpoint).orElse(Collections.emptyList()));
+        return result;
+    }
 }
