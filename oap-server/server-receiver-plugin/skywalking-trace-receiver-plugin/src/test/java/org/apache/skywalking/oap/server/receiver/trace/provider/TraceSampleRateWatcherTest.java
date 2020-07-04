@@ -61,7 +61,7 @@ public class TraceSampleRateWatcherTest {
             Thread.sleep(2000);
         }
         assertThat(watcher.getSampleRate(), is(9000));
-        assertThat(traceModuleProvider.getModuleConfig().getSampleRate(),is(10000));
+        assertThat(traceModuleProvider.getModuleConfig().getSampleRate(), is(10000));
     }
 
     @Test
