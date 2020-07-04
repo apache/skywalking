@@ -43,7 +43,7 @@ public class TraceSampleRateWatcherTest {
     }
 
     @Test
-    public void TestInit() {
+    public void testInit() {
         TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(traceModuleProvider);
         Assert.assertEquals(traceSampleRateWatcher.getSampleRate(), 10000);
         Assert.assertEquals(traceSampleRateWatcher.value(), "10000");
@@ -65,7 +65,7 @@ public class TraceSampleRateWatcherTest {
     }
 
     @Test
-    public void TestNotify() {
+    public void testNotify() {
         TraceSampleRateWatcher traceSampleRateWatcher = new TraceSampleRateWatcher(traceModuleProvider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent("8000", ConfigChangeWatcher.EventType.MODIFY);
 
