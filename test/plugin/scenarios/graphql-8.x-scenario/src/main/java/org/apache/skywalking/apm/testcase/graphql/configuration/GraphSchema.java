@@ -22,7 +22,6 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLOutputType;
 import graphql.schema.GraphQLSchema;
-import org.apache.skywalking.apm.testcase.graphql.data.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
