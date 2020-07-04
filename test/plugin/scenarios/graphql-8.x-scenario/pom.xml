@@ -21,19 +21,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>org.apache.skywalking.apm.testcase</groupId>
-    <artifactId>graphql-9.x-scenario</artifactId>
+    <artifactId>graphql-8.x-scenario</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>skywalking-graphql-9.x-scenario</name>
+    <name>skywalking-graphql-8.x-scenario</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.version>1.8</compiler.version>
         <spring.boot.version>2.1.6.RELEASE</spring.boot.version>
-        <test.framework.version>9.0</test.framework.version>
+        <test.framework.version>8.0</test.framework.version>
         <lombok.version>1.18.10</lombok.version>
         <test.framework>graphql</test.framework>
     </properties>
@@ -69,7 +69,7 @@
     </dependencies>
 
     <build>
-        <finalName>graphql-9.x-scenario</finalName>
+        <finalName>graphql-8.x-scenario</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

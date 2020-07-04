@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 segmentItems:
-- serviceName: graphql-9.x-scenario
+- serviceName: graphql-8.x-scenario
   segmentSize: gt 1
   segments:
   - segmentId: not null
