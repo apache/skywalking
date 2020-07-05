@@ -31,10 +31,10 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.kafka.KafkaReceiveHandlerRegister;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverModule;
-import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.JVMMetricsReceiveHandler;
-import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ManagementReceiveHandler;
-import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ProfileTaskReceiveHandler;
-import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.TraceSegmentReceiveHandler;
+import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.JVMMetricsConsumerHandler;
+import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ManagementConsumerHandler;
+import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ProfileTaskConsumerHandler;
+import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.TraceSegmentConsumerHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -83,10 +83,10 @@ public class KafkaReceiverProvider extends ModuleProvider {
             }
         }
 
-        handlerRegister.register(new JVMMetricsReceiveHandler(getManager(), config));
-        handlerRegister.register(new ManagementReceiveHandler(getManager(), config));
-        handlerRegister.register(new TraceSegmentReceiveHandler(getManager(), config));
-        handlerRegister.register(new ProfileTaskReceiveHandler(getManager(), config));
+        handlerRegister.register(new JVMMetricsConsumerHandler(getManager(), config));
+        handlerRegister.register(new ManagementConsumerHandler(getManager(), config));
+        handlerRegister.register(new TraceSegmentConsumerHandler(getManager(), config));
+        handlerRegister.register(new ProfileTaskConsumerHandler(getManager(), config));
         handlerRegister.prepare();
         handlerRegister.start();
     }

@@ -40,6 +40,7 @@ import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
  * Considering that MessageQueue belongs to a decoupled architecture, therefore we do not support this. The MQ is not
  * good for real-time interactive. It will be implemented through Rest API.
  */
+// report only
 @OverrideImplementor(ProfileTaskChannelService.class)
 public class KafkaProfileTaskService extends ProfileTaskChannelService {
     private static final ILog logger = LogManager.getLogger(KafkaProfileTaskService.class);

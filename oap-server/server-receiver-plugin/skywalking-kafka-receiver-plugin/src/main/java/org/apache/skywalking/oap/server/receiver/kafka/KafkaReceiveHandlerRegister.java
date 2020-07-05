@@ -37,15 +37,15 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaReceiveHandler;
+import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaConsumerHandler;
 
 /**
  *
  */
 @Slf4j
 public class KafkaReceiveHandlerRegister implements Service, Runnable {
-    private ImmutableMap.Builder<String, KafkaReceiveHandler> builder = ImmutableMap.builder();
-    private ImmutableMap<String, KafkaReceiveHandler> handlerMap;
+    private ImmutableMap.Builder<String, KafkaConsumerHandler> builder = ImmutableMap.builder();
+    private ImmutableMap<String, KafkaConsumerHandler> handlerMap;
 
     private List<TopicPartition> topicPartitions = Lists.newArrayList();
     private KafkaConsumer<String, Bytes> consumer = null;
@@ -74,7 +74,7 @@ public class KafkaReceiveHandlerRegister implements Service, Runnable {
         return isSharding;
     }
 
-    public void register(KafkaReceiveHandler handler) {
+    public void register(KafkaConsumerHandler handler) {
         builder.put(handler.getTopic(), handler);
         topicPartitions.add(handler.getTopicPartition());
     }

@@ -34,11 +34,11 @@ import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfi
  *
  */
 @Slf4j
-public class ProfileTaskReceiveHandler implements KafkaReceiveHandler {
+public class ProfileTaskConsumerHandler implements KafkaConsumerHandler {
 
     private final KafkaReceiverConfig config;
 
-    public ProfileTaskReceiveHandler(ModuleManager manager, KafkaReceiverConfig config) {
+    public ProfileTaskConsumerHandler(ModuleManager manager, KafkaReceiverConfig config) {
         this.config = config;
     }
 

@@ -31,14 +31,14 @@ import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMSourceD
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
 
 @Slf4j
-public class JVMMetricsReceiveHandler implements KafkaReceiveHandler {
+public class JVMMetricsConsumerHandler implements KafkaConsumerHandler {
 
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
     private final KafkaReceiverConfig config;
 
-    public JVMMetricsReceiveHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public JVMMetricsConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()

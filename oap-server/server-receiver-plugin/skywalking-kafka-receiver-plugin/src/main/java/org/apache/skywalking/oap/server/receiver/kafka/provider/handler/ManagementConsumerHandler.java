@@ -42,14 +42,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
 
 @Slf4j
-public class ManagementReceiveHandler implements KafkaReceiveHandler {
+public class ManagementConsumerHandler implements KafkaConsumerHandler {
 
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingLengthControl;
 
     private final KafkaReceiverConfig config;
 
-    public ManagementReceiveHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public ManagementConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()

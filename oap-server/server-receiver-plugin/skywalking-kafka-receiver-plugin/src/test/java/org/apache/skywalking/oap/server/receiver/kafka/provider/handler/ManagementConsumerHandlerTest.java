@@ -18,37 +18,32 @@
 
 package org.apache.skywalking.oap.server.receiver.kafka.provider.handler;
 
-import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.skywalking.apm.network.common.v3.CPU;
-import org.apache.skywalking.apm.network.language.agent.v3.GC;
-import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
-import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
-import org.apache.skywalking.apm.network.language.agent.v3.Memory;
-import org.apache.skywalking.apm.network.language.agent.v3.MemoryPool;
+import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
+import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMCPU;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMGC;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemory;
-import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool;
+import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleProvider;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class JVMMetricsReceiverHandlerTest {
-    private static final String TOPIC_NAME = "skywalking-metrics";
-    private JVMMetricsReceiveHandler handler = null;
+public class ManagementConsumerHandlerTest {
+    private static final String TOPIC_NAME = "skywalking-managements";
+
+    private static final String SERVICE = "MOCK_SERVER";
+    private static final String SERVICE_INSTANCE = "MOCK_SERVICE_INSTANCE";
+    private KafkaConsumerHandler handler = null;
     private KafkaReceiverConfig config = new KafkaReceiverConfig();
 
     private ModuleManager manager;
@@ -58,10 +53,11 @@ public class JVMMetricsReceiverHandlerTest {
 
         @Override
         protected void verify(final List<Source> sourceList) throws Throwable {
-            Assert.assertTrue(sourceList.get(0) instanceof ServiceInstanceJVMCPU);
-            Assert.assertTrue(sourceList.get(1) instanceof ServiceInstanceJVMMemory);
-            Assert.assertTrue(sourceList.get(2) instanceof ServiceInstanceJVMMemoryPool);
-            Assert.assertTrue(sourceList.get(3) instanceof ServiceInstanceJVMGC);
+            ServiceInstanceUpdate instanceUpdate = (ServiceInstanceUpdate) sourceList.get(0);
+            Assert.assertEquals(instanceUpdate.getName(), SERVICE_INSTANCE);
+
+            ServiceInstanceUpdate instanceUpdate1 = (ServiceInstanceUpdate) sourceList.get(1);
+            Assert.assertEquals(instanceUpdate1.getName(), SERVICE_INSTANCE);
         }
     };
 
@@ -80,7 +76,7 @@ public class JVMMetricsReceiverHandlerTest {
                 });
             }
         };
-        handler = new JVMMetricsReceiveHandler(manager, config);
+        handler = new ManagementConsumerHandler(manager, config);
     }
 
     @Test
@@ -90,21 +86,17 @@ public class JVMMetricsReceiverHandlerTest {
 
     @Test
     public void testHandler() {
-        long currentTimeMillis = System.currentTimeMillis();
+        InstanceProperties properties = InstanceProperties.newBuilder()
+                                                          .setService(SERVICE)
+                                                          .setServiceInstance(SERVICE_INSTANCE)
+                                                          .build();
+        InstancePingPkg ping = InstancePingPkg.newBuilder()
+                                              .setService(SERVICE)
+                                              .setServiceInstance(SERVICE_INSTANCE)
+                                              .build();
 
-        JVMMetric.Builder jvmBuilder = JVMMetric.newBuilder();
-        jvmBuilder.setTime(currentTimeMillis);
-        jvmBuilder.setCpu(CPU.newBuilder().setUsagePercent(0.98d).build());
-        jvmBuilder.addAllMemory(Lists.newArrayList(Memory.newBuilder().setInit(10).setUsed(100).setIsHeap(false).build()));
-        jvmBuilder.addAllMemoryPool(Lists.newArrayList(MemoryPool.newBuilder().build()));
-        jvmBuilder.addAllGc(Lists.newArrayList(GC.newBuilder().build()));
-
-        JVMMetricCollection metrics = JVMMetricCollection.newBuilder()
-                                                         .setService("service")
-                                                         .setServiceInstance("service-instance")
-                                                         .addMetrics(jvmBuilder.build())
-                                                         .build();
-
-        handler.handle(new ConsumerRecord<>(TOPIC_NAME, 0, 0, "", Bytes.wrap(metrics.toByteArray())));
+        handler.handle(new ConsumerRecord<>(TOPIC_NAME, 0, 0, "register", Bytes.wrap(properties.toByteArray())));
+        handler.handle(
+            new ConsumerRecord<>(TOPIC_NAME, 0, 0, ping.getServiceInstance(), Bytes.wrap(ping.toByteArray())));
     }
 }

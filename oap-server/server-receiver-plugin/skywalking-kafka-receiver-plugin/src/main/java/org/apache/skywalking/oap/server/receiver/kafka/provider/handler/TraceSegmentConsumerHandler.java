@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class TraceSegmentReceiveHandler implements KafkaReceiveHandler {
+public class TraceSegmentConsumerHandler implements KafkaConsumerHandler {
 
     private final ModuleManager moduleManager;
     private final KafkaReceiverConfig config;
@@ -51,7 +51,7 @@ public class TraceSegmentReceiveHandler implements KafkaReceiveHandler {
     private final TraceServiceModuleConfig traceModuleConfig;
     private final SegmentParserListenerManager listenerManager;
 
-    public TraceSegmentReceiveHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public TraceSegmentConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
         this.config = config;
         this.moduleManager = moduleManager;
         this.traceModuleConfig = (TraceServiceModuleConfig) ((TraceModuleProvider)

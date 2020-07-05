@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfi
  * A Handler for dealing Message reported by agent.
  * It is binding to a topic of Kafka, and deserialize.
  */
-public interface KafkaReceiveHandler {
+public interface KafkaConsumerHandler {
 
     /**
      * Which one partition of the topic is handled in cluster mode.
