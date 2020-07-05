@@ -305,6 +305,9 @@ influxdb-java:
 brpc-java:
   id: 91
   languages: Java
+GraphQL:
+  id: 92
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
