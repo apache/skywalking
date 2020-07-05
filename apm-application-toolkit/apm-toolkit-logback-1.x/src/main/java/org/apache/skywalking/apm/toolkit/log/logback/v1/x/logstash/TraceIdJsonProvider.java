@@ -25,6 +25,7 @@ import java.util.Map;
 import net.logstash.logback.composite.AbstractFieldJsonProvider;
 import net.logstash.logback.composite.FieldNamesAware;
 import net.logstash.logback.composite.JsonWritingUtils;
+import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 import net.logstash.logback.fieldnames.LogstashFieldNames;
 
 public class TraceIdJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent> implements FieldNamesAware<LogstashFieldNames> {
@@ -34,11 +35,20 @@ public class TraceIdJsonProvider extends AbstractFieldJsonProvider<ILoggingEvent
     @Override
     public void writeTo(JsonGenerator generator, ILoggingEvent event) throws IOException {
         Map<String, String> map = event.getLoggerContextVO().getPropertyMap();
-        JsonWritingUtils.writeStringField(generator, getFieldName(), map.get(TRACING_ID));
+        String tracingId = map.get(TRACING_ID);
+        if (StringUtils.isBlank(tracingId) || "N/A".equals(tracingId)) {
+            tracingId = getTracingId();
+        }
+        JsonWritingUtils.writeStringField(generator, getFieldName(), tracingId);
     }
 
     @Override
     public void setFieldNames(LogstashFieldNames fieldNames) {
         setFieldName(TRACING_ID);
     }
+
+    public String getTracingId() {
+        return "N/A";
+    }
+
 }
