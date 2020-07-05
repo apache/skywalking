@@ -19,6 +19,62 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
+    - operationName: user
+      operationId: 0
+      parentSpanId: 0
+      spanId: 1
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 92
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{logic-span=true}'}
+    - operationName: users
+      operationId: 0
+      parentSpanId: 0
+      spanId: 2
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 92
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{logic-span=true}'}
+    - operationName: user
+      operationId: 0
+      parentSpanId: 0
+      spanId: 3
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 92
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{logic-span=true}'}
+    - operationName: users
+      operationId: 0
+      parentSpanId: 0
+      spanId: 4
+      spanLayer: Unknown
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 92
+      isError: false
+      spanType: Local
+      peer: ''
+      skipAnalysis: false
+      tags:
+      - {key: x-le, value: '{logic-span=true}'}
     - operationName: /graphql-scenario/case/graphql
       operationId: 0
       parentSpanId: -1
@@ -33,8 +89,4 @@ segmentItems:
       tags:
       - {key: url, value: 'http://localhost:8080/graphql-scenario/case/graphql'}
       - {key: http.method, value: GET}
-      - {key: x-le, value: 'not null'}
-      - {key: x-le, value: 'not null'}
-      - {key: x-le, value: 'not null'}
-      - {key: x-le, value: 'not null'}
       skipAnalysis: 'false'

@@ -26,6 +26,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -41,13 +42,18 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
             return;
         }
         ExecutionPath path = parameters.getPath();
-        Field field = ExecutionPath.class.getDeclaredField("parent");
-        field.setAccessible(true);
-        ExecutionPath parentPath = (ExecutionPath) field.get(path);
-        if (parentPath != ExecutionPath.rootPath()) {
-            return;
+        try {
+            Field field = ExecutionPath.class.getDeclaredField("parent");
+            field.setAccessible(true);
+            ExecutionPath parentPath = (ExecutionPath) field.get(path);
+            if (parentPath != ExecutionPath.rootPath()) {
+                return;
+            }
+            AbstractSpan span = ContextManager.createLocalSpan(parameters.getField().get(0).getName());
+            Tags.LOGIC_ENDPOINT.set(span, buildLogicEndpointSpan());
+            span.setComponent(ComponentsDefine.GRAPHQL);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
         }
-        objInst.setSkyWalkingDynamicField(System.currentTimeMillis());
     }
 
     @Override
@@ -57,20 +63,16 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
             return ret;
         }
         ExecutionPath path = parameters.getPath();
-        Field field = ExecutionPath.class.getDeclaredField("parent");
-        field.setAccessible(true);
-        ExecutionPath parentPath = (ExecutionPath) field.get(path);
-        if (parentPath != ExecutionPath.rootPath()) {
-            return ret;
+        try {
+            Field field = ExecutionPath.class.getDeclaredField("parent");
+            field.setAccessible(true);
+            ExecutionPath parentPath = (ExecutionPath) field.get(path);
+            if (parentPath != ExecutionPath.rootPath()) {
+                return ret;
+            }
+            ContextManager.stopSpan();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
         }
-        String name = parameters.getField().get(0).getName();
-        long latency = System.currentTimeMillis() - (long) objInst.getSkyWalkingDynamicField();
-        String info = buildLogicEndpointTagInfo(name, latency, null);
-        AbstractSpan span = ContextManager.firstSpan();
-        if (span == null || !span.isEntry()) {
-            return ret;
-        }
-        Tags.LOGIC_ENDPOINT.set(span, info);
         return ret;
     }
 
@@ -88,23 +90,20 @@ public class GraphqlInterceptor implements InstanceMethodsAroundInterceptor {
             if (parentPath != ExecutionPath.rootPath()) {
                 return;
             }
-            String name = parameters.getField().get(0).getName();
-            long latency = System.currentTimeMillis() - (long) objInst.getSkyWalkingDynamicField();
-            String info = buildLogicEndpointTagInfo(name, latency, t);
-            AbstractSpan span = ContextManager.firstSpan();
-            if (span == null || !span.isEntry()) {
-                return;
-            }
-            Tags.LOGIC_ENDPOINT.set(span, info);
+            dealException(t);
         } catch (NoSuchFieldException | IllegalAccessException e) {
         }
     }
 
-    private String buildLogicEndpointTagInfo(String operationName, long latency, Throwable t) {
-        Map<String, Object> logicEndpointInfo = new HashMap<>();
-        logicEndpointInfo.put("name", operationName);
-        logicEndpointInfo.put("latency", latency);
-        logicEndpointInfo.put("status", t == null);
-        return logicEndpointInfo.toString();
+    private void dealException(Throwable throwable) {
+        AbstractSpan span = ContextManager.activeSpan();
+        span.errorOccurred();
+        span.log(throwable);
+    }
+
+    private String buildLogicEndpointSpan() {
+        Map<String, Object> logicEndpointSpan = new HashMap<>();
+        logicEndpointSpan.put("logic-span", true);
+        return logicEndpointSpan.toString();
     }
 }
