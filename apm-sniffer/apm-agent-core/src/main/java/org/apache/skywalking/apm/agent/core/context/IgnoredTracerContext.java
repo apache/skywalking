@@ -92,11 +92,6 @@ public class IgnoredTracerContext implements AbstractTracerContext {
     }
 
     @Override
-    public AbstractSpan firstSpan() {
-        return NOOP_SPAN;
-    }
-
-    @Override
     public boolean stopSpan(AbstractSpan span) {
         stackDepth--;
         if (stackDepth == 0) {

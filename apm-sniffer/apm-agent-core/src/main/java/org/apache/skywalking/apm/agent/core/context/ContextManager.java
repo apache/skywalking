@@ -162,10 +162,6 @@ public class ContextManager implements BootService {
         return get().activeSpan();
     }
 
-    public static AbstractSpan firstSpan() {
-        return get().firstSpan();
-    }
-
     /**
      * Recommend use ContextManager::stopSpan(AbstractSpan span), because in that way, the TracingContext core could
      * verify this span is the active one, in order to avoid stop unexpected span. If the current span is hard to get or

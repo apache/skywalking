@@ -351,15 +351,6 @@ public class TracingContext implements AbstractTracerContext {
         return span;
     }
 
-    @Override
-    public AbstractSpan firstSpan() {
-        AbstractSpan span = first();
-        if (span == null) {
-            throw new IllegalStateException("No first span.");
-        }
-        return span;
-    }
-
     /**
      * Stop the given span, if and only if this one is the top element of {@link #activeSpanStack}. Because the tracing
      * core must make sure the span must match in a stack module, like any program did.
