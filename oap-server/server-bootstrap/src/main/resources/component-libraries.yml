@@ -398,6 +398,12 @@ Nginx:
 Python:
   id: 7000
   languages: Python
+Flask:
+  id: 7001
+  languages: Python
+Requests:
+  id: 7002
+  languages: Python
 
 
 # PHP components
