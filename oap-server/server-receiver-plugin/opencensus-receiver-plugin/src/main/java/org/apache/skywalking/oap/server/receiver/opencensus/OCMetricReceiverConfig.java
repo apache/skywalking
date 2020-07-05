@@ -16,16 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.receiver.opencensus;
 
-import java.util.List;
-import java.util.Map;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-@Data
-@NoArgsConstructor
-public class StaticConfig {
-    private List<String> targets;
-    private Map<String, String> labels;
+@Getter
+@Setter
+public class OCMetricReceiverConfig extends ModuleConfig {
+    private String gRPCHost = "0.0.0.0";
+    private int gRPCPort = -1;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
+    private int gRPCThreadPoolSize;
+    private int gRPCThreadPoolQueueSize;
+    private String rulePath = "oc-rules";
 }

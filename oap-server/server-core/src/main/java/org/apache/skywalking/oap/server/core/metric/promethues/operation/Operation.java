@@ -16,18 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.core.metric.promethues.operation;
 
 import java.util.List;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
-@Data
-@NoArgsConstructor
-public class PrometheusMetric {
-    private CounterFunction counterFunction;
-    private String range;
-    private List<LabelMatchRule> labelFilter;
-    private Relabel relabel;
-    private int scale = 0;
+@EqualsAndHashCode
+@ToString
+@Getter
+@RequiredArgsConstructor
+public class Operation {
+
+    private final String name;
+
+    private final String metricName;
+
+    private final ScopeType scope;
+
+    private final List<Integer> percentiles;
+
 }
