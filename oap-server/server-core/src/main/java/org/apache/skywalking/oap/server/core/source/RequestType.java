@@ -18,6 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+/**
+ * RPC request type.
+ */
 public enum RequestType {
-    DATABASE, HTTP, RPC, gRPC
+    DATABASE,
+    HTTP,
+    RPC,
+    gRPC,
+    /**
+     * Logic request only.
+     */
+    LOGIC
 }

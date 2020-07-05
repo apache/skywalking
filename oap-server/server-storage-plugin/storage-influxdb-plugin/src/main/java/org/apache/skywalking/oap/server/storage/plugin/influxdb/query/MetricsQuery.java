@@ -82,8 +82,8 @@ public class MetricsQuery implements IMetricsQueryDAO {
         }
 
         queryWhereQuery
-            .and(gte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getStartTimeBucket())))
-            .and(lte(InfluxClient.TIME, InfluxClient.timeInterval(duration.getEndTimeBucket())))
+            .and(gte(InfluxClient.TIME, duration.getStartTimestamp()))
+            .and(lte(InfluxClient.TIME, duration.getEndTimestamp()))
             .groupBy(InfluxConstants.TagName.ENTITY_ID);
 
         List<QueryResult.Series> seriesList = client.queryForSeries(queryWhereQuery);

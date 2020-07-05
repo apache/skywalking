@@ -356,7 +356,7 @@ templates:
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count"
                 },
                 {
@@ -380,7 +380,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "instance_clr_gen0_collect_count, instance_clr_gen1_collect_count, instance_clr_gen2_collect_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine"
+                  "chartType": "ChartBar"
                 },
                 {
                   "width": 3,
@@ -730,7 +730,7 @@ templates:
           "independentSelector": false,
           "metricType": "REGULAR_VALUE",
           "queryMetricType": "readMetricsValues",
-          "chartType": "ChartLine",
+          "chartType": "ChartBar",
           "metricName": "instance_jvm_young_gc_count, instance_jvm_old_gc_count"
         },
         {
@@ -754,7 +754,7 @@ templates:
           "metricType": "REGULAR_VALUE",
           "metricName": "instance_clr_gen0_collect_count, instance_clr_gen1_collect_count, instance_clr_gen2_collect_count",
           "queryMetricType": "readMetricsValues",
-          "chartType": "ChartLine"
+          "chartType": "ChartBar"
         },
         {
           "width": 3,
@@ -939,7 +939,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_instance_jvm_young_gc_count,meter_instance_jvm_old_gc_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "unit": "Per Minute"
                 },
                 {
@@ -963,7 +963,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_instance_trace_count,meter_instance_trace_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "unit": "Per Minute"
                 },
                 {
@@ -989,7 +989,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_instance_mesh_count,meter_instance_mesh_analysis_error_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "unit": "Per Minute"
                 },
                 {
@@ -1015,7 +1015,7 @@ templates:
                   "metricType": "REGULAR_VALUE",
                   "metricName": "meter_instance_metrics_first_aggregation,meter_instance_metrics_second_aggregation",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "unit": "Per Minute"
                 },
                 {
@@ -1025,9 +1025,9 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
-                  "metricName": "meter_instance_persistence_timer_prepare_count,meter_instance_persistence_timer_execute_count,meter_instance_persistence_timer_bulk_error_count",
+                  "metricName": "meter_instance_persistence_prepare_count,meter_instance_persistence_execute_count,meter_instance_persistence_error_count",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartLine",
+                  "chartType": "ChartBar",
                   "unit": "Per 5 Minutes"
                 },
                 {
@@ -1040,7 +1040,7 @@ templates:
                   "unit": "Millisecond",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
-                  "metricName": "meter_instance_persistence_timer_prepare_latency_percentile",
+                  "metricName": "meter_instance_persistence_prepare_percentile",
                   "metricLabels": "50,70,90,99",
                   "labelsIndex": "50,70,90,99"
                 },
@@ -1051,7 +1051,7 @@ templates:
                   "entityType": "ServiceInstance",
                   "independentSelector": false,
                   "metricType": "LABELED_VALUE",
-                  "metricName": "meter_instance_persistence_timer_execute_latency_percentile",
+                  "metricName": "meter_instance_persistence_execute_percentile",
                   "queryMetricType": "readLabeledMetricsValues",
                   "chartType": "ChartLine",
                   "metricLabels": "50,70,90,99",

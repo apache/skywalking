@@ -29,7 +29,6 @@ cluster:
     schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
     expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
   kubernetes:
-    watchTimeoutSeconds: ${SW_CLUSTER_K8S_WATCH_TIMEOUT:60}
     namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
     labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
     uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
@@ -196,6 +195,12 @@ prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
 
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
