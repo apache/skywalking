@@ -102,6 +102,7 @@
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
                                         <mkdir dir="${mq.reporter.plugins.dest.dir}"/>
+                                        <mkdir dir="${agent.package.dest.dir}/reporter-plugins" />
                                         <copy
                                             file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
                                             tofile="${mq.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar"
