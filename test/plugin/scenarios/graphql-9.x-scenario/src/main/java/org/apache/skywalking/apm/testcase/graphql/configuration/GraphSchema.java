@@ -36,10 +36,6 @@ import static graphql.schema.GraphQLArgument.newArgument;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLObjectType.newObject;
 
-/**
- * @Author: caoyixiong
- * @Date: 2020-06-29 13:40
- */
 @Component
 public class GraphSchema {
     private graphql.schema.GraphQLSchema schema;
@@ -55,12 +51,10 @@ public class GraphSchema {
                 .build()).build();
     }
 
-
     @Bean
     public GraphQL graphQL() {
         return new GraphQL(getSchema());
     }
-
 
     private void initOutputType() {
 
@@ -71,11 +65,6 @@ public class GraphSchema {
                 .build();
     }
 
-    /**
-     * 查询单个用户信息
-     *
-     * @return
-     */
     private GraphQLFieldDefinition createUserField() {
         return GraphQLFieldDefinition.newFieldDefinition()
                 .name("user")
