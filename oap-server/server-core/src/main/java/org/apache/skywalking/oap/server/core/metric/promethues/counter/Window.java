@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter;
+package org.apache.skywalking.oap.server.core.metric.promethues.counter;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -31,7 +31,7 @@ import java.util.Queue;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.fetcher.prometheus.provider.operation.MetricSource;
+import org.apache.skywalking.oap.server.core.metric.promethues.operation.MetricSource;
 
 /**
  * Window stores a series of counter samples in order to calculate the increase
@@ -57,28 +57,27 @@ public class Window {
         if (source.getCounterFunction() == null) {
             return sum;
         }
-        long now = System.currentTimeMillis();
+        long now = source.getTimestamp();
         switch (source.getCounterFunction()) {
             case INCREASE:
-                Tuple2<Long, Double> i = increase(sum, id, Duration.parse(source.getRange()).toMillis());
+                Tuple2<Long, Double> i = increase(sum, id, Duration.parse(source.getRange()).toMillis(), now);
                 return sum - i._2;
             case RATE:
-                i = increase(sum, id, Duration.parse(source.getRange()).toMillis());
+                i = increase(sum, id, Duration.parse(source.getRange()).toMillis(), now);
                 return (sum - i._2) / ((now - i._1) / 1000);
             case IRATE:
-                i = increase(sum, id, 0);
+                i = increase(sum, id, 0, now);
                 return (sum - i._2) / ((now - i._1) / 1000);
             default:
                 return sum;
         }
     }
 
-    private Tuple2<Long, Double> increase(Double value, ID id, long windowSize) {
+    private Tuple2<Long, Double> increase(Double value, ID id, long windowSize, long now) {
         if (!windows.containsKey(id)) {
             windows.put(id, new LinkedList<>());
         }
         Queue<Tuple2<Long, Double>> window = windows.get(id);
-        long now = System.currentTimeMillis();
         window.offer(Tuple.of(now, value));
         Tuple2<Long, Double> ps = window.element();
         if ((now - ps._1) >= windowSize) {

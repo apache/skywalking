@@ -16,8 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.receiver.opencensus;
 
-public enum CounterFunction {
-    INCREASE, RATE, IRATE
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+
+public class OCMetricReceiverModule extends ModuleDefine {
+    public static final String NAME = "receiver-oc";
+
+    public OCMetricReceiverModule() {
+        super(NAME);
+    }
+
+    @Override
+    public Class[] services() {
+        return new Class[0];
+    }
 }

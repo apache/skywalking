@@ -16,15 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 
 @Data
 @NoArgsConstructor
-public class LabelMatchRule {
-    private String key;
-    private List<String> options;
+public class MetricsRule {
+    private String name;
+    private ScopeType scope;
+    private String operation;
+    private List<Integer> percentiles;
+    private Map<String, PrometheusMetric> sources;
 }
