@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.struts2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,11 +29,9 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * {@link Struts2Instrumentation} enhance the <code>invokeAction</code> method
- * in <code>com.opensymphony.xwork2.DefaultActionInvocation</code> class by
+ * {@link Struts2Instrumentation} enhance the <code>invokeAction</code> method in <code>com.opensymphony.xwork2.DefaultActionInvocation</code>
+ * class by
  * <code>Struts2Interceptor</code> class
- *
- * @author zhangxin
  */
 public class Struts2Instrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -42,29 +39,35 @@ public class Struts2Instrumentation extends ClassInstanceMethodsEnhancePluginDef
     private static final String ENHANCE_METHOD = "invokeAction";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.struts2.Struts2Interceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

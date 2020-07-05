@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.patch.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -34,47 +33,53 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
  * {@link AutowiredAnnotationProcessorInstrumentation} indicates a spring core class patch for making sure the
  * determineCandidateConstructors method in the class {@link org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor}
  * works in spring designed ways
- *
- * @author zhang xin
  */
 public class AutowiredAnnotationProcessorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     private static final String ENHANCE_CLASS = "org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor";
     private static final String ENHANCE_METHOD = "determineCandidateConstructors";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.spring.patch.AutowiredAnnotationProcessorInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
             }
         };
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 }

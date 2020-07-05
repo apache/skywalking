@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.server.core.remote.client;
 
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
-/**
- * @author peng-yongsheng
- */
 public interface RemoteClient extends Comparable<RemoteClient> {
 
     Address getAddress();
@@ -31,5 +28,5 @@ public interface RemoteClient extends Comparable<RemoteClient> {
 
     void close();
 
-    void push(int nextWorkerId, StreamData streamData);
+    void push(String nextWorkerName, StreamData streamData);
 }

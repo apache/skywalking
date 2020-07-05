@@ -30,9 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author chenpengfei
- */
 public class RequestDispatcherImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.undertow.servlet.spec.RequestDispatcherImpl";
@@ -40,7 +37,7 @@ public class RequestDispatcherImplInstrumentation extends ClassInstanceMethodsEn
     public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.undertow.v2x.ForwardInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -57,7 +54,7 @@ public class RequestDispatcherImplInstrumentation extends ClassInstanceMethodsEn
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

@@ -19,20 +19,20 @@
 package org.apache.skywalking.oap.server.core.alarm;
 
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.library.util.TimeBucketUtils;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Save the alarm info into storage for UI query.
- *
- * @author wusheng, peng-yongsheng
  */
 public class AlarmStandardPersistence implements AlarmCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmStandardPersistence.class);
 
-    @Override public void doAlarm(List<AlarmMessage> alarmMessage) {
+    @Override
+    public void doAlarm(List<AlarmMessage> alarmMessage) {
         alarmMessage.forEach(message -> {
             if (logger.isDebugEnabled()) {
                 logger.debug("Alarm message: {}", message.getAlarmMessage());
@@ -45,7 +45,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setName(message.getName());
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
-            record.setTimeBucket(TimeBucketUtils.INSTANCE.getSecondTimeBucket(message.getStartTime()));
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
 
             RecordStreamProcessor.getInstance().in(record);
         });

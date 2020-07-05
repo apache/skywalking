@@ -19,48 +19,35 @@
 package org.apache.skywalking.apm.agent.core.context.ids;
 
 import java.util.Random;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
+import java.util.UUID;
+import org.apache.skywalking.apm.util.StringUtil;
 
 public final class GlobalIdGenerator {
-    private static final ThreadLocal<IDContext> THREAD_ID_SEQUENCE = new ThreadLocal<IDContext>() {
-        @Override
-        protected IDContext initialValue() {
-            return new IDContext(System.currentTimeMillis(), (short)0);
-        }
-    };
+    private static final String PROCESS_ID = UUID.randomUUID().toString().replaceAll("-", "");
+    private static final ThreadLocal<IDContext> THREAD_ID_SEQUENCE = ThreadLocal.withInitial(
+        () -> new IDContext(System.currentTimeMillis(), (short) 0));
 
     private GlobalIdGenerator() {
     }
 
     /**
-     * Generate a new id, combined by three long numbers.
+     * Generate a new id, combined by three parts.
+     * <p>
+     * The first one represents application instance id.
+     * <p>
+     * The second one represents thread id.
+     * <p>
+     * The third one also has two parts, 1) a timestamp, measured in milliseconds 2) a seq, in current thread, between
+     * 0(included) and 9999(included)
      *
-     * The first one represents application instance id. (most likely just an integer value, would be helpful in
-     * protobuf)
-     *
-     * The second one represents thread id. (most likely just an integer value, would be helpful in protobuf)
-     *
-     * The third one also has two parts,
-     * 1) a timestamp, measured in milliseconds
-     * 2) a seq, in current thread, between 0(included) and 9999(included)
-     *
-     * Notice, a long costs 8 bytes, three longs cost 24 bytes. And at the same time, a char costs 2 bytes. So
-     * sky-walking's old global and segment id like this: "S.1490097253214.-866187727.57515.1.1" which costs at least 72
-     * bytes.
-     *
-     * @return an array contains three long numbers, which represents a unique id.
+     * @return unique id to represent a trace or segment
      */
-    public static ID generate() {
-        if (RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID == DictionaryUtil.nullValue()) {
-            throw new IllegalStateException();
-        }
-        IDContext context = THREAD_ID_SEQUENCE.get();
-
-        return new ID(
-            RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID,
-            Thread.currentThread().getId(),
-            context.nextSeq()
+    public static String generate() {
+        return StringUtil.join(
+            '.',
+            PROCESS_ID,
+            String.valueOf(Thread.currentThread().getId()),
+            String.valueOf(THREAD_ID_SEQUENCE.get().nextSeq())
         );
     }
 

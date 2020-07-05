@@ -19,15 +19,13 @@
 package org.apache.skywalking.apm.agent.core.remote;
 
 import io.grpc.Channel;
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author zhangxin
- */
 public class GRPCChannel {
     /**
      * origin channel
@@ -73,6 +71,14 @@ public class GRPCChannel {
         return originChannel.isShutdown();
     }
 
+    public boolean isConnected() {
+        return isConnected(false);
+    }
+
+    public boolean isConnected(boolean requestConnection) {
+        return originChannel.getState(requestConnection) == ConnectivityState.READY;
+    }
+
     public static class Builder {
         private final String host;
         private final int port;
@@ -82,8 +88,8 @@ public class GRPCChannel {
         private Builder(String host, int port) {
             this.host = host;
             this.port = port;
-            this.channelBuilders = new LinkedList<ChannelBuilder>();
-            this.decorators = new LinkedList<ChannelDecorator>();
+            this.channelBuilders = new LinkedList<>();
+            this.decorators = new LinkedList<>();
         }
 
         public Builder addChannelDecorator(ChannelDecorator interceptor) {

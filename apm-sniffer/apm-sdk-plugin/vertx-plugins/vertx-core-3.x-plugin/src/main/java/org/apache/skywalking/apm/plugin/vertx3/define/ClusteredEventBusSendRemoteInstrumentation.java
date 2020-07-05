@@ -29,11 +29,9 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ClusteredEventBusSendRemoteInstrumentation} enhance the <code>sendRemote</code> method
- * in <code>io.vertx.core.eventbus.impl.clustered.ClusteredEventBus</code> class by
+ * {@link ClusteredEventBusSendRemoteInstrumentation} enhance the <code>sendRemote</code> method in
+ * <code>io.vertx.core.eventbus.impl.clustered.ClusteredEventBus</code> class by
  * <code>ClusteredEventBusSendRemoteInterceptor</code> class
- *
- * @author brandon.fergerson
  */
 public class ClusteredEventBusSendRemoteInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -41,34 +39,40 @@ public class ClusteredEventBusSendRemoteInstrumentation extends ClassInstanceMet
     private static final String ENHANCE_METHOD = "sendRemote";
     private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.ClusteredEventBusSendRemoteInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ENHANCE_METHOD);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 
     @Override
     protected String[] witnessClasses() {
-        return new String[]{"io.vertx.core.eventbus.impl.clustered.ClusteredMessage"};
+        return new String[] {"io.vertx.core.eventbus.impl.clustered.ClusteredMessage"};
     }
 }

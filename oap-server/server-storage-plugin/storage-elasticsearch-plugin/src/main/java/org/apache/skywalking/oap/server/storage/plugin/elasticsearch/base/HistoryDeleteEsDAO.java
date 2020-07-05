@@ -19,27 +19,57 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.slf4j.*;
+import org.joda.time.DateTime;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
-
-    private static final Logger logger = LoggerFactory.getLogger(HistoryDeleteEsDAO.class);
-
     public HistoryDeleteEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public void deleteHistory(String modelName, String timeBucketColumnName, Long timeBucketBefore) throws IOException {
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
         ElasticSearchClient client = getClient();
-        int statusCode = client.delete(modelName, timeBucketColumnName, timeBucketBefore);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Delete history from {} index, status code {}", client.formatIndexName(modelName), statusCode);
+
+        long deadline;
+        if (!model.isRecord()) {
+            if (!DownSampling.Minute.equals(model.getDownsampling())) {
+                /*
+                 * In ElasticSearch storage, the TTL triggers the index deletion directly.
+                 * As all metrics data in different down sampling rule of one day are in the same index, the deletion operation
+                 * is only required to run once.
+                 */
+                return;
+            }
+        }
+        deadline = Long.valueOf(new DateTime().plusDays(0 - ttl).toString("yyyyMMdd"));
+
+        List<String> indexes = client.retrievalIndexByAliases(model.getName());
+
+        List<String> prepareDeleteIndexes = new ArrayList<>();
+        List<String> leftIndices = new ArrayList<>();
+        for (String index : indexes) {
+            long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
+            if (deadline >= timeSeries) {
+                prepareDeleteIndexes.add(index);
+            } else {
+                leftIndices.add(index);
+            }
+        }
+        for (String prepareDeleteIndex : prepareDeleteIndexes) {
+            client.deleteByIndexName(prepareDeleteIndex);
+        }
+        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
+        String formattedLatestIndex =  client.formatIndexName(latestIndex);
+        if (!leftIndices.contains(formattedLatestIndex)) {
+            client.createIndex(latestIndex);
         }
     }
 }

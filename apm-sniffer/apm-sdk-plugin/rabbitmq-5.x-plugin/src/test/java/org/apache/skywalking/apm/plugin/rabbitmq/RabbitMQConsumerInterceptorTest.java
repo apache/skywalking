@@ -20,6 +20,7 @@ package org.apache.skywalking.apm.plugin.rabbitmq;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Envelope;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.test.tools.AgentServiceRule;
@@ -61,7 +62,7 @@ public class RabbitMQConsumerInterceptorTest {
         }
     };
 
-    private  RabbitMQConsumerInterceptor rabbitMQConsumerInterceptor;
+    private RabbitMQConsumerInterceptor rabbitMQConsumerInterceptor;
 
     @Before
     public void setUp() throws Exception {
@@ -70,39 +71,51 @@ public class RabbitMQConsumerInterceptorTest {
 
     @Test
     public void TestRabbitMQConsumerInterceptor() throws Throwable {
-        Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
+        Envelope envelope = new Envelope(1111, false, "", "rabbitmq-test");
         Map<String, Object> headers = new HashMap<String, Object>();
-        headers.put("sw6","1-MS4xLjE1NDM5NzU1OTEwMTQwMDAx-MS4xLjE1NDM5NzU1OTA5OTcwMDAw-0-1-1-IzEyNy4wLjAuMTo1Mjcy-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=-I1JhYmJpdE1RL1RvcGljL1F1ZXVlL3JhYmJpdG1xLXRlc3QvUHJvZHVjZXI=");
+        headers.put(SW8CarrierItem.HEADER_NAME, "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(headers).build()};
+        Object[] arguments = new Object[] {
+            0,
+            envelope,
+            propsBuilder.headers(headers).build()
+        };
 
-        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
-        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
+        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
 
     @Test
     public void testRabbitMQConsumerInterceptorWithNilHeaders() throws Throwable {
-        Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
+        Envelope envelope = new Envelope(1111, false, "", "rabbitmq-test");
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(null).build()};
+        Object[] arguments = new Object[] {
+            0,
+            envelope,
+            propsBuilder.headers(null).build()
+        };
 
-        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
-        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
+        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }
 
     @Test
     public void testRabbitMQConsumerInterceptorWithEmptyHeaders() throws Throwable {
-        Envelope envelope = new Envelope(1111,false,"","rabbitmq-test");
+        Envelope envelope = new Envelope(1111, false, "", "rabbitmq-test");
         Map<String, Object> headers = new HashMap<String, Object>();
         AMQP.BasicProperties.Builder propsBuilder = new AMQP.BasicProperties.Builder();
-        Object[] arguments = new Object[]  {0,0,envelope,propsBuilder.headers(headers).build()};
+        Object[] arguments = new Object[] {
+            0,
+            envelope,
+            propsBuilder.headers(headers).build()
+        };
 
-        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance,null,arguments,null,null);
-        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance,null,arguments,null,null);
+        rabbitMQConsumerInterceptor.beforeMethod(enhancedInstance, null, arguments, null, null);
+        rabbitMQConsumerInterceptor.afterMethod(enhancedInstance, null, arguments, null, null);
         List<TraceSegment> traceSegments = segmentStorage.getTraceSegments();
         Assert.assertThat(traceSegments.size(), is(1));
     }

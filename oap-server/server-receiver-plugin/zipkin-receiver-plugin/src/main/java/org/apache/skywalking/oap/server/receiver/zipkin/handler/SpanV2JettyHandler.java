@@ -18,32 +18,25 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import zipkin2.codec.SpanBytesDecoder;
 
-/**
- * @author wusheng
- */
 public class SpanV2JettyHandler extends JettyHandler {
     private static final Logger logger = LoggerFactory.getLogger(SpanV2JettyHandler.class);
 
     private ZipkinReceiverConfig config;
     private SourceReceiver sourceReceiver;
-    private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
 
-    public SpanV2JettyHandler(ZipkinReceiverConfig config,
-        ModuleManager manager) {
+    public SpanV2JettyHandler(ZipkinReceiverConfig config, ModuleManager manager) {
         sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        serviceInventoryCache = manager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        endpointInventoryCache = manager.find(CoreModule.NAME).provider().getService(EndpointInventoryCache.class);
         this.config = config;
     }
 
@@ -62,11 +55,9 @@ public class SpanV2JettyHandler extends JettyHandler {
 
             int encode = type != null && type.contains("/x-protobuf") ? SpanEncode.PROTO3 : SpanEncode.JSON_V2;
 
-            SpanBytesDecoder decoder = SpanEncode.isProto3(encode)
-                ? SpanBytesDecoder.PROTO3
-                : SpanBytesDecoder.JSON_V2;
+            SpanBytesDecoder decoder = SpanEncode.isProto3(encode) ? SpanBytesDecoder.PROTO3 : SpanBytesDecoder.JSON_V2;
 
-            SpanProcessor processor = new SpanProcessor(sourceReceiver, serviceInventoryCache, endpointInventoryCache, encode);
+            SpanProcessor processor = new SpanProcessor(sourceReceiver);
             processor.convert(config, decoder, request);
 
             response.setStatus(202);

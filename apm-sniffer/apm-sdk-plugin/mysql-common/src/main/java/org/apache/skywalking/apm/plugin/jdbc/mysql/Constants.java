@@ -18,9 +18,8 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
-/**
- * @author: dingshaocheng
- */
+import org.apache.skywalking.apm.agent.core.context.tag.StringTag;
+
 public class Constants {
     public static final String CREATE_CALLABLE_STATEMENT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.CreateCallableStatementInterceptor";
     public static final String CREATE_PREPARED_STATEMENT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.CreatePreparedStatementInterceptor";
@@ -28,4 +27,7 @@ public class Constants {
     public static final String PREPARED_STATEMENT_EXECUTE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.PreparedStatementExecuteMethodsInterceptor";
     public static final String SET_CATALOG_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.SetCatalogInterceptor";
     public static final String STATEMENT_EXECUTE_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.StatementExecuteMethodsInterceptor";
+    public static final String DRIVER_CONNECT_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.mysql.DriverConnectInterceptor";
+
+    public static final StringTag SQL_PARAMETERS = new StringTag("db.sql.parameters");
 }

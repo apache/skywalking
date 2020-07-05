@@ -19,16 +19,15 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
-import io.kubernetes.client.ApiException;
-import io.kubernetes.client.models.V1ObjectMeta;
-import io.kubernetes.client.models.V1OwnerReference;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.models.V1ObjectMeta;
+import io.kubernetes.client.openapi.models.V1OwnerReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -45,22 +44,44 @@ public class DependencyResourceTest {
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {"deploy1", (ThrowableFunction) result -> result},
-                {"pod1", (ThrowableFunction) result -> { throw new RuntimeException(); } },
-                {"pod1", (ThrowableFunction) result -> { throw new ApiException(); } },
-                {"pod1", (ThrowableFunction) result -> null},
-                {"rs1", (ThrowableFunction) result -> {
+            {
+                "deploy1",
+                (ThrowableFunction) result -> result
+            },
+            {
+                "pod1",
+                (ThrowableFunction) result -> {
+                    throw new RuntimeException();
+                }
+            },
+            {
+                "pod1",
+                (ThrowableFunction) result -> {
+                    throw new ApiException();
+                }
+            },
+            {
+                "pod1",
+                (ThrowableFunction) result -> null
+            },
+            {
+                "rs1",
+                (ThrowableFunction) result -> {
                     result.setOwnerReferences(null);
                     return result;
-                } },
-                {"rs1", (ThrowableFunction) result -> {
+                }
+            },
+            {
+                "rs1",
+                (ThrowableFunction) result -> {
                     V1OwnerReference reference1 = new V1OwnerReference();
                     reference1.setKind("StatefulSet");
                     reference1.setName("ss1");
                     result.setOwnerReferences(Collections.singletonList(reference1));
                     return result;
-                } },
-        });
+                }
+            },
+            });
     }
 
     @Test
@@ -72,7 +93,7 @@ public class DependencyResourceTest {
         reference.setName("rs1");
         meta.addOwnerReferencesItem(reference);
         DependencyResource dr = new DependencyResource(meta);
-        DependencyResource drr =  dr.getOwnerResource("ReplicaSet", ownerReference -> {
+        DependencyResource drr = dr.getOwnerResource("ReplicaSet", ownerReference -> {
             assertThat(ownerReference.getName(), is("rs1"));
             V1ObjectMeta result = new V1ObjectMeta();
             result.setName("rs1");

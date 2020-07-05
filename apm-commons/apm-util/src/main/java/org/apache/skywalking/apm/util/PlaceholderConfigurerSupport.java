@@ -18,17 +18,21 @@
 
 package org.apache.skywalking.apm.util;
 
-/**
- * @author jian.tan
- */
 public class PlaceholderConfigurerSupport {
 
-    /** Default placeholder prefix: {@value} */
+    /**
+     * Default placeholder prefix: {@value}
+     */
     public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
 
-    /** Default placeholder suffix: {@value} */
+    /**
+     * Default placeholder suffix: {@value}
+     */
     public static final String DEFAULT_PLACEHOLDER_SUFFIX = "}";
 
-    /** Default value separator: {@value} */
+    /**
+     * Default value separator: {@value}
+     */
     public static final String DEFAULT_VALUE_SEPARATOR = ":";
+
 }

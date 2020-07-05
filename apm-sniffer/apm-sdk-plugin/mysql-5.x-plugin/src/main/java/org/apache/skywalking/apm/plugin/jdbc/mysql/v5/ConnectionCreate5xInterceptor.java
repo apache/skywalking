@@ -22,24 +22,25 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.StaticMethodsAroundInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser.URLParser;
+import org.apache.skywalking.apm.plugin.jdbc.mysql.ConnectionCache;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
 /**
- * ConnectionImpl#getInstance in mysql-5.x has 5 parameters such as
- * getInstance(String hostToConnectTo, int portToConnectTo, Properties info, String databaseToConnectTo, String url)
- *
- * @author: dingshaocheng
+ * ConnectionImpl#getInstance in mysql-5.x has 5 parameters such as getInstance(String hostToConnectTo, int
+ * portToConnectTo, Properties info, String databaseToConnectTo, String url)
  */
 public class ConnectionCreate5xInterceptor implements StaticMethodsAroundInterceptor {
 
     @Override
-    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, MethodInterceptResult result) {
+    public void beforeMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        MethodInterceptResult result) {
     }
 
     @Override
-    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Object ret) {
+    public Object afterMethod(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Object ret) {
         if (ret instanceof EnhancedInstance) {
             ConnectionInfo connectionInfo = ConnectionCache.get(allArguments[0].toString(), allArguments[1].toString());
             if (connectionInfo == null) {
@@ -51,7 +52,8 @@ public class ConnectionCreate5xInterceptor implements StaticMethodsAroundInterce
     }
 
     @Override
-    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes, Throwable t) {
+    public void handleMethodException(Class clazz, Method method, Object[] allArguments, Class<?>[] parameterTypes,
+        Throwable t) {
 
     }
 }

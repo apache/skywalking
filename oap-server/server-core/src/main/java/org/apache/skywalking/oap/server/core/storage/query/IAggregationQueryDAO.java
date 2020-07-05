@@ -20,28 +20,20 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
- * @author peng-yongsheng
+ * Query ordered list, based on storage side aggregation. Most storage supports `groupby`/`aggregation` query.
+ *
+ * @since 8.0.0
  */
 public interface IAggregationQueryDAO extends DAO {
-
-    List<TopNEntity> getServiceTopN(final String indName, String valueCName, final int topN, final Step step,
-        final long startTB,
-        final long endTB, final Order order) throws IOException;
-
-    List<TopNEntity> getAllServiceInstanceTopN(final String indName, String valueCName, final int topN, final Step step,
-        final long startTB, final long endTB, final Order order) throws IOException;
-
-    List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String indName, String valueCName,
-        final int topN,
-        final Step step, final long startTB, final long endTB, final Order order) throws IOException;
-
-    List<TopNEntity> getAllEndpointTopN(final String indName, String valueCName, final int topN, final Step step,
-        final long startTB, final long endTB, final Order order) throws IOException;
-
-    List<TopNEntity> getEndpointTopN(final int serviceId, final String indName, String valueCName, final int topN,
-        final Step step, final long startTB, final long endTB, final Order order) throws IOException;
+    List<SelectedRecord> sortMetrics(TopNCondition condition,
+                                     String valueColumnName,
+                                     Duration duration,
+                                     List<KeyValue> additionalConditions) throws IOException;
 }

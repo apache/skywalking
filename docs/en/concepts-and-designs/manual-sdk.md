@@ -1,8 +1,8 @@
 # Manual instrument SDK
-We haven't provided any manual instrument SDK yet. 
+We have manual instrument SDK contributed from the community.
+- [Go2Sky](https://github.com/SkyAPM/go2sky). Go SDK follows SkyWalking format.
 
 Welcome to consider contributing in following languages:
-- Go
 - Python
 - C++
 

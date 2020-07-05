@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.zookeeper;
 
 import org.apache.jute.Record;
@@ -37,18 +36,17 @@ import org.apache.zookeeper.proto.RequestHeader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/**
- * @author zhaoyuguang
- */
 public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, InstanceConstructorInterceptor {
 
     private static final ILog logger = LogManager.getLogger(ClientCnxnInterceptor.class);
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
-                             MethodInterceptResult result) throws Throwable {
+        MethodInterceptResult result) throws Throwable {
         String peer = (String) objInst.getSkyWalkingDynamicField();
         RequestHeader header = (RequestHeader) allArguments[0];
         String operationName = ZooOpt.getOperationName(header.getType());
@@ -60,15 +58,15 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         ContextManager.stopSpan();
         return ret;
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         AbstractSpan span = ContextManager.activeSpan();
         span.errorOccurred();
         span.log(t);
@@ -80,11 +78,15 @@ public class ClientCnxnInterceptor implements InstanceMethodsAroundInterceptor, 
         try {
             Field field = StaticHostProvider.class.getDeclaredField("serverAddresses");
             field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
-            StringBuilder peer = new StringBuilder();
+            @SuppressWarnings("unchecked") List<InetSocketAddress> serverAddresses = (List<InetSocketAddress>) field.get(hostProvider);
+            List<String> addresses = new ArrayList<String>();
             for (InetSocketAddress address : serverAddresses) {
-                peer.append(address.getHostName()).append(":").append(address.getPort()).append(";");
+                addresses.add(address.getHostName() + ":" + address.getPort());
+            }
+            Collections.sort(addresses);
+            StringBuilder peer = new StringBuilder();
+            for (String address : addresses) {
+                peer.append(address).append(";");
             }
             objInst.setSkyWalkingDynamicField(peer.toString());
         } catch (NoSuchFieldException e) {

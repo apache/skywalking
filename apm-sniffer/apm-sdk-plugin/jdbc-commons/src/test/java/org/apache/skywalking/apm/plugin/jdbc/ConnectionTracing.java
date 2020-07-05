@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc;
 
 import java.sql.SQLException;
@@ -28,11 +27,11 @@ import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 public class ConnectionTracing {
 
-    public static <R> R execute(java.sql.Connection realConnection,
-        ConnectionInfo connectInfo, String method, String sql, Executable<R> exec)
-        throws SQLException {
+    public static <R> R execute(java.sql.Connection realConnection, ConnectionInfo connectInfo, String method,
+        String sql, Executable<R> exec) throws SQLException {
+        AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, connectInfo
+            .getDatabasePeer());
         try {
-            AbstractSpan span = ContextManager.createExitSpan(connectInfo.getDBType() + "/JDBI/Connection/" + method, connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, sql);
@@ -40,17 +39,15 @@ public class ConnectionTracing {
             SpanLayer.asDB(span);
             return exec.exe(realConnection, sql);
         } catch (SQLException e) {
-            AbstractSpan span = ContextManager.activeSpan();
             span.errorOccurred();
             span.log(e);
             throw e;
         } finally {
-            ContextManager.stopSpan();
+            ContextManager.stopSpan(span);
         }
     }
 
     public interface Executable<R> {
-        R exe(java.sql.Connection realConnection, String sql)
-            throws SQLException;
+        R exe(java.sql.Connection realConnection, String sql) throws SQLException;
     }
 }

@@ -34,9 +34,7 @@ public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumenta
     private static final String ENHANCE_CLASS = "org.apache.http.impl.client.DefaultRequestDirector";
 
     /**
-     * DefaultRequestDirector is default implement.
-     * usually use in version 4.0-4.2
-     * since 4.3, this class is Deprecated.
+     * DefaultRequestDirector is default implement. usually use in version 4.0-4.2 since 4.3, this class is Deprecated.
      */
     @Override
     public ClassMatch enhanceClass() {
@@ -44,7 +42,7 @@ public class DefaultRequestDirectorInstrumentation extends HttpClientInstrumenta
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

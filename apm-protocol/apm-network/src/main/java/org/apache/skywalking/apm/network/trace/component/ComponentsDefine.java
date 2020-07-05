@@ -16,13 +16,10 @@
  *
  */
 
-
 package org.apache.skywalking.apm.network.trace.component;
 
 /**
  * The supported list of skywalking java sniffer.
- *
- * @author wusheng
  */
 public class ComponentsDefine {
 
@@ -64,11 +61,11 @@ public class ComponentsDefine {
 
     public static final OfficialComponent SERVICECOMB = new OfficialComponent(28, "ServiceComb");
 
-    public static final OfficialComponent HYSTRIX =  new OfficialComponent(29, "Hystrix");
+    public static final OfficialComponent HYSTRIX = new OfficialComponent(29, "Hystrix");
 
-    public static final OfficialComponent JEDIS =  new OfficialComponent(30, "Jedis");
+    public static final OfficialComponent JEDIS = new OfficialComponent(30, "Jedis");
 
-    public static final OfficialComponent H2_JDBC_DRIVER =  new OfficialComponent(32, "jdbc-jdbc-driver");
+    public static final OfficialComponent H2_JDBC_DRIVER = new OfficialComponent(32, "h2-jdbc-driver");
 
     public static final OfficialComponent MYSQL_JDBC_DRIVER = new OfficialComponent(33, "mysql-connector-java");
 
@@ -90,98 +87,81 @@ public class ComponentsDefine {
 
     public static final OfficialComponent MONGO_DRIVER = new OfficialComponent(42, "mongodb-driver");
 
-    public static final OfficialComponent SOFARPC =  new OfficialComponent(43, "SOFARPC");
+    public static final OfficialComponent SOFARPC = new OfficialComponent(43, "SOFARPC");
 
-    public static final  OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45,"activemq-producer");
+    public static final OfficialComponent ACTIVEMQ_PRODUCER = new OfficialComponent(45, "activemq-producer");
 
-    public static final  OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46,"activemq-consumer");
+    public static final OfficialComponent ACTIVEMQ_CONSUMER = new OfficialComponent(46, "activemq-consumer");
 
-    public static final OfficialComponent TRANSPORT_CLIENT =  new OfficialComponent(48, "transport-client");
+    public static final OfficialComponent TRANSPORT_CLIENT = new OfficialComponent(48, "transport-client");
 
-    public static final OfficialComponent UNDERTOW =  new OfficialComponent(49, "Undertow");
+    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52, "rabbitmq-producer");
 
-    public static final OfficialComponent RABBITMQ_PRODUCER = new OfficialComponent(52,"rabbitmq-producer");
+    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53, "rabbitmq-consumer");
 
-    public static final OfficialComponent RABBITMQ_CONSUMER = new OfficialComponent(53,"rabbitmq-consumer");
+    public static final OfficialComponent CANAL = new OfficialComponent(54, "Canal");
 
-    public static final OfficialComponent CANAL = new OfficialComponent(54,"Canal");
-  
-    public static final OfficialComponent GSON = new OfficialComponent(55,"Gson");
-  
-    public static final OfficialComponent REDISSON =  new OfficialComponent(56, "Redisson");
+    public static final OfficialComponent GSON = new OfficialComponent(55, "Gson");
 
-    public static final OfficialComponent LETTUCE =  new OfficialComponent(57, "Lettuce");
+    public static final OfficialComponent REDISSON = new OfficialComponent(56, "Redisson");
 
-    public static final OfficialComponent ZOOKEEPER =  new OfficialComponent(58, "Zookeeper");
+    public static final OfficialComponent LETTUCE = new OfficialComponent(57, "Lettuce");
 
-    public static final OfficialComponent VERTX =  new OfficialComponent(59, "Vert.x");
+    public static final OfficialComponent ZOOKEEPER = new OfficialComponent(58, "Zookeeper");
+
+    public static final OfficialComponent VERTX = new OfficialComponent(59, "Vert.x");
 
     public static final OfficialComponent SHARDING_SPHERE = new OfficialComponent(60, "ShardingSphere");
 
-    public static final OfficialComponent SPRING_CLOUD_GATEWAY =  new OfficialComponent(61, "spring-cloud-gateway");
+    public static final OfficialComponent SPRING_CLOUD_GATEWAY = new OfficialComponent(61, "spring-cloud-gateway");
 
-    public static final OfficialComponent RESTEASY =  new OfficialComponent(62, "RESTEasy");
+    public static final OfficialComponent RESTEASY = new OfficialComponent(62, "RESTEasy");
 
-    private static ComponentsDefine INSTANCE = new ComponentsDefine();
+    public static final OfficialComponent SOLRJ = new OfficialComponent(63, "solrj");
 
-    private String[] components;
+    public static final OfficialComponent SPRING_ASYNC = new OfficialComponent(65, "SpringAsync");
 
-    public static ComponentsDefine getInstance() {
-        return INSTANCE;
-    }
+    public static final OfficialComponent JDK_HTTP = new OfficialComponent(66, "JdkHttp");
 
-    public ComponentsDefine() {
-        components = new String[100];
-        addComponent(TOMCAT);
-        addComponent(HTTPCLIENT);
-        addComponent(DUBBO);
-        addComponent(MOTAN);
-        addComponent(RESIN);
-        addComponent(FEIGN);
-        addComponent(OKHTTP);
-        addComponent(SPRING_REST_TEMPLATE);
-        addComponent(SPRING_MVC_ANNOTATION);
-        addComponent(STRUTS2);
-        addComponent(NUTZ_MVC_ANNOTATION);
-        addComponent(NUTZ_HTTP);
-        addComponent(JETTY_CLIENT);
-        addComponent(JETTY_SERVER);
-        addComponent(SHARDING_JDBC);
-        addComponent(SHARDING_SPHERE);
-        addComponent(GRPC);
-        addComponent(ELASTIC_JOB);
-        addComponent(HTTP_ASYNC_CLIENT);
-        addComponent(SERVICECOMB);
-        addComponent(HYSTRIX);
-        addComponent(H2_JDBC_DRIVER);
-        addComponent(MYSQL_JDBC_DRIVER);
-        addComponent(OJDBC);
-        addComponent(JEDIS);
-        addComponent(SPYMEMCACHED);
-        addComponent(XMEMCACHED);
-        addComponent(POSTGRESQL_DRIVER);
-        addComponent(ROCKET_MQ_PRODUCER);
-        addComponent(ROCKET_MQ_CONSUMER);
-        addComponent(KAFKA_PRODUCER);
-        addComponent(KAFKA_CONSUMER);
-        addComponent(MONGO_DRIVER);
-        addComponent(SOFARPC);
-        addComponent(ACTIVEMQ_PRODUCER);
-        addComponent(ACTIVEMQ_CONSUMER);
-        addComponent(UNDERTOW);
-        addComponent(RABBITMQ_PRODUCER);
-        addComponent(RABBITMQ_CONSUMER);
-        addComponent(CANAL);
-        addComponent(GSON);
-        addComponent(REDISSON);
-        addComponent(LETTUCE);
-        addComponent(ZOOKEEPER);
-        addComponent(VERTX);
-        addComponent(SPRING_CLOUD_GATEWAY);
-        addComponent(RESTEASY);
-    }
+    public static final OfficialComponent SPRING_WEBFLUX = new OfficialComponent(67, "spring-webflux");
 
-    private void addComponent(OfficialComponent component) {
-        components[component.getId()] = component.getName();
-    }
+    public static final OfficialComponent PLAY = new OfficialComponent(68, "Play");
+
+    public static final OfficialComponent CASSANDRA_JAVA_DRIVER = new OfficialComponent(69, "cassandra-java-driver");
+
+    public static final OfficialComponent LIGHT_4J = new OfficialComponent(71, "Light4J");
+
+    public static final OfficialComponent PULSAR_PRODUCER = new OfficialComponent(73, "pulsar-producer");
+
+    public static final OfficialComponent PULSAR_CONSUMER = new OfficialComponent(74, "pulsar-consumer");
+
+    public static final OfficialComponent EHCACHE = new OfficialComponent(75, "Ehcache");
+
+    public static final OfficialComponent SOCKET_IO = new OfficialComponent(76, "SocketIO");
+
+    public static final OfficialComponent REST_HIGH_LEVEL_CLIENT = new OfficialComponent(77, "rest-high-level-client");
+
+    public static final OfficialComponent SPRING_TX = new OfficialComponent(78, "spring-tx");
+
+    public static final OfficialComponent ARMERIA = new OfficialComponent(79, "Armeria");
+
+    public static final OfficialComponent JDK_THREADING = new OfficialComponent(80, "JdkThreading");
+
+    public static final OfficialComponent KT_COROUTINE = new OfficialComponent(81, "KotlinCoroutine");
+
+    public static final OfficialComponent AVRO_SERVER = new OfficialComponent(82, "AvroServer");
+
+    public static final OfficialComponent AVRO_CLIENT = new OfficialComponent(83, "AvroClient");
+
+    public static final OfficialComponent UNDERTOW = new OfficialComponent(84, "Undertow");
+
+    public static final OfficialComponent FINAGLE = new OfficialComponent(85, "Finagle");
+
+    public static final OfficialComponent MARIADB_JDBC = new OfficialComponent(87, "mariadb-jdbc");
+
+    public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
+
+    public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
+
+    public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
 }

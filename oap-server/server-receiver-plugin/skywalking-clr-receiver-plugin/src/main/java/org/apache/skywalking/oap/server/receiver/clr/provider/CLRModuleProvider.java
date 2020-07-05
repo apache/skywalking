@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.clr.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -30,36 +31,54 @@ import org.apache.skywalking.oap.server.receiver.clr.provider.handler.CLRMetricR
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 /**
- *  @author liuhaoyang
+ *
  **/
 public class CLRModuleProvider extends ModuleProvider {
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return CLRModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return null;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME).provider().getService(GRPCHandlerRegister.class);
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(CLROALDefine.INSTANCE);
+
+        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new CLRMetricReportServiceHandler(getManager()));
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {CoreModule.NAME, SharingServerModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            CoreModule.NAME,
+            SharingServerModule.NAME
+        };
     }
 }

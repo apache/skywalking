@@ -18,100 +18,91 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.*;
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import java.util.Comparator;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * PxxMetrics is a parent metrics for p99/p95/p90/p75/p50 metrics. P(xx) metrics is also for P(xx) percentile.
- *
+ * <p>
  * A percentile (or a centile) is a measure used in statistics indicating the value below which a given percentage of
  * observations in a group of observations fall. For example, the 20th percentile is the value (or score) below which
  * 20% of the observations may be found.
- *
- * @author wusheng, peng-yongsheng
  */
 public abstract class PxxMetrics extends Metrics implements IntValueHolder {
+
     protected static final String DETAIL_GROUP = "detail_group";
     protected static final String VALUE = "value";
     protected static final String PRECISION = "precision";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true, function = Function.Avg) private int value;
-    @Getter @Setter @Column(columnName = PRECISION) private int precision;
-    @Getter @Setter @Column(columnName = DETAIL_GROUP) private IntKeyLongValueArray detailGroup;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.HISTOGRAM, function = Function.Avg)
+    private int value;
+    @Getter
+    @Setter
+    @Column(columnName = PRECISION, storageOnly = true)
+    private int precision;
+    @Getter
+    @Setter
+    @Column(columnName = DETAIL_GROUP, storageOnly = true)
+    private DataTable detailGroup;
 
     private final int percentileRank;
-    private Map<Integer, IntKeyLongValue> detailIndex;
+    private boolean isCalculated;
 
     public PxxMetrics(int percentileRank) {
         this.percentileRank = percentileRank;
-        detailGroup = new IntKeyLongValueArray(30);
+        detailGroup = new DataTable(30);
     }
 
     @Entrance
     public final void combine(@SourceFrom int value, @Arg int precision) {
+        this.isCalculated = false;
         this.precision = precision;
 
-        this.indexCheckAndInit();
-
-        int index = value / precision;
-        IntKeyLongValue element = detailIndex.get(index);
+        String index = String.valueOf(value / precision);
+        Long element = detailGroup.get(index);
         if (element == null) {
-            element = new IntKeyLongValue();
-            element.setKey(index);
-            element.setValue(1);
-            addElement(element);
+            element = 1L;
         } else {
-            element.addValue(1);
+            element++;
         }
+        detailGroup.put(index, element);
     }
 
     @Override
     public void combine(Metrics metrics) {
-        PxxMetrics pxxMetrics = (PxxMetrics)metrics;
-        this.indexCheckAndInit();
-        pxxMetrics.indexCheckAndInit();
+        this.isCalculated = false;
 
-        pxxMetrics.detailIndex.forEach((key, element) -> {
-            IntKeyLongValue existingElement = this.detailIndex.get(key);
-            if (existingElement == null) {
-                existingElement = new IntKeyLongValue();
-                existingElement.setKey(key);
-                existingElement.setValue(element.getValue());
-                addElement(element);
-            } else {
-                existingElement.addValue(element.getValue());
-            }
-        });
+        PxxMetrics pxxMetrics = (PxxMetrics) metrics;
+        this.detailGroup.append(pxxMetrics.detailGroup);
     }
 
     @Override
     public final void calculate() {
-        Collections.sort(detailGroup);
-        int total = detailGroup.stream().mapToInt(element -> (int)element.getValue()).sum();
-        int roof = Math.round(total * percentileRank * 1.0f / 100);
 
-        int count = 0;
-        for (IntKeyLongValue element : detailGroup) {
-            count += element.getValue();
-            if (count >= roof) {
-                value = element.getKey() * precision;
-                return;
+        if (!isCalculated) {
+            long total = detailGroup.sumOfValues();
+            int roof = Math.round(total * percentileRank * 1.0f / 100);
+
+            long count = 0;
+            final List<String> sortedKeys = detailGroup.sortedKeys(Comparator.comparingInt(Integer::parseInt));
+
+            for (String index : sortedKeys) {
+                final Long value = detailGroup.get(index);
+                count += value;
+                if (count >= roof) {
+                    this.value = Integer.parseInt(index) * precision;
+                    return;
+                }
             }
-        }
-    }
-
-    private void addElement(IntKeyLongValue element) {
-        detailGroup.add(element);
-        detailIndex.put(element.getKey(), element);
-    }
-
-    private void indexCheckAndInit() {
-        if (detailIndex == null) {
-            detailIndex = new HashMap<>();
-            detailGroup.forEach(element -> detailIndex.put(element.getKey(), element));
         }
     }
 }

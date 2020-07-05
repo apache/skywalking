@@ -34,7 +34,7 @@ Here are the steps about how to use **ContextCarrier** in a `A->B` distributed c
 1. Put all items of `ContextCarrier` into heads(e.g. HTTP HEAD), attachments(e.g. Dubbo RPC framework) or messages(e.g. Kafka)
 1. The `ContextCarrier` propagates to server side by the service call.
 1. At server side, get all items from heads, attachments or messages.
-1. Create an EntrySpan by `ContestManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
+1. Create an EntrySpan by `ContextManager#createEntrySpan` or use `ContextManager#extract` to bind the client and server.
 
 
 Let's demonstrate the steps by Apache HTTPComponent client plugin and Tomcat 7 server plugin
@@ -103,15 +103,6 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      */
     AbstractSpan setComponent(Component component);
 
-    /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge.
-     * It it higher recommend don't use this for performance consideration.
-     *
-     * @param componentName
-     * @return the span for chaining.
-     */
-    AbstractSpan setComponent(String componentName);
-
     AbstractSpan setLayer(SpanLayer layer);
 
     /**
@@ -147,7 +138,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      */
     AbstractSpan setOperationName(String endpointName);
 ```
-Besides set operation name, tags and logs, two attributes shoule be set, which are component and layer, 
+Besides setting operation name, tags and logs, two attributes should be set, which are component and layer, 
 especially for EntrySpan and ExitSpan
 
 SpanLayer is the catalog of span. Here are 5 values:
@@ -159,6 +150,36 @@ SpanLayer is the catalog of span. Here are 5 values:
 
 Component IDs are defined and reserved by SkyWalking project.
 For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
+
+### Special Span Tags
+All tags are available in the trace view, meanwhile, 
+in the OAP backend analysis, some special tag or tag combination could provide other advanced features.
+
+#### Tag key `status_code`
+The value should be an integer. The response code of OAL entities is according to this.
+
+#### Tag key `db.statement` and `db.type`.
+The value of `db.statement` should be a String, representing the Database statement, such as SQL, or `[No statement]/`+span#operationName if value is empty.
+When exit span has this tag, OAP samples the slow statements based on `receiver-trace/default/maxSlowSQLLength`.
+The threshold of slow statement is defined by following [`receiver-trace/default/slowDBAccessThreshold`](../setup/backend/slow-db-statement.md)
+
+#### Extension logic endpoint. Tag key `x-le`
+Logic endpoint is a concept, which doesn't represent a real RPC call, but requires the statistic.
+The value of `x-le` should be JSON format, with two options.
+1. Define a separated logic endpoint. Provide its own endpoint name, latency and status. Suitable for entry and local span.
+```json
+{
+  "name": "GraphQL-service",
+  "latency": 100,
+  "status": true
+}
+```
+2. Declare the current local span representing a logic endpoint.
+```json
+{
+  "logic-span": true
+}
+``` 
 
 ### Advanced APIs
 #### Async Span APIs
@@ -192,6 +213,7 @@ needs to set in another thread, you should use these APIs.
     AbstractSpan asyncFinish();
 ```
 1. Call `#prepareForAsync` in original context.
+1. Do `ContextManager#stopSpan` in original context when your job in current thread is done.
 1. Propagate the span to any other thread.
 1. After all set, call `#asyncFinish` in any thread.
 1. Tracing context will be finished and report to backend when all spans's `#prepareForAsync` finished(Judged by count of API execution).
@@ -224,7 +246,8 @@ ClassMatch represents how to match the target classes, there are 4 ways:
 * byHierarchyMatch, through the class's parent classes or interfaces
 
 **Attentions**:
-* Forbid to use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
+* Never use `ThirdPartyClass.class` in the instrumentation definitions, such as `takesArguments(ThirdPartyClass.class)`, or `byName(ThirdPartyClass.class.getName())`, because of the fact that `ThirdPartyClass` dose not necessarily exist in the target application and this will break the agent; we have `import` checks to help on checking this in CI, but it doesn't cover all scenarios of this limitation, so never try to work around this limitation by something like using full-qualified-class-name (FQCN), i.e. `takesArguments(full.qualified.ThirdPartyClass.class)` and `byName(full.qualified.ThirdPartyClass.class.getName())` will pass the CI check, but are still invalid in the agent codes, **Use Full Qualified Class Name String Literature Instead**.
+* Even you are perfectly sure that the class to be intercepted exists in the target application (such as JDK classes), still, don't use `*.class.getName()` to get the class String name. Recommend you to use literal String. This is for 
 avoiding ClassLoader issues.
 * `by*AnnotationMatch` doesn't support the inherited annotations.
 * Don't recommend to use `byHierarchyMatch`, unless it is really necessary. Because using it may trigger intercepting 
@@ -241,7 +264,7 @@ protected ClassMatch enhanceClassName() {
 
 2. Define an instance method intercept point
 ```java
-protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
 
 public interface InstanceMethodsInterceptPoint {
     /**
@@ -277,9 +300,7 @@ As an interceptor for an instance method, the interceptor implements
 /**
  * A interceptor, which intercept method's invocation. The target methods will be defined in {@link
  * ClassEnhancePluginDefine}'s subclass, most likely in {@link ClassInstanceMethodsEnhancePluginDefine}
- *
- * @author wusheng
- */
+*/
 public interface InstanceMethodsAroundInterceptor {
     /**
      * called before target method invocation.
@@ -311,16 +332,66 @@ public interface InstanceMethodsAroundInterceptor {
 ```
 Use the core APIs in before, after and exception handle stages.
 
+### Do bootstrap class instrumentation.
+SkyWalking has packaged the bootstrap instrumentation in the agent core. It is easy to open by declaring it in the Instrumentation definition.
+
+Override the `public boolean isBootstrapInstrumentation()` and return **true**. Such as
+```java
+public class URLInstrumentation extends ClassEnhancePluginDefine {
+    private static String CLASS_NAME = "java.net.URL";
+
+    @Override protected ClassMatch enhanceClass() {
+        return byName(CLASS_NAME);
+    }
+
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[] {
+            new ConstructorInterceptPoint() {
+                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                    return any();
+                }
+
+                @Override public String getConstructorInterceptor() {
+                    return "org.apache.skywalking.apm.plugin.jre.httpurlconnection.Interceptor2";
+                }
+            }
+        };
+    }
+
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[0];
+    }
+
+    @Override public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+        return new StaticMethodsInterceptPoint[0];
+    }
+
+    @Override public boolean isBootstrapInstrumentation() {
+        return true;
+    }
+}
+```
+
+**NOTICE**, doing bootstrap instrumentation should only happen in necessary, but mostly it effect the JRE core(rt.jar),
+and could make very unexpected result or side effect.
+
+### Plugin Test Tool
+[Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
+a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
+The mock collector is a SkyWalking receiver, like OAP server.
+
+You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
+to SkyWalking official repo, this is required.
 
 ### Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.
 
 Please follow there steps:
-1. Submit an issue about which plugins are you going to contribute, including supported version.
+1. Submit an issue about which plugins you are going to contribute, including supported version.
 1. Create sub modules under `apm-sniffer/apm-sdk-plugin` or `apm-sniffer/optional-plugins`, and the name should include supported library name and versions
 1. Follow this guide to develop. Make sure comments and test cases are provided.
 1. Develop and test.
+1. Provide the automatic test cases. Learn `how to write the plugin test case` from this [doc](Plugin-test.md)
 1. Send the pull request and ask for review. 
-1. Provide the automatic test cases. 
-1. The plugin committers approve your plugins after automatic test cases provided and the tests passed in our CI.
+1. The plugin committers approve your plugins, plugin CI-with-IT, e2e and plugin tests passed.
 1. The plugin accepted by SkyWalking. 

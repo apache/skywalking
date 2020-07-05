@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
 /**
  * SQLBuilder
- *
- * @author wusheng
  */
 public class SQLBuilder {
     private static String LINE_END = System.lineSeparator();
@@ -51,7 +49,8 @@ public class SQLBuilder {
         return LINE_END + toString();
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return text.toString();
     }
 }

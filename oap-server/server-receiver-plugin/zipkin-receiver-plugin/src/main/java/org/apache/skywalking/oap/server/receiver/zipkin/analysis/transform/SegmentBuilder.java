@@ -19,21 +19,26 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.analysis.transform;
 
 import com.google.common.base.Strings;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.skywalking.apm.network.common.KeyStringValuePair;
-import org.apache.skywalking.apm.network.language.agent.*;
-import org.apache.skywalking.apm.network.language.agent.v2.*;
-import org.apache.skywalking.oap.server.receiver.sharing.server.CoreRegisterLinker;
-import org.apache.skywalking.oap.server.receiver.zipkin.analysis.*;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.v3.Log;
+import org.apache.skywalking.apm.network.language.agent.v3.RefType;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
+import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.data.SkyWalkingTrace;
-import org.eclipse.jetty.util.StringUtil;
-import zipkin2.*;
+import zipkin2.Endpoint;
+import zipkin2.Span;
 
-/**
- * @author wusheng
- */
 public class SegmentBuilder {
     private Context context;
     private LinkedList<Segment> segments;
@@ -77,9 +82,9 @@ public class SegmentBuilder {
             // Wu Sheng.
             if (!Strings.isNullOrEmpty(applicationCode)) {
                 timestamp = rootSpan.timestampAsLong();
-                builder.context.addApp(applicationCode, rootSpan.timestampAsLong() / 1000);
+                builder.context.addService(applicationCode);
 
-                SpanObjectV2.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
+                SpanObject.Builder rootSpanBuilder = builder.initSpan(null, null, rootSpan, true);
                 builder.context.currentSegment().addSpan(rootSpanBuilder);
                 builder.scanSpansFromRoot(rootSpanBuilder, rootSpan, childSpanMap);
 
@@ -93,14 +98,12 @@ public class SegmentBuilder {
         builder.segments.forEach(segment -> {
             SegmentObject.Builder traceSegmentBuilder = segment.freeze();
             segmentBuilders.add(traceSegmentBuilder);
-            CoreRegisterLinker.getServiceInventoryRegister().heartbeat(traceSegmentBuilder.getServiceId(), finalTimestamp);
-            CoreRegisterLinker.getServiceInstanceInventoryRegister().heartbeat(traceSegmentBuilder.getServiceInstanceId(), finalTimestamp);
         });
-        return new SkyWalkingTrace(builder.generateTraceOrSegmentId(), segmentBuilders);
+        return new SkyWalkingTrace(segmentBuilders);
     }
 
-    private void scanSpansFromRoot(SpanObjectV2.Builder parentSegmentSpan, Span parent,
-        Map<String, List<Span>> childSpanMap) throws Exception {
+    private void scanSpansFromRoot(SpanObject.Builder parentSegmentSpan, Span parent,
+                                   Map<String, List<Span>> childSpanMap) throws Exception {
         String parentId = parent.id();
         // get child spans by parent span id
         List<Span> spanList = childSpanMap.get(parentId);
@@ -110,17 +113,17 @@ public class SegmentBuilder {
         for (Span childSpan : spanList) {
             String localServiceName = childSpan.localServiceName();
             boolean isNewApp = false;
-            if (StringUtil.isNotBlank(localServiceName)) {
-                if (context.isAppChanged(localServiceName)) {
+            if (StringUtil.isNotEmpty(localServiceName)) {
+                if (context.isServiceChanged(localServiceName)) {
                     isNewApp = true;
                 }
             }
 
             try {
                 if (isNewApp) {
-                    context.addApp(localServiceName, childSpan.timestampAsLong() / 1000);
+                    context.addService(localServiceName);
                 }
-                SpanObjectV2.Builder childSpanBuilder = initSpan(parentSegmentSpan, parent, childSpan, isNewApp);
+                SpanObject.Builder childSpanBuilder = initSpan(parentSegmentSpan, parent, childSpan, isNewApp);
 
                 context.currentSegment().addSpan(childSpanBuilder);
                 scanSpansFromRoot(childSpanBuilder, childSpan, childSpanMap);
@@ -133,9 +136,9 @@ public class SegmentBuilder {
         }
     }
 
-    private SpanObjectV2.Builder initSpan(SpanObjectV2.Builder parentSegmentSpan, Span parentSpan, Span span,
-        boolean isSegmentRoot) {
-        SpanObjectV2.Builder spanBuilder = SpanObjectV2.newBuilder();
+    private SpanObject.Builder initSpan(SpanObject.Builder parentSegmentSpan, Span parentSpan, Span span,
+                                        boolean isSegmentRoot) {
+        SpanObject.Builder spanBuilder = SpanObject.newBuilder();
         spanBuilder.setSpanId(context.currentIDs().nextSpanId());
         if (isSegmentRoot) {
             // spanId = -1, means no parent span
@@ -188,21 +191,25 @@ public class SegmentBuilder {
         spanBuilder.setStartTime(startTime);
         spanBuilder.setEndTime(startTime + duration);
 
-        span.tags().forEach((tagKey, tagValue) -> spanBuilder.addTags(
-            KeyStringValuePair.newBuilder().setKey(tagKey).setValue(tagValue).build())
-        );
+        span.tags()
+            .forEach((tagKey, tagValue) -> spanBuilder.addTags(KeyStringValuePair.newBuilder()
+                                                                                 .setKey(tagKey)
+                                                                                 .setValue(tagValue)
+                                                                                 .build()));
 
-        span.annotations().forEach(annotation ->
-            spanBuilder.addLogs(Log.newBuilder().setTime(annotation.timestamp() / 1000).addData(
-                KeyStringValuePair.newBuilder().setKey("zipkin.annotation").setValue(annotation.value()).build()
-            ))
-        );
+        span.annotations()
+            .forEach(annotation -> spanBuilder.addLogs(Log.newBuilder()
+                                                          .setTime(annotation.timestamp() / 1000)
+                                                          .addData(KeyStringValuePair.newBuilder()
+                                                                                     .setKey("zipkin.annotation")
+                                                                                     .setValue(annotation.value())
+                                                                                     .build())));
 
         return spanBuilder;
     }
 
-    private void buildRef(SpanObjectV2.Builder spanBuilder, Span span, SpanObjectV2.Builder parentSegmentSpan,
-        Span parentSpan) {
+    private void buildRef(SpanObject.Builder spanBuilder, Span span, SpanObject.Builder parentSegmentSpan,
+                          Span parentSpan) {
         Segment parentSegment = context.parentSegment();
         if (parentSegment == null) {
             return;
@@ -224,33 +231,20 @@ public class SegmentBuilder {
         }
 
         String peer = getPeer(parentSpan, span);
-        if (StringUtil.isBlank(peer)) {
+        if (StringUtil.isEmpty(peer)) {
             //The IP is the most important for building the ref at both sides.
             return;
         }
 
         SegmentReference.Builder refBuilder = SegmentReference.newBuilder();
-        refBuilder.setEntryServiceInstanceId(rootSegment.builder().getServiceInstanceId());
-        int endpointId = rootSegment.getEntryEndpointId();
-        if (endpointId == 0) {
-            refBuilder.setEntryEndpoint(rootSegment.getEntryEndpointName());
-        } else {
-            refBuilder.setEntryEndpointId(endpointId);
-        }
-        refBuilder.setEntryServiceInstanceId(rootSegment.builder().getServiceInstanceId());
 
         // parent ref info
-        refBuilder.setNetworkAddress(peer);
-        parentSegmentSpan.setPeer(refBuilder.getNetworkAddress());
-        refBuilder.setParentServiceInstanceId(parentSegment.builder().getServiceInstanceId());
+        refBuilder.setNetworkAddressUsedAtPeer(peer);
+        parentSegmentSpan.setPeer(refBuilder.getNetworkAddressUsedAtPeer());
+        refBuilder.setParentServiceInstance(parentSegment.builder().getServiceInstance());
         refBuilder.setParentSpanId(parentSegmentSpan.getSpanId());
         refBuilder.setParentTraceSegmentId(parentSegment.builder().getTraceSegmentId());
-        int parentEndpointId = parentSegment.getEntryEndpointId();
-        if (parentEndpointId == 0) {
-            refBuilder.setParentEndpoint(parentSegment.getEntryEndpointName());
-        } else {
-            refBuilder.setParentEndpointId(parentEndpointId);
-        }
+        refBuilder.setParentEndpoint(parentSegment.getEntryEndpointName());
         refBuilder.setRefType(RefType.CrossProcess);
 
         spanBuilder.addRefs(refBuilder);
@@ -296,23 +290,12 @@ public class SegmentBuilder {
     private class Context {
         private LinkedList<Segment> segmentsStack = new LinkedList<>();
 
-        private boolean isAppChanged(String applicationCode) {
-            return !Strings.isNullOrEmpty(applicationCode) && !applicationCode.equals(currentIDs().applicationCode);
+        private boolean isServiceChanged(String service) {
+            return !Strings.isNullOrEmpty(service) && !service.equals(currentIDs().service);
         }
 
-        private Segment addApp(String serviceCode, long registerTime) throws Exception {
-            int serviceId = waitForExchange(() ->
-                    CoreRegisterLinker.getServiceInventoryRegister().getOrCreate(serviceCode, null),
-                10
-            );
-
-            int serviceInstanceId = waitForExchange(() ->
-                    CoreRegisterLinker.getServiceInstanceInventoryRegister().getOrCreate(serviceId, serviceCode, serviceCode,
-                        registerTime, ZipkinTraceOSInfoBuilder.getOSInfoForZipkin(serviceCode)),
-                10
-            );
-
-            Segment segment = new Segment(serviceCode, serviceId, serviceInstanceId);
+        private Segment addService(String serviceCode) throws Exception {
+            Segment segment = new Segment(serviceCode, serviceCode);
             segmentsStack.add(segment);
             return segment;
         }
@@ -362,42 +345,37 @@ public class SegmentBuilder {
     private class Segment {
         private SegmentObject.Builder segmentBuilder;
         private IDCollection ids;
-        private int entryEndpointId = 0;
         private String entryEndpointName = null;
-        private List<SpanObjectV2.Builder> spans;
+        private List<SpanObject.Builder> spans;
         private long endTime = 0;
 
-        private Segment(String serviceCode, int serviceId, int serviceInstanceId) {
-            ids = new IDCollection(serviceCode, serviceId, serviceInstanceId);
+        private Segment(String service, String serviceInstance) {
+            ids = new IDCollection(service, serviceInstance);
             spans = new LinkedList<>();
             segmentBuilder = SegmentObject.newBuilder();
-            segmentBuilder.setServiceId(serviceId);
-            segmentBuilder.setServiceInstanceId(serviceInstanceId);
-            segmentBuilder.setTraceSegmentId(generateTraceOrSegmentId());
+            segmentBuilder.setService(service);
+            segmentBuilder.setServiceInstance(serviceInstance);
+            segmentBuilder.setTraceSegmentId(UUID.randomUUID().toString().replaceAll("-", ""));
         }
 
         private SegmentObject.Builder builder() {
             return segmentBuilder;
         }
 
-        private void addSpan(SpanObjectV2.Builder spanBuilder) {
+        private void addSpan(SpanObject.Builder spanBuilder) {
             String operationName = spanBuilder.getOperationName();
-            if (entryEndpointId == 0 && !Strings.isNullOrEmpty(operationName)) {
-                if (SpanType.Entry == spanBuilder.getSpanType()) {
+            if (StringUtil.isEmpty(entryEndpointName) && !Strings.isNullOrEmpty(operationName)) {
+                if (SpanType.Entry.equals(spanBuilder.getSpanType())) {
                     if (!Strings.isNullOrEmpty(operationName)) {
                         entryEndpointName = operationName;
-                    } else {
-                        entryEndpointId = spanBuilder.getOperationNameId();
                     }
                 }
             }
 
             // init by root span
-            if (spanBuilder.getSpanId() == 1 && entryEndpointId == 0) {
+            if (spanBuilder.getSpanId() == 1 && StringUtil.isEmpty(entryEndpointName)) {
                 if (!Strings.isNullOrEmpty(operationName)) {
                     entryEndpointName = operationName;
-                } else {
-                    entryEndpointId = spanBuilder.getOperationNameId();
                 }
             }
 
@@ -405,10 +383,6 @@ public class SegmentBuilder {
             if (spanBuilder.getEndTime() > endTime) {
                 endTime = spanBuilder.getEndTime();
             }
-        }
-
-        public int getEntryEndpointId() {
-            return entryEndpointId;
         }
 
         public String getEntryEndpointName() {
@@ -420,27 +394,21 @@ public class SegmentBuilder {
         }
 
         public SegmentObject.Builder freeze() {
-            for (SpanObjectV2.Builder span : spans) {
+            for (SpanObject.Builder span : spans) {
                 segmentBuilder.addSpans(span);
             }
             return segmentBuilder;
         }
-
-        public long getEndTime() {
-            return endTime;
-        }
     }
 
     private class IDCollection {
-        private String applicationCode;
-        private int appId;
-        private int instanceId;
+        private String service;
+        private String instanceName;
         private int spanIdSeq;
 
-        private IDCollection(String applicationCode, int appId, int instanceId) {
-            this.applicationCode = applicationCode;
-            this.appId = appId;
-            this.instanceId = instanceId;
+        private IDCollection(String service, String instanceName) {
+            this.service = service;
+            this.instanceName = instanceName;
             this.spanIdSeq = 0;
         }
 
@@ -449,19 +417,11 @@ public class SegmentBuilder {
         }
     }
 
-    private UniqueId generateTraceOrSegmentId() {
-        return UniqueId.newBuilder()
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .addIdParts(ThreadLocalRandom.current().nextLong())
-            .build();
-    }
-
     private class ClientSideSpan {
         private Span span;
-        private SpanObjectV2.Builder builder;
+        private SpanObject.Builder builder;
 
-        public ClientSideSpan(Span span, SpanObjectV2.Builder builder) {
+        public ClientSideSpan(Span span, SpanObject.Builder builder) {
             this.span = span;
             this.builder = builder;
         }
@@ -470,7 +430,7 @@ public class SegmentBuilder {
             return span;
         }
 
-        public SpanObjectV2.Builder getBuilder() {
+        public SpanObject.Builder getBuilder() {
             return builder;
         }
     }

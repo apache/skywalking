@@ -16,8 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.define;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Constants {
     public static final String CREATE_STATEMENT_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCStatementInterceptor";
@@ -41,5 +44,11 @@ public class Constants {
     public static final String CLOSE_METHOD_NAME = "close";
 
     public static final String RELEASE_SAVE_POINT_METHOD_NAME = "releaseSavepoint";
+    public static final String SQL_PARAMETER_PLACEHOLDER = "?";
+    public static final Set<String> PS_SETTERS = new HashSet<String>(Arrays.asList("setArray", "setBigDecimal", "setBoolean", "setByte", "setDate", "setDouble", "setFloat", "setInt", "setLong", "setNString", "setObject", "setRowId", "setShort", "setString", "setTime", "setTimestamp", "setURL"));
+    public static final Set<String> PS_IGNORABLE_SETTERS = new HashSet<String>(Arrays.asList("setAsciiStream", "setBinaryStream", "setBlob", "setBytes", "setCharacterStream", "setClob", "setNCharacterStream", "setNClob", "setRef", "setSQLXML", "setUnicodeStream"));
 
+    public static final String PREPARED_STATEMENT_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor";
+    public static final String PREPARED_STATEMENT_NULL_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementNullSetterInterceptor";
+    public static final String PREPARED_STATEMENT_IGNORABLE_SETTER_METHODS_INTERCEPTOR = "org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementIgnorableSetterInterceptor";
 }

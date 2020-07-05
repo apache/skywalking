@@ -33,19 +33,9 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link MongoDBCollectionInstrumentation} define that the MongoDB Java Driver 2.13.x-2.14.x plugin intercepts the
- * following methods in the {@link com.mongodb.DBCollection}class:
- * 1. aggregate
- * 2. findAndModify
- * 3. getCount
- *
- * 4. drop
- * 5. dropIndexes
- * 6. rename
- * 7. group
- * 8. distinct
- * 9. mapReduce
- *
- * @author liyuntao
+ * following methods in the {@link com.mongodb.DBCollection}class: 1. aggregate 2. findAndModify 3. getCount
+ * <p>
+ * 4. drop 5. dropIndexes 6. rename 7. group 8. distinct 9. mapReduce
  */
 public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -54,7 +44,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
     private static final String MONGDB_METHOD_INTERCET_CLASS = "org.apache.skywalking.apm.plugin.mongodb.v2.MongoDBCollectionMethodInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -71,7 +61,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
 
             new InterceptPoint() {
@@ -152,7 +142,7 @@ public class MongoDBCollectionInstrumentation extends ClassInstanceMethodsEnhanc
                 }
             },
 
-        };
+            };
     }
 
     @Override

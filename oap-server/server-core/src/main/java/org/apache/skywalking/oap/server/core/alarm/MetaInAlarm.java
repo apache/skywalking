@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.core.alarm;
 import java.util.Objects;
 
 public abstract class MetaInAlarm {
+
+    public abstract String getScope();
+
     public abstract int getScopeId();
 
     public abstract String getName();
@@ -33,25 +36,25 @@ public abstract class MetaInAlarm {
      *
      * @return the primary id.
      */
-    public abstract int getId0();
+    public abstract String getId0();
 
     /**
      * Only exist in multiple IDs case, Such as ServiceRelation, id1 represents the dest service id
-     *
-     * @return
      */
-    public abstract int getId1();
+    public abstract String getId1();
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        MetaInAlarm that = (MetaInAlarm)o;
-        return getId0() == that.getId0() && getId1() == that.getId1();
+        MetaInAlarm that = (MetaInAlarm) o;
+        return getId0().equals(that.getId0()) && getId1().equals(that.getId1());
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(getId0(), getId1());
     }
 }

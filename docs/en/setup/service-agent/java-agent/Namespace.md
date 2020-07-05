@@ -18,7 +18,7 @@ Namespace is the proposal from this.It is used for tracing and monitoring isolat
 The default value of `agent.namespace` is empty. 
 
 **Influence**
-The default header key of SkyWalking is `sw3`, more in this [document](../../../protocols/Skywalking-Cross-Process-Propagation-Headers-Protocol-v1.md).
-After `agent.namespace` set, the key changes to `namespace-sw3`.
+The default header key of SkyWalking is `sw8`, more in this [document](../../../protocols/Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md).
+After `agent.namespace` is set, the key changes to `namespace-sw8`.
 
 The across process propagation chain breaks, when the two sides are using different namespace.

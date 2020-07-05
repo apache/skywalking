@@ -28,8 +28,6 @@ import org.apache.skywalking.apm.plugin.customize.conf.CustomizeConfiguration;
 
 /**
  * The static of customize instrumentation.
- *
- * @author zhaoyuguang
  */
 
 public class CustomizeStaticInstrumentation extends ClassStaticMethodsEnhancePluginDefine {
@@ -40,12 +38,12 @@ public class CustomizeStaticInstrumentation extends ClassStaticMethodsEnhancePlu
     }
 
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         final ElementMatcher matcher = CustomizeConfiguration.INSTANCE.getInterceptPoints(enhanceClass, true);
         if (matcher == null) {
             return new StaticMethodsInterceptPoint[0];
         } else {
-            return new StaticMethodsInterceptPoint[]{
+            return new StaticMethodsInterceptPoint[] {
                 new StaticMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {

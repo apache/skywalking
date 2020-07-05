@@ -18,48 +18,17 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
  * The configuration of the module of cluster.kubernetes
- *
- * @author gaohongtao
  */
+@Getter
+@Setter
 public class ClusterModuleKubernetesConfig extends ModuleConfig {
-    private int watchTimeoutSeconds;
     private String namespace;
     private String labelSelector;
     private String uidEnvName;
-
-    public int getWatchTimeoutSeconds() {
-        return watchTimeoutSeconds;
-    }
-
-    public void setWatchTimeoutSeconds(int watchTimeoutSeconds) {
-        this.watchTimeoutSeconds = watchTimeoutSeconds;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public String getLabelSelector() {
-        return labelSelector;
-    }
-
-    public void setLabelSelector(String labelSelector) {
-        this.labelSelector = labelSelector;
-    }
-
-    public String getUidEnvName() {
-        return uidEnvName;
-    }
-
-    public void setUidEnvName(String uidEnvName) {
-        this.uidEnvName = uidEnvName;
-    }
 }

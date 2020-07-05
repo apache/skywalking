@@ -35,16 +35,13 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 import java.lang.reflect.Method;
 
-/**
- * @author leizhiyuan
- */
 public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static final String SKYWALKING_PREFIX = "skywalking.";
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                             Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         SofaRequest sofaRequest = (SofaRequest) allArguments[0];
         RpcInternalContext rpcContext = RpcInternalContext.getContext();
 
@@ -71,8 +68,8 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-                              Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         SofaResponse result = (SofaResponse) ret;
         if (result != null && result.isError()) {
             dealException((Throwable) result.getAppResponse());
@@ -84,7 +81,7 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-                                      Class<?>[] argumentsTypes, Throwable t) {
+        Class<?>[] argumentsTypes, Throwable t) {
         dealException(t);
     }
 
@@ -120,8 +117,7 @@ public class SofaRpcConsumerInterceptor implements InstanceMethodsAroundIntercep
     }
 
     /**
-     * Format request url.
-     * e.g. bolt://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
+     * Format request url. e.g. bolt://127.0.0.1:20880/org.apache.skywalking.apm.plugin.test.Test.test(String).
      *
      * @return request url.
      */

@@ -18,38 +18,34 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.slf4j.*;
 
 /**
- * @author peng-yongsheng
+ * MetricsRemoteWorker forwards the metrics to the target OAP node.
  */
+@Slf4j
 public class MetricsRemoteWorker extends AbstractWorker<Metrics> {
-
-    private static final Logger logger = LoggerFactory.getLogger(MetricsRemoteWorker.class);
-
-    private final AbstractWorker<Metrics> nextWorker;
     private final RemoteSenderService remoteSender;
-    private final String modelName;
+    private final String remoteReceiverWorkerName;
 
-    MetricsRemoteWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
-        String modelName) {
+    MetricsRemoteWorker(ModuleDefineHolder moduleDefineHolder, String remoteReceiverWorkerName) {
         super(moduleDefineHolder);
         this.remoteSender = moduleDefineHolder.find(CoreModule.NAME).provider().getService(RemoteSenderService.class);
-        this.nextWorker = nextWorker;
-        this.modelName = modelName;
+        this.remoteReceiverWorkerName = remoteReceiverWorkerName;
     }
 
-    @Override public final void in(Metrics metrics) {
+    @Override
+    public final void in(Metrics metrics) {
         try {
-            remoteSender.send(nextWorker.getWorkerId(), metrics, Selector.HashCode);
+            remoteSender.send(remoteReceiverWorkerName, metrics, Selector.HashCode);
         } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }

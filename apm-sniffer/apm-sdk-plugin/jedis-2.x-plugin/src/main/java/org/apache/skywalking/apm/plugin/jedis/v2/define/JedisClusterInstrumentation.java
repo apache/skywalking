@@ -45,7 +45,7 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -73,7 +73,7 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -86,7 +86,8 @@ public class JedisClusterInstrumentation extends ClassInstanceMethodsEnhancePlug
                     return METHOD_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

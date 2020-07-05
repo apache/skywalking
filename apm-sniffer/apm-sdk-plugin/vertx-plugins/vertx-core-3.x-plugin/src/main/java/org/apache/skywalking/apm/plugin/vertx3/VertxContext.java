@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.vertx3;
 
+import io.vertx.core.impl.launcher.commands.VersionCommand;
 import org.apache.skywalking.apm.agent.core.context.ContextSnapshot;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 
@@ -25,17 +26,26 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author brandon.fergerson
- */
 class VertxContext {
 
+    public static final double VERTX_VERSION;
+
+    static {
+        double version;
+        try {
+            version = Double.parseDouble(VersionCommand.getVersion().replaceFirst("\\.", ""));
+        } catch (Throwable ignored) {
+            version = 3.00;
+        }
+        VERTX_VERSION = version;
+    }
+
     public static final String STOP_SPAN_NECESSARY = "VERTX_STOP_SPAN_NECESSARY";
-    private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<String, Stack<VertxContext>>();
+    private static final Map<String, Stack<VertxContext>> CONTEXT_MAP = new ConcurrentHashMap<>();
 
     static void pushContext(String identifier, VertxContext vertxContext) {
         if (!CONTEXT_MAP.containsKey(identifier)) {
-            CONTEXT_MAP.put(identifier, new Stack<VertxContext>());
+            CONTEXT_MAP.put(identifier, new Stack<>());
         }
         CONTEXT_MAP.get(identifier).push(vertxContext);
     }

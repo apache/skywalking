@@ -21,3 +21,6 @@ mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatemen
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.StatementInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.CacheIpsInstrumentation
 mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.ConnectionImplCreateInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementIgnoredSetterInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementSetterInstrumentation
+mysql-5.x=org.apache.skywalking.apm.plugin.jdbc.mysql.v5.define.PreparedStatementNullSetterInstrumentation

@@ -19,51 +19,39 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.storage.Downsampling;
-import org.apache.skywalking.oap.server.core.storage.ttl.*;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 
 /**
- * @author peng-yongsheng
+ * The model definition of a logic entity.
  */
 @Getter
+@EqualsAndHashCode
 public class Model {
     private final String name;
-    private final boolean deleteHistory;
     private final List<ModelColumn> columns;
+    private final List<ExtraQueryIndex> extraQueryIndices;
     private final int scopeId;
-    private final TTLCalculator ttlCalculator;
+    private final DownSampling downsampling;
+    private final boolean record;
+    private final boolean superDataset;
+    private final boolean isTimeSeries;
 
-    public Model(String name, List<ModelColumn> columns, boolean deleteHistory,
-        int scopeId, Downsampling downsampling) {
+    public Model(final String name,
+                 final List<ModelColumn> columns,
+                 final List<ExtraQueryIndex> extraQueryIndices,
+                 final int scopeId,
+                 final DownSampling downsampling,
+                 final boolean record,
+                 final boolean superDataset) {
+        this.name = name;
         this.columns = columns;
-        this.deleteHistory = deleteHistory;
+        this.extraQueryIndices = extraQueryIndices;
         this.scopeId = scopeId;
-
-        switch (downsampling) {
-            case Minute:
-                this.name = name;
-                this.ttlCalculator = new MinuteTTLCalculator();
-                break;
-            case Hour:
-                this.name = name + Const.ID_SPLIT + Downsampling.Hour.getName();
-                this.ttlCalculator = new HourTTLCalculator();
-                break;
-            case Day:
-                this.name = name + Const.ID_SPLIT + Downsampling.Day.getName();
-                this.ttlCalculator = new DayTTLCalculator();
-                break;
-            case Month:
-                this.name = name + Const.ID_SPLIT + Downsampling.Month.getName();
-                this.ttlCalculator = new MonthTTLCalculator();
-                break;
-            case Second:
-                this.name = name;
-                this.ttlCalculator = new SecondTTLCalculator();
-                break;
-            default:
-                throw new UnexpectedException("Unexpected downsampling setting.");
-        }
+        this.downsampling = downsampling;
+        this.isTimeSeries = !DownSampling.None.equals(downsampling);
+        this.record = record;
+        this.superDataset = superDataset;
     }
 }

@@ -20,21 +20,16 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.type.Database;
+import org.apache.skywalking.oap.server.core.query.type.Endpoint;
+import org.apache.skywalking.oap.server.core.query.type.Service;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
-/**
- * @author peng-yongsheng
- */
 public interface IMetadataQueryDAO extends DAO {
-
-    int numOfService(final long startTimestamp, final long endTimestamp) throws IOException;
-
-    int numOfEndpoint(final long startTimestamp, final long endTimestamp) throws IOException;
-
-    int numOfConjectural(final long startTimestamp, final long endTimestamp, final int nodeTypeValue) throws IOException;
-
     List<Service> getAllServices(final long startTimestamp, final long endTimestamp) throws IOException;
+
+    List<Service> getAllBrowserServices(long startTimestamp, long endTimestamp) throws IOException;
 
     List<Database> getAllDatabases() throws IOException;
 
@@ -43,8 +38,7 @@ public interface IMetadataQueryDAO extends DAO {
 
     Service searchService(final String serviceCode) throws IOException;
 
-    List<Endpoint> searchEndpoint(final String keyword, final String serviceId,
-        final int limit) throws IOException;
+    List<Endpoint> searchEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
 
     List<ServiceInstance> getServiceInstances(final long startTimestamp, final long endTimestamp,
         final String serviceId) throws IOException;

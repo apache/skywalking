@@ -35,46 +35,55 @@ public class AbstractJdbc2StatementInstrumentation extends ClassInstanceMethodsE
 
     private static final String ENHANCE_CLASS = "org.postgresql.jdbc2.AbstractJdbc2Statement";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute").and(takesArguments(0))
-                        .or(named("executeQuery").and(takesArguments(0)))
-                        .or(named("executeUpdate").and(takesArguments(0)));
+                                           .or(named("executeQuery").and(takesArguments(0)))
+                                           .or(named("executeUpdate").and(takesArguments(0)));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return PG_PREPARED_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("execute").and(takesArguments(1))
-                        .or(named("executeQuery").and(takesArguments(1)))
-                        .or(named("executeUpdate").and(takesArguments(1)));
+                                           .or(named("executeQuery").and(takesArguments(1)))
+                                           .or(named("executeUpdate").and(takesArguments(1)));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return PG_STATEMENT_EXECUTE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

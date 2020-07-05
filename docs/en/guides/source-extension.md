@@ -18,10 +18,11 @@ Then it could be supported by OAL script and OAP core.
 
 Such as existed source, **Service**.
 ```java
-@ScopeDeclaration(id = SERVICE, name = "Service")
-public class Service extends Source {
+@ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+public class ServiceInstance extends Source {
     @Override public int scope() {
-        return DefaultScopeDefine.SERVICE;
+        return DefaultScopeDefine.SERVICE_INSTANCE;
     }
 
     @Override public String getEntityId() {
@@ -29,8 +30,9 @@ public class Service extends Source {
     }
 
     @Getter @Setter private int id;
+    @Getter @Setter @ScopeDefaultColumn.DefinedByField(columnName = "service_id") private int serviceId;
     @Getter @Setter private String name;
-    @Getter @Setter private String serviceInstanceName;
+    @Getter @Setter private String serviceName;
     @Getter @Setter private String endpointName;
     @Getter @Setter private int latency;
     @Getter @Setter private boolean status;
@@ -47,13 +49,15 @@ Such as,
 in this Service scope, the id is service id, representing a particular service, like `Order` service.
 This value is used in [OAL group mechanism](../concepts-and-designs/oal.md#group).
 
-5. Add scope name as keyword to oal grammar definition file, `OALLexer.g4`, which is at `antlr4` folder of `generate-tool-grammar` module.
+5. `@ScopeDefaultColumn.VirtualColumnDefinition` and `@ScopeDefaultColumn.DefinedByField` are required, all declared fields(virtual/byField)
+are going to be pushed into persistent entity, mapping to such as ElasticSearch index and Database table column.
+Such as, include entity id mostly, and service id for endpoint and service instance level scope. Take a reference to all existing scopes.
+All these fields are detected by OAL Runtime, and required in query stage.
 
-6. Add scope name keyword as source in parser definition file, `OALParser.g4`, which is at same fold of `OALLexer.g4`.
+6. Add scope name as keyword to oal grammar definition file, `OALLexer.g4`, which is at `antlr4` folder of `generate-tool-grammar` module.
 
-7. Set the default columns for new scope, at `generator-scope-meta.yml` file in `generated-analysis/src/main/resources`.
-If you want to understand why need these columns, you have to understand all existing query(s). But there is an easy way, 
-follow other existing scopes. Such as, if you are adding metrics, connection number for service instance, follow existing `ServiceInstance`. 
+7. Add scope name keyword as source in parser definition file, `OALParser.g4`, which is at same fold of `OALLexer.g4`.
+
 
 ___
 After you done all of these, you could build a receiver, which do

@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.analysis.ZipkinSkyWalkingTransfer;
@@ -32,17 +33,9 @@ import zipkin2.codec.SpanBytesDecoder;
 
 public class SpanProcessor {
     private SourceReceiver receiver;
-    private ServiceInventoryCache serviceInventoryCache;
-    private EndpointInventoryCache endpointInventoryCache;
-    private int encode;
 
-    public SpanProcessor(SourceReceiver receiver,
-        ServiceInventoryCache serviceInventoryCache,
-        EndpointInventoryCache endpointInventoryCache, int encode) {
+    public SpanProcessor(SourceReceiver receiver) {
         this.receiver = receiver;
-        this.serviceInventoryCache = serviceInventoryCache;
-        this.endpointInventoryCache = endpointInventoryCache;
-        this.encode = encode;
     }
 
     void convert(ZipkinReceiverConfig config, SpanBytesDecoder decoder, HttpServletRequest request) throws IOException {
@@ -61,7 +54,7 @@ public class SpanProcessor {
             ZipkinSkyWalkingTransfer transfer = new ZipkinSkyWalkingTransfer();
             transfer.doTransfer(config, spanList);
         } else {
-            SpanForward forward = new SpanForward(config, receiver, serviceInventoryCache, endpointInventoryCache, encode);
+            SpanForward forward = new SpanForward(config, receiver);
             forward.send(spanList);
         }
     }

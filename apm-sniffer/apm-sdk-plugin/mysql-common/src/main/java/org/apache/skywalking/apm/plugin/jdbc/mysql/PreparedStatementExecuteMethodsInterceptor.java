@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.jdbc.mysql;
 
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -25,18 +26,20 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
+import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
 
 import java.lang.reflect.Method;
 
+import static org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.SQL_PARAMETERS;
+
 public class PreparedStatementExecuteMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public final void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        MethodInterceptResult result) throws Throwable {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+                                   Class<?>[] argumentsTypes, MethodInterceptResult result) {
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         ConnectionInfo connectInfo = cacheObject.getConnectionInfo();
         /**
          * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
@@ -46,11 +49,21 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
          */
         if (connectInfo != null) {
 
-            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject.getStatementName()), connectInfo.getDatabasePeer());
+            AbstractSpan span = ContextManager.createExitSpan(buildOperationName(connectInfo, method.getName(), cacheObject
+                    .getStatementName()), connectInfo.getDatabasePeer());
             Tags.DB_TYPE.set(span, "sql");
             Tags.DB_INSTANCE.set(span, connectInfo.getDatabaseName());
             Tags.DB_STATEMENT.set(span, cacheObject.getSql());
             span.setComponent(connectInfo.getComponent());
+
+            if (Config.Plugin.MySQL.TRACE_SQL_PARAMETERS) {
+                final Object[] parameters = cacheObject.getParameters();
+                if (parameters != null && parameters.length > 0) {
+                    int maxIndex = cacheObject.getMaxIndex();
+                    String parameterString = getParameterString(parameters, maxIndex);
+                    SQL_PARAMETERS.set(span, parameterString);
+                }
+            }
 
             SpanLayer.asDB(span);
         }
@@ -58,18 +71,18 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     @Override
     public final Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes,
-        Object ret) throws Throwable {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+                                    Class<?>[] argumentsTypes, Object ret) {
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.stopSpan();
         }
         return ret;
     }
 
-    @Override public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
-        Class<?>[] argumentsTypes, Throwable t) {
-        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos)objInst.getSkyWalkingDynamicField();
+    @Override
+    public final void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+                                            Class<?>[] argumentsTypes, Throwable t) {
+        StatementEnhanceInfos cacheObject = (StatementEnhanceInfos) objInst.getSkyWalkingDynamicField();
         if (cacheObject.getConnectionInfo() != null) {
             ContextManager.activeSpan().errorOccurred().log(t);
         }
@@ -77,5 +90,13 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
 
     private String buildOperationName(ConnectionInfo connectionInfo, String methodName, String statementName) {
         return connectionInfo.getDBType() + "/JDBI/" + statementName + "/" + methodName;
+    }
+
+    private String getParameterString(Object[] parameters, int maxIndex) {
+        return new PreparedStatementParameterBuilder()
+                .setParameters(parameters)
+                .setMaxIndex(maxIndex)
+                .setMaxLength(Config.Plugin.MySQL.SQL_PARAMETERS_MAX_LENGTH)
+                .build();
     }
 }

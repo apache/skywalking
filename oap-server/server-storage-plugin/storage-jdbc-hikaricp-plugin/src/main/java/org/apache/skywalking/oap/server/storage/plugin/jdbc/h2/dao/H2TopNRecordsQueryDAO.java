@@ -19,16 +19,21 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao;
 
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
-/**
- * @author wusheng
- */
 public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
     private JDBCHikariCPClient h2Client;
 
@@ -37,35 +42,41 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
     }
 
     @Override
-    public List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) throws IOException {
-        StringBuilder sql = new StringBuilder("select * from " + metricName + " where ");
+    public List<SelectedRecord> readSampledRecords(final TopNCondition condition,
+                                                   final String valueColumnName,
+                                                   final Duration duration) throws IOException {
+        StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
         List<Object> parameters = new ArrayList<>(10);
 
-        sql.append(" service_id = ? ");
-        parameters.add(serviceId);
+        if (StringUtil.isNotEmpty(condition.getParentService())) {
+            sql.append(" service_id = ? and");
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            parameters.add(serviceId);
+        }
 
-        sql.append(" and ").append(TopN.TIME_BUCKET).append(" >= ?");
-        parameters.add(startSecondTB);
+        sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
+        parameters.add(duration.getStartTimeBucketInSec());
         sql.append(" and ").append(TopN.TIME_BUCKET).append(" <= ?");
-        parameters.add(endSecondTB);
+        parameters.add(duration.getEndTimeBucketInSec());
 
-        sql.append(" order by ").append(TopN.LATENCY);
-        if (order.equals(Order.DES)) {
+        sql.append(" order by ").append(valueColumnName);
+        if (condition.getOrder().equals(Order.DES)) {
             sql.append(" desc ");
         } else {
             sql.append(" asc ");
         }
-        sql.append(" limit ").append(topN);
+        sql.append(" limit ").append(condition.getTopN());
 
-        List<TopNRecord> results = new ArrayList<>();
+        List<SelectedRecord> results = new ArrayList<>();
         try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
+            try (ResultSet resultSet = h2Client.executeQuery(
+                connection, sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
-                    TopNRecord record = new TopNRecord();
-                    record.setStatement(resultSet.getString(TopN.STATEMENT));
-                    record.setTraceId(resultSet.getString(TopN.TRACE_ID));
-                    record.setLatency(resultSet.getLong(TopN.LATENCY));
+                    SelectedRecord record = new SelectedRecord();
+                    record.setName(resultSet.getString(TopN.STATEMENT));
+                    record.setRefId(resultSet.getString(TopN.TRACE_ID));
+                    record.setId(record.getRefId());
+                    record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }
             }
@@ -75,4 +86,5 @@ public class H2TopNRecordsQueryDAO implements ITopNRecordsQueryDAO {
 
         return results;
     }
+
 }

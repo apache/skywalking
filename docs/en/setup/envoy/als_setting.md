@@ -2,16 +2,22 @@
 Envoy [ALS(access log service)](https://www.envoyproxy.io/docs/envoy/latest/api-v2/service/accesslog/v2/als.proto) provides
 fully logs about RPC routed, including HTTP and TCP.
 
+If solution initialized and first implemented by [Sheng Wu](https://github.com/wu-sheng), [Hongtao Gao](https://github.com/hanahmily), [Lizan Zhou](https://github.com/lizan), 
+and [Dhi Aurrahman](https://github.com/dio) at 17 May. 2019, 
+and presented on [KubeCon China 2019](https://kccncosschn19eng.sched.com/event/NroB/observability-in-service-mesh-powered-by-envoy-and-apache-skywalking-sheng-wu-lizan-zhou-tetrate).
+Here is the recorded [Video](https://www.youtube.com/watch?v=tERm39ju9ew).
+
+SkyWalking is the first open source project introducing this ALS based solution to the world. This provides a new way with very low payload to service mesh, but the same observability.
+
 You need three steps to open ALS.
-1. Right now, Istio pilot hasn't supported to open ALS, so you have to change pilot codes.
-1. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
-1. Active ALS k8s-mesh analysis
+1. Open envoyAccessLogService in istio by [enabling **envoyAccessLogService** in ProxyConfig](https://istio.io/docs/reference/config/istio.mesh.v1alpha1/#ProxyConfig).
+2. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
+3. Active ALS k8s-mesh analysis
 ```yaml
 envoy-metric:
   default:
-    alsHTTPAnalysis:
-      - k8s-mesh
+    alsHTTPAnalysis: "k8s-mesh"
 ```
+Note multiple value，please use `,` symbol split
 
-Notice, only use this when using envoy under Istio controlled.
-Otherwise, you need to implement your own `ALSHTTPAnalysis` and register it to receiver.
+Notice, only use this when envoy under Istio controlled, also in k8s env. The OAP requires the read right to k8s API server for all pods IPs.

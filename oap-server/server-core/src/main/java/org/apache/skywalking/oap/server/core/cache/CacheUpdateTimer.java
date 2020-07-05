@@ -18,54 +18,99 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.register.ServiceInventory;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.profile.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.IServiceInventoryCacheDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.slf4j.*;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.profile.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public enum CacheUpdateTimer {
     INSTANCE;
 
-    private static final Logger logger = LoggerFactory.getLogger(CacheUpdateTimer.class);
+    private int ttl = 10;
 
-    private Boolean isStarted = false;
+    public void start(ModuleDefineHolder moduleDefineHolder, int ttl) {
+        log.info("Cache updateServiceInventory timer start");
 
-    public void start(ModuleManager moduleManager) {
-        logger.info("Cache update timer start");
+        final long timeInterval = 10;
 
-        final long timeInterval = 3;
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleAtFixedRate(
+                     new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
+                         .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+        this.ttl = ttl;
 
-        if (!isStarted) {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                new RunnableWithExceptionProtection(() -> update(moduleManager),
-                    t -> logger.error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+    }
 
-            this.isStarted = true;
+    private void update(ModuleDefineHolder moduleDefineHolder) {
+        updateNetAddressAliasCache(moduleDefineHolder);
+        // Profile could be disabled by the OAL script. Only load the task when it is activated.
+        if (!DisableRegister.INSTANCE.include(ProfileTaskRecord.INDEX_NAME)) {
+            updateProfileTask(moduleDefineHolder);
         }
     }
 
-    private void update(ModuleManager moduleManager) {
-        IServiceInventoryCacheDAO serviceInventoryCacheDAO = moduleManager.find(StorageModule.NAME).provider().getService(IServiceInventoryCacheDAO.class);
-        ServiceInventoryCache serviceInventoryCache = moduleManager.find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class);
-        List<ServiceInventory> serviceInventories = serviceInventoryCacheDAO.loadLastMappingUpdate();
+    /**
+     * Update the cached data updated in last 1 minutes.
+     */
+    private void updateNetAddressAliasCache(ModuleDefineHolder moduleDefineHolder) {
+        INetworkAddressAliasDAO networkAddressAliasDAO = moduleDefineHolder.find(StorageModule.NAME)
+                                                                           .provider()
+                                                                           .getService(
+                                                                               INetworkAddressAliasDAO.class);
+        NetworkAddressAliasCache addressInventoryCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                                           .provider()
+                                                                           .getService(NetworkAddressAliasCache.class);
+        long loadStartTime;
+        if (addressInventoryCache.currentSize() == 0) {
+            /**
+             * As a new start process, load all known network alias information.
+             */
+            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 60 * 24 * ttl);
+        } else {
+            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 10);
+        }
+        List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(loadStartTime);
 
-        serviceInventories.forEach(serviceInventory -> {
-            logger.info("Update mapping service id in the cache of service inventory, service id: {}, mapping service id: {}", serviceInventory.getSequence(), serviceInventory.getMappingServiceId());
-            ServiceInventory cache = serviceInventoryCache.get(serviceInventory.getSequence());
-            if (Objects.nonNull(cache)) {
-                cache.setMappingServiceId(serviceInventory.getMappingServiceId());
-                cache.setMappingLastUpdateTime(serviceInventory.getMappingLastUpdateTime());
-            } else {
-                logger.warn("Unable to found the id of {} in service inventory cache.", serviceInventory.getSequence());
-            }
-        });
+        addressInventoryCache.load(addressInventories);
+    }
+
+    /**
+     * update all profile task list for each service
+     */
+    private void updateProfileTask(ModuleDefineHolder moduleDefineHolder) {
+        IProfileTaskQueryDAO profileTaskQueryDAO = moduleDefineHolder.find(StorageModule.NAME)
+                                                                     .provider()
+                                                                     .getService(IProfileTaskQueryDAO.class);
+        ProfileTaskCache profileTaskCache = moduleDefineHolder.find(CoreModule.NAME)
+                                                              .provider()
+                                                              .getService(ProfileTaskCache.class);
+        try {
+            final List<ProfileTask> taskList = profileTaskQueryDAO.getTaskList(
+                null, null, profileTaskCache.getCacheStartTimeBucket(), profileTaskCache
+                    .getCacheEndTimeBucket(), null);
+
+            taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
+                final String serviceId = e.getKey();
+                final List<ProfileTask> profileTasks = e.getValue();
+
+                profileTaskCache.saveTaskList(serviceId, profileTasks);
+            });
+        } catch (IOException e) {
+            log.warn("Unable to update profile task cache", e);
+        }
     }
 }

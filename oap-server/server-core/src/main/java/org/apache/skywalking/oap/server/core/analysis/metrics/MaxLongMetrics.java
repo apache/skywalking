@@ -18,19 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
- * @author liuhaoyang
+ *
  **/
 @MetricsFunction(functionName = "max")
 public abstract class MaxLongMetrics extends Metrics implements LongValueHolder {
 
     protected static final String VALUE = "value";
 
-    @Getter @Setter @Column(columnName = VALUE, isValue = true) private long value;
+    @Getter
+    @Setter
+    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
+    private long value;
 
     @Entrance
     public final void combine(@SourceFrom long count) {
@@ -39,11 +45,13 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
         }
     }
 
-    @Override public final void combine(Metrics metrics) {
-        MaxLongMetrics maxLongMetrics = (MaxLongMetrics)metrics;
+    @Override
+    public final void combine(Metrics metrics) {
+        MaxLongMetrics maxLongMetrics = (MaxLongMetrics) metrics;
         combine(maxLongMetrics.value);
     }
 
-    @Override public void calculate() {
+    @Override
+    public void calculate() {
     }
 }

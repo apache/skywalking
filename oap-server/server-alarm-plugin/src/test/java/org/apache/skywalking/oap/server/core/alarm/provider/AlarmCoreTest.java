@@ -32,8 +32,6 @@ import org.powermock.reflect.Whitebox;
 
 /**
  * Alarm core is the trigger, which should run once per minute, also run after the first quarter in one single minute.
- *
- * @author wusheng
  */
 public class AlarmCoreTest {
     /**
@@ -50,7 +48,7 @@ public class AlarmCoreTest {
         Rules emptyRules = new Rules();
         emptyRules.setRules(new ArrayList<>(0));
         emptyRules.setWebhooks(new ArrayList<>(0));
-        AlarmCore core = new AlarmCore(emptyRules);
+        AlarmCore core = new AlarmCore(new AlarmRulesWatcher(emptyRules, null));
 
         Map<String, List<RunningRule>> runningContext = Whitebox.getInternalState(core, "runningContext");
 
@@ -61,7 +59,8 @@ public class AlarmCoreTest {
         final boolean[] isAdd = {true};
 
         PowerMockito.doAnswer(new Answer<Object>() {
-            @Override public Object answer(InvocationOnMock mock) throws Throwable {
+            @Override
+            public Object answer(InvocationOnMock mock) throws Throwable {
                 if (isAdd[0]) {
                     checkTime.add(LocalDateTime.now());
                 }

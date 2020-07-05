@@ -18,21 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jaeger.elasticsearch;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider;
-import org.slf4j.*;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public class JaegerStorageModuleElasticsearchProvider extends StorageModuleElasticsearchProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(JaegerStorageModuleElasticsearchProvider.class);
-    private JaegerTraceQueryEsDAO traceQueryEsDAO;
-
     @Override
     public String name() {
         return "jaeger-elasticsearch";
@@ -41,13 +34,8 @@ public class JaegerStorageModuleElasticsearchProvider extends StorageModuleElast
     @Override
     public void prepare() throws ServiceNotProvidedException {
         super.prepare();
-        traceQueryEsDAO = new JaegerTraceQueryEsDAO(elasticSearchClient);
+        JaegerTraceQueryEsDAO traceQueryEsDAO = new JaegerTraceQueryEsDAO(elasticSearchClient);
         this.registerServiceImplementation(ITraceQueryDAO.class, traceQueryEsDAO);
-    }
-
-    @Override public void notifyAfterCompleted() {
-        super.notifyAfterCompleted();
-        traceQueryEsDAO.setServiceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class));
     }
 
     @Override

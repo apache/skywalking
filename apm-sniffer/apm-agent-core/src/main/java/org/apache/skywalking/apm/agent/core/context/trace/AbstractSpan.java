@@ -21,31 +21,20 @@ package org.apache.skywalking.apm.agent.core.context.trace;
 import java.util.Map;
 import org.apache.skywalking.apm.agent.core.context.AsyncSpan;
 import org.apache.skywalking.apm.agent.core.context.tag.AbstractTag;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.network.trace.component.Component;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 
 /**
  * The <code>AbstractSpan</code> represents the span's skeleton, which contains all open methods.
- *
- * @author wusheng
  */
 public interface AbstractSpan extends AsyncSpan {
     /**
      * Set the component id, which defines in {@link ComponentsDefine}
      *
-     * @param component
      * @return the span for chaining.
      */
     AbstractSpan setComponent(Component component);
-
-    /**
-     * Only use this method in explicit instrumentation, like opentracing-skywalking-bridge. It is highly recommended
-     * not to use this method for performance reasons.
-     *
-     * @param componentName
-     * @return the span for chaining.
-     */
-    AbstractSpan setComponent(String componentName);
 
     AbstractSpan setLayer(SpanLayer layer);
 
@@ -53,16 +42,15 @@ public interface AbstractSpan extends AsyncSpan {
      * Set a key:value tag on the Span.
      *
      * @return this Span instance, for chaining
+     * @deprecated use {@link #tag(AbstractTag, String)} in companion with {@link Tags#ofKey(String)} instead
      */
     @Deprecated
     AbstractSpan tag(String key, String value);
 
     /**
-     * @param tag
-     * @param value
-     * @return
+     *
      */
-    AbstractSpan tag(AbstractTag tag, String value);
+    AbstractSpan tag(AbstractTag<?> tag, String value);
 
     /**
      * Record an exception event of the current walltime timestamp.
@@ -88,7 +76,7 @@ public interface AbstractSpan extends AsyncSpan {
      * Record an event at a specific timestamp.
      *
      * @param timestamp The explicit timestamp for the log record.
-     * @param event the events
+     * @param event     the events
      * @return the Span, for chaining
      */
     AbstractSpan log(long timestamp, Map<String, ?> event);
@@ -114,11 +102,7 @@ public interface AbstractSpan extends AsyncSpan {
      */
     int getSpanId();
 
-    int getOperationId();
-
     String getOperationName();
-
-    AbstractSpan setOperationId(int operationId);
 
     /**
      * Reference other trace segment.
@@ -130,4 +114,14 @@ public interface AbstractSpan extends AsyncSpan {
     AbstractSpan start(long startTime);
 
     AbstractSpan setPeer(String remotePeer);
+
+    /**
+     * @return true if the span's owner(tracing context main thread) is been profiled.
+     */
+    boolean isProfiling();
+
+    /**
+     * Should skip analysis in the backend.
+     */
+    void skipAnalysis();
 }

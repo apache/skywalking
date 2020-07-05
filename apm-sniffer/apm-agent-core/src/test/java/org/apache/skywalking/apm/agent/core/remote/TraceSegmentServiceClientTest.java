@@ -24,7 +24,7 @@ import io.grpc.testing.GrpcServerRule;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
@@ -33,12 +33,11 @@ import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.core.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.core.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.network.common.Commands;
-import org.apache.skywalking.apm.network.language.agent.SpanType;
-import org.apache.skywalking.apm.network.language.agent.UpstreamSegment;
-import org.apache.skywalking.apm.network.language.agent.v2.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v2.SpanObjectV2;
-import org.apache.skywalking.apm.network.language.agent.v2.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
+import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -65,14 +64,14 @@ public class TraceSegmentServiceClientTest {
     private SegmentStorage storage;
 
     private TraceSegmentServiceClient serviceClient = new TraceSegmentServiceClient();
-    private List<UpstreamSegment> upstreamSegments;
+    private List<SegmentObject> upstreamSegments;
 
     private TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase serviceImplBase = new TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase() {
         @Override
-        public StreamObserver<UpstreamSegment> collect(final StreamObserver<Commands> responseObserver) {
-            return new StreamObserver<UpstreamSegment>() {
+        public StreamObserver<SegmentObject> collect(final StreamObserver<Commands> responseObserver) {
+            return new StreamObserver<SegmentObject>() {
                 @Override
-                public void onNext(UpstreamSegment value) {
+                public void onNext(SegmentObject value) {
                     upstreamSegments.add(value);
                 }
 
@@ -90,13 +89,13 @@ public class TraceSegmentServiceClientTest {
     };
 
     @BeforeClass
-    public static void setUpBeforeClass() {
-        RemoteDownstreamConfig.Agent.SERVICE_ID = 1;
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 1;
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
     @AfterClass
     public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
         ServiceManager.INSTANCE.shutdown();
     }
 
@@ -105,11 +104,11 @@ public class TraceSegmentServiceClientTest {
         Whitebox.setInternalState(ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect", false);
         spy(serviceClient);
 
-        Whitebox.setInternalState(serviceClient, "serviceStub",
-            TraceSegmentReportServiceGrpc.newStub(grpcServerRule.getChannel()));
+        Whitebox.setInternalState(
+            serviceClient, "serviceStub", TraceSegmentReportServiceGrpc.newStub(grpcServerRule.getChannel()));
         Whitebox.setInternalState(serviceClient, "status", GRPCChannelStatus.CONNECTED);
 
-        upstreamSegments = new ArrayList<UpstreamSegment>();
+        upstreamSegments = new ArrayList<>();
     }
 
     @Test
@@ -126,13 +125,11 @@ public class TraceSegmentServiceClientTest {
         serviceClient.consume(storage.getTraceSegments());
 
         assertThat(upstreamSegments.size(), is(1));
-        UpstreamSegment upstreamSegment = upstreamSegments.get(0);
-        assertThat(upstreamSegment.getGlobalTraceIdsCount(), is(1));
-        SegmentObject traceSegmentObject = SegmentObject.parseFrom(upstreamSegment.getSegment());
+        SegmentObject traceSegmentObject = upstreamSegments.get(0);
         assertThat(traceSegmentObject.getSpans(0).getRefsCount(), is(0));
         assertThat(traceSegmentObject.getSpansCount(), is(1));
 
-        SpanObjectV2 spanObject = traceSegmentObject.getSpans(0);
+        SpanObject spanObject = traceSegmentObject.getSpans(0);
         assertThat(spanObject.getSpanType(), is(SpanType.Entry));
         assertThat(spanObject.getSpanId(), is(0));
         assertThat(spanObject.getParentSpanId(), is(-1));
@@ -153,7 +150,8 @@ public class TraceSegmentServiceClientTest {
 
         assertThat(upstreamSegments.size(), is(0));
 
-        boolean reconnect = Whitebox.getInternalState(ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect");
+        boolean reconnect = Whitebox.getInternalState(
+            ServiceManager.INSTANCE.findService(GRPCChannelManager.class), "reconnect");
         assertThat(reconnect, is(true));
 
     }

@@ -29,9 +29,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
-/**
- * @author yan-fucheng
- */
 public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.jboss.resteasy.core.SynchronousDispatcher";
@@ -40,12 +37,12 @@ public class SynchronousDispatcherInstrumentation extends ClassInstanceMethodsEn
     private static final String INVOKE_EXCEPTION_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.resteasy.v3.server.SynchronousDispatcherExceptionInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

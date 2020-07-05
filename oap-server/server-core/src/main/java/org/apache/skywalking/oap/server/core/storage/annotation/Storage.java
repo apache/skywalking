@@ -13,22 +13,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import java.lang.annotation.*;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 
-/**
- * @author peng-yongsheng
- */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Storage {
-
-    Class<? extends StorageBuilder> builder();
-
-    boolean deleteHistory() default true;
+@Getter
+@RequiredArgsConstructor
+public class Storage {
+    private final String modelName;
+    private final DownSampling downsampling;
 }

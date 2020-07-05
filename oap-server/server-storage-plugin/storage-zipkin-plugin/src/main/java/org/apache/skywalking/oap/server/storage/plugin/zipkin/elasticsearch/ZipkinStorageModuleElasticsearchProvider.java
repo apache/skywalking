@@ -18,20 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.zipkin.elasticsearch;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider;
-import org.slf4j.*;
 
-/**
- * @author peng-yongsheng
- */
+@Slf4j
 public class ZipkinStorageModuleElasticsearchProvider extends StorageModuleElasticsearchProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(ZipkinStorageModuleElasticsearchProvider.class);
-    private ZipkinTraceQueryEsDAO traceQueryEsDAO;
 
     @Override
     public String name() {
@@ -41,13 +35,8 @@ public class ZipkinStorageModuleElasticsearchProvider extends StorageModuleElast
     @Override
     public void prepare() throws ServiceNotProvidedException {
         super.prepare();
-        traceQueryEsDAO = new ZipkinTraceQueryEsDAO(elasticSearchClient);
+        final ZipkinTraceQueryEsDAO traceQueryEsDAO = new ZipkinTraceQueryEsDAO(elasticSearchClient);
         this.registerServiceImplementation(ITraceQueryDAO.class, traceQueryEsDAO);
-    }
-
-    @Override public void notifyAfterCompleted() {
-        super.notifyAfterCompleted();
-        traceQueryEsDAO.setServiceInventoryCache(getManager().find(CoreModule.NAME).provider().getService(ServiceInventoryCache.class));
     }
 
     @Override

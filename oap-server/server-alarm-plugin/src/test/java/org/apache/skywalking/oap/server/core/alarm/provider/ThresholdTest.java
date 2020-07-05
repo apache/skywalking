@@ -20,24 +20,35 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by dengming, 2019.04.27
- */
 public class ThresholdTest {
 
     @Test
     public void setType() {
         Threshold threshold = new Threshold("my-rule", "75");
         threshold.setType(MetricsValueType.DOUBLE);
-        assertEquals(0, Double.compare(75, threshold.getDoubleThreadhold()));
+        assertEquals(0, Double.compare(75, threshold.getDoubleThreshold()));
 
         threshold.setType(MetricsValueType.INT);
         assertEquals(75, threshold.getIntThreshold());
 
         threshold.setType(MetricsValueType.LONG);
         assertEquals(75L, threshold.getLongThreshold());
+    }
+
+    @Test
+    public void setTypeMultipleValues() {
+        Threshold threshold = new Threshold("my-rule", "75,80, 90, -");
+        threshold.setType(MetricsValueType.MULTI_INTS);
+        assertArrayEquals(new Object[] {
+            75,
+            80,
+            90,
+            null
+        }, threshold.getIntValuesThreshold());
+
     }
 
     @Test

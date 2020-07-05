@@ -23,43 +23,73 @@ import com.google.protobuf.ByteString;
 import io.jaegertracing.api_v2.Model;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import org.apache.skywalking.apm.util.StringUtil;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.cache.ServiceInventoryCache;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.LogEntity;
+import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.Ref;
+import org.apache.skywalking.oap.server.core.query.type.RefType;
+import org.apache.skywalking.oap.server.core.query.type.Span;
+import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
+import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.*;
-import org.elasticsearch.search.aggregations.bucket.terms.*;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
-import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.*;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.ENDPOINT_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.ENDPOINT_NAME;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.END_TIME;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.IS_ERROR;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.LATENCY;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.SERVICE_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.SERVICE_INSTANCE_ID;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.START_TIME;
+import static org.apache.skywalking.oap.server.storage.plugin.jaeger.JaegerSpanRecord.TRACE_ID;
 
 public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
-    @Setter
-    private ServiceInventoryCache serviceInventoryCache;
 
-    public JaegerTraceQueryEsDAO(
-        ElasticSearchClient client) {
+    public JaegerTraceQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration,
-        String endpointName, int serviceId, int serviceInstanceId, int endpointId, String traceId, int limit, int from,
-        TraceState traceState, QueryOrder queryOrder) throws IOException {
+    public TraceBrief queryBasicTraces(long startSecondTB,
+                                       long endSecondTB,
+                                       long minDuration,
+                                       long maxDuration,
+                                       String endpointName,
+                                       String serviceId,
+                                       String serviceInstanceId,
+                                       String endpointId,
+                                       String traceId,
+                                       int limit,
+                                       int from,
+                                       TraceState traceState,
+                                       QueryOrder queryOrder) throws IOException {
 
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
 
@@ -84,13 +114,13 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         if (!Strings.isNullOrEmpty(endpointName)) {
             mustQueryList.add(QueryBuilders.matchPhraseQuery(ENDPOINT_NAME, endpointName));
         }
-        if (serviceId != 0) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_ID, serviceId));
         }
-        if (serviceInstanceId != 0) {
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(SERVICE_INSTANCE_ID, serviceInstanceId));
         }
-        if (endpointId != 0) {
+        if (!Strings.isNullOrEmpty(endpointId)) {
             boolQueryBuilder.must().add(QueryBuilders.termQuery(ENDPOINT_ID, endpointId));
         }
         if (!Strings.isNullOrEmpty(traceId)) {
@@ -105,13 +135,13 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 break;
         }
 
-        TermsAggregationBuilder builder = AggregationBuilders.terms(TRACE_ID).field(TRACE_ID).size(limit)
-            .subAggregation(
-                AggregationBuilders.max(LATENCY).field(LATENCY)
-            )
-            .subAggregation(
-                AggregationBuilders.min(START_TIME).field(START_TIME)
-            );
+        TermsAggregationBuilder builder = AggregationBuilders.terms(TRACE_ID)
+                                                             .field(TRACE_ID)
+                                                             .size(limit)
+                                                             .subAggregation(AggregationBuilders.max(LATENCY)
+                                                                                                .field(LATENCY))
+                                                             .subAggregation(AggregationBuilders.min(START_TIME)
+                                                                                                .field(START_TIME));
         switch (queryOrder) {
             case BY_START_TIME:
                 builder.order(BucketOrder.aggregation(START_TIME, false));
@@ -134,9 +164,9 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             basicTrace.setSegmentId(termsBucket.getKeyAsString());
             Min startTime = termsBucket.getAggregations().get(START_TIME);
             Max latency = termsBucket.getAggregations().get(LATENCY);
-            basicTrace.setStart(String.valueOf((long)startTime.getValue()));
+            basicTrace.setStart(String.valueOf((long) startTime.getValue()));
             basicTrace.getEndpointNames().add("");
-            basicTrace.setDuration((int)latency.getValue());
+            basicTrace.setDuration((int) latency.getValue());
             basicTrace.setError(false);
             basicTrace.getTraceIds().add(termsBucket.getKeyAsString());
             traceBrief.getTraces().add(basicTrace);
@@ -145,12 +175,13 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         return traceBrief;
     }
 
-    @Override public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    @Override
+    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         return Collections.emptyList();
     }
 
-    @Override public List<Span> doFlexibleTraceQuery(
-        String traceId) throws IOException {
+    @Override
+    public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
         sourceBuilder.query(QueryBuilders.termQuery(TRACE_ID, traceId));
         sourceBuilder.sort(START_TIME, SortOrder.ASC);
@@ -161,12 +192,14 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         List<Span> spanList = new ArrayList<>();
 
         for (SearchHit searchHit : response.getHits().getHits()) {
-            int serviceId = ((Number)searchHit.getSourceAsMap().get(SERVICE_ID)).intValue();
-            long startTime = ((Number)searchHit.getSourceAsMap().get(START_TIME)).longValue();
-            long endTime = ((Number)searchHit.getSourceAsMap().get(END_TIME)).longValue();
-            String dataBinaryBase64 = (String)searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
+            String serviceId = (String) searchHit.getSourceAsMap().get(SERVICE_ID);
+            long startTime = ((Number) searchHit.getSourceAsMap().get(START_TIME)).longValue();
+            long endTime = ((Number) searchHit.getSourceAsMap().get(END_TIME)).longValue();
+            String dataBinaryBase64 = (String) searchHit.getSourceAsMap().get(SegmentRecord.DATA_BINARY);
 
-            Model.Span jaegerSpan = Model.Span.newBuilder().mergeFrom(Base64.getDecoder().decode(dataBinaryBase64)).build();
+            Model.Span jaegerSpan = Model.Span.newBuilder()
+                                              .mergeFrom(Base64.getDecoder().decode(dataBinaryBase64))
+                                              .build();
 
             Span swSpan = new Span();
 
@@ -205,7 +238,8 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 LogEntity entity = new LogEntity();
                 boolean hasTimestamp = log.hasTimestamp();
                 if (hasTimestamp) {
-                    long time = Instant.ofEpochSecond(log.getTimestamp().getSeconds(), log.getTimestamp().getNanos()).toEpochMilli();
+                    long time = Instant.ofEpochSecond(log.getTimestamp().getSeconds(), log.getTimestamp().getNanos())
+                                       .toEpochMilli();
                     entity.setTime(time);
                 }
                 log.getFieldsList().forEach(field -> {
@@ -230,11 +264,10 @@ public class JaegerTraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 swSpan.getLogs().add(entity);
             });
 
-            if (serviceId != Const.NONE) {
-                swSpan.setServiceCode(serviceInventoryCache.get(serviceId).getName());
-            } else {
-                swSpan.setServiceCode("UNKNOWN");
-            }
+            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+                serviceId);
+
+            swSpan.setServiceCode(serviceIDDefinition.getName());
             swSpan.setSpanId(0);
             swSpan.setParentSpanId(-1);
             String spanId = id(format(jaegerSpan.getTraceId()), format(jaegerSpan.getSpanId()));

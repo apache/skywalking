@@ -27,7 +27,8 @@ public class SpringRepositoryInstrumentation extends AbstractSpringBeanInstrumen
 
     public static final String ENHANCE_ANNOTATION = "org.springframework.stereotype.Repository";
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byClassAnnotationMatch(new String[] {ENHANCE_ANNOTATION});
     }
 }

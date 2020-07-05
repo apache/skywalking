@@ -16,12 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.dictionary;
 
-/**
- * @author wusheng
- */
 public class DictionaryUtil {
     public static int nullValue() {
         return 0;

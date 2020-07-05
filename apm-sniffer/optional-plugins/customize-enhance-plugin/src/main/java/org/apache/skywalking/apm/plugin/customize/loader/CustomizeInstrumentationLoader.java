@@ -33,15 +33,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The customize instrumentation plugin loader,
- * so implements {@link InstrumentationLoader}
- *
- * @author zhaoyuguang
+ * The customize instrumentation plugin loader, so implements {@link InstrumentationLoader}
  */
 
 public class CustomizeInstrumentationLoader implements InstrumentationLoader {
 
-    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private static final ILog logger = LogManager.getLogger(CustomizeInstrumentationLoader.class);
 
     @Override
     public List<AbstractClassEnhancePluginDefine> load(AgentClassLoader classLoader) {
@@ -51,13 +48,15 @@ public class CustomizeInstrumentationLoader implements InstrumentationLoader {
         try {
             for (String enhanceClass : enhanceClasses) {
                 String[] classDesc = CustomizeUtil.getClassDesc(enhanceClass);
-                AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(
-                        Boolean.valueOf(classDesc[1]) ? CustomizeStaticInstrumentation.class.getName() : CustomizeInstanceInstrumentation.class.getName(),
-                        true, classLoader).getConstructor(String.class).newInstance(classDesc[0]);
+                AbstractClassEnhancePluginDefine plugin = (AbstractClassEnhancePluginDefine) Class.forName(Boolean.valueOf(classDesc[1]) ? CustomizeStaticInstrumentation.class
+                    .getName() : CustomizeInstanceInstrumentation.class.getName(), true, classLoader)
+                                                                                                  .getConstructor(String.class)
+                                                                                                  .newInstance(classDesc[0]);
                 instrumentations.add(plugin);
             }
         } catch (Exception e) {
-            logger.error(e, "InstrumentationLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class.getName());
+            logger.error(e, "InstrumentationLoader loader is error, spi loader is {}", CustomizeInstrumentationLoader.class
+                .getName());
         }
         return instrumentations;
     }

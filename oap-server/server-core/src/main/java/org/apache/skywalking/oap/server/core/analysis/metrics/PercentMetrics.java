@@ -18,46 +18,54 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.*;
-import org.apache.skywalking.oap.server.core.analysis.metrics.expression.EqualMatch;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
-/**
- * @author wusheng
- */
 @MetricsFunction(functionName = "percent")
 public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     protected static final String TOTAL = "total";
     protected static final String MATCH = "match";
     protected static final String PERCENTAGE = "percentage";
 
-    @Getter @Setter @Column(columnName = TOTAL) private long total;
-    @Getter @Setter @Column(columnName = PERCENTAGE, isValue = true, function = Function.Avg) private int percentage;
-    @Getter @Setter @Column(columnName = MATCH) private long match;
+    @Getter
+    @Setter
+    @Column(columnName = TOTAL)
+    private long total;
+    @Getter
+    @Setter
+    @Column(columnName = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    private int percentage;
+    @Getter
+    @Setter
+    @Column(columnName = MATCH)
+    private long match;
 
     @Entrance
-    public final void combine(@Expression EqualMatch expression, @ExpressionArg0 Object leftValue,
-        @ExpressionArg1 Object rightValue) {
-        expression.setLeft(leftValue);
-        expression.setRight(rightValue);
-        if (expression.match()) {
+    public final void combine(@Expression boolean isMatch) {
+        if (isMatch) {
             match++;
         }
         total++;
     }
 
-    @Override public final void combine(Metrics metrics) {
-        total += ((PercentMetrics)metrics).total;
-        match += ((PercentMetrics)metrics).match;
+    @Override
+    public final void combine(Metrics metrics) {
+        total += ((PercentMetrics) metrics).total;
+        match += ((PercentMetrics) metrics).match;
     }
 
-    @Override public void calculate() {
-        percentage = (int)(match * 10000 / total);
+    @Override
+    public void calculate() {
+        percentage = (int) (match * 10000 / total);
     }
 
-    @Override public int getValue() {
+    @Override
+    public int getValue() {
         return percentage;
     }
 }

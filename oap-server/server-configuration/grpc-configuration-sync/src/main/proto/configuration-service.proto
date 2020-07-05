@@ -1,0 +1,55 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.configuration.service";
+
+service ConfigurationService {
+    rpc call (ConfigurationRequest) returns (ConfigurationResponse) {
+    }
+}
+
+message ConfigurationRequest {
+    // Logic name of this cluster,
+    // in case the remote configuration center implementation support
+    // configuration management for multiple clusters.
+    string clusterName = 1;
+    // The config UUID response from the config server side.
+    string uuid = 2;
+}
+
+message ConfigurationResponse {
+    // Include all config items.
+    // All config name should be not empty,
+    // the name is composed by "module name"."provider name"."item name".
+    // Each watcher implementor provides this, and it will be notified when the value changed.
+    //
+    // If the config center wants to set the value to NULL or empty,
+    // must set the name with empty value explicitly.
+    repeated Config configTable = 1;
+    // UUID is literal string represents the content of the config table.
+    // If config table is unchanged, then could response the same uuid, and config table is not required.
+    string uuid = 2;
+}
+
+message Config {
+    string name = 1;
+    string value = 2;
+}

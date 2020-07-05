@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.connectionurl.parser;
 
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql//primaryhost:3307,secondaryhost1,secondaryhost2/test?profileSQL=true");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3307,secondaryhost1:3306,secondaryhost2:3306"));
     }
 
     @Test
@@ -63,7 +62,7 @@ public class URLParserTest {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mysql:replication://master,slave1,slave2,slave3/test");
         assertThat(connectionInfo.getDBType(), is("Mysql"));
         assertThat(connectionInfo.getDatabaseName(), is("test"));
-        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306,"));
+        assertThat(connectionInfo.getDatabasePeer(), is("master:3306,slave1:3306,slave2:3306,slave3:3306"));
     }
 
     @Test
@@ -77,6 +76,14 @@ public class URLParserTest {
     @Test
     public void testParseOracleJDBCURLWithHostAndPort() {
         ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522:orcl");
+        assertThat(connectionInfo.getDBType(), is("Oracle"));
+        assertThat(connectionInfo.getDatabaseName(), is("orcl"));
+        assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
+    }
+
+    @Test
+    public void testParseOracleSID() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:oracle:thin:@localhost:1522/orcl");
         assertThat(connectionInfo.getDBType(), is("Oracle"));
         assertThat(connectionInfo.getDatabaseName(), is("orcl"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:1522"));
@@ -144,5 +151,13 @@ public class URLParserTest {
         assertThat(connectionInfo.getDBType(), is("H2"));
         assertThat(connectionInfo.getDatabaseName(), is("sample"));
         assertThat(connectionInfo.getDatabasePeer(), is("localhost:8084"));
+    }
+
+    @Test
+    public void testParseMariadbJDBCURLWithHost() {
+        ConnectionInfo connectionInfo = new URLParser().parser("jdbc:mariadb//primaryhost/test");
+        assertThat(connectionInfo.getDBType(), is("Mariadb"));
+        assertThat(connectionInfo.getDatabaseName(), is("test"));
+        assertThat(connectionInfo.getDatabasePeer(), is("primaryhost:3306"));
     }
 }

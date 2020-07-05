@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>apm-sniffer</artifactId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>8.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>apm-sdk-plugin</artifactId>
@@ -45,6 +45,10 @@
         <module>spymemcached-2.x-plugin</module>
         <module>sharding-jdbc-1.5.x-plugin</module>
         <module>sharding-sphere-3.x-plugin</module>
+        <module>sharding-sphere-4.x-plugin</module>
+        <module>sharding-sphere-4.x-RC3-plugin</module>
+        <module>sharding-sphere-4.0.x-plugin</module>
+        <module>sharding-sphere-4.1.0-plugin</module>
         <module>xmemcached-2.x-plugin</module>
         <module>grpc-1.x-plugin</module>
         <module>mysql-5.x-plugin</module>
@@ -58,12 +62,13 @@
         <module>elastic-job-2.x-plugin</module>
         <module>mongodb-2.x-plugin</module>
         <module>httpasyncclient-4.x-plugin</module>
-        <module>kafka-v1-plugin</module>
+        <module>kafka-plugin</module>
         <module>servicecomb-plugin</module>
         <module>hystrix-1.x-plugin</module>
         <module>sofarpc-plugin</module>
         <module>activemq-5.x-plugin</module>
         <module>elasticsearch-5.x-plugin</module>
+        <module>elasticsearch-6.x-plugin</module>
         <module>undertow-plugins</module>
         <module>rabbitmq-5.x-plugin</module>
         <module>dubbo-conflict-patch</module>
@@ -72,6 +77,23 @@
         <module>dubbo-2.7.x-conflict-patch</module>
         <module>vertx-plugins</module>
         <module>resteasy-plugin</module>
+        <module>solrj-7.x-plugin</module>
+        <module>cassandra-java-driver-3.x-plugin</module>
+        <module>light4j-plugins</module>
+        <module>ehcache-2.x-plugin</module>
+        <module>pulsar-plugin</module>
+        <module>netty-socketio-plugin</module>
+        <module>armeria-0.84.x-plugin</module>
+        <module>armeria-0.85.x-plugin</module>
+        <module>httpclient-3.x-plugin</module>
+        <module>play-2.x-plugin</module>
+        <module>lettuce-5.x-plugin</module>
+        <module>avro-plugin</module>
+        <module>finagle-6.25.x-plugin</module>
+        <module>quasar-plugin</module>
+        <module>mariadb-2.x-plugin</module>
+        <module>influxdb-2.x-plugin</module>
+        <module>baidu-brpc-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -84,7 +106,8 @@
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
 
-        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent</agent.package.dest.dir>
+        <agent.package.dest.dir>${project.build.directory}${sdk.plugin.related.dir}/../../../../skywalking-agent
+        </agent.package.dest.dir>
         <plugin.dest.dir>${agent.package.dest.dir}/plugins</plugin.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>

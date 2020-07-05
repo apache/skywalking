@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.zookeeper.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -31,9 +30,6 @@ import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 import static org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ArgumentTypeNameMatch.takesArgumentWithType;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
 public class ClientCnxnInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.apache.zookeeper.ClientCnxn";
@@ -41,7 +37,7 @@ public class ClientCnxnInstrumentation extends ClassInstanceMethodsEnhancePlugin
     private static final String CLIENT_CNXN_INTERCEPTOR = "org.apache.skywalking.apm.plugin.zookeeper.ClientCnxnInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -58,14 +54,13 @@ public class ClientCnxnInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("queuePacket")
-                            .and(takesArgumentWithType(0,"org.apache.zookeeper.proto.RequestHeader"))
-                            .and(takesArgumentWithType(2,"org.apache.jute.Record"));
+                    return named("queuePacket").and(takesArgumentWithType(0, "org.apache.zookeeper.proto.RequestHeader"))
+                                               .and(takesArgumentWithType(2, "org.apache.jute.Record"));
                 }
 
                 @Override

@@ -1,16 +1,16 @@
 # Choose receiver
 Receiver is a concept in SkyWalking backend. All modules, which are responsible for receiving telemetry
-or tracing data from other being monitored system, are all being called **Receiver**. Although today, most of 
-receivers are using gRPC or HTTPRestful to provide service, actually, whether listening mode or pull mode
-could be receiver. Such as a receiver could base on pull data from remote, like Kakfa MQ.
+or tracing data from other being monitored system, are all being called **Receiver**. If you are looking for the pull mode,
+Take a look at [fetcher document](backend-fetcher.md).
 
-We have following receivers, and `default` implementors are provided in our Apache distribution.zzz
+We have following receivers, and `default` implementors are provided in our Apache distribution.
 1. **receiver-trace**. gRPC and HTTPRestful services to accept SkyWalking format traces.
 1. **receiver-register**. gRPC and HTTPRestful services to provide service, service instance and endpoint register.
 1. **service-mesh**. gRPC services accept data from inbound mesh probes.
 1. **receiver-jvm**. gRPC services accept JVM metrics data.
 1. **istio-telemetry**. Istio telemetry is from Istio official bypass adaptor, this receiver match its gRPC services.
-1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics. 
+1. **envoy-metric**. Envoy `metrics_service` and `ALS(access log service)` supported by this receiver. OAL script support all GAUGE type metrics.
+1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
 
@@ -20,19 +20,12 @@ receiver-register:
   default:
 receiver-trace:
   default:
-    bufferPath: ../trace-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
     sampleRate: ${SW_TRACE_SAMPLE_RATE:1000} # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
 receiver-jvm:
   default:
 service-mesh:
   default:
-    bufferPath: ../mesh-buffer/  # Path to trace buffer files, suggest to use absolute path
-    bufferOffsetMaxFileSize: 100 # Unit is MB
-    bufferDataMaxFileSize: 500 # Unit is MB
-    bufferFileCleanWhenRestart: false
 istio-telemetry:
   default:
 envoy-metric:
@@ -42,6 +35,8 @@ receiver_zipkin:
     host: 0.0.0.0
     port: 9411
     contextPath: /
+receiver-profile:
+  default:
 ```
 
 ## gRPC/HTTP server for receiver
@@ -94,6 +89,8 @@ receiver_zipkin:
     needAnalysis: true
 ```
 
+NOTICE, Zipkin receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
+
 ## Jaeger receiver
 Jaeger receiver right now only works in `Tracing Mode`, and no analysis.
 Jaeger receiver provides extra gRPC host/port, if absent, sharing-server host/port will be used, then core gRPC host/port.
@@ -111,3 +108,5 @@ receiver_jaeger:
     gRPCHost: ${SW_RECEIVER_JAEGER_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_JAEGER_PORT:14250}
 ``` 
+
+NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.mvc.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -36,7 +35,7 @@ public class ActionInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     public static final String ENHANCE_ANNOTATION = "org.nutz.mvc.annotation.At";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -53,7 +52,7 @@ public class ActionInstrumentation extends ClassInstanceMethodsEnhancePluginDefi
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

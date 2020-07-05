@@ -16,13 +16,15 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin;
 
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
+import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassEnhancePluginDefine;
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -30,8 +32,8 @@ import org.apache.skywalking.apm.util.StringUtil;
 /**
  * Basic abstract class of all sky-walking auto-instrumentation plugins.
  * <p>
- * It provides the outline of enhancing the target class.
- * If you want to know more about enhancing, you should go to see {@link ClassEnhancePluginDefine}
+ * It provides the outline of enhancing the target class. If you want to know more about enhancing, you should go to see
+ * {@link ClassEnhancePluginDefine}
  */
 public abstract class AbstractClassEnhancePluginDefine {
     private static final ILog logger = LogManager.getLogger(AbstractClassEnhancePluginDefine.class);
@@ -40,13 +42,13 @@ public abstract class AbstractClassEnhancePluginDefine {
      * Main entrance of enhancing the class.
      *
      * @param typeDescription target class description.
-     * @param builder byte-buddy's builder to manipulate target class's bytecode.
-     * @param classLoader load the given transformClass
+     * @param builder         byte-buddy's builder to manipulate target class's bytecode.
+     * @param classLoader     load the given transformClass
      * @return the new builder, or <code>null</code> if not be enhanced.
      * @throws PluginException when set builder failure.
      */
-    public DynamicType.Builder<?> define(TypeDescription typeDescription,
-                                         DynamicType.Builder<?> builder, ClassLoader classLoader, EnhanceContext context) throws PluginException {
+    public DynamicType.Builder<?> define(TypeDescription typeDescription, DynamicType.Builder<?> builder,
+        ClassLoader classLoader, EnhanceContext context) throws PluginException {
         String interceptorDefineClassName = this.getClass().getName();
         String transformClassName = typeDescription.getTypeName();
         if (StringUtil.isEmpty(transformClassName)) {
@@ -63,8 +65,7 @@ public abstract class AbstractClassEnhancePluginDefine {
         if (witnessClasses != null) {
             for (String witnessClass : witnessClasses) {
                 if (!WitnessClassFinder.INSTANCE.exist(witnessClass, classLoader)) {
-                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName,
-                        witnessClass);
+                    logger.warn("enhance class {} by plugin {} is not working. Because witness class {} is not existed.", transformClassName, interceptorDefineClassName, witnessClass);
                     return null;
                 }
             }
@@ -98,10 +99,33 @@ public abstract class AbstractClassEnhancePluginDefine {
      * (let's say 1.0 for example), version number is obvious not an option, this is the moment you need "Witness
      * classes". You can add any classes only in this particular release version ( something like class
      * com.company.1.x.A, only in 1.0 ), and you can achieve the goal.
-     *
-     * @return
      */
     protected String[] witnessClasses() {
         return new String[] {};
     }
+
+    public boolean isBootstrapInstrumentation() {
+        return false;
+    }
+
+    /**
+     * Constructor methods intercept point. See {@link ConstructorInterceptPoint}
+     *
+     * @return collections of {@link ConstructorInterceptPoint}
+     */
+    public abstract ConstructorInterceptPoint[] getConstructorsInterceptPoints();
+
+    /**
+     * Instance methods intercept point. See {@link InstanceMethodsInterceptPoint}
+     *
+     * @return collections of {@link InstanceMethodsInterceptPoint}
+     */
+    public abstract InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints();
+
+    /**
+     * Static methods intercept point. See {@link StaticMethodsInterceptPoint}
+     *
+     * @return collections of {@link StaticMethodsInterceptPoint}
+     */
+    public abstract StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints();
 }

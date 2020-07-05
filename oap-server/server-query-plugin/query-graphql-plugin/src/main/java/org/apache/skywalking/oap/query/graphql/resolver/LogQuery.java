@@ -20,17 +20,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
-import org.apache.skywalking.oap.query.graphql.type.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.*;
-import org.apache.skywalking.oap.server.core.query.entity.Logs;
+import org.apache.skywalking.oap.server.core.query.LogQueryService;
+import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.nonNull;
 
-/**
- * @author wusheng
- */
 public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private LogQueryService logQueryService;
@@ -50,11 +47,14 @@ public class LogQuery implements GraphQLQueryResolver {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getStart());
-            endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getQueryDuration().getStep(), condition.getQueryDuration().getEnd());
+            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
+            endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
         }
 
-        return getQueryService().queryLogs(condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition.getEndpointId(),
-            condition.getTraceId(), condition.getState(), condition.getStateCode(), condition.getPaging(), startSecondTB, endSecondTB);
+        return getQueryService().queryLogs(
+            condition.getMetricName(), condition.getServiceId(), condition.getServiceInstanceId(), condition
+                .getEndpointId(), condition.getTraceId(), condition.getState(), condition.getStateCode(),
+            condition.getPaging(), startSecondTB, endSecondTB
+        );
     }
 }

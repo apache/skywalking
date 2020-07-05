@@ -18,13 +18,16 @@
 
 package org.apache.skywalking.apm.agent.core.context;
 
-import org.apache.skywalking.apm.agent.core.boot.*;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
-import org.apache.skywalking.apm.agent.core.dictionary.DictionaryUtil;
-import org.apache.skywalking.apm.agent.core.logging.api.*;
+import org.apache.skywalking.apm.agent.core.boot.BootService;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.logging.api.ILog;
+import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
 import org.apache.skywalking.apm.util.StringUtil;
+
+import static org.apache.skywalking.apm.agent.core.conf.Config.Agent.OPERATION_NAME_THRESHOLD;
 
 /**
  * {@link ContextManager} controls the whole context of {@link TraceSegment}. Any {@link TraceSegment} relates to
@@ -33,8 +36,6 @@ import org.apache.skywalking.apm.util.StringUtil;
  * https://github.com/opentracing/specification/blob/master/specification.md#references-between-spans
  *
  * <p> Also, {@link ContextManager} delegates to all {@link AbstractTracerContext}'s major methods.
- *
- * @author wusheng
  */
 public class ContextManager implements BootService {
     private static final ILog logger = LogManager.getLogger(ContextManager.class);
@@ -51,19 +52,11 @@ public class ContextManager implements BootService {
                 }
                 context = new IgnoredTracerContext();
             } else {
-                if (RemoteDownstreamConfig.Agent.SERVICE_ID != DictionaryUtil.nullValue()
-                    && RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID != DictionaryUtil.nullValue()
-                ) {
-                    if (EXTEND_SERVICE == null) {
-                        EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
-                    }
-                    context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
-                } else {
-                    /**
-                     * Can't register to collector, no need to trace anything.
-                     */
-                    context = new IgnoredTracerContext();
+                if (EXTEND_SERVICE == null) {
+                    EXTEND_SERVICE = ServiceManager.INSTANCE.findService(ContextManagerExtendService.class);
                 }
+                context = EXTEND_SERVICE.createTraceContext(operationName, forceSampling);
+
             }
             CONTEXT.set(context);
         }
@@ -82,15 +75,16 @@ public class ContextManager implements BootService {
         if (segment == null) {
             return "N/A";
         } else {
-            return segment.getReadableGlobalTraceId();
+            return segment.getReadablePrimaryTraceId();
         }
     }
 
     public static AbstractSpan createEntrySpan(String operationName, ContextCarrier carrier) {
-        SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         AbstractSpan span;
         AbstractTracerContext context;
+        operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         if (carrier != null && carrier.isValid()) {
+            SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             samplingService.forceSampled();
             context = getOrCreate(operationName, true);
             span = context.createEntrySpan(operationName);
@@ -103,6 +97,7 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createLocalSpan(String operationName) {
+        operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         return context.createLocalSpan(operationName);
     }
@@ -111,6 +106,7 @@ public class ContextManager implements BootService {
         if (carrier == null) {
             throw new IllegalArgumentException("ContextCarrier can't be null.");
         }
+        operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
         AbstractSpan span = context.createExitSpan(operationName, remotePeer);
         context.inject(carrier);
@@ -118,9 +114,9 @@ public class ContextManager implements BootService {
     }
 
     public static AbstractSpan createExitSpan(String operationName, String remotePeer) {
+        operationName = StringUtil.cut(operationName, OPERATION_NAME_THRESHOLD);
         AbstractTracerContext context = getOrCreate(operationName, false);
-        AbstractSpan span = context.createExitSpan(operationName, remotePeer);
-        return span;
+        return context.createExitSpan(operationName, remotePeer);
     }
 
     public static void inject(ContextCarrier carrier) {
@@ -144,35 +140,51 @@ public class ContextManager implements BootService {
         if (snapshot == null) {
             throw new IllegalArgumentException("ContextSnapshot can't be null.");
         }
-        if (snapshot.isValid() && !snapshot.isFromCurrent()) {
+        if (!snapshot.isFromCurrent()) {
             get().continued(snapshot);
         }
     }
 
     public static AbstractTracerContext awaitFinishAsync(AbstractSpan span) {
-        AbstractSpan activeSpan = activeSpan();
+        final AbstractTracerContext context = get();
+        AbstractSpan activeSpan = context.activeSpan();
         if (span != activeSpan) {
             throw new RuntimeException("Span is not the active in current context.");
         }
-        return get().awaitFinishAsync();
+        return context.awaitFinishAsync();
     }
 
+    /**
+     * If not sure has the active span, use this method, will be cause NPE when has no active span, use
+     * ContextManager::isActive method to determine whether there has the active span.
+     */
     public static AbstractSpan activeSpan() {
         return get().activeSpan();
     }
 
+    /**
+     * Recommend use ContextManager::stopSpan(AbstractSpan span), because in that way, the TracingContext core could
+     * verify this span is the active one, in order to avoid stop unexpected span. If the current span is hard to get or
+     * only could get by low-performance way, this stop way is still acceptable.
+     */
     public static void stopSpan() {
-        stopSpan(activeSpan());
+        final AbstractTracerContext context = get();
+        stopSpan(context.activeSpan(), context);
     }
 
     public static void stopSpan(AbstractSpan span) {
-        if (get().stopSpan(span)) {
+        stopSpan(span, get());
+    }
+
+    private static void stopSpan(AbstractSpan span, final AbstractTracerContext context) {
+        if (context.stopSpan(span)) {
             CONTEXT.remove();
+            RUNTIME_CONTEXT.remove();
         }
     }
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
 
     }
 
@@ -181,11 +193,12 @@ public class ContextManager implements BootService {
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
 
     }
 
-    @Override public void shutdown() throws Throwable {
+    @Override
+    public void shutdown() {
 
     }
 
@@ -202,4 +215,14 @@ public class ContextManager implements BootService {
 
         return runtimeContext;
     }
+
+    public static CorrelationContext getCorrelationContext() {
+        final AbstractTracerContext tracerContext = get();
+        if (tracerContext == null) {
+            return null;
+        }
+
+        return tracerContext.getCorrelationContext();
+    }
+
 }

@@ -25,7 +25,7 @@ import com.alipay.sofa.rpc.core.response.SofaResponse;
 import com.alipay.sofa.rpc.filter.ProviderInvoker;
 import java.util.List;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.context.SW3CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.SW8CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
@@ -41,7 +41,6 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +58,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
-@PrepareForTest({RpcInternalContext.class, SofaRequest.class, SofaResponse.class})
+@PrepareForTest({
+    RpcInternalContext.class,
+    SofaRequest.class,
+    SofaResponse.class
+})
 public class SofaRpcProviderInterceptorTest {
 
     public static final String SKYWALKING_PREFIX = "skywalking.";
@@ -92,7 +95,6 @@ public class SofaRpcProviderInterceptorTest {
 
     @Before
     public void setUp() throws Exception {
-        Config.Agent.ACTIVE_V1_HEADER = true;
         sofaRpcProviderInterceptor = new SofaRpcProviderInterceptor();
 
         PowerMockito.mockStatic(RpcInternalContext.class);
@@ -112,18 +114,14 @@ public class SofaRpcProviderInterceptorTest {
         Config.Agent.SERVICE_NAME = "SOFARPC-TestCases-APP";
     }
 
-    @After
-    public void clear() {
-        Config.Agent.ACTIVE_V1_HEADER = false;
-    }
-
     @Test
     public void testProviderWithAttachment() throws Throwable {
         when(rpcContext.isConsumerSide()).thenReturn(false);
-        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW3CarrierItem.HEADER_NAME)).thenReturn(
-            "1.323.4433|3|1|1|#192.168.1.8 :18002|#/portal/|#/testEntrySpan|#AQA*#AQA*Et0We0tQNQA*");
+        when(sofaRequest.getRequestProp(SKYWALKING_PREFIX + SW8CarrierItem.HEADER_NAME)).thenReturn(
+            "1-My40LjU=-MS4yLjM=-3-c2VydmljZQ==-aW5zdGFuY2U=-L2FwcA==-MTI3LjAuMC4xOjgwODA=");
 
-        sofaRpcProviderInterceptor.beforeMethod(enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
+        sofaRpcProviderInterceptor.beforeMethod(
+            enhancedInstance, null, allArguments, argumentTypes, methodInterceptResult);
         sofaRpcProviderInterceptor.afterMethod(enhancedInstance, null, allArguments, argumentTypes, sofaResponse);
         assertProvider();
     }
@@ -137,8 +135,8 @@ public class SofaRpcProviderInterceptorTest {
 
     private void assertTraceSegmentRef(TraceSegmentRef actual) {
         assertThat(SegmentRefHelper.getSpanId(actual), is(3));
-        assertThat(SegmentRefHelper.getEntryServiceInstanceId(actual), is(1));
-        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("1.323.4433"));
+        assertThat(SegmentRefHelper.getParentServiceInstance(actual), is("instance"));
+        assertThat(SegmentRefHelper.getTraceSegmentId(actual).toString(), is("3.4.5"));
     }
 
     private void assertProviderSpan(AbstractTracingSpan span) {

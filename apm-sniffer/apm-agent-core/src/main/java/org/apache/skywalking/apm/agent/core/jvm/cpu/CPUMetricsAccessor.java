@@ -16,13 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.cpu;
 
-import org.apache.skywalking.apm.network.common.CPU;
+import org.apache.skywalking.apm.network.common.v3.CPU;
 
 /**
- * @author wusheng
+ * The unit of CPU usage is 1/10000. The backend is using `avg` func directly, and query for percentage requires this
+ * unit.
  */
 public abstract class CPUMetricsAccessor {
     private long lastCPUTimeNs;
@@ -35,7 +35,7 @@ public abstract class CPUMetricsAccessor {
 
     protected void init() {
         lastCPUTimeNs = this.getCpuTime();
-        this.lastSampleTimeNs = System.nanoTime();
+        lastSampleTimeNs = System.nanoTime();
     }
 
     protected abstract long getCpuTime();
@@ -45,7 +45,12 @@ public abstract class CPUMetricsAccessor {
         long cpuCost = cpuTime - lastCPUTimeNs;
         long now = System.nanoTime();
 
-        CPU.Builder cpuBuilder = CPU.newBuilder();
-        return cpuBuilder.setUsagePercent(cpuCost * 1.0d / ((now - lastSampleTimeNs) * cpuCoreNum) * 100).build();
+        try {
+            CPU.Builder cpuBuilder = CPU.newBuilder();
+            return cpuBuilder.setUsagePercent(cpuCost * 1.0d / ((now - lastSampleTimeNs) * cpuCoreNum) * 100).build();
+        } finally {
+            lastCPUTimeNs = cpuTime;
+            lastSampleTimeNs = now;
+        }
     }
 }

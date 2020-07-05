@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,39 +28,44 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 public class StatementInstrumentation extends AbstractMysqlInstrumentation {
-    private static final String SERVICE_METHOD_INTERCEPTOR =  org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
+    private static final String SERVICE_METHOD_INTERCEPTOR = org.apache.skywalking.apm.plugin.jdbc.mysql.Constants.STATEMENT_EXECUTE_METHODS_INTERCEPTOR;
     public static final String MYSQL8_STATEMENT_CLASS_NAME = "com.mysql.cj.jdbc.StatementImpl";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("execute")
-                        .or(named("executeQuery"))
-                        .or(named("executeUpdate"))
-                        .or(named("executeLargeUpdate"))
-                        .or(named("executeBatchInternal"))
-                        .or(named("executeUpdateInternal"))
-                        .or(named("executeQuery"))
-                        .or(named("executeBatch"));
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                    return named("execute").or(named("executeQuery"))
+                                           .or(named("executeUpdate"))
+                                           .or(named("executeLargeUpdate"))
+                                           .or(named("executeBatchInternal"))
+                                           .or(named("executeUpdateInternal"))
+                                           .or(named("executeQuery"))
+                                           .or(named("executeBatch"));
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return SERVICE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(MYSQL8_STATEMENT_CLASS_NAME);
     }
 }

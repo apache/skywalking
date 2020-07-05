@@ -18,47 +18,33 @@
 
 package org.apache.skywalking.apm.commons.datacarrier.buffer;
 
-import java.util.*;
-import org.apache.skywalking.apm.commons.datacarrier.callback.QueueBlockingCallback;
+import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.common.AtomicRangeInteger;
 
 /**
- * Created by wusheng on 2016/10/25.
+ * Self implementation ring queue.
  */
-public class Buffer<T> {
+public class Buffer<T> implements QueueBuffer<T> {
     private final Object[] buffer;
     private BufferStrategy strategy;
     private AtomicRangeInteger index;
-    private List<QueueBlockingCallback<T>> callbacks;
 
     Buffer(int bufferSize, BufferStrategy strategy) {
         buffer = new Object[bufferSize];
         this.strategy = strategy;
         index = new AtomicRangeInteger(0, bufferSize);
-        callbacks = new LinkedList<QueueBlockingCallback<T>>();
     }
 
-    void setStrategy(BufferStrategy strategy) {
+    public void setStrategy(BufferStrategy strategy) {
         this.strategy = strategy;
     }
 
-    void addCallback(QueueBlockingCallback<T> callback) {
-        callbacks.add(callback);
-    }
-
-    boolean save(T data) {
+    public boolean save(T data) {
         int i = index.getAndIncrement();
         if (buffer[i] != null) {
             switch (strategy) {
                 case BLOCKING:
-                    boolean isFirstTimeBlocking = true;
                     while (buffer[i] != null) {
-                        if (isFirstTimeBlocking) {
-                            isFirstTimeBlocking = false;
-                            for (QueueBlockingCallback<T> callback : callbacks) {
-                                callback.notify(data);
-                            }
-                        }
                         try {
                             Thread.sleep(1L);
                         } catch (InterruptedException e) {
@@ -67,7 +53,6 @@ public class Buffer<T> {
                     break;
                 case IF_POSSIBLE:
                     return false;
-                case OVERRIDE:
                 default:
             }
         }
@@ -79,19 +64,17 @@ public class Buffer<T> {
         return buffer.length;
     }
 
-    public LinkedList<T> obtain() {
-        return this.obtain(0, buffer.length);
+    public void obtain(List<T> consumeList) {
+        this.obtain(consumeList, 0, buffer.length);
     }
 
-    public LinkedList<T> obtain(int start, int end) {
-        LinkedList<T> result = new LinkedList<T>();
+    void obtain(List<T> consumeList, int start, int end) {
         for (int i = start; i < end; i++) {
             if (buffer[i] != null) {
-                result.add((T)buffer[i]);
+                consumeList.add((T) buffer[i]);
                 buffer[i] = null;
             }
         }
-        return result;
     }
 
 }

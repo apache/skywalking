@@ -16,15 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.jvm.gc;
 
 import java.util.List;
-import org.apache.skywalking.apm.network.language.agent.*;
+import org.apache.skywalking.apm.network.language.agent.v3.GC;
 
-/**
- * @author wusheng
- */
 public interface GCMetricAccessor {
     List<GC> getGCList();
 }

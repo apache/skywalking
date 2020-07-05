@@ -48,7 +48,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -74,7 +74,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
             },
             new ConstructorInterceptPoint() {
                 @Override
-                 public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return takesArgumentWithType(0, JEDIS_SHARD_INFO_ARG_TYPE_NAME);
                 }
 
@@ -98,7 +98,7 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -111,7 +111,8 @@ public class JedisInstrumentation extends ClassInstanceMethodsEnhancePluginDefin
                     return JEDIS_METHOD_INTERCET_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

@@ -16,10 +16,8 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.mysql.v8.define;
 
-import com.mysql.cj.conf.HostInfo;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.StaticMethodsInterceptPoint;
@@ -31,9 +29,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
 /**
- * interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(HostInfo)}
- * instead of {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
- * @author: dingshaocheng
+ * interceptor the method {@link com.mysql.cj.jdbc.ConnectionImpl#getInstance(com.mysql.cj.conf.HostInfo)} instead of
+ * {@link com.mysql.cj.jdbc.Driver#connect(String, Properties)}
  */
 public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrumentation {
 
@@ -41,9 +38,8 @@ public class ConnectionImplCreateInstrumentation extends AbstractMysqlInstrument
 
     private static final String CONNECT_METHOD = "getInstance";
 
-
     @Override
-    protected StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
+    public StaticMethodsInterceptPoint[] getStaticMethodsInterceptPoints() {
         return new StaticMethodsInterceptPoint[] {
             new StaticMethodsInterceptPoint() {
                 @Override

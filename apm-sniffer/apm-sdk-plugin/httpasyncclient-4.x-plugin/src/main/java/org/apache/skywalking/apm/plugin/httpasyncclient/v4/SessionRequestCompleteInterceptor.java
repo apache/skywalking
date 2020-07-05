@@ -28,15 +28,14 @@ import java.lang.reflect.Method;
 
 /**
  * request ready(completed) so we can start our local thread span;
- *
- * @author lican
  */
 public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundInterceptor {
 
     public static ThreadLocal<HttpContext> CONTEXT_LOCAL = new ThreadLocal<HttpContext>();
 
     @Override
-    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, MethodInterceptResult result) throws Throwable {
+    public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        MethodInterceptResult result) throws Throwable {
         Object[] array = (Object[]) objInst.getSkyWalkingDynamicField();
         if (array == null || array.length == 0) {
             return;
@@ -48,16 +47,17 @@ public class SessionRequestCompleteInterceptor implements InstanceMethodsAroundI
         }
         CONTEXT_LOCAL.set((HttpContext) array[1]);
 
-
     }
 
     @Override
-    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Object ret) throws Throwable {
+    public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
+        Object ret) throws Throwable {
         return ret;
     }
 
     @Override
-    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes, Throwable t) {
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+        Class<?>[] argumentsTypes, Throwable t) {
 
     }
 }

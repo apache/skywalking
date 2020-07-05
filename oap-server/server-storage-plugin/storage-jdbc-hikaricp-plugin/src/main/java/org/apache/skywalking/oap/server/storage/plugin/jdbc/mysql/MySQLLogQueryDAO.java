@@ -21,20 +21,18 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2LogQueryDAO;
 
-/**
- * @author wusheng
- */
 public class MySQLLogQueryDAO extends H2LogQueryDAO {
+
     public MySQLLogQueryDAO(JDBCHikariCPClient h2Client) {
         super(h2Client);
     }
 
+    @Override
     protected String buildCountStatement(String sql) {
-        return "select count(1) total from (select 1 " + sql + " )";
+        return "select count(1) total " + sql;
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
+        sql.append(" LIMIT ").append(from).append(", ").append(limit);
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.jdbc.h2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -30,29 +29,31 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 /**
  * {@link PooledJdbcConnectionInstrumentation} presents that skywalking intercepts {@link
  * org.h2.jdbcx.JdbcXAConnection}.
- *
- * @author zhangxin
  */
 public class PooledJdbcConnectionInstrumentation extends AbstractConnectionInstrumentation {
 
     public static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.h2.PooledJdbcConnectionConstructorInterceptor";
     public static final String ENHANCE_CLASS = "org.h2.jdbcx.JdbcXAConnection$PooledJdbcConnection";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return CONSTRUCTOR_INTERCEPT_CLASS;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return NameMatch.byName(ENHANCE_CLASS);
     }
 }

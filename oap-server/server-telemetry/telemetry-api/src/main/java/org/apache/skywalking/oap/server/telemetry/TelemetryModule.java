@@ -19,12 +19,11 @@
 package org.apache.skywalking.oap.server.telemetry;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
 /**
  * Telemetry module definition
- *
- * @author wusheng
  */
 public class TelemetryModule extends ModuleDefine {
     public static final String NAME = "telemetry";
@@ -33,7 +32,11 @@ public class TelemetryModule extends ModuleDefine {
         super(NAME);
     }
 
-    @Override public Class[] services() {
-        return new Class[] {MetricsCreator.class};
+    @Override
+    public Class[] services() {
+        return new Class[] {
+            MetricsCreator.class,
+            MetricsCollector.class
+        };
     }
 }

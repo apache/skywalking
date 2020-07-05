@@ -22,9 +22,6 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @author wusheng
- */
 public class MetricsTest {
     @Test
     public void testTransferToTimeBucket() {
@@ -33,18 +30,11 @@ public class MetricsTest {
         mocker.setTimeBucket(201809120511L);
         Assert.assertEquals(2018091205L, mocker.toTimeBucketInHour());
         Assert.assertEquals(20180912L, mocker.toTimeBucketInDay());
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
 
         mocker = new MetricsMocker();
 
         mocker.setTimeBucket(2018091205L);
         Assert.assertEquals(20180912L, mocker.toTimeBucketInDay());
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
-
-        mocker = new MetricsMocker();
-
-        mocker.setTimeBucket(20180912L);
-        Assert.assertEquals(201809L, mocker.toTimeBucketInMonth());
     }
 
     @Test
@@ -82,39 +72,43 @@ public class MetricsTest {
 
     public class MetricsMocker extends Metrics {
 
-        @Override public String id() {
+        @Override
+        public String id() {
             return null;
         }
 
-        @Override public void combine(Metrics metrics) {
+        @Override
+        public void combine(Metrics metrics) {
 
         }
 
-        @Override public void calculate() {
+        @Override
+        public void calculate() {
 
         }
 
-        @Override public Metrics toHour() {
+        @Override
+        public Metrics toHour() {
             return null;
         }
 
-        @Override public Metrics toDay() {
+        @Override
+        public Metrics toDay() {
             return null;
         }
 
-        @Override public Metrics toMonth() {
+        @Override
+        public void deserialize(RemoteData remoteData) {
+
+        }
+
+        @Override
+        public RemoteData.Builder serialize() {
             return null;
         }
 
-        @Override public void deserialize(RemoteData remoteData) {
-
-        }
-
-        @Override public RemoteData.Builder serialize() {
-            return null;
-        }
-
-        @Override public int remoteHashCode() {
+        @Override
+        public int remoteHashCode() {
             return 0;
         }
     }

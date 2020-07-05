@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.apm.plugin.customize.util;
 
+import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,10 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-/**
- * @author zhaoyuguang
- */
 
 public class CustomizeExpressionTest {
 
@@ -71,7 +68,11 @@ public class CustomizeExpressionTest {
         User user2 = new User(101, "sw0", m2);
         List l1 = new ArrayList();
         l1.add("c");
-        Order order = new Order(999, "uuid", l1, user2, "open_id", new Object[]{0, 3, "2"});
+        Order order = new Order(999, "uuid", l1, user2, "open_id", new Object[] {
+            0,
+            3,
+            "2"
+        });
         allArguments[5] = order;
         return allArguments;
     }

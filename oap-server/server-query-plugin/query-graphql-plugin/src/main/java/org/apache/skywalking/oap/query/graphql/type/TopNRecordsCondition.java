@@ -18,13 +18,16 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import lombok.*;
-import org.apache.skywalking.oap.server.core.query.entity.Order;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 
+@Deprecated
 @Getter
 @Setter
 public class TopNRecordsCondition {
-    private int serviceId;
+    private String serviceId;
     private String metricName;
     private int topN;
     private Order order;

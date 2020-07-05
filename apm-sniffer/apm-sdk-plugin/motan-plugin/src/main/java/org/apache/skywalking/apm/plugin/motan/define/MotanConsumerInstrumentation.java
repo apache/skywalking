@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.apm.plugin.motan.define;
 
-import com.weibo.api.motan.rpc.Request;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterceptPoint;
@@ -41,7 +40,7 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
      */
     private static final String CONSTRUCTOR_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.motan.MotanConsumerInterceptor";
     /**
-     * Class that intercept {@link com.weibo.api.motan.rpc.AbstractProvider#call(Request)}.
+     * Class that intercept {@link com.weibo.api.motan.rpc.AbstractProvider#call(com.weibo.api.motan.rpc.Request)}.
      */
     private static final String PROVIDER_INVOKE_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.motan.MotanConsumerInterceptor";
 
@@ -51,7 +50,7 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -68,7 +67,7 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -81,7 +80,8 @@ public class MotanConsumerInstrumentation extends ClassInstanceMethodsEnhancePlu
                     return PROVIDER_INVOKE_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

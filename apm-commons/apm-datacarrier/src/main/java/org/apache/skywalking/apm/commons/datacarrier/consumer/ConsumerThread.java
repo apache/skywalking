@@ -16,16 +16,13 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.apm.commons.datacarrier.buffer.Buffer;
+import org.apache.skywalking.apm.commons.datacarrier.buffer.QueueBuffer;
 
-/**
- * Created by wusheng on 2016/10/25.
- */
 public class ConsumerThread<T> extends Thread {
     private volatile boolean running;
     private IConsumer<T> consumer;
@@ -36,38 +33,24 @@ public class ConsumerThread<T> extends Thread {
         super(threadName);
         this.consumer = consumer;
         running = false;
-        dataSources = new LinkedList<DataSource>();
+        dataSources = new ArrayList<DataSource>(1);
         this.consumeCycle = consumeCycle;
     }
 
     /**
-     * add partition of buffer to consume
-     *
-     * @param sourceBuffer
-     * @param start
-     * @param end
-     */
-    void addDataSource(Buffer<T> sourceBuffer, int start, int end) {
-        this.dataSources.add(new DataSource(sourceBuffer, start, end));
-    }
-
-    /**
      * add whole buffer to consume
-     *
-     * @param sourceBuffer
      */
-    void addDataSource(Buffer<T> sourceBuffer) {
-        this.dataSources.add(new DataSource(sourceBuffer, 0, sourceBuffer.getBufferSize()));
+    void addDataSource(QueueBuffer<T> sourceBuffer) {
+        this.dataSources.add(new DataSource(sourceBuffer));
     }
 
     @Override
     public void run() {
         running = true;
 
+        final List<T> consumeList = new ArrayList<T>(1500);
         while (running) {
-            boolean hasData = consume();
-
-            if (!hasData) {
+            if (!consume(consumeList)) {
                 try {
                     Thread.sleep(consumeCycle);
                 } catch (InterruptedException e) {
@@ -77,31 +60,27 @@ public class ConsumerThread<T> extends Thread {
 
         // consumer thread is going to stop
         // consume the last time
-        consume();
+        consume(consumeList);
 
         consumer.onExit();
     }
 
-    private boolean consume() {
-        boolean hasData = false;
-        LinkedList<T> consumeList = new LinkedList<T>();
+    private boolean consume(List<T> consumeList) {
         for (DataSource dataSource : dataSources) {
-            LinkedList<T> data = dataSource.obtain();
-            if (data.size() == 0) {
-                continue;
-            }
-            consumeList.addAll(data);
-            hasData = true;
+            dataSource.obtain(consumeList);
         }
 
-        if (consumeList.size() > 0) {
+        if (!consumeList.isEmpty()) {
             try {
                 consumer.consume(consumeList);
             } catch (Throwable t) {
                 consumer.onError(consumeList, t);
+            } finally {
+                consumeList.clear();
             }
+            return true;
         }
-        return hasData;
+        return false;
     }
 
     void shutdown() {
@@ -112,18 +91,14 @@ public class ConsumerThread<T> extends Thread {
      * DataSource is a refer to {@link Buffer}.
      */
     class DataSource {
-        private Buffer<T> sourceBuffer;
-        private int start;
-        private int end;
+        private QueueBuffer<T> sourceBuffer;
 
-        DataSource(Buffer<T> sourceBuffer, int start, int end) {
+        DataSource(QueueBuffer<T> sourceBuffer) {
             this.sourceBuffer = sourceBuffer;
-            this.start = start;
-            this.end = end;
         }
 
-        LinkedList<T> obtain() {
-            return sourceBuffer.obtain(start, end);
+        void obtain(List<T> consumeList) {
+            sourceBuffer.obtain(consumeList);
         }
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance;
 
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.InstanceMethodsInterceptPoint;
@@ -26,10 +25,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
  * Plugins, which only need enhance class static methods. Actually, inherit from {@link
  * ClassStaticMethodsEnhancePluginDefine} has no differences with inherit from {@link ClassEnhancePluginDefine}. Just
  * override {@link ClassEnhancePluginDefine#getConstructorsInterceptPoints} and {@link
- * ClassEnhancePluginDefine#getInstanceMethodsInterceptPoints}, and return NULL, which means nothing to
- * enhance.
- *
- * @author wusheng
+ * ClassEnhancePluginDefine#getInstanceMethodsInterceptPoints}, and return NULL, which means nothing to enhance.
  */
 public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhancePluginDefine {
 
@@ -37,7 +33,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhance
      * @return null, means enhance no constructors.
      */
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
@@ -45,7 +41,7 @@ public abstract class ClassStaticMethodsEnhancePluginDefine extends ClassEnhance
      * @return null, means enhance no instance methods.
      */
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return null;
     }
 }

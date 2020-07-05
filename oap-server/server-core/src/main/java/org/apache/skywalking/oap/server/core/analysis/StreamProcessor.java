@@ -18,14 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
-/**
- * @author peng-yongsheng
- */
 public interface StreamProcessor<STREAM> {
 
     void in(STREAM stream);
 
-    void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends STREAM> streamClass);
+    void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends STREAM> streamClass) throws StorageException;
 }

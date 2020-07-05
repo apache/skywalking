@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.nutz.http.sync.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -36,7 +35,7 @@ public abstract class AbstractNutzHttpInstrumentation extends ClassInstanceMetho
     private static final String DO_CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.nutz.http.sync.SenderConstructorInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -53,7 +52,7 @@ public abstract class AbstractNutzHttpInstrumentation extends ClassInstanceMetho
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

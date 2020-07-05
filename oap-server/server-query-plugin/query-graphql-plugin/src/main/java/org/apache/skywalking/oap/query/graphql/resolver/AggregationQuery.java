@@ -20,69 +20,105 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.query.graphql.type.Duration;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.TopNEntity;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * @author peng-yongsheng
+ * @since 8.0.0 This query is replaced by {@link MetricsQuery}, all queries have been delegated to there.
  */
+@Deprecated
 public class AggregationQuery implements GraphQLQueryResolver {
-
-    private final ModuleManager moduleManager;
-    private AggregationQueryService queryService;
+    private MetricsQuery query;
 
     public AggregationQuery(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
-    private AggregationQueryService getQueryService() {
-        if (queryService == null) {
-            this.queryService = moduleManager.find(CoreModule.NAME).provider().getService(AggregationQueryService.class);
-        }
-        return queryService;
+        query = new MetricsQuery(moduleManager);
     }
 
     public List<TopNEntity> getServiceTopN(final String name, final int topN, final Duration duration,
-        final Order order) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getServiceTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+                                           final Order order) throws IOException {
+        TopNCondition condition = new TopNCondition();
+        condition.setName(name);
+        condition.setScope(Scope.Service);
+        condition.setOrder(order);
+        condition.setTopN(topN);
+        List<TopNEntity> list = new ArrayList<>();
+        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+            TopNEntity entity = new TopNEntity(selectedRecord);
+            list.add(entity);
+        });
+        return list;
     }
 
     public List<TopNEntity> getAllServiceInstanceTopN(final String name, final int topN, final Duration duration,
-        final Order order) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getAllServiceInstanceTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+                                                      final Order order) throws IOException {
+        TopNCondition condition = new TopNCondition();
+        condition.setName(name);
+        condition.setScope(Scope.ServiceInstance);
+        condition.setOrder(order);
+        condition.setTopN(topN);
+        List<TopNEntity> list = new ArrayList<>();
+        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+            TopNEntity entity = new TopNEntity(selectedRecord);
+            list.add(entity);
+        });
+        return list;
     }
 
-    public List<TopNEntity> getServiceInstanceTopN(final int serviceId, final String name, final int topN,
-        final Duration duration, final Order order) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getServiceInstanceTopN(serviceId, name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    public List<TopNEntity> getServiceInstanceTopN(final String serviceId, final String name, final int topN,
+                                                   final Duration duration, final Order order) throws IOException {
+        TopNCondition condition = new TopNCondition();
+        condition.setName(name);
+        condition.setScope(Scope.ServiceInstance);
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
+        condition.setParentService(serviceIDDefinition.getName());
+        condition.setNormal(true);
+        condition.setOrder(order);
+        condition.setTopN(topN);
+        List<TopNEntity> list = new ArrayList<>();
+        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+            TopNEntity entity = new TopNEntity(selectedRecord);
+            list.add(entity);
+        });
+        return list;
     }
 
-    public List<TopNEntity> getAllEndpointTopN(final String name, final int topN,
-        final Duration duration, final Order order) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getAllEndpointTopN(name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    public List<TopNEntity> getAllEndpointTopN(final String name, final int topN, final Duration duration,
+                                               final Order order) throws IOException {
+        TopNCondition condition = new TopNCondition();
+        condition.setName(name);
+        condition.setScope(Scope.Endpoint);
+        condition.setOrder(order);
+        condition.setTopN(topN);
+        List<TopNEntity> list = new ArrayList<>();
+        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+            TopNEntity entity = new TopNEntity(selectedRecord);
+            list.add(entity);
+        });
+        return list;
     }
 
-    public List<TopNEntity> getEndpointTopN(final int serviceId, final String name, final int topN,
-        final Duration duration, final Order order) throws IOException {
-        long startTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getStart());
-        long endTimeBucket = DurationUtils.INSTANCE.exchangeToTimeBucket(duration.getEnd());
-
-        return getQueryService().getEndpointTopN(serviceId, name, topN, duration.getStep(), startTimeBucket, endTimeBucket, order);
+    public List<TopNEntity> getEndpointTopN(final String serviceId, final String name, final int topN,
+                                            final Duration duration, final Order order) throws IOException {
+        TopNCondition condition = new TopNCondition();
+        condition.setName(name);
+        condition.setScope(Scope.Endpoint);
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
+        condition.setParentService(serviceIDDefinition.getName());
+        condition.setNormal(true);
+        condition.setOrder(order);
+        condition.setTopN(topN);
+        List<TopNEntity> list = new ArrayList<>();
+        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+            TopNEntity entity = new TopNEntity(selectedRecord);
+            list.add(entity);
+        });
+        return list;
     }
 }

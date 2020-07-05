@@ -18,20 +18,33 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
+import java.util.Objects;
 
-/**
- * @author peng-yongsheng
- */
 public class ResourceUtils {
 
     public static Reader read(String fileName) throws FileNotFoundException {
+        return new InputStreamReader(readToStream(fileName));
+    }
+
+    public static InputStream readToStream(String fileName) throws FileNotFoundException {
         URL url = ResourceUtils.class.getClassLoader().getResource(fileName);
         if (url == null) {
             throw new FileNotFoundException("file not found: " + fileName);
         }
-        InputStream inputStream = ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
-        return new InputStreamReader(inputStream);
+        return ResourceUtils.class.getClassLoader().getResourceAsStream(fileName);
+    }
+
+    public static File[] getPathFiles(String path) throws FileNotFoundException {
+        URL url = ResourceUtils.class.getClassLoader().getResource(path);
+        if (url == null) {
+            throw new FileNotFoundException("path not found: " + path);
+        }
+        return Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path);
     }
 }

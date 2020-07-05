@@ -18,14 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.exporter;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.*;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * Export the metrics value from metrics through this service, if provider exists.
- *
- * @author wusheng
  */
 public interface MetricValuesExportService extends Service {
-    void export(MetricsMetaInfo meta, Metrics metrics);
+    /**
+     * This method is sync-mode export, the performance effects the persistence result. Queue mode is highly
+     * recommended.
+     *
+     * @param event value is only accurate when the method invokes. Don't cache it.
+     */
+    void export(ExportEvent event);
 }

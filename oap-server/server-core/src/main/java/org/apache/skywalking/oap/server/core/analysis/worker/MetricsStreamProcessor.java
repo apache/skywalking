@@ -18,25 +18,62 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.*;
-import org.apache.skywalking.oap.server.core.analysis.*;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
+import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.config.DownsamplingConfigService;
-import org.apache.skywalking.oap.server.core.storage.*;
-import org.apache.skywalking.oap.server.core.storage.model.*;
+import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
- * @author peng-yongsheng
+ * MetricsStreamProcessor represents the entrance and creator of the metrics streaming aggregation work flow.
+ *
+ * {@link #in(Metrics)} provides the major entrance for metrics streaming calculation.
+ *
+ * {@link #create(ModuleDefineHolder, Stream, Class)} creates the workers and work flow for every metrics.
  */
 public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
-
+    /**
+     * Singleton instance.
+     */
     private final static MetricsStreamProcessor PROCESSOR = new MetricsStreamProcessor();
 
+    /**
+     * Worker table hosts all entrance workers.
+     */
     private Map<Class<? extends Metrics>, MetricsAggregateWorker> entryWorkers = new HashMap<>();
-    @Getter private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+
+    /**
+     * Worker table hosts all persistent workers.
+     */
+    @Getter
+    private List<MetricsPersistentWorker> persistentWorkers = new ArrayList<>();
+
+    /**
+     * Hold and forward CoreModuleConfig#enableDatabaseSession to the persistent worker.
+     */
+    @Setter
+    @Getter
+    private boolean enableDatabaseSession;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -49,63 +86,110 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         }
     }
 
-    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) {
-        if (DisableRegister.INSTANCE.include(stream.name())) {
+    /**
+     * Create the workers and work flow for every metrics.
+     *
+     * @param moduleDefineHolder pointer of the module define.
+     * @param stream             definition of the metrics class.
+     * @param metricsClass       data type of the streaming calculation.
+     */
+    public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Metrics> metricsClass) throws StorageException {
+        this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void create(ModuleDefineHolder moduleDefineHolder,
+                       StreamDefinition stream,
+                       Class<? extends Metrics> metricsClass) throws StorageException {
+        if (DisableRegister.INSTANCE.include(stream.getName())) {
             return;
         }
 
         StorageDAO storageDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(StorageDAO.class);
         IMetricsDAO metricsDAO;
         try {
-            metricsDAO = storageDAO.newMetricsDao(stream.storage().builder().newInstance());
+            metricsDAO = storageDAO.newMetricsDao(stream.getBuilder().newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new UnexpectedException("Create " + stream.storage().builder().getSimpleName() + " metrics DAO failure.", e);
+            throw new UnexpectedException("Create " + stream.getBuilder().getSimpleName() + " metrics DAO failure.", e);
         }
 
-        IModelSetter modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(IModelSetter.class);
-        DownsamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(DownsamplingConfigService.class);
+        ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
+        DownSamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
+                                                                    .provider()
+                                                                    .getService(DownSamplingConfigService.class);
 
         MetricsPersistentWorker hourPersistentWorker = null;
         MetricsPersistentWorker dayPersistentWorker = null;
-        MetricsPersistentWorker monthPersistentWorker = null;
 
-        if (configService.shouldToHour()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Hour);
-            hourPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+        MetricsTransWorker transWorker = null;
+
+        final MetricsExtension metricsExtension = metricsClass.getAnnotation(MetricsExtension.class);
+        /**
+         * All metrics default are `supportDownSampling` and `insertAndUpdate`, unless it has explicit definition.
+         */
+        boolean supportDownSampling = true;
+        boolean supportUpdate = true;
+        if (metricsExtension != null) {
+            supportDownSampling = metricsExtension.supportDownSampling();
+            supportUpdate = metricsExtension.supportUpdate();
         }
-        if (configService.shouldToDay()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Day);
-            dayPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
-        }
-        if (configService.shouldToMonth()) {
-            Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Month);
-            monthPersistentWorker = worker(moduleDefineHolder, metricsDAO, model.getName());
+        if (supportDownSampling) {
+            if (configService.shouldToHour()) {
+                Model model = modelSetter.add(
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Hour), false);
+                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
+            }
+            if (configService.shouldToDay()) {
+                Model model = modelSetter.add(
+                    metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Day), false);
+                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
+            }
+
+            transWorker = new MetricsTransWorker(
+                moduleDefineHolder, stream.getName(), hourPersistentWorker, dayPersistentWorker);
         }
 
-        Model model = modelSetter.putIfAbsent(metricsClass, stream.name(), stream.scopeId(), stream.storage(), Downsampling.Minute);
-        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(moduleDefineHolder, metricsDAO, model.getName());
+        Model model = modelSetter.add(
+            metricsClass, stream.getScopeId(), new Storage(stream.getName(), DownSampling.Minute), false);
+        MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
+            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
 
-        MetricsTransWorker transWorker = new MetricsTransWorker(moduleDefineHolder, stream.name(), minutePersistentWorker, hourPersistentWorker, dayPersistentWorker, monthPersistentWorker);
-        MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, transWorker, stream.name());
-        MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(moduleDefineHolder, remoteWorker, stream.name());
+        String remoteReceiverWorkerName = stream.getName() + "_rec";
+        IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
+                                                                       .provider()
+                                                                       .getService(IWorkerInstanceSetter.class);
+        workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, metricsClass);
+
+        MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
+        MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
+            moduleDefineHolder, remoteWorker, stream.getName());
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }
 
-    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, String modelName) {
+    private MetricsPersistentWorker minutePersistentWorker(ModuleDefineHolder moduleDefineHolder,
+                                                           IMetricsDAO metricsDAO,
+                                                           Model model,
+                                                           MetricsTransWorker transWorker,
+                                                           boolean supportUpdate) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
 
-        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(moduleDefineHolder, modelName,
-            1000, metricsDAO, alarmNotifyWorker, exportWorker);
+        MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
+            moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker, enableDatabaseSession,
+            supportUpdate
+        );
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;
     }
 
-    private MetricsPersistentWorker worker(ModuleDefineHolder moduleDefineHolder, IMetricsDAO metricsDAO, String modelName) {
-        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(moduleDefineHolder, modelName,
-            1000, metricsDAO, null, null);
+    private MetricsPersistentWorker downSamplingWorker(ModuleDefineHolder moduleDefineHolder,
+                                                       IMetricsDAO metricsDAO,
+                                                       Model model,
+                                                       boolean supportUpdate) {
+        MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
+            moduleDefineHolder, model, metricsDAO, enableDatabaseSession, supportUpdate);
         persistentWorkers.add(persistentWorker);
 
         return persistentWorker;

@@ -20,40 +20,47 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.query.*;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * @author wusheng
+ * @since 8.0.0 This query is replaced by {@link MetricsQuery}, all queries have been delegated to there.
  */
+@Deprecated
 public class TopNRecordsQuery implements GraphQLQueryResolver {
-    private final ModuleManager moduleManager;
-    private TopNRecordsQueryService topNRecordsQueryService;
+    private MetricsQuery query;
 
     public TopNRecordsQuery(ModuleManager moduleManager) {
-        this.moduleManager = moduleManager;
-    }
-
-    private TopNRecordsQueryService getTopNRecordsQueryService() {
-        if (topNRecordsQueryService == null) {
-            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TopNRecordsQueryService.class);
-        }
-        return topNRecordsQueryService;
+        query = new MetricsQuery(moduleManager);
     }
 
     public List<TopNRecord> getTopNRecords(TopNRecordsCondition condition) throws IOException {
-        long startSecondTB = DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getStart());
-        long endSecondTB = DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(condition.getDuration().getStep(), condition.getDuration().getEnd());
+        TopNCondition topNCondition = new TopNCondition();
+        topNCondition.setName(condition.getMetricName());
+        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
+            condition.getServiceId());
+        topNCondition.setParentService(serviceIDDefinition.getName());
+        topNCondition.setNormal(serviceIDDefinition.isReal());
+        // Scope is not required in topN record query.
+        // topNCondition.setScope();
+        topNCondition.setOrder(condition.getOrder());
+        topNCondition.setTopN(condition.getTopN());
 
-        String metricName = condition.getMetricName();
-        Order order = condition.getOrder();
-        int topN = condition.getTopN();
-        int serviceId = condition.getServiceId();
-
-        return getTopNRecordsQueryService().getTopNRecords(startSecondTB, endSecondTB, metricName, serviceId, topN, order);
+        final List<SelectedRecord> selectedRecords = query.readSampledRecords(topNCondition, condition.getDuration());
+        List<TopNRecord> list = new ArrayList<>(selectedRecords.size());
+        selectedRecords.forEach(record -> {
+            TopNRecord top = new TopNRecord();
+            top.setStatement(record.getName());
+            top.setTraceId(record.getRefId());
+            top.setLatency(Long.parseLong(record.getValue()));
+            list.add(top);
+        });
+        return list;
     }
 }

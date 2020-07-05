@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: istio-mixer-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+
+env:
+  SCRIPTS_DIR: ./test/e2e-mesh/e2e-istio/scripts
+  LOG_DIR: /tmp/skywalking
+  INSTALL_SCRIPTS_DIR: ./install/deploy
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Prepare enviroment
+        run: |
+          bash ${SCRIPTS_DIR}/pre.sh
+          mkdir -p ${LOG_DIR}
+      - name: Compile all and Build docker image
+        run: bash ${SCRIPTS_DIR}/compile_build.sh
+      - name: Start minikube
+        run: bash ${SCRIPTS_DIR}/minikube.sh start > ${LOG_DIR}/minikube-start-log.txt 2>&1 &
+      - name: Wating minikube ready
+        run: bash ${SCRIPTS_DIR}/minikube.sh wait
+      - name: Setup tunnel
+        run: minikube tunnel --log_dir=${LOG_DIR} &
+      - name: Istio install
+        run: bash ${INSTALL_SCRIPTS_DIR}/istio-deploy.sh
+      - name: SW And ES install
+        run: bash ${INSTALL_SCRIPTS_DIR}/skywalking-deploy.sh
+      - name: Bookinfo demo install
+        run: bash ${INSTALL_SCRIPTS_DIR}/demo-deploy.sh
+      - uses: actions/upload-artifact@v1.0.0
+        if: always()
+        with:
+          name: logs
+          path: /tmp/skywalking

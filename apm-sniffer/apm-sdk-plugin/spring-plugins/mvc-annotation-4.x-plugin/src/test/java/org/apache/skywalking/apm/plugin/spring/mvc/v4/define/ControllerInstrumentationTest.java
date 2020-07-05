@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v4.define;
 
 import net.bytebuddy.matcher.ElementMatchers;
@@ -45,8 +44,7 @@ public class ControllerInstrumentationTest {
 
     @Test
     public void testGetEnhanceAnnotations() throws Throwable {
-        Assert.assertArrayEquals(new String[] {ControllerInstrumentation.ENHANCE_ANNOTATION},
-            controllerInstrumentation.getEnhanceAnnotations());
+        Assert.assertArrayEquals(new String[] {ControllerInstrumentation.ENHANCE_ANNOTATION}, controllerInstrumentation.getEnhanceAnnotations());
     }
 
     @Test

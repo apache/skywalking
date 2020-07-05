@@ -18,16 +18,18 @@
 
 package org.apache.skywalking.apm.plugin.jedis.v2;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.HostAndPort;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 
@@ -59,6 +61,29 @@ public class JedisClusterConstructorWithListHostAndPortArgInterceptorTest {
         interceptor.onConstruct(enhancedInstance, new Object[] {hostAndPortSet});
 
         verify(enhancedInstance).setSkyWalkingDynamicField("127.0.0.1:6379;127.0.0.1:16379;");
+    }
+
+    @Test
+    public void onHugeClusterConstruct() throws Exception {
+        hostAndPortSet = new LinkedHashSet<HostAndPort>();
+        for (int i = 0; i < 100; i++) {
+            hostAndPortSet.add(new HostAndPort("localhost", i));
+        }
+        enhancedInstance = new EnhancedInstance() {
+            private Object v;
+
+            @Override
+            public Object getSkyWalkingDynamicField() {
+                return v;
+            }
+
+            @Override
+            public void setSkyWalkingDynamicField(Object value) {
+                this.v = value;
+            }
+        };
+        interceptor.onConstruct(enhancedInstance, new Object[] {hostAndPortSet});
+        Assert.assertTrue(enhancedInstance.getSkyWalkingDynamicField().toString().length() == 200);
     }
 
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.resttemplate.async.define;
 
 import java.net.URI;
@@ -33,15 +32,14 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.ConstructorInterc
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and <code>getDefault</code>
- * method of <code>org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture</code> by
+ * {@link ResponseExtractorFutureInstrumentation} enhance the <code>addCallback</code> method and
+ * <code>getDefault</code> method of <code>org.springframework.web.client.AsyncRestTemplate$ResponseExtractorFuture</code>
+ * by
  * <code>ResponseCallBackInterceptor</code> and
  * <code>FutureGetInterceptor</code>.
- *
+ * <p>
  * {@link ResponseCallBackInterceptor} set the {@link URI} and {@link ContextSnapshot} to inherited
  * <code>org.springframework.util.concurrent.SuccessCallback</code> and <code>org.springframework.util.concurrent.FailureCallback</code>
- *
- * @author zhangxin
  */
 public class ResponseExtractorFutureInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -52,37 +50,43 @@ public class ResponseExtractorFutureInstrumentation extends ClassInstanceMethods
     private static final String GET_METHOD_NAME = "get";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
 
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(ADD_CALLBACK_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return ADD_CALLBACK_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             },
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named(GET_METHOD_NAME);
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return GET_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

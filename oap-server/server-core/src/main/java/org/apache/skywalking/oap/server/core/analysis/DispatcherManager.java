@@ -21,16 +21,18 @@ package org.apache.skywalking.oap.server.core.analysis;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.slf4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * @author peng-yongsheng, wusheng
- */
-public class DispatcherManager {
+public class DispatcherManager implements DispatcherDetectorListener {
 
     private static final Logger logger = LoggerFactory.getLogger(DispatcherManager.class);
 
@@ -53,6 +55,7 @@ public class DispatcherManager {
          * when the receiver is open, and oal script doesn't ask for analysis.
          */
         if (dispatchers != null) {
+            source.prepare();
             for (SourceDispatcher dispatcher : dispatchers) {
                 dispatcher.dispatch(source);
             }
@@ -61,13 +64,9 @@ public class DispatcherManager {
 
     /**
      * Scan all classes under `org.apache.skywalking` package,
-     *
+     * <p>
      * If it implement {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher}, then, it will be added
      * into this DispatcherManager based on the Source definition.
-     *
-     * @throws IOException
-     * @throws IllegalAccessException
-     * @throws InstantiationException
      */
     public void scan() throws IOException, IllegalAccessException, InstantiationException {
         ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());
@@ -75,39 +74,46 @@ public class DispatcherManager {
         for (ClassPath.ClassInfo classInfo : classes) {
             Class<?> aClass = classInfo.load();
 
-            if (!aClass.isInterface() && SourceDispatcher.class.isAssignableFrom(aClass)) {
-                Type[] genericInterfaces = aClass.getGenericInterfaces();
-                for (Type genericInterface : genericInterfaces) {
-                    ParameterizedType anInterface = (ParameterizedType)genericInterface;
-                    if (anInterface.getRawType().getTypeName().equals(SourceDispatcher.class.getName())) {
-                        Type[] arguments = anInterface.getActualTypeArguments();
+            addIfAsSourceDispatcher(aClass);
+        }
+    }
 
-                        if (arguments.length != 1) {
-                            throw new UnexpectedException("unexpected type argument number, class " + aClass.getName());
-                        }
-                        Type argument = arguments[0];
+    @Override
+    public void addIfAsSourceDispatcher(Class aClass) throws IllegalAccessException, InstantiationException {
+        if (!aClass.isInterface() && SourceDispatcher.class.isAssignableFrom(aClass)) {
+            Type[] genericInterfaces = aClass.getGenericInterfaces();
+            for (Type genericInterface : genericInterfaces) {
+                ParameterizedType anInterface = (ParameterizedType) genericInterface;
+                if (anInterface.getRawType().getTypeName().equals(SourceDispatcher.class.getName())) {
+                    Type[] arguments = anInterface.getActualTypeArguments();
 
-                        Object source = ((Class)argument).newInstance();
-
-                        if (!Source.class.isAssignableFrom(source.getClass())) {
-                            throw new UnexpectedException("unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.source.Source`. ");
-                        }
-
-                        Source dispatcherSource = (Source)source;
-                        SourceDispatcher dispatcher = (SourceDispatcher)aClass.newInstance();
-
-                        int scopeId = dispatcherSource.scope();
-
-                        List<SourceDispatcher> dispatchers = this.dispatcherMap.get(scopeId);
-                        if (dispatchers == null) {
-                            dispatchers = new ArrayList<>();
-                            this.dispatcherMap.put(scopeId, dispatchers);
-                        }
-
-                        dispatchers.add(dispatcher);
-
-                        logger.info("Dispatcher {} is added into DefaultScopeDefine {}.", dispatcher.getClass().getName(), scopeId);
+                    if (arguments.length != 1) {
+                        throw new UnexpectedException("unexpected type argument number, class " + aClass.getName());
                     }
+                    Type argument = arguments[0];
+
+                    Object source = ((Class) argument).newInstance();
+
+                    if (!Source.class.isAssignableFrom(source.getClass())) {
+                        throw new UnexpectedException(
+                            "unexpected type argument of class " + aClass.getName() + ", should be `org.apache.skywalking.oap.server.core.source.Source`. ");
+                    }
+
+                    Source dispatcherSource = (Source) source;
+                    SourceDispatcher dispatcher = (SourceDispatcher) aClass.newInstance();
+
+                    int scopeId = dispatcherSource.scope();
+
+                    List<SourceDispatcher> dispatchers = this.dispatcherMap.get(scopeId);
+                    if (dispatchers == null) {
+                        dispatchers = new ArrayList<>();
+                        this.dispatcherMap.put(scopeId, dispatchers);
+                    }
+
+                    dispatchers.add(dispatcher);
+
+                    logger.info("Dispatcher {} is added into DefaultScopeDefine {}.", dispatcher.getClass()
+                                                                                                .getName(), scopeId);
                 }
             }
         }

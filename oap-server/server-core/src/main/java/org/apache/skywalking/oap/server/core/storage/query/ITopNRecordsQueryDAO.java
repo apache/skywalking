@@ -20,10 +20,20 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.entity.*;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.module.Service;
 
+/**
+ * Query the records sampled by {@link Stream} = {@link TopNStreamProcessor}
+ *
+ * @since 8.0.0
+ */
 public interface ITopNRecordsQueryDAO extends Service {
-    List<TopNRecord> getTopNRecords(long startSecondTB, long endSecondTB, String metricName, int serviceId,
-        int topN, Order order) throws IOException;
+    List<SelectedRecord> readSampledRecords(TopNCondition condition,
+                                            final String valueColumnName,
+                                            Duration duration) throws IOException;
 }

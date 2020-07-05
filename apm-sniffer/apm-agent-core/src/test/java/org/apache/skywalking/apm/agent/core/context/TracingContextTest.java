@@ -19,48 +19,62 @@
 package org.apache.skywalking.apm.agent.core.context;
 
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
-import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
-import org.apache.skywalking.apm.agent.core.context.trace.*;
-import org.junit.*;
+import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
+import org.apache.skywalking.apm.agent.core.test.tools.AgentServiceRule;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class TracingContextTest {
+    @Rule
+    public AgentServiceRule serviceRule = new AgentServiceRule();
+
     @BeforeClass
-    public static void setup() {
-        ServiceManager.INSTANCE.boot();
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 5;
+    public static void beforeClass() {
+        Config.Agent.KEEP_TRACING = true;
     }
 
     @AfterClass
-    public static void clear() {
-        RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID = 0;
+    public static void afterClass() {
+        Config.Agent.KEEP_TRACING = false;
         ServiceManager.INSTANCE.shutdown();
     }
 
     @Test
     public void testSpanLimit() {
         final boolean[] dataReceived = {false};
-        TracingContext.ListenerManager.add(new TracingContextListener() {
-            @Override public void afterFinished(TraceSegment traceSegment) {
+        TracingContextListener listener = new TracingContextListener() {
+            @Override
+            public void afterFinished(TraceSegment traceSegment) {
                 dataReceived[0] = true;
             }
-        });
-        TracingContext tracingContext = new TracingContext();
-        AbstractSpan span = tracingContext.createEntrySpan("/url");
+        };
+        TracingContext.ListenerManager.add(listener);
+        try {
+            TracingContext tracingContext = new TracingContext("/url");
+            AbstractSpan span = tracingContext.createEntrySpan("/url");
 
-        for (int i = 0; i < 10; i++) {
-            AbstractSpan localSpan = tracingContext.createLocalSpan("/java-bean");
+            for (int i = 0; i < 10; i++) {
+                AbstractSpan localSpan = tracingContext.createLocalSpan("/java-bean");
 
-            for (int j = 0; j < 100; j++) {
-                AbstractSpan exitSpan = tracingContext.createExitSpan("/redis","localhost");
-                tracingContext.stopSpan(exitSpan);
+                for (int j = 0; j < 100; j++) {
+                    AbstractSpan exitSpan = tracingContext.createExitSpan("/redis", "localhost");
+                    tracingContext.stopSpan(exitSpan);
+                }
+
+                tracingContext.stopSpan(localSpan);
             }
 
-            tracingContext.stopSpan(localSpan);
+            tracingContext.stopSpan(span);
+
+            Assert.assertTrue(dataReceived[0]);
+        } finally {
+            TracingContext.ListenerManager.remove(listener);
         }
-
-        tracingContext.stopSpan(span);
-
-
-        Assert.assertTrue(dataReceived[0]);
     }
+
 }

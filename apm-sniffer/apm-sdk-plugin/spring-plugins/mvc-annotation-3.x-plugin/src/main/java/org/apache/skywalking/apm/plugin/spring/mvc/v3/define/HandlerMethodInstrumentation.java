@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.mvc.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -32,8 +31,6 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 /**
  * {@link HandlerMethodInstrumentation} intercept the <code>getBean</code> method in the
  * <code>org.springframework.web.method.HandlerMethod</code> class.
- *
- * @author zhangxin
  */
 public class HandlerMethodInstrumentation extends AbstractSpring3Instrumentation {
 
@@ -41,12 +38,12 @@ public class HandlerMethodInstrumentation extends AbstractSpring3Instrumentation
     public static final String ENHANCE_CLASS = "org.springframework.web.method.HandlerMethod";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override

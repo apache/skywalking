@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.esjob.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -31,8 +30,6 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 
 /**
  * {@link JobExecutorInstrumentation} presents that skywalking intercepts {@link com.dangdang.ddframe.job.executor.AbstractElasticJobExecutor}.
- * 
- * @author gaohongtao
  */
 public class JobExecutorInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -40,30 +37,36 @@ public class JobExecutorInstrumentation extends ClassInstanceMethodsEnhancePlugi
 
     private static final String JOB_EXECUTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.esjob.JobExecutorInterceptor";
 
-    @Override protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
-        return new InstanceMethodsInterceptPoint[]{
+    @Override
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+        return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
 
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return takesArgumentWithType(2, "com.dangdang.ddframe.job.event.type.JobExecutionEvent");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return JOB_EXECUTOR_INTERCEPTOR_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }
         };
     }
 
-    @Override protected ClassMatch enhanceClass() {
+    @Override
+    protected ClassMatch enhanceClass() {
         return byName(ENHANCE_CLASS);
     }
 }

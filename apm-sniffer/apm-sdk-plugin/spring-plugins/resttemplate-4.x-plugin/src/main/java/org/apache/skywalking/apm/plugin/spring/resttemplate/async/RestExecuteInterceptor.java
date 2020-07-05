@@ -34,23 +34,26 @@ import org.apache.skywalking.apm.plugin.spring.commons.EnhanceCacheObjects;
 import org.springframework.http.HttpMethod;
 
 public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor {
-
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        final URI requestURL = (URI)allArguments[0];
-        final HttpMethod httpMethod = (HttpMethod)allArguments[1];
+        final URI requestURL = (URI) allArguments[0];
+        final HttpMethod httpMethod = (HttpMethod) allArguments[1];
         final ContextCarrier contextCarrier = new ContextCarrier();
 
-        String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL.getScheme()) ? 443 : 80);
-        AbstractSpan span = ContextManager.createExitSpan(requestURL.getPath(), contextCarrier, remotePeer);
+        String remotePeer = requestURL.getHost() + ":" + (requestURL.getPort() > 0 ? requestURL.getPort() : "https".equalsIgnoreCase(requestURL
+            .getScheme()) ? 443 : 80);
+
+        String formatURIPath = requestURL.getPath();
+        AbstractSpan span = ContextManager.createExitSpan(formatURIPath, contextCarrier, remotePeer);
 
         span.setComponent(ComponentsDefine.SPRING_REST_TEMPLATE);
-        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL.getPath());
+        Tags.URL.set(span, requestURL.getScheme() + "://" + requestURL.getHost() + ":" + requestURL.getPort() + requestURL
+            .getPath());
         Tags.HTTP.METHOD.set(span, httpMethod.toString());
         SpanLayer.asHttp(span);
         Object[] cacheValues = new Object[3];
-        cacheValues[0] = requestURL;
+        cacheValues[0] = formatURIPath;
         cacheValues[1] = contextCarrier;
         objInst.setSkyWalkingDynamicField(cacheValues);
     }
@@ -58,17 +61,18 @@ public class RestExecuteInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        Object[] cacheValues = (Object[])objInst.getSkyWalkingDynamicField();
+        Object[] cacheValues = (Object[]) objInst.getSkyWalkingDynamicField();
         cacheValues[2] = ContextManager.capture();
         if (ret != null) {
-            URI uri = (URI)cacheValues[0];
-            ((EnhancedInstance)ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri.getPath(), ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, (ContextSnapshot)cacheValues[2]));
+            String uri = (String) cacheValues[0];
+            ((EnhancedInstance) ret).setSkyWalkingDynamicField(new EnhanceCacheObjects(uri, ComponentsDefine.SPRING_REST_TEMPLATE, SpanLayer.HTTP, (ContextSnapshot) cacheValues[2]));
         }
         ContextManager.stopSpan();
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
         ContextManager.activeSpan().errorOccurred().log(t);
     }

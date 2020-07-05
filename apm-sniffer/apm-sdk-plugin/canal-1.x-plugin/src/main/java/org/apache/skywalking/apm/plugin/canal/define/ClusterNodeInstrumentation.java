@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
- 
+
 package org.apache.skywalking.apm.plugin.canal.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -28,23 +28,21 @@ import org.apache.skywalking.apm.agent.core.plugin.match.MultiClassNameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.any;
 
-
-/**
- * @author withlin
- */
 public class ClusterNodeInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
     public static final String ENHANCE_CLASS = "com.alibaba.otter.canal.client.impl.ClusterNodeAccessStrategy";
     public static final String CONSTRUCTOR_INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.canal.ClusterNodeConstructInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return CONSTRUCTOR_INTERCEPTOR_CLASS;
                 }
             }
@@ -52,7 +50,7 @@ public class ClusterNodeInstrumentation extends ClassInstanceMethodsEnhancePlugi
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

@@ -18,8 +18,32 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser;
 
+/**
+ * Reserved keys of the span. The backend analysis the metrics according the existed tags.
+ */
 public class SpanTags {
+    public static final String STATUS_CODE = "status_code";
+
     public static final String DB_STATEMENT = "db.statement";
 
     public static final String DB_TYPE = "db.type";
+
+    /**
+     * Tag, x-le(extension logic endpoint) series tag. Value is JSON format.
+     * <pre>
+     * {
+     *   "name": "GraphQL-service",
+     *   "latency": 100,
+     *   "status": true
+     * }
+     * </pre>
+     *
+     * Also, could use value to indicate this local span is representing a logic endpoint.
+     * <pre>
+     * {
+     *   "logic-span": true
+     * }
+     * </pre>
+     */
+    public static final String LOGIC_ENDPOINT = "x-le";
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spymemcached.v2.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -34,12 +33,10 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArgument;
 
 /**
- * {@link MemcachedInstrumentation} presents that skywalking intercept all constructors and methods of
- * {@link net.spy.memcached.MemcachedClient}.
+ * {@link MemcachedInstrumentation} presents that skywalking intercept all constructors and methods of {@link
+ * net.spy.memcached.MemcachedClient}.
  * <code>MemcachedConstructorWithInetSocketAddressListArgInterceptor</code> intercepts the constructor with
  * argument {@link java.net.InetSocketAddress}.
- *
- * @author IluckySi
  */
 public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -53,7 +50,7 @@ public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginD
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -70,18 +67,32 @@ public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginD
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
                 public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named("touch").or(named("append")).or(named("prepend")).or(named("asyncCAS"))
-                        .or(named("cas")).or(named("add")).or(named("set")).or(named("replace"))
-                        .or(named("asyncGet")).or(named("asyncGets")).or(named("gets")).or(named("getAndTouch"))
-                        .or(named("get")).or(named("asyncGetBulk")).or(named("asyncGetAndTouch"))
-                        .or(named("getBulk")).or(named("getStats")).or(named("incr"))
-                        .or(named("decr")).or(named("asyncIncr")).or(named("asyncDecr"))
-                        .or(named("delete"));
+                    return named("touch").or(named("append"))
+                                         .or(named("prepend"))
+                                         .or(named("asyncCAS"))
+                                         .or(named("cas"))
+                                         .or(named("add"))
+                                         .or(named("set"))
+                                         .or(named("replace"))
+                                         .or(named("asyncGet"))
+                                         .or(named("asyncGets"))
+                                         .or(named("gets"))
+                                         .or(named("getAndTouch"))
+                                         .or(named("get"))
+                                         .or(named("asyncGetBulk"))
+                                         .or(named("asyncGetAndTouch"))
+                                         .or(named("getBulk"))
+                                         .or(named("getStats"))
+                                         .or(named("incr"))
+                                         .or(named("decr"))
+                                         .or(named("asyncIncr"))
+                                         .or(named("asyncDecr"))
+                                         .or(named("delete"));
                 }
 
                 @Override
@@ -89,7 +100,8 @@ public class MemcachedInstrumentation extends ClassInstanceMethodsEnhancePluginD
                     return METHOD_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

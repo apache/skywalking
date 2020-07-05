@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
-/**
- * @author peng-yongsheng
- */
 public abstract class BaseCommand {
 
     private final String command;

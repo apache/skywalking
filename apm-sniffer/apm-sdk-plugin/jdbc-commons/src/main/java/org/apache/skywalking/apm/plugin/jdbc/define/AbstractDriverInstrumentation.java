@@ -31,12 +31,12 @@ public abstract class AbstractDriverInstrumentation extends ClassInstanceMethods
     private static final String DRIVER_INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.jdbc.JDBCDriverInterceptor";
 
     @Override
-    protected final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public final ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
     @Override
-    protected final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public final InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
                 @Override
@@ -49,7 +49,8 @@ public abstract class AbstractDriverInstrumentation extends ClassInstanceMethods
                     return DRIVER_INTERCEPT_CLASS;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

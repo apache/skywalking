@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.opentracing.continuation;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -33,12 +32,10 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 /**
  * {@link SkywalkingContinuationActivation} defines two interceptors to enhance the methods and constructor in class
  * <code>SkywalkingContinuation</code>.
- *
- * 1. The <code>ConstructorInterceptor</code>
- * interceptor enhance the constructor.
- *
- * 2. The <code>ActivateInterceptor</code>
- * interceptor enhance the <code>activate</code>.
+ * <p>
+ * 1. The <code>ConstructorInterceptor</code> interceptor enhance the constructor.
+ * <p>
+ * 2. The <code>ActivateInterceptor</code> interceptor enhance the <code>activate</code>.
  */
 public class SkywalkingContinuationActivation extends ClassInstanceMethodsEnhancePluginDefine {
 
@@ -52,14 +49,16 @@ public class SkywalkingContinuationActivation extends ClassInstanceMethodsEnhanc
     }
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getConstructorMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getConstructorMatcher() {
                     return any();
                 }
 
-                @Override public String getConstructorInterceptor() {
+                @Override
+                public String getConstructorInterceptor() {
                     return CONSTRUCTOR_INTERCEPTOR;
                 }
             }
@@ -67,18 +66,21 @@ public class SkywalkingContinuationActivation extends ClassInstanceMethodsEnhanc
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
             new InstanceMethodsInterceptPoint() {
-                @Override public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                @Override
+                public ElementMatcher<MethodDescription> getMethodsMatcher() {
                     return named("activate");
                 }
 
-                @Override public String getMethodsInterceptor() {
+                @Override
+                public String getMethodsInterceptor() {
                     return ACTIVATE_METHOD_INTERCEPTOR;
                 }
 
-                @Override public boolean isOverrideArgs() {
+                @Override
+                public boolean isOverrideArgs() {
                     return false;
                 }
             }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.spring.resttemplate.sync;
 
 import java.lang.reflect.Method;
@@ -39,10 +38,10 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        ClientHttpRequest clientHttpRequest = (ClientHttpRequest)ret;
+        ClientHttpRequest clientHttpRequest = (ClientHttpRequest) ret;
         if (clientHttpRequest instanceof AbstractClientHttpRequest) {
-            AbstractClientHttpRequest httpRequest = (AbstractClientHttpRequest)clientHttpRequest;
-            ContextCarrier contextCarrier = (ContextCarrier)objInst.getSkyWalkingDynamicField();
+            AbstractClientHttpRequest httpRequest = (AbstractClientHttpRequest) clientHttpRequest;
+            ContextCarrier contextCarrier = (ContextCarrier) objInst.getSkyWalkingDynamicField();
             CarrierItem next = contextCarrier.items();
             while (next.hasNext()) {
                 next = next.next();
@@ -52,7 +51,8 @@ public class RestRequestInterceptor implements InstanceMethodsAroundInterceptor 
         return ret;
     }
 
-    @Override public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
+    @Override
+    public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
 
     }

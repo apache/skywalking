@@ -20,12 +20,9 @@ package org.apache.skywalking.oap.server.library.client;
 
 import java.io.IOException;
 
-/**
- * @author peng-yongsheng
- */
 public interface Client {
 
-    void connect() throws IOException;
+    void connect() throws Exception;
 
     void shutdown() throws IOException;
 }

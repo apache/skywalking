@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.agent.core.logging.core;
 
 import org.junit.AfterClass;
@@ -26,18 +25,21 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.Constants;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
-/**
- * @author wusheng
- */
+import static org.junit.Assert.assertEquals;
+
 public class FileWriterTest {
 
     @BeforeClass
     public static void beforeTestFile() throws IOException {
         Config.Logging.MAX_FILE_SIZE = 10;
-        File directory = new File("");
-        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "/log-test/";
+        File directory = new File(System.getProperty("java.io.tmpdir", "/tmp"));
+        String dirName4Unique = UUID.randomUUID().toString();
+        Config.Logging.DIR = directory.getCanonicalPath() + Constants.PATH_SEPARATOR + "log-test_" + dirName4Unique;
     }
 
     @Test
@@ -50,6 +52,27 @@ public class FileWriterTest {
         Thread.sleep(10000L);
     }
 
+    @Test
+    public void testDeleteWhenRollover() throws InterruptedException {
+        Config.Logging.MAX_HISTORY_FILES = 3;
+        FileWriter writer = FileWriter.get();
+        for (int i = 0; i < 4; i++) {
+            writer.write("abcdefghij");
+            Thread.sleep(1000);
+        }
+
+        final Pattern filenamePattern = Pattern.compile(Config.Logging.FILE_NAME + "\\.\\d{4}_\\d{2}_\\d{2}_\\d{2}_\\d{2}_\\d{2}");
+        File path = new File(Config.Logging.DIR);
+        String[] pathArr = path.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return filenamePattern.matcher(name).matches();
+            }
+        });
+
+        assertEquals(3, pathArr.length);
+    }
+
     @AfterClass
     public static void clear() {
         Config.Logging.MAX_FILE_SIZE = 300 * 1024 * 1024;
@@ -57,16 +80,13 @@ public class FileWriterTest {
         Config.Logging.DIR = "";
     }
 
-    private static boolean deleteDir(File dir) {
+    private static void deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
+                deleteDir(new File(dir, children[i]));
             }
         }
-        return dir.delete();
+        dir.delete();
     }
 }

@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.plugin.redisson.v3.define;
 
 import net.bytebuddy.description.method.MethodDescription;
@@ -29,9 +28,6 @@ import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import static net.bytebuddy.matcher.ElementMatchers.any;
 import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName;
 
-/**
- * @author zhaoyuguang
- */
 public class RedisClientInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "org.redisson.client.RedisClient";
@@ -39,7 +35,7 @@ public class RedisClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
     private static final String REDIS_CLIENT_CONSTRUCTOR_INTERCEPTOR = "org.apache.skywalking.apm.plugin.redisson.v3.RedisClientConstructorInterceptor";
 
     @Override
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[] {
             new ConstructorInterceptPoint() {
                 @Override
@@ -56,7 +52,7 @@ public class RedisClientInstrumentation extends ClassInstanceMethodsEnhancePlugi
     }
 
     @Override
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[0];
     }
 

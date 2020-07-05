@@ -18,14 +18,18 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import org.apache.skywalking.aop.server.receiver.mesh.MeshReceiverModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.*;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
-/**
- * @author wusheng
- */
 public class EnvoyMetricReceiverProvider extends ModuleProvider {
     private final EnvoyMetricReceiverConfig config;
 
@@ -33,33 +37,54 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
         config = new EnvoyMetricReceiverConfig();
     }
 
-    @Override public String name() {
+    @Override
+    public String name() {
         return "default";
     }
 
-    @Override public Class<? extends ModuleDefine> module() {
+    @Override
+    public Class<? extends ModuleDefine> module() {
         return EnvoyMetricReceiverModule.class;
     }
 
-    @Override public ModuleConfig createConfigBeanIfAbsent() {
+    @Override
+    public ModuleConfig createConfigBeanIfAbsent() {
         return config;
     }
 
-    @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public void start() throws ServiceNotProvidedException, ModuleStartException {
-        GRPCHandlerRegister service = getManager().find(CoreModule.NAME).provider().getService(GRPCHandlerRegister.class);
-        service.addHandler(new MetricServiceGRPCHandler(getManager()));
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
+        GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
+                                                  .provider()
+                                                  .getService(GRPCHandlerRegister.class);
+        if (config.isAcceptMetricsService()) {
+            getManager().find(CoreModule.NAME)
+                        .provider()
+                        .getService(OALEngineLoaderService.class)
+                        .load(EnvoyOALDefine.INSTANCE);
+
+            service.addHandler(new MetricServiceGRPCHandler(getManager()));
+        }
         service.addHandler(new AccessLogServiceGRPCHandler(getManager(), config));
     }
 
-    @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    @Override
+    public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 
-    @Override public String[] requiredModules() {
-        return new String[] {TelemetryModule.NAME, CoreModule.NAME};
+    @Override
+    public String[] requiredModules() {
+        return new String[] {
+            TelemetryModule.NAME,
+            CoreModule.NAME,
+            SharingServerModule.NAME,
+            MeshReceiverModule.NAME
+        };
     }
 }

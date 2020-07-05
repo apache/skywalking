@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.apm.network.trace.component.command;
 
-import org.apache.skywalking.apm.network.common.*;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 /**
  * Trace ignore sync, each configuration downstream is the full amount of data related to the received agent.
- *
- * @author peng-yongsheng
  */
 public class TraceIgnoreCommand extends BaseCommand implements Serializable {
 
@@ -31,7 +30,8 @@ public class TraceIgnoreCommand extends BaseCommand implements Serializable {
         super("TraceIgnore", serialNumber);
     }
 
-    @Override public Command.Builder serialize() {
+    @Override
+    public Command.Builder serialize() {
         return commandBuilder();
     }
 

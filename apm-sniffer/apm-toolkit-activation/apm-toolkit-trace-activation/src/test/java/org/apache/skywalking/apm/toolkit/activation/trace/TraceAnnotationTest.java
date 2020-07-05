@@ -16,11 +16,11 @@
  *
  */
 
-
 package org.apache.skywalking.apm.toolkit.activation.trace;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.TraceSegment;
 import org.apache.skywalking.apm.agent.core.context.util.TagValuePair;
@@ -32,6 +32,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
+import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,8 +67,14 @@ public class TraceAnnotationTest {
     public void setUp() throws Exception {
         methodInterceptor = new TraceAnnotationMethodInterceptor();
         tagInterceptor = new ActiveSpanTagInterceptor();
-        tagParameters = new Object[] {"testTagKey", "testTagValue"};
-        tagParameterTypes = new Class[] {String.class, String.class};
+        tagParameters = new Object[] {
+            "testTagKey",
+            "testTagValue"
+        };
+        tagParameterTypes = new Class[] {
+            String.class,
+            String.class
+        };
     }
 
     @Test
@@ -93,10 +100,12 @@ public class TraceAnnotationTest {
     }
 
     @Test
-    public void testTrace() throws Throwable {
-        Method withOperationNameMethod = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithDefaultValue");
-        methodInterceptor.beforeMethod(enhancedInstance, withOperationNameMethod, null, null, null);
-        methodInterceptor.afterMethod(enhancedInstance, withOperationNameMethod, null, null, null);
+    public void testTraceWithTag() throws Throwable {
+        Method testMethodWithTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithTag", String.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithTag, new Object[]{"zhangsan"}, null, null);
+        tagInterceptor.beforeMethod(TestAnnotationMethodClass.class, testMethodWithTag, tagParameters, tagParameterTypes, null);
+        tagInterceptor.afterMethod(TestAnnotationMethodClass.class, testMethodWithTag, tagParameters, tagParameterTypes, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithTag, null, null, null);
 
         assertThat(storage.getTraceSegments().size(), is(1));
         TraceSegment traceSegment = storage.getTraceSegments().get(0);
@@ -104,7 +113,51 @@ public class TraceAnnotationTest {
         assertThat(spans.size(), is(1));
 
         AbstractTracingSpan tracingSpan = spans.get(0);
-        assertThat(tracingSpan.getOperationName(), is(TestAnnotationMethodClass.class.getName() + "." + withOperationNameMethod.getName() + "()"));
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 2);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+        assertThat(tags.get(0).getKey().key(), is("username"));
+        assertThat(tags.get(0).getValue(), is("zhangsan"));
+        assertThat(tags.get(1).getKey().key(), is("testTagKey"));
+        assertThat(tags.get(1).getValue(), is("testTagValue"));
+    }
+
+    @Test
+    public void testTraceWithReturnTag() throws Throwable {
+        Method testMethodWithReturnTag = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnTag", String.class, Integer.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnTag, new Object[]{"lisi", 14}, null, null);
+        tagInterceptor.beforeMethod(TestAnnotationMethodClass.class, testMethodWithReturnTag, tagParameters, tagParameterTypes, null);
+        tagInterceptor.afterMethod(TestAnnotationMethodClass.class, testMethodWithReturnTag, tagParameters, tagParameterTypes, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnTag, null, null, new User("lisi", 14));
+
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is("testMethod"));
+        SpanAssert.assertLogSize(tracingSpan, 0);
+        SpanAssert.assertTagSize(tracingSpan, 2);
+        List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
+        assertThat(tags.get(0).getKey().key(), is("testTagKey"));
+        assertThat(tags.get(0).getValue(), is("testTagValue"));
+        assertThat(tags.get(1).getKey().key(), is("username"));
+        assertThat(tags.get(1).getValue(), is("lisi"));
+    }
+
+    @Test
+    public void testTrace() throws Throwable {
+        Method testMethodWithDefaultValue = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithDefaultValue");
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithDefaultValue, null, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithDefaultValue, null, null, null);
+
+        assertThat(storage.getTraceSegments().size(), is(1));
+        TraceSegment traceSegment = storage.getTraceSegments().get(0);
+        List<AbstractTracingSpan> spans = SegmentHelper.getSpans(traceSegment);
+        assertThat(spans.size(), is(1));
+        AbstractTracingSpan tracingSpan = spans.get(0);
+        assertThat(tracingSpan.getOperationName(), is(TestAnnotationMethodClass.class.getName() + "." + testMethodWithDefaultValue.getName() + "()"));
         SpanAssert.assertLogSize(tracingSpan, 0);
         SpanAssert.assertTagSize(tracingSpan, 0);
     }
@@ -114,8 +167,25 @@ public class TraceAnnotationTest {
         public void testMethodWithOperationName() {
         }
 
+        @Trace(operationName = "testMethod")
+        @Tag(key = "username", value = "arg[0]")
+        public void testMethodWithTag(String username) {
+        }
+
+        @Trace(operationName = "testMethod")
+        @Tag(key = "username", value = "returnedObj.username")
+        public User testMethodWithReturnTag(String username, Integer age) {
+            return new User(username, age);
+        }
+
         @Trace
         public void testMethodWithDefaultValue() {
         }
+    }
+
+    @AllArgsConstructor
+    private class User {
+        private String username;
+        private Integer age;
     }
 }

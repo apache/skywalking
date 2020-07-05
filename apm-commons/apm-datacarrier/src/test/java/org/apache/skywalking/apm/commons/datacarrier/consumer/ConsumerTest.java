@@ -16,7 +16,6 @@
  *
  */
 
-
 package org.apache.skywalking.apm.commons.datacarrier.consumer;
 
 import java.util.ArrayList;
@@ -29,9 +28,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.support.membermodification.MemberModifier;
 
-/**
- * Created by wusheng on 2016/10/26.
- */
 public class ConsumerTest {
     public static LinkedBlockingQueue<SampleData> BUFFER = new LinkedBlockingQueue<SampleData>();
 
@@ -48,12 +44,12 @@ public class ConsumerTest {
 
         consumer.i = 100;
         carrier.consume(SampleConsumer.class, 1);
-        Assert.assertEquals(1, ((SampleConsumer)getConsumer(carrier)).i);
+        Assert.assertEquals(1, ((SampleConsumer) getConsumer(carrier)).i);
 
         SampleConsumer2 consumer2 = new SampleConsumer2();
         consumer2.i = 100;
         carrier.consume(consumer2, 1);
-        Assert.assertEquals(100, ((SampleConsumer2)getConsumer(carrier)).i);
+        Assert.assertEquals(100, ((SampleConsumer2) getConsumer(carrier)).i);
 
         carrier.shutdownConsumers();
     }
@@ -80,7 +76,7 @@ public class ConsumerTest {
         for (SampleData data : result) {
             consumerCounter.add(data.getIntValue());
         }
-        Assert.assertEquals(5, consumerCounter.size());
+        Assert.assertEquals(2, consumerCounter.size());
     }
 
     @Test
@@ -129,9 +125,10 @@ public class ConsumerTest {
     }
 
     private IConsumer getConsumer(DataCarrier<SampleData> carrier) throws IllegalAccessException {
-        ConsumeDriver pool = (ConsumeDriver)MemberModifier.field(DataCarrier.class, "driver").get(carrier);
-        ConsumerThread[] threads = (ConsumerThread[])MemberModifier.field(ConsumeDriver.class, "consumerThreads").get(pool);
+        ConsumeDriver pool = (ConsumeDriver) MemberModifier.field(DataCarrier.class, "driver").get(carrier);
+        ConsumerThread[] threads = (ConsumerThread[]) MemberModifier.field(ConsumeDriver.class, "consumerThreads")
+                                                                    .get(pool);
 
-        return (IConsumer)MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);
+        return (IConsumer) MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);
     }
 }
