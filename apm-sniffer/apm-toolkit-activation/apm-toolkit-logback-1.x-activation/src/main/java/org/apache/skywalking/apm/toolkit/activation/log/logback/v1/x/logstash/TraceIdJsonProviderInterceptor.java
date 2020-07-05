@@ -35,6 +35,9 @@ public class TraceIdJsonProviderInterceptor implements InstanceMethodsAroundInte
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
+        if (ret != null && !"N/A".equals(ret)) {
+            return ret;
+        }
         if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
             String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
             if (tid != null) {
