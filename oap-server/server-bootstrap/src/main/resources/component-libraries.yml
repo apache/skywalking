@@ -305,6 +305,9 @@ influxdb-java:
 brpc-java:
   id: 91
   languages: Java
+GraphQL:
+  id: 92
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -394,6 +397,12 @@ Nginx:
 # [7000, 8000) are reserved for Python components
 Python:
   id: 7000
+  languages: Python
+Flask:
+  id: 7001
+  languages: Python
+Requests:
+  id: 7002
   languages: Python
 
 
