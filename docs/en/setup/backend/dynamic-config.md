@@ -43,7 +43,6 @@ configuration:
 ```
 
 ## Dynamic Configuration Zookeeper Implementation
- ### Configure the dynamic configuration of skywalking server
 [Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
@@ -57,8 +56,8 @@ configuration:
     baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
 ```
- ### Configure the dynamic configuration of zookeeper server
- In order to make the dynamic configuration effective you need to configure the zookeeper server, if the UI of zookeeper is using zk-web, you need to add an Property in zk-ui, the Property name is the key of dynamic configuration, and the Property value is the value of dynamic configuration, after adding, click Save Property. If other zookeeper ui is used, the principle is similar.
+
+The **nameSpace** is the ZooKeeper path. The config key and value are the properties of the `namespace` folder.
 
 ## Dynamic Configuration Etcd Implementation
 
