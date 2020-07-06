@@ -102,3 +102,16 @@ configuration:
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
     period: ${SW_CONFIG_APOLLO_PERIOD:5}
 ```
+
+## Dynamic Configuration Kuberbetes Configmap Implementation
+
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as DCC(Dynamic Configuration Center), to use it, just configured as follows:
+
+```yaml
+configuration:
+  selector: ${SW_CONFIGURATION:configmap}
+  configmap:
+      period: ${SW_CONFIG_CONSUL_PERIOD:60}
+      namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+      labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+```
