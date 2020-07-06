@@ -115,12 +115,12 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-kafka-receiver-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency      
+        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>opencensus-receiver-plugin</artifactId>
             <version>${project.version}</version>
-        </dependency
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
