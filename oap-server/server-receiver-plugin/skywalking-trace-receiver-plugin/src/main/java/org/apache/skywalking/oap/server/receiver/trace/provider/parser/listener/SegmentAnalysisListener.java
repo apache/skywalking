@@ -176,7 +176,7 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
 
         public Factory(ModuleManager moduleManager, TraceServiceModuleConfig config) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-            this.sampler = new TraceSegmentSampler(config);
+            this.sampler = new TraceSegmentSampler(config.getTraceSampleRateWatcher());
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
