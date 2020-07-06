@@ -92,6 +92,7 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.jetty.JettyServer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
  * Core module provider includes the recommended and default implementations of {@link CoreModule#services()}. All
@@ -282,14 +283,15 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
+        Address gRPCServerInstanceAddress = new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
+        TelemetryRelatedContext.INSTANCE.setId(gRPCServerInstanceAddress.toString());
         if (CoreModuleConfig.Role.Mixed.name()
                 .equalsIgnoreCase(
                         moduleConfig.getRole())
                 || CoreModuleConfig.Role.Aggregator.name()
                 .equalsIgnoreCase(
                         moduleConfig.getRole())) {
-            RemoteInstance gRPCServerInstance = new RemoteInstance(
-                    new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+            RemoteInstance gRPCServerInstance = new RemoteInstance(gRPCServerInstanceAddress);
             this.getManager()
                     .find(ClusterModule.NAME)
                     .provider()
