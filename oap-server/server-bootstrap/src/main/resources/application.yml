@@ -186,9 +186,9 @@ istio-telemetry:
   default:
 
 receiver-kafka:
-  selector: ${SW_RECEIVER_KAFKA:kafka-consumer}
+  selector: ${SW_RECEIVER_KAFKA:-}
   kafka-consumer:
-    bootstrapServers: localhost:9092
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
 
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
