@@ -282,14 +282,15 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
 
+        Address gRPCServerInstanceAddress = new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
+        TelemetryRelatedContext.INSTANCE.setId(gRPCServerInstanceAddress.toString());
         if (CoreModuleConfig.Role.Mixed.name()
                 .equalsIgnoreCase(
                         moduleConfig.getRole())
                 || CoreModuleConfig.Role.Aggregator.name()
                 .equalsIgnoreCase(
                         moduleConfig.getRole())) {
-            RemoteInstance gRPCServerInstance = new RemoteInstance(
-                    new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true));
+            RemoteInstance gRPCServerInstance = new RemoteInstance(gRPCServerInstanceAddress);
             this.getManager()
                     .find(ClusterModule.NAME)
                     .provider()
