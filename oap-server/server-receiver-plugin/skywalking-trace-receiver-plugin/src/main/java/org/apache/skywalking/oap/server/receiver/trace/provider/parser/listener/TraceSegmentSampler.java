@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModu
  * ignored
  */
 public class TraceSegmentSampler {
-    private TraceServiceModuleConfig config;
+    private volatile TraceServiceModuleConfig config;
 
     public TraceSegmentSampler(TraceServiceModuleConfig config) {
         this.config = config;
