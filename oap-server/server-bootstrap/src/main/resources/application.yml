@@ -196,6 +196,12 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
