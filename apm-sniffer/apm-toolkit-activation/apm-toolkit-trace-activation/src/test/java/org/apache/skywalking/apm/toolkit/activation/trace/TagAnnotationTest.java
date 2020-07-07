@@ -145,8 +145,8 @@ public class TagAnnotationTest {
     @Test
     public void testTraceWithList() throws Throwable {
         Method testMethodWithReturnList = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnList", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnList, new Object[]{"张三", 18}, null, null);
-        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnList, null, null, Arrays.asList(new User("张三", 18)));
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnList, new Object[]{"wangwu", 18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnList, null, null, Arrays.asList(new User("wangwu", 18)));
 
         ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
@@ -160,17 +160,17 @@ public class TagAnnotationTest {
         List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
 
         assertThat(tags.get(0).getKey().key(), is("username"));
-        assertThat(tags.get(0).getValue(), is("张三"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
         assertThat(tags.get(1).getKey().key(), is("info"));
-        assertThat(tags.get(1).getValue(), is("username=张三,age=18"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
 
     }
 
     @Test
     public void testTraceWithArray() throws Throwable {
         Method testMethodWithReturnArray = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnArray", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnArray, new Object[]{"张三", 18}, null, null);
-        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnArray, null, null, new User[]{new User("张三", 18)});
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnArray, new Object[]{"wangwu", 18}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnArray, null, null, new User[]{new User("wangwu", 18)});
 
         ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
@@ -184,18 +184,18 @@ public class TagAnnotationTest {
         List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
 
         assertThat(tags.get(0).getKey().key(), is("username"));
-        assertThat(tags.get(0).getValue(), is("张三"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
         assertThat(tags.get(1).getKey().key(), is("info"));
-        assertThat(tags.get(1).getValue(), is("username=张三,age=18"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
     }
 
     @Test
     public void testTraceWithMap() throws Throwable {
         Method testMethodWithReturnMap = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnMap", String.class, Integer.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnMap, new Object[]{"张三", 18}, null, null);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnMap, new Object[]{"wangwu", 18}, null, null);
 
         Map<String, User> userMap = new HashMap<>();
-        userMap.put("user", new User("张三", 18));
+        userMap.put("user", new User("wangwu", 18));
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnMap, null, null, userMap);
 
         ContextManager.stopSpan();
@@ -210,9 +210,9 @@ public class TagAnnotationTest {
         List<TagValuePair> tags = SpanHelper.getTags(tracingSpan);
 
         assertThat(tags.get(0).getKey().key(), is("username"));
-        assertThat(tags.get(0).getValue(), is("张三"));
+        assertThat(tags.get(0).getValue(), is("wangwu"));
         assertThat(tags.get(1).getKey().key(), is("info"));
-        assertThat(tags.get(1).getValue(), is("username=张三,age=18"));
+        assertThat(tags.get(1).getValue(), is("username=wangwu,age=18"));
     }
 
     private class TestAnnotationMethodClass {
