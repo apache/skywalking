@@ -79,11 +79,13 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
 
         String routeMethods = "";
         if (VertxContext.VERTX_VERSION >= 37.1) {
-            routeMethods = "{" +
-                    routingContext.currentRoute().methods()
-                            .stream().map(Enum::toString)
-                            .collect(Collectors.joining(","))
-                    + "}";
+            if (routingContext.currentRoute().methods() != null) {
+                routeMethods = "{" +
+                        routingContext.currentRoute().methods()
+                                .stream().map(Enum::toString)
+                                .collect(Collectors.joining(","))
+                        + "}";
+            }
         } else {
             //no methods() method; have to strip from toString()
             Matcher matcher = HTTP_METHOD_PATTERN.matcher(routingContext.currentRoute().toString());
