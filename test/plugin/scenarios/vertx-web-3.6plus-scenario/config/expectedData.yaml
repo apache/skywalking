@@ -176,7 +176,7 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: '#/vertx-web-3_6plus-scenario/dynamicEndpoint/:id'
+          - operationName: '#/vertx-web-3_6plus-scenario/dynamicEndpoint/100'
             operationId: 0
             parentSpanId: -1
             spanId: 0
