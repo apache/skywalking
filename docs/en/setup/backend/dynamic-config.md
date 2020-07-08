@@ -110,8 +110,12 @@ configuration:
 ```yaml
 configuration:
   selector: ${SW_CONFIGURATION:configmap}
+  # [example] (../../../../oap-server/server-configuration/configuration-configmap/skywalking-dynamic-configmap.example.yaml)
   configmap:
+      # Sync period in seconds. Defaults to 60 seconds.
       period: ${SW_CONFIG_CONSUL_PERIOD:60}
+      # Which namespace is confiigmap deployed in.
       namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+      # Labelselector is used to locate specific configmap
       labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
 ```
