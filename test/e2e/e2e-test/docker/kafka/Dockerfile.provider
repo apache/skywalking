@@ -25,8 +25,8 @@ ADD ${DIST_PACKAGE} .
 RUN tar -zxf apache-skywalking-apm*.gz --strip=1 || true
 RUN mv apache-skywalking-apm-bin/* . || true
 
-// activate kafka-producer as reporter.
-RUN mv agent/mq-reporter-plugins/*.jar agent/reporter-plugins/
+# activate kafka-producer as reporter.
+RUN mv agent/mq-reporter-plugins/kafka-producer-plugin-*.jar agent/reporter-plugins/ || true
 
 VOLUME /services
 

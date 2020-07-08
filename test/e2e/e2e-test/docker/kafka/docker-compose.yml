@@ -37,10 +37,10 @@ services:
       oap:
         condition: service_healthy
 
-  provider:
+  provider_kafka: 
     build:
-      context: .
-      dockerfile: Dockerfile.provider
+      context: ../../../
+      dockerfile: e2e-test/docker/kafka/Dockerfile.provider
       args:
         - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
     networks:
@@ -48,8 +48,9 @@ services:
     expose:
       - 9090
     volumes:
-      - ../../../jacoco:/jacoco
+      - ../../../../jacoco:/jacoco
     environment:
+      SW_AGENT_NAME: e2e-service-java-provider
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_KAFKA_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
       JAVA_OPTS: >-
@@ -63,66 +64,62 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-
-  consumer:
-    build:
-      context: .
-      dockerfile: Dockerfile.consumer
-      args:
-        - SW_AGENT_JDK_VERSION=${SW_AGENT_JDK_VERSION}
-    networks:
-      - e2e
-    expose:
-      - 9092
-    volumes:
-      - ../../../jacoco:/jacoco
-    environment:
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
-      SW_KAFKA_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
-      JAVA_OPTS: >-
-        -javaagent:/jacoco/jacocoagent.jar=classdumpdir=/jacoco/classes/consumer,destfile=/jacoco/consumer.exec,includes=org.apache.skywalking.*,excludes=org.apache.skywalking.apm.dependencies.*
-        -javaagent:/skywalking/agent/skywalking-agent.jar=logging.output=CONSOLE
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9092"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-    depends_on:
-      provider:
+      broker-a:
+        condition: service_healthy
+      broker-b:
         condition: service_healthy
 
   zookeeper:
     image: zookeeper:3.4
-    hostname: zookeeper-server
+    hostname: zookeeper
+    expose:
+      - 2181
+    networks:
+      - e2e
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 2181"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+      
   broker-a:
     image: bitnami/kafka:2.4.1
-    hostname: kafka-server-a
-    ports:
-      - 9092:9092
+    hostname: broker-a
+    expose:
+      - 9092
+    networks:
+      - e2e
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_BROKER_ID=10
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9092"]
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
       interval: 5s
       timeout: 60s
       retries: 120
+
   broker-b:
     image: bitnami/kafka:2.4.1
-    hostname: kafka-server-b
+    hostname: broker-b
+    expose:
+      - 9092
+    networks:
+      - e2e
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_BROKER_ID=24
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9092"]
+      test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
       interval: 5s
       timeout: 60s
       retries: 120
