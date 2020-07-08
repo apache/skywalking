@@ -77,7 +77,7 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
         Object connection = ((EnhancedInstance) routingContext.request()).getSkyWalkingDynamicField();
         VertxContext vertxContext = (VertxContext) ((EnhancedInstance) connection).getSkyWalkingDynamicField();
 
-        String routeMethods = "";
+        String routeMethods = null;
         if (VertxContext.VERTX_VERSION >= 37.1) {
             if (routingContext.currentRoute().methods() != null) {
                 routeMethods = "{" +
@@ -93,7 +93,9 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
                 routeMethods = "{" + matcher.group(1) + "}";
             }
         }
-        vertxContext.getSpan().setOperationName(routeMethods + routingContext.currentRoute().getPath());
+        if (routeMethods != null && routingContext.currentRoute().getPath() != null) {
+            vertxContext.getSpan().setOperationName(routeMethods + routingContext.currentRoute().getPath());
+        }
 
         ContextManager.continued(vertxContext.getContextSnapshot());
         span.setComponent(ComponentsDefine.VERTX);
