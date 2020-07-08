@@ -35,12 +35,9 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public enum ConfigurationConfigmapInformer {
+public class ConfigurationConfigmapInformer {
 
-    /**
-     * contains configmap
-     */
-    INFORMER;
+    private static ConfigurationConfigmapInformer informer;
 
     private Lister<V1ConfigMap> configMapLister;
 
@@ -52,22 +49,34 @@ public enum ConfigurationConfigmapInformer {
         return thread;
     });
 
-    {
+    public static ConfigurationConfigmapInformer getInstance(ConfigmapConfigurationSettings settings) {
+        if (informer == null) {
+            synchronized (ConfigurationConfigmapInformer.class) {
+                if (informer == null) {
+                    informer = new ConfigurationConfigmapInformer(settings);
+                }
+            }
+        }
+        return informer;
+    }
+
+    private ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
+
+        try {
+            doStartConfigMapInformer(settings);
+            doAddShowdownHook();
+        } catch (IOException e) {
+            log.error("cannot connect with api server in kubernetes", e);
+        }
+
+    }
+
+    private void doAddShowdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (Objects.nonNull(factory)) {
                 factory.stopAllRegisteredInformers();
             }
         }));
-    }
-
-    public synchronized void init(ConfigmapConfigurationSettings settings) {
-
-        try {
-            doStartConfigMapInformer(settings);
-        } catch (IOException e) {
-            log.error("cannot connect with api server in kubernetes", e);
-        }
-
     }
 
     private void doStartConfigMapInformer(final ConfigmapConfigurationSettings settings) throws IOException {

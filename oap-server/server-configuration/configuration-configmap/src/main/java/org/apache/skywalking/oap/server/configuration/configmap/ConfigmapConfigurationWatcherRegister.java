@@ -28,15 +28,19 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 @Slf4j
 public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister {
 
-    public ConfigmapConfigurationWatcherRegister(ConfigmapConfigurationSettings settings) {
+    private final ConfigurationConfigmapInformer informer;
+
+    public ConfigmapConfigurationWatcherRegister(ConfigmapConfigurationSettings settings,
+                                                 ConfigurationConfigmapInformer informer) {
         super(settings.getPeriod());
+        this.informer = informer;
     }
 
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
 
-        Optional<V1ConfigMap> v1ConfigMap = ConfigurationConfigmapInformer.INFORMER.configMap();
+        Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
 
         for (final String name : keys) {
 

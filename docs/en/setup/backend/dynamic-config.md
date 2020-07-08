@@ -110,7 +110,7 @@ configuration:
 ```yaml
 configuration:
   selector: ${SW_CONFIGURATION:configmap}
-  # [example] (../../../../oap-server/server-configuration/configuration-configmap/skywalking-dynamic-configmap.example.yaml)
+  # [example] (../../../../oap-server/server-configuration/configuration-configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
   configmap:
       # Sync period in seconds. Defaults to 60 seconds.
       period: ${SW_CONFIG_CONSUL_PERIOD:60}

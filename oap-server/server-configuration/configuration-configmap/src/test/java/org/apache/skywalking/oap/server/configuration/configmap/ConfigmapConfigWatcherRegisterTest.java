@@ -36,7 +36,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 import org.yaml.snakeyaml.Yaml;
 
 @RunWith(PowerMockRunner.class)
@@ -54,15 +53,14 @@ public class ConfigmapConfigWatcherRegisterTest {
     public void prepare() throws IllegalAccessException {
         ConfigmapConfigurationSettings settings = new ConfigmapConfigurationSettings();
         settings.setPeriod(60);
-        register = new ConfigmapConfigurationWatcherRegister(settings);
-
         informer = PowerMockito.mock(ConfigurationConfigmapInformer.class);
-        Whitebox.setInternalState(ConfigurationConfigmapInformer.class, "INFORMER", informer);
+        register = new ConfigmapConfigurationWatcherRegister(settings, informer);
+
     }
 
     @Test
     public void readConfigWhenInformerNotwork() throws Exception {
-        PowerMockito.doReturn(Optional.empty()).when(ConfigurationConfigmapInformer.INFORMER).configMap();
+        PowerMockito.doReturn(Optional.empty()).when(informer).configMap();
 
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("key1");
@@ -85,7 +83,7 @@ public class ConfigmapConfigWatcherRegisterTest {
         V1ConfigMap v1ConfigMap = new V1ConfigMap();
         v1ConfigMap.data(configmapMap.get("data"));
 
-        PowerMockito.doReturn(Optional.of(v1ConfigMap)).when(ConfigurationConfigmapInformer.INFORMER).configMap();
+        PowerMockito.doReturn(Optional.of(v1ConfigMap)).when(informer).configMap();
 
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("receiver-trace.default.slowDBAccessThreshold");
