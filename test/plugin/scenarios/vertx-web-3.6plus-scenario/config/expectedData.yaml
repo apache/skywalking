@@ -55,7 +55,7 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: http.method, value: GET}
-              - {key: url, value: /vertx-web-3_6plus-scenario/dynamicEndpoint/100}
+              - {key: url, value: '/vertx-web-3_6plus-scenario/dynamicEndpoint/100'}
               - {key: status_code, value: '200'}
           - operationName: '/vertx-web-3_6plus-scenario/case/healthCheck'
             operationId: 0
@@ -126,7 +126,7 @@ segmentItems:
              operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
              endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
              skipAnalysis: false}
-          - operationName: '{GET}/vertx-web-3_6plus-scenario/dynamicEndpoint/100'
+          - operationName: '{GET}/vertx-web-3_6plus-scenario/dynamicEndpoint/:id'
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -176,7 +176,7 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - operationName: '#/vertx-web-3_6plus-scenario/dynamicEndpoint/100'
+          - operationName: '#/vertx-web-3_6plus-scenario/dynamicEndpoint/:id'
             operationId: 0
             parentSpanId: -1
             spanId: 0

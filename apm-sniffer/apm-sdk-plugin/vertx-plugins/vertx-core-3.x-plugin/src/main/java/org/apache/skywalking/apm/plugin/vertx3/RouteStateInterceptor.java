@@ -34,6 +34,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
         InstanceConstructorInterceptor {
@@ -71,6 +72,12 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
 
         Object connection = ((EnhancedInstance) routingContext.request()).getSkyWalkingDynamicField();
         VertxContext vertxContext = (VertxContext) ((EnhancedInstance) connection).getSkyWalkingDynamicField();
+        vertxContext.getSpan().setOperationName("{" +
+                routingContext.currentRoute().methods()
+                        .stream().map(Enum::toString)
+                        .collect(Collectors.joining(","))
+                + "}" + routingContext.currentRoute().getPath());
+
         ContextManager.continued(vertxContext.getContextSnapshot());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);
