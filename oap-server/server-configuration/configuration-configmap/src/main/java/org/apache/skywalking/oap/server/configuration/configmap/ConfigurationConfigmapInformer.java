@@ -64,14 +64,14 @@ public class ConfigurationConfigmapInformer {
 
         try {
             doStartConfigMapInformer(settings);
-            doAddShowdownHook();
+            doAddShutdownHook();
         } catch (IOException e) {
             log.error("cannot connect with api server in kubernetes", e);
         }
 
     }
 
-    private void doAddShowdownHook() {
+    private void doAddShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (Objects.nonNull(factory)) {
                 factory.stopAllRegisteredInformers();
