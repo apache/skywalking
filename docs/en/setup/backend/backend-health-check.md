@@ -12,7 +12,7 @@ health-checker:
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
 ```
-Notice, we should enable `prometheus` telemetry at the same time.
+Notice, we should enable `telemetry` module at the same time. That means the provider should not be `-` and `none`.
 
 After that, we can query OAP server health status by querying GraphQL:
 
