@@ -16,39 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+package org.apache.skywalking.oap.server.health.checker.provider;
 
-/**
- * A gauge is a metrics that represents a single numerical value that can arbitrarily go up and down.
- */
-public interface GaugeMetrics {
-    /**
-     * Increase 1 to gauge
-     */
-    void inc();
+import com.google.common.util.concurrent.AtomicDouble;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.type.HealthStatus;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-    /**
-     * Increase the given value to the gauge
-     */
-    void inc(double value);
+@RequiredArgsConstructor
+public class HealthQueryService implements Service {
+    private final AtomicDouble score;
+    private final AtomicReference<String> details;
 
-    /**
-     * Decrease 1 to gauge
-     */
-    void dec();
-
-    /**
-     * Decrease the given value to the gauge
-     */
-    void dec(double value);
-
-    /**
-     * Set the given value to the gauge
-     */
-    void setValue(double value);
-
-    /**
-     * Get the current value of the gauge
-     */
-    double getValue();
+    public HealthStatus checkHealth() {
+        HealthStatus s = new HealthStatus();
+        s.setScore(score.intValue());
+        s.setDetails(details.get());
+        return s;
+    }
 }
