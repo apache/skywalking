@@ -91,7 +91,7 @@ public class CustomizeExpression {
     public static String parseReturnExpression(String expression, Map<String, Object> context) {
         try {
             String[] es = expression.split("\\.");
-            if (es.length == 1){
+            if (es.length == 1) {
                 return String.valueOf(context.get(es[0]));
             }
             Object o = context.get(es[1]);
