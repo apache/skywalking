@@ -30,13 +30,13 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 /**
- * {@link RouterImplInstrumentation} enhance the <code>handleContext</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
+ * {@link RouteImplInstrumentation} enhance the <code>handleContext</code> method in
+ * <code>io.vertx.ext.web.impl.RouteImpl</code> class by
  * <code>RouteStateInterceptor</code> class.
  *
  * Ver. 3.0.0 - 3.8.2
  */
-public class RouterImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class RouteImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteImpl";
     private static final String ENHANCE_METHOD = "handleContext";
