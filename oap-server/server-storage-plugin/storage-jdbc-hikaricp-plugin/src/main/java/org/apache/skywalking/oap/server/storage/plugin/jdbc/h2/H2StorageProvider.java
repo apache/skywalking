@@ -146,7 +146,13 @@ public class H2StorageProvider extends ModuleProvider {
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        healthChecker.setValue(1);
+        h2Client.setHealthCheckListener(isHealthy -> {
+            if (isHealthy) {
+                healthChecker.setValue(0);
+            } else {
+                healthChecker.setValue(1);
+            }
+        });
     }
 
     @Override

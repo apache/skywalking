@@ -80,7 +80,11 @@ public class HealthCheckerProvider extends ModuleProvider {
             score.set(Stream.ofAll(collector.collect())
                     .flatMap(metricFamily -> metricFamily.samples)
                     .filter(sample -> metricsCreator.isHealthCheckerMetrics(sample.name))
-                    .peek(sample -> unhealthyModules.append(metricsCreator.extractModuleName(sample.name)).append(","))
+                    .peek(sample -> {
+                        if (sample.value > 0.0) {
+                            unhealthyModules.append(metricsCreator.extractModuleName(sample.name)).append(",");
+                        }
+                    })
                     .map(sample -> sample.value)
                     .collect(Collectors.summingDouble(Double::doubleValue)));
             details.set(unhealthyModules.toString());
