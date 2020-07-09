@@ -16,39 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+package org.apache.skywalking.oap.server.health.checker.provider;
+
+import lombok.Getter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 /**
- * A gauge is a metrics that represents a single numerical value that can arbitrarily go up and down.
+ * The Configuration of health checker module.
  */
-public interface GaugeMetrics {
-    /**
-     * Increase 1 to gauge
-     */
-    void inc();
-
-    /**
-     * Increase the given value to the gauge
-     */
-    void inc(double value);
-
-    /**
-     * Decrease 1 to gauge
-     */
-    void dec();
-
-    /**
-     * Decrease the given value to the gauge
-     */
-    void dec(double value);
-
-    /**
-     * Set the given value to the gauge
-     */
-    void setValue(double value);
-
-    /**
-     * Get the current value of the gauge
-     */
-    double getValue();
+@Getter
+public class HealthCheckerConfig extends ModuleConfig {
+    private long checkIntervalSeconds = 5;
 }
