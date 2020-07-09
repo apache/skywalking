@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.health.checker.provider.HealthQueryServi
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @RequiredArgsConstructor
-public class HealthQuery  implements GraphQLQueryResolver {
+public class HealthQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
 
