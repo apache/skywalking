@@ -49,6 +49,7 @@ public class CustomizeExpression {
 
     public static Map<String, Object> evaluationReturnContext(Object ret)  {
         Map<String, Object> context = new HashMap<>();
+        context.put("returnedObj", ret.toString());
         if (ret instanceof List) {
             List retList = (List) ret;
             int retLength = retList.size();
@@ -90,6 +91,9 @@ public class CustomizeExpression {
     public static String parseReturnExpression(String expression, Map<String, Object> context) {
         try {
             String[] es = expression.split("\\.");
+            if (es.length == 1){
+                return String.valueOf(context.get(es[0]));
+            }
             Object o = context.get(es[1]);
             return o == null ? "null" : String.valueOf(parse(es, o, 1));
         } catch (Exception e) {
