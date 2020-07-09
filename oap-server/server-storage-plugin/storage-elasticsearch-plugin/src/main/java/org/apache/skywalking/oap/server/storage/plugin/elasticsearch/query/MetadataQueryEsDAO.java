@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.NodeType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -41,7 +40,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -132,16 +130,15 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
     @Override
     public Service searchService(String serviceCode) throws IOException {
-        GetResponse response = getClient().get(
-            ServiceTraffic.INDEX_NAME, IDManager.ServiceID.buildId(serviceCode, NodeType.Normal));
-        if (response.isExists()) {
-            Service service = new Service();
-            service.setId((String) response.getSource().get(ServiceTraffic.ENTITY_ID));
-            service.setName((String) response.getSource().get(ServiceTraffic.NAME));
-            return service;
-        } else {
-            return null;
-        }
+        SearchSourceBuilder sourceBuilder = SearchSourceBuilder.searchSource();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NODE_TYPE, NodeType.Normal.value()));
+        boolQueryBuilder.must().add(QueryBuilders.termQuery(ServiceTraffic.NAME, serviceCode));
+        sourceBuilder.query(boolQueryBuilder);
+        sourceBuilder.size(1);
+        SearchResponse response = getClient().search(ServiceTraffic.INDEX_NAME, sourceBuilder);
+        final List<Service> services = buildServices(response);
+        return services.size() > 0 ? services.get(0) : null;
     }
 
     @Override
