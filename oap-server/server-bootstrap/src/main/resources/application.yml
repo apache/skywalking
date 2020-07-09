@@ -270,3 +270,8 @@ exporter:
   grpc:
     targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
     targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+
+health-checker:
+  selector: ${SW_HEALTH_CHECKER:-}
+  default:
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
