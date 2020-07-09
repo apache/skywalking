@@ -16,39 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.api;
+package org.apache.skywalking.oap.server.health.checker.module;
+
+import org.apache.skywalking.oap.server.health.checker.provider.HealthQueryService;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * A gauge is a metrics that represents a single numerical value that can arbitrarily go up and down.
+ * HealthCheckerModule intends to provide a channel to expose the healthy status of modules to external.
  */
-public interface GaugeMetrics {
-    /**
-     * Increase 1 to gauge
-     */
-    void inc();
+public class HealthCheckerModule extends ModuleDefine {
+    public static final String NAME = "health-checker";
 
-    /**
-     * Increase the given value to the gauge
-     */
-    void inc(double value);
+    public HealthCheckerModule() {
+        super(NAME);
+    }
 
-    /**
-     * Decrease 1 to gauge
-     */
-    void dec();
-
-    /**
-     * Decrease the given value to the gauge
-     */
-    void dec(double value);
-
-    /**
-     * Set the given value to the gauge
-     */
-    void setValue(double value);
-
-    /**
-     * Get the current value of the gauge
-     */
-    double getValue();
+    @Override
+    public Class[] services() {
+        return new Class[]{HealthQueryService.class};
+    }
 }
