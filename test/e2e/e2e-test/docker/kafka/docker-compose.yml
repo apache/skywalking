@@ -50,7 +50,6 @@ services:
     volumes:
       - ../../../../jacoco:/jacoco
     environment:
-      SW_AGENT_NAME: e2e-service-java-provider
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_KAFKA_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
       JAVA_OPTS: >-
