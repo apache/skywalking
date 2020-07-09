@@ -16,6 +16,7 @@ You need three steps to open ALS.
     ```
     istioctl manifest apply --set profile=demo --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.skywalking.svc:11800 --set meshConfig.enableEnvoyAccessLogService=true
     ```
+    Note:Skywalking oap service is at skywalking namespace, and the port of gRPC service is 11800
     
 2. Open SkyWalking [envoy receiver](../backend/backend-receivers.md).
 3. Active ALS k8s-mesh analysis
