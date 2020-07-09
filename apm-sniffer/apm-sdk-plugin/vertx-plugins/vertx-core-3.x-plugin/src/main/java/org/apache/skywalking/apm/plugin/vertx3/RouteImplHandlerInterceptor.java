@@ -26,7 +26,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 import java.util.Collections;
 
-public class RouterImplHandlerInterceptor implements InstanceMethodsAroundInterceptor {
+public class RouteImplHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
