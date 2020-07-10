@@ -164,4 +164,6 @@ public class ComponentsDefine {
     public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
 
     public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
+
+    public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(92, "quartz-scheduler");
 }
