@@ -216,7 +216,7 @@ metricsRules:
         range: PT1M
         labelFilter:
           - key: dimensionality
-            options: ["min"]
+            options: ["minute"]
           - key: level
             options: ["1"]
         relabel:
@@ -233,7 +233,7 @@ metricsRules:
         range: PT1M
         labelFilter:
           - key: dimensionality
-            options: ["min"]
+            options: ["minute"]
           - key: level
             options: ["2"]
         relabel:
