@@ -25,7 +25,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceModuleProvider;
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
@@ -44,14 +44,14 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public class TraceSegmentConsumerHandler implements KafkaConsumerHandler {
 
     private final ModuleManager moduleManager;
-    private final KafkaReceiverConfig config;
+    private final KafkaConsumerConfig config;
 
     private HistogramMetrics histogram;
     private CounterMetrics errorCounter;
     private final TraceServiceModuleConfig traceModuleConfig;
     private final SegmentParserListenerManager listenerManager;
 
-    public TraceSegmentConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public TraceSegmentConsumerHandler(ModuleManager moduleManager, KafkaConsumerConfig config) {
         this.config = config;
         this.moduleManager = moduleManager;
         this.traceModuleConfig = (TraceServiceModuleConfig) ((TraceModuleProvider)

@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.kafka.provider.handler;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 
 /**
  * A Handler for dealing Message reported by agent.
@@ -32,7 +32,7 @@ public interface KafkaConsumerHandler {
     /**
      * Which one partition of the topic is handled in cluster mode.
      * Currently, we have to specify the handler working for a partition.
-     * The partition id is configured in {@link KafkaReceiverConfig}.
+     * The partition id is configured in {@link KafkaConsumerConfig}.
      */
     TopicPartition getTopicPartition();
 

@@ -36,23 +36,23 @@ import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaConsumerHandler;
 
 /**
  *
  */
 @Slf4j
-public class KafkaReceiveHandlerRegister implements Service, Runnable {
+public class KafkaConsumerHandlerRegister implements Service, Runnable {
     private ImmutableMap.Builder<String, KafkaConsumerHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaConsumerHandler> handlerMap;
 
     private List<TopicPartition> topicPartitions = Lists.newArrayList();
     private KafkaConsumer<String, Bytes> consumer = null;
-    private final KafkaReceiverConfig config;
+    private final KafkaConsumerConfig config;
     private final boolean isSharding;
 
-    public KafkaReceiveHandlerRegister(KafkaReceiverConfig config) {
+    public KafkaConsumerHandlerRegister(KafkaConsumerConfig config) {
         this.config = config;
         Properties properties = new Properties(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());

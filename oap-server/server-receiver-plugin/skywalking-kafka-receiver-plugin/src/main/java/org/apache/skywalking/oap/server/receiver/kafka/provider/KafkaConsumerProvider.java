@@ -28,8 +28,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.receiver.kafka.KafkaReceiveHandlerRegister;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.KafkaConsumerHandlerRegister;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverModule;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.JVMMetricsConsumerHandler;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ManagementConsumerHandler;
@@ -40,12 +40,12 @@ import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 @Slf4j
-public class KafkaReceiverProvider extends ModuleProvider {
-    private KafkaReceiverConfig config;
-    private KafkaReceiveHandlerRegister handlerRegister;
+public class KafkaConsumerProvider extends ModuleProvider {
+    private KafkaConsumerConfig config;
+    private KafkaConsumerHandlerRegister handlerRegister;
 
-    public KafkaReceiverProvider() {
-        config = new KafkaReceiverConfig();
+    public KafkaConsumerProvider() {
+        config = new KafkaConsumerConfig();
     }
 
     @Override
@@ -65,8 +65,7 @@ public class KafkaReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        handlerRegister = new KafkaReceiveHandlerRegister(config);
-        this.registerServiceImplementation(KafkaReceiveHandlerRegister.class, handlerRegister);
+        handlerRegister = new KafkaConsumerHandlerRegister(config);
     }
 
     @Override

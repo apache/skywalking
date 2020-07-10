@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleProvider;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,7 +44,7 @@ public class ManagementConsumerHandlerTest {
     private static final String SERVICE = "MOCK_SERVER";
     private static final String SERVICE_INSTANCE = "MOCK_SERVICE_INSTANCE";
     private KafkaConsumerHandler handler = null;
-    private KafkaReceiverConfig config = new KafkaReceiverConfig();
+    private KafkaConsumerConfig config = new KafkaConsumerConfig();
 
     private ModuleManager manager;
 

@@ -84,6 +84,7 @@ public class KafkaE2E extends SkyWalkingTestAdapter {
 
     @BeforeAll
     void setUp() throws Exception {
+        queryClient(swWebappHostPort);
         trafficController(serviceHostPort, "/users");
     }
 

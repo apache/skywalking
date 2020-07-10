@@ -41,29 +41,29 @@ public class KafkaTraceSegmentService implements BootService, TracingContextList
     private KafkaProducer<String, Bytes> producer;
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         topic = Config.Collector.Kafka.TOPIC_SEGMENT;
     }
 
     @Override
-    public void boot() throws Throwable {
-        producer = ServiceManager.INSTANCE.findService(MessageQueueServiceManagement.class).getProducer(topic);
+    public void boot() {
+        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementClient.class).getProducer();
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
         TracingContext.ListenerManager.add(this);
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         TracingContext.ListenerManager.remove(this);
     }
 
     @Override
     public void afterFinished(final TraceSegment traceSegment) {
-        logger.info("ignore = {}, trace = {}", traceSegment.isIgnore(), traceSegment.getTraceSegmentId());
         if (traceSegment.isIgnore()) {
+            logger.debug("Trace[TraceId={}] is ignored.", traceSegment.getTraceSegmentId());
             return;
         }
 

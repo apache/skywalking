@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.jvm.provider.handler.JVMSourceDispatcher;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 
 @Slf4j
 public class JVMMetricsConsumerHandler implements KafkaConsumerHandler {
@@ -36,9 +36,9 @@ public class JVMMetricsConsumerHandler implements KafkaConsumerHandler {
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
-    private final KafkaReceiverConfig config;
+    private final KafkaConsumerConfig config;
 
-    public JVMMetricsConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public JVMMetricsConsumerHandler(ModuleManager moduleManager, KafkaConsumerConfig config) {
         this.jvmSourceDispatcher = new JVMSourceDispatcher(moduleManager);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()

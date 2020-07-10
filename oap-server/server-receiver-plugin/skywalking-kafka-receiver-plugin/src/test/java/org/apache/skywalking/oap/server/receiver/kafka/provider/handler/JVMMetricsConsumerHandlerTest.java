@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceJVMMemoryPool
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleManager;
 import org.apache.skywalking.oap.server.receiver.kafka.mock.MockModuleProvider;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ import org.junit.Test;
 public class JVMMetricsConsumerHandlerTest {
     private static final String TOPIC_NAME = "skywalking-metrics";
     private JVMMetricsConsumerHandler handler = null;
-    private KafkaReceiverConfig config = new KafkaReceiverConfig();
+    private KafkaConsumerConfig config = new KafkaConsumerConfig();
 
     private ModuleManager manager;
 

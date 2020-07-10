@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.profile.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 
 /**
  *
@@ -36,9 +36,9 @@ import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfi
 @Slf4j
 public class ProfileTaskConsumerHandler implements KafkaConsumerHandler {
 
-    private final KafkaReceiverConfig config;
+    private final KafkaConsumerConfig config;
 
-    public ProfileTaskConsumerHandler(ModuleManager manager, KafkaReceiverConfig config) {
+    public ProfileTaskConsumerHandler(ModuleManager manager, KafkaConsumerConfig config) {
         this.config = config;
     }
 

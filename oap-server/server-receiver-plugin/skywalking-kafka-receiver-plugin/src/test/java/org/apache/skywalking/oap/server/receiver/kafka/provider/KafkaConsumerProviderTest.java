@@ -19,14 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.kafka.provider;
 
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class KafkaReceiverProviderTest {
-    KafkaReceiverProvider provider = new KafkaReceiverProvider();
+public class KafkaConsumerProviderTest {
+    KafkaConsumerProvider provider = new KafkaConsumerProvider();
 
     @Test
     public void name() {
@@ -35,13 +35,13 @@ public class KafkaReceiverProviderTest {
 
     @Test
     public void module() {
-        assertEquals(KafkaReceiverProvider.class, provider.module());
+        assertEquals(KafkaConsumerProvider.class, provider.module());
     }
 
     @Test
     public void createConfigBeanIfAbsent() {
         ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
-        assertTrue(moduleConfig instanceof KafkaReceiverConfig);
+        assertTrue(moduleConfig instanceof KafkaConsumerConfig);
     }
 
     @Test

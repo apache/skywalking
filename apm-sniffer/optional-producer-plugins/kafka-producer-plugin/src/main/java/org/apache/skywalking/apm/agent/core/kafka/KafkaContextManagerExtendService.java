@@ -30,7 +30,7 @@ public class KafkaContextManagerExtendService extends ContextManagerExtendServic
 
     @Override
     public void prepare() {
-        // In Kafka, we don't manage the connection status.
+        // In Kafka, we don't need to manage the connection status.
         statusChanged(GRPCChannelStatus.CONNECTED);
     }
 

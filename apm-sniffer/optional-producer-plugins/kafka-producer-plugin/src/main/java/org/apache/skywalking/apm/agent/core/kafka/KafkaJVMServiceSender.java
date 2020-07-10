@@ -73,24 +73,24 @@ public class KafkaJVMServiceSender implements JVMServiceSender {
     }
 
     @Override
-    public void prepare() throws Throwable {
+    public void prepare() {
         queue = new LinkedBlockingQueue<>(Config.Jvm.BUFFER_SIZE);
         topic = Config.Collector.Kafka.TOPIC_METRICS;
     }
 
     @Override
-    public void boot() throws Throwable {
-        producer = ServiceManager.INSTANCE.findService(MessageQueueServiceManagement.class).getProducer(topic);
+    public void boot() {
+        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementClient.class).getProducer();
         running = true;
 
     }
 
     @Override
-    public void onComplete() throws Throwable {
+    public void onComplete() {
     }
 
     @Override
-    public void shutdown() throws Throwable {
+    public void shutdown() {
         producer.flush();
     }
 

@@ -23,7 +23,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Data
-public class KafkaReceiverConfig extends ModuleConfig {
+public class KafkaConsumerConfig extends ModuleConfig {
 
     /**
      * Kafka consumer config.
@@ -31,12 +31,13 @@ public class KafkaReceiverConfig extends ModuleConfig {
     private Properties kafkaConsumerConfig = new Properties();
 
     /**
-     *
+     *  <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+     *  A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
      */
     private String bootstrapServers;
 
     /**
-     * Consumer GroupId's prefix.
+     * <B>group.id</B>: A unique string that identifies the consumer group this consumer belongs to.
      */
     private String groupId = "skywalking-consumer";
 
@@ -46,9 +47,15 @@ public class KafkaReceiverConfig extends ModuleConfig {
     private Integer serverId = -1;
 
     /**
-     * Cluster mode if it is true.
+     * isSharding was true when OAP Server in cluster.
      */
     private boolean isSharding = false;
+
+    private boolean createTopicIfNotExist = true;
+
+    private int partitions = 1;
+
+    private int replicationFactor = 1;
 
     private String topicNameOfMetrics = "skywalking-metrics";
 

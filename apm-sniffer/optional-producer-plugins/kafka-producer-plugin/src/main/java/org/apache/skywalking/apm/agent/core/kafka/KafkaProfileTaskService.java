@@ -36,11 +36,6 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
-/**
- * Considering that MessageQueue belongs to a decoupled architecture, therefore we do not support this. The MQ is not
- * good for real-time interactive. It will be implemented through Rest API.
- */
-// report only
 @OverrideImplementor(ProfileTaskChannelService.class)
 public class KafkaProfileTaskService extends ProfileTaskChannelService {
     private static final ILog logger = LogManager.getLogger(KafkaProfileTaskService.class);
@@ -57,7 +52,7 @@ public class KafkaProfileTaskService extends ProfileTaskChannelService {
     @Override
     public void boot() {
         if (Config.Profile.ACTIVE) {
-            producer = ServiceManager.INSTANCE.findService(MessageQueueServiceManagement.class).getProducer(topic);
+            producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementClient.class).getProducer();
 
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("ProfileGetTaskService")

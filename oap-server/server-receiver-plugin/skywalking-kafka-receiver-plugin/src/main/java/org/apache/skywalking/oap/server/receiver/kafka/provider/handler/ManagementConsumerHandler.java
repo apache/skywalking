@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 
 @Slf4j
 public class ManagementConsumerHandler implements KafkaConsumerHandler {
@@ -47,9 +47,9 @@ public class ManagementConsumerHandler implements KafkaConsumerHandler {
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingLengthControl;
 
-    private final KafkaReceiverConfig config;
+    private final KafkaConsumerConfig config;
 
-    public ManagementConsumerHandler(ModuleManager moduleManager, KafkaReceiverConfig config) {
+    public ManagementConsumerHandler(ModuleManager moduleManager, KafkaConsumerConfig config) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.namingLengthControl = moduleManager.find(CoreModule.NAME)
                                                 .provider()
