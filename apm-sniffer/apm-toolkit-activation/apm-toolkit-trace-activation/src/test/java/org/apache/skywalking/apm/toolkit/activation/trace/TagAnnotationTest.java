@@ -145,7 +145,7 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithList() throws Throwable {
+    public void testTraceWithReturnList() throws Throwable {
         Method testMethodWithReturnList = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnList", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnList, new Object[]{"wangwu", 18}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnList, null, null, Arrays.asList(new User("wangwu", 18)));
@@ -169,7 +169,7 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithArray() throws Throwable {
+    public void testTraceWithReturnArray() throws Throwable {
         Method testMethodWithReturnArray = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnArray", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnArray, new Object[]{"wangwu", 18}, null, null);
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnArray, null, null, new User[]{new User("wangwu", 18)});
@@ -192,7 +192,7 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithMap() throws Throwable {
+    public void testTraceWithReturnMap() throws Throwable {
         Method testMethodWithReturnMap = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnMap", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnMap, new Object[]{"wangwu", 18}, null, null);
 
@@ -218,11 +218,10 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithString() throws Throwable {
-        Method testMethodWithReturnMap = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnString", String.class);
-        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnMap, new Object[]{"wangwu"}, null, null);
-
-        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnMap, null, null, "wangwu");
+    public void testTraceWithReturnString() throws Throwable {
+        Method testMethodWithReturnString = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnString", String.class);
+        methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnString, new Object[]{"wangwu"}, null, null);
+        methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnString, null, null, "wangwu");
 
         ContextManager.stopSpan();
         assertThat(storage.getTraceSegments().size(), is(1));
@@ -240,10 +239,9 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithInteger() throws Throwable {
+    public void testTraceWithReturnInteger() throws Throwable {
         Method testMethodWithReturnInteger = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnInteger", Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnInteger, new Object[]{18}, null, null);
-
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnInteger, null, null, 18);
 
         ContextManager.stopSpan();
@@ -262,10 +260,9 @@ public class TagAnnotationTest {
     }
 
     @Test
-    public void testTraceWithObject() throws Throwable {
+    public void testTraceWithReturnObject() throws Throwable {
         Method testMethodWithReturnObject = TestAnnotationMethodClass.class.getDeclaredMethod("testMethodWithReturnObject", String.class, Integer.class);
         methodInterceptor.beforeMethod(enhancedInstance, testMethodWithReturnObject, new Object[]{"wangwu", 18}, null, null);
-
         methodInterceptor.afterMethod(enhancedInstance, testMethodWithReturnObject, null, null, new User("wangwu", 18));
 
         ContextManager.stopSpan();
