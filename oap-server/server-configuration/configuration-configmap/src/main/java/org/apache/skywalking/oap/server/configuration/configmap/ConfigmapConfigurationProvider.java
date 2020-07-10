@@ -49,7 +49,7 @@ public class ConfigmapConfigurationProvider extends AbstractConfigurationProvide
             throw new ModuleStartException("the settings of configmap configuration is illegal.");
         }
 
-        ConfigurationConfigmapInformer informer = ConfigurationConfigmapInformer.getInstance(settings);
+        ConfigurationConfigmapInformer informer = new ConfigurationConfigmapInformer(settings);
         return new ConfigmapConfigurationWatcherRegister(settings, informer);
     }
 

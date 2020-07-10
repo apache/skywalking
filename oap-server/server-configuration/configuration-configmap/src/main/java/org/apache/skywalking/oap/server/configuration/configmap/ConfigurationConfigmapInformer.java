@@ -37,8 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigurationConfigmapInformer {
 
-    private static ConfigurationConfigmapInformer informer;
-
     private Lister<V1ConfigMap> configMapLister;
 
     private SharedInformerFactory factory;
@@ -49,18 +47,7 @@ public class ConfigurationConfigmapInformer {
         return thread;
     });
 
-    public static ConfigurationConfigmapInformer getInstance(ConfigmapConfigurationSettings settings) {
-        if (informer == null) {
-            synchronized (ConfigurationConfigmapInformer.class) {
-                if (informer == null) {
-                    informer = new ConfigurationConfigmapInformer(settings);
-                }
-            }
-        }
-        return informer;
-    }
-
-    private ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
+    public ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
 
         try {
             doStartConfigMapInformer(settings);
