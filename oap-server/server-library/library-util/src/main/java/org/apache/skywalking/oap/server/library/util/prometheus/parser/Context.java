@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
@@ -37,6 +38,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+@RequiredArgsConstructor
 public class Context {
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
     public MetricFamily metricFamily;
@@ -46,6 +48,8 @@ public class Context {
     public MetricType type = null;
     public List<String> allowedNames = new ArrayList<>();
     public List<TextSample> samples = new ArrayList<>();
+
+    private final long now;
 
     void addAllowedNames(String type) {
         this.type = MetricType.valueOf(type.toUpperCase());
@@ -96,6 +100,7 @@ public class Context {
                         .name(name)
                         .value(convertStringToDouble(textSample.getValue()))
                         .labels(textSample.getLabels())
+                        .timestamp(now)
                         .build()));
                 break;
             case COUNTER:
@@ -104,11 +109,12 @@ public class Context {
                         .name(name)
                         .value(convertStringToDouble(textSample.getValue()))
                         .labels(textSample.getLabels())
+                        .timestamp(now)
                         .build()));
                 break;
             case HISTOGRAM:
                 Histogram.HistogramBuilder hBuilder = Histogram.builder();
-                hBuilder.name(name);
+                hBuilder.name(name).timestamp(now);
                 samples.forEach(textSample -> {
                     if (textSample.getName().endsWith("_count")) {
                         hBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
@@ -124,7 +130,6 @@ public class Context {
                 metricFamilyBuilder.addMetric(hBuilder.build());
                 break;
             case SUMMARY:
-
                 samples.stream()
                     .map(sample -> {
                         Map<String, String> labels = Maps.newHashMap(sample.getLabels());
@@ -134,7 +139,7 @@ public class Context {
                     .collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
                     .forEach((labels, samples) -> {
                         Summary.SummaryBuilder sBuilder = Summary.builder();
-                        sBuilder.name(name);
+                        sBuilder.name(name).timestamp(now);
                         sBuilder.labels(labels);
                         samples.forEach(textSample -> {
                             if (textSample.getName().endsWith("_count")) {

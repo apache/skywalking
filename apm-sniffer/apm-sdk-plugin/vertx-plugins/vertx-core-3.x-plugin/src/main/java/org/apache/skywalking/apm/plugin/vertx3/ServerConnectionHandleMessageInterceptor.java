@@ -47,7 +47,7 @@ public class ServerConnectionHandleMessageInterceptor implements InstanceMethods
                 request.headers().remove(next.getHeadKey());
             }
 
-            AbstractSpan span = ContextManager.createEntrySpan(toPath(request.getUri()), contextCarrier);
+            AbstractSpan span = ContextManager.createEntrySpan("{" + request.getMethod() + "}" + toPath(request.getUri()), contextCarrier);
             span.setComponent(ComponentsDefine.VERTX);
             SpanLayer.asHttp(span);
             Tags.HTTP.METHOD.set(span, request.getMethod().toString());
