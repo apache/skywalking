@@ -19,11 +19,19 @@ segmentItems:
     segments:
       - segmentId: not null
         spans:
-          - {operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext),
-             operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
-             endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
-             skipAnalysis: false}
-          - operationName: /vertx-eventbus-3-scenario/case/healthCheck
+          - operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+          - operationName: '{HEAD}/vertx-eventbus-3-scenario/case/healthCheck'
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -37,7 +45,7 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: http.method, value: HEAD}
-              - {key: url, value: /vertx-eventbus-3-scenario/case/healthCheck}
+              - {key: url, value: '/vertx-eventbus-3-scenario/case/healthCheck'}
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
@@ -60,12 +68,21 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - {operationName: local-message-receiver, operationId: 0, parentSpanId: -1, spanId: 0,
-             spanLayer: RPCFramework, startTime: nq 0, endTime: nq 0, componentId: 59,
-             isError: false, spanType: Local, peer: '', skipAnalysis: false}
+          - operationName: local-message-receiver
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
       - segmentId: not null
         spans:
-          - operationName: /vertx-eventbus-3-scenario/case/executeTest
+          - operationName: '/vertx-eventbus-3-scenario/case/executeTest'
             operationId: 0
             parentSpanId: 1
             spanId: 2
@@ -79,13 +96,21 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: http.method, value: GET}
-              - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: url, value: '/vertx-eventbus-3-scenario/case/executeTest'}
               - {key: status_code, value: '200'}
-          - {operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext),
-             operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
-             endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
-             skipAnalysis: false}
-          - operationName: /vertx-eventbus-3-scenario/case/eventbus-case
+          - operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+          - operationName: '{GET}/vertx-eventbus-3-scenario/case/eventbus-case'
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -99,7 +124,7 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: http.method, value: GET}
-              - {key: url, value: /vertx-eventbus-3-scenario/case/eventbus-case}
+              - {key: url, value: '/vertx-eventbus-3-scenario/case/eventbus-case'}
               - {key: status_code, value: '200'}
       - segmentId: not null
         spans:
@@ -116,7 +141,7 @@ segmentItems:
             peer: ''
             skipAnalysis: false
             refs:
-              - {parentEndpoint: /vertx-eventbus-3-scenario/case/eventbus-case, networkAddress: '',
+              - {parentEndpoint: '{GET}/vertx-eventbus-3-scenario/case/eventbus-case', networkAddress: '',
                  refType: CrossThread, parentSpanId: 2, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: vertx-eventbus-3.x-scenario,
                  traceId: not null}
@@ -141,16 +166,33 @@ segmentItems:
                  traceId: not null}
       - segmentId: not null
         spans:
-          - {operationName: cluster-message-receiver, operationId: 0, parentSpanId: -1,
-             spanId: 0, spanLayer: RPCFramework, startTime: nq 0, endTime: nq 0,
-             componentId: 59, isError: false, spanType: Exit, peer: not null, skipAnalysis: false}
+          - operationName: cluster-message-receiver
+            operationId: 0
+            parentSpanId: -1
+            spanId: 0
+            spanLayer: RPCFramework
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Exit
+            peer: not null
+            skipAnalysis: false
       - segmentId: not null
         spans:
-          - {operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext),
-             operationId: 0, parentSpanId: 0, spanId: 1, spanLayer: Http, startTime: nq 0,
-             endTime: nq 0, componentId: 59, isError: false, spanType: Local, peer: '',
-             skipAnalysis: false}
-          - operationName: /vertx-eventbus-3-scenario/case/executeTest
+          - operationName: org.apache.skywalking.apm.testcase.vertxeventbus.controller.VertxEventbusController$$Lambda$.handle(RoutingContext)
+            operationId: 0
+            parentSpanId: 0
+            spanId: 1
+            spanLayer: Http
+            startTime: nq 0
+            endTime: nq 0
+            componentId: 59
+            isError: false
+            spanType: Local
+            peer: ''
+            skipAnalysis: false
+          - operationName: '{GET}/vertx-eventbus-3-scenario/case/executeTest'
             operationId: 0
             parentSpanId: -1
             spanId: 0
@@ -164,10 +206,10 @@ segmentItems:
             skipAnalysis: false
             tags:
               - {key: http.method, value: GET}
-              - {key: url, value: /vertx-eventbus-3-scenario/case/executeTest}
+              - {key: url, value: '/vertx-eventbus-3-scenario/case/executeTest'}
               - {key: status_code, value: '200'}
             refs:
-              - {parentEndpoint: /vertx-eventbus-3-scenario/case/eventbus-case, networkAddress: 'localhost:8080',
+              - {parentEndpoint: '{GET}/vertx-eventbus-3-scenario/case/eventbus-case', networkAddress: 'localhost:8080',
                  refType: CrossProcess, parentSpanId: 2, parentTraceSegmentId: not null,
                  parentServiceInstance: not null, parentService: vertx-eventbus-3.x-scenario,
                  traceId: not null}

@@ -90,6 +90,11 @@ public class RemoteClientManagerTestCase {
             public void setValue(double value) {
 
             }
+
+            @Override
+            public double getValue() {
+                return 0;
+            }
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
