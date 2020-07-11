@@ -13,6 +13,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver-profile**. gRPC services accept profile task status and snapshot reporter. 
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
+1. **receiver-oc**. See [details](#oc-receiver).
 1. **receiver-meter**. See [details](backend-meter.md).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
@@ -111,3 +112,20 @@ receiver_jaeger:
 ``` 
 
 NOTICE, Jaeger receiver is only provided in `apache-skywalking-apm-x.y.z.tar.gz` tar.
+
+## Opencensus receiver
+
+Opencensus receiver supports to ingest agent metrics by meter-system. OAP can load the configuration at bootstrap. 
+If the new configuration is not well-formed, OAP fails to start up. The files are located at `$CLASSPATH/oc-rules`.
+
+The file is written in YAML format, defined by the scheme described in [prometheus-fetcher](./backend-fetcher.md).
+Notice, `receiver-oc` only support `metricsRules` node of scheme due to the push mode it opts to.
+
+To active the `default` implementation:
+```yaml
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+```

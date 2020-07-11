@@ -200,6 +200,12 @@ receiver-meter:
   selector: ${SW_RECEIVER_METER:-}
   default:
 
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
@@ -268,3 +274,8 @@ exporter:
   grpc:
     targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
     targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+
+health-checker:
+  selector: ${SW_HEALTH_CHECKER:-}
+  default:
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}

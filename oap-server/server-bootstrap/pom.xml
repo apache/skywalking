@@ -113,6 +113,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>opencensus-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-meter-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

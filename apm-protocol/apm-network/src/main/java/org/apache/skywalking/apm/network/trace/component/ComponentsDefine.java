@@ -162,4 +162,8 @@ public class ComponentsDefine {
     public static final OfficialComponent QUASAR = new OfficialComponent(88, "quasar");
 
     public static final OfficialComponent INFLUXDB_JAVA = new OfficialComponent(90, "influxdb-java");
+
+    public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
+
+    public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
 }
