@@ -27,8 +27,6 @@ import org.powermock.reflect.Whitebox;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.Float.NaN;
-
 public class EvalMultipleDataTest extends EvalDataBaseTest {
 
     private EvalMultipleData singleMultiple;
@@ -87,10 +85,10 @@ public class EvalMultipleDataTest extends EvalDataBaseTest {
         assertSingleOperationThrowArgs(singleMultiple, EvalMultipleData::divide, singleMultiple);
 
         // Irate
-        assertSingleOperation(singleMultiple, EvalMultipleData::irate, "PT15S", NaN, NaN, NaN);
+        assertSingleOperation(singleMultiple, EvalMultipleData::irate, "PT15S", 0d, 0d, 0d);
 
         // Rate
-        assertSingleOperation(singleMultiple, EvalMultipleData::rate, "PT15S", NaN, NaN, NaN);
+        assertSingleOperation(singleMultiple, EvalMultipleData::rate, "PT15S", 0d, 0d, 0d);
 
         // Increase
         assertSingleOperation(singleMultiple, EvalMultipleData::increase, "PT15S", 0, 0, 0);

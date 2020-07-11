@@ -30,6 +30,7 @@ import lombok.ToString;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,10 +68,12 @@ public class Window {
                 return sum - i._2;
             case RATE:
                 i = increase(sum, id, Duration.parse(range).toMillis());
-                return (sum - i._2) / ((now - i._1) / 1000);
+                double rateVal = (sum - i._2) / ((now - i._1) / 1000);
+                return Objects.equals(rateVal, Double.NaN) ? 0d : rateVal;
             case IRATE:
                 i = increase(sum, id, 0);
-                return (sum - i._2) / ((now - i._1) / 1000);
+                double iRateVal = (sum - i._2) / ((now - i._1) / 1000);
+                return Objects.equals(iRateVal, Double.NaN) ? 0d : iRateVal;
             default:
                 return sum;
         }
