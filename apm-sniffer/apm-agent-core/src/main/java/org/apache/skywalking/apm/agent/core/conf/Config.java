@@ -162,7 +162,7 @@ public class Config {
              * <B>bootstrap.servers</B>: A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
              * This list should be in the form host1:port1,host2:port2,...
              */
-            public static String BOOTSTRAP_SERVERS;
+            public static String BOOTSTRAP_SERVERS = "localhost:9092";
 
             public static String TOPIC_METRICS = "skywalking-metrics";
 

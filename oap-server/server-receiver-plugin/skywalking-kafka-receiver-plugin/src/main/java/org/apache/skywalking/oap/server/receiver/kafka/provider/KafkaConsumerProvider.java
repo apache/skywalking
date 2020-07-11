@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.kafka.KafkaConsumerHandlerRegister;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
-import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaReceiverModule;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerModule;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.JVMMetricsConsumerHandler;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ManagementConsumerHandler;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.ProfileTaskConsumerHandler;
@@ -55,7 +55,7 @@ public class KafkaConsumerProvider extends ModuleProvider {
 
     @Override
     public Class<? extends ModuleDefine> module() {
-        return KafkaReceiverModule.class;
+        return KafkaConsumerModule.class;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class KafkaConsumerProvider extends ModuleProvider {
     }
 
     @Override
-    public void prepare() throws ServiceNotProvidedException {
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister = new KafkaConsumerHandlerRegister(config);
     }
 
@@ -86,7 +86,6 @@ public class KafkaConsumerProvider extends ModuleProvider {
         handlerRegister.register(new ManagementConsumerHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentConsumerHandler(getManager(), config));
         handlerRegister.register(new ProfileTaskConsumerHandler(getManager(), config));
-        handlerRegister.prepare();
         handlerRegister.start();
     }
 

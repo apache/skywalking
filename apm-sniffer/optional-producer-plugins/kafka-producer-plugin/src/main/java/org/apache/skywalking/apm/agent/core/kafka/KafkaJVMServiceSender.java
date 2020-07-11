@@ -80,7 +80,7 @@ public class KafkaJVMServiceSender implements JVMServiceSender {
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementClient.class).getProducer();
+        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementProducer.class).getProducer();
         running = true;
 
     }

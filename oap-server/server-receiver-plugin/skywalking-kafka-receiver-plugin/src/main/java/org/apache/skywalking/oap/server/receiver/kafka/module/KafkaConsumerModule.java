@@ -21,10 +21,10 @@ package org.apache.skywalking.oap.server.receiver.kafka.module;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.receiver.kafka.KafkaConsumerHandlerRegister;
 
-public class KafkaReceiverModule extends ModuleDefine {
+public class KafkaConsumerModule extends ModuleDefine {
     public static final String NAME = "receiver-kafka";
 
-    public KafkaReceiverModule() {
+    public KafkaConsumerModule() {
         super(NAME);
     }
 

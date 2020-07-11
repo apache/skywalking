@@ -25,8 +25,13 @@ import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -35,7 +40,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.BytesDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaConsumerHandler;
 
@@ -43,7 +48,7 @@ import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaCon
  *
  */
 @Slf4j
-public class KafkaConsumerHandlerRegister implements Service, Runnable {
+public class KafkaConsumerHandlerRegister implements Runnable {
     private ImmutableMap.Builder<String, KafkaConsumerHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaConsumerHandler> handlerMap;
 
@@ -52,22 +57,53 @@ public class KafkaConsumerHandlerRegister implements Service, Runnable {
     private final KafkaConsumerConfig config;
     private final boolean isSharding;
 
-    public KafkaConsumerHandlerRegister(KafkaConsumerConfig config) {
+    public KafkaConsumerHandlerRegister(KafkaConsumerConfig config) throws ModuleStartException {
         this.config = config;
         Properties properties = new Properties(config.getKafkaConsumerConfig());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getGroupId());
         properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
-        consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
+
+        AdminClient adminClient = AdminClient.create(properties);
+        Set<String> missedTopics = adminClient.describeTopics(Lists.newArrayList(
+            config.getTopicNameOfManagements(),
+            config.getTopicNameOfMetrics(),
+            config.getTopicNameOfProfiling(),
+            config.getTopicNameOfTracingSegments()
+        ))
+                                              .values()
+                                              .entrySet()
+                                              .stream()
+                                              .map(entry -> {
+                                                  try {
+                                                      entry.getValue().get();
+                                                      return null;
+                                                  } catch (InterruptedException | ExecutionException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                                  return entry.getKey();
+                                              })
+                                              .collect(Collectors.toSet());
+        if (!missedTopics.isEmpty()) {
+            List<NewTopic> newTopicList = missedTopics.stream()
+                                                 .map(topic -> new NewTopic(
+                                                     topic,
+                                                     config.getPartitions(),
+                                                     (short) config.getReplicationFactor()
+                                                 )).collect(Collectors.toList());
+
+            try {
+                adminClient.createTopics(newTopicList).all().get();
+            } catch (Exception e) {
+                throw new ModuleStartException("Failed to create Kafka Topics" + missedTopics + ".", e);
+            }
+        }
 
         if (config.isSharding() && config.getServerId() > 0) {
             isSharding = true;
         } else {
             isSharding = false;
         }
-    }
-
-    public void prepare() {
-
+        consumer = new KafkaConsumer<>(properties, new StringDeserializer(), new BytesDeserializer());
     }
 
     public boolean isSharding() {

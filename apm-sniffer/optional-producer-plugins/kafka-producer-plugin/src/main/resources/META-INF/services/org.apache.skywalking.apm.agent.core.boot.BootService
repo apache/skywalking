@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-org.apache.skywalking.apm.agent.core.kafka.KafkaServiceManagementClient
+org.apache.skywalking.apm.agent.core.kafka.KafkaServiceManagementProducer
 org.apache.skywalking.apm.agent.core.kafka.KafkaContextManagerExtendService
 org.apache.skywalking.apm.agent.core.kafka.KafkaServiceManagementService
 org.apache.skywalking.apm.agent.core.kafka.KafkaJVMServiceSender

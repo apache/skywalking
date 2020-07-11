@@ -47,7 +47,7 @@ public class KafkaTraceSegmentService implements BootService, TracingContextList
 
     @Override
     public void boot() {
-        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementClient.class).getProducer();
+        producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementProducer.class).getProducer();
     }
 
     @Override

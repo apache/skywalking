@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.apm.agent.core.kafka;
 
-import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -34,12 +34,10 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.conf.Config;
-import org.apache.skywalking.apm.agent.core.logging.api.ILog;
-import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
 @DefaultImplementor
-public class KafkaServiceManagementClient implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(KafkaServiceManagementClient.class);
+public class KafkaServiceManagementProducer implements BootService, Runnable {
+
     private KafkaProducer<String, Bytes> producer;
 
     @Override
@@ -49,23 +47,23 @@ public class KafkaServiceManagementClient implements BootService, Runnable {
         Config.Collector.Kafka.CONSUMER_CONFIG.forEach((k, v) -> properties.setProperty(k, v));
 
         AdminClient adminClient = AdminClient.create(properties);
-        DescribeTopicsResult topicsResult = adminClient.describeTopics(Lists.newArrayList(
+        DescribeTopicsResult topicsResult = adminClient.describeTopics(Arrays.asList(
             Config.Collector.Kafka.TOPIC_MANAGEMENT,
             Config.Collector.Kafka.TOPIC_METRICS,
             Config.Collector.Kafka.TOPIC_PROFILING,
             Config.Collector.Kafka.TOPIC_SEGMENT
         ));
         Set<String> topics = topicsResult.values().entrySet().stream()
-                                          .map(entry -> {
-                                              try {
-                                                  entry.getValue().get();
-                                                  return null;
-                                              } catch (InterruptedException | ExecutionException e) {
-                                              }
-                                              return entry.getKey();
-                                          })
-                                          .filter(Objects::nonNull)
-                                          .collect(Collectors.toSet());
+                                         .map(entry -> {
+                                             try {
+                                                 entry.getValue().get();
+                                                 return null;
+                                             } catch (InterruptedException | ExecutionException e) {
+                                             }
+                                             return entry.getKey();
+                                         })
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toSet());
         if (!topics.isEmpty()) {
             throw new Exception("These topics" + topics + " don't exist.");
         }
