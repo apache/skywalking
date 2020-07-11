@@ -197,7 +197,7 @@ prometheus-fetcher:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
 receiver-meter:
-  selector: ${SW_RECEIVER_METER:default}
+  selector: ${SW_RECEIVER_METER:-}
   default:
 
 receiver_zipkin:

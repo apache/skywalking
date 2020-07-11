@@ -16,26 +16,17 @@
  *
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.oap.server.receiver.meter.module;
 
-import org.apache.skywalking.apm.meter.micrometer.SkywalkingMeterRegistry;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.junit.Assert;
+import org.junit.Test;
 
-@EnableJpaRepositories
-@SpringBootApplication
-@ComponentScan({"org.apache.skywalking", "test.apache.skywalking"})
-public class Service0Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Service0Application.class, args);
+public class MeterReceiverModuleTest {
+
+    @Test
+    public void testBuild() {
+        final MeterReceiverModule module = new MeterReceiverModule();
+        Assert.assertEquals(0, module.services().length);
+        Assert.assertEquals(MeterReceiverModule.NAME, module.name());
     }
-
-    @Bean
-    SkywalkingMeterRegistry skywalkingMeterRegistry() {
-        return new SkywalkingMeterRegistry();
-    }
-
 }

@@ -14,20 +14,345 @@
 # limitations under the License.
 
 meters:
-  - name: jvm_heap_usage_avg
+  - name: hikaricp_connections
     scope:
       type: SERVICE_INSTANCE
     meter:
       operation: avg
-      value: meter["jvm_memory_max"].tagFilter("area", "heap").tagFilter("id", "PS Old Gen").mean(meter["jvm_memory_used"].tagFilter("area", "heap").tagFilter("id", "PS Old Gen"))
-  - name: http_response_percentile
+      value: meter["hikaricp_connections"]
+  - name: hikaricp_connections_acquire_count
     scope:
-      type: ENDPOINT
-      endpoint: home_page
+      type: SERVICE_INSTANCE
     meter:
-      operation: avgHistogramPercentile
-      value: meter["http_server_requests_histogram"].tagFilter("uri", "/")
-      percentile:
-        - 50
-        - 90
-        - 99
+      operation: avg
+      value: meter["hikaricp_connections_acquire_count"].increase("PT1M")
+  - name: hikaricp_connections_acquire_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_acquire_max"]
+  - name: hikaricp_connections_acquire_sum
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_acquire_sum"].increase("PT1M")
+  - name: hikaricp_connections_active
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_active"]
+  - name: hikaricp_connections_creation_count
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_creation_count"].increase("PT1M")
+  - name: hikaricp_connections_creation_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_creation_max"]
+  - name: hikaricp_connections_creation_sum
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_creation_sum"].increase("PT1M")
+  - name: hikaricp_connections_idle
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_idle"]
+  - name: hikaricp_connections_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_max"]
+  - name: hikaricp_connections_min
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_min"]
+  - name: hikaricp_connections_pending
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_pending"]
+  - name: hikaricp_connections_timeout
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_timeout"].increase("PT1M")
+  - name: hikaricp_connections_usage_count
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_usage_count"].increase("PT1M")
+  - name: hikaricp_connections_usage_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_usage_max"]
+  - name: hikaricp_connections_usage_sum
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["hikaricp_connections_usage_sum"].increase("PT1M")
+  - name: http_server_requests_count
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["http_server_requests_count"].increase("PT1M")
+  - name: http_server_requests_max
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["http_server_requests_max"]
+  - name: http_server_requests_sum
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["http_server_requests_sum"].increase("PT1M")
+  - name: jdbc_connections_active
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jdbc_connections_active"]
+  - name: jdbc_connections_idle
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jdbc_connections_idle"]
+  - name: jdbc_connections_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jdbc_connections_max"]
+  - name: jdbc_connections_min
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jdbc_connections_min"]
+  - name: jvm_buffer_count
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_buffer_count"]
+  - name: jvm_buffer_memory_used
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_buffer_memory_used"]
+  - name: jvm_buffer_total_capacity
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_buffer_total_capacity"]
+  - name: jvm_classes_loaded
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_classes_loaded"]
+  - name: jvm_classes_unloaded
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_classes_unloaded"].increase("PT1M")
+  - name: jvm_gc_live_data_size
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_live_data_size"]
+  - name: jvm_gc_max_data_size
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_max_data_size"]
+  - name: jvm_gc_memory_allocated
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_memory_allocated"].increase("PT1M")
+  - name: jvm_gc_memory_promoted
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_memory_promoted"]
+  - name: jvm_gc_pause_count
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_pause_count"].increase("PT1M")
+  - name: jvm_gc_pause_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_pause_max"]
+  - name: jvm_gc_pause_sum
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_gc_pause_sum"].increase("PT1M")
+  - name: jvm_memory_committed
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_memory_committed"]
+  - name: jvm_memory_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_memory_max"]
+  - name: jvm_memory_used
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_memory_used"]
+  - name: jvm_threads_daemon
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_threads_daemon"]
+  - name: jvm_threads_live
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_threads_live"]
+  - name: jvm_threads_peak
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_threads_peak"]
+  - name: jvm_threads_states
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["jvm_threads_states"]
+  - name: logback_events
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["logback_events"].increase("PT1M")
+  - name: process_cpu_usage
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_cpu_usage"]
+  - name: process_files_max
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_files_max"]
+  - name: process_files_open
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_files_open"]
+  - name: process_start_time
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_start_time"]
+  - name: process_uptime
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["process_uptime"].increase("PT1M")
+  - name: system_cpu_count
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["system_cpu_count"]
+  - name: system_cpu_usage
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["system_cpu_usage"]
+  - name: system_load_average_1m
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avg
+      value: meter["system_load_average_1m"]
+  - name: tomcat_sessions_active_current
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_active_current"]
+  - name: tomcat_sessions_active_max
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_active_max"]
+  - name: tomcat_sessions_alive_max
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_alive_max"]
+  - name: tomcat_sessions_created
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_created"].increase("PT1M")
+  - name: tomcat_sessions_expired
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_expired"].increase("PT1M")
+  - name: tomcat_sessions_rejected
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["tomcat_sessions_rejected"].increase("PT1M")

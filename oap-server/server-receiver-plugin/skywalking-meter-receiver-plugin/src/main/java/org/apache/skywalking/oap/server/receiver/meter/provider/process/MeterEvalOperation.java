@@ -34,14 +34,14 @@ public interface MeterEvalOperation<FROM extends EvalData> {
     EvalData add(FROM data);
 
     /**
-     * Reduce from value
+     * Minus from value
      */
-    EvalData reduce(double value);
+    EvalData minus(double value);
 
     /**
-     * Reduce from eval data
+     * Subtract from eval data
      */
-    EvalData reduce(FROM data);
+    EvalData minus(FROM data);
 
     /**
      * Multiply by value
@@ -54,14 +54,14 @@ public interface MeterEvalOperation<FROM extends EvalData> {
     EvalData multiply(FROM data);
 
     /**
-     * Mean from value
+     * Divide from value
      */
-    EvalData mean(double value);
+    EvalData divide(double value);
 
     /**
      * Mean from eval data
      */
-    EvalData mean(FROM data);
+    EvalData divide(FROM data);
 
     /**
      * Scale the meter value.

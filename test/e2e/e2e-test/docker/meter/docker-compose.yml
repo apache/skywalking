@@ -13,36 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9090
+version: '2.1'
 
-spring:
-  main:
-    banner-mode: 'off'
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    data-username: sa
-    password: sa
-    platform: org.hibernate.dialect.H2Dialect
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate.format_sql: true
-    show-sql: true
+services:
+  oap:
+    environment:
+      SW_RECEIVER_METER: default
+    extends:
+      file: ../base-compose.yml
+      service: oap
+    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
 
-management:
-  metrics:
-    use-global-registry: true
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: info,health
-      base-path: /
+  ui:
+    extends:
+      file: ../base-compose.yml
+      service: ui
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  provider:
+    extends:
+      file: ../base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

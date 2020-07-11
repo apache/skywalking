@@ -13,36 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9090
-
-spring:
-  main:
-    banner-mode: 'off'
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    data-username: sa
-    password: sa
-    platform: org.hibernate.dialect.H2Dialect
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate.format_sql: true
-    show-sql: true
-
-management:
-  metrics:
-    use-global-registry: true
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: info,health
-      base-path: /
+meters:
+  - name: build_test1
+    scope:
+      type: SERVICE
+    meter:
+      operation: avg
+      value: meter["test_count1"].tagFilter("k1", "v1").scale(2)
+  - name: build_test2
+    scope:
+      type: SERVICE_INSTANCE
+    meter:
+      operation: avgHistogram
+      value: meter["test_histogram"]
+  - name: build_test3
+    scope:
+      type: ENDPOINT
+      endpoint: test_endpoint
+    meter:
+      operation: avgHistogramPercentile
+      value: meter["test_histogram"]
+      percentile:
+        - 50
+        - 90
+        - 99

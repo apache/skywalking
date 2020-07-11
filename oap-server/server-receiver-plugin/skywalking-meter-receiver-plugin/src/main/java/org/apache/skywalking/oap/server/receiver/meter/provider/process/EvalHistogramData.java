@@ -75,22 +75,22 @@ public class EvalHistogramData extends EvalData<EvalData> {
     }
 
     @Override
-    public EvalData reduce(double value) {
+    public EvalData minus(double value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public EvalData reduce(EvalData value) {
+    public EvalData minus(EvalData value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public EvalData mean(double value) {
+    public EvalData divide(double value) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public EvalData mean(EvalData value) {
+    public EvalData divide(EvalData value) {
         throw new UnsupportedOperationException();
     }
 
@@ -118,7 +118,7 @@ public class EvalHistogramData extends EvalData<EvalData> {
     }
 
     private EvalHistogramData windowCalculate(Window.CalculateType calculateType, String range) {
-        return copyTo(EvalHistogramData.class, instance -> instance.buckets = instance.buckets.entrySet().stream()
+        return copyTo(EvalHistogramData.class, instance -> instance.buckets = this.buckets.entrySet().stream()
             .map(e -> Tuple.of(e.getKey(), processor.window().get(this, e.getKey()).apply(calculateType, range).longValue()))
             .collect(Collectors.toMap(Tuple2::_1, Tuple2::_2)));
     }

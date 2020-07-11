@@ -76,12 +76,12 @@ public class EvalSingleData extends EvalData<EvalData> {
     }
 
     @Override
-    public EvalData reduce(double value) {
+    public EvalData minus(double value) {
         return copyTo(EvalSingleData.class, instance -> instance.value = this.value - value);
     }
 
     @Override
-    public EvalData reduce(EvalData data) {
+    public EvalData minus(EvalData data) {
         if (data instanceof EvalHistogramData) {
             throw new IllegalArgumentException("Only support reduce from single value");
         }
@@ -89,12 +89,12 @@ public class EvalSingleData extends EvalData<EvalData> {
     }
 
     @Override
-    public EvalData mean(double value) {
+    public EvalData divide(double value) {
         return copyTo(EvalSingleData.class, instance -> instance.value = this.value / value);
     }
 
     @Override
-    public EvalData mean(EvalData data) {
+    public EvalData divide(EvalData data) {
         if (data instanceof EvalHistogramData) {
             throw new IllegalArgumentException("Only support mean from single value");
         }
@@ -122,6 +122,6 @@ public class EvalSingleData extends EvalData<EvalData> {
     @Override
     EvalData combine(EvalData data) {
         final EvalSingleData value = (EvalSingleData) data;
-        return copyTo(EvalSingleData.class, instance -> instance.value += value.value);
+        return copyTo(EvalSingleData.class, instance -> instance.value = this.value + value.value);
     }
 }

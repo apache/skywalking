@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.meter.provider.process;
 
 import io.vavr.Function2;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 /**
  * Combined meter data, has multiple meter data. Support batch process the express on meter
  */
-@Data
 public class EvalMultipleData extends EvalData<EvalMultipleData> {
 
     /**
@@ -74,28 +72,28 @@ public class EvalMultipleData extends EvalData<EvalMultipleData> {
     }
 
     @Override
-    public EvalData scale(Integer value) {
+    public EvalMultipleData scale(Integer value) {
         return createNew(dataList.stream().map(m -> m.scale(value)).collect(Collectors.toList()));
     }
 
     @Override
-    public EvalData reduce(double value) {
-        return createNew(dataList.stream().map(m -> m.reduce(value)).collect(Collectors.toList()));
+    public EvalMultipleData minus(double value) {
+        return createNew(dataList.stream().map(m -> m.minus(value)).collect(Collectors.toList()));
     }
 
     @Override
-    public EvalData reduce(EvalMultipleData value) {
-        return calculateWithSingleValue(value, "reduce", EvalData::reduce);
+    public EvalMultipleData minus(EvalMultipleData value) {
+        return calculateWithSingleValue(value, "reduce", EvalData::minus);
     }
 
     @Override
-    public EvalData mean(double value) {
-        return createNew(dataList.stream().map(m -> m.mean(value)).collect(Collectors.toList()));
+    public EvalMultipleData divide(double value) {
+        return createNew(dataList.stream().map(m -> m.divide(value)).collect(Collectors.toList()));
     }
 
     @Override
-    public EvalData mean(EvalMultipleData value) {
-        return calculateWithSingleValue(value, "mean", EvalData::mean);
+    public EvalMultipleData divide(EvalMultipleData value) {
+        return calculateWithSingleValue(value, "mean", EvalData::divide);
     }
 
     @Override

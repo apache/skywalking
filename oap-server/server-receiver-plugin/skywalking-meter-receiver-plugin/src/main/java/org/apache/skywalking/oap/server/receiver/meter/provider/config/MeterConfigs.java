@@ -35,9 +35,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Meter config loader.
+ */
 public class MeterConfigs {
     private static final Logger LOGGER = LoggerFactory.getLogger(MeterConfigs.class);
 
+    /**
+     * Load all configs from path
+     */
     public static List<MeterConfig> loadConfig(String path) throws ModuleStartException {
         File[] configs;
         try {
