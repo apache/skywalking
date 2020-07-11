@@ -77,4 +77,11 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>apache-snapshot</id>
+            <name>Apache Snapshot</name>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
 </project>
