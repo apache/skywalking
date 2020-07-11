@@ -19,10 +19,9 @@
 package org.apache.skywalking.oap.server.receiver.meter.provider.config;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -38,8 +37,8 @@ import java.util.stream.Collectors;
 /**
  * Meter config loader.
  */
+@Slf4j
 public class MeterConfigs {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MeterConfigs.class);
 
     /**
      * Load all configs from path
@@ -57,7 +56,7 @@ public class MeterConfigs {
                 try (Reader r = new FileReader(f)) {
                     return new Yaml().loadAs(r, Config.class);
                 } catch (IOException e) {
-                    LOGGER.warn("Reading file {} failed", f, e);
+                    log.warn("Reading file {} failed", f, e);
                 }
                 return null;
             })
