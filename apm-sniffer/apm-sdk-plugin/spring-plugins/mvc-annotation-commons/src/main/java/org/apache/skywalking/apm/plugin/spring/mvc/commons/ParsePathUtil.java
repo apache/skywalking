@@ -29,7 +29,7 @@ import java.util.function.Function;
  */
 public class ParsePathUtil {
 
-    public static String recursiveParseMethodAnnotaion(Method method, Function<Method, String> parseFunc) {
+    public static String recursiveParseMethodAnnotation(Method method, Function<Method, String> parseFunc) {
         String result = parseFunc.apply(method);
         if (Objects.isNull(result)) {
             Class<?> declaringClass = method.getDeclaringClass();
