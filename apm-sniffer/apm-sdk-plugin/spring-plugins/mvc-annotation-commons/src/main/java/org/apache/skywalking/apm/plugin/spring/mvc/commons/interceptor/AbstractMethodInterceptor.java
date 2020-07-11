@@ -82,9 +82,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField();
             String requestURL = pathMappingCache.findPathMapping(method);
             if (requestURL == null) {
-                requestURL = getRequestURL(method);
+                requestURL = getAcceptedMethodTypes(method) + getRequestURL(method);
                 pathMappingCache.addPathMapping(method, requestURL);
-                requestURL = getAcceptedMethodTypes(method) + pathMappingCache.findPathMapping(method);
             }
             operationName = requestURL;
         }
