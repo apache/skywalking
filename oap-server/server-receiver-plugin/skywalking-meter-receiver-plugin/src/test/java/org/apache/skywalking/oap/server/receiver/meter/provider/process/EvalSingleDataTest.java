@@ -23,8 +23,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static java.lang.Double.NaN;
-
 public class EvalSingleDataTest extends EvalDataBaseTest {
 
     private EvalSingleData singleData;
@@ -64,10 +62,10 @@ public class EvalSingleDataTest extends EvalDataBaseTest {
         assertSingleOperation(EvalSingleData::scale, 2, 1000d);
 
         // Irate
-        assertSingleOperation(EvalSingleData::irate, "PT15S", NaN);
+        assertSingleOperation(EvalSingleData::irate, "PT15S", 0.0);
 
         // Rate
-        assertSingleOperation(EvalSingleData::rate, "PT15S", NaN);
+        assertSingleOperation(EvalSingleData::rate, "PT15S", 0.0);
 
         // Increase
         assertSingleOperation(EvalSingleData::increase, "PT15S", 0d);
