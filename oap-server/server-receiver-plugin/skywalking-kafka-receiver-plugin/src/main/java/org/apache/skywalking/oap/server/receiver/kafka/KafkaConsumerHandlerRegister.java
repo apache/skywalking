@@ -24,6 +24,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -82,6 +83,7 @@ public class KafkaConsumerHandlerRegister implements Runnable {
                                                   }
                                                   return entry.getKey();
                                               })
+                                              .filter(Objects::nonNull)
                                               .collect(Collectors.toSet());
         if (!missedTopics.isEmpty()) {
             List<NewTopic> newTopicList = missedTopics.stream()
