@@ -29,10 +29,6 @@
     <artifactId>kafka-reporter-plugin</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <shade.package>org.apache.skywalking.apm.dependencies</shade.package>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -47,21 +43,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-test-tools</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafk-clients.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
-            <version>${spring-kafka-test.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -77,10 +61,60 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.kafka:kafka-clients:test:</exclude>
+                                    <exclude>org.apache.skywalking:apm-agent-core:</exclude>
+                                </excludes>
+                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>${shade.package}/org.apache.kafka</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>common.message</pattern>
+                                    <shadedPattern>${shade.package}/common.message</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>kafka</pattern>
+                                    <shadedPattern>${shade.package}/kafka</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.slf4j</pattern>
+                                    <shadedPattern>${shade.package}/org.slf4j</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xerial</pattern>
+                                    <shadedPattern>${shade.package}/org.xerial</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>net.jpountz</pattern>
+                                    <shadedPattern>${shade.package}/net.jpountz</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>aix.ppc64</pattern>
+                                    <shadedPattern>${shade.package}/aix.ppc64</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.luben</pattern>
+                                    <shadedPattern>${shade.package}/com.github.luben</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>darwin</pattern>
+                                    <shadedPattern>${shade.package}/darwin</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>include</pattern>
+                                    <shadedPattern>${shade.package}/include</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>linux</pattern>
+                                    <shadedPattern>${shade.package}/linux</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>win</pattern>
+                                    <shadedPattern>${shade.package}/win</shadedPattern>
                                 </relocation>
                             </relocations>
                             <transformers>
