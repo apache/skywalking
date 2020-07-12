@@ -29,12 +29,17 @@ public class TestWebclientController {
     @Value("${projectB.host:localhost:18080}")
     private String hostBAddress;
 
+    @RequestMapping("/testcase/webclient/ping")
+    public String ping() {
+        return "ok";
+    }
+
     @RequestMapping("/testcase/webclient/test1")
     public String test1() {
         Mono<String> resp = WebClient.builder().exchangeStrategies(ExchangeStrategies.builder()
                 .build())
                 .build()
-                .get().uri("http://" + hostBAddress + "/testcase/annotation/healthCheck")
+                .get().uri("http://" + hostBAddress + "/testcase/webclient/ping")
                 .retrieve().bodyToMono(String.class);
         resp.subscribe();
         return "ok";

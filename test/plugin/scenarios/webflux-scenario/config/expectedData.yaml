@@ -216,7 +216,7 @@ segmentItems:
         parentSpanId: 9, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
-    - operationName: /testcase/annotation/healthCheck
+    - operationName: /testcase/webclient/ping
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -229,15 +229,15 @@ segmentItems:
       peer: ''
       skipAnalysis: false
       tags:
-      - {key: url, value: 'http://localhost:18080/testcase/annotation/healthCheck'}
+      - {key: url, value: 'http://localhost:18080/testcase/webclient/ping'}
       - {key: http.method, value: GET}
       - {key: status_code, value: '200'}
       refs:
-      - {parentEndpoint: /testcase/annotation/healthCheck, networkAddress: 'localhost:18080', refType: CrossProcess,
+      - {parentEndpoint: /testcase/webclient/ping, networkAddress: 'localhost:18080', refType: CrossProcess,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not null, parentService: not null, traceId: not null}
   - segmentId: not null
     spans:
-    - operationName: /testcase/annotation/healthCheck
+    - operationName: /testcase/webclient/ping
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -250,7 +250,7 @@ segmentItems:
       peer: not null
       skipAnalysis: false
       tags:
-      - {key: url, value: 'http://localhost:18080/testcase/annotation/healthCheck'}
+      - {key: url, value: 'http://localhost:18080/testcase/webclient/ping'}
       - {key: http.method, value: GET}
       - {key: status_code, value: '200'}
 - serviceName: webflux-projectA-scenario
