@@ -26,18 +26,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>optional-producer-plugins</artifactId>
+    <artifactId>optional-reporter-plugins</artifactId>
     <packaging>pom</packaging>
 
     <modules>
-        <module>kafka-producer-plugin</module>
+        <module>kafka-reporter-plugin</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <agent.package.dest.dir>${project.build.directory}/../../../../skywalking-agent</agent.package.dest.dir>
-        <mq.reporter.plugins.dest.dir>${agent.package.dest.dir}/mq-reporter-plugins</mq.reporter.plugins.dest.dir>
+        <optional.reporter.plugins.dest.dir>${agent.package.dest.dir}/optional-reporter-plugins</optional.reporter.plugins.dest.dir>
 
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <ant-nodeps.version>1.8.1</ant-nodeps.version>
@@ -101,11 +101,11 @@
                                 <if>
                                     <equals arg1="${project.packaging}" arg2="jar"/>
                                     <then>
-                                        <mkdir dir="${mq.reporter.plugins.dest.dir}"/>
+                                        <mkdir dir="${optional.reporter.plugins.dest.dir}"/>
                                         <mkdir dir="${agent.package.dest.dir}/reporter-plugins" />
                                         <copy
                                             file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                            tofile="${mq.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar"
+                                            tofile="${optional.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar"
                                             overwrite="true"/>
                                     </then>
                                 </if>
