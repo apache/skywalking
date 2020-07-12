@@ -45,6 +45,7 @@
   * [Armeria](https://github.com/line/armeria) 0.63.0 -> 0.98.0
   * [Apache Avro](http://avro.apache.org) 1.7.0 - 1.8.x
   * [Finagle](https://github.com/twitter/finagle) 6.25.0 -> 20.1.0 
+  * [Brpc-Java](https://github.com/baidu/brpc-java) 2.3.7 -> 2.5.3
 * MQ
   * [RocketMQ](https://github.com/apache/rocketmq) 4.x
   * [Kafka](http://kafka.apache.org) 0.11.0.0 -> 1.0
@@ -94,7 +95,8 @@
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
-
+* GraphQL
+  * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.

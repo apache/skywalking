@@ -104,6 +104,7 @@ public class TimeBucket {
     public static long getTimestamp(long timeBucket, DownSampling downsampling) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(0);
+
         switch (downsampling) {
             case Second:
                 calendar.set(Calendar.SECOND, (int) (timeBucket % 100));
@@ -117,11 +118,12 @@ public class TimeBucket {
             case Day:
                 calendar.set(Calendar.DAY_OF_MONTH, (int) (timeBucket % 100));
                 timeBucket /= 100;
+                calendar.set(Calendar.MONTH, (int) (timeBucket % 100) - 1);
+                calendar.set(Calendar.YEAR, (int) (timeBucket / 100));
                 break;
             default:
                 throw new UnexpectedException("Unknown downsampling value.");
         }
-
         return calendar.getTimeInMillis();
     }
 

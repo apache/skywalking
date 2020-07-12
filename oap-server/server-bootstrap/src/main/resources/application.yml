@@ -66,7 +66,7 @@ core:
     enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
     dataKeeperExecutePeriod: ${SW_CORE_DATA_KEEPER_EXECUTE_PERIOD:5} # How often the data keeper executor runs periodically, unit is minute
     recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:3} # Unit is day
-    metricsDataTTL: ${SW_CORE_RECORD_DATA_TTL:7} # Unit is day
+    metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
     # Cache metric data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
     # the metrics may not be accurate within that minute.
     enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
@@ -196,6 +196,12 @@ prometheus-fetcher:
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
+receiver-oc:
+  selector: ${SW_OC_RECEIVER:-}
+  default:
+    gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+
 receiver_zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
@@ -264,3 +270,8 @@ exporter:
   grpc:
     targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
     targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+
+health-checker:
+  selector: ${SW_HEALTH_CHECKER:-}
+  default:
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}

@@ -138,7 +138,7 @@ Create ExitSpan by operation name(e.g. service name, uri) and new **ContextCarri
      */
     AbstractSpan setOperationName(String endpointName);
 ```
-Besides set operation name, tags and logs, two attributes shoule be set, which are component and layer, 
+Besides setting operation name, tags and logs, two attributes should be set, which are component and layer, 
 especially for EntrySpan and ExitSpan
 
 SpanLayer is the catalog of span. Here are 5 values:
@@ -150,6 +150,36 @@ SpanLayer is the catalog of span. Here are 5 values:
 
 Component IDs are defined and reserved by SkyWalking project.
 For component name/ID extension, please follow [Component library definition and extension](Component-library-settings.md) document.
+
+### Special Span Tags
+All tags are available in the trace view, meanwhile, 
+in the OAP backend analysis, some special tag or tag combination could provide other advanced features.
+
+#### Tag key `status_code`
+The value should be an integer. The response code of OAL entities is according to this.
+
+#### Tag key `db.statement` and `db.type`.
+The value of `db.statement` should be a String, representing the Database statement, such as SQL, or `[No statement]/`+span#operationName if value is empty.
+When exit span has this tag, OAP samples the slow statements based on `receiver-trace/default/maxSlowSQLLength`.
+The threshold of slow statement is defined by following [`receiver-trace/default/slowDBAccessThreshold`](../setup/backend/slow-db-statement.md)
+
+#### Extension logic endpoint. Tag key `x-le`
+Logic endpoint is a concept, which doesn't represent a real RPC call, but requires the statistic.
+The value of `x-le` should be JSON format, with two options.
+1. Define a separated logic endpoint. Provide its own endpoint name, latency and status. Suitable for entry and local span.
+```json
+{
+  "name": "GraphQL-service",
+  "latency": 100,
+  "status": true
+}
+```
+2. Declare the current local span representing a logic endpoint.
+```json
+{
+  "logic-span": true
+}
+``` 
 
 ### Advanced APIs
 #### Async Span APIs
@@ -345,6 +375,13 @@ public class URLInstrumentation extends ClassEnhancePluginDefine {
 **NOTICE**, doing bootstrap instrumentation should only happen in necessary, but mostly it effect the JRE core(rt.jar),
 and could make very unexpected result or side effect.
 
+### Plugin Test Tool
+[Apache SkyWalking Agent Test Tool Suite](https://github.com/apache/skywalking-agent-test-tool)
+a tremendously useful test tools suite in a wide variety of languages of Agent. Includes mock collector and validator. 
+The mock collector is a SkyWalking receiver, like OAP server.
+
+You could learn how to use this tool to test the plugin in [this doc](Plugin-test.md). If you want to contribute plugins
+to SkyWalking official repo, this is required.
 
 ### Contribute plugins into Apache SkyWalking repository
 We are welcome everyone to contribute plugins.

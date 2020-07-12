@@ -34,9 +34,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
         InstanceConstructorInterceptor {
+
+    private static final Pattern HTTP_METHOD_PATTERN = Pattern.compile("methods:\\[([a-zA-Z,]+)\\]");
 
     @Override
     public void onConstruct(EnhancedInstance objInst, Object[] allArguments) {
@@ -71,6 +76,27 @@ public class RouteStateInterceptor implements InstanceMethodsAroundInterceptor,
 
         Object connection = ((EnhancedInstance) routingContext.request()).getSkyWalkingDynamicField();
         VertxContext vertxContext = (VertxContext) ((EnhancedInstance) connection).getSkyWalkingDynamicField();
+
+        String routeMethods = null;
+        if (VertxContext.VERTX_VERSION >= 37.1) {
+            if (routingContext.currentRoute().methods() != null) {
+                routeMethods = "{" +
+                        routingContext.currentRoute().methods()
+                                .stream().map(Enum::toString)
+                                .collect(Collectors.joining(","))
+                        + "}";
+            }
+        } else {
+            //no methods() method; have to strip from toString()
+            Matcher matcher = HTTP_METHOD_PATTERN.matcher(routingContext.currentRoute().toString());
+            if (matcher.find()) {
+                routeMethods = "{" + matcher.group(1) + "}";
+            }
+        }
+        if (routeMethods != null && routingContext.currentRoute().getPath() != null) {
+            vertxContext.getSpan().setOperationName(routeMethods + routingContext.currentRoute().getPath());
+        }
+
         ContextManager.continued(vertxContext.getContextSnapshot());
         span.setComponent(ComponentsDefine.VERTX);
         SpanLayer.asHttp(span);

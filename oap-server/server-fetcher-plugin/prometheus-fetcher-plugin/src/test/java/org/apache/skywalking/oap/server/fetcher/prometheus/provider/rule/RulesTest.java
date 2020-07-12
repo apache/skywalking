@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.fetcher.prometheus.provider.rule;
 
 import java.util.List;
+import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rule;
+import org.apache.skywalking.oap.server.core.metric.promethues.rule.Rules;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.Test;
 
