@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.kafka.module;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.kafka.KafkaConsumerHandlerRegister;
 
 public class KafkaConsumerModule extends ModuleDefine {
     public static final String NAME = "receiver-kafka";
@@ -30,8 +29,6 @@ public class KafkaConsumerModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {
-            KafkaConsumerHandlerRegister.class
-        };
+        return new Class[] { };
     }
 }
