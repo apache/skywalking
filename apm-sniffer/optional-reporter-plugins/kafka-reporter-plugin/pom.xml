@@ -31,18 +31,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-agent-core</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-util</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafk-clients.version}</version>
@@ -90,7 +78,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.xerial</pattern>
-                                    <shadedPattern>${shade.package}/org.xerial</shadedPattern>
+                                    <shadedPattern>${shade.package}/org.d</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.jpountz</pattern>

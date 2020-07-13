@@ -335,6 +335,10 @@ The text of each license is the standard Apache 2.0 license.
     jose4j 0.7.0: https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j, Apache 2.0
     converter-moshi 2.5.0: https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi, Apache 2.0
     vavr 0.10.3: https://github.com/vavr-io/vavr, Apache 2.0
+    kafka-clients 2.4.1: https://github.com/apache/kafka, Apache 2.0
+    lz4-java 1.6.0: https://github.com/jpountz/lz4-java, Apache 2.0
+    snappy-java 1.1.7.3: https://github.com/xerial/snappy-java, Apache 2.0
+    slf4j-api 1.7.28: http://www.slf4j.org, Apache 2.0
 
 ========================================================================
 MIT licenses
@@ -379,6 +383,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
     proto files from gogo: https://github.com/gogo/protobuf  BSD-2
     proto files from grpc-gateway, https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-swagger/options BSD-3
+
+    zstd-jni 1.4.3-1: https://github.com/luben/zstd-jni, BSD-3-Clause
 
 ========================================================================
 MPL 2.0 licenses
