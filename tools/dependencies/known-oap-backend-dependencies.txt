@@ -162,3 +162,7 @@ vavr-0.10.3.jar
 vavr-match-0.10.3.jar
 zipkin-2.9.1.jar
 zookeeper-3.4.10.jar
+kafka-clients-2.4.1.jar
+lz4-java-1.6.0.jar
+snappy-java-1.1.7.3.jar
+zstd-jni-1.4.3-1.jar

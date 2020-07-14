@@ -14,6 +14,7 @@ We have following receivers, and `default` implementors are provided in our Apac
 1. **receiver_zipkin**. See [details](#zipkin-receiver).
 1. **receiver_jaeger**. See [details](#jaeger-receiver).
 1. **receiver-oc**. See [details](#oc-receiver).
+1. **kafka-receiver**. See [details](#kafka-receiver).
 
 The sample settings of these receivers should be already in default `application.yml`, and also list here
 ```yaml
@@ -127,4 +128,21 @@ receiver-oc:
   default:
     gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
+```
+
+## Kafka receiver
+
+Kafka Receiver supports to receive `TraceSegment`, `JVMMetrics` and others of Agent reported as gRPC Receiver.
+Currently, it has to connect to the whole topic or single partition of topic when OAP is in cluster mode.
+And we have to configure **Zookeeper** as the OAP cluster management tool.
+
+**Suggestion and recommend**, creating the Kafka topics by self before OAP Server starting. Although OAP server
+will create these if not exist.
+
+To active the `default` implementation:
+```yaml
+receiver-kafka:
+  selector: ${SW_RECEIVER_KAFKA:-}
+  kafka-consumer:
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
 ```
