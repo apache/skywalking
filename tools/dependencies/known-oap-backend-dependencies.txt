@@ -118,9 +118,9 @@ lucene-spatial-extras-7.3.1.jar
 lucene-spatial3d-7.3.1.jar
 lucene-suggest-7.3.1.jar
 minimal-json-0.9.5.jar
-nacos-api-1.3.0.jar
-nacos-client-1.3.0.jar
-nacos-common-1.3.0.jar
+nacos-api-1.3.1.jar
+nacos-client-1.3.1.jar
+nacos-common-1.3.1.jar
 moshi-1.5.0.jar
 msgpack-core-0.8.16.jar
 netty-3.10.5.Final.jar
