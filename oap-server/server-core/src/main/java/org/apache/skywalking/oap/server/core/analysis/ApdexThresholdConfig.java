@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -43,7 +42,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
 
     private Map<String, Integer> dictionary = Collections.emptyMap();
 
-    private String rawConfig = Const.EMPTY_STRING;
+    private String rawConfig;
 
     public ApdexThresholdConfig(final CoreModuleProvider provider) {
         super(CoreModule.NAME, provider, "apdexThreshold");
@@ -73,7 +72,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
     @Override
     public void notify(ConfigChangeEvent value) {
         if (EventType.DELETE.equals(value.getEventType())) {
-            activeSetting("");
+            activeSetting(null);
         } else {
             activeSetting(value.getNewValue());
         }
@@ -89,7 +88,16 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
             log.debug("Updating using new static config: {}", config);
         }
         rawConfig = config;
-        updateConfig(new StringReader(config));
+        if (config == null) {
+            try {
+                updateConfig(ResourceUtils.read(CONFIG_FILE_NAME));
+                return;
+            } catch (final FileNotFoundException e) {
+                log.error("Cannot config from: {}", CONFIG_FILE_NAME, e);
+            }
+        } else {
+            updateConfig(new StringReader(config));
+        }
     }
 
     @SuppressWarnings("unchecked")
