@@ -166,4 +166,6 @@ public class ComponentsDefine {
     public static final OfficialComponent BRPC_JAVA = new OfficialComponent(91, "brpc-java");
 
     public static final OfficialComponent GRAPHQL = new OfficialComponent(92, "GraphQL");
+
+    public static final OfficialComponent QUARTZ_SCHEDULER = new OfficialComponent(93, "quartz-scheduler");
 }

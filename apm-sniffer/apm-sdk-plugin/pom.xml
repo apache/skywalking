@@ -95,6 +95,7 @@
         <module>influxdb-2.x-plugin</module>
         <module>baidu-brpc-plugin</module>
         <module>graphql-plugin</module>
+        <module>quartz-scheduler-plugin</module>
     </modules>
     <packaging>pom</packaging>
 
