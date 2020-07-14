@@ -49,16 +49,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
-                            <artifactSet>
-                                <excludes>
-                                    <exclude>org.apache.kafka:kafka-clients:test:</exclude>
-                                    <exclude>org.apache.skywalking:apm-agent-core:</exclude>
-                                </excludes>
-                            </artifactSet>
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
@@ -78,7 +72,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.xerial</pattern>
-                                    <shadedPattern>${shade.package}/org.d</shadedPattern>
+                                    <shadedPattern>${shade.package}/org.xerial</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.jpountz</pattern>

@@ -42,6 +42,9 @@ import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.apm.util.StringUtil;
 
+/**
+ * Instance registering properties and Instance pinging reporter.
+ */
 @OverrideImplementor(ServiceManagementClient.class)
 public class KafkaServiceManagementService implements BootService, Runnable {
     private static final ILog logger = LogManager.getLogger(KafkaServiceManagementService.class);

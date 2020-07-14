@@ -35,6 +35,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
 
+/**
+ * JVM Metrics Reporter
+ */
 @OverrideImplementor(JVMServiceGRPCSender.class)
 public class KafkaJVMServiceSender implements JVMServiceSender {
     private static final ILog logger = LogManager.getLogger(KafkaJVMServiceSender.class);
@@ -59,7 +62,7 @@ public class KafkaJVMServiceSender implements JVMServiceSender {
 
                 if (logger.isDebugEnable()) {
                     logger.debug(
-                        "sending, size: {}, key: {}, length: {}", topic, buffer.size(), metrics.getServiceInstance());
+                        "sending, topic: {}, key: {}, length: {}", topic, metrics.getServiceInstance(), buffer.size());
                 }
 
                 producer.send(new ProducerRecord<>(

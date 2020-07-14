@@ -36,6 +36,9 @@ import org.apache.skywalking.apm.agent.core.remote.GRPCChannelManager;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
 
+/**
+ * Profile Reporter
+ */
 @OverrideImplementor(ProfileTaskChannelService.class)
 public class KafkaProfileTaskService extends ProfileTaskChannelService {
     private static final ILog logger = LogManager.getLogger(KafkaProfileTaskService.class);

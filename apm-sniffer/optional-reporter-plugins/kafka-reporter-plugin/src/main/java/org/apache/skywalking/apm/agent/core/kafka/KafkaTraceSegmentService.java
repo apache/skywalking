@@ -33,6 +33,9 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.TraceSegmentServiceClient;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
+/**
+ * TraceSegment Reporter.
+ */
 @OverrideImplementor(TraceSegmentServiceClient.class)
 public class KafkaTraceSegmentService implements BootService, TracingContextListener {
     private static final ILog logger = LogManager.getLogger(KafkaTraceSegmentService.class);

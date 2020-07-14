@@ -23,14 +23,13 @@ import org.apache.skywalking.apm.agent.core.context.ContextManagerExtendService;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelStatus;
 
 /**
- * For compatible with {@link ContextManagerExtendService}
+ * For compatible with {@link ContextManagerExtendService}, don't need to manage connection status by self.
  */
 @OverrideImplementor(ContextManagerExtendService.class)
 public class KafkaContextManagerExtendService extends ContextManagerExtendService {
 
     @Override
     public void prepare() {
-        // In Kafka, we don't need to manage the connection status.
         statusChanged(GRPCChannelStatus.CONNECTED);
     }
 

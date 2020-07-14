@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfi
 import org.apache.skywalking.oap.server.receiver.kafka.provider.handler.KafkaConsumerHandler;
 
 /**
- *
+ * Configuring and initializing a KafkaConsumer client as a dispatcher to delivery Kafka Message to registered handler by topic.
  */
 @Slf4j
 public class KafkaConsumerHandlerRegister implements Runnable {
@@ -136,9 +136,6 @@ public class KafkaConsumerHandlerRegister implements Runnable {
                 Iterator<ConsumerRecord<String, Bytes>> iterator = consumerRecords.iterator();
                 while (iterator.hasNext()) {
                     ConsumerRecord<String, Bytes> record = iterator.next();
-                    if (log.isDebugEnabled()) {
-                        log.debug("topic = {}, key = {}", record.topic(), record.key());
-                    }
                     handlerMap.get(record.topic()).handle(record);
                 }
                 consumer.commitAsync();

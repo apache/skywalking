@@ -78,7 +78,7 @@ public class KafkaConsumerProvider extends ModuleProvider {
             try {
                 updater.updateRemoteNodes(config.getServerId().toString());
             } catch (Exception e) {
-                throw new ModuleStartException(""); // FIXME
+                throw new ModuleStartException(e.getMessage(), e);
             }
         }
 
