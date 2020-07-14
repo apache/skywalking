@@ -64,7 +64,7 @@
         <h2.version>1.4.196</h2.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-io.version>2.6</commons-io.version>
-        <elasticsearch.version>6.3.2</elasticsearch.version>
+        <elasticsearch.version>6.8.10</elasticsearch.version>
         <joda-time.version>2.10.5</joda-time.version>
         <kubernetes.version>8.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
