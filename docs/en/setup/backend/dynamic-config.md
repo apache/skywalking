@@ -110,9 +110,9 @@ configuration:
 
 ```yaml
 configuration:
-  selector: ${SW_CONFIGURATION:configmap}
-  # [example] (../../../../oap-server/server-configuration/configuration-configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
-  configmap:
+  selector: ${SW_CONFIGURATION:k8s_configmap}
+  # [example] (../../../../oap-server/server-configuration/configuration-k8s_configmap/src/test/resources/skywalking-dynamic-configmap.example.yaml)
+  k8s_configmap:
       # Sync period in seconds. Defaults to 60 seconds.
       period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
       # Which namespace is confiigmap deployed in.

@@ -45,7 +45,9 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
         for (final String name : keys) {
 
             final String value = v1ConfigMap.map(configMap -> configMap.getData().get(name)).orElse(null);
-            log.debug("read config: name:{} ,value:{}", name, value);
+            if (log.isDebugEnabled()) {
+                log.debug("read config: name:{} ,value:{}", name, value);
+            }
             configTable.add(new ConfigTable.ConfigItem(name, value));
         }
 

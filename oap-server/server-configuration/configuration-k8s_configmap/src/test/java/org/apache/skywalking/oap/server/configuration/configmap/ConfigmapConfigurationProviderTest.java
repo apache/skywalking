@@ -35,7 +35,7 @@ public class ConfigmapConfigurationProviderTest {
 
     @Test
     public void name() {
-        assertEquals("configmap", provider.name());
+        assertEquals("k8s_configmap", provider.name());
     }
 
     @Test

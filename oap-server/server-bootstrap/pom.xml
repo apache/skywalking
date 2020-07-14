@@ -197,7 +197,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>configuration-configmap</artifactId>
+            <artifactId>configuration-k8s_configmap</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

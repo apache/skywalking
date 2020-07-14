@@ -34,7 +34,7 @@ public class ConfigmapConfigurationProvider extends AbstractConfigurationProvide
 
     @Override
     public String name() {
-        return "configmap";
+        return "k8s_configmap";
     }
 
     @Override
