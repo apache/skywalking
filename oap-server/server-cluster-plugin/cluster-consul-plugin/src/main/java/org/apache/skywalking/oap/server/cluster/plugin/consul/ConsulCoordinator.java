@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
 
@@ -79,7 +78,6 @@ public class ConsulCoordinator implements ClusterRegister, ClusterNodesQuery {
         AgentClient agentClient = client.agentClient();
 
         this.selfAddress = remoteInstance.getAddress();
-        TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
 
         Registration registration = ImmutableRegistration.builder()
                                                          .id(remoteInstance.getAddress().toString())
