@@ -28,3 +28,4 @@ org.apache.skywalking.apm.agent.core.commands.CommandExecutorService
 org.apache.skywalking.apm.agent.core.profile.ProfileTaskChannelService
 org.apache.skywalking.apm.agent.core.profile.ProfileTaskExecutionService
 org.apache.skywalking.apm.agent.core.meter.MeterService
+org.apache.skywalking.apm.agent.core.discovery.DefaultDiscoveryService

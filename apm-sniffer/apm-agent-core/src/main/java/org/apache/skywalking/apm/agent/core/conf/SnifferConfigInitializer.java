@@ -91,11 +91,11 @@ public class SnifferConfigInitializer {
         if (StringUtil.isEmpty(Config.Agent.SERVICE_NAME)) {
             throw new ExceptionInInitializerError("`agent.service_name` is missing.");
         }
-        if (StringUtil.isEmpty(Config.Collector.BACKEND_SERVICE)) {
-            throw new ExceptionInInitializerError("`collector.backend_service` is missing.");
-        }
+
         if (Config.Plugin.PEER_MAX_LENGTH <= 3) {
-            logger.warn("PEER_MAX_LENGTH configuration:{} error, the default value of 200 will be used.", Config.Plugin.PEER_MAX_LENGTH);
+            logger.warn("PEER_MAX_LENGTH configuration:{} error, the default value of 200 will be used.",
+                Config.Plugin.PEER_MAX_LENGTH
+            );
             Config.Plugin.PEER_MAX_LENGTH = 200;
         }
 
@@ -175,7 +175,8 @@ public class SnifferConfigInitializer {
      */
     private static InputStreamReader loadConfig() throws AgentPackageNotFoundException, ConfigNotFoundException {
         String specifiedConfigPath = System.getProperty(SPECIFIED_CONFIG_PATH);
-        File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
+        File configFile = StringUtil.isEmpty(specifiedConfigPath) ? new File(
+            AgentPackagePath.getPath(), DEFAULT_CONFIG_FILE_NAME) : new File(specifiedConfigPath);
 
         if (configFile.exists() && configFile.isFile()) {
             try {

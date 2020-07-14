@@ -27,7 +27,6 @@ import org.apache.skywalking.apm.agent.core.logging.core.WriterFactory;
 import org.apache.skywalking.apm.agent.core.plugin.bytebuddy.ClassCacheMode;
 import org.apache.skywalking.apm.util.Length;
 
-
 /**
  * This is the core config in sniffer agent.
  */
@@ -76,15 +75,15 @@ public class Config {
         public static boolean IS_OPEN_DEBUGGING_CLASS = false;
 
         /**
-         * If true, SkyWalking agent will cache all instrumented classes to memory or disk files (decided by class cache mode),
-         * allow other javaagent to enhance those classes that enhanced by SkyWalking agent.
+         * If true, SkyWalking agent will cache all instrumented classes to memory or disk files (decided by class cache
+         * mode), allow other javaagent to enhance those classes that enhanced by SkyWalking agent.
          */
         public static boolean IS_CACHE_ENHANCED_CLASS = false;
 
         /**
-         * The instrumented classes cache mode: MEMORY or FILE
-         * MEMORY: cache class bytes to memory, if instrumented classes is too many or too large, it may take up more memory
-         * FILE: cache class bytes in `/class-cache` folder, automatically clean up cached class files when the application exits
+         * The instrumented classes cache mode: MEMORY or FILE MEMORY: cache class bytes to memory, if instrumented
+         * classes is too many or too large, it may take up more memory FILE: cache class bytes in `/class-cache`
+         * folder, automatically clean up cached class files when the application exits
          */
         public static ClassCacheMode CLASS_CACHE_MODE = ClassCacheMode.MEMORY;
 
@@ -144,10 +143,6 @@ public class Config {
          */
         public static long HEARTBEAT_PERIOD = 30;
         /**
-         * Collector skywalking trace receiver service addresses.
-         */
-        public static String BACKEND_SERVICE = "";
-        /**
          * How long grpc client will timeout in sending data to upstream.
          */
         public static int GRPC_UPSTREAM_TIMEOUT = 30;
@@ -155,6 +150,35 @@ public class Config {
          * Get profile task list interval
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
+
+        public static class ServiceDiscorvery {
+
+            public static class Static {
+                /**
+                 * Collector skywalking trace receiver service addresses.
+                 */
+                public static String BACKEND_SERVICE = "";
+            }
+
+            public static class Kubernetes {
+                /**
+                 * Collector running in this namespace
+                 */
+                public static String NAMESPACE = "";
+
+                /**
+                 * Collector kubernetes service label selector
+                 */
+                public static String LABEL_SELECTOR = "";
+
+                /**
+                 * Collector kubernetes service port name
+                 */
+                public static String PORT_NAME = "";
+            }
+
+        }
+
     }
 
     public static class Profile {

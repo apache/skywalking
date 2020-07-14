@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.apm.agent.core.remote;
 
+import com.google.common.base.Joiner;
 import io.grpc.Channel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,10 +29,13 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.apm.agent.core.boot.Address;
 import org.apache.skywalking.apm.agent.core.boot.BootService;
 import org.apache.skywalking.apm.agent.core.boot.DefaultImplementor;
 import org.apache.skywalking.apm.agent.core.boot.DefaultNamedThreadFactory;
+import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
+import org.apache.skywalking.apm.agent.core.discovery.DefaultDiscoveryService;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.util.RunnableWithExceptionProtection;
@@ -46,7 +49,6 @@ public class GRPCChannelManager implements BootService, Runnable {
     private volatile boolean reconnect = true;
     private final Random random = new Random();
     private final List<GRPCChannelListener> listeners = Collections.synchronizedList(new LinkedList<>());
-    private volatile List<String> grpcServers;
     private volatile int selectedIdx = -1;
     private volatile int reconnectCount = 0;
 
@@ -57,12 +59,7 @@ public class GRPCChannelManager implements BootService, Runnable {
 
     @Override
     public void boot() {
-        if (Config.Collector.BACKEND_SERVICE.trim().length() == 0) {
-            logger.error("Collector server addresses are not set.");
-            logger.error("Agent will not uplink any data.");
-            return;
-        }
-        grpcServers = Arrays.asList(Config.Collector.BACKEND_SERVICE.split(","));
+
         connectCheckFuture = Executors.newSingleThreadScheduledExecutor(
             new DefaultNamedThreadFactory("GRPCChannelManager")
         ).scheduleAtFixedRate(
@@ -93,21 +90,23 @@ public class GRPCChannelManager implements BootService, Runnable {
     public void run() {
         logger.debug("Selected collector grpc service running, reconnect:{}.", reconnect);
         if (reconnect) {
+            List<Address> grpcServers = ServiceManager.INSTANCE.findService(DefaultDiscoveryService.class)
+                                                               .queryRemoteAddresses();
+            logger.info("running server addresses:{}", Joiner.on(",").join(grpcServers));
             if (grpcServers.size() > 0) {
-                String server = "";
+                Address server = null;
                 try {
                     int index = Math.abs(random.nextInt()) % grpcServers.size();
                     if (index != selectedIdx) {
                         selectedIdx = index;
 
                         server = grpcServers.get(index);
-                        String[] ipAndPort = server.split(":");
 
                         if (managedChannel != null) {
                             managedChannel.shutdownNow();
                         }
 
-                        managedChannel = GRPCChannel.newBuilder(ipAndPort[0], Integer.parseInt(ipAndPort[1]))
+                        managedChannel = GRPCChannel.newBuilder(server.getHost(), server.getPort())
                                                     .addManagedChannelBuilder(new StandardChannelBuilder())
                                                     .addManagedChannelBuilder(new TLSChannelBuilder())
                                                     .addChannelDecorator(new AgentIDDecorator())
