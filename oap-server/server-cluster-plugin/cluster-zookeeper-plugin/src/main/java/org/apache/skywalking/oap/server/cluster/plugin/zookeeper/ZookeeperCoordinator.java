@@ -92,7 +92,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery,
             if (service.getPayload().getAddress().equals(selfAddress)) {
                 self = service;
             } else if (StringUtil.isNotEmpty(serverId) && serverId.equals(service.getPayload().getServerId())) {
-                throw new ServiceRegisterException("ServerId[" + serverId + "] confirmed");
+                throw new ServiceRegisterException("ServerId[" + serverId + "] conflict.");
             }
         }
         if (self == null) {

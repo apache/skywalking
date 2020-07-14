@@ -39,7 +39,7 @@ import org.apache.skywalking.apm.agent.core.conf.Config;
  *  Configuring, initializing and holding a KafkaProducer instance for reporters.
  */
 @DefaultImplementor
-public class KafkaServiceManagementProducer implements BootService, Runnable {
+public class KafkaProducerService implements BootService, Runnable {
 
     private KafkaProducer<String, Bytes> producer;
 
