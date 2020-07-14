@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.kafka.provider;
 
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerConfig;
+import org.apache.skywalking.oap.server.receiver.kafka.module.KafkaConsumerModule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,7 +36,7 @@ public class KafkaConsumerProviderTest {
 
     @Test
     public void module() {
-        assertEquals(KafkaConsumerProvider.class, provider.module());
+        assertEquals(KafkaConsumerModule.class, provider.module());
     }
 
     @Test
