@@ -104,6 +104,7 @@ storage:
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    enableHealthCheck: ${SW_STORAGE_ES_ENABLE_HEALTH_CHECK:false}
   elasticsearch7:
     nameSpace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}

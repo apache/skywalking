@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLContext;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,8 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthListener;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -105,6 +108,8 @@ public class ElasticSearchClient implements Client {
     private volatile String password;
     private final List<IndexNameConverter> indexNameConverters;
     protected volatile RestHighLevelClient client;
+    private HealthChecker healthChecker = HealthChecker.DEFAULT_CHECKER;
+    private final ReentrantLock connectLock = new ReentrantLock();
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,
@@ -124,16 +129,25 @@ public class ElasticSearchClient implements Client {
 
     @Override
     public void connect() throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
-        List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
-        if (client != null) {
-            try {
-                client.close();
-            } catch (Throwable t) {
-                log.error("ElasticSearch client reconnection fails based on new config", t);
+        connectLock.lock();
+        try {
+            List<HttpHost> hosts = parseClusterNodes(protocol, clusterNodes);
+            if (client != null) {
+                try {
+                    client.close();
+                } catch (Throwable t) {
+                    log.error("ElasticSearch client reconnection fails based on new config", t);
+                }
             }
+            client = createClient(hosts);
+            client.ping(RequestOptions.DEFAULT);
+        } finally {
+            connectLock.unlock();
         }
-        client = createClient(hosts);
-        client.ping(RequestOptions.DEFAULT);
+    }
+
+    public void activeHealthChecker(HealthListener healthListener) {
+        healthChecker = new HealthChecker(healthListener);
     }
 
     protected RestHighLevelClient createClient(
@@ -210,10 +224,23 @@ public class ElasticSearchClient implements Client {
 
     public List<String> retrievalIndexByAliases(String aliases) throws IOException {
         aliases = formatIndexName(aliases);
-        Response response = client.getLowLevelClient().performRequest(new Request(HttpGet.METHOD_NAME, "/_alias/" + aliases));
+        Response response;
+        try {
+            response = client.getLowLevelClient().performRequest(new Request(HttpGet.METHOD_NAME, "/_alias/" + aliases));
+            healthChecker.health();
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
         if (HttpStatus.SC_OK == response.getStatusLine().getStatusCode()) {
             Gson gson = new Gson();
-            InputStreamReader reader = new InputStreamReader(response.getEntity().getContent());
+            InputStreamReader reader;
+            try {
+                reader = new InputStreamReader(response.getEntity().getContent());
+            } catch (Throwable t) {
+                healthChecker.unHealth(t);
+                throw t;
+            }
             JsonObject responseJson = gson.fromJson(reader, JsonObject.class);
             log.debug("retrieval indexes by aliases {}, response is {}", aliases, responseJson);
             return new ArrayList<>(responseJson.keySet());
@@ -308,13 +335,39 @@ public class ElasticSearchClient implements Client {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
-        return client.search(searchRequest, RequestOptions.DEFAULT);
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            healthChecker.health();
+            return response;
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            if (t instanceof IllegalStateException) {
+                IllegalStateException ise = (IllegalStateException) t;
+                // Fixed the issue described in https://github.com/elastic/elasticsearch/issues/39946
+                if (ise.getMessage().contains("I/O reactor status: STOPPED") &&
+                    connectLock.tryLock()) {
+                    try {
+                        connect();
+                    } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
+                        throw new IllegalStateException("Can't reconnect to Elasticsearch", e);
+                    }
+                }
+            }
+            throw t;
+        }
     }
 
     public GetResponse get(String indexName, String id) throws IOException {
         indexName = formatIndexName(indexName);
         GetRequest request = new GetRequest(indexName, TYPE, id);
-        return client.get(request, RequestOptions.DEFAULT);
+        try {
+            GetResponse response = client.get(request, RequestOptions.DEFAULT);
+            healthChecker.health();
+            return response;
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     public SearchResponse ids(String indexName, String[] ids) throws IOException {
@@ -323,28 +376,39 @@ public class ElasticSearchClient implements Client {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(TYPE);
         searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).size(ids.length);
-        return client.search(searchRequest, RequestOptions.DEFAULT);
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            healthChecker.health();
+            return response;
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     public void forceInsert(String indexName, String id, XContentBuilder source) throws IOException {
         IndexRequest request = (IndexRequest) prepareInsert(indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.index(request, RequestOptions.DEFAULT);
-    }
-
-    public void forceUpdate(String indexName, String id, XContentBuilder source, long version) throws IOException {
-        org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
-            indexName, id, source);
-        request.version(version);
-        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request, RequestOptions.DEFAULT);
+        try {
+            client.index(request, RequestOptions.DEFAULT);
+            healthChecker.health();
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     public void forceUpdate(String indexName, String id, XContentBuilder source) throws IOException {
         org.elasticsearch.action.update.UpdateRequest request = (org.elasticsearch.action.update.UpdateRequest) prepareUpdate(
             indexName, id, source);
         request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        client.update(request, RequestOptions.DEFAULT);
+        try {
+            client.update(request, RequestOptions.DEFAULT);
+            healthChecker.health();
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
+            throw t;
+        }
     }
 
     public InsertRequest prepareInsert(String indexName, String id, XContentBuilder source) {
@@ -377,8 +441,9 @@ public class ElasticSearchClient implements Client {
             int size = request.requests().size();
             BulkResponse responses = client.bulk(request, RequestOptions.DEFAULT);
             log.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            healthChecker.health();
+        } catch (Throwable t) {
+            healthChecker.unHealth(t);
         }
     }
 
