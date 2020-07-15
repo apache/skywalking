@@ -19,7 +19,7 @@ segmentItems:
   segments:
   - segmentId: not null
     spans:
-    - operationName: /greet/{username}
+    - operationName: '{GET}/greet/{username}'
       operationId: 0
       parentSpanId: -1
       spanId: 0
@@ -63,7 +63,7 @@ segmentItems:
       spanType: Local
       peer: ''
       refs:
-      - {parentEndpoint: '/greet/{username}', networkAddress: '', refType: CrossThread,
+      - {parentEndpoint: '{GET}/greet/{username}', networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: jdk-threading-scenario, traceId: not null}
       skipAnalysis: 'false'
@@ -96,7 +96,7 @@ segmentItems:
       spanType: Local
       peer: ''
       refs:
-      - {parentEndpoint: '/greet/{username}', networkAddress: '', refType: CrossThread,
+      - {parentEndpoint: '{GET}/greet/{username}', networkAddress: '', refType: CrossThread,
         parentSpanId: 0, parentTraceSegmentId: not null, parentServiceInstance: not
           null, parentService: jdk-threading-scenario, traceId: not null}
       skipAnalysis: 'false'
