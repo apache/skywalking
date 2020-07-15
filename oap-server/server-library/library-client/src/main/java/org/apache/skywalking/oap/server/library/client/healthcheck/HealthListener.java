@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.library.client.healthcheck;
 
 /**
- * HealthChecker checks service health.
+ * HealthListener notify the result of health check.
  */
 public interface HealthListener {
 
