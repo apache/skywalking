@@ -55,7 +55,7 @@ public class KafkaProfileTaskService extends ProfileTaskChannelService {
     @Override
     public void boot() {
         if (Config.Profile.ACTIVE) {
-            producer = ServiceManager.INSTANCE.findService(KafkaServiceManagementProducer.class).getProducer();
+            producer = ServiceManager.INSTANCE.findService(KafkaProducerManager.class).getProducer();
 
             getTaskListFuture = Executors.newSingleThreadScheduledExecutor(
                 new DefaultNamedThreadFactory("ProfileGetTaskService")
