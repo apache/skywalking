@@ -127,6 +127,7 @@ storage:
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    enableHealthCheck: ${SW_STORAGE_ES_ENABLE_HEALTH_CHECK:false}
   h2:
     driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
     url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}

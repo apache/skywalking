@@ -70,6 +70,10 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.Meta
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.MetricsQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.ProfileThreadSnapshotQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.TraceQueryEs7DAO;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchProvider.indexNameConverters;
 
@@ -186,6 +190,9 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        GaugeMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        healthChecker.setValue(1);
         try {
             elasticSearch7Client.connect();
 
@@ -194,6 +201,10 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+        if (!config.isEnableHealthCheck()) {
+            return;
+        }
+        elasticSearch7Client.activeHealthChecker(isHealthy -> healthChecker.setValue(isHealthy ? 0 : 1));
     }
 
     @Override
@@ -202,6 +213,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[]{CoreModule.NAME, TelemetryModule.NAME};
     }
 }

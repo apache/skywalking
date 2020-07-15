@@ -106,8 +106,8 @@ public class ElasticSearchClient implements Client {
     private volatile String password;
     private final List<IndexNameConverter> indexNameConverters;
     protected volatile RestHighLevelClient client;
-    private HealthChecker healthChecker = HealthChecker.DEFAULT_CHECKER;
-    private final ReentrantLock connectLock = new ReentrantLock();
+    protected HealthChecker healthChecker = HealthChecker.DEFAULT_CHECKER;
+    protected final ReentrantLock connectLock = new ReentrantLock();
 
     public ElasticSearchClient(String clusterNodes,
                                String protocol,
@@ -343,19 +343,24 @@ public class ElasticSearchClient implements Client {
             return response;
         } catch (Throwable t) {
             healthChecker.unHealth(t);
-            if (t instanceof IllegalStateException) {
-                IllegalStateException ise = (IllegalStateException) t;
-                // Fixed the issue described in https://github.com/elastic/elasticsearch/issues/39946
-                if (ise.getMessage().contains("I/O reactor status: STOPPED") &&
-                    connectLock.tryLock()) {
-                    try {
-                        connect();
-                    } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
-                        throw new IllegalStateException("Can't reconnect to Elasticsearch", e);
-                    }
-                }
-            }
+            handleIOPoolStopped(t);
             throw t;
+        }
+    }
+
+    protected void handleIOPoolStopped(Throwable t) throws IOException {
+        if (!(t instanceof IllegalStateException)) {
+            return;
+        }
+        IllegalStateException ise = (IllegalStateException) t;
+        // Fixed the issue described in https://github.com/elastic/elasticsearch/issues/39946
+        if (ise.getMessage().contains("I/O reactor status: STOPPED") &&
+            connectLock.tryLock()) {
+            try {
+                connect();
+            } catch (KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
+                throw new IllegalStateException("Can't reconnect to Elasticsearch", e);
+            }
         }
     }
 

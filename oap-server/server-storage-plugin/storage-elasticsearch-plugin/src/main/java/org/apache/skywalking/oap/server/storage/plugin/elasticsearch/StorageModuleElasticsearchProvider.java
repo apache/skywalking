@@ -208,7 +208,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{CoreModule.NAME};
+        return new String[]{CoreModule.NAME, TelemetryModule.NAME};
     }
 
     public static List<IndexNameConverter> indexNameConverters(String namespace) {
