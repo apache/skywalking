@@ -46,7 +46,6 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -58,6 +57,12 @@ import static org.junit.Assert.assertThat;
 @PowerMockRunnerDelegate(TracingSegmentRunner.class)
 public class QuartzJobExecutorInterceptorTest {
 
+    private String testGroup = "testGroup";
+
+    private String testJob = "testJob";
+
+    private String cron = "0/5 * * * * ?";
+
     @SegmentStoragePoint
     private SegmentStorage segmentStorage;
 
@@ -67,14 +72,16 @@ public class QuartzJobExecutorInterceptorTest {
     private QuartzJobExecutorInterceptor quartzJobExecutorInterceptor;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() {
         quartzJobExecutorInterceptor = new QuartzJobExecutorInterceptor();
     }
 
     @Test
     public void assertSuccess() throws Throwable {
+
+        JobExecutionContext jobExecutionContext = mockShardingContext();
         quartzJobExecutorInterceptor.beforeMethod(null, null, new Object[]{
-                mockShardingContext(),
+                jobExecutionContext,
                 1
         }, null, null);
         quartzJobExecutorInterceptor.afterMethod(null, null, null, null, null);
@@ -82,20 +89,20 @@ public class QuartzJobExecutorInterceptorTest {
         List<AbstractTracingSpan> spans = SegmentHelper.getSpans(segment);
         assertNotNull(spans);
         assertThat(spans.size(), is(1));
-        assertThat(spans.get(0).getOperationName(), is("testGroup_testJob"));
+        assertThat(spans.get(0).getOperationName(), is(testGroup + "_" + testJob));
         assertThat(spans.get(0)
                 .transform()
                 .getTags(0)
-                .getValue(), is("JobExecutionContext: trigger: 'null job: testGroup.testJob fireTime: 'Thu Jul 09 20:58:48 CST 2020 scheduledFireTime: Thu Jul 09 20:58:48 CST 2020 previousFireTime: 'Thu Jul 09 20:58:48 CST 2020 nextFireTime: Thu Jul 09 20:58:48 CST 2020 isRecovering: false refireCount: 0"));
+                .getValue(), is(jobExecutionContext.toString()));
     }
 
     private JobExecutionContext mockShardingContext() throws Exception {
 
         SchedulerFactory sf = new StdSchedulerFactory();
         Scheduler scheduler = sf.getScheduler();
-        JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity("testJob", "testGroup").build();
+        JobDetail jobDetail = JobBuilder.newJob(TestJob.class).withIdentity(testJob, testGroup).build();
         OperableTrigger operableTrigger = new SimpleTriggerImpl();
-        Calendar calendar = new CronCalendar("0/5 * * * * ?");
+        Calendar calendar = new CronCalendar(cron);
         TriggerFiredBundle triggerFiredBundle = new TriggerFiredBundle(jobDetail, operableTrigger, calendar, false, new Date(1594299528953L), new Date(1594299528953L), new Date(1594299528953L), new Date(1594299528953L));
         TestJob testJob = new TestJob();
         JobExecutionContextImpl jobExecutionContext = new JobExecutionContextImpl(scheduler, triggerFiredBundle, testJob);
