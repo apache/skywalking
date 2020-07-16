@@ -46,4 +46,9 @@ public interface GaugeMetrics {
      * Set the given value to the gauge
      */
     void setValue(double value);
+
+    /**
+     * Get the current value of the gauge
+     */
+    double getValue();
 }

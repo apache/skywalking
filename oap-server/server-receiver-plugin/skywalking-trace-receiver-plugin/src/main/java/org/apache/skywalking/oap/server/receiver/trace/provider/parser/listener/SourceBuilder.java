@@ -57,6 +57,17 @@ class SourceBuilder {
         this.sourceServiceInstanceName = namingControl.formatInstanceName(sourceServiceInstanceName);
     }
 
+    /**
+     * Source endpoint could be not owned by {@link #sourceServiceName}, such as in the MQ or un-instrumented proxy
+     * cases. This service always comes from the span.ref, so it is always a normal service.
+     */
+    @Getter
+    private String sourceEndpointOwnerServiceName;
+
+    public void setSourceEndpointOwnerServiceName(final String sourceServiceName) {
+        this.sourceEndpointOwnerServiceName = namingControl.formatServiceName(sourceServiceName);
+    }
+
     @Getter
     private String sourceEndpointName;
 
@@ -234,8 +245,13 @@ class SourceBuilder {
         }
         EndpointRelation endpointRelation = new EndpointRelation();
         endpointRelation.setEndpoint(sourceEndpointName);
-        endpointRelation.setServiceName(sourceServiceName);
-        endpointRelation.setServiceNodeType(sourceNodeType);
+        if (sourceEndpointOwnerServiceName == null) {
+            endpointRelation.setServiceName(sourceServiceName);
+            endpointRelation.setServiceNodeType(sourceNodeType);
+        } else {
+            endpointRelation.setServiceName(sourceEndpointOwnerServiceName);
+            endpointRelation.setServiceNodeType(NodeType.Normal);
+        }
         endpointRelation.setServiceInstanceName(sourceServiceInstanceName);
         endpointRelation.setChildEndpoint(destEndpointName);
         endpointRelation.setChildServiceName(destServiceName);

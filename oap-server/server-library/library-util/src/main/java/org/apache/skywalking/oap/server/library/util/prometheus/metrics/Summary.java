@@ -35,8 +35,8 @@ public class Summary extends Metric {
 
     @lombok.Builder
     public Summary(String name, @Singular Map<String, String> labels, long sampleCount, double sampleSum,
-        @Singular Map<Double, Double> quantiles) {
-        super(name, labels);
+        @Singular Map<Double, Double> quantiles, long timestamp) {
+        super(name, labels, timestamp);
         getLabels().remove("quantile");
         this.sampleCount = sampleCount;
         this.sampleSum = sampleSum;

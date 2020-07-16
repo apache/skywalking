@@ -99,6 +99,7 @@ public class OALRuntime implements OALEngine {
         "data2Map",
         "map2Data"
     };
+    private static boolean IS_RT_TEMP_FOLDER_INIT_COMPLETED = false;
 
     private final OALDefine oalDefine;
     private final ClassPool classPool;
@@ -135,7 +136,10 @@ public class OALRuntime implements OALEngine {
 
     @Override
     public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
-        prepareRTTempFolder();
+        if (!IS_RT_TEMP_FOLDER_INIT_COMPLETED) {
+            prepareRTTempFolder();
+            IS_RT_TEMP_FOLDER_INIT_COMPLETED = true;
+        }
 
         this.currentClassLoader = currentClassLoader;
         Reader read;
