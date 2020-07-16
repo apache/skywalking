@@ -95,7 +95,8 @@
   * [Ehcache](https://www.ehcache.org/) 2.x
 * Kotlin
   * [Coroutine](https://kotlinlang.org/docs/reference/coroutines-overview.html) 1.0.1 -> 1.3.x (Optional²)
-
+* GraphQL
+  * [Graphql](https://github.com/graphql-java) 8.0 -> 15.x
 
 ¹Due to license incompatibilities/restrictions these plugins are hosted and released in 3rd part repository, 
  go to [SkyAPM java plugin extension repository](https://github.com/SkyAPM/java-plugin-extensions) to get these.
