@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.Gauge;
-import java.util.Optional;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -69,11 +68,6 @@ public class PrometheusGaugeMetrics extends BaseMetrics<Gauge, Gauge.Child> impl
         if (metrics != null) {
             metrics.set(value);
         }
-    }
-
-    @Override
-    public double getValue() {
-        return Optional.ofNullable(this.getMetric()).orElse(new Gauge.Child()).get();
     }
 
     @Override

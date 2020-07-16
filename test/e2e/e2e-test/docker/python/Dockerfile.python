@@ -15,7 +15,7 @@
 
 FROM python:3.7
 
-ENV COMMIT_HASH=13edd9ddd0eaefffcabd851e2f3b65a2ffb20e73
+ENV COMMIT_HASH=1bfced8e967fb4a74f9ac2eabe3a9d01efab3d94
 
 WORKDIR /app
 

@@ -42,7 +42,7 @@ public class TextParser implements Parser {
     }
 
     @Override
-    public MetricFamily parse(long now) throws IOException {
+    public MetricFamily parse() throws IOException {
         String line;
         if (lastLineReadFromStream != null) {
             line = lastLineReadFromStream;
@@ -54,7 +54,7 @@ public class TextParser implements Parser {
             return null;
         }
 
-        Context ctx = new Context(now);
+        Context ctx = new Context();
         while (line != null) {
             line = line.trim();
 

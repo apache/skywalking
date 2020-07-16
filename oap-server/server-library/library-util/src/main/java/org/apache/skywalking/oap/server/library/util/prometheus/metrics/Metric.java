@@ -31,12 +31,10 @@ public abstract class Metric {
 
     private final String name;
     private final Map<String, String> labels;
-    private final long timestamp;
 
-    protected Metric(String name, Map<String, String> labels, long timestamp) {
+    protected Metric(String name, Map<String, String> labels) {
         this.name = name;
         this.labels = Maps.newHashMap(labels);
-        this.timestamp = timestamp;
     }
 
     public abstract Metric sum(Metric m);

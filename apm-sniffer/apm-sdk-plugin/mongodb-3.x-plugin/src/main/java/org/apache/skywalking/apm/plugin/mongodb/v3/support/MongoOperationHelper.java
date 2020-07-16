@@ -128,7 +128,8 @@ public class MongoOperationHelper {
             }
             final int filterLengthLimit = Config.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
             if (filterLengthLimit > 0 && params.length() > filterLengthLimit) {
-                return params.substring(0, filterLengthLimit) + "...";
+                params.append("...");
+                break;
             }
         }
         return params.toString();

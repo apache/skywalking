@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
@@ -195,6 +196,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
             Consul client = Whitebox.getInternalState(consulCoordinator, "client");
             AgentClient agentClient = client.agentClient();
             Whitebox.setInternalState(consulCoordinator, "selfAddress", remoteInstance.getAddress());
+            TelemetryRelatedContext.INSTANCE.setId(remoteInstance.getAddress().toString());
             Registration registration = ImmutableRegistration.builder()
                                                              .id(remoteInstance.getAddress().toString())
                                                              .name(serviceName)

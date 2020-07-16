@@ -23,7 +23,6 @@ import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
-import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
@@ -73,7 +72,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         GraphQLSchema schema = SchemaParser.newParser()
                 .file("query-protocol/common.graphqls")
-                .resolvers(new Query(), new Mutation(), new HealthQuery(getManager()))
+                .resolvers(new Query(), new Mutation())
                 .file("query-protocol/metadata.graphqls")
                 .resolvers(new MetadataQuery(getManager()))
                 .file("query-protocol/topology.graphqls")

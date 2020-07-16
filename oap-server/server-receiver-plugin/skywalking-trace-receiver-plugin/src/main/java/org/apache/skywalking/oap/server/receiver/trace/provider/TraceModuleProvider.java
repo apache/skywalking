@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
-import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.JettyHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -45,12 +44,11 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class TraceModuleProvider extends ModuleProvider {
-    @Getter
+
     private final TraceServiceModuleConfig moduleConfig;
     private DBLatencyThresholdsAndWatcher thresholds;
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     private SegmentParserServiceImpl segmentParserService;
-    private TraceSampleRateWatcher traceSampleRateWatcher;
 
     public TraceModuleProvider() {
         this.moduleConfig = new TraceServiceModuleConfig();
@@ -77,11 +75,8 @@ public class TraceModuleProvider extends ModuleProvider {
 
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
 
-        traceSampleRateWatcher = new TraceSampleRateWatcher(this);
-
         moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
-        moduleConfig.setTraceSampleRateWatcher(traceSampleRateWatcher);
 
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
@@ -107,7 +102,6 @@ public class TraceModuleProvider extends ModuleProvider {
                                                                 .getService(JettyHandlerRegister.class);
         dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
-        dynamicConfigurationService.registerConfigChangeWatcher(traceSampleRateWatcher);
 
         segmentParserService.setListenerManager(listenerManager());
         grpcHandlerRegister.addHandler(
