@@ -84,9 +84,9 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             if (requestURL == null) {
                 requestURL = getRequestURL(method);
                 pathMappingCache.addPathMapping(method, requestURL);
-                requestURL = getAcceptedMethodTypes(method) + pathMappingCache.findPathMapping(method);
+                requestURL = pathMappingCache.findPathMapping(method);
             }
-            operationName = requestURL;
+            operationName = getAcceptedMethodTypes(method) + requestURL;
         }
 
         HttpServletRequest request = (HttpServletRequest) ContextManager.getRuntimeContext()
