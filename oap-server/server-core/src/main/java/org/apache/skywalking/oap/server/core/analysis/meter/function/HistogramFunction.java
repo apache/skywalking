@@ -47,7 +47,7 @@ public abstract class HistogramFunction extends Metrics implements AcceptableVal
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID)
     private String entityId;
     @Getter
     @Setter

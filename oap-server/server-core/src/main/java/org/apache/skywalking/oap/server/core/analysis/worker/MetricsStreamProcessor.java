@@ -146,7 +146,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             }
 
             transWorker = new MetricsTransWorker(
-                moduleDefineHolder, hourPersistentWorker, dayPersistentWorker);
+                moduleDefineHolder, stream.getName(), hourPersistentWorker, dayPersistentWorker);
         }
 
         Model model = modelSetter.add(

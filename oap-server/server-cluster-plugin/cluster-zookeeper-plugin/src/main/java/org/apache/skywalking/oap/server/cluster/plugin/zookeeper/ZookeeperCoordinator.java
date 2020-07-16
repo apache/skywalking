@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,7 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             serviceDiscovery.registerService(thisInstance);
 
             this.selfAddress = remoteInstance.getAddress();
+            TelemetryRelatedContext.INSTANCE.setId(selfAddress.toString());
         } catch (Exception e) {
             throw new ServiceRegisterException(e.getMessage());
         }

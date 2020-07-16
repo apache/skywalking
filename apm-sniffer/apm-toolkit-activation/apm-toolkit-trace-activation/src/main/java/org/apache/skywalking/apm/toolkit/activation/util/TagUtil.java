@@ -38,6 +38,6 @@ public class TagUtil {
 
     public static Boolean isReturnTag(String expression) {
         String[] es = expression.split("\\.");
-        return "returnedObj".equals(es[0]);
+        return es.length == 2 && "returnedObj".equals(es[0]);
     }
 }

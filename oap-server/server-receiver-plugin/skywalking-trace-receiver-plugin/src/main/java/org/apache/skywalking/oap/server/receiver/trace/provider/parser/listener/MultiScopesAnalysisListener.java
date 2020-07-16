@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -50,8 +47,6 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.DBLatencyThresho
 import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
 
-import static org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags.LOGIC_ENDPOINT;
-
 /**
  * MultiScopesSpanListener includes the most segment to source(s) logic.
  *
@@ -59,12 +54,10 @@ import static org.apache.skywalking.oap.server.receiver.trace.provider.parser.Sp
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
+public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener {
     private final List<SourceBuilder> entrySourceBuilders = new ArrayList<>(10);
     private final List<SourceBuilder> exitSourceBuilders = new ArrayList<>(10);
     private final List<DatabaseSlowStatement> slowDatabaseAccesses = new ArrayList<>(10);
-    private final List<SourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
-    private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
     private final TraceServiceModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
@@ -72,7 +65,7 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
 
     @Override
     public boolean containsPoint(Point point) {
-        return Point.Entry.equals(point) || Point.Exit.equals(point) || Point.Local.equals(point);
+        return Point.Entry.equals(point) || Point.Exit.equals(point);
     }
 
     /**
@@ -107,7 +100,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
                 if (span.getSpanLayer().equals(SpanLayer.MQ) ||
                     config.getUninstrumentedGatewaysConfig().isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
                     sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
-                    sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
                     sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
                     sourceBuilder.setSourceNodeType(NodeType.fromSpanLayerValue(span.getSpanLayer()));
                 } else {
@@ -140,8 +132,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
             setPublicAttrs(sourceBuilder, span);
             entrySourceBuilders.add(sourceBuilder);
         }
-
-        parseLogicEndpoints(span, segmentObject);
     }
 
     /**
@@ -263,11 +253,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
     }
 
     @Override
-    public void parseLocal(final SpanObject span, final SegmentObject segmentObject) {
-        parseLogicEndpoints(span, segmentObject);
-    }
-
-    @Override
     public void build() {
         entrySourceBuilders.forEach(entrySourceBuilder -> {
             sourceReceiver.receive(entrySourceBuilder.toAll());
@@ -307,52 +292,6 @@ public class MultiScopesAnalysisListener implements EntryAnalysisListener, ExitA
         });
 
         slowDatabaseAccesses.forEach(sourceReceiver::receive);
-
-        logicEndpointBuilders.forEach(logicEndpointBuilder -> {
-            sourceReceiver.receive(logicEndpointBuilder.toEndpoint());
-        });
-    }
-
-    /**
-     * Logic endpoint could be represent through an entry span or local span. It has special meaning from API
-     * perspective. But it is an actual RPC call.
-     */
-    private void parseLogicEndpoints(final SpanObject span, final SegmentObject segmentObject) {
-        span.getTagsList().forEach(tag -> {
-            switch (tag.getKey()) {
-                case LOGIC_ENDPOINT:
-                    final JsonObject tagValue = gson.fromJson(tag.getValue(), JsonObject.class);
-                    final boolean isLocalSpan = SpanType.Local.equals(span.getSpanType());
-                    String logicEndpointName;
-                    int latency;
-                    boolean status;
-                    if (isLocalSpan && tagValue.has("logic-span") && tagValue.get("logic-span").getAsBoolean()) {
-                        logicEndpointName = span.getOperationName();
-                        latency = (int) (span.getEndTime() - span.getStartTime());
-                        status = !span.getIsError();
-                    } else if (tagValue.has("name") && tagValue.has("latency") && tagValue.has("status")) {
-                        logicEndpointName = tagValue.get("name").getAsString();
-                        latency = tagValue.get("latency").getAsInt();
-                        status = tagValue.get("status").getAsBoolean();
-                    } else {
-                        break;
-                    }
-                    SourceBuilder sourceBuilder = new SourceBuilder(namingControl);
-                    sourceBuilder.setTimeBucket(TimeBucket.getMinuteTimeBucket(span.getStartTime()));
-                    sourceBuilder.setDestServiceName(segmentObject.getService());
-                    sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
-                    sourceBuilder.setDestEndpointName(logicEndpointName);
-                    sourceBuilder.setDestNodeType(NodeType.Normal);
-                    sourceBuilder.setDetectPoint(DetectPoint.SERVER);
-                    sourceBuilder.setLatency(latency);
-                    sourceBuilder.setStatus(status);
-                    sourceBuilder.setType(RequestType.LOGIC);
-                    sourceBuilder.setResponseCode(Const.NONE);
-                    logicEndpointBuilders.add(sourceBuilder);
-                default:
-                    break;
-            }
-        });
     }
 
     public static class Factory implements AnalysisListenerFactory {

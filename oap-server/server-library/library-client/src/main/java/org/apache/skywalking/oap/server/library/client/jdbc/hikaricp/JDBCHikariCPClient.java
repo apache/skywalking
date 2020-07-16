@@ -26,10 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.slf4j.Logger;
@@ -46,17 +42,6 @@ public class JDBCHikariCPClient implements Client {
 
     public JDBCHikariCPClient(Properties properties) {
         hikariConfig = new HikariConfig(properties);
-    }
-
-    public void setHealthCheckListener(Consumer<Boolean> healthListener) {
-        ScheduledExecutorService asyncHealthScheduler = Executors.newSingleThreadScheduledExecutor();
-        asyncHealthScheduler.scheduleAtFixedRate(() -> {
-            try (Connection c = dataSource.getConnection()) {
-                healthListener.accept(true);
-            } catch (SQLException ignored) {
-                healthListener.accept(false);
-            }
-        }, 0, 3, TimeUnit.SECONDS);
     }
 
     @Override

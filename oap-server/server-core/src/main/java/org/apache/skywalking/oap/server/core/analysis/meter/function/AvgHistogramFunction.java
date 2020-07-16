@@ -57,7 +57,7 @@ public abstract class AvgHistogramFunction extends Metrics implements Acceptable
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID)
     private String entityId;
     @Getter
     @Setter

@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
@@ -80,6 +81,7 @@ public class KubernetesCoordinator implements ClusterRegister, ClusterNodesQuery
     @Override
     public void registerRemote(final RemoteInstance remoteInstance) throws ServiceRegisterException {
         this.port = remoteInstance.getAddress().getPort();
+        TelemetryRelatedContext.INSTANCE.setId(remoteInstance.toString());
     }
 
     private List<V1Pod> selfPod() {

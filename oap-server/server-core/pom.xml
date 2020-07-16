@@ -78,10 +78,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.vavr</groupId>
-            <artifactId>vavr</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>

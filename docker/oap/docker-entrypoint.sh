@@ -24,7 +24,7 @@ EXT_CONFIG_DIR=/skywalking/ext-config
 
 # Override configuration files
 if [ "$(ls -A $EXT_CONFIG_DIR)" ]; then
-  cp -vfRL ${EXT_CONFIG_DIR}/* config/
+  cp -vfR ${EXT_CONFIG_DIR}/* config/
 fi
 
 CLASSPATH="config:$CLASSPATH"

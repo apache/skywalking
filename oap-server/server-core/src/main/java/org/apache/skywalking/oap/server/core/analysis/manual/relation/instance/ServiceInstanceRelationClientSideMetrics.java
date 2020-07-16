@@ -69,7 +69,7 @@ public class ServiceInstanceRelationClientSideMetrics extends Metrics {
     private int componentId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID)
     private String entityId;
 
     @Override
