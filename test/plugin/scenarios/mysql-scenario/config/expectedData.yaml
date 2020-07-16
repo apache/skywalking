@@ -142,7 +142,7 @@ segmentItems:
     - operationName: Mysql/JDBI/Connection/close
       operationId: eq 0
       parentSpanId: 0
-      spanId: 7
+      spanId: 8
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: test}
