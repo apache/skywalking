@@ -90,7 +90,7 @@ public class Entity {
                     && Objects.nonNull(normal) && Objects.nonNull(destNormal);
             case EndpointRelation:
                 return Objects.nonNull(serviceName) && Objects.nonNull(endpointName)
-                    && Objects.nonNull(endpointName) && Objects.nonNull(destEndpointName)
+                    && Objects.nonNull(serviceInstanceName) && Objects.nonNull(endpointName)
                     && Objects.nonNull(normal) && Objects.nonNull(destNormal);
             default:
                 return false;

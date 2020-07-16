@@ -22,6 +22,10 @@ import java.util.Objects;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * MetricsTransWorker is transferring the metrics for downsampling. All streaming process metrics are in the minute
@@ -32,12 +36,28 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     private final MetricsPersistentWorker hourPersistenceWorker;
     private final MetricsPersistentWorker dayPersistenceWorker;
 
+    private final CounterMetrics aggregationHourCounter;
+    private final CounterMetrics aggregationDayCounter;
+
     public MetricsTransWorker(ModuleDefineHolder moduleDefineHolder,
+                              String modelName,
                               MetricsPersistentWorker hourPersistenceWorker,
                               MetricsPersistentWorker dayPersistenceWorker) {
         super(moduleDefineHolder);
         this.hourPersistenceWorker = hourPersistenceWorker;
         this.dayPersistenceWorker = dayPersistenceWorker;
+
+        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        aggregationHourCounter = metricsCreator.createCounter(
+            "metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level",
+                                                                                            "dimensionality"
+            ), new MetricsTag.Values(modelName, "2", "hour"));
+        aggregationDayCounter = metricsCreator.createCounter(
+            "metrics_aggregation", "The number of rows in aggregation", new MetricsTag.Keys("metricName", "level",
+                                                                                            "dimensionality"
+            ), new MetricsTag.Values(modelName, "2", "day"));
     }
 
     /**
@@ -48,9 +68,11 @@ public class MetricsTransWorker extends AbstractWorker<Metrics> {
     @Override
     public void in(Metrics metrics) {
         if (Objects.nonNull(hourPersistenceWorker)) {
+            aggregationHourCounter.inc();
             hourPersistenceWorker.in(metrics.toHour());
         }
         if (Objects.nonNull(dayPersistenceWorker)) {
+            aggregationDayCounter.inc();
             dayPersistenceWorker.in(metrics.toDay());
         }
     }

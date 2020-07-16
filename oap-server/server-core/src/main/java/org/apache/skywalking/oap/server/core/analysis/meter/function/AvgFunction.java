@@ -46,7 +46,7 @@ public abstract class AvgFunction extends Metrics implements AcceptableValue<Lon
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(columnName = ENTITY_ID)
     private String entityId;
 
     /**

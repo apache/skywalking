@@ -39,11 +39,8 @@ public class TextParserTest {
 
     Queue<MetricFamily> expectedMfs = new LinkedList<>();
 
-    long now;
-
     @Before
     public void setup() {
-        now = System.currentTimeMillis();
         expectedMfs.offer(new MetricFamily.Builder()
             .setName("http_requests_total")
                               .setType(MetricType.COUNTER)
@@ -53,14 +50,12 @@ public class TextParserTest {
                                                 .label("method", "post")
                                                 .label("code", "200")
                                                 .value(1027D)
-                                                .timestamp(now)
                                                 .build())
                               .addMetric(Counter.builder()
                                                 .name("http_requests_total")
                                                 .label("method", "post")
                                                 .label("code", "400")
                                                 .value(3D)
-                                                .timestamp(now)
                                                 .build())
                               .build());
         expectedMfs.offer(new MetricFamily.Builder()
@@ -77,7 +72,6 @@ public class TextParserTest {
                                                   .bucket(0.5D, 129389L)
                                                   .bucket(1.0D, 133988L)
                                                   .bucket(Double.POSITIVE_INFINITY, 144320L)
-                                                  .timestamp(now)
                                                   .build())
                               .build());
         expectedMfs.offer(new MetricFamily.Builder()
@@ -93,7 +87,6 @@ public class TextParserTest {
                                              .quantile(0.5D, 4773D)
                                              .quantile(0.9D, 9001D)
                                              .quantile(0.99D, 76656D)
-                                             .timestamp(now)
                                              .build())
                               .build());
     }
@@ -104,7 +97,7 @@ public class TextParserTest {
             TextParser parser = new TextParser(is);
             MetricFamily mf;
             int mfNum = 0;
-            while ((mf = parser.parse(now)) != null) {
+            while ((mf = parser.parse()) != null) {
                 mfNum++;
                 MetricFamily expected = expectedMfs.poll();
                 assertNotNull(expected);

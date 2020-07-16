@@ -38,8 +38,8 @@ public class Histogram extends Metric {
 
     @lombok.Builder
     public Histogram(String name, @Singular Map<String, String> labels, long sampleCount, double sampleSum,
-        @Singular Map<Double, Long> buckets, long timestamp) {
-        super(name, labels, timestamp);
+        @Singular Map<Double, Long> buckets) {
+        super(name, labels);
         getLabels().remove("le");
         this.sampleCount = sampleCount;
         this.sampleSum = sampleSum;

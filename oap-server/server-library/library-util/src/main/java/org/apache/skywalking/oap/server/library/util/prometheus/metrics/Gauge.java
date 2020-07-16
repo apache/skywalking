@@ -32,8 +32,8 @@ public class Gauge extends Metric {
     private double value;
 
     @lombok.Builder
-    public Gauge(String name, @Singular Map<String, String> labels, double value, long timestamp) {
-        super(name, labels, timestamp);
+    public Gauge(String name, @Singular Map<String, String> labels, double value) {
+        super(name, labels);
         this.value = value;
     }
 
