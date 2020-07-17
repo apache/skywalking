@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JVMMetricsHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ProfileTaskHandler;
@@ -32,9 +35,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 @Slf4j
@@ -48,7 +49,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
 
     @Override
     public String name() {
-        return "kafka-consumer";
+        return "default";
     }
 
     @Override
@@ -95,7 +96,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-            "receiver-trace",
+            TraceModule.NAME,
             ClusterModule.NAME,
             TelemetryModule.NAME,
             CoreModule.NAME,

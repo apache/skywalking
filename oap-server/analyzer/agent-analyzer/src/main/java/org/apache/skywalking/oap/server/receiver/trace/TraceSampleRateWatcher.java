@@ -23,13 +23,14 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 
 @Slf4j
 public class TraceSampleRateWatcher extends ConfigChangeWatcher {
     private AtomicReference<Integer> sampleRate;
 
     public TraceSampleRateWatcher(ModuleProvider provider) {
-        super("receiver-trace", provider, "sampleRate");
+        super(TraceModule.NAME, provider, "sampleRate");
         sampleRate = new AtomicReference<>();
         sampleRate.set(getDefaultValue());
     }

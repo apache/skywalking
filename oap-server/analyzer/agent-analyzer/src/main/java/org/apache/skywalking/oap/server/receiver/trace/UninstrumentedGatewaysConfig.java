@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
@@ -48,7 +49,7 @@ public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
     private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();
 
     public UninstrumentedGatewaysConfig(ModuleProvider provider) {
-        super("receiver-trace", provider, "uninstrumentedGateways");
+        super(TraceModule.NAME, provider, "uninstrumentedGateways");
         this.settingsString = new AtomicReference<>(Const.EMPTY_STRING);
         final GatewayInfos defaultGateways = parseGatewaysFromFile("gateways.yml");
         log.info("Default configured gateways: {}", defaultGateways);

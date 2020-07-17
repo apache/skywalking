@@ -24,13 +24,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 
 public class DBLatencyThresholdsAndWatcher extends ConfigChangeWatcher {
     private AtomicReference<Map<String, Integer>> thresholds;
     private AtomicReference<String> settingsString;
 
     public DBLatencyThresholdsAndWatcher(String config, ModuleProvider provider) {
-        super("receiver-trace", provider, "slowDBAccessThreshold");
+        super(TraceModule.NAME, provider, "slowDBAccessThreshold");
         thresholds = new AtomicReference<>(new HashMap<>());
         settingsString = new AtomicReference<>(Const.EMPTY_STRING);
 

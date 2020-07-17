@@ -185,11 +185,6 @@ istio-telemetry:
   selector: ${SW_ISTIO_TELEMETRY:default}
   default:
 
-receiver-kafka:
-  selector: ${SW_RECEIVER_KAFKA:-}
-  kafka-consumer:
-    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
-
 envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
@@ -200,6 +195,11 @@ prometheus-fetcher:
   selector: ${SW_PROMETHEUS_FETCHER:default}
   default:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
+
+kafka-fetcher:
+  selector: ${SW_RECEIVER_KAFKA:-}
+  default:
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
 
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}

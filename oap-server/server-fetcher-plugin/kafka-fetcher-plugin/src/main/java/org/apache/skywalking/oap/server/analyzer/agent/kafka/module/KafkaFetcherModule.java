@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.module;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 public class KafkaFetcherModule extends ModuleDefine {
-    public static final String NAME = "receiver-kafka";
+    public static final String NAME = "kafka-fetcher";
 
     public KafkaFetcherModule() {
         super(NAME);
