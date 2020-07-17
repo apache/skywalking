@@ -37,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscorvery.Kubernetes.LABEL_SELECTOR;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscorvery.Kubernetes.NAMESPACE;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.LABEL_SELECTOR;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.NAMESPACE;
 
 public class NamespacedEndpointsListInformer {
 

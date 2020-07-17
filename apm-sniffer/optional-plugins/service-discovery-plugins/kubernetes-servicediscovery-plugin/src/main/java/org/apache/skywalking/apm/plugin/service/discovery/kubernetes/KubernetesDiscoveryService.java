@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.plugin.PluginException;
 import org.apache.skywalking.apm.util.StringUtil;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscorvery.Kubernetes.PORT_NAME;
+import static org.apache.skywalking.apm.agent.core.conf.Config.Collector.ServiceDiscovery.Kubernetes.PORT_NAME;
 
 @OverrideImplementor(DefaultDiscoveryService.class)
 public class KubernetesDiscoveryService extends DefaultDiscoveryService {
@@ -46,8 +46,8 @@ public class KubernetesDiscoveryService extends DefaultDiscoveryService {
 
     @Override
     public void prepare() throws Throwable {
-        String namespace = Config.Collector.ServiceDiscorvery.Kubernetes.NAMESPACE;
-        String labelSelector = Config.Collector.ServiceDiscorvery.Kubernetes.LABEL_SELECTOR;
+        String namespace = Config.Collector.ServiceDiscovery.Kubernetes.NAMESPACE;
+        String labelSelector = Config.Collector.ServiceDiscovery.Kubernetes.LABEL_SELECTOR;
         if (StringUtil.isEmpty(namespace) || StringUtil.isEmpty(labelSelector)) {
             throw new PluginException("namespace and labelSelector is required in kubernetes service discovery plugin");
         }
