@@ -35,8 +35,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 
 @OverrideImplementor(TraceSegmentServiceClient.class)
 public class KafkaTraceSegmentServiceClient implements BootService, TracingContextListener {
-    private static final ILog logger = LogManager.getLogger(
-            KafkaTraceSegmentServiceClient.class);
+    private static final ILog logger = LogManager.getLogger(KafkaTraceSegmentServiceClient.class);
 
     private String topic;
     private KafkaProducer<String, Bytes> producer;

@@ -47,8 +47,8 @@ import org.apache.skywalking.apm.util.StringUtil;
  */
 @OverrideImplementor(ServiceManagementClient.class)
 public class KafkaServiceManagementServiceClient implements BootService, Runnable {
-    private static final ILog logger = LogManager.getLogger(
-            KafkaServiceManagementServiceClient.class);
+    private static final ILog logger = LogManager.getLogger(KafkaServiceManagementServiceClient.class);
+
     private static List<KeyStringValuePair> SERVICE_INSTANCE_PROPERTIES;
 
     private static final String TOPIC_KEY_REGISTER = "register";
