@@ -31,7 +31,7 @@ public class KafkaFetcherProviderTest {
 
     @Test
     public void name() {
-        assertEquals("kafka-consumer", provider.name());
+        assertEquals("default", provider.name());
     }
 
     @Test
