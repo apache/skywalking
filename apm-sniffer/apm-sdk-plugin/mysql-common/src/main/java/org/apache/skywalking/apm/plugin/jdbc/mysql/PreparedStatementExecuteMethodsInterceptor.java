@@ -43,7 +43,8 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         /**
          * For avoid NPE. In this particular case, Execute sql inside the {@link com.mysql.jdbc.ConnectionImpl} constructor,
          * before the interceptor sets the connectionInfo.
-         * Fixed https://github.com/apache/skywalking/issues/4965. When invoking prepareCall, cacheObject is null. Because it will determine procedures's parameter types by querying the table of proc in mysql.
+         * When invoking prepareCall, cacheObject is null. Because it will determine procedures's parameter types by executing sql in mysql 
+         * before the interceptor sets the statementEnhanceInfos.
          * @see JDBCDriverInterceptor#afterMethod(EnhancedInstance, Method, Object[], Class[], Object)
          */
         if (cacheObject != null && cacheObject.getConnectionInfo() != null) {
