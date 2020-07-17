@@ -29,6 +29,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>server-core</module>
+        <module>analyzer</module>
         <module>server-receiver-plugin</module>
         <module>server-cluster-plugin</module>
         <module>server-storage-plugin</module>
@@ -93,7 +94,6 @@
 
         <zookeeper.image.version>3.5</zookeeper.image.version>
         <protobuf-java-util.version>3.11.4</protobuf-java-util.version>
-
         <kafka-clients.version>2.4.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>

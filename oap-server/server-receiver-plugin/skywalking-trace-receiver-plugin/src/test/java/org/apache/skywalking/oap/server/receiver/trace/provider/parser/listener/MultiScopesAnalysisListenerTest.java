@@ -44,9 +44,11 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.UninstrumentedGatewaysConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags;
+import org.apache.skywalking.oap.server.receiver.trace.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.UninstrumentedGatewaysConfig;
+import org.apache.skywalking.oap.server.receiver.trace.parser.SpanTags;
+import org.apache.skywalking.oap.server.receiver.trace.parser.listener.AnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.parser.listener.MultiScopesAnalysisListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +56,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static org.apache.skywalking.oap.server.receiver.trace.provider.parser.SpanTags.LOGIC_ENDPOINT;
+import static org.apache.skywalking.oap.server.receiver.trace.parser.SpanTags.LOGIC_ENDPOINT;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 

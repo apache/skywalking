@@ -19,6 +19,21 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider;
 
 import lombok.Getter;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+import org.apache.skywalking.oap.server.receiver.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.receiver.trace.TraceSampleRateWatcher;
+import org.apache.skywalking.oap.server.receiver.trace.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.UninstrumentedGatewaysConfig;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
+import org.apache.skywalking.oap.server.receiver.trace.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.receiver.trace.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.parser.SegmentParserServiceImpl;
+import org.apache.skywalking.oap.server.receiver.trace.parser.listener.MultiScopesAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.parser.listener.NetworkAddressAliasMappingListener;
+import org.apache.skywalking.oap.server.receiver.trace.parser.listener.SegmentAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportListServletHandler;
+import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportSingleServletHandler;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -31,17 +46,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
-import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportListServletHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportSingleServletHandler;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserServiceImpl;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.MultiScopesAnalysisListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.NetworkAddressAliasMappingListener;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener.SegmentAnalysisListener;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class TraceModuleProvider extends ModuleProvider {

@@ -24,8 +24,8 @@ import com.google.gson.JsonElement;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
-import org.apache.skywalking.oap.server.receiver.trace.provider.TraceServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.trace.provider.parser.SegmentParserListenerManager;
+import org.apache.skywalking.oap.server.receiver.trace.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.parser.SegmentParserListenerManager;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;

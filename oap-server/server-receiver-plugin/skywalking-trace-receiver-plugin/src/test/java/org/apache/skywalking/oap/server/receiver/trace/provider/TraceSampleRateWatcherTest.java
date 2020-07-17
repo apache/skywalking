@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.trace.provider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.receiver.trace.TraceSampleRateWatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

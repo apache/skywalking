@@ -35,9 +35,6 @@ import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetric;
 import org.apache.skywalking.apm.network.language.agent.v3.JVMMetricCollection;
 
-/**
- * JVM Metrics Reporter
- */
 @OverrideImplementor(JVMServiceGRPCSender.class)
 public class KafkaJVMServiceSender implements JVMServiceSender {
     private static final ILog logger = LogManager.getLogger(KafkaJVMServiceSender.class);

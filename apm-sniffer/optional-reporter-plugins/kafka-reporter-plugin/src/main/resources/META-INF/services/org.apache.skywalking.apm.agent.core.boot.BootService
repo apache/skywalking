@@ -16,7 +16,7 @@
 #
 org.apache.skywalking.apm.agent.core.kafka.KafkaProducerManager
 org.apache.skywalking.apm.agent.core.kafka.KafkaContextManagerExtendService
-org.apache.skywalking.apm.agent.core.kafka.KafkaServiceManagementService
+org.apache.skywalking.apm.agent.core.kafka.KafkaServiceManagementServiceClient
 org.apache.skywalking.apm.agent.core.kafka.KafkaJVMServiceSender
-org.apache.skywalking.apm.agent.core.kafka.KafkaTraceSegmentService
-org.apache.skywalking.apm.agent.core.kafka.KafkaProfileTaskService
+org.apache.skywalking.apm.agent.core.kafka.KafkaTraceSegmentServiceClient
+org.apache.skywalking.apm.agent.core.kafka.KafkaProfileTaskServiceClient
