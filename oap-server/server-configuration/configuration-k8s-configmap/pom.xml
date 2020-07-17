@@ -27,7 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>configuration-k8s_configmap</artifactId>
+    <artifactId>configuration-k8s-configmap</artifactId>
 
 
     <dependencies>

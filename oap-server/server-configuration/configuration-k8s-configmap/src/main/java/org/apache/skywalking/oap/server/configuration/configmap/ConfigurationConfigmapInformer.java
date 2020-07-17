@@ -70,7 +70,6 @@ public class ConfigurationConfigmapInformer {
         ApiClient apiClient = Config.defaultClient();
         apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
         CoreV1Api coreV1Api = new CoreV1Api(apiClient);
-
         factory = new SharedInformerFactory(executorService);
 
         SharedIndexInformer<V1ConfigMap> configMapSharedIndexInformer = factory.sharedIndexInformerFor(
@@ -83,13 +82,10 @@ public class ConfigurationConfigmapInformer {
 
         factory.startAllRegisteredInformers();
         configMapLister = new Lister<>(configMapSharedIndexInformer.getIndexer());
-
     }
 
     public Optional<V1ConfigMap> configMap() {
-
         return Optional.ofNullable(configMapLister.list().size() == 1 ? configMapLister.list().get(0) : null);
-
     }
 
 }
