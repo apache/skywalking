@@ -36,7 +36,7 @@ public class DefaultDiscoveryService implements DiscoveryService {
 
     @Override
     public void prepare() throws Throwable {
-        String backendService = Config.Collector.ServiceDiscorvery.Static.BACKEND_SERVICE;
+        String backendService = Config.Collector.BACKEND_SERVICE;
 
         if (backendService.trim().length() == 0) {
             throw new PluginException("static backendService config is required in static service discovery plugin");

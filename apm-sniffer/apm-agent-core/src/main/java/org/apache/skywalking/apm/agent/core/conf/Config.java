@@ -151,14 +151,12 @@ public class Config {
          */
         public static int GET_PROFILE_TASK_INTERVAL = 20;
 
-        public static class ServiceDiscorvery {
+        /**
+         * Collector skywalking trace receiver service addresses.
+         */
+        public static String BACKEND_SERVICE = "";
 
-            public static class Static {
-                /**
-                 * Collector skywalking trace receiver service addresses.
-                 */
-                public static String BACKEND_SERVICE = "";
-            }
+        public static class ServiceDiscorvery {
 
             public static class Kubernetes {
                 /**
