@@ -401,6 +401,9 @@ Flask:
 Requests:
   id: 7002
   languages: Python
+PyMysql:
+  id: 7003
+  languages: Python
 
 
 # PHP components
