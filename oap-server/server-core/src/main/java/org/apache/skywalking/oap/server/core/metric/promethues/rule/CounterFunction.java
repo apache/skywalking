@@ -16,19 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.server.fetcher.prometheus.provider.counter;
+package org.apache.skywalking.oap.server.core.metric.promethues.rule;
 
-import com.google.common.collect.ImmutableMap;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
-@RequiredArgsConstructor
-@EqualsAndHashCode
-@ToString
-class ID {
-
-    private final String name;
-
-    private final ImmutableMap<String, String> labels;
+public enum CounterFunction {
+    INCREASE, RATE, IRATE
 }
