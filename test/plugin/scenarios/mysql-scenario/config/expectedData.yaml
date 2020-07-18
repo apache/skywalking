@@ -72,10 +72,77 @@ segmentItems:
       componentId: 33
       peer: mysql-server:3306
       skipAnalysis: 'false'
-    - operationName: Mysql/JDBI/Connection/close
+    - operationName: Mysql/JDBI/Statement/execute
       operationId: eq 0
       parentSpanId: 0
       spanId: 4
+      tags:
+        - {key: db.type, value: sql}
+        - {key: db.instance, value: test}
+        - {key: db.statement, value: "create procedure testProcedure(IN id varchar(10)) \n begin \n select id; \n end"}
+      logs: []
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 33
+      peer: mysql-server:3306
+      skipAnalysis: 'false'  
+    - operationName: Mysql/JDBI/Statement/executeQuery
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 5
+      spanLayer: Database
+      startTime: nq 0
+      endTime: nq 0
+      componentId: 33
+      isError: false
+      spanType: Exit
+      peer: mysql-server:3306
+      skipAnalysis: false
+      tags:
+        - {key: db.type, value: sql}
+        - {key: db.instance, value: test}
+        - {key: db.statement, value: SHOW CREATE PROCEDURE `test`.`testProcedure`}
+    - operationName: Mysql/JDBI/CallableStatement/execute
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 6
+      tags:
+        - {key: db.type, value: sql}
+        - {key: db.instance, value: test}
+        - {key: db.statement, value: "call testProcedure( ? )"}
+      logs: []
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 33
+      peer: mysql-server:3306
+      skipAnalysis: 'false'
+    - operationName: Mysql/JDBI/Statement/execute
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 7
+      tags:
+        - {key: db.type, value: sql}
+        - {key: db.instance, value: test}
+        - {key: db.statement, value: "drop procedure testProcedure"}
+      logs: []
+      startTime: nq 0
+      endTime: nq 0
+      isError: false
+      spanLayer: Database
+      spanType: Exit
+      componentId: 33
+      peer: mysql-server:3306
+      skipAnalysis: 'false'  
+    - operationName: Mysql/JDBI/Connection/close
+      operationId: eq 0
+      parentSpanId: 0
+      spanId: 8
       tags:
       - {key: db.type, value: sql}
       - {key: db.instance, value: test}

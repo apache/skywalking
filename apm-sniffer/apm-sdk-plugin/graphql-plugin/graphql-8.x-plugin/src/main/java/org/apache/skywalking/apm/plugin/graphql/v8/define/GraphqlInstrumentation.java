@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.vertx3.define;
+package org.apache.skywalking.apm.plugin.graphql.v8.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -28,48 +28,42 @@ import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link RouterImplHandlerInstrumentation} enhance the <code>handler</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouterImplHandlerInterceptor</code> class.
- *
- * Ver. 3.0.0 - 3.4.2
- */
-public class RouterImplHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class GraphqlInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.graphql.v8.GraphqlInterceptor";
+    public static final String ENHANCE_CLASS = "graphql.execution.ExecutionStrategy";
+    public static final String ENHANCE_METHOD_DISPATCH = "resolveField";
 
-    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteImpl";
-    private static final String ENHANCE_METHOD = "handler";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouterImplHandlerInterceptor";
+    @Override protected ClassMatch enhanceClass() {
+        return NameMatch.byName(ENHANCE_CLASS);
+    }
 
-    @Override
-    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return new ConstructorInterceptPoint[0];
     }
 
-    @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
-            new InstanceMethodsInterceptPoint() {
-                @Override
-                public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                    return named(ENHANCE_METHOD);
-                }
+                new InstanceMethodsInterceptPoint() {
+                    @Override
+                    public ElementMatcher<MethodDescription> getMethodsMatcher() {
+                        return named(ENHANCE_METHOD_DISPATCH);
+                    }
 
-                @Override
-                public String getMethodsInterceptor() {
-                    return INTERCEPT_CLASS;
-                }
+                    @Override
+                    public String getMethodsInterceptor() {
+                        return INTERCEPTOR_CLASS;
+                    }
 
-                @Override
-                public boolean isOverrideArgs() {
-                    return false;
+                    @Override
+                    public boolean isOverrideArgs() {
+                        return false;
+                    }
                 }
-            }
         };
     }
 
     @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+    protected String[] witnessClasses() {
+        return new String[] {"graphql.util.SimpleTraverserContext", "graphql.analysis.FieldVisitor"};
     }
 }

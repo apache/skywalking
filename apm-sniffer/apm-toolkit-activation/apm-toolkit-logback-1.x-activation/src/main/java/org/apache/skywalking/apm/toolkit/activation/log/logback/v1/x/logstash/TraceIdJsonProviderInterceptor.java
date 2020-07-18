@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.vertx3;
+package org.apache.skywalking.apm.toolkit.activation.log.logback.v1.x.logstash;
 
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
@@ -24,27 +24,32 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 
-public class RouterImplHandlerInterceptor implements InstanceMethodsAroundInterceptor {
-
+public class TraceIdJsonProviderInterceptor implements InstanceMethodsAroundInterceptor {
     @Override
     public void beforeMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         MethodInterceptResult result) throws Throwable {
-        if (VertxContext.VERTX_VERSION < 35) {
-            objInst.setSkyWalkingDynamicField(Collections.singletonList(allArguments[0]));
-        }
+
     }
 
     @Override
     public Object afterMethod(EnhancedInstance objInst, Method method, Object[] allArguments, Class<?>[] argumentsTypes,
         Object ret) throws Throwable {
-        return ret;
+        if (ret != null && !"N/A".equals(ret)) {
+            return ret;
+        }
+        if (!ContextManager.isActive() && allArguments[0] instanceof EnhancedInstance) {
+            String tid = (String) ((EnhancedInstance) allArguments[0]).getSkyWalkingDynamicField();
+            if (tid != null) {
+                return tid;
+            }
+        }
+        return ContextManager.getGlobalTraceId();
     }
 
     @Override
     public void handleMethodException(EnhancedInstance objInst, Method method, Object[] allArguments,
         Class<?>[] argumentsTypes, Throwable t) {
-        ContextManager.activeSpan().errorOccurred().log(t);
+
     }
 }
