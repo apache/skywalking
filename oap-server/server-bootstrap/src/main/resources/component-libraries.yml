@@ -305,6 +305,9 @@ influxdb-java:
 brpc-java:
   id: 91
   languages: Java
+GraphQL:
+  id: 92
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -382,6 +385,18 @@ ServiceCombServiceCenter:
   languages: Golang
 MOSN:
   id: 5003
+  languages: Golang
+GoHttpServer:
+  id: 5004
+  languages: Golang
+GoHttpClient:
+  id: 5005
+  languages: Golang
+Gin:
+  id: 5006
+  languages: Golang
+Gear:
+  id: 5007
   languages: Golang
 
 # Lua components

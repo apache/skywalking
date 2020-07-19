@@ -46,6 +46,7 @@
         <module>server-bootstrap</module>
         <module>server-tools</module>
         <module>server-fetcher-plugin</module>
+        <module>server-health-checker</module>
     </modules>
 
     <properties>

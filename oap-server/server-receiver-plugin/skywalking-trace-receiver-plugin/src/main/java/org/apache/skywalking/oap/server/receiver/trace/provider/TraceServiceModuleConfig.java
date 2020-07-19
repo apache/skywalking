@@ -51,6 +51,9 @@ public class TraceServiceModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
+    @Setter
+    @Getter
+    private TraceSampleRateWatcher traceSampleRateWatcher;
     /**
      * Analysis trace status.
      * <p>

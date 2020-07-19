@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.vertx3.define;
+ package org.apache.skywalking.apm.plugin.graphql.v12.define;
 
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.matcher.ElementMatcher;
@@ -26,51 +26,32 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.ClassInst
 import org.apache.skywalking.apm.agent.core.plugin.match.ClassMatch;
 import org.apache.skywalking.apm.agent.core.plugin.match.NameMatch;
 
-import static net.bytebuddy.matcher.ElementMatchers.any;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
-/**
- * {@link RouterImplInstrumentation} enhance the <code>handleContext</code> method in
- * <code>io.vertx.ext.web.impl.RouterImpl</code> class by
- * <code>RouteStateInterceptor</code> class.
- *
- * Ver. 3.0.0 - 3.8.2
- */
-public class RouterImplInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+public class GraphqlInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
+    public static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.graphql.v12.GraphqlInterceptor";
+    public static final String ENHANCE_CLASS = "graphql.execution.ExecutionStrategy";
+    public static final String ENHANCE_METHOD_DISPATCH = "resolveFieldWithInfo";
 
-    private static final String ENHANCE_CLASS = "io.vertx.ext.web.impl.RouteImpl";
-    private static final String ENHANCE_METHOD = "handleContext";
-    private static final String INTERCEPT_CLASS = "org.apache.skywalking.apm.plugin.vertx3.RouteStateInterceptor";
-
-    @Override
-    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
-        return new ConstructorInterceptPoint[] {
-                new ConstructorInterceptPoint() {
-                    @Override
-                    public ElementMatcher<MethodDescription> getConstructorMatcher() {
-                        return any();
-                    }
-
-                    @Override
-                    public String getConstructorInterceptor() {
-                        return INTERCEPT_CLASS;
-                    }
-                }
-        };
+    @Override protected ClassMatch enhanceClass() {
+        return NameMatch.byName(ENHANCE_CLASS);
     }
 
-    @Override
-    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    @Override public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+        return new ConstructorInterceptPoint[0];
+    }
+
+    @Override public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[] {
                 new InstanceMethodsInterceptPoint() {
                     @Override
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
-                        return named(ENHANCE_METHOD);
+                        return named(ENHANCE_METHOD_DISPATCH);
                     }
 
                     @Override
                     public String getMethodsInterceptor() {
-                        return INTERCEPT_CLASS;
+                        return INTERCEPTOR_CLASS;
                     }
 
                     @Override
@@ -82,7 +63,7 @@ public class RouterImplInstrumentation extends ClassInstanceMethodsEnhancePlugin
     }
 
     @Override
-    protected ClassMatch enhanceClass() {
-        return NameMatch.byName(ENHANCE_CLASS);
+    protected String[] witnessClasses() {
+        return new String[] {"graphql.cachecontrol.CacheControl"};
     }
 }

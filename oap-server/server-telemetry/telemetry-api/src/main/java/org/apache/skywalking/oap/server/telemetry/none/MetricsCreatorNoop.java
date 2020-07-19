@@ -71,6 +71,11 @@ public class MetricsCreatorNoop implements MetricsCreator {
             public void setValue(double value) {
 
             }
+
+            @Override
+            public double getValue() {
+                return 0;
+            }
         };
     }
 

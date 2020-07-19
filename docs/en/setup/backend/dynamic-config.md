@@ -11,7 +11,7 @@ Right now, SkyWalking supports following dynamic configurations.
 |alarm.default.alarm-settings| The alarm settings, will override `alarm-settings.yml`. | same as [`alarm-settings.yml`](backend-alarm.md) |
 |core.default.apdexThreshold| The apdex threshold settings, will override `service-apdex-threshold.yml`. | same as [`service-apdex-threshold.yml`](apdex-threshold.md) |
 |core.default.endpoint-name-grouping| The endpoint name grouping setting, will override `endpoint-name-grouping.yml`. | same as [`endpoint-name-grouping.yml`](endpoint-grouping-rules.md) |
-
+|receiver-trace.default.sampleRate| Trace sampling , override `receiver-trace/default/sampleRate` of `applciation.yml`. | 10000 |
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -43,7 +43,6 @@ configuration:
 ```
 
 ## Dynamic Configuration Zookeeper Implementation
-
 [Zookeeper](https://github.com/apache/zookeeper) is also supported as DCC(Dynamic Configuration Center), to use it, please configure as follows:
 
 ```yaml
@@ -57,6 +56,8 @@ configuration:
     baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
     maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
 ```
+
+The **nameSpace** is the ZooKeeper path. The config key and value are the properties of the `namespace` folder.
 
 ## Dynamic Configuration Etcd Implementation
 

@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
  * A cluster manager simulator. Work in memory only. Also return the current instance.
@@ -36,7 +35,6 @@ public class StandaloneManager implements ClusterNodesQuery, ClusterRegister {
     public void registerRemote(RemoteInstance remoteInstance) {
         this.remoteInstance = remoteInstance;
         this.remoteInstance.getAddress().setSelf(true);
-        TelemetryRelatedContext.INSTANCE.setId("standalone");
     }
 
     @Override

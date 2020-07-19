@@ -63,6 +63,10 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecords
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * H2 Storage provider is for demonstration and preview only. I will find that haven't implemented several interfaces,
@@ -131,6 +135,9 @@ public class H2StorageProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+        GaugeMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_h2", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        healthChecker.setValue(1);
         try {
             h2Client.connect();
 
@@ -139,6 +146,13 @@ public class H2StorageProvider extends ModuleProvider {
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+        h2Client.setHealthCheckListener(isHealthy -> {
+            if (isHealthy) {
+                healthChecker.setValue(0);
+            } else {
+                healthChecker.setValue(1);
+            }
+        });
     }
 
     @Override
