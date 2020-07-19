@@ -294,7 +294,8 @@ public class ElasticSearch7Client extends ElasticSearchClient {
             log.info("Synchronous bulk took time: {} millis, size: {}", responses.getTook().getMillis(), size);
             healthChecker.health();
         } catch (Throwable t) {
-            healthChecker.unHealth(t);        }
+            healthChecker.unHealth(t);
+        }
     }
 
     public BulkProcessor createBulkProcessor(int bulkActions, int flushInterval, int concurrentRequests) {
