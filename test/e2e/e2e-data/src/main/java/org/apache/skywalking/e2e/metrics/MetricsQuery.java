@@ -120,13 +120,13 @@ public class MetricsQuery extends AbstractQuery<MetricsQuery> {
     private String id;
     private String metricsName;
 
-    public static String METER_HIKARICP_CONNECTIONS = "meter_hikaricp_connections";
-    public static String METER_HIKARICP_CONNECTIONS_MAX = "meter_hikaricp_connections_max";
-    public static String METER_HIKARICP_CONNECTIONS_MIN = "meter_hikaricp_connections_min";
+    public static String METER_JVM_MEMORY_MAX = "meter_jvm_memory_max";
+    public static String METER_JVM_THREADS_LIVE = "meter_jvm_threads_live";
+    public static String METER_PROCESS_START_TIME = "meter_process_start_time";
     public static String[] SIMPLE_MICROMETER_METERS = {
-        METER_HIKARICP_CONNECTIONS,
-        METER_HIKARICP_CONNECTIONS_MAX,
-        METER_HIKARICP_CONNECTIONS_MIN
+        METER_JVM_MEMORY_MAX,
+        METER_JVM_THREADS_LIVE,
+        METER_PROCESS_START_TIME
     };
 
 }
