@@ -122,7 +122,7 @@ public class JVMService implements BootService, Runnable {
             jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
             jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());
             jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
-            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetric());
+            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetrics());
 
             JVMMetric jvmMetric = jvmBuilder.build();
             if (!queue.offer(jvmMetric)) {

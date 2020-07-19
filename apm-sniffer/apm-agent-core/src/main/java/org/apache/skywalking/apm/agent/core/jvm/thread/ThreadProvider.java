@@ -30,7 +30,7 @@ public enum ThreadProvider {
         this.threadMXBean = ManagementFactory.getThreadMXBean();
     }
 
-    public Thread getThreadMetric() {
+    public Thread getThreadMetrics() {
         int threadCount = threadMXBean.getThreadCount();
         int daemonThreadCount = threadMXBean.getDaemonThreadCount();
         int peakThreadCount = threadMXBean.getPeakThreadCount();
