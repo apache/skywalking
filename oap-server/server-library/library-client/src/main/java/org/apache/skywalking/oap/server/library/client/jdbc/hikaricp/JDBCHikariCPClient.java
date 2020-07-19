@@ -26,37 +26,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
  */
-public class JDBCHikariCPClient implements Client {
+public class JDBCHikariCPClient implements Client, HealthCheckable {
     private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
 
+    private final HikariConfig hikariConfig;
+    private final DelegatedHealthChecker healthChecker;
     private HikariDataSource dataSource;
-    private HikariConfig hikariConfig;
 
     public JDBCHikariCPClient(Properties properties) {
         hikariConfig = new HikariConfig(properties);
-    }
-
-    public void setHealthCheckListener(Consumer<Boolean> healthListener) {
-        ScheduledExecutorService asyncHealthScheduler = Executors.newSingleThreadScheduledExecutor();
-        asyncHealthScheduler.scheduleAtFixedRate(() -> {
-            try (Connection c = dataSource.getConnection()) {
-                healthListener.accept(true);
-            } catch (SQLException ignored) {
-                healthListener.accept(false);
-            }
-        }, 0, 3, TimeUnit.SECONDS);
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -93,7 +83,9 @@ public class JDBCHikariCPClient implements Client {
         logger.debug("execute aql: {}", sql);
         try (Statement statement = connection.createStatement()) {
             statement.execute(sql);
+            healthChecker.health();
         } catch (SQLException e) {
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
     }
@@ -107,6 +99,7 @@ public class JDBCHikariCPClient implements Client {
             setStatementParam(statement, params);
             result = statement.execute();
             statement.closeOnCompletion();
+            healthChecker.health();
         } catch (SQLException e) {
             if (statement != null) {
                 try {
@@ -114,6 +107,7 @@ public class JDBCHikariCPClient implements Client {
                 } catch (SQLException e1) {
                 }
             }
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
 
@@ -129,6 +123,7 @@ public class JDBCHikariCPClient implements Client {
             setStatementParam(statement, params);
             rs = statement.executeQuery();
             statement.closeOnCompletion();
+            healthChecker.health();
         } catch (SQLException e) {
             if (statement != null) {
                 try {
@@ -136,6 +131,7 @@ public class JDBCHikariCPClient implements Client {
                 } catch (SQLException e1) {
                 }
             }
+            healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
 
@@ -160,5 +156,9 @@ public class JDBCHikariCPClient implements Client {
                 }
             }
         }
+    }
+
+    @Override public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }
