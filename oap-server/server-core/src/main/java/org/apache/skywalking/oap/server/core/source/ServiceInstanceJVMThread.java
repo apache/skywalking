@@ -54,11 +54,11 @@ public class ServiceInstanceJVMThread extends Source {
     private String serviceId;
     @Getter
     @Setter
-    private int liveCount;
+    private long liveCount;
     @Getter
     @Setter
-    private int daemonCount;
+    private long daemonCount;
     @Getter
     @Setter
-    private int peakCount;
+    private long peakCount;
 }
