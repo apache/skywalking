@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLContext;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -59,10 +60,11 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthChecker;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthListener;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -93,7 +95,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
  * ElasticSearchClient connects to the ES server by using ES client APIs.
  */
 @Slf4j
-public class ElasticSearchClient implements Client {
+@RequiredArgsConstructor
+public class ElasticSearchClient implements Client, HealthCheckable {
     public static final String TYPE = "type";
     protected final String clusterNodes;
     protected final String protocol;
@@ -106,7 +109,7 @@ public class ElasticSearchClient implements Client {
     private volatile String password;
     private final List<IndexNameConverter> indexNameConverters;
     protected volatile RestHighLevelClient client;
-    protected HealthChecker healthChecker = HealthChecker.DEFAULT_CHECKER;
+    protected DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     protected final ReentrantLock connectLock = new ReentrantLock();
 
     public ElasticSearchClient(String clusterNodes,
@@ -142,10 +145,6 @@ public class ElasticSearchClient implements Client {
         } finally {
             connectLock.unlock();
         }
-    }
-
-    public void activeHealthChecker(HealthListener healthListener) {
-        healthChecker = new HealthChecker(healthListener);
     }
 
     protected RestHighLevelClient createClient(
@@ -500,5 +499,9 @@ public class ElasticSearchClient implements Client {
             indexName = indexNameConverter.convert(indexName);
         }
         return indexName;
+    }
+
+    @Override public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }
