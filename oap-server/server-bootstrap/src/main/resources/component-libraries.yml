@@ -483,4 +483,4 @@ Component-Server-Mappings:
   mariadb-jdbc: Mariadb
   Mysqli: Mysql
   Predis: Redis
-  PyMsql: Mysql
+  PyMysql: Mysql
