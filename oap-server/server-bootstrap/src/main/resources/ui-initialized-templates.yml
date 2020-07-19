@@ -1068,3 +1068,123 @@ templates:
     activated: true
     # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
     disabled: false
+  - name: Spring
+    type: "DASHBOARD"
+    configuration: |-
+      [
+        {
+          "name":"Spring",
+          "type":"service",
+          "children":[
+            {
+              "name":"micro-meter",
+              "children":[
+                {
+                  "width":3,
+                  "title":"Http Requests Count",
+                  "height":"200",
+                  "entityType":"Service",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_http_server_requests_count",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "unit":"Count"
+                },
+                {
+                  "width":"3",
+                  "title":"Http Request Total Duration",
+                  "height":"200",
+                  "entityType":"Service",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_http_server_requests_sum",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "unit":"ms"
+                },
+                {
+                  "width":3,
+                  "title":"Jdbc Connection Total Cont",
+                  "height":"200",
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "metricName":"meter_jdbc_connections_max"
+                },
+                {
+                  "width":3,
+                  "title":"Jdbc Connection Active Count",
+                  "height":"200",
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_jdbc_connections_active",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine"
+                },
+                {
+                  "width":3,
+                  "title":"Ssytem Load",
+                  "height":350,
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_system_load_average_1m",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "unit":"",
+                  "aggregation":"+",
+                  "aggregationNum":""
+                },
+                {
+                  "width":3,
+                  "title":"Jvm GC Parse Count",
+                  "height":350,
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_jvm_gc_pause_count",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "unit":"",
+                  "aggregation":"*",
+                  "aggregationNum":"100"
+                },
+                {
+                  "width":3,
+                  "title":"Jvm Thread live count",
+                  "height":350,
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_jvm_threads_live",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine"
+                },
+                {
+                  "width":3,
+                  "title":"Jvm Memory used",
+                  "height":350,
+                  "entityType":"ServiceInstance",
+                  "independentSelector":false,
+                  "metricType":"REGULAR_VALUE",
+                  "metricName":"meter_jvm_memory_used",
+                  "queryMetricType":"readMetricsValues",
+                  "chartType":"ChartLine",
+                  "unit":"MB",
+                  "aggregation":"/",
+                  "aggregationNum":"1048576"
+                }
+              ]
+            }
+          ]
+      }
+      ]
+    # Activated as the DASHBOARD type, makes this templates added into the UI page automatically.
+    # False means providing a basic template, user needs to add it manually.
+    activated: true
+    # True means wouldn't show up on the dashboard. Only keeps the definition in the storage.
+    disabled: false

@@ -15,7 +15,7 @@ are located at `$CLASSPATH/meter-receive-config`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/meter-receive-config.yaml)
+A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring.yaml)
 
 ### Meters configure
 
@@ -52,25 +52,73 @@ When you specify `avgHistogram` and `avgHistogramPercentile`, the source should 
 
 The script is provide a easy way to custom build a complex value, and it also support combine multiple meter into one.
 
-Use `meter[""]` to refer the metrics raw data, and multiple build-in methods to help filter or operate the value.
+##### Meter value grammar
+```
+// Declare the meter value.
+meter[METER_NAME]
+[.tagFilter(TAG_KEY, TAG_VALUE)]
+.FUNCTION(VALUE | METER)
+```
+##### Meter Name
 
-|Function|Support meter type|Description|
-|------|-------|------|
-|tagFilter(String, String)|Counter,Gauge,Histogram|Filter tag key/value from meter|
-|add(double)|SingleValue|Add value into meter|
-|add(Meter)|SingleValue|Add value from a meter value|
-|subtract(double)|SingleValue|Reduce value into meter|
-|subtract(Meter)|SingleValue|Reduce value from a meter value|
-|multiply(double)|SingleValue|Multiply value into meter|
-|multiply(Meter)|SingleValue|Multiply value form a meter value|
-|divide(double)|SingleValue|Mean value into meter|
-|divide(Meter)|SingleValue|Mean value from a meter value|
-|scale(int)|SingleValue|Scale the meter value|
-|rate(string)|SingleValue,Histogram|Rate value from the time range|
-|irate(string)|SingleValue,Histogram|IRate value from the time range|
-|increase(string)|SingleValue,Histogram|Increase value from the time range|
+Use name to refer the metrics raw data from agent side.
 
-The `add`, `minus`, `multiply`, and `divide` support single Meter value. Use `tagFilter` to filter.
+##### Tag Filter
+
+Use the meter tag to filter the meter value.
+> meter["test_meter"].tagFilter("k1", "v1")
+
+In this case, filter the tag key equals `k1` and tag value equals `v1` value from `test_meter`.
+
+##### Aggregation Function
+
+Use multiple build-in methods to help operate the value.
+
+Provided functions
+- `add`. Add value into meter. Support single value.
+> meter["test_meter"].add(2)
+
+In this case, all of the meter values will add `2`.
+> meter["test_meter1"].add(meter["test_meter2"])
+
+In this case, all of the `test_meter1` values will add value from `test_meter2`, ensure `test_meter2` only has single value to operate, could use `tagFilter`.
+- `subtract`. Subtract value into meter. Support single value.
+> meter["test_meter"].subtract(2)
+
+In this case, all of the meter values will subtract `2`.
+> meter["test_meter1"].subtract(meter["test_meter2"])
+
+In this case, all of the `test_meter1` values will subtract value from `test_meter2`, ensure `test_meter2` only has single value to operate, could use `tagFilter`.
+- `multiply`. Multiply value into meter. Support single value.
+> meter["test_meter"].multiply(2)
+
+In this case, all of the meter values will multiply `2`.
+> meter["test_meter1"].multiply(meter["test_meter2"])
+
+In this case, all of the `test_meter1` values will multiply value from `test_meter2`, ensure `test_meter2` only has single value to operate, could use `tagFilter`.
+- `divide`. Divide value into meter. Support single value.
+> meter["test_meter"].divide(2)
+
+In this case, all of the meter values will divide `2`.
+> meter["test_meter1"].divide(meter["test_meter2"])
+
+In this case, all of the `test_meter1` values will divide value from `test_meter2`, ensure `test_meter2` only has single value to operate, could use `tagFilter`.
+- `scale`. Scale value into meter. Support single value.
+> meter["test_meter"].scale(2)
+
+In this case, all of the meter values will scale `2`.
+- `rate`. Rate value from the time range. Support single value and Histogram.
+> meter["test_meter"].rate("P15S")
+
+In this case, all of the meter values will rate from `15s` before.
+- `irate`. IRate value from the time range. Support single value and Histogram.
+> meter["test_meter"].irate("P15S")
+
+In this case, all of the meter values will irate from `15s` before.
+- `increase`. increase value from the time range. Support single value and Histogram.
+> meter["test_meter"].increase("P15S")
+
+In this case, all of the meter values will increase from `15s` before.
 
 If you want to use `rate`, `irate`, `increase` function, use client-side API.
 - FAQ, why no `rate`, `irate`, `increase` at the backend.
