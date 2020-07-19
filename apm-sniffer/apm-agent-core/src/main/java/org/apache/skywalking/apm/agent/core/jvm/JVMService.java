@@ -34,6 +34,7 @@ import org.apache.skywalking.apm.agent.core.jvm.cpu.CPUProvider;
 import org.apache.skywalking.apm.agent.core.jvm.gc.GCProvider;
 import org.apache.skywalking.apm.agent.core.jvm.memory.MemoryProvider;
 import org.apache.skywalking.apm.agent.core.jvm.memorypool.MemoryPoolProvider;
+import org.apache.skywalking.apm.agent.core.jvm.thread.ThreadProvider;
 import org.apache.skywalking.apm.agent.core.logging.api.ILog;
 import org.apache.skywalking.apm.agent.core.logging.api.LogManager;
 import org.apache.skywalking.apm.agent.core.remote.GRPCChannelListener;
@@ -121,6 +122,7 @@ public class JVMService implements BootService, Runnable {
             jvmBuilder.addAllMemory(MemoryProvider.INSTANCE.getMemoryMetricList());
             jvmBuilder.addAllMemoryPool(MemoryPoolProvider.INSTANCE.getMemoryPoolMetricsList());
             jvmBuilder.addAllGc(GCProvider.INSTANCE.getGCList());
+            jvmBuilder.setThread(ThreadProvider.INSTANCE.getThreadMetric());
 
             JVMMetric jvmMetric = jvmBuilder.build();
             if (!queue.offer(jvmMetric)) {

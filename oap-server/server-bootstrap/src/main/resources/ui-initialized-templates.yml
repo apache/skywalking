@@ -361,6 +361,17 @@ templates:
                 },
                 {
                   "width": 3,
+                  "title": "JVM Thread Count (Java Service)",
+                  "height": "250",
+                  "entityType": "ServiceInstance",
+                  "independentSelector": false,
+                  "metricType": "REGULAR_VALUE",
+                  "queryMetricType": "readMetricsValues",
+                  "chartType": "ChartBar",
+                  "metricName": "instance_jvm_thread_live_count, instance_jvm_thread_daemon_count, instance_jvm_thread_peak_count"
+                },
+                {
+                  "width": 3,
                   "title": "CLR CPU  (.NET Service)",
                   "height": "250",
                   "entityType": "ServiceInstance",
