@@ -71,7 +71,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.Metr
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.ProfileThreadSnapshotQueryEs7DAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch7.query.TraceQueryEs7DAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -191,8 +191,8 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
     @Override
     public void start() throws ModuleStartException {
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        GaugeMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        healthChecker.setValue(1);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        elasticSearch7Client.registerChecker(healthChecker);
         try {
             elasticSearch7Client.connect();
 
@@ -201,10 +201,6 @@ public class StorageModuleElasticsearch7Provider extends ModuleProvider {
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        if (!config.isEnableHealthCheck()) {
-            return;
-        }
-        elasticSearch7Client.activeHealthChecker(isHealthy -> healthChecker.setValue(isHealthy ? 0 : 1));
     }
 
     @Override

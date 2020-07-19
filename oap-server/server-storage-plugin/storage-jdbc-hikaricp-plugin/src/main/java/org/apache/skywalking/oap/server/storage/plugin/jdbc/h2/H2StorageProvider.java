@@ -64,7 +64,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQue
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -136,8 +136,8 @@ public class H2StorageProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        GaugeMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_h2", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        healthChecker.setValue(1);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_h2", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        h2Client.registerChecker(healthChecker);
         try {
             h2Client.connect();
 
@@ -146,7 +146,6 @@ public class H2StorageProvider extends ModuleProvider {
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        h2Client.activeHealthCheck(healthy -> healthChecker.setValue(healthy ? 0 : 1));
     }
 
     @Override

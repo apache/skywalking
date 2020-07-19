@@ -18,32 +18,17 @@
 
 package org.apache.skywalking.oap.server.library.client.healthcheck;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
 /**
- * HealthChecker could provide health status to the listener.
+ * HealthCheckable indicate the client has the capacity of health check and need to register healthChecker.
  */
-@Slf4j
-@RequiredArgsConstructor
-public class HealthChecker {
-    public static final HealthChecker DEFAULT_CHECKER = new HealthChecker(health -> { });
+public interface HealthCheckable {
 
-    private final HealthListener listener;
-
-    /**
-     * Invoking when service is healthy.
-     */
-    public void health() {
-        listener.listen(true);
-    }
-
-    /**
-     * Invoking when service is unhealthy.
-     * @param t the reason of unhealthy status.
-     */
-    public void unHealth(Throwable t) {
-        log.error("Elasticsearch health check is failed", t);
-        listener.listen(false);
-    }
+   /**
+    * Register health checker.
+    *
+    * @param healthChecker HealthChecker to be registered.
+    */
+   void registerChecker(HealthChecker healthChecker);
 }

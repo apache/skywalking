@@ -92,7 +92,5 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int profileTaskQueryMaxSize = 200;
     @Setter
     private String advanced;
-    @Setter
-    private boolean enableHealthCheck;
 
 }

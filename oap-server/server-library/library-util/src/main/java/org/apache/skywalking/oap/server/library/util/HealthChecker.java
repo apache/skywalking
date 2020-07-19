@@ -16,15 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.healthcheck;
+package org.apache.skywalking.oap.server.library.util;
 
 /**
- * HealthListener notify the result of health check.
+ * Health checker provides methods to register the health status.
  */
-public interface HealthListener {
+public interface HealthChecker {
 
     /**
-     * Listening health status.
+     * It's health.
      */
-    void listen(boolean isHealthy);
+    void health();
+
+    /**
+     * It's unHealth.
+     *
+     * @param t details of unhealthy status
+     */
+    void unHealth(Throwable t);
 }

@@ -75,7 +75,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Topol
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -186,8 +186,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     @Override
     public void start() throws ModuleStartException {
         MetricsCreator metricCreator = getManager().find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
-        GaugeMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
-        healthChecker.setValue(1);
+        HealthCheckMetrics healthChecker = metricCreator.createHealthCheckerGauge("storage_elasticsearch", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
             StorageEsInstaller installer = new StorageEsInstaller(elasticSearchClient, getManager(), config);
@@ -196,10 +196,6 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         } catch (StorageException | IOException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException | CertificateException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        if (!config.isEnableHealthCheck()) {
-            return;
-        }
-        elasticSearchClient.activeHealthChecker(isHealthy -> healthChecker.setValue(isHealthy ? 0 : 1));
     }
 
     @Override

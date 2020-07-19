@@ -27,28 +27,26 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthChecker;
-import org.apache.skywalking.oap.server.library.client.healthcheck.HealthListener;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
  */
-public class JDBCHikariCPClient implements Client {
+public class JDBCHikariCPClient implements Client, HealthCheckable {
     private static final Logger logger = LoggerFactory.getLogger(JDBCHikariCPClient.class);
 
+    private final HikariConfig hikariConfig;
+    private final DelegatedHealthChecker healthChecker;
     private HikariDataSource dataSource;
-    private HikariConfig hikariConfig;
-    private HealthChecker healthChecker = HealthChecker.DEFAULT_CHECKER;
 
     public JDBCHikariCPClient(Properties properties) {
         hikariConfig = new HikariConfig(properties);
-    }
-
-    public void activeHealthCheck(HealthListener listener) {
-        healthChecker = new HealthChecker(listener);
+        this.healthChecker = new DelegatedHealthChecker();
     }
 
     @Override
@@ -158,5 +156,9 @@ public class JDBCHikariCPClient implements Client {
                 }
             }
         }
+    }
+
+    @Override public void registerChecker(HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
     }
 }
