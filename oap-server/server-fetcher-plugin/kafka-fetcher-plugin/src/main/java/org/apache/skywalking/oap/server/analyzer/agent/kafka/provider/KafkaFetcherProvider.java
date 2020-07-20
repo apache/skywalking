@@ -26,17 +26,13 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JV
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ManagementHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.ProfileTaskHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.TraceSegmentHandler;
-import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodeUpdate;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 @Slf4j
 public class KafkaFetcherProvider extends ModuleProvider {
@@ -68,19 +64,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     }
 
     @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
-
-        if (handlerRegister.isSharding() && getManager().has(ClusterModule.NAME)) {
-            ClusterNodeUpdate updater = getManager().find(ClusterModule.NAME)
-                                                    .provider()
-                                                    .getService(ClusterNodeUpdate.class);
-            try {
-                updater.updateRemoteNodes(config.getServerId().toString());
-            } catch (Exception e) {
-                throw new ModuleStartException(e.getMessage(), e);
-            }
-        }
-
+    public void start() throws ServiceNotProvidedException {
         handlerRegister.register(new JVMMetricsHandler(getManager(), config));
         handlerRegister.register(new ManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));
@@ -97,11 +81,8 @@ public class KafkaFetcherProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             TraceModule.NAME,
-            ClusterModule.NAME,
-            TelemetryModule.NAME,
             CoreModule.NAME,
-            ConfigurationModule.NAME
-        };
+            };
     }
 
 }

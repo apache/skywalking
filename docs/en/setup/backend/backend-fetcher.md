@@ -85,3 +85,44 @@ that adds the procedure from raw data to minute rate.
 
 When you specify `avgHistogram` and `avgHistogramPercentile`, the source should be the type of `histogram`. A counterFunction
 is also needed due to the `bucket`, `sum` and `count` of histogram are counters.
+
+## Kafka Fetcher
+
+Kafka Fetcher will pull message from Kafka Broker(s) what is the Agent delivered(Currently, we only support Java Agent.) They include JVM Metrics data, Tracing Segment, and Service/Instance properties. Of course, we can also consume and process these data in other applications. Kafka Fetcher can work with GRPC Receiver at same time. It contains JVM-Receiver, Trace-Receiver etc.
+
+Kafka Fetcher is disabled in default, and we configure as following to enable.
+
+```yaml
+kafka-fetcher:
+  selector: ${SW_RECEIVER_KAFKA:default}
+  default:
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+```
+
+We have to create following topics of Kafka which are named `skywalking-segments`, `skywalking-metrics`, `skywalking-profile` and `skywalking-managements`, for `kafka-fetcher`.
+If they are not exist, Kafka Fetcher will create them in default. Also, you can create them by self before OAP server started.
+
+If the OAP server automatically creates topics, you can also modify the number of partitions and replications of the topic created by default through the following configuration:
+
+```yaml
+kafka-fetcher:
+  selector: ${SW_RECEIVER_KAFKA:default}
+  default:
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+    partitons: 1
+    replicationFactor: 1
+```
+
+In the cluster mode, it should be noted that the number of topic partitions is the same as that of OAP servers. In other words, each OAP can only subscribe the specified partition. Therefore, the 'serverId' must be configured to specify which partition to consume.
+
+Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
+```yaml
+kafka-fetcher:
+  selector: ${SW_RECEIVER_KAFKA:default}
+  default:
+    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+    kafkaConsumerConfig:
+      enable.auto.commit: true
+      ...
+```
+
