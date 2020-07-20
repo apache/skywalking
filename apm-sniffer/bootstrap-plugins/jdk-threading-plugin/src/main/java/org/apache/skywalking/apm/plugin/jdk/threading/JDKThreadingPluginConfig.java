@@ -16,30 +16,20 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.customize.conf;
+package org.apache.skywalking.apm.plugin.jdk.threading;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class ConfigService implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return ConfigService.class;
-    }
-
+public class JDKThreadingPluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class Customize {
-            /**
-             * Custom enhancement class configuration file path, recommended to use an absolute path.
-             */
-            public static String ENHANCE_FILE = "";
+        public static class JdkThreading {
 
             /**
-             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
-             * And using Map CONTEXT for avoiding classloader isolation issue.
+             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable} and their
+             * subclasses, including anonymous inner classes) whose name matches any one of the {@code
+             * THREADING_CLASS_PREFIXES} (splitted by ,) will be instrumented
              */
-            public static Map<String, Object> CONTEXT = new HashMap<>();
+            public static String THREADING_CLASS_PREFIXES = "";
         }
     }
 }

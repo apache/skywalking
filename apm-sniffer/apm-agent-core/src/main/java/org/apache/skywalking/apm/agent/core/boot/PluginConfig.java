@@ -16,23 +16,13 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation;
+package org.apache.skywalking.apm.agent.core.boot;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
-
-public class ToolkitConfigService implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return ToolkitConfigService.class;
-    }
-
-    public static class Plugin {
-        public static class Toolkit {
-            /**
-             * If true, the fully qualified method name will be used as the operation name instead of the given
-             * operation name, default is false.
-             */
-            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
-        }
-    }
+/**
+ * ConfigInitializationService provides the config class which should host all parameters originally from agent setup.
+ * {@link org.apache.skywalking.apm.agent.core.conf.Config} provides the core level config, all plugins could implement
+ * this interface to have the same capability about initializing config from agent.config, system properties and system
+ * environment variables.
+ */
+public interface PluginConfig {
 }

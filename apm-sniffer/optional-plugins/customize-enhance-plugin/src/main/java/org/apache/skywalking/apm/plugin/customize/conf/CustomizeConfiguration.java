@@ -79,7 +79,7 @@ public enum CustomizeConfiguration {
      */
     private List<Map<String, Object>> resolver() throws ParserConfigurationException, IOException, SAXException {
         List<Map<String, Object>> customizeMethods = new ArrayList<Map<String, Object>>();
-        File file = new File(ConfigService.Plugin.Customize.ENHANCE_FILE);
+        File file = new File(PluginConfigService.Plugin.Customize.ENHANCE_FILE);
         if (file.exists() && file.isFile()) {
             NodeList classNodeList = resolverFileClassDesc(file);
             resolverClassNodeList(classNodeList, customizeMethods);
@@ -250,9 +250,9 @@ public enum CustomizeConfiguration {
      * In order to avoid the judgment of the useless null pointer exception.
      */
     private void init() {
-        ConfigService.Plugin.Customize.CONTEXT.put(
+        PluginConfigService.Plugin.Customize.CONTEXT.put(
             Constants.CONTEXT_METHOD_CONFIGURATIONS, new HashMap<String, Map<String, Object>>());
-        ConfigService.Plugin.Customize.CONTEXT.put(
+        PluginConfigService.Plugin.Customize.CONTEXT.put(
             Constants.CONTEXT_ENHANCE_CLASSES, new HashMap<String, ElementMatcher>());
     }
 
@@ -272,7 +272,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, Object>> getMethodConfigurations() {
-        return (Map<String, Map<String, Object>>) ConfigService.Plugin.Customize.CONTEXT.get(
+        return (Map<String, Map<String, Object>>) PluginConfigService.Plugin.Customize.CONTEXT.get(
             Constants.CONTEXT_METHOD_CONFIGURATIONS);
     }
 
@@ -341,7 +341,7 @@ public enum CustomizeConfiguration {
      */
     @SuppressWarnings("unchecked")
     private HashMap<String, ElementMatcher> getEnhanceClasses() {
-        return (HashMap<String, ElementMatcher>) ConfigService.Plugin.Customize.CONTEXT.get(
+        return (HashMap<String, ElementMatcher>) PluginConfigService.Plugin.Customize.CONTEXT.get(
             Constants.CONTEXT_ENHANCE_CLASSES);
     }
 

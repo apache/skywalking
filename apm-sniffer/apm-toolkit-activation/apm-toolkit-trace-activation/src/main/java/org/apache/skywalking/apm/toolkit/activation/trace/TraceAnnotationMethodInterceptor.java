@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.agent.core.util.CustomizeExpression;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
-import org.apache.skywalking.apm.toolkit.activation.ToolkitConfigService;
+import org.apache.skywalking.apm.toolkit.activation.ToolkitPluginConfigService;
 import org.apache.skywalking.apm.toolkit.activation.util.TagUtil;
 import org.apache.skywalking.apm.toolkit.trace.Tag;
 import org.apache.skywalking.apm.toolkit.trace.Tags;
@@ -44,7 +44,7 @@ public class TraceAnnotationMethodInterceptor implements InstanceMethodsAroundIn
                              MethodInterceptResult result) throws Throwable {
         Trace trace = method.getAnnotation(Trace.class);
         String operationName = trace.operationName();
-        if (operationName.length() == 0 || ToolkitConfigService.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
+        if (operationName.length() == 0 || ToolkitPluginConfigService.Plugin.Toolkit.USE_QUALIFIED_NAME_AS_OPERATION_NAME) {
             operationName = MethodUtil.generateOperationName(method);
         }
 

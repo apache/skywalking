@@ -16,17 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.apm.plugin.elasticsearch.v5;
 
-/**
- * ConfigInitializationService provides the config class which should host all parameters originally from agent setup.
- * {@link org.apache.skywalking.apm.agent.core.conf.Config} provides the core level config, all plugins could implement
- * this interface to have the same capability about initializing config from agent.config, system properties and system
- * environment variables.
- */
-public interface ConfigInitializationService {
-    /**
-     * @return Config to host parameters, all static fields set based on the config variable name.
-     */
-    Class config();
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
+
+public class ElasticsearchPluginConfig implements PluginConfig {
+    public static class Plugin {
+        public static class Elasticsearch {
+            /**
+             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
+             */
+            public static boolean TRACE_DSL = false;
+
+            public static int ELASTICSEARCH_DSL_LENGTH_THRESHOLD = 1024;
+        }
+    }
 }

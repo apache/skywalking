@@ -16,19 +16,17 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.conf;
+package org.apache.skywalking.apm.plugin.influxdb;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class PluginConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return PluginConfig.class;
-    }
-
+public class InfluxDBPluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class Dummy {
-            public static String ATTR = "1";
+        public static class InfluxDB {
+            /**
+             * If set to true, the parameters of the InfluxQL would be collected.
+             */
+            public static boolean TRACE_INFLUXQL = true;
         }
     }
 }

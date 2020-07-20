@@ -16,22 +16,19 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.influxdb;
+package org.apache.skywalking.apm.plugin.elasticsearch.v6;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class InfluxDBConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return InfluxDBConfig.class;
-    }
-
+public class ElasticsearchPluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class InfluxDB {
+        public static class Elasticsearch {
             /**
-             * If set to true, the parameters of the InfluxQL would be collected.
+             * If true, trace all the DSL(Domain Specific Language) in ElasticSearch access, default is false.
              */
-            public static boolean TRACE_INFLUXQL = true;
+            public static boolean TRACE_DSL = false;
+
+            public static int ELASTICSEARCH_DSL_LENGTH_THRESHOLD = 1024;
         }
     }
 }

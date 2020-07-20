@@ -40,7 +40,7 @@ import com.mongodb.operation.MapReduceWithInlineResultsOperation;
 import com.mongodb.operation.MixedBulkWriteOperation;
 import com.mongodb.operation.UpdateOperation;
 import java.util.List;
-import org.apache.skywalking.apm.plugin.mongodb.v3.MongoConfig;
+import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 import org.bson.BsonDocument;
 
 @SuppressWarnings({
@@ -125,7 +125,7 @@ public class MongoOperationHelper {
             } else if (request instanceof UpdateRequest) {
                 params.append(((UpdateRequest) request).getFilter()).append(",");
             }
-            final int filterLengthLimit = MongoConfig.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
+            final int filterLengthLimit = MongoPluginConfig.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
             if (filterLengthLimit > 0 && params.length() > filterLengthLimit) {
                 return params.substring(0, filterLengthLimit) + "...";
             }
@@ -135,7 +135,7 @@ public class MongoOperationHelper {
 
     private static String limitFilter(String filter) {
         final StringBuilder params = new StringBuilder();
-        final int filterLengthLimit = MongoConfig.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
+        final int filterLengthLimit = MongoPluginConfig.Plugin.MongoDB.FILTER_LENGTH_LIMIT;
         if (filterLengthLimit > 0 && filter.length() > filterLengthLimit) {
             return params.append(filter, 0, filterLengthLimit).append("...").toString();
         } else {

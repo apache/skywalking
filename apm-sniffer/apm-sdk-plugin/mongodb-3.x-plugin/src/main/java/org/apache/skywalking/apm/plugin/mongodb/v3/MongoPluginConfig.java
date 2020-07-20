@@ -16,25 +16,26 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.jdk.threading;
+package org.apache.skywalking.apm.plugin.mongodb.v3;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class JDKThreadingConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return JDKThreadingConfig.class;
-    }
-
+public class MongoPluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class JdkThreading {
+        public static class MongoDB {
+            /**
+             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not
+             * include parameters.
+             */
+            public static boolean TRACE_PARAM = false;
 
             /**
-             * Threading classes ({@link java.lang.Runnable} and {@link java.util.concurrent.Callable} and their
-             * subclasses, including anonymous inner classes) whose name matches any one of the {@code
-             * THREADING_CLASS_PREFIXES} (splitted by ,) will be instrumented
+             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
+             * the first {@code FILTER_LENGTH_LIMIT} characters.
+             * <p>
+             * Set a negative number to save the complete parameter string to the tag.
              */
-            public static String THREADING_CLASS_PREFIXES = "";
+            public static int FILTER_LENGTH_LIMIT = 256;
         }
     }
 }

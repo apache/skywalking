@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
-import org.apache.skywalking.apm.plugin.jdbc.JDBCConfig;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.PreparedStatementParameterBuilder;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
@@ -53,7 +53,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         Tags.DB_STATEMENT.set(span, cacheObject.getSql());
         span.setComponent(connectInfo.getComponent());
 
-        if (JDBCConfig.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS) {
+        if (JDBCPluginConfig.Plugin.POSTGRESQL.TRACE_SQL_PARAMETERS) {
             final Object[] parameters = cacheObject.getParameters();
             if (parameters != null && parameters.length > 0) {
                 int maxIndex = cacheObject.getMaxIndex();
@@ -92,7 +92,7 @@ public class PreparedStatementExecuteMethodsInterceptor implements InstanceMetho
         return new PreparedStatementParameterBuilder()
             .setParameters(parameters)
             .setMaxIndex(maxIndex)
-            .setMaxLength(JDBCConfig.Plugin.POSTGRESQL.SQL_PARAMETERS_MAX_LENGTH)
+            .setMaxLength(JDBCPluginConfig.Plugin.POSTGRESQL.SQL_PARAMETERS_MAX_LENGTH)
             .build();
     }
 }

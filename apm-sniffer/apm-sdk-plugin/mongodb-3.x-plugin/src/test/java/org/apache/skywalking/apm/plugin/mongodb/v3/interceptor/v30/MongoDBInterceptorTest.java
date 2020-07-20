@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStorage;
 import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
-import org.apache.skywalking.apm.plugin.mongodb.v3.MongoConfig;
+import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.codecs.Decoder;
@@ -82,7 +82,7 @@ public class MongoDBInterceptorTest {
 
         interceptor = new MongoDBInterceptor();
 
-        MongoConfig.Plugin.MongoDB.TRACE_PARAM = true;
+        MongoPluginConfig.Plugin.MongoDB.TRACE_PARAM = true;
 
         when(enhancedInstance.getSkyWalkingDynamicField()).thenReturn("127.0.0.1:27017");
 

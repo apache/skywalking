@@ -16,31 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.mongodb.v3;
+package org.apache.skywalking.apm.plugin.customize.conf;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class MongoConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return MongoConfig.class;
-    }
-
+public class PluginConfigService implements PluginConfig {
     public static class Plugin {
-        public static class MongoDB {
+        public static class Customize {
             /**
-             * If true, trace all the parameters in MongoDB access, default is false. Only trace the operation, not
-             * include parameters.
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
              */
-            public static boolean TRACE_PARAM = false;
+            public static String ENHANCE_FILE = "";
 
             /**
-             * For the sake of performance, SkyWalking won't save the entire parameters string into the tag, but only
-             * the first {@code FILTER_LENGTH_LIMIT} characters.
-             * <p>
-             * Set a negative number to save the complete parameter string to the tag.
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
              */
-            public static int FILTER_LENGTH_LIMIT = 256;
+            public static Map<String, Object> CONTEXT = new HashMap<>();
         }
     }
 }

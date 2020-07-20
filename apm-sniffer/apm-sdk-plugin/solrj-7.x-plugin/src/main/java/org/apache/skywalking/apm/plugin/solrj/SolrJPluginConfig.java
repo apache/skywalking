@@ -16,21 +16,23 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.conf;
+package org.apache.skywalking.apm.plugin.solrj;
 
-import org.apache.skywalking.apm.agent.core.boot.PluginConfigInitializer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class PluginConfigInitializerTest {
-    @Test
-    public void test() {
-        System.setProperty("skywalking.agent.service_name", "testApp");
-        System.setProperty("skywalking.collector.backend_service", "127.0.0.1:8090");
-        System.setProperty("skywalking.plugin.dummy.attr", "abc");
-        SnifferConfigInitializer.initializeCoreConfig("");
-        new PluginConfigInitializer().initConfigurationsOfAllPlugins();
+public class SolrJPluginConfig implements PluginConfig {
+    public static class Plugin {
+        public static class SolrJ {
+            /**
+             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
+             * default is false.
+             */
+            public static boolean TRACE_STATEMENT = false;
 
-        Assert.assertEquals("abc", PluginConfig.Plugin.Dummy.ATTR);
+            /**
+             * If true, trace all the operation parameters in Solr request, default is false.
+             */
+            public static boolean TRACE_OPS_PARAMS = false;
+        }
     }
 }

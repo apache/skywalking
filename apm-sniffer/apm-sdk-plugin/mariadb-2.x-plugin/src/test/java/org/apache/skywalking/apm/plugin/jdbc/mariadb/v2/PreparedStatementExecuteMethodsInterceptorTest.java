@@ -30,7 +30,7 @@ import org.apache.skywalking.apm.agent.test.tools.SegmentStoragePoint;
 import org.apache.skywalking.apm.agent.test.tools.SpanAssert;
 import org.apache.skywalking.apm.agent.test.tools.TracingSegmentRunner;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.jdbc.JDBCConfig;
+import org.apache.skywalking.apm.plugin.jdbc.JDBCPluginConfig;
 import org.apache.skywalking.apm.plugin.jdbc.JDBCPreparedStatementSetterInterceptor;
 import org.apache.skywalking.apm.plugin.jdbc.define.StatementEnhanceInfos;
 import org.apache.skywalking.apm.plugin.jdbc.trace.ConnectionInfo;
@@ -72,7 +72,7 @@ public class PreparedStatementExecuteMethodsInterceptorTest {
 
     @Before
     public void setUp() {
-        JDBCConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
+        JDBCPluginConfig.Plugin.MARIADB.TRACE_SQL_PARAMETERS = true;
         preparedStatementSetterInterceptor = new JDBCPreparedStatementSetterInterceptor();
         serviceMethodInterceptor = new PreparedStatementExecuteMethodsInterceptor();
 

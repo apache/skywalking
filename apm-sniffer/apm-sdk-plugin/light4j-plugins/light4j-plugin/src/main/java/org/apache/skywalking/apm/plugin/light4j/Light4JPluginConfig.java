@@ -16,21 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.agent.core.boot;
+package org.apache.skywalking.apm.plugin.light4j;
 
-import java.util.ServiceLoader;
-import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
-import org.apache.skywalking.apm.agent.core.plugin.loader.AgentClassLoader;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-/**
- * PluginConfigInitializer loads Config(s) in all existing plugins, and initialize them through current agent settings.
- */
-public class PluginConfigInitializer {
-    public void initConfigurationsOfAllPlugins() {
-        final ServiceLoader<ConfigInitializationService> configServiceLoader = ServiceLoader.load(
-            ConfigInitializationService.class, AgentClassLoader.getDefault());
-        configServiceLoader.forEach(configInitializationService -> {
-            SnifferConfigInitializer.initializeConfig(configInitializationService.config());
-        });
+public class Light4JPluginConfig implements PluginConfig {
+    public static class Plugin {
+        public static class Light4J {
+            /**
+             * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,
+             * generating a local span for each.
+             */
+            public static boolean TRACE_HANDLER_CHAIN = false;
+        }
     }
 }

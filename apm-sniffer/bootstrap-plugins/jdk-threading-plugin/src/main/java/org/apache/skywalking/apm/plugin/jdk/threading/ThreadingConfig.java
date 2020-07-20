@@ -32,7 +32,7 @@ public class ThreadingConfig {
     private static final ILog LOGGER = LogManager.getLogger(ThreadingConfig.class);
 
     public static IndirectMatch prefixesMatchesForJdkThreading() {
-        final String jointPrefixes = JDKThreadingConfig.Plugin.JdkThreading.THREADING_CLASS_PREFIXES;
+        final String jointPrefixes = JDKThreadingPluginConfig.Plugin.JdkThreading.THREADING_CLASS_PREFIXES;
 
         if (jointPrefixes == null || jointPrefixes.trim().isEmpty()) {
             return null;

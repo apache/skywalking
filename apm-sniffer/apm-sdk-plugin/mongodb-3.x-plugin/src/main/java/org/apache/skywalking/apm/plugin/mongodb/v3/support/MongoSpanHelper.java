@@ -24,7 +24,7 @@ import org.apache.skywalking.apm.agent.core.context.tag.Tags;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.mongodb.v3.MongoConfig;
+import org.apache.skywalking.apm.plugin.mongodb.v3.MongoPluginConfig;
 
 public class MongoSpanHelper {
 
@@ -38,7 +38,7 @@ public class MongoSpanHelper {
         Tags.DB_TYPE.set(span, MongoConstants.DB_TYPE);
         SpanLayer.asDB(span);
 
-        if (MongoConfig.Plugin.MongoDB.TRACE_PARAM) {
+        if (MongoPluginConfig.Plugin.MongoDB.TRACE_PARAM) {
             Tags.DB_STATEMENT.set(span, executeMethod + " " + MongoOperationHelper.getTraceParam(operation));
         }
     }

@@ -139,10 +139,10 @@ public class SolrClientInterceptorTest {
 
         AbstractTracingSpan span = spans.get(0);
         int pox = 0;
-        if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             SpanAssert.assertTag(span, ++pox, "100");
         }
-        if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++pox, "-1");
         }
         spanCommonAssert(span, pox, "solrJ/collection/update/ADD");
@@ -169,7 +169,7 @@ public class SolrClientInterceptorTest {
 
         int start = 0;
         AbstractTracingSpan span = spans.get(0);
-        if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, String.valueOf(softCommit));
         }
         spanCommonAssert(span, start, "solrJ/collection/update/COMMIT");
@@ -196,7 +196,7 @@ public class SolrClientInterceptorTest {
 
         AbstractTracingSpan span = spans.get(0);
         int start = 0;
-        if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, String.valueOf(maxSegments));
         }
         spanCommonAssert(span, start, "solrJ/collection/update/OPTIMIZE");
@@ -333,7 +333,7 @@ public class SolrClientInterceptorTest {
         SpanAssert.assertTag(span, 2, qt);
 
         int start = 3;
-        if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             start++;
         }
         SpanAssert.assertTag(span, start++, "5");
@@ -362,10 +362,10 @@ public class SolrClientInterceptorTest {
         SpanAssert.assertTag(span, 0, "Solr");
 
         int start = 0;
-        if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
             SpanAssert.assertTag(span, ++start, statement);
         }
-        if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
             SpanAssert.assertTag(span, ++start, "-1");
         }
 

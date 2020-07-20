@@ -63,7 +63,7 @@ public class GetTransactionMethodInterceptor implements InstanceMethodsAroundInt
     }
 
     private String buildOperationName(String transactionDefinitionName) {
-        if (!SpringTXConfig.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
+        if (!SpringTXPluginConfig.Plugin.SpringTransaction.SIMPLIFY_TRANSACTION_DEFINITION_NAME) {
             return transactionDefinitionName;
         }
         String[] ss = transactionDefinitionName.split("\\.");

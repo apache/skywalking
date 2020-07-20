@@ -16,28 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.solrj;
+package org.apache.skywalking.apm.plugin.spring.transaction;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class SolrJConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return SolrJConfig.class;
-    }
-
+public class SpringTXPluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class SolrJ {
-            /**
-             * If true, trace all the query parameters(include deleteByIds and deleteByQuery) in Solr query request,
-             * default is false.
-             */
-            public static boolean TRACE_STATEMENT = false;
+        public static class SpringTransaction {
 
             /**
-             * If true, trace all the operation parameters in Solr request, default is false.
+             * If true, the transaction definition name will be simplified
              */
-            public static boolean TRACE_OPS_PARAMS = false;
+            public static boolean SIMPLIFY_TRANSACTION_DEFINITION_NAME = false;
         }
     }
 }

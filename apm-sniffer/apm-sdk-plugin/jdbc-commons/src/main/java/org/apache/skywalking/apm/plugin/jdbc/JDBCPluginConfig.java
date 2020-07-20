@@ -18,14 +18,9 @@
 
 package org.apache.skywalking.apm.plugin.jdbc;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class JDBCConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return JDBCConfig.class;
-    }
-
+public class JDBCPluginConfig implements PluginConfig {
     public static class Plugin {
         public static class MySQL {
             /**

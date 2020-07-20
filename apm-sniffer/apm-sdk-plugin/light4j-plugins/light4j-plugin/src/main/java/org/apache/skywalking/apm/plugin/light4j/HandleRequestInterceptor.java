@@ -41,7 +41,7 @@ import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
  * {@link HandleRequestInterceptor} creates an entry span before the execution of {@link
  * com.networknt.exception.ExceptionHandler#handleRequest(HttpServerExchange)} in the I/O thread.
  * <p>
- * If the {@link Light4JConfig.Plugin.Light4J#TRACE_HANDLER_CHAIN} flag is set, additionally a local span is produced
+ * If the {@link Light4JPluginConfig.Plugin.Light4J#TRACE_HANDLER_CHAIN} flag is set, additionally a local span is produced
  * for each {@link com.networknt.handler.MiddlewareHandler} and business handler before their respective {@link
  * com.networknt.handler.LightHttpHandler#handleRequest(HttpServerExchange)} method executes. Since {@link
  * com.networknt.handler.LightHttpHandler} is implemented by various middleware and business handlers and the Light4J
@@ -82,7 +82,7 @@ public class HandleRequestInterceptor implements InstanceMethodsAroundIntercepto
                 ContextManager.stopSpan(span);
 
                 objInst.setSkyWalkingDynamicField(ContextManager.capture());
-            } else if (Light4JConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN) {
+            } else if (Light4JPluginConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN) {
                 String operationName = objInst.getClass().getName() + "." + method.getName();
 
                 ContextSnapshot snapshot = (ContextSnapshot) objInst.getSkyWalkingDynamicField();
@@ -90,7 +90,7 @@ public class HandleRequestInterceptor implements InstanceMethodsAroundIntercepto
 
                 ContextManager.continued(snapshot);
             }
-        } else if (Light4JConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && (isMiddlewareHandler(
+        } else if (Light4JPluginConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && (isMiddlewareHandler(
             objInst) || isBusinessHandler(objInst))) {
             String operationName = objInst.getClass().getName() + "." + method.getName();
 
@@ -104,10 +104,10 @@ public class HandleRequestInterceptor implements InstanceMethodsAroundIntercepto
         if (isExceptionHandler(objInst)) {
             HttpServerExchange exchange = (HttpServerExchange) allArguments[0];
 
-            if (Light4JConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && !exchange.isInIoThread()) {
+            if (Light4JPluginConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && !exchange.isInIoThread()) {
                 ContextManager.stopSpan();
             }
-        } else if (Light4JConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && (isMiddlewareHandler(
+        } else if (Light4JPluginConfig.Plugin.Light4J.TRACE_HANDLER_CHAIN && (isMiddlewareHandler(
             objInst) || isBusinessHandler(objInst))) {
             ContextManager.stopSpan();
         }

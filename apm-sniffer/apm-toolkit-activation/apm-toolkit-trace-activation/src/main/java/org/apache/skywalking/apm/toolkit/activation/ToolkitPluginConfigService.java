@@ -16,23 +16,18 @@
  *
  */
 
-package org.apache.skywalking.apm.plugin.light4j;
+package org.apache.skywalking.apm.toolkit.activation;
 
-import org.apache.skywalking.apm.agent.core.boot.ConfigInitializationService;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class Light4JConfig implements ConfigInitializationService {
-    @Override
-    public Class config() {
-        return Light4JConfig.class;
-    }
-
+public class ToolkitPluginConfigService implements PluginConfig {
     public static class Plugin {
-        public static class Light4J {
+        public static class Toolkit {
             /**
-             * If true, trace all middleware/business handlers that are part of the Light4J handler chain for a request,
-             * generating a local span for each.
+             * If true, the fully qualified method name will be used as the operation name instead of the given
+             * operation name, default is false.
              */
-            public static boolean TRACE_HANDLER_CHAIN = false;
+            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
         }
     }
 }

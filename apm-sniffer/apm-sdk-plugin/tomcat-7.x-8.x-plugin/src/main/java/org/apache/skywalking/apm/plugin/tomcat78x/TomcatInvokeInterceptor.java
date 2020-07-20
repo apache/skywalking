@@ -81,7 +81,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
         span.setComponent(ComponentsDefine.TOMCAT);
         SpanLayer.asHttp(span);
 
-        if (TomcatConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
+        if (TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS) {
             collectHttpParam(request, span);
         }
     }
@@ -98,7 +98,7 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
             Tags.STATUS_CODE.set(span, Integer.toString(response.getStatus()));
         }
         // Active HTTP parameter collection automatically in the profiling context.
-        if (!TomcatConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+        if (!TomcatPluginConfig.Plugin.Tomcat.COLLECT_HTTP_PARAMS && span.isProfiling()) {
             collectHttpParam(request, span);
         }
         ContextManager.stopSpan();
@@ -125,8 +125,8 @@ public class TomcatInvokeInterceptor implements InstanceMethodsAroundInterceptor
 
         if (!parameterMap.isEmpty()) {
             String tagValue = CollectionUtil.toString(parameterMap);
-            tagValue = TomcatConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
-                StringUtil.cut(tagValue, TomcatConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
+            tagValue = TomcatPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                StringUtil.cut(tagValue, TomcatPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) :
                 tagValue;
             Tags.HTTP.PARAMS.set(span, tagValue);
         }

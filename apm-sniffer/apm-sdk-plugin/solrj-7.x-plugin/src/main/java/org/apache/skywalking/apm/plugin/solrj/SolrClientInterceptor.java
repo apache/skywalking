@@ -103,17 +103,17 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                         }
                         String operator = getOperatorNameWithAction(collection, request.getPath(), actionName);
                         span = getSpan(operator, instance.getRemotePeer());
-                        if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+                        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                             span.tag(Tags.DB_STATEMENT, deleteBy.toString());
                         }
                     } else {
                         String operator = getOperatorNameWithAction(collection, request.getPath(), "ADD");
                         span = getSpan(operator, instance.getRemotePeer());
-                        if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+                        if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                             span.tag(SolrjTags.TAG_DOCS_SIZE, String.valueOf(documents.size()));
                         }
                     }
-                    if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+                    if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
                         span.tag(SolrjTags.TAG_COMMIT_WITHIN, String.valueOf(ur.getCommitWithin()));
                     }
                 } else {
@@ -123,7 +123,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
                 String operator = getOperatorNameWithAction(collection, request.getPath(), action.name());
                 AbstractSpan span = getSpan(operator, instance.getRemotePeer());
 
-                if (SolrJConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
+                if (SolrJPluginConfig.Plugin.SolrJ.TRACE_OPS_PARAMS) {
                     if (action == AbstractUpdateRequest.ACTION.COMMIT) {
                         span.tag(SolrjTags.TAG_SOFT_COMMIT, params.get(UpdateParams.SOFT_COMMIT, ""));
                     } else {
@@ -138,7 +138,7 @@ public class SolrClientInterceptor implements InstanceMethodsAroundInterceptor, 
             span.tag(SolrjTags.TAG_START, params.get(CommonParams.START, "0"));
             span.tag(SolrjTags.TAG_QT, params.get(CommonParams.QT, request.getPath()));
 
-            if (SolrJConfig.Plugin.SolrJ.TRACE_STATEMENT) {
+            if (SolrJPluginConfig.Plugin.SolrJ.TRACE_STATEMENT) {
                 span.tag(Tags.DB_STATEMENT, toQueryString(params));
             }
         } else {

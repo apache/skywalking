@@ -27,7 +27,7 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedI
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
-import org.apache.skywalking.apm.plugin.influxdb.InfluxDBConfig;
+import org.apache.skywalking.apm.plugin.influxdb.InfluxDBPluginConfig;
 import org.apache.skywalking.apm.plugin.influxdb.define.Constants;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
@@ -47,7 +47,7 @@ public class InfluxDBMethodInterceptor implements InstanceMethodsAroundIntercept
         SpanLayer.asDB(span);
         Tags.DB_TYPE.set(span, DB_TYPE);
 
-        if (allArguments.length <= 0 || !InfluxDBConfig.Plugin.InfluxDB.TRACE_INFLUXQL) {
+        if (allArguments.length <= 0 || !InfluxDBPluginConfig.Plugin.InfluxDB.TRACE_INFLUXQL) {
             return;
         }
 

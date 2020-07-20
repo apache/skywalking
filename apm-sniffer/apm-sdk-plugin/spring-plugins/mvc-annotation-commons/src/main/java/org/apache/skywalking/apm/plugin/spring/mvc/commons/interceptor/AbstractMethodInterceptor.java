@@ -35,7 +35,7 @@ import org.apache.skywalking.apm.agent.core.util.CollectionUtil;
 import org.apache.skywalking.apm.agent.core.util.MethodUtil;
 import org.apache.skywalking.apm.network.trace.component.ComponentsDefine;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.EnhanceRequireObjectCache;
-import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCConfig;
+import org.apache.skywalking.apm.plugin.spring.mvc.commons.SpringMVCPluginConfig;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.IllegalMethodStackDepthException;
 import org.apache.skywalking.apm.plugin.spring.mvc.commons.exception.ServletResponseNotFoundException;
 import org.apache.skywalking.apm.util.StringUtil;
@@ -77,7 +77,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         }
 
         String operationName;
-        if (SpringMVCConfig.Plugin.SpringMVC.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
+        if (SpringMVCPluginConfig.Plugin.SpringMVC.USE_QUALIFIED_NAME_AS_ENDPOINT_NAME) {
             operationName = MethodUtil.generateOperationName(method);
         } else {
             EnhanceRequireObjectCache pathMappingCache = (EnhanceRequireObjectCache) objInst.getSkyWalkingDynamicField();
@@ -109,7 +109,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
                 span.setComponent(ComponentsDefine.SPRING_MVC_ANNOTATION);
                 SpanLayer.asHttp(span);
 
-                if (SpringMVCConfig.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
+                if (SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_PARAMS) {
                     collectHttpParam(request, span);
                 }
 
@@ -183,7 +183,7 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
             }
 
             // Active HTTP parameter collection automatically in the profiling context.
-            if (!SpringMVCConfig.Plugin.SpringMVC.COLLECT_HTTP_PARAMS && span.isProfiling()) {
+            if (!SpringMVCPluginConfig.Plugin.SpringMVC.COLLECT_HTTP_PARAMS && span.isProfiling()) {
                 collectHttpParam(request, span);
             }
 
@@ -203,8 +203,8 @@ public abstract class AbstractMethodInterceptor implements InstanceMethodsAround
         final Map<String, String[]> parameterMap = request.getParameterMap();
         if (parameterMap != null && !parameterMap.isEmpty()) {
             String tagValue = CollectionUtil.toString(parameterMap);
-            tagValue = SpringMVCConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
-                StringUtil.cut(tagValue, SpringMVCConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
+            tagValue = SpringMVCPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD > 0 ?
+                StringUtil.cut(tagValue, SpringMVCPluginConfig.Plugin.Http.HTTP_PARAMS_LENGTH_THRESHOLD) : tagValue;
             Tags.HTTP.PARAMS.set(span, tagValue);
         }
     }
