@@ -16,18 +16,25 @@
  *
  */
 
-package org.apache.skywalking.apm.toolkit.activation;
+package org.apache.skywalking.apm.plugin.customize.conf;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.apm.agent.core.boot.PluginConfig;
 
-public class ToolkitPluginConfigService implements PluginConfig {
+public class CustomizePluginConfig implements PluginConfig {
     public static class Plugin {
-        public static class Toolkit {
+        public static class Customize {
             /**
-             * If true, the fully qualified method name will be used as the operation name instead of the given
-             * operation name, default is false.
+             * Custom enhancement class configuration file path, recommended to use an absolute path.
              */
-            public static boolean USE_QUALIFIED_NAME_AS_OPERATION_NAME = false;
+            public static String ENHANCE_FILE = "";
+
+            /**
+             * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
+             * And using Map CONTEXT for avoiding classloader isolation issue.
+             */
+            public static Map<String, Object> CONTEXT = new HashMap<>();
         }
     }
 }
