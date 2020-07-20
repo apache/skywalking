@@ -22,7 +22,6 @@ services:
     extends:
       file: ../base-compose.yml
       service: oap
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
 
   ui:
     extends:

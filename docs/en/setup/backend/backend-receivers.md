@@ -129,3 +129,16 @@ receiver-oc:
     gRPCHost: ${SW_OC_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_OC_RECEIVER_GRPC_PORT:55678}
 ```
+
+## Meter receiver
+
+Meter receiver supports accept the metrics into the meter-system. OAP can load the configuration at bootstrap. 
+
+The file is written in YAML format, defined by the scheme described in [backend-meter](./backend-meter.md).
+
+To active the `default` implementation:
+```yaml
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:default}
+  default:
+```

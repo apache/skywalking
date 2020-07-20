@@ -15,7 +15,8 @@ are located at `$CLASSPATH/meter-receive-config`.
 
 The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
 
-A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring.yaml)
+A example can be found [here](../../../../oap-server/server-bootstrap/src/main/resources/meter-receive-config/spring.yaml).
+If you're using Spring sleuth, you could use [Spring Sleuth Setup](spring-sleuth-setup.md).
 
 ### Meters configure
 
@@ -106,20 +107,20 @@ In this case, all of the `test_meter1` values will divide value from `test_meter
 - `scale`. Scale value into meter. Support single value.
 > meter["test_meter"].scale(2)
 
-In this case, all of the meter values will scale `2`.
-- `rate`. Rate value from the time range. Support single value and Histogram.
+In this case, all of the meter values will scale `2`. For example, `meter["test_meter"]` value is 1, then using `scale(2)`, the result will be `100`.
+- `rate`.(Not Recommended) Rate value from the time range. Support single value and Histogram.
 > meter["test_meter"].rate("P15S")
 
 In this case, all of the meter values will rate from `15s` before.
-- `irate`. IRate value from the time range. Support single value and Histogram.
+- `irate`.(Not Recommended) IRate value from the time range. Support single value and Histogram.
 > meter["test_meter"].irate("P15S")
 
 In this case, all of the meter values will irate from `15s` before.
-- `increase`. increase value from the time range. Support single value and Histogram.
+- `increase`.(Not Recommended) increase value from the time range. Support single value and Histogram.
 > meter["test_meter"].increase("P15S")
 
 In this case, all of the meter values will increase from `15s` before.
 
-If you want to use `rate`, `irate`, `increase` function, use client-side API.
-- FAQ, why no `rate`, `irate`, `increase` at the backend.
-Once the agent reconnected to another OAP instance, the time windows of rate calculation will break. Then, the result would not be accurate.
+Even we supported `rate`, `irate`, `increase` function in the backend, but we still recommend user to consider using client-side APIs to do these. Because
+1. The OAP has to set up caches to calculate the value.
+1. Once the agent reconnected to another OAP instance, the time windows of rate calculation will break. Then, the result would not be accurate.
