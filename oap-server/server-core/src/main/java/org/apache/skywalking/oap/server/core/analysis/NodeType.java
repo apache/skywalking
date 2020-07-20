@@ -61,7 +61,7 @@ public enum NodeType {
      */
     User(10),
     /**
-     * <code>User = 11</code>
+     * <code>Unrecognized = 11</code>
      */
     Unrecognized(11);
 
