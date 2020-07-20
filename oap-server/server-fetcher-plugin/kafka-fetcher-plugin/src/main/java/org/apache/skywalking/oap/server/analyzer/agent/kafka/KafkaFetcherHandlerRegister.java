@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcher
  */
 @Slf4j
 public class KafkaFetcherHandlerRegister implements Runnable {
+
     private ImmutableMap.Builder<String, KafkaHandler> builder = ImmutableMap.builder();
     private ImmutableMap<String, KafkaHandler> handlerMap;
 
@@ -86,6 +87,7 @@ public class KafkaFetcherHandlerRegister implements Runnable {
                                               .filter(Objects::nonNull)
                                               .collect(Collectors.toSet());
         if (!missedTopics.isEmpty()) {
+            log.info("Topics" + missedTopics.toString() + " not exist.");
             List<NewTopic> newTopicList = missedTopics.stream()
                                                  .map(topic -> new NewTopic(
                                                      topic,

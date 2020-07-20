@@ -26,6 +26,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.receiver.trace.TraceServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.trace.module.TraceModule;
 import org.apache.skywalking.oap.server.receiver.trace.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.trace.parser.TraceAnalyzer;
 import org.apache.skywalking.oap.server.receiver.trace.parser.listener.MultiScopesAnalysisListener;
@@ -55,7 +56,7 @@ public class TraceSegmentHandler implements KafkaHandler {
         this.config = config;
         this.moduleManager = moduleManager;
         this.traceModuleConfig = (TraceServiceModuleConfig) ((ModuleProvider) moduleManager
-            .find("receiver-trace").provider()).createConfigBeanIfAbsent();
+            .find(TraceModule.NAME).provider()).createConfigBeanIfAbsent();
 
         this.listenerManager = listenerManager(traceModuleConfig, moduleManager);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
