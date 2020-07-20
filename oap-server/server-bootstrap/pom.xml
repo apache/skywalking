@@ -200,6 +200,11 @@
             <artifactId>configuration-consul</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>configuration-k8s-configmap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
