@@ -40,13 +40,9 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
     @Override
     public Optional<ConfigTable> readConfig(Set<String> keys) {
         final ConfigTable configTable = new ConfigTable();
-
         Optional<V1ConfigMap> v1ConfigMap = informer.configMap();
-
         for (final String name : keys) {
-
             final String value = v1ConfigMap.map(configMap -> configMap.getData().get(name)).orElse(null);
-
             if (log.isDebugEnabled()) {
                 log.debug("read config: name:{} ,value:{}", name, value);
             }
@@ -54,7 +50,6 @@ public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister
                 configTable.add(new ConfigTable.ConfigItem(name, value));
             }
         }
-
         return Optional.of(configTable);
     }
 

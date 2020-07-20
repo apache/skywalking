@@ -55,41 +55,33 @@ public class ConfigmapConfigWatcherRegisterTest {
         settings.setPeriod(60);
         informer = PowerMockito.mock(ConfigurationConfigmapInformer.class);
         register = new ConfigmapConfigurationWatcherRegister(settings, informer);
-
     }
 
     @Test
     public void readConfigWhenInformerNotwork() throws Exception {
         PowerMockito.doReturn(Optional.empty()).when(informer).configMap();
-
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("key1");
         }});
 
         Assert.assertTrue(optionalConfigTable.isPresent());
         ConfigTable configTable = optionalConfigTable.get();
-
         Assert.assertEquals(configTable.getItems().size(), 0);
-
     }
 
     @Test
     public void readConfigWhenInformerWork() throws Exception {
-
         Reader configmapReader = ResourceUtils.read("skywalking-dynamic-configmap.example.yaml");
         Map<String, Map<String, String>> configmapMap = yaml.loadAs(configmapReader, Map.class);
         V1ConfigMap v1ConfigMap = new V1ConfigMap();
         v1ConfigMap.data(configmapMap.get("data"));
-
         PowerMockito.doReturn(Optional.of(v1ConfigMap)).when(informer).configMap();
-
         Optional<ConfigTable> optionalConfigTable = register.readConfig(new HashSet<String>() {{
             add("receiver-trace.default.slowDBAccessThreshold");
             add("alarm.default.alarm-settings");
             add("core.default.apdexThreshold");
             add("receiver-trace.default.uninstrumentedGateways");
         }});
-
         Assert.assertTrue(optionalConfigTable.isPresent());
         ConfigTable configTable = optionalConfigTable.get();
 
@@ -97,8 +89,6 @@ public class ConfigmapConfigWatcherRegisterTest {
                                        .map(ConfigTable.ConfigItem::getValue)
                                        .filter(Objects::nonNull)
                                        .collect(Collectors.toList());
-
         Assert.assertEquals(list.size(), 4);
-
     }
 }

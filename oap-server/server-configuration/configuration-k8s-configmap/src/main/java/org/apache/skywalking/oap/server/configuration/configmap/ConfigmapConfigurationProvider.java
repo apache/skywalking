@@ -44,11 +44,9 @@ public class ConfigmapConfigurationProvider extends AbstractConfigurationProvide
 
     @Override
     protected ConfigWatcherRegister initConfigReader() throws ModuleStartException {
-
         if (Strings.isNullOrEmpty(settings.getLabelSelector()) || Strings.isNullOrEmpty(settings.getNamespace())) {
             throw new ModuleStartException("the settings of configmap configuration is illegal.");
         }
-
         ConfigurationConfigmapInformer informer = new ConfigurationConfigmapInformer(settings);
         return new ConfigmapConfigurationWatcherRegister(settings, informer);
     }

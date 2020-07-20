@@ -25,8 +25,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 @Getter
 public class ConfigmapConfigurationSettings extends ModuleConfig {
-
+    /**
+     * namespace for deployment
+     */
     private String namespace;
+    /**
+     * how to find the configmap
+     */
     private String labelSelector;
+    /**
+     * the period for skywalking configuration reloading
+     */
     private Integer period;
 }

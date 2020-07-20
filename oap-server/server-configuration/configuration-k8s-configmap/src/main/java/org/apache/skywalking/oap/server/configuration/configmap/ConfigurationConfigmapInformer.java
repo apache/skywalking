@@ -48,14 +48,12 @@ public class ConfigurationConfigmapInformer {
     });
 
     public ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
-
         try {
             doStartConfigMapInformer(settings);
             doAddShutdownHook();
         } catch (IOException e) {
             log.error("cannot connect with api server in kubernetes", e);
         }
-
     }
 
     private void doAddShutdownHook() {
