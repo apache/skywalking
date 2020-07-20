@@ -129,7 +129,7 @@
                                         <mkdir dir="${optional.reporter.plugins.dest.dir}"/>
                                         <mkdir dir="${agent.package.dest.dir}/reporter-plugins" />
                                         <copy
-                                                file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                                file="${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar"
                                                 tofile="${optional.reporter.plugins.dest.dir}/${project.artifactId}-${project.version}.jar"
                                                 overwrite="true"/>
                                     </then>

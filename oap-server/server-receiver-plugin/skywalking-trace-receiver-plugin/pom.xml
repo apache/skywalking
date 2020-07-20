@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>agent-analzyer</artifactId>
+            <artifactId>agent-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

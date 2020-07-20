@@ -25,20 +25,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>agent-analzyer</artifactId>
+    <artifactId>agent-analyzer</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>configuration-api</artifactId>
-            <version>8.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
-            <version>8.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
