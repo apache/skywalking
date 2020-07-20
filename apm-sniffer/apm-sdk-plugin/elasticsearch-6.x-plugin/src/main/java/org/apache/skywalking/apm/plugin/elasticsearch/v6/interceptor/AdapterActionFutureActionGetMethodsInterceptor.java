@@ -36,8 +36,8 @@ import org.elasticsearch.action.update.UpdateResponse;
 
 import java.lang.reflect.Method;
 
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.ELASTICSEARCH_DSL_LENGTH_THRESHOLD;
-import static org.apache.skywalking.apm.agent.core.conf.Config.Plugin.Elasticsearch.TRACE_DSL;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchConfig.Plugin.Elasticsearch.ELASTICSEARCH_DSL_LENGTH_THRESHOLD;
+import static org.apache.skywalking.apm.plugin.elasticsearch.v6.ElasticsearchConfig.Plugin.Elasticsearch.TRACE_DSL;
 
 public class AdapterActionFutureActionGetMethodsInterceptor implements InstanceMethodsAroundInterceptor {
 

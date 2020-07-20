@@ -30,6 +30,7 @@ import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.utility.JavaModule;
 import org.apache.skywalking.apm.agent.core.boot.AgentPackageNotFoundException;
+import org.apache.skywalking.apm.agent.core.boot.PluginConfigInitializer;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.SnifferConfigInitializer;
@@ -61,10 +62,11 @@ public class SkyWalkingAgent {
     public static void premain(String agentArgs, Instrumentation instrumentation) throws PluginException {
         final PluginFinder pluginFinder;
         try {
-            SnifferConfigInitializer.initialize(agentArgs);
+            SnifferConfigInitializer.initializeCoreConfig(agentArgs);
 
             pluginFinder = new PluginFinder(new PluginBootstrap().loadPlugins());
 
+            new PluginConfigInitializer().initConfigurationsOfAllPlugins();
         } catch (AgentPackageNotFoundException ape) {
             logger.error(ape, "Locate agent.jar failure. Shutting down.");
             return;
