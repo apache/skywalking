@@ -197,9 +197,9 @@ prometheus-fetcher:
     active: ${SW_PROMETHEUS_FETCHER_ACTIVE:false}
 
 kafka-fetcher:
-  selector: ${SW_RECEIVER_KAFKA:-}
+  selector: ${SW_KAFKA_FETCHER:-}
   default:
-    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
 
 receiver-oc:
   selector: ${SW_OC_RECEIVER:-}

@@ -94,9 +94,9 @@ Kafka Fetcher is disabled in default, and we configure as following to enable.
 
 ```yaml
 kafka-fetcher:
-  selector: ${SW_RECEIVER_KAFKA:default}
+  selector: ${SW_KAFKA_FETCHER:default}
   default:
-    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
 ```
 
 We have to create following topics of Kafka which are named `skywalking-segments`, `skywalking-metrics`, `skywalking-profile` and `skywalking-managements`, for `kafka-fetcher`.
@@ -106,10 +106,10 @@ If the OAP server automatically creates topics, you can also modify the number o
 
 ```yaml
 kafka-fetcher:
-  selector: ${SW_RECEIVER_KAFKA:default}
+  selector: ${SW_KAFKA_FETCHER:default}
   default:
-    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
-    partitons: 1
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    partitions: 1
     replicationFactor: 1
 ```
 
@@ -118,9 +118,9 @@ In the cluster mode, it should be noted that the number of topic partitions is t
 Kafka Fetcher allows to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. Such as:
 ```yaml
 kafka-fetcher:
-  selector: ${SW_RECEIVER_KAFKA:default}
+  selector: ${SW_KAFKA_FETCHER:default}
   default:
-    bootstrapServers: ${SW_RECEIVER_KAFKA_SERVERS:localhost:9092}
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...
