@@ -16,6 +16,24 @@
 
 ARG JAVA_VERSION=8
 
+FROM golang:1.13 AS builder
+
+RUN mkdir -p /go/src/github.com/apache \
+	&& cd /go/src/github.com/apache \
+	&& git clone https://github.com/apache/skywalking-cli \
+	&& cd skywalking-cli \
+	&& git checkout 37deff6185eced966dedec3aaebd0c9ed08fce95 \
+	&& git submodule init \
+	&& git submodule update \
+	&& make deps \
+	&& make codegen \
+	&& make linux
+
+WORKDIR /go/src/github.com/apache/skywalking-cli
+
+RUN mv ./bin/swctl* ./bin/swctl
+
+
 FROM adoptopenjdk/openjdk$JAVA_VERSION:alpine
 
 ENV JAVA_OPTS=" -Xms256M " \
@@ -31,9 +49,12 @@ RUN set -ex; \
     rm -rf "$DIST_NAME.tar.gz"; \
     rm -rf "$DIST_NAME/config/log4j2.xml"; \
     rm -rf "$DIST_NAME/bin"; rm -rf "$DIST_NAME/webapp"; rm -rf "$DIST_NAME/agent"; \
+    mkdir "$DIST_NAME/bin"; \
     mv "$DIST_NAME" skywalking;
 
 WORKDIR skywalking
+
+COPY --from=builder /go/src/github.com/apache/skywalking-cli/bin/swctl ./bin
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .
