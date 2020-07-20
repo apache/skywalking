@@ -10,7 +10,7 @@ with each other.
 by using k8s native APIs to manage cluster.
 - [Consul](#consul). Use Consul as backend cluster management implementor, to coordinate backend instances.
 - [Etcd](#etcd). Use Etcd to coordinate backend instances.
-
+- [Nacos](#nacos). Use Nacos to coordinate backend instances.
 In the `application.yml`, there're default configurations for the aforementioned coordinators under the section `cluster`,
 you can specify one of them in the `selector` property to enable it.
 
@@ -89,5 +89,14 @@ Set the **cluster/selector** to **etcd** in the yml to enable.
 ```yaml
 cluster:
   selector: ${SW_CLUSTER:etcd}
+  # other configurations
+```
+
+## Nacos
+Set the **cluster/selector** to **nacos** in the yml to enable.
+
+```yaml
+cluster:
+  selector: ${SW_CLUSTER:nacos}
   # other configurations
 ```
