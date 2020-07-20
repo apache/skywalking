@@ -113,7 +113,7 @@ jobs:
         run: make docker
       - name: Copy dist package
         run: cp -R dist test/e2e/
-      - name: Uninstrumnented gateway
+      - name: Meter receiver
         run: ./mvnw --batch-mode -f test/e2e/pom.xml -am -DfailIfNoTests=false verify -Dit.test=org.apache.skywalking.e2e.meter.MeterE2E
       - name: Report Coverage
         run: bash -x tools/coverage/report.sh

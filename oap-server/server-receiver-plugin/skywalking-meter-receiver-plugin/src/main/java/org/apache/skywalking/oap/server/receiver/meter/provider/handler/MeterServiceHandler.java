@@ -19,20 +19,19 @@
 package org.apache.skywalking.oap.server.receiver.meter.provider.handler;
 
 import io.grpc.stub.StreamObserver;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterReportServiceGrpc;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.receiver.meter.provider.process.MeterProcessContext;
 import org.apache.skywalking.oap.server.receiver.meter.provider.process.MeterProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Meter protocol receiver, collect and process the meters.
  */
+@Slf4j
 public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServiceImplBase implements GRPCHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MeterServiceHandler.class);
 
     private final MeterProcessContext processContext;
 
@@ -52,7 +51,7 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             @Override
             public void onError(Throwable throwable) {
                 processor.process();
-                LOGGER.error(throwable.getMessage(), throwable);
+                log.error(throwable.getMessage(), throwable);
                 responseObserver.onCompleted();
             }
 

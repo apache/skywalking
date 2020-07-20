@@ -20,12 +20,11 @@ package org.apache.skywalking.oap.server.receiver.meter.provider.process;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,8 +35,8 @@ import java.util.Set;
 /**
  * Process meter when receive the meter data.
  */
+@Slf4j
 public class MeterProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MeterProcessor.class);
 
     /**
      * Process context.
@@ -124,7 +123,7 @@ public class MeterProcessor {
                 builder.buildAndSend(this, shell);
             }
         } catch (Exception e) {
-            LOGGER.warn("Process meters failure.", e);
+            log.warn("Process meters failure.", e);
         }
     }
 

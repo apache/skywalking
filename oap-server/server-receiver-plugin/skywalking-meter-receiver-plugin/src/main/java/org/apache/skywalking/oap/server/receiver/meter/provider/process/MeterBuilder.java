@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.meter.provider.process;
 
 import groovy.lang.GroovyShell;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -27,8 +28,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AvgHistogra
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.receiver.meter.provider.config.MeterConfig;
 import org.apache.skywalking.oap.server.receiver.meter.provider.config.Scope;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.StringJoiner;
@@ -37,8 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Help to build meter into Meter System.
  */
+@Slf4j
 public class MeterBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MeterBuilder.class);
 
     private final MeterConfig config;
     private final MeterSystem meterSystem;
@@ -81,7 +80,7 @@ public class MeterBuilder {
         try {
             values = (EvalMultipleData) shell.evaluate(config.getMeter().getValue());
         } catch (Exception e) {
-            LOGGER.warn("Building {} meter value failure", config.getName(), e);
+            log.warn("Building {} meter value failure", config.getName(), e);
             return;
         }
 
@@ -94,7 +93,7 @@ public class MeterBuilder {
                     avgValue.setTimeBucket(TimeBucket.getMinuteTimeBucket(processor.timestamp()));
                     meterSystem.doStreamingCalculation(avgValue);
                 } else {
-                    LOGGER.warn("avg function not support histogram value, please check meter:{}", combinedSingleAvgData.getName());
+                    log.warn("avg function not support histogram value, please check meter:{}", combinedSingleAvgData.getName());
                 }
                 break;
             case "avgHistogram":
@@ -125,11 +124,11 @@ public class MeterBuilder {
                         meterSystem.doStreamingCalculation(percentileValue);
                     }
                 } else {
-                    LOGGER.warn(config.getMeter().getOperation() + " function not support single value, please check meter:{}", combinedHistogramData.getName());
+                    log.warn(config.getMeter().getOperation() + " function not support single value, please check meter:{}", combinedHistogramData.getName());
                 }
                 break;
             default:
-                LOGGER.warn("Cannot support function:{}", config.getMeter().getOperation());
+                log.warn("Cannot support function:{}", config.getMeter().getOperation());
         }
     }
 
