@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -123,7 +124,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         sourceBuilder.size(limit);
         sourceBuilder.from(from);
 
-        SearchResponse response = getClient().search(SegmentRecord.INDEX_NAME, sourceBuilder);
+        String[] indices = TimeSeriesUtils.traceQueryIndices(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB);
+        SearchResponse response = getClient().search(indices, sourceBuilder);
 
         TraceBrief traceBrief = new TraceBrief();
         traceBrief.setTotal((int) response.getHits().totalHits);

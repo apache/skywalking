@@ -32,6 +32,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -333,7 +334,17 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public SearchResponse search(String indexName, SearchSourceBuilder searchSourceBuilder) throws IOException {
         indexName = formatIndexName(indexName);
-        SearchRequest searchRequest = new SearchRequest(indexName);
+        return doSearch(searchSourceBuilder, indexName);
+    }
+
+    public SearchResponse search(String[] indexNames, SearchSourceBuilder searchSourceBuilder) throws IOException {
+        indexNames = Arrays.stream(indexNames).map(this::formatIndexName).toArray(String[]::new);
+        return doSearch(searchSourceBuilder, indexNames);
+    }
+
+    private SearchResponse doSearch(SearchSourceBuilder searchSourceBuilder,
+                                    String... indexNames) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(indexNames);
         searchRequest.types(TYPE);
         searchRequest.source(searchSourceBuilder);
         try {
@@ -501,7 +512,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return indexName;
     }
 
-    @Override public void registerChecker(HealthChecker healthChecker) {
+    @Override
+    public void registerChecker(HealthChecker healthChecker) {
         this.healthChecker.register(healthChecker);
     }
 }

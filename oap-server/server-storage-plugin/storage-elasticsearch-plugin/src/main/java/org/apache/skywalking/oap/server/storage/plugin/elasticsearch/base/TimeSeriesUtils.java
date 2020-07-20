@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import java.util.stream.IntStream;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -53,6 +54,21 @@ public class TimeSeriesUtils {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
             return model.getName() + Const.LINE + compressTimeBucket(timeBucket / 10000, DAY_STEP);
         }
+    }
+
+    /**
+     * @return split index name based on time bucket.
+     */
+    public static String[] traceQueryIndices(String indexName, long startSecondTB, long endSecondTB) {
+        long startDay = compressTimeBucket(startSecondTB / 1000000, DAY_STEP);
+        long endDay = compressTimeBucket(endSecondTB / 1000000, DAY_STEP);
+        DateTime startDateTime = TIME_BUCKET_FORMATTER.parseDateTime(startDay + "");
+        DateTime endDateTime = TIME_BUCKET_FORMATTER.parseDateTime(endDay + "");
+
+        int steps = Math.max((Days.daysBetween(startDateTime, endDateTime).getDays()) / DAY_STEP, 0);
+        return IntStream.rangeClosed(0, steps)
+                        .mapToObj(step -> indexName + Const.LINE + startDateTime.plusDays(Math.toIntExact(DAY_STEP * step)).toString(TIME_BUCKET_FORMATTER))
+                        .toArray(String[]::new);
     }
 
     /**
@@ -109,4 +125,5 @@ public class TimeSeriesUtils {
             return timeBucket;
         }
     }
+
 }
