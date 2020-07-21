@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.e2e.profile;
+package org.apache.skywalking.e2e.kafka;
 
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @SkyWalkingE2E
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ProfileE2E extends SkyWalkingTestAdapter {
+public class KafkaProfileE2E extends SkyWalkingTestAdapter {
 
     @SuppressWarnings("unused")
     @DockerCompose("docker/kafka/docker-compose.profiling.yml")

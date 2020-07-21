@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.e2e;
+package org.apache.skywalking.e2e.kafka;
 
 import java.util.List;
 import java.util.stream.Collectors;
