@@ -367,7 +367,7 @@ templates:
                   "independentSelector": false,
                   "metricType": "REGULAR_VALUE",
                   "queryMetricType": "readMetricsValues",
-                  "chartType": "ChartBar",
+                  "chartType": "ChartLine",
                   "metricName": "instance_jvm_thread_live_count, instance_jvm_thread_daemon_count, instance_jvm_thread_peak_count"
                 },
                 {
