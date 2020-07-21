@@ -57,7 +57,7 @@ public enum CustomizeConfiguration {
 
     INSTANCE;
 
-    private final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
+    private static final ILog logger = LogManager.getLogger(CustomizeConfiguration.class);
 
     /**
      * Some information after custom enhancements, this configuration is used by the custom enhancement plugin.
