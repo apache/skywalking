@@ -84,8 +84,8 @@ public enum CustomizeConfiguration {
      * The loadForConfiguration method is resolver configuration file, and parse it
      */
     public synchronized void loadForConfiguration() {
-        if(LOAD_FOR_CONFIGURATION.get()){
-           return;
+        if (LOAD_FOR_CONFIGURATION.get()) {
+            return;
         }
         try {
             for (Map<String, Object> configuration : resolver()) {
@@ -146,8 +146,8 @@ public enum CustomizeConfiguration {
                 Node methodDesc = methodNodeList.item(ms);
                 if (methodDesc.getNodeType() == Node.ELEMENT_NODE) {
                     String className = classDesc.getAttributes()
-                                                .getNamedItem(Constants.XML_ELEMENT_CLASS_NAME)
-                                                .getNodeValue();
+                            .getNamedItem(Constants.XML_ELEMENT_CLASS_NAME)
+                            .getNodeValue();
                     Map<String, Object> configuration = resolverMethodNodeDesc(className, methodDesc);
                     if (configuration != null) {
                         customizeMethods.add(configuration);
@@ -168,36 +168,36 @@ public enum CustomizeConfiguration {
         Map<String, Object> configuration = new HashMap<String, Object>();
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_OPERATION_NAME) != null) {
             MethodConfiguration.setOperationName(configuration, methodDesc.getAttributes()
-                                                                          .getNamedItem(
-                                                                              Constants.XML_ELEMENT_OPERATION_NAME)
-                                                                          .getNodeValue());
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_OPERATION_NAME)
+                    .getNodeValue());
         }
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD) != null) {
             MethodConfiguration.setCloseBeforeMethod(configuration, Boolean.valueOf(methodDesc.getAttributes()
-                                                                                              .getNamedItem(
-                                                                                                  Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD)
-                                                                                              .getNodeValue()));
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_CLOSE_BEFORE_METHOD)
+                    .getNodeValue()));
         } else {
             MethodConfiguration.setCloseBeforeMethod(configuration, false);
         }
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_CLOSE_AFTER_METHOD) != null) {
             MethodConfiguration.setCloseAfterMethod(configuration, Boolean.valueOf(methodDesc.getAttributes()
-                                                                                             .getNamedItem(
-                                                                                                 Constants.XML_ELEMENT_CLOSE_AFTER_METHOD)
-                                                                                             .getNodeValue()));
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_CLOSE_AFTER_METHOD)
+                    .getNodeValue()));
         } else {
             MethodConfiguration.setCloseAfterMethod(configuration, false);
         }
         if (methodDesc.getAttributes().getNamedItem(Constants.XML_ELEMENT_METHOD_IS_STATIC) != null) {
             MethodConfiguration.setStatic(configuration, Boolean.valueOf(methodDesc.getAttributes()
-                                                                                   .getNamedItem(
-                                                                                       Constants.XML_ELEMENT_METHOD_IS_STATIC)
-                                                                                   .getNodeValue()));
+                    .getNamedItem(
+                            Constants.XML_ELEMENT_METHOD_IS_STATIC)
+                    .getNodeValue()));
         }
         setAdvancedField(configuration, methodDesc);
         return resolverClassAndMethod(className, methodDesc.getAttributes()
-                                                           .getNamedItem(Constants.XML_ELEMENT_METHOD)
-                                                           .getNodeValue(), configuration);
+                .getNamedItem(Constants.XML_ELEMENT_METHOD)
+                .getNodeValue(), configuration);
     }
 
     /**
@@ -216,15 +216,15 @@ public enum CustomizeConfiguration {
                 }
                 if (Constants.XML_ELEMENT_TAG.equals(methodContentNode.getNodeName())) {
                     MethodConfiguration.addTag(
-                        configuration, methodContentNode.getAttributes()
-                                                        .getNamedItem(Constants.XML_ELEMENT_KEY)
-                                                        .getNodeValue(), methodContentNode.getTextContent());
+                            configuration, methodContentNode.getAttributes()
+                                    .getNamedItem(Constants.XML_ELEMENT_KEY)
+                                    .getNodeValue(), methodContentNode.getTextContent());
                 }
                 if (Constants.XML_ELEMENT_LOG.equals(methodContentNode.getNodeName())) {
                     MethodConfiguration.addLog(
-                        configuration, methodContentNode.getAttributes()
-                                                        .getNamedItem(Constants.XML_ELEMENT_KEY)
-                                                        .getNodeValue(), methodContentNode.getTextContent());
+                            configuration, methodContentNode.getAttributes()
+                                    .getNamedItem(Constants.XML_ELEMENT_KEY)
+                                    .getNodeValue(), methodContentNode.getTextContent());
                 }
             }
         }
@@ -248,10 +248,10 @@ public enum CustomizeConfiguration {
             String[] arguments = methodDesc.substring(openParen + 1, closeParen).split(Constants.COMMA);
             MethodConfiguration.setClz(configuration, className);
             MethodConfiguration.setMethod(
-                configuration, CustomizeUtil.generateOperationName(className, methodName, arguments));
+                    configuration, CustomizeUtil.generateOperationName(className, methodName, arguments));
             MethodConfiguration.setMethodName(configuration, methodName);
             MethodConfiguration.setArguments(
-                configuration, StringUtil.isEmpty(arguments[0]) ? new String[0] : arguments);
+                    configuration, StringUtil.isEmpty(arguments[0]) ? new String[0] : arguments);
             if (StringUtil.isEmpty(MethodConfiguration.getOperationName(configuration))) {
                 MethodConfiguration.setOperationName(configuration, MethodConfiguration.getMethod(configuration));
             }
@@ -288,12 +288,12 @@ public enum CustomizeConfiguration {
      */
     private void addContextEnhanceClass(Map<String, Object> configuration) {
         String key = CustomizeUtil.generateClassDesc(
-            MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
+                MethodConfiguration.getClz(configuration), MethodConfiguration.isStatic(configuration));
         HashMap<String, ElementMatcher> enhanceClasses = getEnhanceClasses();
         ElementMatcher matcher = enhanceClasses.get(key);
         enhanceClasses.put(
-            key, matcher == null ? parserMethodsMatcher(configuration) : ((ElementMatcher.Junction) matcher)
-                .or(parserMethodsMatcher(configuration)));
+                key, matcher == null ? parserMethodsMatcher(configuration) : ((ElementMatcher.Junction) matcher)
+                        .or(parserMethodsMatcher(configuration)));
     }
 
     /**
@@ -305,12 +305,12 @@ public enum CustomizeConfiguration {
     private ElementMatcher parserMethodsMatcher(Map<String, Object> configuration) {
         String[] arguments = MethodConfiguration.getArguments(configuration);
         ElementMatcher matcher = named(MethodConfiguration.getMethodName(configuration)).and(
-            takesArguments(arguments.length));
+                takesArguments(arguments.length));
         if (arguments.length > 0) {
             for (int i = 0; i < arguments.length; i++) {
                 matcher = ((ElementMatcher.Junction) matcher).and(
-                    CustomizeUtil.isJavaClass(arguments[i]) ? takesArgument(i, CustomizeUtil
-                        .getJavaClass(arguments[i])) : takesArgumentWithType(i, arguments[i]));
+                        CustomizeUtil.isJavaClass(arguments[i]) ? takesArgument(i, CustomizeUtil
+                                .getJavaClass(arguments[i])) : takesArgumentWithType(i, arguments[i]));
             }
         }
         return matcher;
@@ -350,7 +350,7 @@ public enum CustomizeConfiguration {
     }
 
     public Map<String, Object> getConfiguration(Method method) {
-        if(!LOAD_FOR_CONFIGURATION.get()){
+        if (!LOAD_FOR_CONFIGURATION.get()) {
             loadForConfiguration();
         }
         return getMethodConfigurations().get(MethodUtil.generateOperationName(method));
